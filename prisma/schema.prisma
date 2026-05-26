@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  customer
+  specialist
+  reviewer
+  coordinator_admin
+  super_admin
+}
+
+enum RequestStatus {
+  draft_intake
+  intake_submitted
+  triage
+  assigned
+  in_progress
+  pending_review
+  revision_required
+  approved
+  delivered
+  closed
+  cancelled
+}
+
+enum AssignmentKind {
+  specialist
+  reviewer
+}
+
+enum AuditTargetType {
+  user
+  workspace
+  membership
+  request
+  assignment
+  document
+  review
+  vault_file
+  workflow_transition
+}
+
+model User {
+  id                 String               @id @default(cuid())
+  email              String               @unique
+  name               String
+  isActive           Boolean              @default(true)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  memberships        WorkspaceMembership[]
+  createdRequests    LegalRequest[]       @relation("RequestCreator")
+  specialistRequests LegalRequest[]       @relation("AssignedSpecialist")
+  reviewerRequests   LegalRequest[]       @relation("AssignedReviewer")
+  assignments        RequestAssignment[]  @relation("AssignmentUser")
+  createdAssignments RequestAssignment[]  @relation("AssignmentCreator")
+  reviews            Review[]
+  workflowActions    WorkflowTransition[]
+  auditEvents        AuditEvent[]
+}
+
+model Workspace {
+  id          String                @id @default(cuid())
+  name        String
+  slug        String                @unique
+  isActive    Boolean               @default(true)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  memberships WorkspaceMembership[]
+  requests    LegalRequest[]
+  documents   Document[]
+  reviews     Review[]
+  vaultFiles   VaultFile[]
+  auditEvents AuditEvent[]
+}
+
+model WorkspaceMembership {
+  id          String    @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        Role
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([userId, workspaceId, role])
+  @@index([workspaceId])
+  @@index([role])
+}
+
+model LegalRequest {
+  id                   String               @id @default(cuid())
+  workspaceId          String
+  title                String
+  status               RequestStatus        @default(draft_intake)
+  createdById          String
+  assignedSpecialistId String?
+  assignedReviewerId   String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  workspace            Workspace            @relation(fields: [workspaceId], references: [id])
+  createdBy            User                 @relation("RequestCreator", fields: [createdById], references: [id])
+  assignedSpecialist   User?                @relation("AssignedSpecialist", fields: [assignedSpecialistId], references: [id])
+  assignedReviewer     User?                @relation("AssignedReviewer", fields: [assignedReviewerId], references: [id])
+  assignments          RequestAssignment[]
+  documents            Document[]
+  reviews              Review[]
+  vaultFiles            VaultFile[]
+  workflowTransitions  WorkflowTransition[]
+  auditEvents          AuditEvent[]
+
+  @@index([workspaceId])
+  @@index([createdById])
+  @@index([assignedSpecialistId])
+  @@index([assignedReviewerId])
+  @@index([status])
+}
+
+model RequestAssignment {
+  id          String         @id @default(cuid())
+  requestId   String
+  userId      String
+  kind        AssignmentKind
+  reason      String?
+  createdAt   DateTime       @default(now())
+  createdById String
+  request     LegalRequest   @relation(fields: [requestId], references: [id])
+  user        User           @relation("AssignmentUser", fields: [userId], references: [id])
+  createdBy   User           @relation("AssignmentCreator", fields: [createdById], references: [id])
+
+  @@index([requestId])
+  @@index([userId])
+  @@index([kind])
+}
+
+model Document {
+  id          String       @id @default(cuid())
+  workspaceId String
+  requestId   String
+  title       String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id])
+  request     LegalRequest @relation(fields: [requestId], references: [id])
+  reviews     Review[]
+
+  @@index([workspaceId])
+  @@index([requestId])
+}
+
+model Review {
+  id          String       @id @default(cuid())
+  workspaceId String
+  requestId   String
+  documentId  String
+  reviewerId  String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id])
+  request     LegalRequest @relation(fields: [requestId], references: [id])
+  document    Document     @relation(fields: [documentId], references: [id])
+  reviewer    User         @relation(fields: [reviewerId], references: [id])
+
+  @@index([workspaceId])
+  @@index([requestId])
+  @@index([documentId])
+  @@index([reviewerId])
+}
+
+model VaultFile {
+  id          String       @id @default(cuid())
+  workspaceId String
+  requestId   String
+  storageKey  String
+  filename    String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id])
+  request     LegalRequest @relation(fields: [requestId], references: [id])
+
+  @@index([workspaceId])
+  @@index([requestId])
+}
+
+model WorkflowTransition {
+  id         String        @id @default(cuid())
+  requestId  String
+  actorId    String
+  fromStatus RequestStatus
+  toStatus   RequestStatus
+  reason     String?
+  createdAt  DateTime      @default(now())
+  request    LegalRequest  @relation(fields: [requestId], references: [id])
+  actor      User          @relation(fields: [actorId], references: [id])
+
+  @@index([requestId])
+  @@index([actorId])
+  @@index([fromStatus, toStatus])
+}
+
+model AuditEvent {
+  id              String          @id @default(cuid())
+  actorId         String?
+  workspaceId     String
+  action          String
+  targetType      AuditTargetType
+  targetId        String
+  requestId       String?
+  correlationId   String?
+  metadataSummary String?
+  createdAt       DateTime        @default(now())
+  actor           User?           @relation(fields: [actorId], references: [id])
+  workspace       Workspace       @relation(fields: [workspaceId], references: [id])
+  request         LegalRequest?   @relation(fields: [requestId], references: [id])
+
+  @@index([actorId])
+  @@index([workspaceId])
+  @@index([requestId])
+  @@index([targetType, targetId])
+  @@index([correlationId])
+}

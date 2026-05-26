@@ -27,6 +27,7 @@
     "postcss": "latest",
     "prisma": "^6.19.0",
     "tailwindcss": "latest",
+    "tsx": "^4.22.3",
     "typescript": "latest"
   }
 }

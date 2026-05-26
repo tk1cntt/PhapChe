@@ -115,19 +115,16 @@ export async function transitionRequestStatus(input: TransitionInput): Promise<{
       },
     });
 
-    await recordAuditEvent(
-      {
-        actorId: input.actorId,
-        workspaceId: request.workspaceId,
-        action: 'request.status_changed',
-        targetType: 'REQUEST',
-        targetId: input.requestId,
-        requestId: input.requestId,
-        correlationId: input.correlationId,
-        metadataSummary: `${request.status} -> ${input.toStatus}`,
-      },
-      tx,
-    );
+    await recordAuditEvent({
+      actorId: input.actorId,
+      workspaceId: request.workspaceId,
+      action: 'request.status_changed',
+      targetType: 'REQUEST',
+      targetId: input.requestId,
+      requestId: input.requestId,
+      correlationId: input.correlationId,
+      metadataSummary: `${request.status} -> ${input.toStatus}`,
+    }, tx);
 
     return updatedRequest;
   });

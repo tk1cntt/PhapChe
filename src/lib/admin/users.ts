@@ -110,6 +110,16 @@ export async function updateAdminUserRole({ actor, input, db = prisma }: UserMut
   return db.$transaction(async (tx) => {
     await assertAdminForWorkspace(actor, input.workspaceId, tx);
 
+    await tx.workspaceMembership.updateMany({
+      where: {
+        userId: input.userId,
+        workspaceId: input.workspaceId,
+        role: { not: input.role },
+        isActive: true,
+      },
+      data: { isActive: false },
+    });
+
     const membership = await tx.workspaceMembership.upsert({
       where: {
         userId_workspaceId_role: {

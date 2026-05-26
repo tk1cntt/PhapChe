@@ -24,7 +24,7 @@ const expectedTransitions: Record<RequestStatus, readonly RequestStatus[]> = {
 for (const status of Object.keys(expectedTransitions) as RequestStatus[]) {
   const allowed = getAllowedTransitions(status);
 
-  if (allowed === REQUEST_TRANSITIONS[status]) {
+  if (Object.is(allowed, REQUEST_TRANSITIONS[status])) {
     throw new Error(`${status} returned mutable transition source`);
   }
 

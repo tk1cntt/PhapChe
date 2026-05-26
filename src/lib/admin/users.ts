@@ -47,6 +47,23 @@ function assertAdmin(actor: AppSession) {
   if (!actor.roles.some((role) => adminRoles.includes(role as (typeof adminRoles)[number]))) throw new Error('FORBIDDEN');
 }
 
+async function assertAdminForWorkspace(actor: AppSession, workspaceId: string, tx: Prisma.TransactionClient) {
+  if (actor.roles.includes('super_admin')) return;
+
+  const membership = await tx.workspaceMembership.findFirst({
+    where: {
+      userId: actor.userId,
+      workspaceId,
+      role: 'coordinator_admin',
+      isActive: true,
+      workspace: { isActive: true },
+    },
+    select: { id: true },
+  });
+
+  if (!membership) throw new Error('FORBIDDEN');
+}
+
 function assertAllowedRole(role: Role) {
   if (!allowedRoles.includes(role)) throw new Error('INVALID_ROLE');
 }
@@ -56,6 +73,8 @@ export async function createAdminUser({ actor, input, db = prisma }: UserMutatio
   assertAllowedRole(input.role);
 
   return db.$transaction(async (tx) => {
+    await assertAdminForWorkspace(actor, input.workspaceId, tx);
+
     const user = await tx.user.create({
       data: {
         email: input.email,
@@ -89,6 +108,8 @@ export async function updateAdminUserRole({ actor, input, db = prisma }: UserMut
   assertAllowedRole(input.role);
 
   return db.$transaction(async (tx) => {
+    await assertAdminForWorkspace(actor, input.workspaceId, tx);
+
     const membership = await tx.workspaceMembership.upsert({
       where: {
         userId_workspaceId_role: {
@@ -124,6 +145,8 @@ export async function deactivateAdminUser({ actor, input, db = prisma }: UserMut
   assertAdmin(actor);
 
   return db.$transaction(async (tx) => {
+    await assertAdminForWorkspace(actor, input.workspaceId, tx);
+
     const user = await tx.user.update({
       where: { id: input.userId },
       data: { isActive: false },
@@ -149,6 +172,8 @@ export async function assignUserToWorkspace({ actor, input, db = prisma }: UserM
   assertAllowedRole(input.role);
 
   return db.$transaction(async (tx) => {
+    await assertAdminForWorkspace(actor, input.workspaceId, tx);
+
     const membership = await tx.workspaceMembership.upsert({
       where: {
         userId_workspaceId_role: {

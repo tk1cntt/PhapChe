@@ -1,7 +1,22 @@
-import type { AuditTargetType, Prisma, PrismaClient } from '@prisma/client';
+import type { AuditTargetType } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 
-type AuditDb = PrismaClient | Prisma.TransactionClient;
+type AuditDb = {
+  auditEvent: {
+    create(input: {
+      data: {
+        actorId: string | null;
+        workspaceId: string;
+        action: string;
+        targetType: AuditTargetType;
+        targetId: string;
+        requestId: string | null;
+        correlationId: string;
+        metadataSummary: string | null;
+      };
+    }): Promise<unknown>;
+  };
+};
 
 type AuditTargetTypeInput =
   | 'USER'
@@ -42,7 +57,8 @@ export async function recordAuditEvent(input: RecordAuditEventInput, db: AuditDb
   if (!input.action.trim()) throw new Error('AUDIT_ACTION_REQUIRED');
   if (!input.targetId.trim()) throw new Error('AUDIT_TARGET_REQUIRED');
   if (!input.correlationId.trim()) throw new Error('AUDIT_CORRELATION_REQUIRED');
-  if (input.metadataSummary && input.metadataSummary.length > 500) throw new Error('AUDIT_METADATA_TOO_LONG');
+  if (input.metadataSummary != null && typeof input.metadataSummary !== 'string') throw new Error('metadataSummary must be a string');
+  if (input.metadataSummary && input.metadataSummary.length > 500) throw new Error('metadataSummary must be 500 characters or fewer');
 
   return db.auditEvent.create({
     data: {

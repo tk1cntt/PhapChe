@@ -99,9 +99,15 @@ export async function transitionRequestStatus(input: TransitionInput): Promise<{
   if (!canTransitionRequestStatus(actor, request, input.toStatus)) throw new Error('FORBIDDEN');
 
   return prisma.$transaction(async (tx) => {
-    const updatedRequest = await tx.legalRequest.update({
-      where: { id: input.requestId },
+    const updated = await tx.legalRequest.updateMany({
+      where: { id: input.requestId, status: request.status },
       data: { status: input.toStatus },
+    });
+
+    if (updated.count !== 1) throw new Error('REQUEST_STATUS_CONFLICT');
+
+    const updatedRequest = await tx.legalRequest.findUniqueOrThrow({
+      where: { id: input.requestId },
       select: { id: true, status: true },
     });
 

@@ -1,13 +1,14 @@
 import { describe, it, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import type { AppSession } from '@/lib/security/session';
-import { createAdminUser, deactivateAdminUser, updateAdminUserRole } from './users';
+import { createAdminUser, deactivateAdminUser, updateAdminUserRole, type AdminDb } from './users';
 
 const actor: AppSession = { userId: 'admin-1', activeWorkspaceId: 'workspace-1', roles: ['coordinator_admin'] };
 const customer: AppSession = { userId: 'user-1', activeWorkspaceId: 'workspace-1', roles: ['customer'] };
 
 type Tx = ReturnType<typeof createTx>;
-type TestDb = { $transaction: ReturnType<typeof mock.fn>; tx: Tx };
+type MockCall = { arguments: unknown[] };
+type TestDb = AdminDb & { $transactionMock: ReturnType<typeof mock.fn>; tx: Tx };
 
 function createTx() {
   return {
@@ -21,8 +22,11 @@ function createTx() {
 }
 
 function createDb(tx = createTx()): TestDb {
+  const transactionMock = mock.fn((callback: (tx: Tx) => unknown) => callback(tx));
+
   return {
-    $transaction: mock.fn((callback: (tx: Tx) => unknown) => callback(tx)),
+    $transaction: transactionMock as never,
+    $transactionMock: transactionMock,
     tx,
   };
 }
@@ -52,9 +56,12 @@ describe('admin user management', () => {
 
     await createAdminUser({ actor, input: { email: 'new@example.com', name: 'Người dùng', role: 'specialist', workspaceId: 'workspace-1', correlationId: 'corr-1' }, db });
 
-    assert.equal(db.$transaction.mock.callCount(), 1);
+    assert.equal(db.$transactionMock.mock.callCount(), 1);
     assert.equal(tx.user.create.mock.callCount(), 1);
-    assert.equal(tx.auditEvent.create.mock.calls[0].arguments[0].data.action, 'user.created');
+    const auditCreateCall = (tx.auditEvent.create.mock.calls as MockCall[])[0];
+    assert.ok(auditCreateCall);
+    const auditCreateInput = auditCreateCall.arguments[0] as { data: { action: string } };
+    assert.equal(auditCreateInput.data.action, 'user.created');
   });
 
   it('deactivate đặt isActive false thay vì xóa user', async () => {
@@ -63,7 +70,10 @@ describe('admin user management', () => {
 
     await deactivateAdminUser({ actor, input: { userId: 'user-2', workspaceId: 'workspace-1', correlationId: 'corr-1' }, db });
 
-    assert.deepEqual(tx.user.update.mock.calls[0].arguments[0].data, { isActive: false });
+    const userUpdateCall = (tx.user.update.mock.calls as MockCall[])[0];
+    assert.ok(userUpdateCall);
+    const userUpdateInput = userUpdateCall.arguments[0] as { data: { isActive: boolean } };
+    assert.deepEqual(userUpdateInput.data, { isActive: false });
     assert.equal('delete' in tx.user, false);
   });
 
@@ -74,6 +84,9 @@ describe('admin user management', () => {
     await updateAdminUserRole({ actor, input: { userId: 'user-2', role: 'reviewer', workspaceId: 'workspace-1', correlationId: 'corr-1' }, db });
 
     assert.equal(tx.workspaceMembership.upsert.mock.callCount(), 1);
-    assert.equal(tx.auditEvent.create.mock.calls[0].arguments[0].data.action, 'user.role_updated');
+    const roleAuditCreateCall = (tx.auditEvent.create.mock.calls as MockCall[])[0];
+    assert.ok(roleAuditCreateCall);
+    const roleAuditCreateInput = roleAuditCreateCall.arguments[0] as { data: { action: string } };
+    assert.equal(roleAuditCreateInput.data.action, 'user.role_updated');
   });
 });

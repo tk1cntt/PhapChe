@@ -311,22 +311,22 @@ await transitionRequestStatus({
 | A2 | Json snapshot is preferable to fully normalized answer rows for MVP. | Standard Stack / Architecture Patterns | Later analytics/filtering over answers may require migration. |
 | A3 | Common pitfall mechanics like trusting hidden requestId are likely risk patterns. | Common Pitfalls | Planner may need code-specific validation once implementation starts. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Unsupported auto-triage actor**
-   - What we know: current workflow allows customer draft -> submitted, coordinator submitted -> triage. [VERIFIED: src/lib/workflow/request-workflow.ts]
-   - What's unclear: whether unsupported path should use system actor, coordinator actor, or extend workflow permissions.
-   - Recommendation: Planner should add explicit task to define unsupported triage service behavior; avoid direct DB status update.
+   - Decision: use coordinator/system-safe backend transition path from `intake_submitted` to `triage` through workflow/audit service.
+   - Constraint: customer can submit unsupported intake but must not directly mutate request into `triage`. No direct DB status update.
+   - Planner impact: add service behavior that preserves workflow transition/audit trail for unsupported requests.
 
 2. **Matter type persistence shape**
-   - What we know: Phase 3 requires admin-defined matter types; Phase 2 can seed MVP catalog. [VERIFIED: .planning/ROADMAP.md]
-   - What's unclear: whether Phase 2 should create DB `MatterType` now or static catalog plus `matterTypeKey`.
-   - Recommendation: Use DB model only if needed for seeding/status display; otherwise static catalog + stable persisted key is smaller. Flag tradeoff for planner.
+   - Decision: Phase 2 uses persisted `MatterType` plus schema-versioned `IntakeSubmission` model.
+   - Seed: MVP catalog includes agency contract, labor contract, trademark registration, and unsupported/other path.
+   - Planner impact: schema and seed plan must create stable matter type keys, labels, schemaVersion, question schema, and structured answer snapshots.
 
 3. **Physical file storage**
-   - What we know: `VaultFile` stores metadata only; Phase 2 may remain local/mock-compatible. [VERIFIED: prisma/schema.prisma; .planning/phases/02-intake/02-CONTEXT.md]
-   - What's unclear: whether actual byte storage must be implemented now.
-   - Recommendation: Plan metadata and private key semantics; if bytes required, use non-public local path under controlled storage, no public route.
+   - Decision: Phase 2 supports metadata/private `storageKey` semantics and test-safe local/mock storage.
+   - Constraint: do not expose public URLs; review step/status UI shows filename and size only. Full S3/R2 hardening remains later Vault hardening work.
+   - Planner impact: upload task must wire intake UI/server action to `attachIntakeFile`, enforce request/workspace authorization, create audit metadata only, and avoid public links.
 
 ## Environment Availability
 

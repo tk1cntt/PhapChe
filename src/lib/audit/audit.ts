@@ -23,6 +23,8 @@ type AuditTargetTypeInput =
   | 'WORKSPACE'
   | 'MEMBERSHIP'
   | 'REQUEST'
+  | 'MATTER_TYPE'
+  | 'INTAKE_SUBMISSION'
   | 'ASSIGNMENT'
   | 'DOCUMENT'
   | 'REVIEW'
@@ -45,6 +47,8 @@ const targetTypeMap: Record<AuditTargetTypeInput, AuditTargetType> = {
   WORKSPACE: 'workspace',
   MEMBERSHIP: 'membership',
   REQUEST: 'request',
+  MATTER_TYPE: 'matter_type',
+  INTAKE_SUBMISSION: 'intake_submission',
   ASSIGNMENT: 'assignment',
   DOCUMENT: 'document',
   REVIEW: 'review',

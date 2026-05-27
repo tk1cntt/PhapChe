@@ -39,6 +39,8 @@ enum AuditTargetType {
   workspace
   membership
   request
+  matter_type
+  intake_submission
   assignment
   document
   review
@@ -73,6 +75,7 @@ model Workspace {
   updatedAt   DateTime              @updatedAt
   memberships WorkspaceMembership[]
   requests    LegalRequest[]
+  matterTypes MatterType[]
   documents   Document[]
   reviews     Review[]
   vaultFiles   VaultFile[]
@@ -113,6 +116,7 @@ model LegalRequest {
   documents            Document[]
   reviews              Review[]
   vaultFiles            VaultFile[]
+  intakeSubmission     IntakeSubmission?
   workflowTransitions  WorkflowTransition[]
   auditEvents          AuditEvent[]
 
@@ -121,6 +125,41 @@ model LegalRequest {
   @@index([assignedSpecialistId])
   @@index([assignedReviewerId])
   @@index([status])
+}
+
+model MatterType {
+  id             String             @id @default(cuid())
+  workspaceId    String?
+  key            String             @unique
+  label          String
+  description    String?
+  schemaVersion  String
+  questionSchema Json
+  isActive       Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  workspace      Workspace?         @relation(fields: [workspaceId], references: [id])
+  submissions    IntakeSubmission[]
+
+  @@index([workspaceId])
+  @@index([isActive])
+}
+
+model IntakeSubmission {
+  id                String       @id @default(cuid())
+  requestId         String       @unique
+  matterTypeKey     String
+  schemaVersion     String
+  answers           Json
+  answerLabels      Json
+  submittedAt       DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  request           LegalRequest @relation(fields: [requestId], references: [id])
+  matterType        MatterType   @relation(fields: [matterTypeKey], references: [key])
+
+  @@index([matterTypeKey])
+  @@index([submittedAt])
 }
 
 model RequestAssignment {

@@ -155,7 +155,7 @@ async function seedFoundationE2E(): Promise<FoundationSeed> {
 async function cleanupFoundationE2E(seed: FoundationSeed | null) {
   if (!seed) return;
 
-  // Cleanup stays scoped to seeded ids/prefix. Never use unscoped deleteMany({}).
+  // Cleanup stays scoped to seeded ids/prefix; broad model-wide deletes are forbidden.
   await prisma.auditEvent.deleteMany({
     where: {
       OR: [
@@ -402,6 +402,243 @@ test('foundation e2e: admin user service mutates users, memberships, and audit r
     assert.equal((await prisma.user.findUnique({ where: { id: managedUser.id } }))?.isActive, false);
     assert.equal(await prisma.auditEvent.count({ where: { action: 'user.deactivated', targetId: managedUser.id } }), 1);
   });
+});
+
+test('foundation e2e: User can be inserted', async () => {
+  await withFoundationSeed(async (seed) => {
+    const user = await prisma.user.create({ data: { email: `${FOUNDATION_E2E_PREFIX}_user_insert_${seed.suffix}@example.test`, name: 'Inserted user' } });
+    seed.userIds.push(user.id);
+    assert.equal(user.isActive, true);
+    assert.equal((await prisma.user.findUnique({ where: { id: user.id } }))?.email, user.email);
+  });
+});
+
+test('foundation e2e: User can be updated', async () => {
+  await withFoundationSeed(async (seed) => {
+    const updated = await prisma.user.update({ where: { id: seed.customerId }, data: { name: 'Updated customer' } });
+    assert.equal(updated.name, 'Updated customer');
+  });
+});
+
+test('foundation e2e: User can be deactivated', async () => {
+  await withFoundationSeed(async (seed) => {
+    const updated = await prisma.user.update({ where: { id: seed.customerId }, data: { isActive: false } });
+    assert.equal(updated.isActive, false);
+  });
+});
+
+test('foundation e2e: User cleanup deletes seeded users', async () => {
+  assertSafeDatabaseUrl();
+  const seed = await seedFoundationE2E();
+  await cleanupFoundationE2E(seed);
+  assert.equal(await prisma.user.count({ where: { id: { in: seed.userIds } } }), 0);
+});
+
+test('foundation e2e: Workspace can be inserted', async () => {
+  await withFoundationSeed(async (seed) => {
+    assert.equal((await prisma.workspace.findUnique({ where: { id: seed.workspaceId } }))?.slug.startsWith(FOUNDATION_E2E_PREFIX), true);
+  });
+});
+
+test('foundation e2e: Workspace can be updated', async () => {
+  await withFoundationSeed(async (seed) => {
+    const updated = await prisma.workspace.update({ where: { id: seed.workspaceId }, data: { name: 'Updated workspace' } });
+    assert.equal(updated.name, 'Updated workspace');
+  });
+});
+
+test('foundation e2e: Workspace can be deactivated', async () => {
+  await withFoundationSeed(async (seed) => {
+    const updated = await prisma.workspace.update({ where: { id: seed.workspaceId }, data: { isActive: false } });
+    assert.equal(updated.isActive, false);
+  });
+});
+
+test('foundation e2e: Workspace cleanup deletes seeded workspace', async () => {
+  assertSafeDatabaseUrl();
+  const seed = await seedFoundationE2E();
+  await cleanupFoundationE2E(seed);
+  assert.equal(await prisma.workspace.count({ where: { id: seed.workspaceId } }), 0);
+});
+
+test('foundation e2e: Membership can be inserted', async () => {
+  await withFoundationSeed(async (seed) => {
+    const membership = await prisma.workspaceMembership.create({ data: { userId: seed.unrelatedUserId, workspaceId: seed.workspaceId, role: 'customer' } });
+    assert.equal(membership.isActive, true);
+  });
+});
+
+test('foundation e2e: Membership can be updated', async () => {
+  await withFoundationSeed(async (seed) => {
+    const membership = await prisma.workspaceMembership.findFirstOrThrow({ where: { userId: seed.customerId, workspaceId: seed.workspaceId, role: 'customer' } });
+    const updated = await prisma.workspaceMembership.update({ where: { id: membership.id }, data: { isActive: false } });
+    assert.equal(updated.isActive, false);
+  });
+});
+
+test('foundation e2e: Membership cleanup deletes seeded memberships', async () => {
+  assertSafeDatabaseUrl();
+  const seed = await seedFoundationE2E();
+  await cleanupFoundationE2E(seed);
+  assert.equal(await prisma.workspaceMembership.count({ where: { workspaceId: seed.workspaceId } }), 0);
+});
+
+test('foundation e2e: LegalRequest can be inserted', async () => {
+  await withFoundationSeed(async (seed) => {
+    const request = await prisma.legalRequest.findUnique({ where: { id: seed.requestId } });
+    assert.equal(request?.title, `Foundation E2E request ${seed.suffix}`);
+  });
+});
+
+test('foundation e2e: LegalRequest title can be updated', async () => {
+  await withFoundationSeed(async (seed) => {
+    const updated = await prisma.legalRequest.update({ where: { id: seed.requestId }, data: { title: 'Updated request title' } });
+    assert.equal(updated.title, 'Updated request title');
+  });
+});
+
+test('foundation e2e: LegalRequest status can be updated through lifecycle', async () => {
+  await withFoundationSeed(async (seed) => {
+    const updated = await prisma.legalRequest.update({ where: { id: seed.requestId }, data: { status: 'triage' } });
+    assert.equal(updated.status, 'triage');
+  });
+});
+
+test('foundation e2e: LegalRequest cleanup deletes seeded request', async () => {
+  assertSafeDatabaseUrl();
+  const seed = await seedFoundationE2E();
+  await cleanupFoundationE2E(seed);
+  assert.equal(await prisma.legalRequest.count({ where: { id: seed.requestId } }), 0);
+});
+
+test('foundation e2e: Assignment can be inserted', async () => {
+  await withFoundationSeed(async (seed) => {
+    const assignment = await prisma.requestAssignment.create({ data: { requestId: seed.requestId, userId: seed.specialistId, kind: 'specialist', createdById: seed.coordinatorAdminId, reason: `${seed.correlationPrefix}_extra_assignment` } });
+    assert.equal(assignment.kind, 'specialist');
+  });
+});
+
+test('foundation e2e: Assignment reason persists as lifecycle metadata', async () => {
+  await withFoundationSeed(async (seed) => {
+    const assignment = await prisma.requestAssignment.findFirstOrThrow({ where: { requestId: seed.requestId, kind: 'specialist' } });
+    assert.equal(assignment.reason, seed.correlationPrefix);
+  });
+});
+
+test('foundation e2e: Assignment cleanup deletes seeded assignments', async () => {
+  assertSafeDatabaseUrl();
+  const seed = await seedFoundationE2E();
+  await cleanupFoundationE2E(seed);
+  assert.equal(await prisma.requestAssignment.count({ where: { requestId: seed.requestId } }), 0);
+});
+
+test('foundation e2e: Document can be inserted', async () => {
+  await withFoundationSeed(async (seed) => {
+    assert.equal((await prisma.document.findUnique({ where: { id: seed.documentId } }))?.title, `Foundation E2E document ${seed.suffix}`);
+  });
+});
+
+test('foundation e2e: Document can be updated', async () => {
+  await withFoundationSeed(async (seed) => {
+    const updated = await prisma.document.update({ where: { id: seed.documentId }, data: { title: 'Updated document title' } });
+    assert.equal(updated.title, 'Updated document title');
+  });
+});
+
+test('foundation e2e: Document cleanup deletes seeded document', async () => {
+  assertSafeDatabaseUrl();
+  const seed = await seedFoundationE2E();
+  await cleanupFoundationE2E(seed);
+  assert.equal(await prisma.document.count({ where: { id: seed.documentId } }), 0);
+});
+
+test('foundation e2e: Review can be inserted', async () => {
+  await withFoundationSeed(async (seed) => {
+    const review = await prisma.review.findUnique({ where: { id: seed.reviewId } });
+    assert.equal(review?.reviewerId, seed.reviewerId);
+  });
+});
+
+test('foundation e2e: Review relation can be updated to another reviewer', async () => {
+  await withFoundationSeed(async (seed) => {
+    const updated = await prisma.review.update({ where: { id: seed.reviewId }, data: { reviewerId: seed.superAdminId } });
+    assert.equal(updated.reviewerId, seed.superAdminId);
+  });
+});
+
+test('foundation e2e: Review cleanup deletes seeded review', async () => {
+  assertSafeDatabaseUrl();
+  const seed = await seedFoundationE2E();
+  await cleanupFoundationE2E(seed);
+  assert.equal(await prisma.review.count({ where: { id: seed.reviewId } }), 0);
+});
+
+test('foundation e2e: VaultFile can be inserted', async () => {
+  await withFoundationSeed(async (seed) => {
+    assert.equal((await prisma.vaultFile.findUnique({ where: { id: seed.vaultFileId } }))?.filename, `contract-${seed.suffix}.pdf`);
+  });
+});
+
+test('foundation e2e: VaultFile can be updated', async () => {
+  await withFoundationSeed(async (seed) => {
+    const updated = await prisma.vaultFile.update({ where: { id: seed.vaultFileId }, data: { filename: 'updated-contract.pdf', storageKey: `${FOUNDATION_E2E_PREFIX}/${seed.suffix}/updated.pdf` } });
+    assert.equal(updated.filename, 'updated-contract.pdf');
+  });
+});
+
+test('foundation e2e: VaultFile cleanup deletes seeded file', async () => {
+  assertSafeDatabaseUrl();
+  const seed = await seedFoundationE2E();
+  await cleanupFoundationE2E(seed);
+  assert.equal(await prisma.vaultFile.count({ where: { id: seed.vaultFileId } }), 0);
+});
+
+test('foundation e2e: WorkflowTransition can be inserted by workflow service', async () => {
+  await withFoundationSeed(async (seed) => {
+    await transitionRequestStatus({ requestId: seed.requestId, actorId: seed.customerId, toStatus: 'intake_submitted', reason: 'workflow insert', correlationId: `${seed.correlationPrefix}_workflow_insert` });
+    assert.equal(await prisma.workflowTransition.count({ where: { requestId: seed.requestId } }), 1);
+  });
+});
+
+test('foundation e2e: WorkflowTransition relation points to actor and request', async () => {
+  await withFoundationSeed(async (seed) => {
+    await transitionRequestStatus({ requestId: seed.requestId, actorId: seed.customerId, toStatus: 'intake_submitted', reason: 'workflow relation', correlationId: `${seed.correlationPrefix}_workflow_relation` });
+    const transition = await prisma.workflowTransition.findFirstOrThrow({ where: { requestId: seed.requestId }, include: { actor: true, request: true } });
+    assert.equal(transition.actor.id, seed.customerId);
+    assert.equal(transition.request.id, seed.requestId);
+  });
+});
+
+test('foundation e2e: WorkflowTransition cleanup deletes seeded transitions', async () => {
+  assertSafeDatabaseUrl();
+  const seed = await seedFoundationE2E();
+  await transitionRequestStatus({ requestId: seed.requestId, actorId: seed.customerId, toStatus: 'intake_submitted', reason: 'workflow cleanup', correlationId: `${seed.correlationPrefix}_workflow_cleanup` });
+  await cleanupFoundationE2E(seed);
+  assert.equal(await prisma.workflowTransition.count({ where: { requestId: seed.requestId } }), 0);
+});
+
+test('foundation e2e: AuditEvent can be inserted', async () => {
+  await withFoundationSeed(async (seed) => {
+    await recordAuditEvent({ actorId: seed.coordinatorAdminId, workspaceId: seed.workspaceId, action: 'foundation.audit_inserted', targetType: 'REQUEST', targetId: seed.requestId, requestId: seed.requestId, correlationId: `${seed.correlationPrefix}_audit_insert`, metadataSummary: 'audit insert' });
+    assert.equal(await prisma.auditEvent.count({ where: { correlationId: `${seed.correlationPrefix}_audit_insert` } }), 1);
+  });
+});
+
+test('foundation e2e: AuditEvent stores nullable actor and request safely', async () => {
+  await withFoundationSeed(async (seed) => {
+    await recordAuditEvent({ actorId: null, workspaceId: seed.workspaceId, action: 'foundation.audit_system', targetType: 'WORKSPACE', targetId: seed.workspaceId, correlationId: `${seed.correlationPrefix}_audit_system`, metadataSummary: 'system audit' });
+    const audit = await prisma.auditEvent.findFirstOrThrow({ where: { correlationId: `${seed.correlationPrefix}_audit_system` } });
+    assert.equal(audit.actorId, null);
+    assert.equal(audit.requestId, null);
+  });
+});
+
+test('foundation e2e: AuditEvent cleanup deletes seeded audit rows', async () => {
+  assertSafeDatabaseUrl();
+  const seed = await seedFoundationE2E();
+  await recordAuditEvent({ actorId: seed.coordinatorAdminId, workspaceId: seed.workspaceId, action: 'foundation.audit_cleanup', targetType: 'WORKSPACE', targetId: seed.workspaceId, correlationId: `${seed.correlationPrefix}_audit_cleanup`, metadataSummary: 'audit cleanup' });
+  await cleanupFoundationE2E(seed);
+  assert.equal(await prisma.auditEvent.count({ where: { correlationId: { startsWith: seed.correlationPrefix } } }), 0);
 });
 
 test('foundation e2e: cleanup is scoped and repeatable', async () => {

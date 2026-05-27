@@ -1,12 +1,24 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { prisma } from '@/lib/prisma';
+import { createAdminUser, updateAdminUserRole, deactivateAdminUser, assignUserToWorkspace } from '@/lib/admin/users';
+import { recordAuditEvent } from '@/lib/audit/audit';
+import { canAccessDocument, canAccessRequest, canAccessReview, canAccessVaultFile, canAccessWorkspace } from '@/lib/security/rbac';
+import type { AppSession } from '@/lib/security/session';
+import { getAllowedTransitions, transitionRequestStatus } from '@/lib/workflow/request-workflow';
 
 export const FOUNDATION_E2E_PREFIX = 'foundation_e2e';
 
 type FoundationSeed = {
   suffix: string;
   workspaceId: string;
+  customerId: string;
+  specialistId: string;
+  reviewerId: string;
+  coordinatorAdminId: string;
+  superAdminId: string;
+  unrelatedUserId: string;
+  adminManagedUserId?: string;
   userIds: string[];
   requestId: string;
   documentId: string;
@@ -58,6 +70,13 @@ async function seedFoundationE2E(): Promise<FoundationSeed> {
       }),
     ),
   );
+
+  const unrelatedUser = await prisma.user.create({
+    data: {
+      email: `${FOUNDATION_E2E_PREFIX}_unrelated_${suffix}@example.test`,
+      name: 'Foundation E2E unrelated',
+    },
+  });
 
   const request = await prisma.legalRequest.create({
     data: {
@@ -118,7 +137,13 @@ async function seedFoundationE2E(): Promise<FoundationSeed> {
   return {
     suffix,
     workspaceId: workspace.id,
-    userIds: [customer.id, specialist.id, reviewer.id, coordinatorAdmin.id, superAdmin.id],
+    customerId: customer.id,
+    specialistId: specialist.id,
+    reviewerId: reviewer.id,
+    coordinatorAdminId: coordinatorAdmin.id,
+    superAdminId: superAdmin.id,
+    unrelatedUserId: unrelatedUser.id,
+    userIds: [customer.id, specialist.id, reviewer.id, coordinatorAdmin.id, superAdmin.id, unrelatedUser.id],
     requestId: request.id,
     documentId: document.id,
     reviewId: review.id,
@@ -205,6 +230,124 @@ test('Phase 1 foundation uses real database safely', async () => {
     assert.equal(persisted?.documents[0]?.id, seed.documentId);
     assert.equal(persisted?.reviews[0]?.id, seed.reviewId);
     assert.equal(persisted?.vaultFiles[0]?.id, seed.vaultFileId);
+
+    const customerSession: AppSession = { userId: seed.customerId, activeWorkspaceId: seed.workspaceId, roles: ['customer'] };
+    const specialistSession: AppSession = { userId: seed.specialistId, activeWorkspaceId: seed.workspaceId, roles: ['specialist'] };
+    const reviewerSession: AppSession = { userId: seed.reviewerId, activeWorkspaceId: seed.workspaceId, roles: ['reviewer'] };
+    const coordinatorSession: AppSession = { userId: seed.coordinatorAdminId, activeWorkspaceId: seed.workspaceId, roles: ['coordinator_admin'] };
+    const superAdminSession: AppSession = { userId: seed.superAdminId, activeWorkspaceId: seed.workspaceId, roles: ['super_admin'] };
+    const unrelatedSession: AppSession = { userId: seed.unrelatedUserId, activeWorkspaceId: null, roles: ['customer'] };
+
+    assert.equal(await canAccessWorkspace(coordinatorSession, seed.workspaceId), true);
+    assert.equal(await canAccessWorkspace(superAdminSession, seed.workspaceId), true);
+    assert.equal(await canAccessRequest(customerSession, seed.requestId), true);
+    assert.equal(await canAccessRequest(specialistSession, seed.requestId), true);
+    assert.equal(await canAccessReview(reviewerSession, seed.reviewId), true);
+    assert.equal(await canAccessDocument(customerSession, seed.documentId), true);
+    assert.equal(await canAccessVaultFile(customerSession, seed.vaultFileId), true);
+    assert.equal(await canAccessRequest(unrelatedSession, seed.requestId), false);
+
+    await prisma.user.update({ where: { id: seed.unrelatedUserId }, data: { isActive: false } });
+    assert.equal(await canAccessWorkspace(unrelatedSession, seed.workspaceId), false);
+
+    await recordAuditEvent({
+      actorId: seed.coordinatorAdminId,
+      workspaceId: seed.workspaceId,
+      action: 'foundation.e2e_checked',
+      targetType: 'REQUEST',
+      targetId: seed.requestId,
+      requestId: seed.requestId,
+      correlationId: `${seed.correlationPrefix}_audit`,
+      metadataSummary: 'phase1 foundation audit check',
+    });
+    assert.equal(await prisma.auditEvent.count({ where: { correlationId: `${seed.correlationPrefix}_audit` } }), 1);
+    await assert.rejects(
+      recordAuditEvent({
+        actorId: seed.coordinatorAdminId,
+        workspaceId: seed.workspaceId,
+        action: 'foundation.e2e_bad_metadata',
+        targetType: 'REQUEST',
+        targetId: seed.requestId,
+        correlationId: `${seed.correlationPrefix}_bad_metadata`,
+        metadataSummary: { unsafe: true } as never,
+      }),
+      /metadataSummary must be a string/,
+    );
+    await assert.rejects(
+      recordAuditEvent({
+        actorId: seed.coordinatorAdminId,
+        workspaceId: seed.workspaceId,
+        action: 'foundation.e2e_long_metadata',
+        targetType: 'REQUEST',
+        targetId: seed.requestId,
+        correlationId: `${seed.correlationPrefix}_long_metadata`,
+        metadataSummary: 'x'.repeat(501),
+      }),
+      /metadataSummary must be 500 characters or fewer/,
+    );
+
+    assert.deepEqual(getAllowedTransitions('draft_intake'), ['intake_submitted', 'cancelled']);
+    const transitioned = await transitionRequestStatus({
+      requestId: seed.requestId,
+      actorId: seed.customerId,
+      toStatus: 'intake_submitted',
+      reason: 'foundation e2e transition',
+      correlationId: `${seed.correlationPrefix}_workflow`,
+    });
+    assert.equal(transitioned.status, 'intake_submitted');
+    assert.equal((await prisma.legalRequest.findUnique({ where: { id: seed.requestId } }))?.status, 'intake_submitted');
+    assert.equal(await prisma.workflowTransition.count({ where: { requestId: seed.requestId, fromStatus: 'draft_intake', toStatus: 'intake_submitted' } }), 1);
+    assert.equal(await prisma.auditEvent.count({ where: { requestId: seed.requestId, action: 'request.status_changed', correlationId: `${seed.correlationPrefix}_workflow` } }), 1);
+
+    const managedUser = await createAdminUser({
+      actor: coordinatorSession,
+      input: {
+        email: `${FOUNDATION_E2E_PREFIX}_managed_${seed.suffix}@example.test`,
+        name: 'Foundation E2E managed',
+        role: 'customer',
+        workspaceId: seed.workspaceId,
+        correlationId: `${seed.correlationPrefix}_admin_create`,
+      },
+    });
+    seed.adminManagedUserId = managedUser.id;
+    seed.userIds.push(managedUser.id);
+    assert.equal(await prisma.auditEvent.count({ where: { action: 'user.created', targetId: managedUser.id } }), 1);
+
+    const updatedMembership = await updateAdminUserRole({
+      actor: coordinatorSession,
+      input: {
+        userId: managedUser.id,
+        role: 'specialist',
+        workspaceId: seed.workspaceId,
+        correlationId: `${seed.correlationPrefix}_admin_role`,
+      },
+    });
+    assert.equal(updatedMembership.role, 'specialist');
+    assert.equal(await prisma.auditEvent.count({ where: { action: 'user.role_updated', targetId: managedUser.id } }), 1);
+
+    await assignUserToWorkspace({
+      actor: coordinatorSession,
+      input: {
+        userId: managedUser.id,
+        role: 'reviewer',
+        workspaceId: seed.workspaceId,
+        correlationId: `${seed.correlationPrefix}_admin_assign`,
+      },
+    });
+    assert.equal(await prisma.workspaceMembership.count({ where: { userId: managedUser.id, workspaceId: seed.workspaceId, role: 'reviewer', isActive: true } }), 1);
+    assert.equal(await prisma.auditEvent.count({ where: { action: 'workspace.membership_assigned' } }), 1);
+
+    const deactivatedUser = await deactivateAdminUser({
+      actor: coordinatorSession,
+      input: {
+        userId: managedUser.id,
+        workspaceId: seed.workspaceId,
+        correlationId: `${seed.correlationPrefix}_admin_deactivate`,
+      },
+    });
+    assert.equal(deactivatedUser.isActive, false);
+    assert.equal((await prisma.user.findUnique({ where: { id: managedUser.id } }))?.isActive, false);
+    assert.equal(await prisma.auditEvent.count({ where: { action: 'user.deactivated', targetId: managedUser.id } }), 1);
   } finally {
     await cleanupFoundationE2E(seed);
     if (seed) await assertCleanupRemovedSeed(seed);

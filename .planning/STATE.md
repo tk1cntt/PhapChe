@@ -38,6 +38,6 @@ None.
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 260527-9ud | Cần bổ sung thêm css. Layout xấu quá | 2026-05-27 | 3006ffc | Needs Review | [260527-9ud-c-n-b-sung-th-m-css-layout-x-u-qu](./quick/260527-9ud-c-n-b-sung-th-m-css-layout-x-u-qu/) |
-| 260527-aqj | Bổ sung e2e test tất cả các tính năng của phase 1 với db thực tế. Có init data trước khi test và sau khi test xong thì xóa data test đi | 2026-05-27 | e596734 | Gaps | [260527-aqj-b-sung-e2e-test-t-t-c-c-c-t-nh-n-ng-c-a-](./quick/260527-aqj-b-sung-e2e-test-t-t-c-c-c-t-nh-n-ng-c-a-/) |
+| 260527-aqj | Bổ sung e2e test tất cả các tính năng của phase 1 với db thực tế. Có init data trước khi test và sau khi test xong thì xóa data test đi | 2026-05-27 | e596734 | Verified | [260527-aqj-b-sung-e2e-test-t-t-c-c-c-t-nh-n-ng-c-a-](./quick/260527-aqj-b-sung-e2e-test-t-t-c-c-c-t-nh-n-ng-c-a-/) |
 
 Last activity: 2026-05-27 - Completed quick task 260527-aqj: Bổ sung e2e test tất cả các tính năng của phase 1 với db thực tế. Có init data trước khi test và sau khi test xong thì xóa data test đi

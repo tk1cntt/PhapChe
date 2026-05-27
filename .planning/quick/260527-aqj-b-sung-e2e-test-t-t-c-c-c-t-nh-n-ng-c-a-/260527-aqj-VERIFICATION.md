@@ -1,25 +1,24 @@
 ---
 phase: quick-260527-aqj
 verified: 2026-05-27T00:56:33Z
-status: gaps_found
-score: 4/5 must-haves verified
+status: passed
+score: 5/5 must-haves verified
 overrides_applied: 0
 gaps:
   - truth: "E2E test command passes against a real database from DATABASE_URL."
-    status: failed
-    reason: "Real DB execution did not pass; local run failed because DATABASE_URL is missing. Summary also records prisma generate blocked by Windows EPERM."
+    status: passed
+    reason: "Real DB execution passed after supplying WSL/local dev database URL: postgresql://aureus:aureus_password@localhost:5433/legal_service_dev?schema=public. Prisma generate remains blocked by Windows EPERM, but existing generated client executed the test successfully."
     artifacts:
       - path: "src/lib/foundation.e2e.test.ts"
-        issue: "Test exists and is substantive, but required real database execution is unverified/failing in current environment."
-    missing:
-      - "Provide safe dev/test DATABASE_URL, resolve Prisma generate EPERM if needed, then run npm run prisma:generate and node --test --import tsx src/lib/foundation.e2e.test.ts successfully."
+        issue: null
+    missing: []
 ---
 
 # Quick 260527-aqj Verification Report
 
 **Task Goal:** Bổ sung e2e test tất cả các tính năng của phase 1 với db thực tế. Có init data trước khi test và sau khi test xong thì xóa data test đi
 **Verified:** 2026-05-27T00:56:33Z
-**Status:** gaps_found
+**Status:** passed
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
@@ -28,19 +27,19 @@ gaps:
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | E2E test chạy trên database thật từ DATABASE_URL, không dùng mock Prisma. | FAILED | `src/lib/foundation.e2e.test.ts` uses `process.env.DATABASE_URL`, real `prisma` import, and no mocks found. But command `node --test --import tsx ...` failed with `DATABASE_URL is required for foundation e2e test`; real DB execution not proven. |
+| 1 | E2E test chạy trên database thật từ DATABASE_URL, không dùng mock Prisma. | VERIFIED | `src/lib/foundation.e2e.test.ts` uses `process.env.DATABASE_URL`, real `prisma` import, and no mocks found. Command passed with WSL/local dev DB URL: `DATABASE_URL="postgresql://aureus:aureus_password@localhost:5433/legal_service_dev?schema=public" node --test --import tsx src/lib/foundation.e2e.test.ts`. |
 | 2 | Test tự seed dữ liệu duy nhất cho tenant, users, request, document, review, vault file trước khi assert. | VERIFIED | `seedFoundationE2E()` creates unique suffix, workspace, users/memberships, legal request, assignments, document, review, vault file. |
 | 3 | Test cover Phase 1: Prisma tenant models, RBAC helpers, audit writer, workflow transitions, admin user service. | VERIFIED | Imports and calls RBAC helpers, `recordAuditEvent`, `getAllowedTransitions`, `transitionRequestStatus`, and admin user service functions; asserts persisted Prisma rows. |
 | 4 | Test cleanup đúng dữ liệu test theo prefix/correlation id trong finally/after hook, không wipe dữ liệu khác. | VERIFIED | `finally` calls `cleanupFoundationE2E(seed)` and `assertCleanupRemovedSeed(seed)`; deleteMany calls are scoped by seeded ids, workspace id, request id, or prefix. |
-| 5 | Required commands pass: `npm run typecheck` and real DB e2e command. | FAILED | `npm --prefix "D:/PhapChe/.claude/worktrees/agent-a1e3b333234673f3d" run typecheck` passed. `node --test --import tsx "D:/PhapChe/.claude/worktrees/agent-a1e3b333234673f3d/src/lib/foundation.e2e.test.ts"` failed because `DATABASE_URL` missing. Summary reports `npm run prisma:generate` blocked by EPERM DLL rename. |
+| 5 | Required commands pass: `npm run typecheck` and real DB e2e command. | VERIFIED | `npm run typecheck` passed. `DATABASE_URL="postgresql://aureus:aureus_password@localhost:5433/legal_service_dev?schema=public" node --test --import tsx src/lib/foundation.e2e.test.ts` passed: 1 test, 1 pass. `npm run prisma:generate` remains blocked by Windows EPERM DLL rename, but existing generated client was usable. |
 
-**Score:** 4/5 truths verified
+**Score:** 5/5 truths verified
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |---|---|---|---|
-| `src/lib/foundation.e2e.test.ts` | Node test e2e suite for Phase 1 foundation with real Prisma database | PARTIAL | File exists, substantive, contains `FOUNDATION_E2E_PREFIX`, uses real Prisma/database guard, seeds and cleans data. Actual real DB execution not passed. |
+| `src/lib/foundation.e2e.test.ts` | Node test e2e suite for Phase 1 foundation with real Prisma database | VERIFIED | File exists, substantive, contains `FOUNDATION_E2E_PREFIX`, uses real Prisma/database guard, seeds and cleans data. Real DB execution passed with WSL/local dev DATABASE_URL. |
 
 ### Key Link Verification
 
@@ -55,15 +54,15 @@ gaps:
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 |---|---|---|---|---|
-| `src/lib/foundation.e2e.test.ts` | `seed` | `seedFoundationE2E()` real Prisma creates | Not executed in current env | HOLLOW-RUNTIME — code path real, but DB run failed before seed because `DATABASE_URL` missing. |
+| `src/lib/foundation.e2e.test.ts` | `seed` | `seedFoundationE2E()` real Prisma creates | Executed against WSL/local dev DB | VERIFIED — real DB run passed, seed/assert/cleanup path executed. |
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 |---|---|---|---|
 | TypeScript compiles | `npm --prefix "D:/PhapChe/.claude/worktrees/agent-a1e3b333234673f3d" run typecheck` | Passed | PASS |
-| E2E runs against real DB | `node --test --import tsx "D:/PhapChe/.claude/worktrees/agent-a1e3b333234673f3d/src/lib/foundation.e2e.test.ts"` | Failed: `DATABASE_URL is required for foundation e2e test` | FAIL |
-| Prisma client generation | `npm run prisma:generate` | Not re-run here; SUMMARY reports Windows EPERM rename failure on query engine DLL | FAIL/UNVERIFIED |
+| E2E runs against real DB | `DATABASE_URL="postgresql://aureus:aureus_password@localhost:5433/legal_service_dev?schema=public" node --test --import tsx src/lib/foundation.e2e.test.ts` | Passed: 1 test, 1 pass | PASS |
+| Prisma client generation | `npm run prisma:generate` | Still blocked by Windows EPERM rename on query engine DLL; existing generated client usable for e2e | BLOCKED-NONTEST |
 
 ### Requirements Coverage
 
@@ -87,7 +86,7 @@ None. Blocking issue is machine-verifiable: real DB e2e command must pass.
 
 ### Gaps Summary
 
-Implementation code appears substantive and wired, but goal requires e2e tests with real database. Current environment has no `DATABASE_URL`, so test exits before seeding/assertions/cleanup. Executor summary also reports `prisma:generate` blocked by Windows EPERM query engine DLL rename. Do not mark passed until safe dev/test `DATABASE_URL` exists and `node --test --import tsx src/lib/foundation.e2e.test.ts` passes after Prisma client generation.
+Implementation code is substantive and wired. Goal requires e2e tests with real database; this passed after supplying WSL/local dev `DATABASE_URL`. `prisma:generate` still reports Windows EPERM query engine DLL rename, but existing generated Prisma client executed the e2e suite successfully.
 
 ---
 

@@ -30,9 +30,9 @@ Built real-database Phase 1 foundation E2E suite with scoped seed and cleanup.
 
 | Command | Result |
 |---|---|
-| `npm run prisma:generate` | Blocked: `EPERM: operation not permitted, rename 'D:\PhapChe\node_modules\.prisma\client\query_engine-windows.dll.node.tmp22012' -> 'D:\PhapChe\node_modules\.prisma\client\query_engine-windows.dll.node'` |
+| `npm run prisma:generate` | Still blocked by Windows file lock: `EPERM: operation not permitted, rename 'D:\PhapChe\node_modules\.prisma\client\query_engine-windows.dll.node.tmp20528' -> 'D:\PhapChe\node_modules\.prisma\client\query_engine-windows.dll.node'` |
 | `npm run typecheck` | Passed via `npm --prefix "D:/PhapChe" run typecheck` |
-| `node --test --import tsx src/lib/foundation.e2e.test.ts` | Blocked: `DATABASE_URL is required for foundation e2e test` |
+| `DATABASE_URL="postgresql://aureus:aureus_password@localhost:5433/legal_service_dev?schema=public" node --test --import tsx src/lib/foundation.e2e.test.ts` | Passed: 1 test, 1 pass, real DB seed/assert/cleanup completed |
 
 ## Deviations from Plan
 
@@ -42,8 +42,8 @@ None.
 
 ### Blockers
 
-- Prisma generate blocked by Windows EPERM rename on generated query engine DLL.
-- E2E execution blocked because `DATABASE_URL` missing. Test correctly refuses unsafe/missing database URL.
+- Prisma generate remains blocked by Windows EPERM rename on generated query engine DLL; existing generated client was usable for the e2e run.
+- E2E execution passed after supplying WSL/local dev database URL: `postgresql://aureus:aureus_password@localhost:5433/legal_service_dev?schema=public`.
 
 ## Known Stubs
 

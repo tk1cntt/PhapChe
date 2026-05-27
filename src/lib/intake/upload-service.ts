@@ -19,6 +19,7 @@ type AttachIntakeFileInput = {
 };
 
 export async function attachIntakeFile(input: AttachIntakeFileInput) {
+  if (!input.file || input.file.size < 1) throw new Error('FILE_REQUIRED');
   if (!(await canAccessRequest(input.session, input.requestId))) throw new Error('FORBIDDEN');
 
   const request = await prisma.legalRequest.findUnique({

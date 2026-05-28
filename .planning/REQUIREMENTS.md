@@ -16,11 +16,11 @@
 ### Intake
 
 - [x] **INT-01**: Customer can start a legal request from chat/form by selecting service type.
-- [ ] **INT-02**: System asks structured intake questions based on selected service type.
+- [x] **INT-02**: System asks structured intake questions based on selected service type.
 - [x] **INT-03**: System saves answers as structured intake data with schema version.
 - [x] **INT-04**: Customer can upload supporting files to a request.
 - [x] **INT-05**: Customer can see request status after submission.
-- [ ] **INT-06**: System marks unsupported requests as requiring human triage.
+- [x] **INT-06**: System marks unsupported requests as requiring human triage.
 
 ### Routing
 
@@ -119,11 +119,11 @@
 | FND-04 | Phase 1 | Pending |
 | FND-05 | Phase 1 | Pending |
 | INT-01 | Phase 2 | Complete |
-| INT-02 | Phase 2 | Pending |
+| INT-02 | Phase 2 | Complete |
 | INT-03 | Phase 2 | Complete |
 | INT-04 | Phase 2 | Complete |
 | INT-05 | Phase 2 | Complete |
-| INT-06 | Phase 2 | Pending |
+| INT-06 | Phase 2 | Complete |
 | RTE-01 | Phase 3 | Pending |
 | RTE-02 | Phase 3 | Pending |
 | RTE-03 | Phase 3 | Pending |

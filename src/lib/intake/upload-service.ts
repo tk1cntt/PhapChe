@@ -33,6 +33,10 @@ export async function attachIntakeFile(input: AttachIntakeFileInput) {
   const hash = createHash('sha256').update(bytes).digest('hex');
   const filename = input.file.name.trim();
   if (!filename) throw new Error('FILE_NAME_REQUIRED');
+  const safeFilename = filename
+    .replace(/[\\/\0-\x1f\x7f]+/g, '-')
+    .replace(/\.\.+/g, '.')
+    .slice(0, 180);
 
   const vaultFile = await prisma.$transaction(async (tx) => {
     const created = await tx.vaultFile.create({
@@ -40,7 +44,7 @@ export async function attachIntakeFile(input: AttachIntakeFileInput) {
         workspaceId: request.workspaceId,
         requestId: request.id,
         filename,
-        storageKey: `private/intake/${request.workspaceId}/${request.id}/${randomUUID()}-${filename}`,
+        storageKey: `private/intake/${request.workspaceId}/${request.id}/${randomUUID()}-${safeFilename}`,
       },
     });
 

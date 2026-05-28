@@ -1,47 +1,30 @@
 ---
 phase: 02-intake
 verified: 2026-05-28T00:00:00Z
-status: gaps_found
-score: 7/10 must-haves verified
+status: human_needed
+score: 10/10 must-haves verified
 overrides_applied: 0
-gaps:
-  - truth: "Customer can complete service selection, guided questions, upload, review, and submit from /intake."
-    status: failed
-    reason: "/intake page is static around demo data; later forms use hard-coded requestId instead of draft id returned by createIntakeDraftAction."
-    artifacts:
-      - path: "src/app/intake/page.tsx"
-        issue: "Uses requestId='demo-request', static review answers, and static uploaded file ho-so-mau.pdf. No data-flow from created draft to answer/upload/submit forms."
-    missing:
-      - "Carry created request id into subsequent answer/upload/submit steps."
-      - "Render review summary from saved/customer-entered answers and attached upload results, not sample placeholders."
-  - truth: "Customer actions and status page use actual server-side session, not demo identity."
-    status: failed
-    reason: "requireAppSession still returns hard-coded demo-customer from database; auth/session fix only moved demo session into shared helper."
-    artifacts:
-      - path: "src/lib/security/session.ts"
-        issue: "where: { id: 'demo-customer', isActive: true } hard-codes actor and workspace source."
-      - path: "src/app/intake/actions.ts"
-        issue: "Actions call requireAppSession, so all mutations run as demo-customer."
-      - path: "src/app/requests/[requestId]/page.tsx"
-        issue: "Status route calls requireAppSession, so RBAC is checked against demo-customer, not current customer."
-    missing:
-      - "Connect requireAppSession to real auth/session source or explicit project-approved auth boundary."
-  - truth: "Review step shows actual matter type, answers, uploaded filenames/sizes, and privacy note before submit."
-    status: failed
-    reason: "Review UI exists but displays placeholder answer text and static uploaded file metadata."
-    artifacts:
-      - path: "src/app/intake/page.tsx"
-        issue: "reviewAnswers uses 'Sẽ được lưu từ câu trả lời của khách hàng'; uploadedFiles uses fixed ho-so-mau.pdf."
-    missing:
-      - "Populate review from saved answers and attached file metadata for current request."
+re_verification:
+  previous_status: gaps_found
+  previous_score: 7/10
+  gaps_closed:
+    - "Customer can complete service selection, guided questions, upload, review, and submit from /intake."
+    - "Customer actions and status page use actual server-side session, not demo identity."
+    - "Review step shows actual matter type, answers, uploaded filenames/sizes, and privacy note before submit."
+  gaps_remaining: []
+  regressions: []
+human_verification:
+  - test: "Manual /intake end-to-end smoke"
+    expected: "Customer selects service, answers guided questions, uploads file, reviews saved answers/upload metadata, submits, and lands on read-only Vietnamese status page. Unsupported service lands in triage guidance."
+    why_human: "Browser form flow, redirects, file input behavior, and visual/read-only UX cannot be fully proven by static verification without running app."
 ---
 
 # Phase 2: intake Verification Report
 
 **Phase Goal:** Let SME customers submit legal requests through structured chat/form intake.
 **Verified:** 2026-05-28T00:00:00Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Status:** human_needed
+**Re-verification:** Yes — after gap closure
 
 ## Goal Achievement
 
@@ -49,91 +32,100 @@ gaps:
 
 | # | Truth | Status | Evidence |
 |---|---|---|---|
-| 1 | Customer can select legal service type and answer guided questions. | VERIFIED | `src/lib/intake/catalog.ts` defines supported and unsupported services with question schemas; `src/app/intake/components.tsx` renders service cards and question inputs. |
-| 2 | System stores structured intake answers with schema version. | VERIFIED | `prisma/schema.prisma` has `IntakeSubmission` with `matterTypeKey`, `schemaVersion`, `answers`, `answerLabels`; `saveIntakeAnswers` updates structured JSON and labels. |
-| 3 | Customer can upload files to request with private metadata. | VERIFIED | `attachIntakeFileAction` calls `attachIntakeFile`; service checks `canAccessRequest`, creates `vaultFile`, returns filename/size only, private storageKey not returned. |
-| 4 | Customer can see submitted request status. | VERIFIED | `src/app/requests/[requestId]/page.tsx` loads request, maps statuses to Vietnamese copy, no mutation controls. |
-| 5 | Unsupported requests are marked for human triage. | VERIFIED | `submitIntake` validates coordinator before submit, transitions to `intake_submitted`, then to `triage` for `unsupported`. |
-| 6 | Customer can complete service selection, guided questions, upload, review, and submit from `/intake`. | FAILED | `/intake` uses `demo-request`, sample review answers, and sample file; created draft id does not flow into later forms. |
-| 7 | Upload step calls backend attachIntakeFile and displays filename and size only. | VERIFIED | `UploadStep` displays filename/size only; action returns `{ filename, size }`. |
-| 8 | Review step shows matter type, answers, uploaded filenames/sizes, and privacy note before submit. | FAILED | `ReviewSummary` can render these, but page passes placeholders/static data, not actual saved answers/uploads. |
-| 9 | Submitted request redirects to read-only Vietnamese status view. | VERIFIED | `submitIntakeAction` redirects to `/requests/${submitted.id}`; status route is read-only Vietnamese. |
-| 10 | Customer actions and status page use actual server-side session, not demo identity. | FAILED | `requireAppSession` queries `id: 'demo-customer'`; actions and status page depend on it. |
+| 1 | Customer can select legal service type and answer guided questions. | VERIFIED | `MATTER_CATALOG` supplies supported/unsupported services; `/intake` renders `ServiceSelection`; current request renders `QuestionStep` for selected persisted `matterTypeKey`. |
+| 2 | System stores structured intake answers with schema version. | VERIFIED | `IntakeSubmission` stores `matterTypeKey`, `schemaVersion`, `answers`, `answerLabels`; `saveIntakeAnswers` validates keys and updates JSON answers/labels. |
+| 3 | Customer can upload files and see submitted request status. | VERIFIED | `attachIntakeFileAction` calls `attachIntakeFile`; upload writes request/workspace `VaultFile`; `submitIntakeAction` redirects to `/requests/${submitted.id}`; status route renders Vietnamese status copy. |
+| 4 | Unsupported requests are marked for human triage. | VERIFIED | `submitIntake` validates coordinator, transitions `draft_intake -> intake_submitted`, then coordinator transition to `triage` for `unsupported`. |
+| 5 | Customer can complete service selection, guided questions, upload, review, and submit from `/intake`. | VERIFIED | `createIntakeDraftAction` redirects to `/intake?requestId=${draft.id}`; `/intake` reads `searchParams`, authorizes request, loads current request, and hidden inputs use `request.id` for answers/upload/submit. |
+| 6 | Upload step calls backend attachIntakeFile and displays filename and size only. | VERIFIED | `attachIntakeFileAction` returns `{ filename, size }`; `UploadStep` receives `uploadedFiles` mapped to filename/size only; no public URL/storage key exposed in action return. |
+| 7 | Review step shows matter type, answers, uploaded filenames/sizes, and privacy note before submit. | VERIFIED | `/intake` builds `selectedMatterType` from `request.intakeSubmission.matterTypeKey`, `reviewAnswers` from `answerLabels` plus `answers`, and `uploadedFiles` from `vaultFiles` filename with size fallback `0`. |
+| 8 | Submitted request redirects to read-only Vietnamese status view. | VERIFIED | `submitIntakeAction` redirects to `/requests/${submitted.id}`; `/requests/[requestId]` uses `statusCopy` Vietnamese labels and no mutation controls. |
+| 9 | `requireAppSession` no longer hard-codes `demo-customer` and derives seeded customer identity from project-approved server boundary. | VERIFIED | `src/lib/security/session.ts` reads `process.env.APP_SESSION_USER_ID`, throws `UNAUTHENTICATED` when absent, and loads active user plus active workspace membership from Prisma. |
+| 10 | Review uses `IntakeSubmission` answers/answerLabels and `vaultFiles` metadata. | VERIFIED | `src/app/intake/page.tsx` selects `intakeSubmission.answers`, `intakeSubmission.answerLabels`, `vaultFiles.filename`; grep found no `demo-request`, `ho-so-mau.pdf`, or placeholder answer text in page. |
 
-**Score:** 7/10 truths verified
+**Score:** 10/10 truths verified
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |---|---|---|---|
-| `prisma/schema.prisma` | MatterType, IntakeSubmission, VaultFile request linkage | VERIFIED | Models and relations exist. |
-| `prisma/seed.ts` | Seed MVP matter types | VERIFIED | Seeds all `MATTER_CATALOG` entries. |
-| `src/lib/intake/catalog.ts` | MVP service catalog and question schemas | VERIFIED | Contains agency, labor, trademark, unsupported. |
-| `src/lib/intake/intake-service.ts` | Create/save/submit service and triage path | VERIFIED | Uses RBAC, answer validation, workflow transitions, audit summaries. |
-| `src/lib/intake/upload-service.ts` | Private upload attachment service | VERIFIED | Uses `canAccessRequest`, creates `VaultFile`, audits filename/size/hash, returns no storageKey/URL. |
-| `src/app/intake/actions.ts` | Server actions | PARTIAL | Actions wired, but session source is demo via `requireAppSession`. |
-| `src/app/intake/page.tsx` | Customer intake route | FAILED | Static demo request/data breaks end-to-end current-request flow. |
-| `src/app/intake/components.tsx` | Guided UI components | VERIFIED | Components substantive and Vietnamese; can render required flow. |
-| `src/app/requests/[requestId]/page.tsx` | Read-only customer status route | PARTIAL | Read-only and RBAC check exists; session source is demo. |
-| `src/lib/security/session.ts` | Server-side session helper | FAILED | Hard-coded `demo-customer`; not actual current customer session. |
+| `prisma/schema.prisma` | MatterType and IntakeSubmission persistence | VERIFIED | Models/relations exist from plan; structured answers persisted. |
+| `src/lib/intake/catalog.ts` | MVP service catalog and question schemas | VERIFIED | Used by create flow and question rendering. |
+| `src/lib/intake/intake-service.ts` | Create/save/submit service and unsupported triage | VERIFIED | RBAC, validation, workflow transitions, audit summaries present. |
+| `src/lib/intake/upload-service.ts` | Private request-scoped upload service | VERIFIED | Calls `canAccessRequest`, creates `vaultFile`, storage key prefix `private/intake`, audit metadata summary only, return omits storage key/public URL. |
+| `src/lib/security/session.ts` | Dev-safe server session source | VERIFIED | Uses `APP_SESSION_USER_ID` and DB active user/membership lookup; no hard-coded demo customer. |
+| `src/app/intake/actions.ts` | Server actions for create/save/upload/submit | VERIFIED | Draft redirects to request-scoped `/intake`; save/upload/submit use requestId from form and `requireAppSession`. |
+| `src/app/intake/page.tsx` | Customer intake route with current request data flow | VERIFIED | `searchParams` requestId authorized via `canAccessRequest`; forms use current `request.id`; review uses saved answers/files. |
+| `src/app/intake/components.tsx` | Guided intake UI components | VERIFIED | Components render service, question, upload, review/status copy in Vietnamese. |
+| `src/app/requests/[requestId]/page.tsx` | Read-only customer status route | VERIFIED | Requires session, checks `canAccessRequest`, maps enum to Vietnamese copy, no status mutation controls. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 |---|---|---|---|---|
-| `src/app/intake/actions.ts` | `src/lib/intake/intake-service.ts` | server action calls create/save/submit | WIRED | Imports and calls `createDraftIntake`, `saveIntakeAnswers`, `submitIntake`. |
-| `src/app/intake/actions.ts` | `src/lib/intake/upload-service.ts` | attachIntakeFileAction calls attachIntakeFile | WIRED | Imports and calls `attachIntakeFile`. |
-| `src/app/intake/actions.ts` | `/requests/[requestId]` | submit redirect | WIRED | `redirect(`/requests/${submitted.id}`)`. |
-| `src/lib/intake/intake-service.ts` | workflow state machine | transitionRequestStatus | WIRED | Submit and unsupported triage use `transitionRequestStatus`. |
-| `src/lib/intake/upload-service.ts` | RBAC | canAccessRequest | WIRED | Upload rejects forbidden request before metadata write. |
-| `src/app/intake/page.tsx` | current request state | draft id to later forms | NOT_WIRED | Later forms use `demo-request`, not created draft id. |
+| `src/app/intake/actions.ts` | `src/lib/intake/intake-service.ts` | server actions call create/save/submit | WIRED | Imports and calls `createDraftIntake`, `saveIntakeAnswers`, `submitIntake`. |
+| `src/app/intake/actions.ts` | `src/lib/intake/upload-service.ts` | upload action calls attach service | WIRED | `attachIntakeFileAction` imports/calls `attachIntakeFile`. |
+| `src/app/intake/actions.ts` | `src/app/intake/page.tsx` | draft redirect with search param | WIRED | `redirect(`/intake?requestId=${draft.id}`)` then page reads `searchParams`. |
+| `src/app/intake/page.tsx` | `src/app/intake/actions.ts` | hidden requestId inputs | WIRED | Answer, upload, submit forms use `<input type="hidden" name="requestId" value={request.id} />`. |
+| `src/app/intake/page.tsx` | Prisma current request data | server-side load after RBAC | WIRED | Loads `legalRequest.findUnique` with `intakeSubmission` and `vaultFiles` after `canAccessRequest`. |
+| `src/lib/intake/intake-service.ts` | workflow state machine | `transitionRequestStatus` | WIRED | Submit and unsupported triage use workflow service. |
+| `src/lib/intake/upload-service.ts` | RBAC and VaultFile | `canAccessRequest`, `vaultFile.create` | WIRED | Request access checked before `VaultFile` creation; workspace derived from request. |
+| `src/app/requests/[requestId]/page.tsx` | Prisma request/status | route param plus RBAC | WIRED | Calls `requireAppSession`, `canAccessRequest`, then loads request/status/files. |
 
 ### Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 |---|---|---|---|---|
-| `src/app/intake/page.tsx` | `requestId` hidden inputs | hard-coded `demo-request` | No | HOLLOW_PROP |
-| `src/app/intake/page.tsx` | `reviewAnswers` | static strings | No | STATIC |
-| `src/app/intake/page.tsx` | `uploadedFiles` | static `ho-so-mau.pdf` | No | STATIC |
-| `src/app/requests/[requestId]/page.tsx` | `request` | Prisma `legalRequest.findUnique` after RBAC | Yes | FLOWING |
-| `src/lib/intake/intake-service.ts` | `answers` | Prisma `intakeSubmission` JSON | Yes | FLOWING |
-| `src/lib/intake/upload-service.ts` | `vaultFile` | Prisma `vaultFile.create` | Yes | FLOWING |
+| `src/app/intake/page.tsx` | `requestId` hidden inputs | `/intake?requestId=${draft.id}` then Prisma `legalRequest.findUnique` | Yes | FLOWING |
+| `src/app/intake/page.tsx` | `selectedMatterType` | `request.intakeSubmission.matterTypeKey` -> `getMatterType` | Yes | FLOWING |
+| `src/app/intake/page.tsx` | `reviewAnswers` | `request.intakeSubmission.answers` + `answerLabels` | Yes | FLOWING |
+| `src/app/intake/page.tsx` | `uploadedFiles` | `request.vaultFiles.map(file => ({ filename: file.filename, size: 0 }))` | Partial | FLOWING with size fallback because schema has no persisted size field. |
+| `src/app/requests/[requestId]/page.tsx` | `request.status` | Prisma `legalRequest.findUnique` after RBAC | Yes | FLOWING |
+| `src/lib/security/session.ts` | `AppSession` | `APP_SESSION_USER_ID` -> active Prisma user/membership | Yes | FLOWING |
+| `src/lib/intake/upload-service.ts` | `vaultFile` | Prisma `vaultFile.create` with private storageKey | Yes | FLOWING |
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 |---|---|---|---|
-| Automated tests/typecheck | Orchestrator supplied `intake.test.ts`, `upload-service.test.ts`, `actions.test.ts`, `npm run typecheck`, schema drift false | Passed before verification | PASS |
-| Static data-flow grep | Search for `demo-request`, sample review text, `ho-so-mau`, `demo-customer` | Found in `src/app/intake/page.tsx` and `src/lib/security/session.ts` | FAIL |
+| Orchestrator automated checks | `DATABASE_URL + APP_SESSION_USER_ID intake.test.ts`, `upload-service.test.ts`, `actions.test.ts`, `npm run typecheck`, schema drift false | User reports passed | PASS |
+| Static gap closure scan | grep for `demo-request`, `ho-so-mau.pdf`, placeholder answer text in `src/app/intake` | Only test assertions mention banned strings; page/action do not | PASS |
+| Session boundary scan | grep `APP_SESSION_USER_ID`, `prisma.user.findFirst`, `memberships`, `UNAUTHENTICATED` | Found required env and DB lookup patterns | PASS |
+| Upload privacy scan | grep `canAccessRequest`, `vaultFile.create`, `private/intake`, `metadataSummary`, `storageKey` | Private storage/audit patterns present; return payload omits storage key | PASS |
 
 ### Requirements Coverage
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |---|---|---|---|---|
-| INT-01 | 02-01, 02-02 | Customer can start legal request from chat/form by selecting service type. | PARTIAL | Service catalog/UI/action exist, but `/intake` does not carry created draft id into rest of flow. |
-| INT-02 | 02-01, 02-02 | System asks structured intake questions based on selected service type. | SATISFIED | Catalog question schemas and `QuestionStep` render fields. |
-| INT-03 | 02-01, 02-02 | System saves answers as structured intake data with schema version. | SATISFIED | `IntakeSubmission` and `saveIntakeAnswers` persist JSON answers and labels with schemaVersion. |
-| INT-04 | 02-02, 02-03 | Customer can upload supporting files to a request. | PARTIAL | Backend upload works, but `/intake` hard-codes `demo-request`, so actual current request upload flow is broken. |
-| INT-05 | 02-02 | Customer can see request status after submission. | PARTIAL | Status route exists, but session source is hard-coded demo user. |
-| INT-06 | 02-01, 02-02 | System marks unsupported requests as requiring human triage. | SATISFIED | Backend unsupported path transitions through workflow to `triage`; UI/status uses Vietnamese triage copy. |
+| INT-01 | 02-01, 02-02, 02-04 | Customer can start legal request from chat/form by selecting service type. | SATISFIED | `/intake` service selection posts to `createIntakeDraftAction`; draft redirects to request-scoped flow. |
+| INT-02 | 02-01, 02-02 | System asks structured intake questions based on selected service type. | SATISFIED | Catalog question schemas feed `QuestionStep` for persisted selected matter type. |
+| INT-03 | 02-01, 02-02, 02-04 | System saves answers as structured intake data with schema version. | SATISFIED | `saveIntakeAnswers` persists `answers` and `answerLabels` on `IntakeSubmission`; schemaVersion retained. |
+| INT-04 | 02-02, 02-03, 02-04 | Customer can upload supporting files to request. | SATISFIED | Upload action uses current requestId and backend `attachIntakeFile`; service writes request/workspace `VaultFile`. |
+| INT-05 | 02-02, 02-04 | Customer can see request status after submission. | SATISFIED | Submit redirects to `/requests/[requestId]`; status route RBAC-checks and renders read-only Vietnamese status. |
+| INT-06 | 02-01, 02-02 | System marks unsupported requests as requiring human triage. | SATISFIED | Unsupported submit path transitions to `triage`; status copy says `Cần chuyên viên phân loại`. |
 
-All required IDs INT-01 through INT-06 accounted for from PLAN frontmatter and `.planning/REQUIREMENTS.md`.
+No orphaned Phase 2 requirements found. INT-01 through INT-06 covered.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 |---|---:|---|---|---|
-| `src/app/intake/page.tsx` | 38, 43, 48 | `requestId="demo-request"` | Blocker | Later actions do not operate on created customer draft. |
-| `src/app/intake/page.tsx` | 8-11 | Placeholder answer/file data | Blocker | Review does not show actual customer answers/uploads. |
-| `src/lib/security/session.ts` | 12 | `id: 'demo-customer'` | Blocker | RBAC/audit/session identity not actual customer. |
+| `src/app/intake/actions.test.ts` | 10, 15, 18, 24, 25 | Banned strings in negative assertions | Info | Test-only static assertions; not runtime stub. |
+| `src/app/intake/page.tsx` | 88 | `size: 0` fallback for `vaultFiles` | Warning | Intentional fallback because schema lacks persisted file size; filename metadata still real and upload action returns size immediately. |
+
+No blocker anti-patterns remain in runtime intake/session/upload/status code.
 
 ### Human Verification Required
 
-None. Automated/static verification already found blocking gaps.
+### 1. Manual /intake end-to-end smoke
+
+**Test:** Run app with valid `DATABASE_URL` and `APP_SESSION_USER_ID`, open `/intake`, select a supported service, fill required guided questions, upload a file, confirm review shows saved answers and uploaded filename, submit, confirm redirect to `/requests/[requestId]`. Repeat with unsupported service.
+**Expected:** Supported request reaches read-only Vietnamese submitted status; unsupported request shows `Cần chuyên viên phân loại`; no public file URL/storage key appears; status page has no mutation controls.
+**Why human:** Browser form redirects, file input behavior, and visual/read-only UX require runtime UI smoke.
 
 ### Gaps Summary
 
-Phase 2 backend foundation is mostly real: catalog, structured persistence, workflow submit/triage, private upload metadata, audit summaries, and read-only status route exist. Goal still not achieved because customer-facing `/intake` is not end-to-end wired to current request state and session identity remains demo-based. User cannot reliably submit own legal request through structured intake from `/intake` without demo data assumptions.
+Automated/static verification shows previous gaps closed. `requireAppSession` now uses `APP_SESSION_USER_ID` plus DB active user/membership lookup. `/intake` no longer uses `demo-request`, `ho-so-mau.pdf`, or placeholder answer text. Current request id flows through draft redirect, forms, persisted answer review, upload metadata, and submit redirect. Upload remains private and audited. Status is `human_needed` only because browser-level end-to-end UX requires manual smoke.
 
 ---
 

@@ -15,6 +15,11 @@ const pageSource = readFileSync('src/app/intake/page.tsx', 'utf8');
 assert.doesNotMatch(pageSource, /demo-request/);
 assert.match(pageSource, /searchParams/);
 assert.match(pageSource, /name="requestId" value=\{request\.id\}/);
+assert.doesNotMatch(pageSource, /Sẽ được lưu từ câu trả lời của khách hàng/);
+assert.doesNotMatch(pageSource, /ho-so-mau\.pdf/);
+assert.match(pageSource, /answerLabels/);
+assert.match(pageSource, /vaultFiles/);
+assert.match(pageSource, /request\.intakeSubmission\.answers/);
 
 assert.doesNotMatch(sessionSource, /id:\s*['"]demo-customer['"]/);
 assert.doesNotMatch(sessionSource, /['"]demo-customer['"]/);

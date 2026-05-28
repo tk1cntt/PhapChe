@@ -31,7 +31,7 @@ function routingKind(value: string): AssignmentKind {
   return 'specialist';
 }
 
-export async function saveMatterTypeAction(formData: FormData): Promise<RoutingActionResult> {
+async function saveMatterType(formData: FormData): Promise<RoutingActionResult> {
   try {
     const session = await requireAppSession();
     await upsertMatterType({
@@ -50,7 +50,7 @@ export async function saveMatterTypeAction(formData: FormData): Promise<RoutingA
   }
 }
 
-export async function saveCapabilityAction(formData: FormData): Promise<RoutingActionResult> {
+async function saveCapability(formData: FormData): Promise<RoutingActionResult> {
   try {
     const session = await requireAppSession();
     await upsertRoutingCapability({
@@ -67,7 +67,7 @@ export async function saveCapabilityAction(formData: FormData): Promise<RoutingA
   }
 }
 
-export async function assignRequestAction(formData: FormData): Promise<RoutingActionResult> {
+async function assign(formData: FormData): Promise<RoutingActionResult> {
   const assigneeId = stringValue(formData, 'assigneeId');
   const reason = stringValue(formData, 'reason');
   if (!reason) return { ok: false, message: 'Nhập lý do phân công trước khi lưu.' };
@@ -89,4 +89,16 @@ export async function assignRequestAction(formData: FormData): Promise<RoutingAc
   } catch {
     return { ok: false, message: errorMessage };
   }
+}
+
+export async function saveMatterTypeAction(formData: FormData): Promise<void> {
+  await saveMatterType(formData);
+}
+
+export async function saveCapabilityAction(formData: FormData): Promise<void> {
+  await saveCapability(formData);
+}
+
+export async function assignRequestAction(formData: FormData): Promise<void> {
+  await assign(formData);
 }

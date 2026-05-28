@@ -9,8 +9,11 @@ export type AppSession = {
 };
 
 export async function requireAppSession(): Promise<AppSession> {
+  const userId = process.env.APP_SESSION_USER_ID?.trim();
+  if (!userId) throw new Error('UNAUTHENTICATED');
+
   const user = await prisma.user.findFirst({
-    where: { id: 'demo-customer', isActive: true },
+    where: { id: userId, isActive: true },
     select: {
       id: true,
       memberships: {

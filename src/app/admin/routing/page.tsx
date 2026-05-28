@@ -4,6 +4,7 @@ import { getRoutingSuggestions, listRoutingCapabilities, listRoutingMatterTypes 
 import { requireAppSession } from '@/lib/security/session';
 import { AdminShell } from '../components/admin-shell';
 import { Badge, Button, Card, PageHeader, Table } from '../components/ui';
+import { assignRequestAction, saveCapabilityAction, saveMatterTypeAction } from './actions';
 
 const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Nháp tiếp nhận', tone: 'neutral' },
@@ -66,7 +67,7 @@ function SuggestionList({ suggestions }: { suggestions: Suggestion[] }) {
 
 function AssignmentForm({ requestId, suggestions, assigned }: { requestId: string; suggestions: Suggestion[]; assigned: boolean }) {
   return (
-    <form className="min-w-64 space-y-4">
+    <form action={assignRequestAction} className="min-w-64 space-y-4">
       <input type="hidden" name="requestId" value={requestId} />
       <input type="hidden" name="kind" value="specialist" />
       <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]">
@@ -149,7 +150,7 @@ export default async function RoutingPage() {
 
       <Card className="space-y-4">
         <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Loại vụ việc</h2>
-        <form className="grid gap-4 md:grid-cols-2">
+        <form action={saveMatterTypeAction} className="grid gap-4 md:grid-cols-2">
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]"><span>Tên loại vụ việc</span><input name="label" required className="min-h-10 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" /></label>
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]"><span>Mã loại vụ việc</span><input name="key" required className="min-h-10 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" /></label>
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4] md:col-span-2"><span>Mô tả</span><textarea name="description" className="min-h-24 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" /></label>
@@ -165,7 +166,7 @@ export default async function RoutingPage() {
 
       <Card className="space-y-4">
         <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Năng lực xử lý</h2>
-        <form className="grid gap-4 md:grid-cols-2">
+        <form action={saveCapabilityAction} className="grid gap-4 md:grid-cols-2">
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]"><span>Người dùng</span><select name="userId" required defaultValue="" className="min-h-10 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2"><option value="">Chọn người xử lý</option>{members.map((member) => <option key={`${member.role}-${member.userId}`} value={member.userId}>{member.user.name || member.user.email}</option>)}</select></label>
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]"><span>Vai trò năng lực</span><select name="kind" defaultValue="specialist" className="min-h-10 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2"><option value="specialist">Chuyên viên</option><option value="reviewer">Reviewer</option></select></label>
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]"><span>Loại vụ việc</span><select name="matterTypeKey" required defaultValue="" className="min-h-10 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2"><option value="">Chọn loại vụ việc</option>{matterTypes.map((matterType) => <option key={matterType.key} value={matterType.key}>{matterType.label}</option>)}</select></label>

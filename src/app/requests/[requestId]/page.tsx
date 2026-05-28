@@ -3,13 +3,7 @@ import type { RequestStatus } from '@prisma/client';
 import { Badge, Card, PageHeader } from '@/app/admin/components/ui';
 import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
-import type { AppSession } from '@/lib/security/session';
-
-const demoSession: AppSession = {
-  userId: 'demo-customer',
-  activeWorkspaceId: 'demo-workspace',
-  roles: ['customer'],
-};
+import { requireAppSession } from '@/lib/security/session';
 
 const statusCopy: Record<RequestStatus, { label: string; body: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Đang nhập thông tin', body: 'Hồ sơ đang ở bước nhập thông tin trước khi gửi.', tone: 'neutral' },
@@ -27,7 +21,8 @@ const statusCopy: Record<RequestStatus, { label: string; body: string; tone: 'ne
 
 export default async function RequestStatusPage({ params }: { params: Promise<{ requestId: string }> }) {
   const { requestId } = await params;
-  if (!(await canAccessRequest(demoSession, requestId))) notFound();
+  const session = await requireAppSession();
+  if (!(await canAccessRequest(session, requestId))) notFound();
 
   const request = await prisma.legalRequest.findUnique({
     where: { id: requestId },

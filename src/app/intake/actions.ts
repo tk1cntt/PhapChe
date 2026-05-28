@@ -1,15 +1,9 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import type { AppSession } from '@/lib/security/session';
 import { createDraftIntake, saveIntakeAnswers, submitIntake } from '@/lib/intake/intake-service';
 import { attachIntakeFile } from '@/lib/intake/upload-service';
-
-const demoSession: AppSession = {
-  userId: 'demo-customer',
-  activeWorkspaceId: 'demo-workspace',
-  roles: ['customer'],
-};
+import { requireAppSession } from '@/lib/security/session';
 
 function correlationId() {
   return `intake-${Date.now()}`;
@@ -21,14 +15,17 @@ function stringValue(formData: FormData, key: string) {
 }
 
 export async function createIntakeDraftAction(formData: FormData) {
+  const session = await requireAppSession();
+
   return createDraftIntake({
-    session: demoSession,
+    session,
     matterTypeKey: stringValue(formData, 'matterTypeKey'),
     correlationId: correlationId(),
   });
 }
 
 export async function saveIntakeAnswersAction(formData: FormData) {
+  const session = await requireAppSession();
   const requestId = stringValue(formData, 'requestId');
   const answers = Object.fromEntries(
     [...formData.entries()]
@@ -37,7 +34,7 @@ export async function saveIntakeAnswersAction(formData: FormData) {
   );
 
   return saveIntakeAnswers({
-    session: demoSession,
+    session,
     requestId,
     answers,
     correlationId: correlationId(),
@@ -45,11 +42,12 @@ export async function saveIntakeAnswersAction(formData: FormData) {
 }
 
 export async function attachIntakeFileAction(formData: FormData) {
+  const session = await requireAppSession();
   const file = formData.get('file');
   if (!(file instanceof File)) throw new Error('FILE_REQUIRED');
 
   const uploaded = await attachIntakeFile({
-    session: demoSession,
+    session,
     requestId: stringValue(formData, 'requestId'),
     file,
     correlationId: correlationId(),
@@ -59,9 +57,10 @@ export async function attachIntakeFileAction(formData: FormData) {
 }
 
 export async function submitIntakeAction(formData: FormData) {
+  const session = await requireAppSession();
   const requestId = stringValue(formData, 'requestId');
   const submitted = await submitIntake({
-    session: demoSession,
+    session,
     requestId,
     correlationId: correlationId(),
   });

@@ -17,11 +17,13 @@ function stringValue(formData: FormData, key: string) {
 export async function createIntakeDraftAction(formData: FormData) {
   const session = await requireAppSession();
 
-  return createDraftIntake({
+  const draft = await createDraftIntake({
     session,
     matterTypeKey: stringValue(formData, 'matterTypeKey'),
     correlationId: correlationId(),
   });
+
+  redirect(`/intake?requestId=${draft.id}`);
 }
 
 export async function saveIntakeAnswersAction(formData: FormData) {

@@ -345,17 +345,17 @@ Source: `src/lib/audit/audit.ts`. [VERIFIED: codebase]
 | A1 | Deactivated user appearing in suggestions is likely warning sign. | Common Pitfalls | Low; tests can directly encode expected inactive filtering from D-03. |
 | A2 | Developers may accidentally concatenate request context into audit metadata for convenience. | Common Pitfalls | Medium; planner should add audit metadata test to prevent leakage. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **How should `intake_submitted` assignment reach `assigned`?**
-   - What we know: Current transitions allow `intake_submitted -> triage` and `triage -> assigned`, not direct `intake_submitted -> assigned`. [VERIFIED: src/lib/workflow/request-workflow.ts]
-   - What's unclear: Whether Phase 3 should add direct transition or require coordinator triage first. [VERIFIED: .planning/phases/03-routing/03-CONTEXT.md]
-   - Recommendation: Preserve existing state machine unless planner explicitly updates tests and transition table; safest plan routes submitted items through `triage` before assignment. [VERIFIED: src/lib/workflow/request-workflow.test.ts]
+1. **RESOLVED — How should `intake_submitted` assignment reach `assigned`?**
+   - Decision: preserve existing state machine and route `intake_submitted -> triage -> assigned` through backend workflow transitions before/with assignment logic.
+   - Rationale: Current transitions allow `intake_submitted -> triage` and `triage -> assigned`, not direct `intake_submitted -> assigned`. [VERIFIED: src/lib/workflow/request-workflow.ts]
+   - Planning impact: assignment plan must test rollback-safe behavior and no partial assignment/history/audit state when workflow transition fails.
 
-2. **Should capability admin create inactive users/memberships?**
-   - What we know: Eligibility requires active user and active membership. [VERIFIED: .planning/phases/03-routing/03-CONTEXT.md]
-   - What's unclear: Whether admin UI should block creating capability rows for inactive users or allow rows that do not suggest. [ASSUMED]
-   - Recommendation: UI should list only active workspace members for MVP. [VERIFIED: D-03]
+2. **RESOLVED — Should capability admin create inactive users/memberships?**
+   - Decision: MVP UI and service should list/accept only active workspace members with matching `specialist` or `reviewer` role for capability creation.
+   - Rationale: Eligibility requires active user and active membership. [VERIFIED: .planning/phases/03-routing/03-CONTEXT.md]
+   - Planning impact: inactive users/memberships must not appear in suggestions and should not be selectable for new capabilities.
 
 ## Environment Availability
 

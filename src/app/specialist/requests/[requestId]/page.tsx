@@ -111,7 +111,6 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
             {request.vaultFiles.map((file) => (
               <li key={file.id} className="rounded-xl border border-[#E2E8F0] p-4">
                 <p className="text-[16px] font-normal leading-[1.5] text-[#0F172A]">{file.filename}</p>
-                <p className="mt-1 text-[14px] font-normal leading-[1.4] text-[#475569]">Storage key: {file.storageKey}</p>
                 <p className="mt-1 text-[14px] font-normal leading-[1.4] text-[#475569]">Ngày gửi: {formatDate(file.createdAt)}</p>
               </li>
             ))}

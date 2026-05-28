@@ -17,27 +17,6 @@ const routingCapability = {
 };
 
 async function main() {
-  for (const matterType of MATTER_CATALOG) {
-    await prisma.matterType.upsert({
-      where: { key: matterType.key },
-      update: {
-        label: matterType.label,
-        description: matterType.description,
-        schemaVersion: matterType.schemaVersion,
-        questionSchema: matterType.questions,
-        isActive: true,
-      },
-      create: {
-        key: matterType.key,
-        label: matterType.label,
-        description: matterType.description,
-        schemaVersion: matterType.schemaVersion,
-        questionSchema: matterType.questions,
-        isActive: true,
-      },
-    });
-  }
-
   const workspace = await prisma.workspace.upsert({
     where: { slug: routingCapability.workspaceSlug },
     update: { isActive: true },
@@ -47,6 +26,30 @@ async function main() {
       isActive: true,
     },
   });
+
+  const matterTypes = prisma.matterType as { upsert(input: unknown): Promise<unknown> };
+
+  for (const matterType of MATTER_CATALOG) {
+    await matterTypes.upsert({
+      where: { workspaceId_key: { workspaceId: workspace.id, key: matterType.key } },
+      update: {
+        label: matterType.label,
+        description: matterType.description,
+        schemaVersion: matterType.schemaVersion,
+        questionSchema: matterType.questions,
+        isActive: true,
+      },
+      create: {
+        workspaceId: workspace.id,
+        key: matterType.key,
+        label: matterType.label,
+        description: matterType.description,
+        schemaVersion: matterType.schemaVersion,
+        questionSchema: matterType.questions,
+        isActive: true,
+      },
+    });
+  }
 
   const specialist = await prisma.user.upsert({
     where: { email: routingCapability.specialist.email },

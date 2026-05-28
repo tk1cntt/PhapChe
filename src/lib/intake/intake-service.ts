@@ -72,8 +72,12 @@ export async function createDraftIntake(input: CreateDraftInput) {
   if (!(await canAccessWorkspace(input.session, input.session.activeWorkspaceId))) throw new Error('FORBIDDEN');
 
   return prisma.$transaction(async (tx) => {
-    await tx.matterType.upsert({
-      where: { key: matterType.key },
+    const workspaceId = input.session.activeWorkspaceId!;
+
+    const matterTypes = tx.matterType as { upsert(input: unknown): Promise<unknown> };
+
+    await matterTypes.upsert({
+      where: { workspaceId_key: { workspaceId, key: matterType.key } },
       update: {
         label: matterType.label,
         description: matterType.description,
@@ -82,6 +86,7 @@ export async function createDraftIntake(input: CreateDraftInput) {
         isActive: true,
       },
       create: {
+        workspaceId,
         key: matterType.key,
         label: matterType.label,
         description: matterType.description,
@@ -93,11 +98,12 @@ export async function createDraftIntake(input: CreateDraftInput) {
 
     const request = await tx.legalRequest.create({
       data: {
-        workspaceId: input.session.activeWorkspaceId!,
+        workspaceId,
         title: matterType.label,
         createdById: input.session.userId,
         intakeSubmission: {
           create: {
+            workspaceId,
             matterTypeKey: matterType.key,
             schemaVersion: matterType.schemaVersion,
             answers: {},

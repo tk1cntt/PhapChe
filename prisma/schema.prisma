@@ -131,8 +131,8 @@ model LegalRequest {
 
 model MatterType {
   id             String             @id @default(cuid())
-  workspaceId    String?
-  key            String             @unique
+  workspaceId    String
+  key            String
   label          String
   description    String?
   schemaVersion  String
@@ -140,10 +140,11 @@ model MatterType {
   isActive       Boolean            @default(true)
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
-  workspace           Workspace?          @relation(fields: [workspaceId], references: [id])
+  workspace           Workspace           @relation(fields: [workspaceId], references: [id])
   submissions         IntakeSubmission[]
   routingCapabilities RoutingCapability[]
 
+  @@unique([workspaceId, key])
   @@index([workspaceId])
   @@index([isActive])
 }
@@ -151,6 +152,7 @@ model MatterType {
 model IntakeSubmission {
   id                String       @id @default(cuid())
   requestId         String       @unique
+  workspaceId       String
   matterTypeKey     String
   schemaVersion     String
   answers           Json
@@ -159,9 +161,9 @@ model IntakeSubmission {
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   request           LegalRequest @relation(fields: [requestId], references: [id])
-  matterType        MatterType   @relation(fields: [matterTypeKey], references: [key])
+  matterType        MatterType   @relation(fields: [workspaceId, matterTypeKey], references: [workspaceId, key])
 
-  @@index([matterTypeKey])
+  @@index([workspaceId, matterTypeKey])
   @@index([submittedAt])
 }
 
@@ -193,7 +195,7 @@ model RoutingCapability {
   updatedAt     DateTime       @updatedAt
   workspace     Workspace      @relation(fields: [workspaceId], references: [id])
   user          User           @relation(fields: [userId], references: [id])
-  matterType    MatterType     @relation(fields: [matterTypeKey], references: [key])
+  matterType    MatterType     @relation(fields: [workspaceId, matterTypeKey], references: [workspaceId, key])
 
   @@unique([workspaceId, userId, matterTypeKey, kind])
   @@index([workspaceId, matterTypeKey, kind, isActive])

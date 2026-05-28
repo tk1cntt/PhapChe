@@ -34,6 +34,12 @@ mustInclude('routingCapability.findFirst', 'assignment must validate matching ac
 mustInclude('workspaceMembership.findFirst', 'assignment must validate active assignee membership');
 mustInclude('user: { isActive: true }', 'assignment must validate active assignee user');
 mustInclude('prisma.$transaction', 'assignment writes must be atomic');
+mustInclude('where: { workspaceId_key: { workspaceId, key } }', 'matter type upsert must be scoped by workspace composite key');
+mustInclude("where: { workspaceId, key: matterTypeKey, isActive: true }", 'routing capability must validate workspace-scoped matter type');
+
+if (source.includes('where: { key }')) {
+  throw new Error('upsertMatterType must not upsert by global key');
+}
 
 if (source.includes('transitionRequestStatus({')) {
   throw new Error('assignRequest must not call transitionRequestStatus before assignment transaction');

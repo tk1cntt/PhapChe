@@ -9,6 +9,9 @@ type RoutingPrisma = typeof prisma & {
     findMany(input: unknown): Promise<Array<{ userId: string; user: { id: string; name: string; email: string } }>>;
     findFirst(input: unknown): Promise<{ id: string } | null>;
   };
+  matterType: {
+    upsert(input: unknown): Promise<{ key: string }>;
+  };
 };
 
 const db = prisma as RoutingPrisma;
@@ -109,15 +112,14 @@ export async function requireRoutingAdmin(workspaceId: string, actorId: string) 
 }
 
 export async function upsertMatterType(input: UpsertMatterTypeInput) {
+  const workspaceId = requireText(input.workspaceId || '', 'WORKSPACE_REQUIRED');
   const key = requireText(input.key, 'MATTER_TYPE_KEY_REQUIRED');
   const label = requireText(input.label, 'MATTER_TYPE_LABEL_REQUIRED');
   const schemaVersion = requireText(input.schemaVersion, 'MATTER_TYPE_SCHEMA_VERSION_REQUIRED');
-  const workspaceId = input.workspaceId?.trim() || null;
 
-  return prisma.matterType.upsert({
-    where: { key },
+  return db.matterType.upsert({
+    where: { workspaceId_key: { workspaceId, key } },
     update: {
-      workspaceId,
       label,
       description: input.description?.trim() || null,
       schemaVersion,
@@ -149,7 +151,7 @@ export async function upsertRoutingCapability(input: UpsertRoutingCapabilityInpu
   if (!membership) throw new Error('ROUTING_MEMBERSHIP_REQUIRED');
 
   const matterType = await prisma.matterType.findFirst({
-    where: { key: matterTypeKey, isActive: true },
+    where: { workspaceId, key: matterTypeKey, isActive: true },
     select: { key: true },
   });
   if (!matterType) throw new Error('MATTER_TYPE_NOT_FOUND');
@@ -163,7 +165,7 @@ export async function upsertRoutingCapability(input: UpsertRoutingCapabilityInpu
 
 export async function listRoutingMatterTypes(workspaceId?: string) {
   return prisma.matterType.findMany({
-    where: workspaceId ? { OR: [{ workspaceId }, { workspaceId: null }] } : undefined,
+    where: workspaceId ? { workspaceId } : undefined,
     orderBy: [{ label: 'asc' }, { key: 'asc' }],
   });
 }

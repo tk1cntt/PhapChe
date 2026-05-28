@@ -65,15 +65,16 @@ function SuggestionList({ suggestions }: { suggestions: Suggestion[] }) {
   );
 }
 
-function AssignmentForm({ requestId, suggestions, assigned }: { requestId: string; suggestions: Suggestion[]; assigned: boolean }) {
+function AssignmentForm({ requestId, kind, suggestions, assigned }: { requestId: string; kind: AssignmentKind; suggestions: Suggestion[]; assigned: boolean }) {
+  const label = kindLabels[kind];
   return (
     <form action={assignRequestAction} className="min-w-64 space-y-4">
       <input type="hidden" name="requestId" value={requestId} />
-      <input type="hidden" name="kind" value="specialist" />
+      <input type="hidden" name="kind" value={kind} />
       <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]">
-        <span>Chọn người xử lý</span>
+        <span>Chọn {label.toLowerCase()}</span>
         <select name="assigneeId" required defaultValue="" className="min-h-10 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2">
-          <option value="">Chọn người xử lý trước khi lưu phân công.</option>
+          <option value="">Chọn {label.toLowerCase()} trước khi lưu phân công.</option>
           {suggestions.map((suggestion) => (
             <option key={suggestion.userId} value={suggestion.userId}>{suggestion.name || suggestion.email}</option>
           ))}
@@ -83,7 +84,7 @@ function AssignmentForm({ requestId, suggestions, assigned }: { requestId: strin
         <span>Lý do phân công</span>
         <textarea name="reason" required placeholder="Ví dụ: Phù hợp loại vụ việc và đang phụ trách nhóm hợp đồng lao động" className="min-h-24 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" />
       </label>
-      <Button type="submit">{assigned ? 'Cập nhật phân công' : 'Phân công chuyên viên'}</Button>
+      <Button type="submit">{assigned ? `Cập nhật ${label.toLowerCase()}` : `Phân công ${label.toLowerCase()}`}</Button>
     </form>
   );
 }
@@ -140,7 +141,10 @@ export default async function RoutingPage() {
                   <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{request.assignedReviewer?.name || request.assignedReviewer?.email || 'Chưa phân công'}</td>
                   <td className="px-4 py-3"><SuggestionList suggestions={suggestions.specialists} /></td>
                   <td className="px-4 py-3"><SuggestionList suggestions={suggestions.reviewers} /></td>
-                  <td className="px-4 py-3"><AssignmentForm requestId={request.id} suggestions={suggestions.specialists} assigned={Boolean(request.assignedSpecialist)} /></td>
+                  <td className="space-y-4 px-4 py-3">
+                    <AssignmentForm requestId={request.id} kind="specialist" suggestions={suggestions.specialists} assigned={Boolean(request.assignedSpecialist)} />
+                    <AssignmentForm requestId={request.id} kind="reviewer" suggestions={suggestions.reviewers} assigned={Boolean(request.assignedReviewer)} />
+                  </td>
                 </tr>
               );
             })}

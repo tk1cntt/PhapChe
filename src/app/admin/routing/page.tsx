@@ -137,7 +137,7 @@ export default async function RoutingPage() {
                 <tr key={request.id} className="align-top hover:bg-[#F1F5F9]">
                   <td className="whitespace-nowrap px-4 py-3 text-[16px] font-normal leading-[1.5]">{request.title}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{request.createdBy.name || request.createdBy.email}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{request.intakeSubmission?.matterType.label || request.intakeSubmission?.matterTypeKey || 'Chưa phân loại'}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{request.intakeSubmission?.matterType?.label || request.intakeSubmission?.matterTypeKey || 'Chưa phân loại'}</td>
                   <td className="whitespace-nowrap px-4 py-3"><Badge tone={statusLabels[request.status].tone}>{statusLabels[request.status].label}</Badge></td>
                   <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{request.assignedSpecialist?.name || request.assignedSpecialist?.email || 'Chưa phân công'}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{request.assignedReviewer?.name || request.assignedReviewer?.email || 'Chưa phân công'}</td>

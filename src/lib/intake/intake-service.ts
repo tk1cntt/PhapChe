@@ -186,6 +186,15 @@ export async function submitIntake(input: SubmitInput) {
   const validation = validateAnswers(submission.matterTypeKey, answers);
   if (!validation.ok) throw new Error(`INTAKE_REQUIRED_ANSWERS_MISSING:${validation.missingRequired.join(',')}`);
 
+  let coordinator: { userId: string } | null = null;
+  if (submission.matterTypeKey === 'unsupported') {
+    coordinator = await prisma.workspaceMembership.findFirst({
+      where: { workspaceId: submission.request.workspaceId, role: 'coordinator_admin', isActive: true, user: { isActive: true } },
+      select: { userId: true },
+    });
+    if (!coordinator) throw new Error('COORDINATOR_REQUIRED_FOR_TRIAGE');
+  }
+
   await transitionRequestStatus({
     requestId: input.requestId,
     actorId: input.session.userId,
@@ -216,15 +225,9 @@ export async function submitIntake(input: SubmitInput) {
   });
 
   if (submission.matterTypeKey === 'unsupported') {
-    const coordinator = await prisma.workspaceMembership.findFirst({
-      where: { workspaceId: submission.request.workspaceId, role: 'coordinator_admin', isActive: true, user: { isActive: true } },
-      select: { userId: true },
-    });
-    if (!coordinator) throw new Error('COORDINATOR_REQUIRED_FOR_TRIAGE');
-
     return transitionRequestStatus({
       requestId: input.requestId,
-      actorId: coordinator.userId,
+      actorId: coordinator!.userId,
       toStatus: 'triage',
       reason: 'unsupported intake requires human triage',
       correlationId: input.correlationId,

@@ -1,7 +1,7 @@
 ---
 phase: 02-intake
 verified: 2026-05-28T00:00:00Z
-status: human_needed
+status: passed
 score: 10/10 must-haves verified
 overrides_applied: 0
 re_verification:
@@ -23,7 +23,7 @@ human_verification:
 
 **Phase Goal:** Let SME customers submit legal requests through structured chat/form intake.
 **Verified:** 2026-05-28T00:00:00Z
-**Status:** human_needed
+**Status:** passed
 **Re-verification:** Yes — after gap closure
 
 ## Goal Achievement
@@ -131,3 +131,8 @@ Automated/static verification shows previous gaps closed. `requireAppSession` no
 
 _Verified: 2026-05-28T00:00:00Z_
 _Verifier: Claude (gsd-verifier)_
+
+
+## Human Smoke Result
+
+Passed at 2026-05-28T21:59:34. Browser-like smoke tested service selection, current request id flow, saved answer review, file upload review, supported status page, unsupported triage status page, and confirmed no `private/intake/` or `publicUrl` leak in rendered pages. See `02-HUMAN-UAT.md`.

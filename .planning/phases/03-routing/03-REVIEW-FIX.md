@@ -1,47 +1,44 @@
 ---
 phase: 03-routing
-fixed_at: 2026-05-28T00:00:00Z
+fixed_at: 2026-05-29T00:00:00Z
 review_path: .planning/phases/03-routing/03-REVIEW.md
-iteration: 1
-findings_in_scope: 3
-fixed: 3
-skipped: 0
 status: all_fixed
+findings_in_scope: 4
+fixed: 4
+skipped: 0
+iteration: 1
 ---
 
 # Phase 03: Code Review Fix Report
 
-**Fixed at:** 2026-05-28T00:00:00Z
-**Source review:** .planning/phases/03-routing/03-REVIEW.md
-**Iteration:** 1
+## Summary
 
-**Summary:**
-- Findings in scope: 3
-- Fixed: 3
-- Skipped: 0
+Fixed all critical/warning findings from code review and re-review.
 
-## Fixed Issues
+## Fixes Applied
 
 ### CR-01: Internal vault storage key exposed in specialist UI
-
-**Files modified:** `src/app/specialist/requests/[requestId]/page.tsx`
-**Commit:** 48f72fd
-**Applied fix:** Removed direct rendering of `file.storageKey`; specialist UI now shows filename and submission date only.
+- Removed `storageKey` rendering from `src/app/specialist/requests/[requestId]/page.tsx`.
+- Commit: `48f72fd`
 
 ### WR-01: Routing forms are not wired to server actions
-
-**Files modified:** `src/app/admin/routing/page.tsx`
-**Commit:** 4b7dae7
-**Applied fix:** Imported routing server actions and wired assignment, matter type, and capability forms to their actions.
+- Wired admin routing forms to `assignRequestAction`, `saveMatterTypeAction`, and `saveCapabilityAction`.
+- Commit: `4b7dae7`
 
 ### WR-02: Reviewer assignment suggestions are displayed but cannot be assigned
+- Added reviewer assignment form support in admin routing UI.
+- Commit: `5881475`
 
-**Files modified:** `src/app/admin/routing/page.tsx`
-**Commit:** 5881475
-**Applied fix:** Updated `AssignmentForm` to accept assignment kind and render separate specialist and reviewer assignment forms.
+### CR-02: Routing configuration/read server paths lack authorization
+- Added shared `requireRoutingAdmin` guard in `src/lib/routing/routing-service.ts`.
+- Applied guard to `saveMatterType`, `saveCapability`, and admin routing page read path.
+- Commit: `31c97bb` plus current page guard fix.
 
----
+## Verification
 
-_Fixed: 2026-05-28T00:00:00Z_
-_Fixer: Claude (gsd-code-fixer)_
-_Iteration: 1_
+- `npm run typecheck` passed.
+- `npx tsx src/lib/routing/routing-service.test.ts` passed.
+
+## Notes
+
+Latest re-review flagged admin routing page read access after server action guards were fixed; this report includes that final fix.

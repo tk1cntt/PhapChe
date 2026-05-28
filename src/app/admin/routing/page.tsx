@@ -1,6 +1,6 @@
 import type { AssignmentKind, RequestStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { getRoutingSuggestions, listRoutingCapabilities, listRoutingMatterTypes } from '@/lib/routing/routing-service';
+import { getRoutingSuggestions, listRoutingCapabilities, listRoutingMatterTypes, requireRoutingAdmin } from '@/lib/routing/routing-service';
 import { requireAppSession } from '@/lib/security/session';
 import { AdminShell } from '../components/admin-shell';
 import { Badge, Button, Card, PageHeader, Table } from '../components/ui';
@@ -92,6 +92,8 @@ function AssignmentForm({ requestId, kind, suggestions, assigned }: { requestId:
 export default async function RoutingPage() {
   const session = await requireAppSession();
   const workspaceId = session.activeWorkspaceId || '';
+  await requireRoutingAdmin(workspaceId, session.userId);
+
   const [requests, matterTypes, capabilities, members] = await Promise.all([
     prisma.legalRequest.findMany({
       where: { workspaceId, status: { in: ['intake_submitted', 'triage', 'assigned'] } },

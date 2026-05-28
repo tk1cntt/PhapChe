@@ -1,10 +1,13 @@
-import type { AssignmentKind, Prisma } from '@prisma/client';
+import type { AssignmentKind, Prisma, RequestStatus, Role } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { recordAuditEvent } from '@/lib/audit/audit';
+import { getAllowedTransitions } from '@/lib/workflow/request-workflow';
 
 type RoutingPrisma = typeof prisma & {
   routingCapability: {
     upsert(input: unknown): Promise<{ kind: AssignmentKind }>;
     findMany(input: unknown): Promise<Array<{ userId: string; user: { id: string; name: string; email: string } }>>;
+    findFirst(input: unknown): Promise<{ id: string } | null>;
   };
 };
 
@@ -35,6 +38,26 @@ type GetRoutingSuggestionsInput = {
   workspaceId: string;
 };
 
+type AssignRequestInput = {
+  requestId: string;
+  workspaceId: string;
+  actorId: string;
+  kind: AssignmentKind;
+  assigneeId: string;
+  reason: string;
+  correlationId: string;
+};
+
+type AssignmentRequest = {
+  id: string;
+  workspaceId: string;
+  status: RequestStatus;
+  createdById: string;
+  assignedSpecialistId: string | null;
+  assignedReviewerId: string | null;
+  intakeSubmission: { matterTypeKey: string } | null;
+};
+
 type RoutingSuggestion = {
   userId: string;
   name: string;
@@ -50,6 +73,40 @@ function requireText(value: string, errorCode: string) {
 function requireRoutingKind(kind: AssignmentKind) {
   if (kind !== 'specialist' && kind !== 'reviewer') throw new Error('ROUTING_KIND_INVALID');
   return kind;
+}
+
+function assignmentPath(status: RequestStatus): RequestStatus[] {
+  if (status === 'intake_submitted') return ['intake_submitted', 'triage', 'assigned'];
+  if (status === 'triage') return ['triage', 'assigned'];
+  if (status === 'assigned') return ['assigned'];
+  throw new Error('INVALID_REQUEST_TRANSITION');
+}
+
+function assertAssignmentPath(status: RequestStatus) {
+  const path = assignmentPath(status);
+  for (let index = 0; index < path.length - 1; index += 1) {
+    if (!getAllowedTransitions(path[index]).includes(path[index + 1])) throw new Error('INVALID_REQUEST_TRANSITION');
+  }
+  return path;
+}
+
+function metadataSummary(input: { kind: AssignmentKind; assigneeId: string; requestId: string; matterTypeKey: string; reason: string }) {
+  const shortReason = input.reason.replace(/\s+/g, ' ').trim().slice(0, 160);
+  const metadata = `kind=${input.kind}; assignee=${input.assigneeId}; request=${input.requestId}; matter=${input.matterTypeKey}; reasonProvided=true; reason=${shortReason}`;
+  if (metadata.length > 500) return metadata.slice(0, 500);
+  return metadata;
+}
+
+async function requireCoordinatorActor(workspaceId: string, actorId: string) {
+  const authorizedRoles: Role[] = ['coordinator_admin', 'super_admin'];
+  const coordinator_admin = authorizedRoles[0];
+  const super_admin = authorizedRoles[1];
+  if (!coordinator_admin || !super_admin) throw new Error('FORBIDDEN');
+  const membership = await prisma.workspaceMembership.findFirst({
+    where: { workspaceId, userId: actorId, role: { in: authorizedRoles }, isActive: true, user: { isActive: true }, workspace: { isActive: true } },
+    select: { id: true },
+  });
+  if (!membership) throw new Error('FORBIDDEN');
 }
 
 export async function upsertMatterType(input: UpsertMatterTypeInput) {
@@ -159,4 +216,98 @@ export async function getRoutingSuggestions(input: GetRoutingSuggestionsInput) {
   ]);
 
   return { specialists, reviewers };
+}
+
+export async function assignRequest(input: AssignRequestInput) {
+  const requestId = requireText(input.requestId, 'REQUEST_REQUIRED');
+  const workspaceId = requireText(input.workspaceId, 'WORKSPACE_REQUIRED');
+  const actorId = requireText(input.actorId, 'ACTOR_REQUIRED');
+  const assigneeId = requireText(input.assigneeId, 'ASSIGNEE_REQUIRED');
+  const correlationId = requireText(input.correlationId, 'CORRELATION_REQUIRED');
+  const reason = requireText(input.reason, 'ASSIGNMENT_REASON_REQUIRED');
+  const kind = requireRoutingKind(input.kind);
+
+  await requireCoordinatorActor(workspaceId, actorId);
+
+  const request = await prisma.legalRequest.findFirst({
+    where: { id: requestId, workspaceId },
+    select: {
+      id: true,
+      workspaceId: true,
+      status: true,
+      createdById: true,
+      assignedSpecialistId: true,
+      assignedReviewerId: true,
+      intakeSubmission: { select: { matterTypeKey: true } },
+    },
+  });
+  if (!request) throw new Error('REQUEST_NOT_FOUND');
+  if (!request.intakeSubmission) throw new Error('INTAKE_SUBMISSION_NOT_FOUND');
+  const matterTypeKey = request.intakeSubmission.matterTypeKey;
+
+  const path = assertAssignmentPath(request.status);
+  const capability = await db.routingCapability.findFirst({
+    where: {
+      workspaceId,
+      userId: assigneeId,
+      kind,
+      matterTypeKey,
+      isActive: true,
+      user: { isActive: true },
+      matterType: { isActive: true },
+    },
+    select: { id: true },
+  });
+  if (!capability) throw new Error('ROUTING_CAPABILITY_REQUIRED');
+
+  const membership = await prisma.workspaceMembership.findFirst({
+    where: { workspaceId, userId: assigneeId, role: kind, isActive: true, user: { isActive: true }, workspace: { isActive: true } },
+    select: { id: true },
+  });
+  if (!membership) throw new Error('ROUTING_MEMBERSHIP_REQUIRED');
+
+  return prisma.$transaction(async (tx) => {
+    let currentStatus = request.status;
+    for (let index = 1; index < path.length; index += 1) {
+      const nextStatus = path[index];
+      const updated = await tx.legalRequest.updateMany({
+        where: { id: requestId, status: currentStatus },
+        data: { status: nextStatus },
+      });
+      if (updated.count !== 1) throw new Error('REQUEST_STATUS_CONFLICT');
+
+      await tx.workflowTransition.create({
+        data: { requestId, actorId, fromStatus: currentStatus, toStatus: nextStatus, reason },
+      });
+      currentStatus = nextStatus;
+    }
+
+    const assignmentField = kind === 'specialist' ? { assignedSpecialistId: assigneeId } : { assignedReviewerId: assigneeId };
+    const updatedRequest = await tx.legalRequest.update({
+      where: { id: requestId },
+      data: assignmentField,
+      select: { id: true, status: true, assignedSpecialistId: true, assignedReviewerId: true },
+    });
+
+    const assignment = await tx.requestAssignment.create({
+      data: { requestId, userId: assigneeId, kind, createdById: actorId, reason },
+      select: { id: true },
+    });
+
+    await recordAuditEvent(
+      {
+        actorId,
+        workspaceId,
+        action: 'request.assigned',
+        targetType: 'ASSIGNMENT',
+        targetId: assignment.id,
+        requestId,
+        correlationId,
+        metadataSummary: metadataSummary({ kind, assigneeId, requestId, matterTypeKey, reason }),
+      },
+      tx,
+    );
+
+    return updatedRequest;
+  });
 }

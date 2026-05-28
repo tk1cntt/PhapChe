@@ -1,11 +1,7 @@
+import { readFileSync } from 'node:fs';
 import { assignRequest, getRoutingSuggestions, upsertMatterType, upsertRoutingCapability } from './routing-service';
 
-const source = [
-  String(upsertMatterType),
-  String(upsertRoutingCapability),
-  String(getRoutingSuggestions),
-  String(assignRequest),
-].join('\n');
+const source = readFileSync(new URL('./routing-service.ts', import.meta.url), 'utf8');
 
 function mustInclude(value: string, message: string) {
   if (!source.includes(value)) throw new Error(message);

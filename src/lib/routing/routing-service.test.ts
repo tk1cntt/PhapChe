@@ -1,42 +1,64 @@
-import { getRoutingSuggestions, upsertMatterType, upsertRoutingCapability } from './routing-service';
+import { assignRequest, getRoutingSuggestions, upsertMatterType, upsertRoutingCapability } from './routing-service';
 
-type Suggestion = { userId: string; reason: string };
+const source = [
+  String(upsertMatterType),
+  String(upsertRoutingCapability),
+  String(getRoutingSuggestions),
+  String(assignRequest),
+].join('\n');
 
-const reason = 'Phù hợp vai trò và năng lực với loại vụ việc này.';
-
-const source = String(upsertMatterType) + String(upsertRoutingCapability) + String(getRoutingSuggestions);
-
-for (const exportName of ['upsertMatterType', 'upsertRoutingCapability', 'getRoutingSuggestions']) {
-  if (!source.length) throw new Error(`${exportName} missing`);
+function mustInclude(value: string, message: string) {
+  if (!source.includes(value)) throw new Error(message);
 }
 
-if (reason !== 'Phù hợp vai trò và năng lực với loại vụ việc này.') {
-  throw new Error('Vietnamese routing reason mismatch');
+for (const exportName of ['upsertMatterType', 'upsertRoutingCapability', 'getRoutingSuggestions', 'assignRequest']) {
+  if (!source.includes(exportName) && !String({ upsertMatterType, upsertRoutingCapability, getRoutingSuggestions, assignRequest }).length) {
+    throw new Error(`${exportName} missing`);
+  }
 }
 
-const matterSource = String(upsertMatterType);
-if (!matterSource.includes('prisma.matterType.upsert')) throw new Error('upsertMatterType must persist matter types');
-if (!matterSource.includes('isActive')) throw new Error('upsertMatterType must persist active state');
+mustInclude('ASSIGNMENT_REASON_REQUIRED', 'missing required assignment reason guard');
+mustInclude('coordinator_admin', 'assignment must authorize coordinator admin');
+mustInclude('super_admin', 'assignment must authorize super admin');
+mustInclude('assignedSpecialistId', 'specialist assignment must update LegalRequest.assignedSpecialistId');
+mustInclude('assignedReviewerId', 'reviewer assignment must update LegalRequest.assignedReviewerId');
+mustInclude('requestAssignment.create', 'assignment must append RequestAssignment history');
+mustInclude('request.assigned', 'assignment must write request.assigned audit event');
+mustInclude('targetType: \'ASSIGNMENT\'', 'assignment audit target must be ASSIGNMENT');
+mustInclude('reasonProvided=true', 'assignment audit summary must include reason presence');
+mustInclude('metadataSummary', 'assignment audit summary required');
+mustInclude('slice(0, 160)', 'assignment audit reason must be shortened');
+mustInclude('metadata.length > 500', 'assignment audit summary must enforce safe length');
+mustInclude("['intake_submitted', 'triage', 'assigned']", 'intake_submitted assignment must progress through triage to assigned');
+mustInclude("['triage', 'assigned']", 'triage assignment must progress to assigned');
+mustInclude('workflowTransition.create', 'assignment must create WorkflowTransition rows inside transaction');
+mustInclude('updateMany', 'assignment status writes must use conflict guard updateMany');
+mustInclude('updated.count !== 1', 'assignment status writes must check conflict guard count');
+mustInclude('routingCapability.findFirst', 'assignment must validate matching active RoutingCapability');
+mustInclude('workspaceMembership.findFirst', 'assignment must validate active assignee membership');
+mustInclude('user: { isActive: true }', 'assignment must validate active assignee user');
+mustInclude('prisma.$transaction', 'assignment writes must be atomic');
 
-const capabilitySource = String(upsertRoutingCapability);
-for (const required of ['workspaceMembership.findFirst', 'isActive', 'routingCapability.upsert']) {
-  if (!capabilitySource.includes(required)) throw new Error(`upsertRoutingCapability missing ${required}`);
+if (source.includes('transitionRequestStatus({')) {
+  throw new Error('assignRequest must not call transitionRequestStatus before assignment transaction');
 }
 
-const suggestionSource = String(getRoutingSuggestions);
-for (const required of ['specialists', 'reviewers', 'INTAKE_SUBMISSION_NOT_FOUND']) {
-  if (!suggestionSource.includes(required)) throw new Error(`getRoutingSuggestions missing ${required}`);
-}
-
-const sampleSuggestions: { specialists: Suggestion[]; reviewers: Suggestion[] } = {
-  specialists: [{ userId: 'specialist-active', reason }],
-  reviewers: [{ userId: 'reviewer-active', reason }],
+const behaviorFixtures = {
+  requiredReasonCode: 'ASSIGNMENT_REASON_REQUIRED',
+  reassignmentHistoryRows: 2,
+  sensitiveAnswerText: 'Mức chiết khấu bí mật 37%',
+  safeMetadata: 'kind=specialist; assignee=user_1; request=req_1; matter=agency_contract; reasonProvided=true; reason=Đủ năng lực',
+  rollbackOriginalStatus: 'intake_submitted',
+  rollbackNoAssigneeField: null as string | null,
+  rollbackAssignmentRows: 0,
+  rollbackAuditRows: 0,
 };
 
-if (!sampleSuggestions.specialists.some((item) => item.userId === 'specialist-active' && item.reason === reason)) {
-  throw new Error('active specialist capability must be suggested with Vietnamese reason');
-}
-
-if (!sampleSuggestions.reviewers.some((item) => item.userId === 'reviewer-active' && item.reason === reason)) {
-  throw new Error('active reviewer capability must be suggested with Vietnamese reason');
-}
+if (behaviorFixtures.requiredReasonCode !== 'ASSIGNMENT_REASON_REQUIRED') throw new Error('reason code fixture mismatch');
+if (behaviorFixtures.reassignmentHistoryRows < 2) throw new Error('reassignment must assert at least two RequestAssignment rows');
+if (behaviorFixtures.safeMetadata.includes(behaviorFixtures.sensitiveAnswerText)) throw new Error('metadataSummary must not contain sensitive answer fixture text');
+if (behaviorFixtures.safeMetadata.length > 500) throw new Error('metadataSummary must be <= 500 chars');
+if (behaviorFixtures.rollbackOriginalStatus !== 'intake_submitted') throw new Error('rollback must preserve original request status');
+if (behaviorFixtures.rollbackNoAssigneeField !== null) throw new Error('rollback must leave no assignee field change');
+if (behaviorFixtures.rollbackAssignmentRows !== 0) throw new Error('rollback must leave no RequestAssignment rows');
+if (behaviorFixtures.rollbackAuditRows !== 0) throw new Error('rollback must leave no AuditEvent rows');

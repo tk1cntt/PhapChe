@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import type { AssignmentKind, Prisma } from '@prisma/client';
-import { assignRequest, upsertMatterType, upsertRoutingCapability } from '@/lib/routing/routing-service';
+import { assignRequest, requireRoutingAdmin, upsertMatterType, upsertRoutingCapability } from '@/lib/routing/routing-service';
 import { requireAppSession } from '@/lib/security/session';
 
 const successMessage = 'Đã lưu phân công và ghi nhận lịch sử điều phối.';
@@ -34,8 +34,10 @@ function routingKind(value: string): AssignmentKind {
 async function saveMatterType(formData: FormData): Promise<RoutingActionResult> {
   try {
     const session = await requireAppSession();
+    const workspaceId = session.activeWorkspaceId || '';
+    await requireRoutingAdmin(workspaceId, session.userId);
     await upsertMatterType({
-      workspaceId: session.activeWorkspaceId,
+      workspaceId,
       key: stringValue(formData, 'key'),
       label: stringValue(formData, 'label'),
       description: stringValue(formData, 'description'),
@@ -53,8 +55,10 @@ async function saveMatterType(formData: FormData): Promise<RoutingActionResult> 
 async function saveCapability(formData: FormData): Promise<RoutingActionResult> {
   try {
     const session = await requireAppSession();
+    const workspaceId = session.activeWorkspaceId || '';
+    await requireRoutingAdmin(workspaceId, session.userId);
     await upsertRoutingCapability({
-      workspaceId: session.activeWorkspaceId || '',
+      workspaceId,
       userId: stringValue(formData, 'userId'),
       matterTypeKey: stringValue(formData, 'matterTypeKey'),
       kind: routingKind(stringValue(formData, 'kind')),

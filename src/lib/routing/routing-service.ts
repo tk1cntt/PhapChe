@@ -97,13 +97,12 @@ function metadataSummary(input: { kind: AssignmentKind; assigneeId: string; requ
   return metadata;
 }
 
-async function requireCoordinatorActor(workspaceId: string, actorId: string) {
+export async function requireRoutingAdmin(workspaceId: string, actorId: string) {
+  const scopedWorkspaceId = requireText(workspaceId, 'WORKSPACE_REQUIRED');
+  const scopedActorId = requireText(actorId, 'ACTOR_REQUIRED');
   const authorizedRoles: Role[] = ['coordinator_admin', 'super_admin'];
-  const coordinator_admin = authorizedRoles[0];
-  const super_admin = authorizedRoles[1];
-  if (!coordinator_admin || !super_admin) throw new Error('FORBIDDEN');
   const membership = await prisma.workspaceMembership.findFirst({
-    where: { workspaceId, userId: actorId, role: { in: authorizedRoles }, isActive: true, user: { isActive: true }, workspace: { isActive: true } },
+    where: { workspaceId: scopedWorkspaceId, userId: scopedActorId, role: { in: authorizedRoles }, isActive: true, user: { isActive: true }, workspace: { isActive: true } },
     select: { id: true },
   });
   if (!membership) throw new Error('FORBIDDEN');
@@ -227,7 +226,7 @@ export async function assignRequest(input: AssignRequestInput) {
   const reason = requireText(input.reason, 'ASSIGNMENT_REASON_REQUIRED');
   const kind = requireRoutingKind(input.kind);
 
-  await requireCoordinatorActor(workspaceId, actorId);
+  await requireRoutingAdmin(workspaceId, actorId);
 
   const request = await prisma.legalRequest.findFirst({
     where: { id: requestId, workspaceId },

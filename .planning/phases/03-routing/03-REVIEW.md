@@ -15,9 +15,9 @@ files_reviewed_list:
   - src/lib/routing/routing-service.ts
 findings:
   critical: 1
-  warning: 2
+  warning: 0
   info: 0
-  total: 3
+  total: 1
 status: issues_found
 ---
 
@@ -30,66 +30,49 @@ status: issues_found
 
 ## Summary
 
-Đã review 9 file source trong scope routing. Luồng backend `assignRequest` có kiểm tra phân quyền, capability, membership, transaction và audit. Vấn đề chính nằm ở UI điều phối chưa nối server actions, chưa hỗ trợ phân công reviewer, và màn chi tiết chuyên viên đang hiển thị storage key nội bộ của file khách hàng.
+Đã re-review 9 file source trong scope routing sau code-review fixes. Các lỗi trước về form chưa nối server actions, reviewer assignment và lộ storage key đã được sửa. Còn 1 lỗi phân quyền nghiêm trọng: server actions cấu hình routing cho phép người dùng đã đăng nhập bất kỳ thay đổi matter type và routing capability mà không kiểm tra vai trò coordinator/super admin.
 
 ## Critical Issues
 
-### CR-01: Internal vault storage key exposed in specialist UI
+### CR-01: Routing configuration server actions lack authorization
 
-**File:** `src/app/specialist/requests/[requestId]/page.tsx:113`
-**Issue:** UI hiển thị trực tiếp `file.storageKey` cho chuyên viên. Storage key là định danh nội bộ của file nhạy cảm trong Legal Vault. Project constraint yêu cầu file private, phân quyền theo tenant/request, signed URL ngắn hạn; không nên lộ storage key ra giao diện người dùng vì có thể tiết lộ cấu trúc storage hoặc hỗ trợ truy cập trái phép nếu storage/bucket cấu hình sai.
-**Fix:** Không render `storageKey` trong UI. Nếu cần tải/xem file, gọi backend endpoint kiểm tra `canAccessRequest` rồi cấp signed URL ngắn hạn.
-```tsx
-{request.vaultFiles.map((file) => (
-  <li key={file.id} className="rounded-xl border border-[#E2E8F0] p-4">
-    <p className="text-[16px] font-normal leading-[1.5] text-[#0F172A]">{file.filename}</p>
-    <p className="mt-1 text-[14px] font-normal leading-[1.4] text-[#475569]">Ngày gửi: {formatDate(file.createdAt)}</p>
-  </li>
-))}
-```
+**File:** `src/app/admin/routing/actions.ts:33-61`
+**Issue:** `saveMatterType` và `saveCapability` chỉ gọi `requireAppSession()` rồi ghi dữ liệu qua `upsertMatterType` / `upsertRoutingCapability`. Không có kiểm tra membership role `coordinator_admin` hoặc `super_admin` như `assignRequest` đang làm trong `requireCoordinatorActor`. Vì server actions là endpoint phía server, user đã đăng nhập có thể gọi trực tiếp action để tạo/sửa loại vụ việc hoặc năng lực routing trong workspace active của họ. Nặng hơn, `saveMatterType` truyền `session.activeWorkspaceId` trực tiếp; nếu giá trị này rỗng/undefined, `upsertMatterType` chuyển thành `workspaceId: null`, có thể tạo/sửa matter type global. Đây là authorization gap cho cấu hình điều phối.
+**Fix:** Áp cùng guard phân quyền cho mọi mutation routing config. Đưa guard dùng chung ra service hoặc thêm helper trong actions trước khi gọi upsert; đồng thời yêu cầu workspaceId có giá trị.
+```ts
+async function requireRoutingAdmin(workspaceId: string, actorId: string) {
+  if (!workspaceId.trim()) throw new Error('WORKSPACE_REQUIRED');
+  const membership = await prisma.workspaceMembership.findFirst({
+    where: {
+      workspaceId,
+      userId: actorId,
+      role: { in: ['coordinator_admin', 'super_admin'] },
+      isActive: true,
+      user: { isActive: true },
+      workspace: { isActive: true },
+    },
+    select: { id: true },
+  });
+  if (!membership) throw new Error('FORBIDDEN');
+}
 
-## Warnings
-
-### WR-01: Routing forms are not wired to server actions
-
-**File:** `src/app/admin/routing/page.tsx:68,151,167`
-**Issue:** Các form điều phối, loại vụ việc, và năng lực xử lý không truyền `action={...}` tới server actions trong `src/app/admin/routing/actions.ts`. Nút submit sẽ không gọi `assignRequestAction`, `saveMatterTypeAction`, hoặc `saveCapabilityAction`, nên tính năng lưu/phân công không hoạt động.
-**Fix:** Import server actions và gắn đúng action cho từng form.
-```tsx
-import { assignRequestAction, saveCapabilityAction, saveMatterTypeAction } from './actions';
-
-<form action={assignRequestAction} className="min-w-64 space-y-4">
-  ...
-</form>
-
-<form action={saveMatterTypeAction} className="grid gap-4 md:grid-cols-2">
-  ...
-</form>
-
-<form action={saveCapabilityAction} className="grid gap-4 md:grid-cols-2">
-  ...
-</form>
-```
-
-### WR-02: Reviewer assignment suggestions are displayed but cannot be assigned
-
-**File:** `src/app/admin/routing/page.tsx:66-84,141`
-**Issue:** Bảng hiển thị cột “Gợi ý reviewer” nhưng `AssignmentForm` luôn gửi `kind="specialist"` và dòng 141 chỉ truyền `suggestions.specialists`. Không có form nào để chọn reviewer, nên reviewer không thể được phân công từ UI dù backend `assignRequest` hỗ trợ `kind: 'reviewer'`.
-**Fix:** Cho `AssignmentForm` nhận `kind`, `buttonLabel`, và truyền form riêng cho reviewer, hoặc thêm select chọn loại phân công.
-```tsx
-function AssignmentForm({ requestId, kind, suggestions, assigned }: {
-  requestId: string;
-  kind: AssignmentKind;
-  suggestions: Suggestion[];
-  assigned: boolean;
-}) {
-  return (
-    <form action={assignRequestAction} className="min-w-64 space-y-4">
-      <input type="hidden" name="requestId" value={requestId} />
-      <input type="hidden" name="kind" value={kind} />
-      ...
-    </form>
-  );
+async function saveCapability(formData: FormData): Promise<RoutingActionResult> {
+  try {
+    const session = await requireAppSession();
+    const workspaceId = session.activeWorkspaceId || '';
+    await requireRoutingAdmin(workspaceId, session.userId);
+    await upsertRoutingCapability({
+      workspaceId,
+      userId: stringValue(formData, 'userId'),
+      matterTypeKey: stringValue(formData, 'matterTypeKey'),
+      kind: routingKind(stringValue(formData, 'kind')),
+      isActive: booleanValue(formData, 'isActive'),
+    });
+    revalidatePath('/admin/routing');
+    return { ok: true, message: successMessage };
+  } catch {
+    return { ok: false, message: errorMessage };
+  }
 }
 ```
 

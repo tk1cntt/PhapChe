@@ -64,6 +64,7 @@ model User {
   reviews            Review[]
   workflowActions    WorkflowTransition[]
   auditEvents        AuditEvent[]
+  routingCapabilities RoutingCapability[]
 }
 
 model Workspace {
@@ -75,8 +76,9 @@ model Workspace {
   updatedAt   DateTime              @updatedAt
   memberships WorkspaceMembership[]
   requests    LegalRequest[]
-  matterTypes MatterType[]
-  documents   Document[]
+  matterTypes          MatterType[]
+  routingCapabilities  RoutingCapability[]
+  documents            Document[]
   reviews     Review[]
   vaultFiles   VaultFile[]
   auditEvents AuditEvent[]
@@ -138,8 +140,9 @@ model MatterType {
   isActive       Boolean            @default(true)
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
-  workspace      Workspace?         @relation(fields: [workspaceId], references: [id])
-  submissions    IntakeSubmission[]
+  workspace           Workspace?          @relation(fields: [workspaceId], references: [id])
+  submissions         IntakeSubmission[]
+  routingCapabilities RoutingCapability[]
 
   @@index([workspaceId])
   @@index([isActive])
@@ -177,6 +180,24 @@ model RequestAssignment {
   @@index([requestId])
   @@index([userId])
   @@index([kind])
+}
+
+model RoutingCapability {
+  id            String         @id @default(cuid())
+  workspaceId   String
+  userId        String
+  matterTypeKey String
+  kind          AssignmentKind
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id])
+  user          User           @relation(fields: [userId], references: [id])
+  matterType    MatterType     @relation(fields: [matterTypeKey], references: [key])
+
+  @@unique([workspaceId, userId, matterTypeKey, kind])
+  @@index([workspaceId, matterTypeKey, kind, isActive])
+  @@index([userId])
 }
 
 model Document {

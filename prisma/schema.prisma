@@ -64,6 +64,7 @@ model User {
   reviews            Review[]
   workflowActions    WorkflowTransition[]
   auditEvents        AuditEvent[]
+  vaultFiles         VaultFile[]
   routingCapabilities RoutingCapability[]
 }
 
@@ -203,6 +204,23 @@ model RoutingCapability {
   @@index([userId])
 }
 
+model WorkflowTransition {
+  id          String       @id @default(cuid())
+  requestId   String
+  fromStatus  RequestStatus
+  toStatus    RequestStatus
+  actorId     String
+  reason      String?
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+  request     LegalRequest @relation(fields: [requestId], references: [id])
+  actor       User         @relation(fields: [actorId], references: [id])
+
+  @@index([requestId])
+  @@index([actorId])
+  @@index([fromStatus, toStatus])
+}
+
 model Document {
   id          String       @id @default(cuid())
   workspaceId String
@@ -269,12 +287,14 @@ model DocumentTemplate {
 model VaultFile {
   id         String        @id @default(cuid())
   requestId  String
+  workspaceId String
   actorId    String
   fromStatus RequestStatus
   toStatus   RequestStatus
   reason     String?
   createdAt  DateTime      @default(now())
   request    LegalRequest  @relation(fields: [requestId], references: [id])
+  workspace  Workspace     @relation(fields: [workspaceId], references: [id])
   actor      User          @relation(fields: [actorId], references: [id])
 
   @@index([requestId])

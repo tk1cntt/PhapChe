@@ -14,15 +14,11 @@ SME gửi yêu cầu pháp lý theo cách đơn giản như nhắn tin và nhậ
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Admin có thể xem danh sách request, trạng thái xử lý và phân công specialist (RTE-04) — Phase 3
+- [x] Capability Matrix gợi ý specialist/reviewer phù hợp theo loại nghiệp vụ (RTE-01, RTE-02, RTE-03) — Phase 3
 
 ### Active
 
-- [ ] Khách hàng SME có thể tạo workspace và gửi yêu cầu pháp lý qua chat/form theo mẫu.
-- [ ] Hệ thống chuẩn hóa câu trả lời thành intake có cấu trúc, không chỉ lưu raw chat.
-- [ ] Khách hàng có thể upload giấy tờ/hồ sơ liên quan vào request.
-- [ ] Admin có thể xem danh sách request, trạng thái xử lý và phân công specialist.
-- [ ] Capability Matrix gợi ý specialist/reviewer phù hợp theo loại nghiệp vụ và trạng thái rảnh.
 - [ ] Specialist có thể xem intake, file, ghi chú nội bộ và tạo/gửi bản nháp tài liệu.
 - [ ] Reviewer có portal split view: bản thảo bên trái, checklist QC bên phải.
 - [ ] Reviewer có thể approve hoặc reject/revise kèm tiêu chí chưa đạt và comment.

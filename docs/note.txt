@@ -1,0 +1,44 @@
+[5/26/2026 6:44 AM] SnR System: Chào bạn, với tư cách là một Chuyên viên Phân tích Nghiệp vụ (Business Analyst - BA) kết hợp với tư duy quản trị E-Myth, tôi sẽ giúp bạn chuyển hóa ý tưởng dịch vụ pháp lý thuê ngoài thành một tài liệu yêu cầu phần mềm (BRD/SRS) chuyên nghiệp.
+Dựa trên các hình ảnh bạn cung cấp (mô phỏng giao diện kiểu ứng dụng nhắn tin/chatbot tương tác như Claude/Gemini), hệ thống này sẽ đóng vai trò là "Giao diện tương tác hệ thống" giúp số hóa toàn bộ Module Pháp lý.
+Dưới đây là tài liệu phân tích nghiệp vụ cho phần mềm của bạn:
+### Tên dự án: Hệ thống Quản trị Pháp lý Thông minh (Legal-as-a-Service Platform)
+### 1. Mục tiêu hệ thống (Business Objectives)
+ * Hệ thống hóa (Systemization): Tự động hóa quá trình tiếp nhận yêu cầu pháp lý từ khách hàng SME.
+ * Tính dự đoán (Predictability): Đảm bảo mọi phản hồi pháp lý đều theo đúng chuẩn mực và quy trình đã thiết lập.
+ * Trải nghiệm người dùng: Tương tác đơn giản như nhắn tin nhưng kết quả trả về là các văn bản pháp lý chính thống.
+### 2. Đối tượng sử dụng (Actors)
+ * Khách hàng (Chủ SME): Người gửi yêu cầu, tra cứu tài liệu và nhận tư vấn.
+ * Chuyên viên Pháp lý (Legal Admin): Người xử lý các yêu cầu phức tạp mà hệ thống chưa tự động hóa được.
+ * Quản trị viên (Super Admin - Bạn): Quản lý hệ thống, các module mẫu và báo cáo.
+### 3. Các chức năng cốt lõi (Functional Requirements)
+#### A. Giao diện Tương tác Hội thoại (Chat-based Interface)
+Dựa trên hình ảnh bạn cung cấp, đây là điểm chạm chính:
+ * Yêu cầu theo mẫu (Template-based Requests): Khách hàng có thể chọn "Soạn hợp đồng lao động", "Đăng ký nhãn hiệu", hệ thống sẽ hỏi các câu hỏi thông tin (Data input) như một cuộc hội thoại.
+ * Gửi ảnh/Tài liệu: Khách hàng chụp ảnh các công văn, giấy tờ pháp lý gửi lên. Hệ thống sử dụng OCR (nhận dạng chữ viết) để phân tích nội dung sơ bộ.
+#### B. Thư viện Hợp đồng Thông minh (Smart Contract Library)
+ * Tự động tạo văn bản (Document Automation): Sau khi khách hàng trả lời các câu hỏi ở phần Chat, hệ thống tự động điền thông tin vào mẫu hợp đồng chuẩn và xuất file PDF/Word.
+ * Quản lý phiên bản: Lưu trữ lịch sử các bản hợp đồng đã soạn.
+#### C. Hệ thống Nhắc lịch Tuân thủ (Compliance Calendar)
+ * Tự động quét và thông báo các kỳ hạn: Nộp báo cáo thuế, đóng bảo hiểm xã hội, gia hạn giấy phép kinh doanh, thời hạn hợp đồng lao động.
+[5/26/2026 6:44 AM] SnR System: #### D. Kho Lưu trữ Pháp lý (Legal Vault)
+ * Lưu trữ toàn bộ hồ sơ pháp lý của SME theo cấu trúc phân quyền (Folder-based).
+### 4. Quy trình nghiệp vụ mẫu (Use Case: Soạn hợp đồng)
+ 1. Người dùng: Chọn "Soạn hợp đồng đại lý".
+ 2. Hệ thống (Bot): Hỏi "Tên đối tác là gì?", "Tỷ lệ chiết khấu mong muốn?", "Thời hạn hợp đồng?".
+ 3. Hệ thống (Logic): Kiểm tra các điều khoản pháp lý liên quan đến Luật thương mại hiện hành.
+ 4. Kết quả: Xuất bản thảo hợp đồng gửi ngay trong khung chat cho người dùng xem lại.
+ 5. Luồng phê duyệt: Nếu người dùng cần chỉnh sửa đặc thù, yêu cầu được chuyển cho Chuyên viên Pháp lý thực thực thụ thông qua Dashboard nội bộ.
+### 5. Yêu cầu kỹ thuật & Phi chức năng
+ * Bảo mật dữ liệu (Data Privacy - shù jù yǐn sī): Mã hóa đầu cuối (End-to-end encryption) vì dữ liệu pháp lý của doanh nghiệp cực kỳ nhạy cảm.
+ * Tính sẵn sàng: Hoạt động 24/7 (Khách hàng có thể đặt câu hỏi vào ban đêm và nhận tài liệu mẫu ngay lập tức).
+ * Tích hợp (Integration): Có khả năng kết nối với chữ ký số (e-Signature) để khách hàng ký kết ngay trên ứng dụng.
+### 6. Danh mục tính năng (Product Backlog) - Giai đoạn 1 (MVP)
+| ID | Tính năng | Mô tả chi tiết | Ưu tiên |
+|---|---|---|---|
+| F01 | Chatbot Logic | Xây dựng bộ câu hỏi định hướng theo từng loại nghiệp vụ pháp lý. | Cao |
+| F02 | Doc Generator | Engine tự động đổ dữ liệu vào file mẫu (.docx/.pdf). | Cao |
+| F03 | OCR Scanner | Đọc dữ liệu từ ảnh chụp giấy phép kinh doanh/CCCD. | Trung bình |
+| F04 | Dashboard Admin | Giao diện cho bạn quản lý danh sách khách hàng và tình trạng xử lý. | Cao |
+### Lời khuyên dưới góc độ E-Myth cho BA:
+Đừng cố gắng xây dựng một AI thông minh biết tất cả mọi thứ. Hãy xây dựng một "Cây thư mục quy trình". Mỗi câu hỏi của khách hàng phải rơi vào một quy trình đã định sẵn (SOP). Nếu khách hàng hỏi ngoài quy trình, hệ thống phải tự động chuyển cho con người xử lý và sau đó bạn phải bổ sung quy trình đó vào hệ thống để "máy hóa" nó lần sau.
+Bạn có muốn tôi đi sâu vào chi tiết Bộ câu hỏi (Input Fields) cho một nghiệp vụ cụ thể nào không (ví dụ: Quy trình soạn Hợp đồng Lao động)?

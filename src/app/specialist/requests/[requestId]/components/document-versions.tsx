@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Badge, Button } from '@/app/admin/components/ui';
+import { Badge } from '@/app/admin/components/ui';
 import { submitForReviewAction } from '../actions';
 
 type VersionStatus = 'draft' | 'submitted_for_review' | 'final';
@@ -85,39 +85,43 @@ export default function DocumentVersionsList({ documentVersions, requestId, requ
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Button
-                    variant="ghost"
+                  <button
+                    type="button"
                     onClick={() => setExpandedVersionId(isExpanded ? null : version.id)}
+                    className="inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-[14px] font-semibold leading-[1.4] transition hover:bg-[#F1F5F9] hover:text-[#0F172A]"
                   >
                     {isExpanded ? 'Ẩn nội dung' : 'Xem nội dung'}
-                  </Button>
+                  </button>
 
                   {canSubmitForReview && (
                     <>
                       {isConfirming ? (
                         <div className="flex items-center gap-2">
                           <span className="text-[14px] text-[#475569]">Gửi phiên bản để kiểm tra?</span>
-                          <Button
-                            variant="primary"
+                          <button
+                            type="button"
                             disabled={isSubmitting}
                             onClick={() => handleSubmitForReview(version.id)}
+                            className="inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-[14px] font-semibold leading-[1.4] transition hover:bg-teal-800 hover:shadow disabled:cursor-not-allowed disabled:opacity-60 bg-[#0F766E] text-white shadow-sm"
                           >
                             {isSubmitting ? 'Đang gửi...' : 'Gửi kiểm tra'}
-                          </Button>
-                          <Button
-                            variant="secondary"
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => setConfirmingVersionId(null)}
+                            className="inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-[14px] font-semibold leading-[1.4] transition hover:bg-[#F8FAFC] hover:border-[#94A3B8] bg-white text-[#0F172A] border border-[#CBD5E1] shadow-sm"
                           >
                             Hủy
-                          </Button>
+                          </button>
                         </div>
                       ) : (
-                        <Button
-                          variant="secondary"
+                        <button
+                          type="button"
                           onClick={() => setConfirmingVersionId(version.id)}
+                          className="inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-[14px] font-semibold leading-[1.4] transition hover:bg-[#F8FAFC] hover:border-[#94A3B8] bg-white text-[#0F172A] border border-[#CBD5E1] shadow-sm"
                         >
                           Gửi kiểm tra
-                        </Button>
+                        </button>
                       )}
                     </>
                   )}

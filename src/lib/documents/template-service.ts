@@ -8,7 +8,7 @@ function isAdmin(session: AppSession | null | undefined) {
   return session?.roles.includes('coordinator_admin') || session?.roles.includes('super_admin') || false;
 }
 
-type TemplateVariable = {
+export type TemplateVariable = {
   key: string;
   label: string;
   required: boolean;

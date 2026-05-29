@@ -2,8 +2,13 @@ import { notFound } from 'next/navigation';
 import type { RequestStatus } from '@prisma/client';
 import { Badge, Card, PageHeader } from '@/app/admin/components/ui';
 import { prisma } from '@/lib/prisma';
+import { getTemplatesForGeneration } from '@/lib/documents/template-service';
+import { listVaultFiles } from '@/lib/documents/vault-service';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { requireAppSession } from '@/lib/security/session';
+import GenerateDraftForm from './components/generate-draft-form';
+import DocumentVersionsList from './components/document-versions';
+import VaultFilesList from './components/vault-files';
 
 const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Nháp tiếp nhận', tone: 'neutral' },
@@ -45,11 +50,28 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
     where: { id: requestId },
     select: {
       id: true,
+      workspaceId: true,
       title: true,
       status: true,
       createdBy: { select: { name: true, email: true } },
       intakeSubmission: { select: { matterTypeKey: true, answerLabels: true, answers: true } },
       vaultFiles: { select: { id: true, filename: true, storageKey: true, createdAt: true }, orderBy: { createdAt: 'desc' } },
+      documents: {
+        select: {
+          id: true,
+          documentVersions: {
+            select: {
+              id: true,
+              templateId: true,
+              templateVersion: true,
+              status: true,
+              generatedContent: true,
+              createdAt: true,
+            },
+            orderBy: { createdAt: 'desc' },
+          },
+        },
+      },
     },
   });
   if (!request) notFound();
@@ -62,6 +84,44 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
     label: typeof answerLabels[key] === 'string' ? answerLabels[key] as string : key,
     value: formatValue(value),
   }));
+
+  // Load templates and vault files server-side
+  const matterTypeKey = request.intakeSubmission?.matterTypeKey ?? '';
+  const templates = matterTypeKey
+    ? await getTemplatesForGeneration(session, request.workspaceId, matterTypeKey).catch(() => [])
+    : [];
+
+  const allVaultFiles = await listVaultFiles(session, requestId).catch(() => []);
+
+  // Flatten document versions with template info
+  const documentVersions = request.documents.flatMap((doc) =>
+    doc.documentVersions.map((v) => ({
+      ...v,
+      template: { label: '', version: v.templateVersion },
+    })),
+  );
+
+  // Enrich versions with template labels
+  const templateIds = [...new Set(documentVersions.map((v) => v.templateId))];
+  const templateMap = new Map(
+    templates.map((t) => [t.id, { label: t.label, version: t.version }]),
+  );
+  if (templateIds.length > 0) {
+    const dbTemplates = await prisma.documentTemplate.findMany({
+      where: { id: { in: templateIds } },
+      select: { id: true, label: true, version: true },
+    });
+    for (const t of dbTemplates) {
+      templateMap.set(t.id, { label: t.label, version: t.version });
+    }
+  }
+
+  const enrichedVersions = documentVersions.map((v) => ({
+    ...v,
+    template: templateMap.get(v.templateId) ?? { label: 'Unknown', version: v.templateVersion },
+  }));
+
+  const showDraftSection = request.status === 'assigned' || request.status === 'in_progress';
 
   return (
     <main className="mx-auto flex max-w-[960px] flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">
@@ -118,6 +178,53 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
         ) : (
           <p className="rounded-xl border border-[#E2E8F0] p-4 text-[16px] leading-[1.5] text-[#475569]">Khách hàng chưa gửi tệp hỗ trợ.</p>
         )}
+      </Card>
+
+      {showDraftSection && (
+        <Card className="space-y-4">
+          <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Tạo bản nháp</h2>
+          {templates.length === 0 ? (
+            <p className="rounded-xl border border-[#E2E8F0] p-4 text-[16px] leading-[1.5] text-[#475569]">
+              Chưa có mẫu tài liệu nào cho loại vụ việc này.
+            </p>
+          ) : (
+            <GenerateDraftForm
+              requestId={requestId}
+              templates={templates.map((t) => ({
+                id: t.id,
+                matterTypeKey: t.matterTypeKey,
+                version: t.version,
+                status: t.status,
+                label: t.label,
+                description: t.description,
+                variableSchema: t.variableSchema as unknown as import('@/lib/documents/template-service').TemplateVariable[],
+                content: t.content,
+              }))}
+              initialAnswers={answers}
+            />
+          )}
+        </Card>
+      )}
+
+      {enrichedVersions.length > 0 && (
+        <Card className="space-y-4">
+          <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">
+            Các phiên bản tài liệu
+            <span className="ml-2 text-[16px] font-normal text-[#475569]">
+              (Có {enrichedVersions.length} phiên bản)
+            </span>
+          </h2>
+          <DocumentVersionsList
+            documentVersions={enrichedVersions}
+            requestId={requestId}
+            requestStatus={request.status}
+          />
+        </Card>
+      )}
+
+      <Card className="space-y-4">
+        <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Tệp trong kho lưu trữ</h2>
+        <VaultFilesList vaultFiles={allVaultFiles} />
       </Card>
     </main>
   );

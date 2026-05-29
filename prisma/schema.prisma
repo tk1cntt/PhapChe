@@ -204,6 +204,29 @@ model RoutingCapability {
   @@index([userId])
 }
 
+enum DocumentVersionStatus {
+  draft
+  submitted_for_review
+  final
+}
+
+model DocumentVersion {
+  id               String                 @id @default(cuid())
+  documentId       String
+  templateId       String
+  templateVersion  Int
+  status           DocumentVersionStatus  @default(draft)
+  inputSnapshot    Json
+  generatedContent String
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  document         Document               @relation(fields: [documentId], references: [id])
+
+  @@index([documentId])
+  @@index([templateId])
+  @@index([status])
+}
+
 model WorkflowTransition {
   id          String       @id @default(cuid())
   requestId   String
@@ -231,6 +254,7 @@ model Document {
   workspace   Workspace    @relation(fields: [workspaceId], references: [id])
   request     LegalRequest @relation(fields: [requestId], references: [id])
   reviews     Review[]
+  documentVersions DocumentVersion[]
 
   @@index([workspaceId])
   @@index([requestId])
@@ -285,21 +309,28 @@ model DocumentTemplate {
 }
 
 model VaultFile {
-  id         String        @id @default(cuid())
-  requestId  String
-  workspaceId String
-  actorId    String
-  fromStatus RequestStatus
-  toStatus   RequestStatus
-  reason     String?
-  createdAt  DateTime      @default(now())
-  request    LegalRequest  @relation(fields: [requestId], references: [id])
-  workspace  Workspace     @relation(fields: [workspaceId], references: [id])
-  actor      User          @relation(fields: [actorId], references: [id])
+  id                String         @id @default(cuid())
+  requestId         String
+  workspaceId       String
+  actorId           String
+  filename          String?
+  storageKey        String?
+  fileKind          String?
+  source            String?
+  documentVersionId String?
+  fromStatus        RequestStatus?
+  toStatus          RequestStatus?
+  reason            String?
+  createdAt         DateTime       @default(now())
+  request           LegalRequest   @relation(fields: [requestId], references: [id])
+  workspace         Workspace      @relation(fields: [workspaceId], references: [id])
+  actor             User           @relation(fields: [actorId], references: [id])
+  documentVersion   DocumentVersion? @relation(fields: [documentVersionId], references: [id])
 
   @@index([requestId])
   @@index([actorId])
-  @@index([fromStatus, toStatus])
+  @@index([fileKind])
+  @@index([documentVersionId])
 }
 
 model AuditEvent {

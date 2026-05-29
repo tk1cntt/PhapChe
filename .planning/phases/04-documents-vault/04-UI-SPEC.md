@@ -1,7 +1,8 @@
 ---
 phase: 04
 slug: documents-vault
-status: draft
+status: approved
+reviewed_at: 2026-05-29
 shadcn_initialized: false
 preset: none
 created: 2026-05-29
@@ -59,9 +60,7 @@ From existing `src/app/admin/components/ui.tsx`:
 | Display | 30px | 600 | 1.15 | Page titles (PageHeader h1) |
 | Heading | 20px | 600 | 1.2 | Section h2, card titles |
 | Body | 16px | 400 | 1.5 | Form labels, content text |
-| Label | 14px | 600 | 1.4 | Metadata labels, button text |
-| Caption | 14px | 400 | 1.4 | Secondary text, timestamps |
-| Badge | 13px | 600 | 1.3 | Badge text |
+| Small | 14px | 400/600 | 1.4 | Metadata labels, button text, timestamps, captions, badge text |
 
 **Notes:**
 - Two weights max: normal (400) + semibold (600)
@@ -123,7 +122,7 @@ From existing `src/app/admin/components/ui.tsx` and `tailwind.config.ts`:
 - **Variable schema editor**: Dynamic list with add/remove
   - Each variable: key (text), label (text), type (select: text/number/date/select), required (checkbox)
 - **Version history table**: columns = Phiên bản, Ngày tạo, Trạng thái
-- **Actions**: Lưu (primary), Hủy (secondary/destructive)
+- **Actions**: Lưu thay đổi (primary), Hủy bỏ (secondary/destructive)
 - **Validation error**: red-50 background, text-[14px] red-600 text
 
 #### Template Creation Form

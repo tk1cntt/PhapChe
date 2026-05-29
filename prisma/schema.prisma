@@ -211,16 +211,16 @@ enum DocumentVersionStatus {
 }
 
 model DocumentVersion {
-  id               String                 @id @default(cuid())
-  documentId       String
-  templateId       String
-  templateVersion  Int
-  status           DocumentVersionStatus  @default(draft)
-  inputSnapshot    Json
+  id                String                 @id @default(cuid())
+  documentId        String
+  templateId        String
+  templateVersion   Int
+  status            DocumentVersionStatus  @default(draft)
+  inputSnapshot     Json
   generatedContent String
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
-  document         Document               @relation(fields: [documentId], references: [id])
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  document          Document              @relation(fields: [documentId], references: [id])
 
   @@index([documentId])
   @@index([templateId])
@@ -325,7 +325,6 @@ model VaultFile {
   request           LegalRequest   @relation(fields: [requestId], references: [id])
   workspace         Workspace      @relation(fields: [workspaceId], references: [id])
   actor             User           @relation(fields: [actorId], references: [id])
-  documentVersion   DocumentVersion? @relation(fields: [documentVersionId], references: [id])
 
   @@index([requestId])
   @@index([actorId])

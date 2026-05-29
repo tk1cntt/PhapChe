@@ -79,9 +79,10 @@ model Workspace {
   matterTypes          MatterType[]
   routingCapabilities  RoutingCapability[]
   documents            Document[]
-  reviews     Review[]
-  vaultFiles   VaultFile[]
-  auditEvents AuditEvent[]
+  reviews              Review[]
+  vaultFiles           VaultFile[]
+  auditEvents          AuditEvent[]
+  documentTemplates     DocumentTemplate[]
 }
 
 model WorkspaceMembership {
@@ -236,22 +237,36 @@ model Review {
   @@index([reviewerId])
 }
 
-model VaultFile {
-  id          String       @id @default(cuid())
-  workspaceId String
-  requestId   String
-  storageKey  String
-  filename    String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  workspace   Workspace    @relation(fields: [workspaceId], references: [id])
-  request     LegalRequest @relation(fields: [requestId], references: [id])
-
-  @@index([workspaceId])
-  @@index([requestId])
+enum TemplateStatus {
+  draft
+  approved
+  published
+  deprecated
 }
 
-model WorkflowTransition {
+model DocumentTemplate {
+  id                String         @id @default(cuid())
+  workspaceId       String
+  matterTypeKey     String
+  version           Int            @default(1)
+  status            TemplateStatus @default(draft)
+  label             String
+  description       String?
+  variableSchema    Json           @default("[]")
+  content           String
+  previousVersionId String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  workspace         Workspace      @relation(fields: [workspaceId], references: [id])
+  previousVersion   DocumentTemplate? @relation("TemplateVersion", fields: [previousVersionId], references: [id])
+  nextVersions      DocumentTemplate[] @relation("TemplateVersion")
+
+  @@unique([workspaceId, matterTypeKey, version])
+  @@index([workspaceId, matterTypeKey])
+  @@index([workspaceId, status])
+}
+
+model VaultFile {
   id         String        @id @default(cuid())
   requestId  String
   actorId    String

@@ -2,28 +2,7 @@ import { PageHeader } from "@/app/admin/components/ui";
 import { Button } from "@/app/admin/components/ui";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-
-// QC-LEG-01 Checklist items (static)
-const CHECKLIST_ITEMS = [
-  // Formal Requirements (Yêu cầu hình thức)
-  { id: "formal-1", group: "formal", label: "Biểu mẫu phù hợp", required: true },
-  { id: "formal-2", group: "formal", label: "Chính tả/trình bày", required: true },
-  { id: "formal-3", group: "formal", label: "Thông tin doanh nghiệp khớp", required: true },
-  // Legal Content (Nội dung pháp lý)
-  { id: "legal-1", group: "legal", label: "Căn cứ pháp lý còn hiệu lực", required: true },
-  { id: "legal-2", group: "legal", label: "Quyền và nghĩa vụ rõ ràng", required: true },
-  { id: "legal-3", group: "legal", label: "Điều khoản rủi ro", required: true },
-  { id: "legal-4", group: "legal", label: "Phù hợp với vấn đề của khách hàng", required: true },
-  // Operational & Signing (Thủ tục và ký nháy)
-  { id: "op-1", group: "operational", label: "Vị trí ký", required: true },
-  { id: "op-2", group: "operational", label: "Phân loại bảo mật", required: true },
-];
-
-const GROUP_LABELS = {
-  formal: "Yêu cầu hình thức",
-  legal: "Nội dung pháp lý",
-  operational: "Thủ tục và ký nháy"
-};
+import { CHECKLIST_ITEMS, GROUP_LABELS, CHECKLIST_GROUPS } from "@/constants/checklist-items";
 
 export default async function ReviewDetailPage({
   params,
@@ -40,6 +19,11 @@ export default async function ReviewDetailPage({
   // 1. DocumentVersion with VaultFile content
   // 2. LegalRequest with matter type and specialist info
   // 3. Existing ReviewChecklistAnswer if review was started
+  // 4. Passed checklist item IDs to derive button state
+  const passedItemIds: string[] = []; // TODO: replace with actual data
+  const allRequiredPassed = CHECKLIST_ITEMS
+    .filter(item => item.required)
+    .every(item => passedItemIds.includes(item.id));
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -70,7 +54,7 @@ export default async function ReviewDetailPage({
 
             {/* Checklist Groups */}
             <div className="space-y-4">
-              {["formal", "legal", "operational"].map((group) => (
+              {CHECKLIST_GROUPS.map((group) => (
                 <details key={group} className="rounded-lg border border-[#E2E8F0]" open={group === "formal"}>
                   <summary className="cursor-pointer bg-[#F1F5F9] px-4 py-3 font-semibold text-[#0F172A]">
                     {GROUP_LABELS[group as keyof typeof GROUP_LABELS]}
@@ -108,7 +92,7 @@ export default async function ReviewDetailPage({
 
             {/* Action Buttons */}
             <div className="mt-6 flex gap-4">
-              <Button variant="primary" className="flex-1" disabled>
+              <Button variant="primary" className="flex-1" disabled={!allRequiredPassed}>
                 Phê duyệt
               </Button>
               <Button variant="destructive" className="flex-1">

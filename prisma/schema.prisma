@@ -321,6 +321,8 @@ model VaultFile {
   fromStatus        RequestStatus?
   toStatus          RequestStatus?
   reason            String?
+  size              Int?
+  contentType       String?
   createdAt         DateTime       @default(now())
   request           LegalRequest   @relation(fields: [requestId], references: [id])
   workspace         Workspace      @relation(fields: [workspaceId], references: [id])

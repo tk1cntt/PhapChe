@@ -1,6 +1,7 @@
 ---
 phase: 04-documents-vault
 verified: 2026-05-29T17:00:00Z
+updated: 2026-05-30
 status: gaps_found
 score: 10/11 must-haves verified
 overrides_applied: 0
@@ -20,25 +21,13 @@ gaps:
       - "UI component for browsing vault files by folder or filtering by tag"
 warnings:
   - truth: "vault-service references size and contentType fields missing from VaultFile schema"
-    status: failed
-    reason: "vault-service.ts lines 60-61, 92-93, 185-186 select/create size and contentType on VaultFile, but prisma/schema.prisma VaultFile model lacks these fields. This causes Prisma runtime query failure."
-    artifacts:
-      - path: "src/lib/documents/vault-service.ts"
-        issue: "References size: true and contentType: true in select clauses and size/contentType in create data — fields absent from schema"
-      - path: "prisma/schema.prisma"
-        issue: "VaultFile model missing size (Int?) and contentType (String?) fields"
-    missing:
-      - "Add size and contentType fields to VaultFile model, or remove references from vault-service.ts"
+    status: resolved
+    resolved_by: "04-04"
+    reason: "Added size (Int?) and contentType (String?) optional fields to VaultFile model in prisma/schema.prisma (commit 97f8c16)"
   - truth: "Admin can create document templates with variables via UI"
-    status: partial
-    reason: "Template creation form (admin/templates/new/page.tsx) has matterTypeKey, label, description, content fields but no variable schema builder. VariableSchema always defaults to empty array in server action. Admin must define variables through direct DB manipulation."
-    artifacts:
-      - path: "src/app/admin/templates/new/page.tsx"
-        issue: "No variable schema input field — only label, description, matterTypeKey, content"
-      - path: "src/app/admin/templates/new/actions.ts"
-        issue: "line 43: variableSchema hardcoded to []"
-    missing:
-      - "Variable schema builder UI (table: key, label, required, type) in template creation form"
+    status: resolved
+    resolved_by: "04-04"
+    reason: "Added VariableSchemaBuilder client component to template creation form with key/label/required/type table. Server action parses and validates variableSchema from FormData (commit 0b2e85e)"
 ---
 
 # Phase 04: Documents Vault Verification Report

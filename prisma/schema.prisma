@@ -266,17 +266,25 @@ model Review {
   requestId   String
   documentId  String
   reviewerId  String
+  documentVersionId String?  // link to specific document version
+  status      ReviewStatus @default(in_progress)
+  decision    ReviewDecision?
+  generalComment String?
+  completedAt DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   workspace   Workspace    @relation(fields: [workspaceId], references: [id])
   request     LegalRequest @relation(fields: [requestId], references: [id])
   document    Document     @relation(fields: [documentId], references: [id])
   reviewer    User         @relation(fields: [reviewerId], references: [id])
+  checklistAnswers ReviewChecklistAnswer[]
 
   @@index([workspaceId])
   @@index([requestId])
   @@index([documentId])
   @@index([reviewerId])
+  @@index([documentVersionId])
+  @@index([status])
 }
 
 enum TemplateStatus {
@@ -284,6 +292,31 @@ enum TemplateStatus {
   approved
   published
   deprecated
+}
+
+enum ReviewStatus {
+  in_progress
+  approved
+  rejected
+}
+
+enum ReviewDecision {
+  approve
+  reject
+}
+
+model ReviewChecklistAnswer {
+  id             String   @id @default(cuid())
+  reviewId       String
+  checklistItemId String
+  passed         Boolean  @default(false)
+  comment        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  review         Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewId, checklistItemId])
+  @@index([reviewId])
 }
 
 model DocumentTemplate {

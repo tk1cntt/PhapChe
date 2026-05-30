@@ -2,15 +2,15 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
-import { createTemplate } from '@/lib/documents/template-service';
+import { createTemplate, type TemplateVariable } from '@/lib/documents/template-service';
 
 export type CreateTemplateState = {
   errors?: {
     label?: string;
     matterTypeKey?: string;
     content?: string;
+    variableSchema?: string;
   };
   message?: string;
 };
@@ -35,12 +35,26 @@ export async function createTemplateAction(prevState: CreateTemplateState, formD
   if (Object.keys(errors).length > 0) return { errors };
 
   try {
+    const rawSchema = formData.get('variableSchema')?.toString() || '[]';
+    let variableSchema: unknown;
+    try {
+      variableSchema = JSON.parse(rawSchema);
+      if (!Array.isArray(variableSchema)) throw new Error();
+      for (const v of variableSchema as Record<string, unknown>[]) {
+        if (typeof v.key !== 'string' || typeof v.label !== 'string' || typeof v.required !== 'boolean' || typeof v.type !== 'string') {
+          throw new Error();
+        }
+      }
+    } catch {
+      return { errors: { variableSchema: 'Biến mẫu không hợp lệ' } };
+    }
+
     const template = await createTemplate(session, {
       workspaceId: session.activeWorkspaceId,
-      matterTypeKey,
-      label,
+      matterTypeKey: matterTypeKey!,
+      label: label!,
       description,
-      variableSchema: [],
+      variableSchema: variableSchema as TemplateVariable[],
       content,
     });
 

@@ -3,6 +3,7 @@ import { AdminShell } from '../../components/admin-shell';
 import { Button, Card } from '../../components/ui';
 import { requireAppSession } from '@/lib/security/session';
 import { createTemplateAction } from './actions';
+import { VariableSchemaBuilder } from './variable-schema-builder';
 
 const MATTER_TYPE_OPTIONS = [
   { key: 'labor_contract', label: 'Hợp đồng lao động' },
@@ -94,6 +95,14 @@ export default async function NewTemplatePage() {
               placeholder={`VD:\nCỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM\nĐộc lập - Tự do - Hạnh phúc\n\nHỢP ĐỒNG LAO ĐỘNG\n\nCông ty: {{employer_name}}\nNhân viên: {{employee_name}}\nVị trí: {{job_title}}\nMức lương: {{salary}}\nNgày bắt đầu: {{start_date}}`}
               className="w-full rounded-xl border border-[#CBD5E1] bg-white px-3 py-2.5 font-mono text-[13px] leading-relaxed text-[#0F172A] shadow-sm placeholder:text-[#94A3B8] focus:border-[#0F766E] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-1"
             />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-[14px] font-semibold text-[#0F172A]">
+              Biến mẫu
+            </label>
+            <p className="text-[13px] text-[#64748B]">Định nghĩa các biến sẽ được điền khi sử dụng mẫu này.</p>
+            <VariableSchemaBuilder />
           </div>
 
           <div className="flex items-center justify-end gap-3 border-t border-[#E2E8F0] pt-6">

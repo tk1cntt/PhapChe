@@ -1,0 +1,123 @@
+import { PageHeader } from "@/app/admin/components/ui";
+import { Button } from "@/app/admin/components/ui";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+
+// QC-LEG-01 Checklist items (static)
+const CHECKLIST_ITEMS = [
+  // Formal Requirements (Yêu cầu hình thức)
+  { id: "formal-1", group: "formal", label: "Biểu mẫu phù hợp", required: true },
+  { id: "formal-2", group: "formal", label: "Chính tả/trình bày", required: true },
+  { id: "formal-3", group: "formal", label: "Thông tin doanh nghiệp khớp", required: true },
+  // Legal Content (Nội dung pháp lý)
+  { id: "legal-1", group: "legal", label: "Căn cứ pháp lý còn hiệu lực", required: true },
+  { id: "legal-2", group: "legal", label: "Quyền và nghĩa vụ rõ ràng", required: true },
+  { id: "legal-3", group: "legal", label: "Điều khoản rủi ro", required: true },
+  { id: "legal-4", group: "legal", label: "Phù hợp với vấn đề của khách hàng", required: true },
+  // Operational & Signing (Thủ tục và ký nháy)
+  { id: "op-1", group: "operational", label: "Vị trí ký", required: true },
+  { id: "op-2", group: "operational", label: "Phân loại bảo mật", required: true },
+];
+
+const GROUP_LABELS = {
+  formal: "Yêu cầu hình thức",
+  legal: "Nội dung pháp lý",
+  operational: "Thủ tục và ký nháy"
+};
+
+export default async function ReviewDetailPage({
+  params,
+}: {
+  params: { requestId: string; documentVersionId: string };
+}) {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  // TODO: Load review data:
+  // 1. DocumentVersion with VaultFile content
+  // 2. LegalRequest with matter type and specialist info
+  // 3. Existing ReviewChecklistAnswer if review was started
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <div className="mx-auto max-w-6xl px-6 py-8">
+        <PageHeader
+          title="Kiểm tra tài liệu"
+          description="Đánh giá tài liệu theo tiêu chí QC-LEG-01"
+        />
+
+        {/* Split View Container */}
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Left Panel: Document Preview */}
+          <div className="min-h-[400px] rounded-xl border border-[#E2E8F0] bg-white p-6">
+            <h2 className="mb-4 text-lg font-semibold text-[#0F172A]">
+              Nội dung tài liệu
+            </h2>
+            {/* TODO: Render document content from VaultFile */}
+            <div className="prose max-w-none">
+              {/* Document preview will be loaded from VaultFile storageKey */}
+            </div>
+          </div>
+
+          {/* Right Panel: QC Checklist */}
+          <div className="min-h-[400px] rounded-xl border border-[#E2E8F0] bg-white p-6">
+            <h2 className="mb-4 text-lg font-semibold text-[#0F172A]">
+              Checklist QC-LEG-01
+            </h2>
+
+            {/* Checklist Groups */}
+            <div className="space-y-4">
+              {["formal", "legal", "operational"].map((group) => (
+                <details key={group} className="rounded-lg border border-[#E2E8F0]" open={group === "formal"}>
+                  <summary className="cursor-pointer bg-[#F1F5F9] px-4 py-3 font-semibold text-[#0F172A]">
+                    {GROUP_LABELS[group as keyof typeof GROUP_LABELS]}
+                  </summary>
+                  <div className="divide-y divide-[#E2E8F0]">
+                    {CHECKLIST_ITEMS.filter(item => item.group === group).map((item) => (
+                      <div key={item.id} className="p-4">
+                        <div className="flex items-start gap-3">
+                          {/* Pass/Fail Toggle */}
+                          <button
+                            type="button"
+                            className="mt-1 h-6 w-6 rounded border-2 border-[#E2E8F0] bg-white focus:ring-2 focus:ring-[#0F766E] flex items-center justify-center"
+                            aria-label={item.label}
+                          >
+                            {/* Checkmark shown when passed */}
+                          </button>
+                          <div className="flex-1">
+                            <label className="text-[16px] font-normal text-[#0F172A]">
+                              {item.label}
+                            </label>
+                            {item.required && (
+                              <span className="ml-2 text-[11px] font-semibold uppercase text-[#DC2626]">
+                                Bắt buộc
+                              </span>
+                            )}
+                            {/* TODO: Comment toggle and textarea for failures */}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-6 flex gap-4">
+              <Button variant="primary" className="flex-1" disabled>
+                Phê duyệt
+              </Button>
+              <Button variant="destructive" className="flex-1">
+                Yêu cầu sửa đổi
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,19 +1,19 @@
 ---
 status: issues_found
-files_reviewed: 15
+files_reviewed: 19
 depth: standard
 findings:
   critical: 3
   warning: 4
-  info: 4
-  total: 11
+  info: 5
+  total: 12
 ---
 
 # Code Review: Phase 04 — documents-vault
 
-**Reviewed:** 2026-05-29
+**Reviewed:** 2026-05-29 (updated 2026-05-30)
 **Depth:** standard
-**Files Reviewed:** 15
+**Files Reviewed:** 19
 
 **Summary:** Review 15 files (4 services, 3 tests, 4 pages, 3 components, 1 schema). Found bugs, authorization gaps, and code quality issues. Most critical: admin mutations lack workspace membership checks, signed URL stub has no real security, params/searchParams not awaited in Next.js 15.
 
@@ -65,3 +65,12 @@ Files: template detail page, templates list page, document-versions.tsx
 
 ### IN-04: VariableSchema type cast unsafe (double `as unknown as`)
 **File:** specialist `page.tsx:200`
+
+### IN-05: Array index as React key in variable schema builder
+**File:** `src/app/admin/templates/new/variable-schema-builder.tsx:54`
+`rows.map((row, i) => <tr key={i} ...>)` uses array index as key. Acceptable for append-only list with stable ordering.
+
+## Plan 04-04 Review (2026-05-30)
+
+Plan 04-04 changes reviewed: `schema.prisma`, `page.tsx`, `actions.ts`, `variable-schema-builder.tsx`.
+**No new findings.** Gap closure changes are clean — schema fields nullable for backward compatibility, server-side validation of variableSchema, safe non-null assertions on validated fields.

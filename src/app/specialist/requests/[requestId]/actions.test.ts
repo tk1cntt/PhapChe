@@ -3,8 +3,8 @@ import { closeDeliveredAction, markDeliveredAction } from './actions';
 
 type DeliveryAction = (formData: FormData) => Promise<SpecialistRequestActionResult>;
 
-const deliveryAction: DeliveryAction = markDeliveredAction;
-const closeAction: DeliveryAction = closeDeliveredAction;
+const deliverResultAction: DeliveryAction = markDeliveredAction;
+const finishResultAction: DeliveryAction = closeDeliveredAction;
 
-void deliveryAction;
-void closeAction;
+void deliverResultAction;
+void finishResultAction;

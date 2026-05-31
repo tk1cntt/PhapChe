@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { recordAuditEvent } from '@/lib/audit/audit';
 import { canAccessRequest, canAccessVaultFile } from '@/lib/security/rbac';
@@ -40,6 +41,26 @@ type RequestVaultFileAccessResult = {
 };
 
 const VAULT_ACCESS_TTL_MS = 15 * 60 * 1000;
+
+function vaultDownloadSecret() {
+  return process.env.VAULT_DOWNLOAD_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim() || 'dev-vault-download-secret';
+}
+
+function signVaultFileAccess(vaultFileId: string, userId: string, expires: string) {
+  return createHmac('sha256', vaultDownloadSecret()).update(`${vaultFileId}.${userId}.${expires}`).digest('hex');
+}
+
+export function verifyVaultFileAccessSignature(input: { vaultFileId: string; userId: string; expires: string; signature: string }) {
+  try {
+    if (!/^[0-9a-f]+$/i.test(input.signature)) return false;
+    const expected = Buffer.from(signVaultFileAccess(input.vaultFileId, input.userId, input.expires), 'hex');
+    const actual = Buffer.from(input.signature, 'hex');
+    if (actual.length !== expected.length) return false;
+    return timingSafeEqual(actual, expected);
+  } catch {
+    return false;
+  }
+}
 
 function isCustomerSession(session: AppSession) {
   return session.roles.includes('customer');
@@ -169,7 +190,9 @@ export async function requestVaultFileAccess(
 ): Promise<RequestVaultFileAccessResult> {
   const vaultFile = await getVaultFileDownloadPayload(session, vaultFileId);
   const expiresAt = new Date(Date.now() + VAULT_ACCESS_TTL_MS);
-  const accessUrl = `/api/vault/${vaultFileId}/download?expires=${expiresAt.getTime()}`;
+  const expires = String(expiresAt.getTime());
+  const signature = signVaultFileAccess(vaultFileId, session.userId, expires);
+  const accessUrl = `/api/vault/${vaultFileId}/download?expires=${expires}&userId=${encodeURIComponent(session.userId)}&signature=${signature}`;
 
   await recordAuditEvent({
     actorId: session.userId,

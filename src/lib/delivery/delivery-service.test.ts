@@ -3,7 +3,7 @@ import test from 'node:test';
 import { prisma } from '@/lib/prisma';
 import type { AppSession } from '@/lib/security/session';
 import { closeDeliveredRequest, getCustomerDeliveryRequest, markRequestDelivered } from './delivery-service';
-import { requestVaultFileAccess } from '@/lib/documents/vault-service';
+import { requestVaultFileAccess, verifyVaultFileAccessSignature } from '@/lib/documents/vault-service';
 import { sendDeliveryReadyEmail } from './notification-service';
 
 const DELIVERY_E2E_PREFIX = 'delivery_service_e2e';
@@ -273,7 +273,16 @@ test('requestVaultFileAccess returns 15 minute final-document access without raw
     const expiryDelta = result.expiresAt.getTime() - before;
     const afterExpiryDelta = result.expiresAt.getTime() - after;
 
-    assert.match(result.accessUrl, new RegExp(`/api/vault/${seed.finalVaultFileId}/download\\?expires=\\d+`));
+    const url = new URL(result.accessUrl, 'http://localhost');
+    const expires = url.searchParams.get('expires');
+    const userId = url.searchParams.get('userId');
+    const signature = url.searchParams.get('signature');
+
+    assert.equal(url.pathname, `/api/vault/${seed.finalVaultFileId}/download`);
+    assert.ok(expires);
+    assert.equal(userId, seed.customerId);
+    assert.ok(signature);
+    assert.equal(verifyVaultFileAccessSignature({ vaultFileId: seed.finalVaultFileId, userId, expires, signature }), true);
     assert.equal(result.filename, 'hop-dong-final.pdf');
     assert.equal(result.contentType, 'application/pdf');
     assert.ok(expiryDelta <= 16 * 60 * 1000, `expiresAt should be <= 16 minutes, got ${expiryDelta}`);

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { prisma } from '@/lib/prisma';
-import { listVaultFiles, getVaultFileMetadata, requestVaultFileAccess, storeVaultFile, deleteVaultFile } from './vault-service';
+import { listVaultFiles, getVaultFileMetadata, requestVaultFileAccess, storeVaultFile, deleteVaultFile, verifyVaultFileAccessSignature } from './vault-service';
 import type { AppSession } from '@/lib/security/session';
 
 const VAULT_E2E_PREFIX = 'vault_service_e2e';
@@ -211,16 +211,30 @@ test('getVaultFileMetadata records audit event', async () => {
   });
 });
 
-test('requestVaultFileAccess returns access URL without storageKey', async () => {
+test('requestVaultFileAccess returns signed access URL without storageKey', async () => {
   await withVaultSeed(async (seed) => {
     const files = await listVaultFiles(specialistSession(seed), seed.requestId);
     const vaultFileId = files[0].id;
+    const before = Date.now();
 
     const result = await requestVaultFileAccess(specialistSession(seed), vaultFileId, `${seed.correlationPrefix}_access`);
+    const url = new URL(result.accessUrl, 'http://localhost');
+    const expires = url.searchParams.get('expires');
+    const userId = url.searchParams.get('userId');
+    const signature = url.searchParams.get('signature');
+    const expiryDelta = result.expiresAt.getTime() - before;
 
-    assert.ok(result.accessUrl.includes(`/api/vault/${vaultFileId}/download`));
-    assert.ok(result.accessUrl.includes('token='));
-    assert.ok(result.expiresAt instanceof Date);
+    assert.equal(url.pathname, `/api/vault/${vaultFileId}/download`);
+    assert.ok(expires);
+    assert.equal(userId, seed.specialistId);
+    assert.ok(signature);
+    assert.equal(verifyVaultFileAccessSignature({ vaultFileId, userId, expires, signature }), true);
+    assert.equal(verifyVaultFileAccessSignature({ vaultFileId, userId, expires: `${Number(expires) + 1}`, signature }), false);
+    assert.equal(verifyVaultFileAccessSignature({ vaultFileId, userId: seed.customerId, expires, signature }), false);
+    assert.equal(verifyVaultFileAccessSignature({ vaultFileId: `${vaultFileId}-tampered`, userId, expires, signature }), false);
+    assert.equal(verifyVaultFileAccessSignature({ vaultFileId, userId, expires, signature: 'not-hex' }), false);
+    assert.ok(expiryDelta <= 16 * 60 * 1000, `expiresAt should be <= 16 minutes, got ${expiryDelta}`);
+    assert.ok(expiryDelta >= 14 * 60 * 1000, `expiresAt should be >= 14 minutes, got ${expiryDelta}`);
 
     // Verify storageKey not in response
     assert.doesNotMatch(JSON.stringify(result), /storageKey/);

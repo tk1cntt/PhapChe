@@ -48,33 +48,32 @@ const closeReasonMessage = 'Nhập lý do đóng hồ sơ trước khi lưu.';
 const closeSuccessMessage = 'Đã đóng hồ sơ.';
 const closeErrorMessage = 'Không thể đóng hồ sơ. Vui lòng kiểm tra trạng thái và quyền xử lý.';
 
-export async function markDeliveredAction(formData: FormData): Promise<void> {
+export async function markDeliveredAction(formData: FormData): Promise<SpecialistRequestActionResult> {
   const requestId = stringValue(formData, 'requestId');
 
   try {
     const session = await requireAppSession();
     await markRequestDelivered({ session, requestId });
     revalidatePath(`/specialist/requests/${requestId}`);
-    void deliverySuccessMessage;
+    return { ok: true, message: deliverySuccessMessage };
   } catch {
-    void deliveryErrorMessage;
+    return { ok: false, message: deliveryErrorMessage };
   }
 }
 
-export async function closeDeliveredAction(formData: FormData): Promise<void> {
+export async function closeDeliveredAction(formData: FormData): Promise<SpecialistRequestActionResult> {
   const requestId = stringValue(formData, 'requestId');
   const reason = stringValue(formData, 'reason');
   if (!reason) {
-    void closeReasonMessage;
-    return;
+    return { ok: false, message: closeReasonMessage };
   }
 
   try {
     const session = await requireAppSession();
     await closeDeliveredRequest({ session, requestId, reason });
     revalidatePath(`/specialist/requests/${requestId}`);
-    void closeSuccessMessage;
+    return { ok: true, message: closeSuccessMessage };
   } catch {
-    void closeErrorMessage;
+    return { ok: false, message: closeErrorMessage };
   }
 }

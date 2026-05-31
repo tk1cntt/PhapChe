@@ -372,22 +372,21 @@ export async function GET(
 | A1 | Email attachments should be avoided for legal documents; portal/download link only. | Anti-Patterns | If business requires attachments, notification design changes and security review needed. |
 | A2 | Transaction/email orchestration risk comes from slow network inside transaction. | Common Pitfalls | If implementation never puts provider call in transaction, risk irrelevant. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Production storage signer exists?**
+1. **Production storage signer exists? — RESOLVED**
    - What we know: `VaultFile.storageKey` exists; `requestVaultFileAccess()` currently returns stub URL and does not select `storageKey`. [VERIFIED: src/lib/documents/vault-service.ts]
-   - What's unclear: actual storage backend/provider is not configured in package.json or env docs. [VERIFIED: package.json]
-   - Recommendation: Plan MVP local/dev fallback plus interface boundary; do not add S3/R2 dependency unless user confirms provider. [VERIFIED: 06-CONTEXT.md]
+   - Decision for planning: no production storage provider is configured in this repo, so plan a storage signer boundary plus local/dev server-mediated download fallback. Do not add S3/R2 dependency in Phase 06. Production provider integration remains behind the same signer interface.
+   - Required planner behavior: DLV-02 must still deliver an actual downloadable response in local/dev fallback; JSON-only success messages are not acceptable.
 
-2. **Email provider configured?**
-   - What we know: Resend not installed; `RESEND_API_KEY` requirement exists in docs. [VERIFIED: package.json] [CITED: resend.com/docs/send-with-nextjs]
-   - What's unclear: production sender domain/API key availability. [ASSUMED]
-   - Recommendation: Plan lightweight adapter with no-provider stub in tests; optional `resend` install only if env exists/decision locked. [VERIFIED: 06-CONTEXT.md]
+2. **Email provider configured? — RESOLVED**
+   - What we know: Resend is not installed; `RESEND_API_KEY` requirement exists in docs. [VERIFIED: package.json] [CITED: resend.com/docs/send-with-nextjs]
+   - Decision for planning: use lightweight notification adapter with provider stub/no-op fallback. Do not install `resend` unless environment/config already proves provider availability during execution.
+   - Required planner behavior: email body builder must include request title, document filenames/list, customer portal or download action link, and 15-minute expiry warning.
 
-3. **Exact internal UI placement for deliver/close actions?**
+3. **Exact internal UI placement for deliver/close actions? — RESOLVED**
    - What we know: customer route is dedicated; close is specialist/coordinator only; UI spec has close dialog copy. [VERIFIED: 06-CONTEXT.md + 06-UI-SPEC.md]
-   - What's unclear: whether action belongs on specialist page, coordinator/admin page, or both. [VERIFIED: 06-CONTEXT.md leaves exact placement discretionary]
-   - Recommendation: Minimal surgical approach: add actions where existing internal request detail exists first; avoid new admin surfaces unless necessary. [ASSUMED]
+   - Decision for planning: add delivery/close actions to existing specialist request detail/workbench first because it already exists and is assigned-specialist scoped. Avoid creating a new admin/coordinator surface unless required by tests or existing route patterns.
 
 ## Environment Availability
 

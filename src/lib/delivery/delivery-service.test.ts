@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { prisma } from '@/lib/prisma';
 import type { AppSession } from '@/lib/security/session';
-import { getCustomerDeliveryRequest } from './delivery-service';
+import { closeDeliveredRequest, getCustomerDeliveryRequest, markRequestDelivered } from './delivery-service';
 import { requestVaultFileAccess } from '@/lib/documents/vault-service';
+import { sendDeliveryReadyEmail } from './notification-service';
 
 const DELIVERY_E2E_PREFIX = 'delivery_service_e2e';
 
@@ -13,6 +14,8 @@ type DeliverySeed = {
   otherWorkspaceId: string;
   customerId: string;
   otherCustomerId: string;
+  specialistId: string;
+  coordinatorId: string;
   requestId: string;
   documentId: string;
   finalVersionId: string;
@@ -47,7 +50,7 @@ async function seedDeliveryTest(): Promise<DeliverySeed> {
     prisma.workspace.create({ data: { name: `Delivery Service Other ${suffix}`, slug: `${DELIVERY_E2E_PREFIX}-other-${suffix}` } }),
   ]);
 
-  const [customer, otherCustomer] = await Promise.all([
+  const [customer, otherCustomer, specialist, coordinator] = await Promise.all([
     prisma.user.create({
       data: {
         email: `${DELIVERY_E2E_PREFIX}_cust_${suffix}@example.test`,
@@ -62,10 +65,30 @@ async function seedDeliveryTest(): Promise<DeliverySeed> {
         memberships: { create: { workspaceId: otherWorkspace.id, role: 'customer' } },
       },
     }),
+    prisma.user.create({
+      data: {
+        email: `${DELIVERY_E2E_PREFIX}_spec_${suffix}@example.test`,
+        name: 'Specialist',
+        memberships: { create: { workspaceId: workspace.id, role: 'specialist' } },
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: `${DELIVERY_E2E_PREFIX}_coord_${suffix}@example.test`,
+        name: 'Coordinator',
+        memberships: { create: { workspaceId: workspace.id, role: 'coordinator_admin' } },
+      },
+    }),
   ]);
 
   const request = await prisma.legalRequest.create({
-    data: { workspaceId: workspace.id, title: `Delivery request ${suffix}`, status: 'delivered', createdById: customer.id },
+    data: {
+      workspaceId: workspace.id,
+      title: `Delivery request ${suffix}`,
+      status: 'delivered',
+      createdById: customer.id,
+      assignedSpecialistId: specialist.id,
+    },
   });
 
   const document = await prisma.document.create({
@@ -146,13 +169,15 @@ async function seedDeliveryTest(): Promise<DeliverySeed> {
     otherWorkspaceId: otherWorkspace.id,
     customerId: customer.id,
     otherCustomerId: otherCustomer.id,
+    specialistId: specialist.id,
+    coordinatorId: coordinator.id,
     requestId: request.id,
     documentId: document.id,
     finalVersionId: finalVersion.id,
     draftVersionId: draftVersion.id,
     finalVaultFileId: finalVaultFile.id,
     draftVaultFileId: draftVaultFile.id,
-    userIds: [customer.id, otherCustomer.id],
+    userIds: [customer.id, otherCustomer.id, specialist.id, coordinator.id],
   };
 }
 
@@ -188,6 +213,14 @@ function customerSession(seed: DeliverySeed): AppSession {
 
 function otherCustomerSession(seed: DeliverySeed): AppSession {
   return { userId: seed.otherCustomerId, activeWorkspaceId: seed.otherWorkspaceId, roles: ['customer'] };
+}
+
+function specialistSession(seed: DeliverySeed): AppSession {
+  return { userId: seed.specialistId, activeWorkspaceId: seed.workspaceId, roles: ['specialist'] };
+}
+
+function coordinatorSession(seed: DeliverySeed): AppSession {
+  return { userId: seed.coordinatorId, activeWorkspaceId: seed.workspaceId, roles: ['coordinator_admin'] };
 }
 
 test('getCustomerDeliveryRequest returns only final document data for own customer request', async () => {
@@ -264,6 +297,110 @@ test('requestVaultFileAccess rejects customer access to draftVaultFileId', async
   await withDeliverySeed(async (seed) => {
     await assert.rejects(
       requestVaultFileAccess(customerSession(seed), seed.draftVaultFileId, `vault-draft-test-${seed.suffix}`),
+      /FORBIDDEN/,
+    );
+  });
+});
+
+test('sendDeliveryReadyEmail renders safe D-13 delivery content', async () => {
+  const result = await sendDeliveryReadyEmail({
+    to: 'customer@example.test',
+    requestTitle: 'Delivery request title',
+    portalUrl: '/customer/requests/request-1',
+    filenames: ['hop-dong-final.pdf', 'phu-luc-final.pdf'],
+  });
+  const json = JSON.stringify(result);
+
+  assert.equal(result.ok, true);
+  assert.match(json, /Delivery request title/);
+  assert.match(json, /hop-dong-final\.pdf/);
+  assert.match(json, /phu-luc-final\.pdf/);
+  assert.match(json, /\/customer\/requests\/request-1/);
+  assert.match(json, /Liên kết tải xuống có hiệu lực trong 15 phút\./);
+  assert.doesNotMatch(json, /attachments/i);
+  assert.doesNotMatch(json, /generated legal content/i);
+  assert.doesNotMatch(json, /storageKey/i);
+  assert.doesNotMatch(json, /reviewer notes/i);
+  assert.doesNotMatch(json, /full document body/i);
+});
+
+test('markRequestDelivered moves approved request to delivered and records safe notification audit', async () => {
+  await withDeliverySeed(async (seed) => {
+    await prisma.legalRequest.update({ where: { id: seed.requestId }, data: { status: 'approved' } });
+
+    const result = await markRequestDelivered({
+      session: specialistSession(seed),
+      requestId: seed.requestId,
+      correlationId: `deliver-test-${seed.suffix}`,
+    });
+
+    assert.equal(result.status, 'delivered');
+
+    const transition = await prisma.workflowTransition.findFirstOrThrow({
+      where: { requestId: seed.requestId, fromStatus: 'approved', toStatus: 'delivered' },
+    });
+    assert.equal(transition.reason, null);
+
+    const audit = await prisma.auditEvent.findFirstOrThrow({
+      where: { correlationId: `deliver-test-${seed.suffix}`, action: 'delivery.ready_notified' },
+      select: { metadataSummary: true },
+    });
+    assert.match(audit.metadataSummary ?? '', /requestId=/);
+    assert.match(audit.metadataSummary ?? '', /documentCount=1/);
+    assert.doesNotMatch(audit.metadataSummary ?? '', /storageKey/);
+    assert.doesNotMatch(audit.metadataSummary ?? '', /generatedContent final secret/);
+  });
+});
+
+test('markRequestDelivered requires final document vault file', async () => {
+  await withDeliverySeed(async (seed) => {
+    await prisma.legalRequest.update({ where: { id: seed.requestId }, data: { status: 'approved' } });
+    await prisma.vaultFile.delete({ where: { id: seed.finalVaultFileId } });
+
+    await assert.rejects(
+      markRequestDelivered({ session: coordinatorSession(seed), requestId: seed.requestId }),
+      /FINAL_DOCUMENT_REQUIRED/,
+    );
+  });
+});
+
+test('closeDeliveredRequest moves delivered request to closed with reason', async () => {
+  await withDeliverySeed(async (seed) => {
+    const result = await closeDeliveredRequest({
+      session: specialistSession(seed),
+      requestId: seed.requestId,
+      reason: 'Khách đã nhận tài liệu final.',
+      correlationId: `close-test-${seed.suffix}`,
+    });
+
+    assert.equal(result.status, 'closed');
+
+    const transition = await prisma.workflowTransition.findFirstOrThrow({
+      where: { requestId: seed.requestId, fromStatus: 'delivered', toStatus: 'closed' },
+    });
+    assert.equal(transition.reason, 'Khách đã nhận tài liệu final.');
+  });
+});
+
+test('closeDeliveredRequest requires non-empty reason', async () => {
+  await withDeliverySeed(async (seed) => {
+    await assert.rejects(
+      closeDeliveredRequest({ session: coordinatorSession(seed), requestId: seed.requestId, reason: '   ' }),
+      /CLOSE_REASON_REQUIRED/,
+    );
+  });
+});
+
+test('customer cannot deliver or close request', async () => {
+  await withDeliverySeed(async (seed) => {
+    await prisma.legalRequest.update({ where: { id: seed.requestId }, data: { status: 'approved' } });
+
+    await assert.rejects(markRequestDelivered({ session: customerSession(seed), requestId: seed.requestId }), /FORBIDDEN/);
+
+    await prisma.legalRequest.update({ where: { id: seed.requestId }, data: { status: 'delivered' } });
+
+    await assert.rejects(
+      closeDeliveredRequest({ session: customerSession(seed), requestId: seed.requestId, reason: 'Done' }),
       /FORBIDDEN/,
     );
   });

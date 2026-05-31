@@ -35,7 +35,50 @@ type StoreVaultFileInput = {
 type RequestVaultFileAccessResult = {
   accessUrl: string;
   expiresAt: Date;
+  filename: string | null;
+  contentType: string | null;
 };
+
+const VAULT_ACCESS_TTL_MS = 15 * 60 * 1000;
+
+function isCustomerSession(session: AppSession) {
+  return session.roles.includes('customer');
+}
+
+export async function getVaultFileDownloadPayload(session: AppSession, vaultFileId: string) {
+  if (!(await canAccessVaultFile(session, vaultFileId))) throw new Error('FORBIDDEN');
+
+  const vaultFile = await prisma.vaultFile.findUnique({
+    where: { id: vaultFileId },
+    select: {
+      id: true,
+      requestId: true,
+      workspaceId: true,
+      filename: true,
+      storageKey: true,
+      contentType: true,
+      documentVersionId: true,
+      request: { select: { createdById: true } },
+    },
+  });
+
+  if (!vaultFile) throw new Error('VAULT_FILE_NOT_FOUND');
+
+  if (isCustomerSession(session)) {
+    if (!session.activeWorkspaceId || vaultFile.workspaceId !== session.activeWorkspaceId) throw new Error('FORBIDDEN');
+    if (vaultFile.request.createdById !== session.userId) throw new Error('FORBIDDEN');
+    if (!vaultFile.documentVersionId) throw new Error('FORBIDDEN');
+
+    const finalVersion = await prisma.documentVersion.findFirst({
+      where: { id: vaultFile.documentVersionId, status: 'final', document: { requestId: vaultFile.requestId } },
+      select: { id: true },
+    });
+
+    if (!finalVersion) throw new Error('FORBIDDEN');
+  }
+
+  return vaultFile;
+}
 
 // listVaultFiles: list vault files for a request without exposing storageKey
 export async function listVaultFiles(
@@ -119,31 +162,15 @@ export async function getVaultFileMetadata(session: AppSession, vaultFileId: str
   };
 }
 
-// requestVaultFileAccess: stub for signed URL abstraction (D-17)
 export async function requestVaultFileAccess(
   session: AppSession,
   vaultFileId: string,
   correlationId?: string,
 ): Promise<RequestVaultFileAccessResult> {
-  if (!(await canAccessVaultFile(session, vaultFileId))) throw new Error('FORBIDDEN');
+  const vaultFile = await getVaultFileDownloadPayload(session, vaultFileId);
+  const expiresAt = new Date(Date.now() + VAULT_ACCESS_TTL_MS);
+  const accessUrl = `/api/vault/${vaultFileId}/download?expires=${expiresAt.getTime()}`;
 
-  const vaultFile = await prisma.vaultFile.findUnique({
-    where: { id: vaultFileId },
-    select: {
-      id: true,
-      requestId: true,
-      workspaceId: true,
-      filename: true,
-    },
-  });
-
-  if (!vaultFile) throw new Error('VAULT_FILE_NOT_FOUND');
-
-  // Generate short-lived signed URL stub (MVP implementation)
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-  const accessUrl = `/api/vault/${vaultFileId}/download?token=stub&expires=${expiresAt.getTime()}`;
-
-  // Record audit event
   await recordAuditEvent({
     actorId: session.userId,
     workspaceId: vaultFile.workspaceId,
@@ -152,10 +179,10 @@ export async function requestVaultFileAccess(
     targetId: vaultFileId,
     requestId: vaultFile.requestId,
     correlationId: correlationId ?? `vault-access-${vaultFileId}`,
-    metadataSummary: `vaultFileId=${vaultFileId}; action=access_request`,
+    metadataSummary: `vaultFileId=${vaultFileId}; requestId=${vaultFile.requestId}; expiresAt=${expiresAt.toISOString()}`,
   });
 
-  return { accessUrl, expiresAt };
+  return { accessUrl, expiresAt, filename: vaultFile.filename, contentType: vaultFile.contentType };
 }
 
 // storeVaultFile: create vault file with RBAC check

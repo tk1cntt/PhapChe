@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { requireAppSession } from '@/lib/security/session';
-import { getVaultFileDownloadPayload, requestVaultFileAccess } from '@/lib/documents/vault-service';
+import { getVaultFileDownloadPayload, requestVaultFileAccess, verifyVaultFileAccessSignature } from '@/lib/documents/vault-service';
 
 function noStoreResponse(body: string, status: number) {
   return new Response(body, { status, headers: { 'Cache-Control': 'no-store' } });
@@ -31,15 +31,27 @@ export async function GET(
   try {
     const session = await requireAppSession();
     const { vaultFileId } = await params;
-    const access = await requestVaultFileAccess(session, vaultFileId);
+    const searchParams = new URL(request.url).searchParams;
+    const expires = searchParams.get('expires');
+    const userId = searchParams.get('userId');
+    const signature = searchParams.get('signature');
 
-    if (!access.accessUrl.startsWith(`/api/vault/${vaultFileId}/download`)) {
-      return Response.redirect(access.accessUrl, 302);
+    if (!expires || !userId || !signature) {
+      const access = await requestVaultFileAccess(session, vaultFileId);
+      return Response.redirect(new URL(access.accessUrl, request.url), 302);
     }
 
-    const expires = Number(new URL(request.url).searchParams.get('expires') ?? '0');
-    if (!Number.isFinite(expires) || expires < Date.now()) {
+    if (userId !== session.userId) {
+      return noStoreResponse('Liên kết tải xuống không hợp lệ.', 403);
+    }
+
+    const expiresMs = Number(expires);
+    if (!Number.isFinite(expiresMs) || expiresMs < Date.now()) {
       return noStoreResponse('Liên kết tải xuống đã hết hạn.', 410);
+    }
+
+    if (!verifyVaultFileAccessSignature({ vaultFileId, userId, expires, signature })) {
+      return noStoreResponse('Liên kết tải xuống không hợp lệ.', 403);
     }
 
     const vaultFile = await getVaultFileDownloadPayload(session, vaultFileId);

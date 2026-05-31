@@ -3,6 +3,7 @@ import test from 'node:test';
 import { prisma } from '@/lib/prisma';
 import type { AppSession } from '@/lib/security/session';
 import { getCustomerDeliveryRequest } from './delivery-service';
+import { requestVaultFileAccess } from '@/lib/documents/vault-service';
 
 const DELIVERY_E2E_PREFIX = 'delivery_service_e2e';
 
@@ -227,5 +228,43 @@ test('getCustomerDeliveryRequest response excludes sensitive fields', async () =
     assert.doesNotMatch(json, /review/i);
     assert.doesNotMatch(json, /checklist/i);
     assert.doesNotMatch(json, /comment/i);
+  });
+});
+
+test('requestVaultFileAccess returns 15 minute final-document access without raw storageKey', async () => {
+  await withDeliverySeed(async (seed) => {
+    const before = Date.now();
+    const result = await requestVaultFileAccess(customerSession(seed), seed.finalVaultFileId, `vault-access-test-${seed.suffix}`);
+    const after = Date.now();
+    const json = JSON.stringify(result);
+    const expiryDelta = result.expiresAt.getTime() - before;
+    const afterExpiryDelta = result.expiresAt.getTime() - after;
+
+    assert.match(result.accessUrl, new RegExp(`/api/vault/${seed.finalVaultFileId}/download\\?expires=\\d+`));
+    assert.equal(result.filename, 'hop-dong-final.pdf');
+    assert.equal(result.contentType, 'application/pdf');
+    assert.ok(expiryDelta <= 16 * 60 * 1000, `expiresAt should be <= 16 minutes, got ${expiryDelta}`);
+    assert.ok(afterExpiryDelta >= 14 * 60 * 1000, `expiresAt should be >= 14 minutes, got ${afterExpiryDelta}`);
+    assert.doesNotMatch(json, /storageKey-final/);
+
+    const audit = await prisma.auditEvent.findFirstOrThrow({
+      where: { correlationId: `vault-access-test-${seed.suffix}`, action: 'vault.access_requested' },
+      select: { metadataSummary: true },
+    });
+
+    assert.match(audit.metadataSummary ?? '', /vaultFileId=/);
+    assert.match(audit.metadataSummary ?? '', /requestId=/);
+    assert.match(audit.metadataSummary ?? '', /expiresAt=/);
+    assert.doesNotMatch(audit.metadataSummary ?? '', /storageKey/);
+    assert.doesNotMatch(audit.metadataSummary ?? '', /generatedContent final secret/);
+  });
+});
+
+test('requestVaultFileAccess rejects customer access to draftVaultFileId', async () => {
+  await withDeliverySeed(async (seed) => {
+    await assert.rejects(
+      requestVaultFileAccess(customerSession(seed), seed.draftVaultFileId, `vault-draft-test-${seed.suffix}`),
+      /FORBIDDEN/,
+    );
   });
 });

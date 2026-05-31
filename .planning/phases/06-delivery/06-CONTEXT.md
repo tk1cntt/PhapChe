@@ -2,47 +2,57 @@
 
 **Gathered:** 2026-05-31
 **Status:** Ready for planning
+**Mode:** --auto (default selections applied)
 
 <domain>
 ## Phase Boundary
 
-Deliver approved final documents securely to customers and close requests. Customer sees only approved final documents via short-lived signed URLs. Internal notes, reviewer comments, and drafts stay hidden. Customer notified when ready. Request closed with audit trail.
+Phase 6 delivers secure customer delivery for approved final documents and request closure after delivery. Customers can view only their own approved final documents, download through short-lived signed links, receive ready notification, and never see internal notes, reviewer-only comments, or unapproved drafts.
+
+This phase does not build e-signature integration, OCR, AI legal advice, in-app notification center, operations/SLA dashboards, or customer download analytics.
+
 </domain>
 
 <decisions>
 ## Implementation Decisions
 
-### Customer Portal Location
-- **D-01:** Customer portal at `/customer/requests/[requestId]` — dedicated route, not tab in shared UI
-- Reuses existing request pages structure but filtered to `role=customer`
+### Customer Portal
+- **D-01:** Add dedicated customer request detail route at `/customer/requests/[requestId]` for delivered/final document access, rather than adding delivery into internal specialist/reviewer/admin UI.
+- **D-02:** Customer portal must use server-side session/RBAC checks and only show requests where the customer is the request creator in the same active workspace.
+- **D-03:** UI should reuse existing Card/Button/Badge/PageHeader visual language with Vietnamese copy and minimal customer-facing workflow language.
 
-### Final Document Filtering
-- **D-02:** Final documents identified by `request.status = 'approved'` — documentVersion status 'approved' is implicit when request transitions to approved
-- Customer sees documents attached to their own requests only (RBAC via `canAccessRequest` with customer role)
-- Internal notes, reviewer comments, drafts stay hidden by RBAC — no special filtering logic needed
+### Final Document Visibility
+- **D-04:** Customer sees only `DocumentVersion` records with status `final` and related `VaultFile` artifacts for their own request.
+- **D-05:** Hide all draft, `submitted_for_review`, reviewer checklist/comment, internal notes, template input snapshots, and specialist workbench data from customer routes and APIs.
+- **D-06:** Do not rely on frontend filtering for secrecy. Filtering must happen in server-side queries/services before data reaches UI.
 
-### Download URL Implementation
-- **D-03:** Use real signed URL with storage provider (R2/S3) — current stub in `vault-service.ts:requestVaultFileAccess` needs real implementation
-- Signed URL TTL: 15 minutes (matches existing stub)
-- Download API route: `/api/vault/[vaultFileId]/download` — validates RBAC, generates provider signed URL
+### Signed Download Links
+- **D-07:** Replace the current `requestVaultFileAccess()` stub with a real signed URL abstraction boundary. It may use an MVP local/dev fallback, but production path must not expose raw `storageKey`.
+- **D-08:** Signed URL TTL is 15 minutes. Download responses should make expiry clear to customer.
+- **D-09:** Add server-side download API route such as `/api/vault/[vaultFileId]/download` that validates `canAccessVaultFile`, verifies final-document visibility for customers, records audit, then returns or redirects to signed URL.
+- **D-10:** Audit download/access events with identifiers and safe metadata only: vault file id, request id, actor id, action, expiry timestamp. Do not log legal content or raw storage key.
 
-### Notification Channel
-- **D-04:** Email notification via Resend — lightweight MVP choice, no complex email builder needed
-- Notification triggered when request transitions `delivered`
-- Email contains: request title, document list, download link (short-lived), expiry warning
+### Ready Notification
+- **D-11:** MVP notification channel is email, using a lightweight provider abstraction. Resend is acceptable if dependency/config already fits, but planner may choose minimal adapter/stub if no email provider is configured.
+- **D-12:** Notification triggers when request transitions to `delivered`, not merely when reviewer approves. Approval means final-ready; delivery means customer should be told.
+- **D-13:** Email content includes request title, document filenames/list, customer portal link or download action link, and 15-minute expiry warning. Keep content simple; no complex template builder.
+- **D-14:** No notification preferences or opt-out in MVP.
 
-### Close Request Flow
-- **D-05:** Specialist or coordinator can close request after delivery (status `delivered` → `closed`)
-- Customer download confirmation NOT required to close — auditor sees delivery audit event as proof
-- Close action requires reason (audit requirement)
+### Delivery and Close Flow
+- **D-15:** Delivery transition remains backend workflow state machine: `approved` → `delivered` → `closed`.
+- **D-16:** Specialist assigned to the request or coordinator/admin can mark an approved request as delivered if final documents exist.
+- **D-17:** Specialist or coordinator/admin can close a delivered request. Customer download confirmation is not required before closure.
+- **D-18:** Close action requires a reason and records audit/workflow transition. Delivery action should also create delivery audit event.
+- **D-19:** Frontend can show allowed actions, but backend validates role, assignment, current status, final document existence, and transition legality.
 
 ### Claude's Discretion
-- Download button UI (inline vs modal) — use inline for simplicity
-- Close request confirmation dialog style — standard confirmation with reason field
-- Document list display format (table vs cards) — follow existing patterns in specialist/reviewer portals
+- Exact download button placement may be inline in document list for simplicity.
+- Exact close confirmation UI may use existing form/action patterns as long as reason is captured.
+- Exact provider module names may follow existing `src/lib/documents` / `src/lib/*` style.
+- Exact email text can be concise Vietnamese copy.
 
 ### Folded Todos
-None
+None.
 
 </decisions>
 
@@ -51,46 +61,68 @@ None
 
 **Downstream agents MUST read these before planning or implementing.**
 
-### Workflow & Security
-- `src/lib/workflow/request-workflow.ts` — status transitions, `delivered` and `closed` states
-- `src/lib/security/rbac.ts` — `canAccessRequest`, `canAccessVaultFile` for RBAC enforcement
-- `src/lib/documents/vault-service.ts` — `requestVaultFileAccess` stub needing real implementation
+### Project requirements
+- `.planning/PROJECT.md` — Product vision, Legal Vault security constraints, reviewer-before-final constraint, workflow integrity, traceability.
+- `.planning/REQUIREMENTS.md` — Phase 6 requirements DLV-01 through DLV-05.
+- `.planning/ROADMAP.md` — Phase 6 goal, success criteria, UI hint, and phase boundary.
 
-### Existing Patterns
-- `src/app/specialist/requests/[requestId]/page.tsx` — existing request detail page (follow layout pattern)
-- `src/app/reviewer/requests/[requestId]/review/[documentVersionId]/page.tsx` — split-view pattern
+### Prior phase context (locked decisions)
+- `.planning/phases/01-foundation/01-CONTEXT.md` — Workspace isolation, roles, server-side RBAC, request workflow states including `approved`, `delivered`, `closed`, append-only audit trail.
+- `.planning/phases/02-intake/02-CONTEXT.md` — Customer-facing route patterns, request status visibility, private upload semantics.
+- `.planning/phases/03-routing/03-CONTEXT.md` — Assignment model and coordinator/specialist role boundaries.
+- `.planning/phases/04-documents-vault/04-CONTEXT.md` — DocumentVersion model, final document/vault artifact metadata, private storage boundary, signed URL abstraction requirement.
+- `.planning/phases/05-review/05-CONTEXT.md` — Review approval marks exact `DocumentVersion` final and request `approved`; customer never sees internal review data.
 
-### Requirements
-- `.planning/REQUIREMENTS.md` §Delivery — DLV-01, DLV-02, DLV-03, DLV-04, DLV-05
+### Source code references
+- `prisma/schema.prisma` — `RequestStatus`, `DocumentVersionStatus`, `LegalRequest`, `Document`, `DocumentVersion`, `VaultFile`, `AuditEvent` models.
+- `src/lib/workflow/request-workflow.ts` — Backend workflow transitions: `approved -> delivered -> closed` and transition authorization.
+- `src/lib/security/rbac.ts` — Existing `canAccessRequest`, `canAccessVaultFile`, and server-side access patterns.
+- `src/lib/documents/vault-service.ts` — Existing vault listing/metadata/access functions; `requestVaultFileAccess()` is current signed URL stub to harden.
+- `src/app/specialist/requests/[requestId]/page.tsx` — Request detail/workbench layout patterns and status label copy.
+- `src/app/admin/components/ui.tsx` — Shared Card/Button/Badge/PageHeader/Table UI patterns.
+
+### Source docs
+- `docs/note.txt` — Original Legal-as-a-Service workflow notes and SOP orientation.
+- `docs/Có.docx` — Source context for reviewer/delivery/legal operations flow as referenced by project context.
 
 </canonical_refs>
 
-<codebase_context>
+<code_context>
 ## Existing Code Insights
 
 ### Reusable Assets
-- `vault-service.ts` `requestVaultFileAccess()` — stub already exists, needs real signed URL provider
-- `transitionRequestStatus()` in `request-workflow.ts` — handles `delivered` and `closed` transitions
-- RBAC functions — `canAccessRequest`, `canAccessVaultFile` already exist
+- `src/lib/documents/vault-service.ts` — `listVaultFiles()`, `getVaultFileMetadata()`, `storeVaultFile()`, and `requestVaultFileAccess()` provide vault service starting point; current access URL is a stub and must be replaced/hardened.
+- `src/lib/security/rbac.ts` — `canAccessRequest()` already lets customers access only requests they created; `canAccessVaultFile()` delegates through request access.
+- `src/lib/workflow/request-workflow.ts` — Existing state machine already includes `approved -> delivered -> closed` but role authorization currently allows coordinator close only; planning may need to extend for assigned specialist delivery/close per decisions while preserving backend validation.
+- `src/app/admin/components/ui.tsx` — Existing UI primitives should be reused for customer delivery list and close/deliver forms.
+- `src/app/specialist/requests/[requestId]/page.tsx` — Existing request detail pattern shows status, intake, vault files, document versions; customer route should reuse structure but filter aggressively.
+- `prisma/schema.prisma` — `DocumentVersionStatus.final`, `VaultFile.documentVersionId`, and `LegalRequest.status` support final-document delivery path.
 
 ### Established Patterns
-- Page structure: `src/app/[role]/requests/[requestId]/page.tsx` — customer follows same pattern at `/customer/`
-- Status transitions via backend workflow, never hardcoded in frontend
-- Audit events recorded for all state changes
+- Next.js App Router server components/actions with TypeScript.
+- Prisma is central persistence layer.
+- UI copy is Vietnamese; enum/code identifiers remain English.
+- Backend validates workflow transitions; frontend displays allowed actions only as UX.
+- Audit metadata uses concise summaries and avoids sensitive legal content.
+- Vault code already tries not to expose `storageKey` in list/metadata paths; delivery must preserve that boundary.
 
 ### Integration Points
-- Customer portal `/customer/` needs new route group
-- Download API route `/api/vault/[vaultFileId]/download` — currently stub
-- Notification trigger: `request-workflow.ts` after `delivered` transition
+- Add customer route under `src/app/customer/requests/[requestId]/page.tsx` or equivalent.
+- Add/extend vault download API route under `src/app/api/vault/[vaultFileId]/download/route.ts`.
+- Add final-document query/service helper that joins request, documents, document versions, and vault files while filtering to `DocumentVersionStatus.final`.
+- Add delivery/close server actions or service functions that use `transitionRequestStatus()` and record audit.
+- Add email notification adapter/service and trigger around delivered transition.
+- Add tests for customer visibility filtering, forbidden draft/internal review exposure, signed URL expiry/audit, notification trigger, and close reason enforcement.
 
-</codebase_context>
+</code_context>
 
 <specifics>
 ## Specific Ideas
 
-- No specific reference designs — follow existing specialist portal patterns for consistency
-- Email template: simple text email with document list and download link
-- No notification preferences in MVP — all notifications sent, no opt-out
+- Delivery is proof of end-to-end MVP: approved version becomes customer-visible, downloadable securely, and request can close with audit trail.
+- Keep customer portal simple: request title/status, final document list, download actions, expiry notice, and no internal operational details.
+- Treat review approval as final-ready, not customer delivery. Customer notification waits until delivered state.
+- Use email-only notification for MVP; in-app notifications and preferences are deferred.
 
 </specifics>
 
@@ -98,17 +130,17 @@ None
 ## Deferred Ideas
 
 ### Ideas Noted for Later
-- **E-sign integration** — belongs in Phase 7+ after delivery workflow stabilizes
-- **In-app notification center** — email-only for MVP, in-app notifications future phase
-- **Customer download tracking** — track if customer actually downloaded, not just notified
+- E-sign integration — v2 signature flow after delivery stabilizes.
+- In-app notification center — future customer communication phase; email-only for MVP.
+- Customer download tracking/confirmation — useful analytics/audit enhancement, not required for DLV-05 closure.
+- Notification preferences/opt-out — post-MVP customer settings.
 
 ### Reviewed Todos (not folded)
-None — discussion stayed within phase scope
+None — no matching pending todos for Phase 6.
 
 </deferred>
 
 ---
 
-*Phase: 6-delivery*
+*Phase: 06-delivery*
 *Context gathered: 2026-05-31*
-*Mode: --auto (default selections applied)*

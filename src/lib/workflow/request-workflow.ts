@@ -49,11 +49,11 @@ export function canTransitionRequestStatus(
   }
 
   if (hasRole('coordinator_admin')) {
-    return ['triage', 'assigned', 'cancelled', 'closed'].includes(toStatus);
+    return ['triage', 'assigned', 'cancelled', 'delivered', 'closed'].includes(toStatus);
   }
 
   if (hasRole('specialist') && isAssignedSpecialist) {
-    return ['in_progress', 'pending_review'].includes(toStatus);
+    return ['in_progress', 'pending_review', 'delivered', 'closed'].includes(toStatus);
   }
 
   if (hasRole('reviewer') && isAssignedReviewer) {

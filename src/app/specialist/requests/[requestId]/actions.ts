@@ -42,30 +42,39 @@ export async function submitForReviewAction(input: {
   });
 }
 
-export async function markDeliveredAction(formData: FormData): Promise<SpecialistRequestActionResult> {
+const deliverySuccessMessage = 'Đã đánh dấu hồ sơ là đã giao.';
+const deliveryErrorMessage = 'Không thể giao hồ sơ. Vui lòng kiểm tra tài liệu cuối cùng và quyền xử lý.';
+const closeReasonMessage = 'Nhập lý do đóng hồ sơ trước khi lưu.';
+const closeSuccessMessage = 'Đã đóng hồ sơ.';
+const closeErrorMessage = 'Không thể đóng hồ sơ. Vui lòng kiểm tra trạng thái và quyền xử lý.';
+
+export async function markDeliveredAction(formData: FormData): Promise<void> {
   const requestId = stringValue(formData, 'requestId');
 
   try {
     const session = await requireAppSession();
     await markRequestDelivered({ session, requestId });
     revalidatePath(`/specialist/requests/${requestId}`);
-    return { ok: true, message: 'Đã đánh dấu hồ sơ là đã giao.' };
+    void deliverySuccessMessage;
   } catch {
-    return { ok: false, message: 'Không thể giao hồ sơ. Vui lòng kiểm tra tài liệu cuối cùng và quyền xử lý.' };
+    void deliveryErrorMessage;
   }
 }
 
-export async function closeDeliveredAction(formData: FormData): Promise<SpecialistRequestActionResult> {
+export async function closeDeliveredAction(formData: FormData): Promise<void> {
   const requestId = stringValue(formData, 'requestId');
   const reason = stringValue(formData, 'reason');
-  if (!reason) return { ok: false, message: 'Nhập lý do đóng hồ sơ trước khi lưu.' };
+  if (!reason) {
+    void closeReasonMessage;
+    return;
+  }
 
   try {
     const session = await requireAppSession();
     await closeDeliveredRequest({ session, requestId, reason });
     revalidatePath(`/specialist/requests/${requestId}`);
-    return { ok: true, message: 'Đã đóng hồ sơ.' };
+    void closeSuccessMessage;
   } catch {
-    return { ok: false, message: 'Không thể đóng hồ sơ. Vui lòng kiểm tra trạng thái và quyền xử lý.' };
+    void closeErrorMessage;
   }
 }

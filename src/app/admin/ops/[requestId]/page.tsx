@@ -26,6 +26,14 @@ function statusChange(fromStatus: string | null, toStatus: string | null, action
   return action;
 }
 
+function formatOptionalDate(value: Date | null) {
+  return value ? formatDateTime(value) : '—';
+}
+
+function formatAge(days: number) {
+  return `${days} ngày`;
+}
+
 export default async function OpsRequestTimelinePage({ params }: { params: Promise<{ requestId: string }> }) {
   const { requestId } = await params;
 
@@ -56,6 +64,34 @@ export default async function OpsRequestTimelinePage({ params }: { params: Promi
           Timeline chỉ hiển thị định danh, action, lý do, mã tương quan và metadataSummary an toàn; không hiển thị nội dung pháp lý thô.
         </p>
       </Card>
+
+      {timeline ? (
+        <Card className="space-y-4">
+          <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">SLA cơ bản</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Từ trạng thái hiện tại</p>
+              <p className="text-[14px] font-normal leading-[1.4] text-[#0F172A]">{formatDateTime(timeline.sla.currentStatusSince)}</p>
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Tuổi trạng thái</p>
+              <p className="text-[14px] font-normal leading-[1.4] text-[#0F172A]">{formatAge(timeline.sla.currentStatusAgeDays)}</p>
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Chờ review từ</p>
+              <p className="text-[14px] font-normal leading-[1.4] text-[#0F172A]">{formatOptionalDate(timeline.sla.pendingReviewSince)}</p>
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Đã giao lúc</p>
+              <p className="text-[14px] font-normal leading-[1.4] text-[#0F172A]">{formatOptionalDate(timeline.sla.deliveredAt)}</p>
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">Đã đóng lúc</p>
+              <p className="text-[14px] font-normal leading-[1.4] text-[#0F172A]">{formatOptionalDate(timeline.sla.closedAt)}</p>
+            </div>
+          </div>
+        </Card>
+      ) : null}
 
       {errorMessage ? (
         <Card className="space-y-2">

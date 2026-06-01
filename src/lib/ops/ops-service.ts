@@ -60,6 +60,13 @@ export type OpsTimelineDto = {
   requestId: string;
   workspaceId: string;
   title: string;
+  sla: {
+    currentStatusSince: Date;
+    currentStatusAgeDays: number;
+    pendingReviewSince: Date | null;
+    deliveredAt: Date | null;
+    closedAt: Date | null;
+  };
   items: OpsTimelineItemDto[];
 };
 
@@ -355,6 +362,11 @@ export async function getOpsRequestTimeline(session: AppSession, requestId: stri
     }),
   ]);
 
+  const currentStatusSince = workflowTransitions[0]?.createdAt ?? new Date(0);
+  const pendingReviewSince = workflowTransitions.find((transition) => transition.toStatus === 'pending_review')?.createdAt ?? null;
+  const deliveredAt = workflowTransitions.find((transition) => transition.toStatus === 'delivered')?.createdAt ?? null;
+  const closedAt = workflowTransitions.find((transition) => transition.toStatus === 'closed')?.createdAt ?? null;
+
   const items: OpsTimelineItemDto[] = [
     ...auditEvents.map((event) => ({
       id: event.id,
@@ -390,5 +402,17 @@ export async function getOpsRequestTimeline(session: AppSession, requestId: stri
     })),
   ].sort((a, b) => b.at.getTime() - a.at.getTime());
 
-  return { requestId: request.id, workspaceId: request.workspaceId, title: request.title, items };
+  return {
+    requestId: request.id,
+    workspaceId: request.workspaceId,
+    title: request.title,
+    sla: {
+      currentStatusSince,
+      currentStatusAgeDays: daysBetween(currentStatusSince),
+      pendingReviewSince,
+      deliveredAt,
+      closedAt,
+    },
+    items,
+  };
 }

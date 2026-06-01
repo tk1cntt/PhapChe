@@ -79,7 +79,7 @@ export async function getVaultFileDownloadPayload(session: AppSession, vaultFile
       storageKey: true,
       contentType: true,
       documentVersionId: true,
-      request: { select: { createdById: true } },
+      request: { select: { createdById: true, status: true } },
     },
   });
 
@@ -88,6 +88,7 @@ export async function getVaultFileDownloadPayload(session: AppSession, vaultFile
   if (isCustomerSession(session)) {
     if (!session.activeWorkspaceId || vaultFile.workspaceId !== session.activeWorkspaceId) throw new Error('FORBIDDEN');
     if (vaultFile.request.createdById !== session.userId) throw new Error('FORBIDDEN');
+    if (!['delivered', 'closed'].includes(vaultFile.request.status)) throw new Error('FORBIDDEN');
     if (!vaultFile.documentVersionId) throw new Error('FORBIDDEN');
 
     const finalVersion = await prisma.documentVersion.findFirst({

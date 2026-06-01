@@ -49,7 +49,7 @@ function EmptyState({ title, body }: { title: string; body: string }) {
   );
 }
 
-export default async function OpsPage({ searchParams }: { searchParams: SearchParams }) {
+async function OpsPage({ searchParams }: { searchParams: SearchParams }) {
   const rawSearchParams = await searchParams;
   const session = await requireAppSession();
   const filters = parseOpsFilters(rawSearchParams);
@@ -124,3 +124,5 @@ export default async function OpsPage({ searchParams }: { searchParams: SearchPa
     );
   }
 }
+
+export { OpsPage as default };

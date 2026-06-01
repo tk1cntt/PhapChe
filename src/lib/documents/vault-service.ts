@@ -148,6 +148,7 @@ export async function getVaultFileMetadata(session: AppSession, vaultFileId: str
     where: { id: vaultFileId },
     select: {
       id: true,
+      workspaceId: true,
       filename: true,
       fileKind: true,
       source: true,
@@ -163,7 +164,7 @@ export async function getVaultFileMetadata(session: AppSession, vaultFileId: str
   // Record audit event for metadata access
   await recordAuditEvent({
     actorId: session.userId,
-    workspaceId: vaultFile.fileKind ?? '', // Will be set from request
+    workspaceId: vaultFile.workspaceId,
     action: 'vault.metadata_accessed',
     targetType: 'VAULT_FILE',
     targetId: vaultFileId,

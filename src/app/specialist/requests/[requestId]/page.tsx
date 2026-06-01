@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { RequestStatus } from '@prisma/client';
-import { Badge, Button, Card, PageHeader } from '@/app/admin/components/ui';
+import { Badge, Card, PageHeader } from '@/app/admin/components/ui';
 import { prisma } from '@/lib/prisma';
 import { getTemplatesForGeneration } from '@/lib/documents/template-service';
 import { listVaultFiles } from '@/lib/documents/vault-service';
@@ -9,7 +9,7 @@ import { requireAppSession } from '@/lib/security/session';
 import GenerateDraftForm from './components/generate-draft-form';
 import DocumentVersionsList from './components/document-versions';
 import VaultFilesList from './components/vault-files';
-import { closeDeliveredAction, markDeliveredAction } from './actions';
+import { CloseDeliveredForm, DeliverForm } from './components/delivery-actions';
 
 const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Nháp tiếp nhận', tone: 'neutral' },
@@ -226,27 +226,8 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
       {(request.status === 'approved' || request.status === 'delivered') && (
         <Card className="space-y-4">
           <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Giao và đóng hồ sơ</h2>
-          {request.status === 'approved' ? (
-            <form action={markDeliveredAction} className="space-y-4">
-              <input type="hidden" name="requestId" value={request.id} />
-              <Button type="submit">Giao cho khách hàng</Button>
-            </form>
-          ) : null}
-          {request.status === 'delivered' ? (
-            <form action={closeDeliveredAction} className="space-y-4">
-              <input type="hidden" name="requestId" value={request.id} />
-              <label className="block space-y-2">
-                <span className="text-[14px] font-semibold leading-[1.4] text-[#475569]">Lý do đóng hồ sơ</span>
-                <textarea
-                  name="reason"
-                  required
-                  className="min-h-24 w-full rounded-xl border border-[#CBD5E1] bg-white px-3 py-2 text-[16px] leading-[1.5] text-[#0F172A] focus:border-[#0F766E] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20"
-                />
-              </label>
-              <p className="text-[14px] leading-[1.4] text-[#475569]">Yêu cầu sẽ được đóng lại. Hành động này sẽ được ghi nhận.</p>
-              <Button type="submit">Đóng hồ sơ</Button>
-            </form>
-          ) : null}
+          {request.status === 'approved' ? <DeliverForm requestId={request.id} /> : null}
+          {request.status === 'delivered' ? <CloseDeliveredForm requestId={request.id} /> : null}
         </Card>
       )}
 

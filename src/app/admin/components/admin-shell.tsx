@@ -5,6 +5,7 @@ const navItems = [
   { href: '/admin/users', label: 'Người dùng' },
   { href: '/admin/workspaces', label: 'Workspace' },
   { href: '/admin/requests', label: 'Hồ sơ yêu cầu' },
+  { href: '/admin/ops', label: 'Vận hành' },
   { href: '/admin/audit', label: 'Audit' },
 ];
 

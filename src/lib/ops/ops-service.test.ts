@@ -2,6 +2,10 @@ import { readFileSync } from 'node:fs';
 import { getOpsDashboard, getOpsRequestTimeline, parseOpsFilters, requireOpsAdmin } from './ops-service';
 
 const source = readFileSync(new URL('./ops-service.ts', import.meta.url), 'utf8');
+const opsPageSource = readFileSync(new URL('../../app/admin/ops/page.tsx', import.meta.url), 'utf8');
+const timelinePageSource = readFileSync(new URL('../../app/admin/ops/[requestId]/page.tsx', import.meta.url), 'utf8');
+
+const phaseSevenSources = [source, opsPageSource, timelinePageSource].join('\n');
 
 function mustInclude(value: string, message: string) {
   if (!source.includes(value)) throw new Error(message);
@@ -9,6 +13,14 @@ function mustInclude(value: string, message: string) {
 
 function mustExclude(value: string, message: string) {
   if (source.includes(value)) throw new Error(message);
+}
+
+function mustIncludeIn(text: string, value: string, message: string) {
+  if (!text.includes(value)) throw new Error(message);
+}
+
+function mustExcludeFrom(text: string, value: string, message: string) {
+  if (text.includes(value)) throw new Error(message);
 }
 
 for (const exportName of ['requireOpsAdmin', 'parseOpsFilters', 'getOpsDashboard', 'getOpsRequestTimeline']) {
@@ -36,17 +48,37 @@ mustInclude("by: ['assignedReviewerId']", 'OPS-03 reviewer workload must group b
 mustInclude('assignedSpecialistId', 'OPS-03 service must use assignedSpecialistId source of truth');
 mustInclude('assignedReviewerId', 'OPS-03 service must use assignedReviewerId source of truth');
 mustInclude('workflowTransition.findMany', 'OPS-04 SLA age must use WorkflowTransition rows');
+mustInclude('createdAt: true', 'OPS-04 SLA timestamps must select WorkflowTransition.createdAt');
 mustInclude('currentStatusSince', 'OPS-04 must return current status timestamp');
 mustInclude('pendingReviewSince', 'OPS-04 must return pending review timestamp');
 mustInclude('deliveredAt', 'OPS-04 must return delivery timestamp when present');
 mustInclude('closedAt', 'OPS-04 must return close timestamp when present');
 mustInclude('auditEvent.findMany', 'OPS-05 timeline must use AuditEvent rows');
 mustInclude('metadataSummary', 'OPS-05 timeline must expose only safe metadataSummary');
+mustInclude('correlationId', 'OPS-05 timeline must expose safe correlationId');
+mustInclude('reason', 'OPS-05 timeline must expose workflow reason');
 mustInclude("kind: 'workflow'", 'OPS-05 timeline must include workflow events');
 mustInclude("kind: 'audit'", 'OPS-05 timeline must include audit events');
 
-for (const sensitiveField of ['generatedContent', 'generalComment', 'storageKey', 'fileContent', 'rawAnswer', 'rawContent', 'answers:', 'answerLabels', 'metadata: true']) {
-  mustExclude(sensitiveField, `OPS-05 timeline must not expose sensitive field ${sensitiveField}`);
+mustIncludeIn(opsPageSource, 'getOpsDashboard', 'OPS-01/OPS-02 dashboard page must use getOpsDashboard service layer');
+mustIncludeIn(opsPageSource, 'parseOpsFilters', 'OPS-02 dashboard page must parse filters through service layer');
+mustIncludeIn(opsPageSource, 'href={`/admin/ops/${request.id}`}', 'OPS-05 dashboard page must link each request to its audit timeline');
+mustIncludeIn(opsPageSource, 'Tổng quan vận hành', 'OPS-01 dashboard page must show required overview copy');
+mustIncludeIn(opsPageSource, 'Bộ lọc hồ sơ', 'OPS-02 dashboard page must show required filter copy');
+mustIncludeIn(opsPageSource, 'Workload chuyên viên và reviewer', 'OPS-03 dashboard page must show required workload copy');
+mustIncludeIn(opsPageSource, 'Mốc SLA cơ bản', 'OPS-04 dashboard page must show required SLA copy');
+mustIncludeIn(timelinePageSource, 'getOpsRequestTimeline', 'OPS-05 timeline page must use getOpsRequestTimeline service layer');
+mustIncludeIn(timelinePageSource, 'Timeline audit', 'OPS-05 timeline page must show required timeline copy');
+mustIncludeIn(timelinePageSource, 'metadataSummary', 'OPS-05 timeline page must render safe metadataSummary only');
+mustIncludeIn(timelinePageSource, 'correlationId', 'OPS-05 timeline page must render correlationId');
+mustIncludeIn(timelinePageSource, 'reason', 'OPS-05 timeline page must render reason');
+
+for (const sensitiveField of ['generatedContent', 'generalComment', 'storageKey', 'fileContent', 'rawAnswer', 'rawContent', 'answers:', 'answerLabels', 'metadata: true', 'JSON.stringify']) {
+  mustExcludeFrom(phaseSevenSources, sensitiveField, `OPS-05 timeline must not expose sensitive field or object dump ${sensitiveField}`);
+}
+
+for (const deferredFeature of ['chart', 'CSV', 'PDF', 'saved view', 'fuzzy', 'scoring', 'capacity scoring', 'escalation', 'schema.prisma', 'db push']) {
+  mustExcludeFrom(phaseSevenSources, deferredFeature, `Phase 7 MVP must not add deferred feature or schema-push token ${deferredFeature}`);
 }
 
 const behaviorFixtures = {

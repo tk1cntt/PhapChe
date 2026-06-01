@@ -148,48 +148,52 @@ export async function getCustomerDeliveryRequest(session: AppSession, requestId:
 
   if (!request) throw new Error('REQUEST_NOT_FOUND');
 
-  const [intakeSubmission, documents, finalVersions, vaultFiles] = await Promise.all([
-    prisma.intakeSubmission.findUnique({
-      where: { requestId },
-      select: { matterTypeKey: true },
-    }),
-    prisma.document.findMany({
-      where: { requestId, workspaceId: session.activeWorkspaceId },
-      select: { id: true, title: true },
-      orderBy: { createdAt: 'asc' },
-    }),
-    prisma.documentVersion.findMany({
-      where: { status: 'final', document: { requestId, workspaceId: session.activeWorkspaceId } },
-      select: { id: true, documentId: true, templateVersion: true, createdAt: true },
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.vaultFile.findMany({
-      where: { requestId, workspaceId: session.activeWorkspaceId, documentVersionId: { not: null } },
-      select: { id: true, filename: true, documentVersionId: true, size: true, contentType: true },
-      orderBy: { createdAt: 'desc' },
-    }),
-  ]);
+  const intakeSubmission = await prisma.intakeSubmission.findUnique({
+    where: { requestId },
+    select: { matterTypeKey: true },
+  });
 
-  const documentsById = new Map(documents.map((document) => [document.id, document]));
-  const vaultFilesByVersion = new Map(vaultFiles.map((file) => [file.documentVersionId, file]));
   const deliveryDocuments: CustomerDeliveryDocument[] = [];
 
-  for (const version of finalVersions) {
-    const document = documentsById.get(version.documentId);
-    const vaultFile = vaultFilesByVersion.get(version.id);
-    if (!document || !vaultFile) continue;
+  if (request.status === 'delivered' || request.status === 'closed') {
+    const [documents, finalVersions, vaultFiles] = await Promise.all([
+      prisma.document.findMany({
+        where: { requestId, workspaceId: session.activeWorkspaceId },
+        select: { id: true, title: true },
+        orderBy: { createdAt: 'asc' },
+      }),
+      prisma.documentVersion.findMany({
+        where: { status: 'final', document: { requestId, workspaceId: session.activeWorkspaceId } },
+        select: { id: true, documentId: true, templateVersion: true, createdAt: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.vaultFile.findMany({
+        where: { requestId, workspaceId: session.activeWorkspaceId, documentVersionId: { not: null } },
+        select: { id: true, filename: true, documentVersionId: true, size: true, contentType: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ]);
 
-    deliveryDocuments.push({
-      documentId: document.id,
-      documentTitle: document.title,
-      documentVersionId: version.id,
-      templateVersion: version.templateVersion,
-      createdAt: version.createdAt,
-      vaultFileId: vaultFile.id,
-      filename: vaultFile.filename,
-      size: vaultFile.size,
-      contentType: vaultFile.contentType,
-    });
+    const documentsById = new Map(documents.map((document) => [document.id, document]));
+    const vaultFilesByVersion = new Map(vaultFiles.map((file) => [file.documentVersionId, file]));
+
+    for (const version of finalVersions) {
+      const document = documentsById.get(version.documentId);
+      const vaultFile = vaultFilesByVersion.get(version.id);
+      if (!document || !vaultFile) continue;
+
+      deliveryDocuments.push({
+        documentId: document.id,
+        documentTitle: document.title,
+        documentVersionId: version.id,
+        templateVersion: version.templateVersion,
+        createdAt: version.createdAt,
+        vaultFileId: vaultFile.id,
+        filename: vaultFile.filename,
+        size: vaultFile.size,
+        contentType: vaultFile.contentType,
+      });
+    }
   }
 
   return {

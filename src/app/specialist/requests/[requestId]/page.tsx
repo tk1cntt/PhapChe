@@ -56,7 +56,7 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
       status: true,
       createdBy: { select: { name: true, email: true } },
       intakeSubmission: { select: { matterTypeKey: true, answerLabels: true, answers: true } },
-      vaultFiles: { select: { id: true, filename: true, storageKey: true, createdAt: true }, orderBy: { createdAt: 'desc' } },
+      vaultFiles: { select: { id: true, filename: true, createdAt: true }, orderBy: { createdAt: 'desc' } },
       documents: {
         select: {
           id: true,

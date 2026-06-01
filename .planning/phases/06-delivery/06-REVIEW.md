@@ -1,64 +1,92 @@
 ---
 phase: 06-delivery
-reviewed: 2026-05-31T00:00:00Z
+reviewed: 2026-06-01T12:22:38Z
 depth: standard
-files_reviewed: 9
+files_reviewed: 12
+files_reviewed_list:
+  - src/app/api/vault/[vaultFileId]/download/route.ts
+  - src/app/customer/requests/[requestId]/page.tsx
+  - src/app/specialist/requests/[requestId]/actions.test.ts
+  - src/app/specialist/requests/[requestId]/actions.ts
+  - src/app/specialist/requests/[requestId]/page.tsx
+  - src/app/specialist/requests/[requestId]/components/delivery-actions.tsx
+  - src/lib/delivery/delivery-service.test.ts
+  - src/lib/delivery/delivery-service.ts
+  - src/lib/delivery/notification-service.ts
+  - src/lib/documents/vault-service.test.ts
+  - src/lib/documents/vault-service.ts
+  - src/lib/workflow/request-workflow.ts
 findings:
   critical: 1
-  warning: 2
+  warning: 1
   info: 0
-  total: 3
+  total: 2
 status: issues_found
 ---
 
 # Phase 06: Code Review Report
 
+**Reviewed:** 2026-06-01T12:22:38Z
 **Depth:** standard
-**Files Reviewed:** 9
+**Files Reviewed:** 12
 **Status:** issues_found
 
 ## Summary
 
-Review chuẩn trên 9 file delivery/vault/workflow. Có 1 lỗi security ở download URL: TTL không được ký/xác thực, client tự đặt `expires` tương lai vẫn qua. Có 1 bug UX làm nút tải của khách luôn hết hạn. Có 1 warning server action nuốt lỗi nên form không phản hồi thất bại.
+Đã review 12 file delivery/vault/workflow. Phát hiện 1 lỗi security ảnh hưởng audit trail và 1 lỗi test setup làm RBAC test không kiểm tra đúng cross-tenant case.
 
 ## Critical Issues
 
-### CR-01: Download URL hết hạn chỉ dựa trên query client tự sửa được
+### CR-01: Metadata audit ghi sai workspaceId
 
-**File:** `src/app/api/vault/[vaultFileId]/download/route.ts`
-**Related:** `src/lib/documents/vault-service.ts`
+**File:** `src/lib/documents/vault-service.ts:163-166`
+**Issue:** `getVaultFileMetadata` ghi `workspaceId` bằng `vaultFile.fileKind ?? ''` thay vì workspace thật. Audit cho hồ sơ pháp lý nhạy cảm bị gắn nhầm workspace, phá traceability/tenant audit và có thể làm truy vấn audit theo workspace bỏ sót sự kiện.
+**Fix:** Select `workspaceId` từ `vaultFile` rồi dùng field đó khi ghi audit.
+```ts
+const vaultFile = await prisma.vaultFile.findUnique({
+  where: { id: vaultFileId },
+  select: {
+    id: true,
+    workspaceId: true,
+    filename: true,
+    fileKind: true,
+    source: true,
+    documentVersionId: true,
+    createdAt: true,
+    size: true,
+    contentType: true,
+  },
+});
 
-**Issue:** `expires` không có chữ ký/token server-side. Bất kỳ user đã pass RBAC cho vault file có thể gọi `/api/vault/<vaultFileId>/download?expires=9999999999999`. Route chỉ check `expires < Date.now()`, nên TTL 15 phút không được enforce thật. Vi phạm constraint signed URL ngắn hạn.
-
-**Fix:** Ký URL bằng HMAC hoặc lưu access token TTL server-side. Route phải verify signature bằng `timingSafeEqual` trước khi cho download.
+await recordAuditEvent({
+  actorId: session.userId,
+  workspaceId: vaultFile.workspaceId,
+  action: 'vault.metadata_accessed',
+  targetType: 'VAULT_FILE',
+  targetId: vaultFileId,
+  correlationId: `vault-metadata-${vaultFileId}`,
+  metadataSummary: `vaultFileId=${vaultFileId}; action=metadata`,
+});
+```
 
 ## Warnings
 
-### WR-01: Nút tải khách hàng gọi URL thiếu `expires`, nên luôn nhận 410
+### WR-01: RBAC test dùng nhầm otherCustomerId
 
-**File:** `src/app/customer/requests/[requestId]/page.tsx`
-**Related:** `src/app/api/vault/[vaultFileId]/download/route.ts`
+**File:** `src/lib/documents/vault-service.test.ts:119`
+**Issue:** `otherCustomerId` đang được set bằng `customer.id`, không phải `otherCustomer.id`. Test `RBAC - user without request access gets FORBIDDEN` vì vậy tạo session “other customer” bằng đúng user thuộc workspace chính, làm phần cross-tenant setup sai và có thể che lỗi phân quyền thật.
+**Fix:** Trả về đúng ID của user other customer, và thêm `otherCustomer.id` vào cleanup list.
+```ts
+return {
+  // ...
+  otherCustomerId: otherCustomer.id,
+  userIds: [coordinator.id, specialist.id, customer.id, otherCustomer.id],
+  // ...
+};
+```
 
-**Issue:** Link tải render `/api/vault/${document.vaultFileId}/download`. Route đọc `expires`; khi thiếu, default `0`, nên trả 410. Trong route, `requestVaultFileAccess()` tạo URL mới nhưng không redirect vì URL cùng path, sau đó vẫn check query request cũ.
+---
 
-**Fix:** Route redirect khi thiếu `expires` tới signed access URL mới, kết hợp fix CR-01 để URL redirect có chữ ký.
-
-### WR-02: Server actions nuốt lỗi, người dùng không biết giao/đóng thất bại
-
-**File:** `src/app/specialist/requests/[requestId]/actions.ts`
-
-**Issue:** `markDeliveredAction` và `closeDeliveredAction` catch lỗi rồi chỉ `void deliveryErrorMessage` / `void closeErrorMessage`. Form không nhận result, UI không hiện lỗi, failure bị im lặng. Specialist có thể tưởng đã giao/đóng hồ sơ nhưng state không đổi.
-
-**Fix:** Trả action result và hiển thị ở UI, hoặc để lỗi bubble lên boundary.
-
-## Files reviewed
-
-- `src/app/api/vault/[vaultFileId]/download/route.ts`
-- `src/app/customer/requests/[requestId]/page.tsx`
-- `src/app/specialist/requests/[requestId]/actions.ts`
-- `src/app/specialist/requests/[requestId]/page.tsx`
-- `src/lib/delivery/delivery-service.test.ts`
-- `src/lib/delivery/delivery-service.ts`
-- `src/lib/delivery/notification-service.ts`
-- `src/lib/documents/vault-service.ts`
-- `src/lib/workflow/request-workflow.ts`
+_Reviewed: 2026-06-01T12:22:38Z_
+_Reviewer: Claude (gsd-code-reviewer)_
+_Depth: standard_

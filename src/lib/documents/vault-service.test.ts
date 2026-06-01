@@ -46,7 +46,7 @@ async function seedVaultTest(): Promise<VaultSeed> {
     prisma.workspace.create({ data: { name: `Vault Service Other ${suffix}`, slug: `${VAULT_E2E_PREFIX}-other-${suffix}` } }),
   ]);
 
-  const [coordinator, specialist, customer] = await Promise.all([
+  const [coordinator, specialist, customer, otherCustomer] = await Promise.all([
     prisma.user.create({
       data: {
         email: `${VAULT_E2E_PREFIX}_coord_${suffix}@example.test`,
@@ -117,10 +117,10 @@ async function seedVaultTest(): Promise<VaultSeed> {
     coordinatorId: coordinator.id,
     specialistId: specialist.id,
     customerId: customer.id,
-    otherCustomerId: customer.id,
+    otherCustomerId: otherCustomer.id,
     requestId: request.id,
     otherRequestId: otherRequest.id,
-    userIds: [coordinator.id, specialist.id, customer.id],
+    userIds: [coordinator.id, specialist.id, customer.id, otherCustomer.id],
     correlationPrefix,
   };
 }

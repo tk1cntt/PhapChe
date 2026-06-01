@@ -311,17 +311,17 @@ const timeline = [...auditItems, ...workflowItems].sort(
 | A1 | Ops service can obtain an `AppSession` using existing auth/session patterns not inspected in this research. [ASSUMED] | Architecture Patterns | Planner may need to locate existing session helper before implementing admin authorization. |
 | A2 | `coordinator_admin` and `super_admin` are sufficient admin roles for ops visibility. [ASSUMED] | Common Pitfalls/Security | If policy differs, RBAC tests and route guards must change. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Where exactly is the current session retrieval helper used by server pages?**
-   - What we know: RBAC functions consume `AppSession`. [VERIFIED: src/lib/security/rbac.ts]
-   - What's unclear: The canonical session helper/import path was not part of Phase 7 context.
-   - Recommendation: Planner should add Wave 0 discovery for existing server-page auth/session usage before coding ops route.
+   - Resolution: Use `requireAppSession` from `src/lib/security/session.ts`.
+   - Evidence: Existing server pages and actions import `requireAppSession` from `@/lib/security/session`, including `src/app/admin/templates/page.tsx`, `src/app/admin/templates/[templateId]/page.tsx`, `src/app/specialist/requests/page.tsx`, and `src/app/reviewer/requests/page.tsx`.
+   - Planning impact: Ops pages and services should accept/use `AppSession` and enforce `coordinator_admin` / `super_admin` server-side before returning ops data.
 
 2. **Should audit timeline be on `/admin/ops/[requestId]` or embedded in `/admin/ops?requestId=...`?**
-   - What we know: D-13 requires admin can view chronological timeline for a single request. [VERIFIED: 07-CONTEXT.md]
-   - What's unclear: Exact route is discretionary.
-   - Recommendation: Prefer `/admin/ops/[requestId]` only if existing dynamic admin route patterns are present; otherwise keep a query-based drill-in for smaller MVP.
+   - Resolution: Use a dedicated dynamic route `/admin/ops/[requestId]` for the request timeline.
+   - Evidence: Existing request detail patterns use dynamic routes such as `src/app/requests/[requestId]/page.tsx`, `src/app/customer/requests/[requestId]/page.tsx`, and `src/app/specialist/requests/[requestId]/page.tsx`.
+   - Planning impact: `/admin/ops` owns dashboard/filter/workload; `/admin/ops/[requestId]` owns the safe audit/SLA timeline drill-in with a back link to `/admin/ops`.
 
 ## Environment Availability
 

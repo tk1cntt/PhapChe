@@ -43,7 +43,10 @@ type RequestVaultFileAccessResult = {
 const VAULT_ACCESS_TTL_MS = 15 * 60 * 1000;
 
 function vaultDownloadSecret() {
-  return process.env.VAULT_DOWNLOAD_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim() || 'dev-vault-download-secret';
+  const secret = process.env.VAULT_DOWNLOAD_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim();
+  if (secret) return secret;
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') return 'dev-vault-download-secret';
+  throw new Error('VAULT_DOWNLOAD_SECRET_REQUIRED');
 }
 
 function signVaultFileAccess(vaultFileId: string, userId: string, expires: string) {

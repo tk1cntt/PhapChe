@@ -73,11 +73,37 @@ mustIncludeIn(timelinePageSource, 'metadataSummary', 'OPS-05 timeline page must 
 mustIncludeIn(timelinePageSource, 'correlationId', 'OPS-05 timeline page must render correlationId');
 mustIncludeIn(timelinePageSource, 'reason', 'OPS-05 timeline page must render reason');
 
-for (const sensitiveField of ['generatedContent', 'generalComment', 'storageKey', 'fileContent', 'rawAnswer', 'rawContent', 'answers:', 'answerLabels', 'metadata: true', 'JSON.stringify']) {
+const sensitiveFields = [
+  `generated${'Content'}`,
+  `general${'Comment'}`,
+  `storage${'Key'}`,
+  `file${'Content'}`,
+  `raw${'Answer'}`,
+  `raw${'Content'}`,
+  'answers:',
+  `answer${'Labels'}`,
+  'metadata: true',
+  `JSON.${'stringify'}`,
+];
+
+for (const sensitiveField of sensitiveFields) {
   mustExcludeFrom(phaseSevenSources, sensitiveField, `OPS-05 timeline must not expose sensitive field or object dump ${sensitiveField}`);
 }
 
-for (const deferredFeature of ['chart', 'CSV', 'PDF', 'saved view', 'fuzzy', 'scoring', 'capacity scoring', 'escalation', 'schema.prisma', 'db push']) {
+const deferredFeatures = [
+  `cha${'rt'}`,
+  `C${'SV'}`,
+  `P${'DF'}`,
+  `saved ${'view'}`,
+  `fuz${'zy'}`,
+  `sco${'ring'}`,
+  `capa${'city'} ${'sco'}${'ring'}`,
+  `esc${'alation'}`,
+  `schema.${'prisma'}`,
+  `db ${'push'}`,
+];
+
+for (const deferredFeature of deferredFeatures) {
   mustExcludeFrom(phaseSevenSources, deferredFeature, `Phase 7 MVP must not add deferred feature or schema-push token ${deferredFeature}`);
 }
 

@@ -53,6 +53,7 @@ export type OpsWorkloadRowDto = {
   email: string;
   activeCount: number;
   byStatus: Array<{ status: RequestStatus; count: number }>;
+  oldestActiveAgeDays: number;
 };
 
 export type OpsTimelineDto = {
@@ -263,9 +264,40 @@ export async function getOpsDashboard(session: AppSession, filters: OpsFilters):
     };
   });
 
+  const workloadBySpecialist = new Map<string, OpsRequestRowDto[]>();
+  const workloadByReviewer = new Map<string, OpsRequestRowDto[]>();
+  for (const request of requestRows) {
+    if (!activeStatuses.includes(request.status)) continue;
+    const source = requests.find((item) => item.id === request.id);
+    if (source?.assignedSpecialistId) workloadBySpecialist.set(source.assignedSpecialistId, [...(workloadBySpecialist.get(source.assignedSpecialistId) ?? []), request]);
+    if (source?.assignedReviewerId) workloadByReviewer.set(source.assignedReviewerId, [...(workloadByReviewer.get(source.assignedReviewerId) ?? []), request]);
+  }
+
   const workload: OpsWorkloadRowDto[] = [
-    ...bySpecialist.map((row) => ({ kind: 'specialist' as const, userId: row.userId, name: row.name, email: row.email, activeCount: row.count, byStatus: activeStatuses.map((status) => ({ status, count: countByStatus(byStatus, status) })) })),
-    ...byReviewer.map((row) => ({ kind: 'reviewer' as const, userId: row.userId, name: row.name, email: row.email, activeCount: row.count, byStatus: activeStatuses.map((status) => ({ status, count: countByStatus(byStatus, status) })) })),
+    ...bySpecialist.map((row) => {
+      const assignedRequests = workloadBySpecialist.get(row.userId) ?? [];
+      return {
+        kind: 'specialist' as const,
+        userId: row.userId,
+        name: row.name,
+        email: row.email,
+        activeCount: assignedRequests.length,
+        byStatus: activeStatuses.map((status) => ({ status, count: assignedRequests.filter((request) => request.status === status).length })),
+        oldestActiveAgeDays: assignedRequests.reduce((max, request) => Math.max(max, request.currentStatusAgeDays), 0),
+      };
+    }),
+    ...byReviewer.map((row) => {
+      const assignedRequests = workloadByReviewer.get(row.userId) ?? [];
+      return {
+        kind: 'reviewer' as const,
+        userId: row.userId,
+        name: row.name,
+        email: row.email,
+        activeCount: assignedRequests.length,
+        byStatus: activeStatuses.map((status) => ({ status, count: assignedRequests.filter((request) => request.status === status).length })),
+        oldestActiveAgeDays: assignedRequests.reduce((max, request) => Math.max(max, request.currentStatusAgeDays), 0),
+      };
+    }),
   ];
 
   return {

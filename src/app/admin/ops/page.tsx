@@ -57,7 +57,6 @@ async function OpsPage({ searchParams }: { searchParams: SearchParams }) {
   try {
     const dashboard = await getOpsDashboard(session, filters);
     const hasData = dashboard.total > 0 || dashboard.requests.length > 0 || dashboard.workload.length > 0;
-    const oldestActiveAge = dashboard.requests.reduce((max, request) => Math.max(max, request.currentStatusAgeDays), 0);
 
     return (
       <AdminShell>
@@ -101,7 +100,7 @@ async function OpsPage({ searchParams }: { searchParams: SearchParams }) {
         <Card className="space-y-4">
           <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Workload chuyên viên và reviewer</h2>
           {dashboard.workload.length === 0 ? <EmptyState title="Chưa có dữ liệu vận hành" body="Khi hồ sơ phát sinh, số lượng theo trạng thái, workload và aging sẽ hiển thị tại đây." /> : (
-            <Table headers={workloadHeaders}>{dashboard.workload.map((row) => <tr key={`${row.kind}-${row.userId}`} className="hover:bg-[#F1F5F9]"><td className="whitespace-nowrap px-4 py-3 text-[16px] font-normal leading-[1.5]">{personLabel(row.name, row.email)}</td><td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{row.kind === 'specialist' ? 'Specialist' : 'Reviewer'}</td><td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{row.activeCount}</td><td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{row.byStatus.find((item) => item.status === 'pending_review')?.count ?? 0}</td><td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{row.byStatus.find((item) => item.status === 'revision_required')?.count ?? 0}</td><td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{formatAge(oldestActiveAge)}</td></tr>)}</Table>
+            <Table headers={workloadHeaders}>{dashboard.workload.map((row) => <tr key={`${row.kind}-${row.userId}`} className="hover:bg-[#F1F5F9]"><td className="whitespace-nowrap px-4 py-3 text-[16px] font-normal leading-[1.5]">{personLabel(row.name, row.email)}</td><td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{row.kind === 'specialist' ? 'Specialist' : 'Reviewer'}</td><td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{row.activeCount}</td><td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{row.byStatus.find((item) => item.status === 'pending_review')?.count ?? 0}</td><td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{row.byStatus.find((item) => item.status === 'revision_required')?.count ?? 0}</td><td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{formatAge(row.oldestActiveAgeDays)}</td></tr>)}</Table>
           )}
         </Card>
 

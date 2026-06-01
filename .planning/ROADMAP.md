@@ -11,15 +11,15 @@
 
 | Phase | Name | Requirements | Plans | Status | Completed |
 |---|---|---|---:|---|---|
-| 1 | foundation | FND-01, FND-02, FND-03, FND-04, FND-05 | 4/4 | Complete with human review debt | 2026-06-01 |
-| 2 | intake | INT-01, INT-02, INT-03, INT-04, INT-05, INT-06 | 4/4 | Complete | 2026-06-01 |
-| 3 | routing | RTE-01, RTE-02, RTE-03, RTE-04, RTE-05 | 5/5 | Complete | 2026-06-01 |
-| 4 | documents-vault | DOC-01..DOC-06, VLT-01..VLT-05 | 4/4 | Executed; verification gaps recorded | 2026-06-01 |
-| 5 | review | REV-01..REV-09 | 3/3 | Executed | 2026-06-01 |
-| 6 | delivery | DLV-01..DLV-05 | 6/6 | Executed; verification gaps recorded | 2026-06-01 |
-| 7 | ops | OPS-01..OPS-05 | 4/4 | Complete | 2026-06-01 |
+| 01 | foundation | FND-01, FND-02, FND-03, FND-04, FND-05 | 4/4 | Complete with human review debt | 2026-06-01 |
+| 02 | intake | INT-01, INT-02, INT-03, INT-04, INT-05, INT-06 | 4/4 | Complete | 2026-06-01 |
+| 03 | routing | RTE-01, RTE-02, RTE-03, RTE-04, RTE-05 | 5/5 | Complete | 2026-06-01 |
+| 04 | documents-vault | DOC-01..DOC-06, VLT-01..VLT-05 | 4/4 | Executed; verification gaps recorded | 2026-06-01 |
+| 05 | review | REV-01..REV-09 | 3/3 | Executed | 2026-06-01 |
+| 06 | delivery | DLV-01..DLV-05 | 6/6 | Executed; verification gaps recorded | 2026-06-01 |
+| 07 | ops | OPS-01..OPS-05 | 4/4 | Complete | 2026-06-01 |
 
-## Phase 1: foundation
+## Phase 01: foundation
 
 **Status:** Complete with human review debt  
 **Plans:** 4/4 executed  
@@ -38,7 +38,7 @@ Artifacts:
 - `.planning/phases/01-foundation/01-01-SUMMARY.md` through `01-04-SUMMARY.md`
 - `.planning/phases/01-foundation/01-VERIFICATION.md` — status: `human_needed`
 
-## Phase 2: intake
+## Phase 02: intake
 
 **Status:** Complete  
 **Plans:** 4/4 executed  
@@ -57,7 +57,7 @@ Artifacts:
 - `.planning/phases/02-intake/02-01-SUMMARY.md` through `02-04-SUMMARY.md`
 - `.planning/phases/02-intake/02-VERIFICATION.md` — status: `passed`
 
-## Phase 3: routing
+## Phase 03: routing
 
 **Status:** Complete  
 **Plans:** 5/5 executed  
@@ -76,7 +76,7 @@ Artifacts:
 - `.planning/phases/03-routing/03-01-SUMMARY.md` through `03-05-SUMMARY.md`
 - `.planning/phases/03-routing/03-VERIFICATION.md` — status: `passed`
 
-## Phase 4: documents-vault
+## Phase 04: documents-vault
 
 **Status:** Executed; verification gaps recorded  
 **Plans:** 4/4 executed  
@@ -96,7 +96,7 @@ Artifacts:
 - `.planning/phases/04-documents-vault/04-01-SUMMARY.md` through `04-04-SUMMARY.md`
 - `.planning/phases/04-documents-vault/04-VERIFICATION.md` — status: `gaps_found`
 
-## Phase 5: review
+## Phase 05: review
 
 **Status:** Executed  
 **Plans:** 3/3 executed  
@@ -117,7 +117,7 @@ Artifacts:
 - `.planning/phases/05-review/05-01-SUMMARY.md` through `05-03-SUMMARY.md`
 - No `05-VERIFICATION.md` currently present.
 
-## Phase 6: delivery
+## Phase 06: delivery
 
 **Status:** Executed; verification gaps recorded  
 **Plans:** 6/6 executed  
@@ -137,7 +137,7 @@ Artifacts:
 - `.planning/phases/06-delivery/06-01-SUMMARY.md` through `06-06-SUMMARY.md`
 - `.planning/phases/06-delivery/06-VERIFICATION.md` — status: `gaps_found`
 
-## Phase 7: ops
+## Phase 07: ops
 
 **Status:** Complete  
 **Plans:** 4/4 executed  
@@ -163,13 +163,13 @@ Artifacts:
 
 | Phase | Requirements | Count | Status |
 |---|---|---:|---|
-| 1 foundation | FND-01..FND-05 | 5 | Complete |
-| 2 intake | INT-01..INT-06 | 6 | Complete |
-| 3 routing | RTE-01..RTE-05 | 5 | Complete |
-| 4 documents-vault | DOC-01..DOC-06, VLT-01..VLT-05 | 11 | Complete in traceability; verification gaps recorded |
-| 5 review | REV-01..REV-09 | 9 | Complete in traceability; verification artifact missing |
-| 6 delivery | DLV-01..DLV-05 | 5 | Complete in traceability; verification gaps recorded |
-| 7 ops | OPS-01..OPS-05 | 5 | Complete |
+| 01 foundation | FND-01..FND-05 | 05 | Complete |
+| 02 intake | INT-01..INT-06 | 06 | Complete |
+| 03 routing | RTE-01..RTE-05 | 05 | Complete |
+| 04 documents-vault | DOC-01..DOC-06, VLT-01..VLT-05 | 11 | Complete in traceability; verification gaps recorded |
+| 05 review | REV-01..REV-09 | 9 | Complete in traceability; verification artifact missing |
+| 06 delivery | DLV-01..DLV-05 | 05 | Complete in traceability; verification gaps recorded |
+| 07 ops | OPS-01..OPS-05 | 05 | Complete |
 
 **Coverage:** 46/46 v1 requirements mapped.  
 **Traceability:** 46/46 marked complete in `.planning/REQUIREMENTS.md`.  

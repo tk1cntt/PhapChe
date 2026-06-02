@@ -45,19 +45,19 @@
 - [x] **VLT-02**: System stores uploaded files, drafts, final documents, and review artifacts with metadata.
 - [x] **VLT-03**: System supports file version history for documents.
 - [x] **VLT-04**: System logs file preview, download, upload, and delete actions.
-- [x] **VLT-05**: System supports folder/tag classification for legal files.
+- [ ] **VLT-05**: System supports folder/tag classification for legal files.
 
 ### Review
 
-- [x] **REV-01**: Reviewer can see queue of document versions awaiting review.
-- [x] **REV-02**: Reviewer can review split view: draft left, QC checklist right.
-- [x] **REV-03**: Checklist includes latest template, spelling/presentation, and entity info matching files.
-- [x] **REV-04**: Checklist includes current legal basis, clear rights/obligations, risk clauses, and fit to customer pain.
-- [x] **REV-05**: Checklist includes signature area and confidentiality classification.
-- [x] **REV-06**: Reviewer can approve only after completing required checklist items.
-- [x] **REV-07**: Reviewer can request revision with failed checklist items and comments.
-- [x] **REV-08**: System returns rejected documents to specialist and preserves comments.
-- [x] **REV-09**: System marks approved version as final-ready and audits decision.
+- [ ] **REV-01**: Reviewer can see queue of document versions awaiting review.
+- [ ] **REV-02**: Reviewer can review split view: draft left, QC checklist right.
+- [ ] **REV-03**: Checklist includes latest template, spelling/presentation, and entity info matching files.
+- [ ] **REV-04**: Checklist includes current legal basis, clear rights/obligations, risk clauses, and fit to customer pain.
+- [ ] **REV-05**: Checklist includes signature area and confidentiality classification.
+- [ ] **REV-06**: Reviewer can approve only after completing required checklist items.
+- [ ] **REV-07**: Reviewer can request revision with failed checklist items and comments.
+- [ ] **REV-08**: System returns rejected documents to specialist and preserves comments.
+- [ ] **REV-09**: System marks approved version as final-ready and audits decision.
 
 ### Delivery
 
@@ -132,7 +132,7 @@
 | DOC-01 | Phase 04 | Complete |
 | DOC-02 | Phase 04 | Complete |
 | DOC-03 | Phase 04 | Complete |
-| DOC-04 | Phase 04 | Complete |
+| DOC-04 | Phase 10 | Pending (Prisma duplicate key bug) |
 | DOC-05 | Phase 04 | Complete |
 | DOC-06 | Phase 04 | Complete |
 | VLT-01 | Phase 04 | Complete |
@@ -150,10 +150,10 @@
 | REV-08 | Phase 08 | Pending |
 | REV-09 | Phase 08 | Pending |
 | DLV-01 | Phase 06 | Complete |
-| DLV-02 | Phase 06 | Complete |
+| DLV-02 | Phase 06, 10 | Complete; UX gap in Phase 10 |
 | DLV-03 | Phase 06 | Complete |
 | DLV-04 | Phase 06 | Complete |
-| DLV-05 | Phase 06 | Complete |
+| DLV-05 | Phase 06, 10 | Complete; UX gap in Phase 10 |
 | OPS-01 | Phase 07 | Complete |
 | OPS-02 | Phase 07 | Complete |
 | OPS-03 | Phase 07 | Complete |
@@ -163,7 +163,9 @@
 **Coverage:**
 - v1 requirements: 46 total
 - Mapped to phases: 46
-- Unmapped: 0 OK
+- Unmapped: 0
+- Pending (gap-closure): 10 (REV-01..09, VLT-05, DOC-04)
+- Complete: 36
 
 ---
 *Requirements defined: 2026-05-26*

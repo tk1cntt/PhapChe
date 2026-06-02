@@ -195,7 +195,7 @@ Success criteria:
 
 **Status:** Gap closure (planned)  
 **Goal:** Close DLV-02 UX degradation, fix `listDocumentVersions` Prisma duplicate, and surface deliver/close feedback to specialist.  
-**Requirements:** DLV-02, DOC-04, DLV-05 (UX)  
+**Requirements:** DOC-04, DLV-02, DLV-05  
 **UI hint:** yes
 
 Success criteria:
@@ -217,7 +217,7 @@ Success criteria:
 | 07 ops | OPS-01..OPS-05 | 05 | Complete |
 | 08 reviewer-service | REV-01..REV-09 | 9 | Gap closure (planned) |
 | 09 folder-tag | VLT-05 | 1 | Gap closure (planned) |
-| 10 ux-hardening | DLV-02, DOC-04, DLV-05 UX | — | Gap closure (planned) |
+| 10 ux-hardening | DOC-04, DLV-02, DLV-05 | 0/0 | Gap closure (planned) |
 
 **Coverage:** 46/46 v1 requirements mapped.  
 **Traceability:** 10 requirements moved to Pending under gap-closure phases per `.planning/v1.0-MILESTONE-AUDIT.md`.  

@@ -1,11 +1,12 @@
 # Roadmap: Legal-as-a-Service Platform
 
 **Created:** 2026-05-26
-**Last updated:** 2026-06-01
-**Milestone:** v1.0 — Complete
-**Total phases:** 7
+**Last updated:** 2026-06-02
+**Milestone:** v1.0 — Gap closure in progress
+**Total phases:** 10
 **v1 requirements covered:** 46/46
 **Plans executed:** 30/30
+**Audit:** `.planning/v1.0-MILESTONE-AUDIT.md`
 
 ## Progress
 
@@ -18,6 +19,9 @@
 | 05 | review | REV-01..REV-09 | 3/3 | Executed | 2026-06-01 |
 | 06 | delivery | DLV-01..DLV-05 | 6/6 | Executed; verification gaps recorded | 2026-06-01 |
 | 07 | ops | OPS-01..OPS-05 | 4/4 | Complete | 2026-06-01 |
+| 08 | reviewer-service | REV-01..REV-09 | 0/0 | Gap closure | — |
+| 09 | folder-tag | VLT-05 | 0/0 | Gap closure | — |
+| 10 | ux-hardening | DLV-02 UX, DOC-04 listDocumentVersions, deliver/close feedback | 0/0 | Gap closure | — |
 
 ## Phase 01: foundation
 
@@ -159,6 +163,47 @@ Artifacts:
 - `.planning/phases/07-ops/07-REVIEW-FIX.md`
 - `.planning/phases/07-ops/07-VERIFICATION.md` — final verifier result: passed after GAP-01 fix
 
+## Phase 08: reviewer-service
+
+**Status:** Gap closure (planned)  
+**Goal:** Build the missing reviewer service layer and split-view UI so REV-01..REV-09 are satisfied end-to-end and the `approved → delivered → closed` flow becomes reachable.  
+**Requirements:** REV-01, REV-02, REV-03, REV-04, REV-05, REV-06, REV-07, REV-08, REV-09  
+**UI hint:** yes
+
+Success criteria:
+1. `src/lib/reviews/review-service.ts` exposes start, answer, approve, reject primitives; approve marks `DocumentVersion.status = 'final'` and `request.status_changed → approved` in one transaction.
+2. Reviewer queue (`/reviewer/requests`) shows `DocumentVersion` rows assigned to the current reviewer with a working Prisma query (no `legalRequest.assignedReviewerId` traversal; use `document.request.assignedReviewerId`).
+3. Reviewer detail page loads the real document version + checklist + previous review; no hardcoded `passedItemIds`.
+4. Approve requires all required checklist items passed; reject with comments returns `DocumentVersion.status = 'draft` and request `revision_required` while preserving the previous review record (REV-08).
+5. Every review action emits an append-only audit event with safe metadata.
+
+## Phase 09: folder-tag
+
+**Status:** Gap closure (planned)  
+**Goal:** Add Folder/Tag models, classification service and admin browse UI to satisfy VLT-05.  
+**Requirements:** VLT-05  
+**UI hint:** yes
+
+Success criteria:
+1. `prisma/schema.prisma` adds `Folder` (workspaceId, name, parentId) and `Tag` (workspaceId, key, label) plus join tables `VaultFileFolder` and `VaultFileTag` with proper indexes.
+2. `src/lib/documents/classification-service.ts` exposes folder/tag CRUD and file-to-folder/tag association with server-side RBAC.
+3. Admin browse UI at `/admin/vault` lists folders/tags and lets coordinator move files between folders or apply tags.
+4. Customer delivery page and ops dashboard do not leak folder/tag mutation controls; folder/tag are internal admin concern.
+5. Classification changes are audited with safe metadata summary only.
+
+## Phase 10: ux-hardening
+
+**Status:** Gap closure (planned)  
+**Goal:** Close DLV-02 UX degradation, fix `listDocumentVersions` Prisma duplicate, and surface deliver/close feedback to specialist.  
+**Requirements:** DLV-02, DOC-04, DLV-05 (UX)  
+**UI hint:** yes
+
+Success criteria:
+1. `src/lib/documents/draft-service.ts` `listDocumentVersions` uses a single `document` block in the Prisma select; specialist workbench renders version history at runtime.
+2. `src/app/customer/requests/[requestId]/page.tsx` inlines the signed URL in the download link so the browser makes a single request without redirect.
+3. `src/app/specialist/requests/[requestId]/page.tsx` consumes the `markDeliveredAction`/`closeDeliveredAction` result state and renders success/failure messages.
+4. Add regression tests covering the customer download bare-link redirect path and the specialist deliver/close feedback path.
+
 ## Requirement Coverage
 
 | Phase | Requirements | Count | Status |
@@ -166,11 +211,14 @@ Artifacts:
 | 01 foundation | FND-01..FND-05 | 05 | Complete |
 | 02 intake | INT-01..INT-06 | 06 | Complete |
 | 03 routing | RTE-01..RTE-05 | 05 | Complete |
-| 04 documents-vault | DOC-01..DOC-06, VLT-01..VLT-05 | 11 | Complete in traceability; verification gaps recorded |
-| 05 review | REV-01..REV-09 | 9 | Complete in traceability; verification artifact missing |
-| 06 delivery | DLV-01..DLV-05 | 05 | Complete in traceability; verification gaps recorded |
+| 04 documents-vault | DOC-01..DOC-06, VLT-01..VLT-04 | 10 | Complete in traceability; verification gaps recorded |
+| 05 review | (REV-01..09 reassigned to 08) | 0 | Stub only; no service layer; see Phase 08 gap-closure |
+| 06 delivery | DLV-01..DLV-05 | 05 | Complete in traceability; DLV-02 UX gap addressed in Phase 10 |
 | 07 ops | OPS-01..OPS-05 | 05 | Complete |
+| 08 reviewer-service | REV-01..REV-09 | 9 | Gap closure (planned) |
+| 09 folder-tag | VLT-05 | 1 | Gap closure (planned) |
+| 10 ux-hardening | DLV-02, DOC-04, DLV-05 UX | — | Gap closure (planned) |
 
 **Coverage:** 46/46 v1 requirements mapped.  
-**Traceability:** 46/46 marked complete in `.planning/REQUIREMENTS.md`.  
-**Execution:** 30/30 planned phase summaries present.
+**Traceability:** 10 requirements moved to Pending under gap-closure phases per `.planning/v1.0-MILESTONE-AUDIT.md`.  
+**Execution:** 30/30 original phase summaries present; gap-closure phases 08..10 not yet planned.

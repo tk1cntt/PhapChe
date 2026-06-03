@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { prisma } from '@/lib/prisma';
+import { approveReview, rejectReview } from './review-service';
 import type { AppSession } from '@/lib/security/session';
 import { CHECKLIST_ITEMS } from '@/constants/checklist-items';
 
@@ -192,25 +193,222 @@ function answersWithOneFailed(failedId: string) {
 }
 
 // ---------------------------------------------------------------------------
-// Task 1 placeholder tests — these will be replaced/extended in Task 2
+// Test 1: approve happy-path
 // ---------------------------------------------------------------------------
 
-test('scaffold — review service test environment is wired', async () => {
-  assertSafeDatabaseUrl();
-  // The actual service functions will be imported and exercised in Task 2.
-  // For now we only assert that the seed/cleanup helpers round-trip the DB.
-  const seed = await seedReviewTest();
-  try {
+test('approveReview sets DocumentVersion.final + request.approved + audit + workflow', async () => {
+  await withReviewSeed(async (seed) => {
+    const result = await approveReview({
+      session: reviewerSession(seed),
+      reviewId: seed.reviewId,
+      answers: allPassedAnswers(),
+      correlationId: `${seed.correlationPrefix}_approve`,
+    });
+
+    assert.equal(result.status, 'approved');
+    assert.equal(result.reviewId, seed.reviewId);
+
+    const docVersion = await prisma.documentVersion.findUniqueOrThrow({ where: { id: seed.documentVersionId } });
+    assert.equal(docVersion.status, 'final');
+
+    const request = await prisma.legalRequest.findUniqueOrThrow({ where: { id: seed.requestId } });
+    assert.equal(request.status, 'approved');
+
     const review = await prisma.review.findUniqueOrThrow({ where: { id: seed.reviewId } });
-    assert.equal(review.status, 'in_progress');
-    assert.equal(review.reviewerId, seed.reviewerId);
-  } finally {
-    await cleanupReviewTest(seed);
-  }
+    assert.equal(review.status, 'approved');
+    assert.equal(review.decision, 'approve');
+    assert.ok(review.completedAt);
+
+    const audit = await prisma.auditEvent.findFirst({
+      where: { action: 'review.approved', targetId: seed.reviewId },
+    });
+    assert.ok(audit);
+    assert.ok(audit.metadataSummary?.includes('passedCount=9'));
+    assert.ok(audit.metadataSummary?.includes('failedCount=0'));
+    // D-06: metadata must not contain legal content.
+    assert.ok(!audit.metadataSummary?.includes('Nội dung'));
+    assert.ok(!audit.metadataSummary?.includes('Biểu mẫu'));
+
+    const transition = await prisma.workflowTransition.findFirst({
+      where: { requestId: seed.requestId, toStatus: 'approved' },
+    });
+    assert.ok(transition);
+    assert.equal(transition?.fromStatus, 'pending_review');
+  });
 });
 
-test('REQUIRED_ITEM_IDS mirror of QC-LEG-01 is non-empty', () => {
-  assert.ok(REQUIRED_ITEM_IDS.length > 0);
-  assert.ok(REQUIRED_ITEM_IDS.includes('formal-1'));
-  assert.ok(REQUIRED_ITEM_IDS.includes('legal-1'));
+// ---------------------------------------------------------------------------
+// Test 2: reject happy-path
+// ---------------------------------------------------------------------------
+
+test('rejectReview sets DocumentVersion.draft + request.revision_required + preserves answers', async () => {
+  await withReviewSeed(async (seed) => {
+    // Seed one answer so we can prove it is preserved after reject.
+    await prisma.reviewChecklistAnswer.create({
+      data: { reviewId: seed.reviewId, checklistItemId: 'formal-1', passed: true, comment: 'OK' },
+    });
+
+    const result = await rejectReview({
+      session: reviewerSession(seed),
+      reviewId: seed.reviewId,
+      answers: answersWithOneFailed('legal-3'),
+      generalComment: 'Điều khoản rủi ro chưa đủ chi tiết',
+      correlationId: `${seed.correlationPrefix}_reject`,
+    });
+
+    assert.equal(result.status, 'rejected');
+
+    const docVersion = await prisma.documentVersion.findUniqueOrThrow({ where: { id: seed.documentVersionId } });
+    assert.equal(docVersion.status, 'draft');
+
+    const request = await prisma.legalRequest.findUniqueOrThrow({ where: { id: seed.requestId } });
+    assert.equal(request.status, 'revision_required');
+
+    const review = await prisma.review.findUniqueOrThrow({ where: { id: seed.reviewId } });
+    assert.equal(review.status, 'rejected');
+    assert.equal(review.decision, 'reject');
+    assert.ok(review.completedAt);
+    assert.equal(review.generalComment, 'Điều khoản rủi ro chưa đủ chi tiết');
+
+    // REV-08: checklist answers preserved.
+    const answers = await prisma.reviewChecklistAnswer.findMany({ where: { reviewId: seed.reviewId } });
+    assert.ok(answers.length >= 1);
+    assert.ok(answers.some((a) => a.checklistItemId === 'formal-1' && a.passed === true));
+
+    const audit = await prisma.auditEvent.findFirst({
+      where: { action: 'review.rejected', targetId: seed.reviewId },
+    });
+    assert.ok(audit);
+    assert.ok(audit.metadataSummary?.includes('failedCount=1'));
+    // D-06: reject comment must not leak into metadata.
+    assert.ok(!audit.metadataSummary?.includes('rủi ro'));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 3 (negative): approve with one required item not passed
+// ---------------------------------------------------------------------------
+
+test('approveReview rejects when any required item is not passed', async () => {
+  await withReviewSeed(async (seed) => {
+    await assert.rejects(
+      approveReview({
+        session: reviewerSession(seed),
+        reviewId: seed.reviewId,
+        answers: answersWithOneFailed('legal-1'),
+        correlationId: `${seed.correlationPrefix}_approve_incomplete`,
+      }),
+      /CHECKLIST_NOT_COMPLETE/,
+    );
+
+    // No state changes
+    const docVersion = await prisma.documentVersion.findUniqueOrThrow({ where: { id: seed.documentVersionId } });
+    assert.equal(docVersion.status, 'submitted_for_review');
+    const request = await prisma.legalRequest.findUniqueOrThrow({ where: { id: seed.requestId } });
+    assert.equal(request.status, 'pending_review');
+    const review = await prisma.review.findUniqueOrThrow({ where: { id: seed.reviewId } });
+    assert.equal(review.status, 'in_progress');
+
+    const audit = await prisma.auditEvent.findFirst({
+      where: { action: 'review.approved', targetId: seed.reviewId },
+    });
+    assert.equal(audit, null);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 4 (negative): reject with empty generalComment
+// ---------------------------------------------------------------------------
+
+test('rejectReview rejects when generalComment is empty', async () => {
+  await withReviewSeed(async (seed) => {
+    await assert.rejects(
+      rejectReview({
+        session: reviewerSession(seed),
+        reviewId: seed.reviewId,
+        answers: answersWithOneFailed('legal-3'),
+        generalComment: '   ',
+        correlationId: `${seed.correlationPrefix}_reject_empty`,
+      }),
+      /REJECT_COMMENT_REQUIRED/,
+    );
+
+    const review = await prisma.review.findUniqueOrThrow({ where: { id: seed.reviewId } });
+    assert.equal(review.status, 'in_progress');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 5 (negative): approve when session.userId !== assignedReviewerId
+// ---------------------------------------------------------------------------
+
+test('approveReview rejects when caller is not the assigned reviewer', async () => {
+  await withReviewSeed(async (seed) => {
+    // Build a session for the coordinator (admin role), then for a different
+    // reviewer-style user (non-assigned). Use a fresh reviewer account.
+    const otherReviewer = await prisma.user.create({
+      data: {
+        email: `${REVIEW_E2E_PREFIX}_other_rev_${seed.suffix}@example.test`,
+        name: 'Other Reviewer',
+        memberships: { create: { workspaceId: seed.workspaceId, role: 'reviewer' } },
+      },
+    });
+
+    const otherSession: AppSession = {
+      userId: otherReviewer.id,
+      activeWorkspaceId: seed.workspaceId,
+      roles: ['reviewer'],
+    };
+
+    await assert.rejects(
+      approveReview({
+        session: otherSession,
+        reviewId: seed.reviewId,
+        answers: allPassedAnswers(),
+        correlationId: `${seed.correlationPrefix}_approve_forbidden`,
+      }),
+      /FORBIDDEN/,
+    );
+
+    // Coordinator admin also allowed (positive control on RBAC) — but
+    // we already asserted the negative path above; cleanup the extra user.
+    await prisma.workspaceMembership.deleteMany({ where: { userId: otherReviewer.id } });
+    await prisma.user.delete({ where: { id: otherReviewer.id } });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 6 (negative): reject with non-assigned reviewer returns FORBIDDEN
+// ---------------------------------------------------------------------------
+
+test('rejectReview rejects when caller is not the assigned reviewer', async () => {
+  await withReviewSeed(async (seed) => {
+    const otherReviewer = await prisma.user.create({
+      data: {
+        email: `${REVIEW_E2E_PREFIX}_other_rev2_${seed.suffix}@example.test`,
+        name: 'Other Reviewer 2',
+        memberships: { create: { workspaceId: seed.workspaceId, role: 'reviewer' } },
+      },
+    });
+
+    const otherSession: AppSession = {
+      userId: otherReviewer.id,
+      activeWorkspaceId: seed.workspaceId,
+      roles: ['reviewer'],
+    };
+
+    await assert.rejects(
+      rejectReview({
+        session: otherSession,
+        reviewId: seed.reviewId,
+        answers: answersWithOneFailed('legal-3'),
+        generalComment: 'Không đạt',
+        correlationId: `${seed.correlationPrefix}_reject_forbidden`,
+      }),
+      /FORBIDDEN/,
+    );
+
+    await prisma.workspaceMembership.deleteMany({ where: { userId: otherReviewer.id } });
+    await prisma.user.delete({ where: { id: otherReviewer.id } });
+  });
 });

@@ -172,7 +172,7 @@ Artifacts:
 
 Plans:
 - [x] 08-01-PLAN.md — review-service layer (startReview, answerChecklistItem, approveReview, rejectReview) + checklist re-export + node:test coverage
-- [ ] 08-02-PLAN.md — fix reviewer queue Prisma query, rebuild split-view detail page, server actions, ReviewForm client component
+- [x] 08-02-PLAN.md — fix reviewer queue Prisma query, rebuild split-view detail page, server actions, ReviewForm client component
 
 Success criteria:
 1. `src/lib/reviews/review-service.ts` exposes start, answer, approve, reject primitives; approve marks `DocumentVersion.status = 'final'` and `request.status_changed → approved` in one transaction.

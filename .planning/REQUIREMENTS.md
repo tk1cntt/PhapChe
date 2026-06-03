@@ -49,15 +49,15 @@
 
 ### Review
 
-- [ ] **REV-01**: Reviewer can see queue of document versions awaiting review.
-- [ ] **REV-02**: Reviewer can review split view: draft left, QC checklist right.
-- [ ] **REV-03**: Checklist includes latest template, spelling/presentation, and entity info matching files.
-- [ ] **REV-04**: Checklist includes current legal basis, clear rights/obligations, risk clauses, and fit to customer pain.
-- [ ] **REV-05**: Checklist includes signature area and confidentiality classification.
-- [ ] **REV-06**: Reviewer can approve only after completing required checklist items.
-- [ ] **REV-07**: Reviewer can request revision with failed checklist items and comments.
-- [ ] **REV-08**: System returns rejected documents to specialist and preserves comments.
-- [ ] **REV-09**: System marks approved version as final-ready and audits decision.
+- [x] **REV-01**: Reviewer can see queue of document versions awaiting review.
+- [x] **REV-02**: Reviewer can review split view: draft left, QC checklist right.
+- [x] **REV-03**: Checklist includes latest template, spelling/presentation, and entity info matching files.
+- [x] **REV-04**: Checklist includes current legal basis, clear rights/obligations, risk clauses, and fit to customer pain.
+- [x] **REV-05**: Checklist includes signature area and confidentiality classification.
+- [x] **REV-06**: Reviewer can approve only after completing required checklist items.
+- [x] **REV-07**: Reviewer can request revision with failed checklist items and comments.
+- [x] **REV-08**: System returns rejected documents to specialist and preserves comments.
+- [x] **REV-09**: System marks approved version as final-ready and audits decision.
 
 ### Delivery
 
@@ -140,15 +140,15 @@
 | VLT-03 | Phase 04 | Complete |
 | VLT-04 | Phase 04 | Complete |
 | VLT-05 | Phase 09 | Pending |
-| REV-01 | Phase 08 | Pending |
-| REV-02 | Phase 08 | Pending |
-| REV-03 | Phase 08 | Pending |
-| REV-04 | Phase 08 | Pending |
-| REV-05 | Phase 08 | Pending |
-| REV-06 | Phase 08 | Pending |
-| REV-07 | Phase 08 | Pending |
-| REV-08 | Phase 08 | Pending |
-| REV-09 | Phase 08 | Pending |
+| REV-01 | Phase 08 | Complete |
+| REV-02 | Phase 08 | Complete |
+| REV-03 | Phase 08 | Complete |
+| REV-04 | Phase 08 | Complete |
+| REV-05 | Phase 08 | Complete |
+| REV-06 | Phase 08 | Complete |
+| REV-07 | Phase 08 | Complete |
+| REV-08 | Phase 08 | Complete |
+| REV-09 | Phase 08 | Complete |
 | DLV-01 | Phase 06 | Complete |
 | DLV-02 | Phase 06, 10 | Complete; UX gap in Phase 10 |
 | DLV-03 | Phase 06 | Complete |

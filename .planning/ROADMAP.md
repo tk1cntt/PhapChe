@@ -19,7 +19,7 @@
 | 05 | review | REV-01..REV-09 | 3/3 | Executed | 2026-06-01 |
 | 06 | delivery | DLV-01..DLV-05 | 6/6 | Executed; verification gaps recorded | 2026-06-01 |
 | 07 | ops | OPS-01..OPS-05 | 4/4 | Complete | 2026-06-01 |
-| 08 | reviewer-service | REV-01..REV-09 | 0/0 | Gap closure | — |
+| 08 | reviewer-service | REV-01..REV-09 | 0/2 | Gap closure (planned) | — |
 | 09 | folder-tag | VLT-05 | 0/0 | Gap closure | — |
 | 10 | ux-hardening | DLV-02 UX, DOC-04 listDocumentVersions, deliver/close feedback | 0/0 | Gap closure | — |
 
@@ -169,6 +169,10 @@ Artifacts:
 **Goal:** Build the missing reviewer service layer and split-view UI so REV-01..REV-09 are satisfied end-to-end and the `approved → delivered → closed` flow becomes reachable.  
 **Requirements:** REV-01, REV-02, REV-03, REV-04, REV-05, REV-06, REV-07, REV-08, REV-09  
 **UI hint:** yes
+
+Plans:
+- [ ] 08-01-PLAN.md — review-service layer (startReview, answerChecklistItem, approveReview, rejectReview) + checklist re-export + node:test coverage
+- [ ] 08-02-PLAN.md — fix reviewer queue Prisma query, rebuild split-view detail page, server actions, ReviewForm client component
 
 Success criteria:
 1. `src/lib/reviews/review-service.ts` exposes start, answer, approve, reject primitives; approve marks `DocumentVersion.status = 'final'` and `request.status_changed → approved` in one transaction.

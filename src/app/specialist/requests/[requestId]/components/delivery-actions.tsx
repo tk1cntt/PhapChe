@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { Button } from '@/app/admin/components/ui';
+import { Badge, Button } from '@/app/admin/components/ui';
 import { closeDeliveredAction, markDeliveredAction, type SpecialistRequestActionResult } from '../actions';
 
 const initialState: SpecialistRequestActionResult = { ok: false, message: '' };
@@ -9,11 +9,7 @@ const initialState: SpecialistRequestActionResult = { ok: false, message: '' };
 function FeedbackMessage({ result }: { result: SpecialistRequestActionResult }) {
   if (!result.message) return null;
 
-  return (
-    <p className={`text-[14px] font-semibold leading-[1.4] ${result.ok ? 'text-[#0F766E]' : 'text-[#DC2626]'}`}>
-      {result.message}
-    </p>
-  );
+  return <Badge tone={result.ok ? 'accent' : 'destructive'}>{result.message}</Badge>;
 }
 
 export function DeliverForm({ requestId }: { requestId: string }) {

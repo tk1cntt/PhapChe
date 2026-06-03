@@ -86,8 +86,6 @@ model Workspace {
   documentTemplates     DocumentTemplate[]
   folders              Folder[]
   tags                 Tag[]
-  vaultFileFolders     VaultFileFolder[]
-  vaultFileTags        VaultFileTag[]
 }
 
 model WorkspaceMembership {

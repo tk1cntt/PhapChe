@@ -84,6 +84,10 @@ model Workspace {
   vaultFiles           VaultFile[]
   auditEvents          AuditEvent[]
   documentTemplates     DocumentTemplate[]
+  folders              Folder[]
+  tags                 Tag[]
+  vaultFileFolders     VaultFileFolder[]
+  vaultFileTags        VaultFileTag[]
 }
 
 model WorkspaceMembership {
@@ -360,11 +364,65 @@ model VaultFile {
   request           LegalRequest   @relation(fields: [requestId], references: [id])
   workspace         Workspace      @relation(fields: [workspaceId], references: [id])
   actor             User           @relation(fields: [actorId], references: [id])
+  vaultFileFolders  VaultFileFolder[]
+  vaultFileTags     VaultFileTag[]
 
   @@index([requestId])
   @@index([actorId])
   @@index([fileKind])
   @@index([documentVersionId])
+}
+
+model Folder {
+  id              String           @id @default(cuid())
+  workspaceId     String
+  name            String
+  parentId        String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  workspace       Workspace        @relation(fields: [workspaceId], references: [id])
+  parent          Folder?          @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children        Folder[]         @relation("FolderHierarchy")
+  vaultFileFolders VaultFileFolder[]
+
+  @@unique([workspaceId, parentId, name])
+  @@index([workspaceId])
+  @@index([parentId])
+}
+
+model Tag {
+  id           String         @id @default(cuid())
+  workspaceId  String
+  key          String
+  label        String
+  createdAt    DateTime       @default(now())
+  workspace    Workspace      @relation(fields: [workspaceId], references: [id])
+  vaultFileTags VaultFileTag[]
+
+  @@unique([workspaceId, key])
+  @@index([workspaceId])
+}
+
+model VaultFileFolder {
+  vaultFileId  String
+  folderId     String
+  createdAt    DateTime   @default(now())
+  vaultFile    VaultFile  @relation(fields: [vaultFileId], references: [id])
+  folder       Folder     @relation(fields: [folderId], references: [id])
+
+  @@id([vaultFileId, folderId])
+  @@index([folderId])
+}
+
+model VaultFileTag {
+  vaultFileId  String
+  tagId        String
+  createdAt    DateTime   @default(now())
+  vaultFile    VaultFile  @relation(fields: [vaultFileId], references: [id])
+  tag          Tag        @relation(fields: [tagId], references: [id])
+
+  @@id([vaultFileId, tagId])
+  @@index([tagId])
 }
 
 model AuditEvent {

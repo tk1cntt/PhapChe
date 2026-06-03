@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { RequestStatus } from '@prisma/client';
 import { Badge, Button, Card, PageHeader } from '@/app/admin/components/ui';
 import { getCustomerDeliveryRequest } from '@/lib/delivery/delivery-service';
+import { requestVaultFileAccess } from '@/lib/documents/vault-service';
 import { requireAppSession } from '@/lib/security/session';
 
 const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
@@ -36,6 +37,20 @@ export default async function CustomerRequestDeliveryPage({ params }: { params: 
 
   const status = statusLabels[request.status];
 
+  const downloadLinks = await Promise.all(
+    request.documents.map(async (document) => {
+      try {
+        if (document.vaultFileId) {
+          const access = await requestVaultFileAccess(session, document.vaultFileId);
+          return access.accessUrl;
+        }
+      } catch {
+        // Fall through to bare path
+      }
+      return `/api/vault/${document.vaultFileId}/download`;
+    }),
+  );
+
   return (
     <main className="mx-auto flex max-w-[960px] flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">
       <PageHeader title="Yêu cầu pháp lý" description="Tài liệu cuối cùng đã qua kiểm soát chất lượng sẽ hiển thị tại đây." />
@@ -69,14 +84,14 @@ export default async function CustomerRequestDeliveryPage({ params }: { params: 
           </div>
         ) : (
           <ul className="space-y-3">
-            {request.documents.map((document) => (
+            {request.documents.map((document, idx) => (
               <li key={document.documentVersionId} className="flex flex-col gap-4 rounded-xl border border-[#E2E8F0] p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-[16px] font-semibold leading-[1.4] text-[#0F172A]">{document.filename ?? document.documentTitle}</p>
                   <p className="mt-1 text-[14px] leading-[1.4] text-[#475569]">Phiên bản mẫu {document.templateVersion}</p>
                   <p className="mt-1 text-[14px] leading-[1.4] text-[#475569]">Ngày tạo: {formatDate(document.createdAt)}</p>
                 </div>
-                <a href={`/api/vault/${document.vaultFileId}/download`}>
+                <a href={downloadLinks[idx]}>
                   <Button>Tải xuống</Button>
                 </a>
               </li>

@@ -443,3 +443,29 @@ test('RBAC - non-specialist cannot submit for review', async () => {
     );
   });
 });
+
+test('listDocumentVersions returns version list with nested document.documentVersions (no Prisma throw)', async () => {
+  await withDraftSeed(async (seed) => {
+    await generateDraft({
+      session: specialistSession(seed),
+      requestId: seed.requestId,
+      templateId: seed.templateId,
+      variables: { employer_name: 'Cty A', employee_name: 'Nguyen Van A', salary: '10 triệu', start_date: '2026-01-01', company_name: 'Cty A', tax_id: '123456789' },
+      correlationId: `${seed.correlationPrefix}_v1`,
+    });
+    await generateDraft({
+      session: specialistSession(seed),
+      requestId: seed.requestId,
+      templateId: seed.templateId,
+      variables: { employer_name: 'Cty A', employee_name: 'Nguyen Van A', salary: '11 triệu', start_date: '2026-02-01', company_name: 'Cty A', tax_id: '123456789' },
+      correlationId: `${seed.correlationPrefix}_v2`,
+    });
+
+    const versions = await listDocumentVersions({ session: specialistSession(seed), requestId: seed.requestId });
+    assert.ok(Array.isArray(versions), 'versions should be an array');
+    assert.equal(versions.length, 2, 'should return 2 versions');
+    assert.ok(versions[0].document, 'version should include document');
+    assert.ok(Array.isArray(versions[0].document.documentVersions), 'document.documentVersions should be an array');
+    assert.equal(versions[0].document.documentVersions.length, 2, 'document should have 2 versions in nested list');
+  });
+});

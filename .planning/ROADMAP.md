@@ -1,11 +1,11 @@
 # Roadmap: Legal-as-a-Service Platform
 
 **Created:** 2026-05-26
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 **Milestone:** v1.0 — Gap closure in progress
 **Total phases:** 10
 **v1 requirements covered:** 46/46
-**Plans executed:** 30/30
+**Plans executed:** 31/31
 **Audit:** `.planning/v1.0-MILESTONE-AUDIT.md`
 
 ## Progress
@@ -19,7 +19,7 @@
 | 05 | review | REV-01..REV-09 | 3/3 | Executed | 2026-06-01 |
 | 06 | delivery | DLV-01..DLV-05 | 6/6 | Executed; verification gaps recorded | 2026-06-01 |
 | 07 | ops | OPS-01..OPS-05 | 4/4 | Complete | 2026-06-01 |
-| 08 | reviewer-service | REV-01..REV-09 | 0/2 | Gap closure (planned) | — |
+| 08 | reviewer-service | REV-01..REV-09 | 2/2 | Executed | 2026-06-03 |
 | 09 | folder-tag | VLT-05 | 0/0 | Gap closure | — |
 | 10 | ux-hardening | DLV-02 UX, DOC-04 listDocumentVersions, deliver/close feedback | 0/0 | Gap closure | — |
 

@@ -207,9 +207,6 @@ export async function listDocumentVersions(input: ListVersionsInput) {
       generatedContent: true,
       createdAt: true,
       document: {
-        select: { id: true, title: true },
-      },
-      document: {
         include: {
           documentVersions: {
             select: { id: true, templateVersion: true, status: true, createdAt: true },

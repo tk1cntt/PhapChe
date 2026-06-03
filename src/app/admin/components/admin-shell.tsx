@@ -7,6 +7,7 @@ const navItems = [
   { href: '/admin/requests', label: 'Hồ sơ yêu cầu' },
   { href: '/admin/ops', label: 'Vận hành' },
   { href: '/admin/audit', label: 'Audit' },
+  { href: '/admin/vault', label: 'Phân loại vault' },
 ];
 
 export function AdminShell({ children }: { children: ReactNode }) {

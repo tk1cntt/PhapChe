@@ -45,7 +45,7 @@
 - [x] **VLT-02**: System stores uploaded files, drafts, final documents, and review artifacts with metadata.
 - [x] **VLT-03**: System supports file version history for documents.
 - [x] **VLT-04**: System logs file preview, download, upload, and delete actions.
-- [ ] **VLT-05**: System supports folder/tag classification for legal files.
+- [x] **VLT-05**: System supports folder/tag classification for legal files.
 
 ### Review
 
@@ -139,7 +139,7 @@
 | VLT-02 | Phase 04 | Complete |
 | VLT-03 | Phase 04 | Complete |
 | VLT-04 | Phase 04 | Complete |
-| VLT-05 | Phase 09 | Pending |
+| VLT-05 | Phase 09 | Complete |
 | REV-01 | Phase 08 | Complete |
 | REV-02 | Phase 08 | Complete |
 | REV-03 | Phase 08 | Complete |

@@ -171,7 +171,7 @@ Artifacts:
 **UI hint:** yes
 
 Plans:
-- [ ] 08-01-PLAN.md — review-service layer (startReview, answerChecklistItem, approveReview, rejectReview) + checklist re-export + node:test coverage
+- [x] 08-01-PLAN.md — review-service layer (startReview, answerChecklistItem, approveReview, rejectReview) + checklist re-export + node:test coverage
 - [ ] 08-02-PLAN.md — fix reviewer queue Prisma query, rebuild split-view detail page, server actions, ReviewForm client component
 
 Success criteria:

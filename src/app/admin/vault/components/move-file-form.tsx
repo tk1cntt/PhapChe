@@ -53,13 +53,14 @@ export function MoveFileForm({
             </option>
           ))}
         </select>
-        <Button
+        <button
           type="button"
           disabled={pending || !selectedFolder}
           onClick={() => runAction(moveFileToFolderAction, { folderId: selectedFolder })}
+          className="inline-flex min-h-10 items-center justify-center rounded-xl border border-transparent bg-[#0F766E] px-4 py-2 text-[14px] font-semibold leading-[1.4] text-white shadow-sm transition hover:bg-teal-800 hover:shadow focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Chuyển vào thư mục
-        </Button>
+        </button>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -76,13 +77,14 @@ export function MoveFileForm({
             </option>
           ))}
         </select>
-        <Button
+        <button
           type="button"
           disabled={pending || !selectedTag}
           onClick={() => runAction(tagFileAction, { tagId: selectedTag })}
+          className="inline-flex min-h-10 items-center justify-center rounded-xl border border-transparent bg-[#0F766E] px-4 py-2 text-[14px] font-semibold leading-[1.4] text-white shadow-sm transition hover:bg-teal-800 hover:shadow focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Gắn thẻ
-        </Button>
+        </button>
       </div>
 
       {appliedTags.length > 0 && (

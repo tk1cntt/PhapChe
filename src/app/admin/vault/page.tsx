@@ -19,6 +19,8 @@ export default async function AdminVaultPage() {
   }
 
   const workspaceId = session.activeWorkspaceId;
+  if (!workspaceId) redirect('/admin');
+
   const [folders, tags, classifications] = await Promise.all([
     listFolders(session, workspaceId),
     listTags(session, workspaceId),

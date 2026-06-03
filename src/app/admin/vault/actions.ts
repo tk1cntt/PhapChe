@@ -20,10 +20,12 @@ export type CreateFolderState = { errors?: { name?: string; parentId?: string };
 export async function createFolderAction(_prev: CreateFolderState, formData: FormData): Promise<CreateFolderState> {
   const session = await requireAppSession();
   if (!isAdminRole(session)) return { message: 'FORBIDDEN' };
+  const workspaceId = session.activeWorkspaceId;
+  if (!workspaceId) return { message: 'NO_ACTIVE_WORKSPACE' };
 
   const name = formData.get('name')?.toString().trim() ?? '';
-  const parentId = formData.get('parentId')?.toString() || undefined;
-  const workspaceId = session.activeWorkspaceId;
+  const parentIdRaw = formData.get('parentId')?.toString() || '';
+  const parentId = parentIdRaw.length > 0 ? parentIdRaw : undefined;
 
   const errors: { name?: string; parentId?: string } = {};
   if (name.length === 0) errors.name = 'Tên thư mục không được trống';
@@ -44,10 +46,11 @@ export type CreateTagState = { errors?: { key?: string; label?: string }; messag
 export async function createTagAction(_prev: CreateTagState, formData: FormData): Promise<CreateTagState> {
   const session = await requireAppSession();
   if (!isAdminRole(session)) return { message: 'FORBIDDEN' };
+  const workspaceId = session.activeWorkspaceId;
+  if (!workspaceId) return { message: 'NO_ACTIVE_WORKSPACE' };
 
   const key = formData.get('key')?.toString().trim() ?? '';
   const label = formData.get('label')?.toString().trim() ?? '';
-  const workspaceId = session.activeWorkspaceId;
 
   const errors: { key?: string; label?: string } = {};
   if (!/^[a-z0-9_-]{1,32}$/.test(key)) errors.key = 'Mã thẻ chỉ gồm chữ thường, số, _, - (1-32 ký tự)';

@@ -264,6 +264,16 @@ Success criteria:
 4. All changes pass `npm run typecheck` (pre-existing TS errors in `/admin/templates/` excluded).
 5. No regressions in existing tests.
 
+### Phase 14: Bổ sung thêm thư viện Ant Design và thiết kế lại layout cho chuẩn
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 13
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 14 to break down)
+
 ---
 
 ## Requirements Summary

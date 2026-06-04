@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Milestone complete
-last_updated: "2026-06-04T18:41:50.442Z"
-last_activity: 2026-06-04
+status: Ready to plan
+last_updated: "2026-06-05T02:00:00.000Z"
+last_activity: 2026-06-05
 progress:
-  total_phases: 13
+  total_phases: 14
   completed_phases: 13
   total_plans: 40
   completed_plans: 40
-  percent: 100
+  percent: 93
 ---
 
 # State
@@ -20,15 +20,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-26)
 
 **Core value:** SME sends legal requests through simple chat and receives quality-reviewed deliverables with full traceability.
-**Current focus:** Phase 13 — service-cleanup-wiring
+**Current focus:** Phase 14 — antd-layout-redesign
 
 ## Current Phase
 
-Gap closure in progress. Original v1.0 Phases 01..07 executed; Phases 08..10 added from `/gsd-audit-milestone` to close blocker/high gaps.
+All v1.0 gap-closure phases executed (08..13). Phase 14 added as post-milestone enhancement: integrate Ant Design UI library and redesign layout system.
 
 ## Status
 
-Gap closure in progress. 12/13 phases executed; Phase 13 pending.
+Milestone v1.0 complete. Phase 14 added for Ant Design + layout redesign.
 
 ## Progress Summary
 
@@ -46,7 +46,8 @@ Gap closure in progress. 12/13 phases executed; Phase 13 pending.
 | 10 | ux-hardening | — | Gap closure (planned) | — |
 | 11 | wire-review-init | 1/1 | Complete | `11-VERIFICATION.md`: passed |
 | 12 | ops-sla-drill-in | 1/1 | Complete | `12-VERIFICATION.md`: passed |
-| 13 | service-cleanup-wiring | — | Gap closure (planned) | — |
+| 13 | service-cleanup-wiring | 3/3 | Complete | `13-VERIFICATION.md`: passed |
+| 14 | antd-layout-redesign | — | Not planned | — |
 
 ### Blockers/Concerns
 
@@ -65,4 +66,4 @@ Gap closure in progress. 12/13 phases executed; Phase 13 pending.
 | 260527-gig | Phase 1 có rất nhiều func và tính năng cần test e2e. Hãy thực hiện test e2e cho tất các tính năng hiện tại của phase 1. K thể chỉ có 1 testcase như vậy đc | 2026-05-27 | add4cf6 | Verified | [260527-gig-phase-1-c-r-t-nhi-u-func-v-t-nh-n-ng-c-n](./quick/260527-gig-phase-1-c-r-t-nhi-u-func-v-t-nh-n-ng-c-n/) |
 | 260527-kby | Mở rộng e2e Phase 1 thành coverage chi tiết theo từng database model và chức năng | 2026-05-27 | cffbe42 | Verified | [260527-kby-m-r-ng-e2e-phase-1-th-nh-coverage-chi-ti](./quick/260527-kby-m-r-ng-e2e-phase-1-th-nh-coverage-chi-ti/) |
 
-Last activity: 2026-06-04
+Last activity: 2026-06-05

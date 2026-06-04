@@ -22,7 +22,7 @@
 | 08 | reviewer-service | REV-01..REV-09 | 2/2 | Executed | 2026-06-03 |
 | 09 | folder-tag | VLT-05 | 0/0 | Gap closure | — |
 | 10 | ux-hardening | DLV-02 UX, DOC-04 listDocumentVersions, deliver/close feedback | 0/0 | Gap closure | — |
-| 11 | wire-review-init | REV-02, REV-06, REV-07, REV-08, REV-09 | 0/0 | Gap closure (planned) | — |
+| 11 | wire-review-init | REV-02, REV-06, REV-07, REV-08, REV-09 | 1/1 | Gap closure (planned) | — |
 | 12 | ops-sla-drill-in | OPS-04 | 0/0 | Gap closure (planned) | — |
 | 13 | service-cleanup-wiring | — | 0/0 | Gap closure (planned) | — |
 
@@ -219,8 +219,11 @@ Success criteria:
 **UI hint:** yes  
 **Gap Closure:** Closes G-6 from v1.0-MILESTONE-AUDIT.md (Flow B broken at step 4)
 
+Plans:
+- [ ] 11-01-PLAN.md — Add startReviewAction server action, StartReviewButton client component, wire into detail page
+
 Success criteria:
-1. Reviewer detail page shows "Bắt đầu duyệt" button when no review exists for the document version.
+1. Reviewer detail page shows "Bat dau duyet" button when no review exists for the document version.
 2. Clicking the button calls `startReviewAction` which invokes `startReview` from `review-service.ts`.
 3. On success, the page re-renders the review form (split-view with checklist).
 4. All review actions (approve/reject) now work end-to-end because `reviewId` is available.
@@ -254,6 +257,10 @@ Success criteria:
 3. `/admin/audit/page.tsx` fetches real audit events from Prisma instead of hardcoded mock data.
 4. All changes pass `npm run typecheck` (pre-existing TS errors in `/admin/templates/` excluded).
 5. No regressions in existing tests.
+
+---
+
+## Requirements Summary
 
 | Phase | Requirements | Count | Status |
 |---|---|---:|---|

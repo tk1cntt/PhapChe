@@ -1,9 +1,9 @@
 # Roadmap: Legal-as-a-Service Platform
 
 **Created:** 2026-05-26
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 **Milestone:** v1.0 — Gap closure in progress
-**Total phases:** 10
+**Total phases:** 13
 **v1 requirements covered:** 46/46
 **Plans executed:** 31/31
 **Audit:** `.planning/v1.0-MILESTONE-AUDIT.md`
@@ -22,6 +22,9 @@
 | 08 | reviewer-service | REV-01..REV-09 | 2/2 | Executed | 2026-06-03 |
 | 09 | folder-tag | VLT-05 | 0/0 | Gap closure | — |
 | 10 | ux-hardening | DLV-02 UX, DOC-04 listDocumentVersions, deliver/close feedback | 0/0 | Gap closure | — |
+| 11 | wire-review-init | REV-02, REV-06, REV-07, REV-08, REV-09 | 0/0 | Gap closure (planned) | — |
+| 12 | ops-sla-drill-in | OPS-04 | 0/0 | Gap closure (planned) | — |
+| 13 | service-cleanup-wiring | — | 0/0 | Gap closure (planned) | — |
 
 ## Phase 01: foundation
 
@@ -208,7 +211,49 @@ Success criteria:
 3. `src/app/specialist/requests/[requestId]/page.tsx` consumes the `markDeliveredAction`/`closeDeliveredAction` result state and renders success/failure messages.
 4. Add regression tests covering the customer download bare-link redirect path and the specialist deliver/close feedback path.
 
-## Requirement Coverage
+## Phase 11: wire-review-init
+
+**Status:** Gap closure (planned)  
+**Goal:** Wire `startReview` to reviewer UI so reviewer can initialize a review session, unblocking the `approved → delivered → closed` flow.  
+**Requirements:** REV-02, REV-06, REV-07, REV-08, REV-09  
+**UI hint:** yes  
+**Gap Closure:** Closes G-6 from v1.0-MILESTONE-AUDIT.md (Flow B broken at step 4)
+
+Success criteria:
+1. Reviewer detail page shows "Bắt đầu duyệt" button when no review exists for the document version.
+2. Clicking the button calls `startReviewAction` which invokes `startReview` from `review-service.ts`.
+3. On success, the page re-renders the review form (split-view with checklist).
+4. All review actions (approve/reject) now work end-to-end because `reviewId` is available.
+5. `startReview` emits an audit event with safe metadata.
+
+## Phase 12: ops-sla-drill-in
+
+**Status:** Gap closure (planned)  
+**Goal:** Render SLA context on request-specific ops drill-in page to satisfy OPS-04.  
+**Requirements:** OPS-04  
+**UI hint:** yes  
+**Gap Closure:** Closes OPS-04 partial gap from v1.0-MILESTONE-AUDIT.md
+
+Success criteria:
+1. `/admin/ops/[requestId]/page.tsx` renders basic SLA context (currentStatusSince, pendingReviewSince, deliveredAt, closedAt).
+2. Uses `getOpsRequestTimeline` from `ops-service.ts` which already computes SLA fields.
+3. SLA display is safe (no raw legal content, no PII).
+4. Vietnamese labels for each SLA field.
+
+## Phase 13: service-cleanup-wiring
+
+**Status:** Gap closure (planned)  
+**Goal:** Clean up orphaned service exports — wire `listDocumentVersions` to specialist workbench, adopt `storeVaultFile` in draft/upload services, and fix `/admin/audit` mock data.  
+**Requirements:** none (technical debt)  
+**UI hint:** no  
+**Gap Closure:** Closes tech debt items from v1.0-MILESTONE-AUDIT.md (orphaned exports, mock data)
+
+Success criteria:
+1. Specialist workbench calls `listDocumentVersions` from `draft-service.ts` instead of raw Prisma query.
+2. `draft-service.ts` and `upload-service.ts` use `storeVaultFile` wrapper with audit events instead of raw `prisma.vaultFile.create`.
+3. `/admin/audit/page.tsx` fetches real audit events from Prisma instead of hardcoded mock data.
+4. All changes pass `npm run typecheck` (pre-existing TS errors in `/admin/templates/` excluded).
+5. No regressions in existing tests.
 
 | Phase | Requirements | Count | Status |
 |---|---|---:|---|
@@ -219,10 +264,13 @@ Success criteria:
 | 05 review | (REV-01..09 reassigned to 08) | 0 | Stub only; no service layer; see Phase 08 gap-closure |
 | 06 delivery | DLV-01..DLV-05 | 05 | Complete in traceability; DLV-02 UX gap addressed in Phase 10 |
 | 07 ops | OPS-01..OPS-05 | 05 | Complete |
-| 08 reviewer-service | REV-01..REV-09 | 9 | Gap closure (planned) |
-| 09 folder-tag | VLT-05 | 1 | Gap closure (planned) |
-| 10 ux-hardening | DOC-04, DLV-02, DLV-05 | 0/0 | Gap closure (planned) |
+| 08 reviewer-service | REV-01..REV-09 | 9 | Executed | 2026-06-03 |
+| 09 folder-tag | VLT-05 | 1 | Executed | 2026-06-03 |
+| 10 ux-hardening | DOC-04, DLV-02, DLV-05 | 0/0 | Executed | 2026-06-03 |
+| 11 wire-review-init | REV-02, REV-06, REV-07, REV-08, REV-09 | 0/0 | Gap closure (planned) | — |
+| 12 ops-sla-drill-in | OPS-04 | 0/0 | Gap closure (planned) | — |
+| 13 service-cleanup-wiring | — | 0/0 | Gap closure (planned) | — |
 
 **Coverage:** 46/46 v1 requirements mapped.  
 **Traceability:** 10 requirements moved to Pending under gap-closure phases per `.planning/v1.0-MILESTONE-AUDIT.md`.  
-**Execution:** 30/30 original phase summaries present; gap-closure phases 08..10 not yet planned.
+**Execution:** 30/30 original phase summaries present; gap-closure phases 11..13 planned in this session.

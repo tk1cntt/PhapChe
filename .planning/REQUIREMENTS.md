@@ -132,7 +132,7 @@
 | DOC-01 | Phase 04 | Complete |
 | DOC-02 | Phase 04 | Complete |
 | DOC-03 | Phase 04 | Complete |
-| DOC-04 | Phase 10 | Pending (Prisma duplicate key bug) |
+| DOC-04 | Phase 10 | Complete (fixed by Phase 10 ux-hardening) |
 | DOC-05 | Phase 04 | Complete |
 | DOC-06 | Phase 04 | Complete |
 | VLT-01 | Phase 04 | Complete |
@@ -150,22 +150,27 @@
 | REV-08 | Phase 08 | Complete |
 | REV-09 | Phase 08 | Complete |
 | DLV-01 | Phase 06 | Complete |
-| DLV-02 | Phase 06, 10 | Complete; UX gap in Phase 10 |
+| DLV-02 | Phase 06, 10 | Complete (fixed by Phase 10 ux-hardening) |
 | DLV-03 | Phase 06 | Complete |
 | DLV-04 | Phase 06 | Complete |
-| DLV-05 | Phase 06, 10 | Complete; UX gap in Phase 10 |
+| DLV-05 | Phase 06, 10 | Complete (fixed by Phase 10 ux-hardening) |
 | OPS-01 | Phase 07 | Complete |
 | OPS-02 | Phase 07 | Complete |
 | OPS-03 | Phase 07 | Complete |
-| OPS-04 | Phase 07 | Complete |
+| OPS-04 | Phase 12 | Pending (SLA context missing from drill-in page; see Phase 12 gap closure) |
 | OPS-05 | Phase 07 | Complete |
+| REV-02 | Phase 11 | Pending (startReview wiring to UI; Phase 08 verified service layer but UI entry point missing) |
+| REV-06 | Phase 11 | Pending (approveReview requires reviewId from startReview; blocked until Phase 11) |
+| REV-07 | Phase 11 | Pending (rejectReview requires reviewId from startReview; blocked until Phase 11) |
+| REV-08 | Phase 11 | Pending (rejectReview requires reviewId; blocked until Phase 11) |
+| REV-09 | Phase 11 | Pending (approveReview marks final-ready; blocked until Phase 11) |
 
 **Coverage:**
 - v1 requirements: 46 total
 - Mapped to phases: 46
 - Unmapped: 0
-- Pending (gap-closure): 10 (REV-01..09, VLT-05, DOC-04)
-- Complete: 36
+- Pending (gap-closure): 1 (OPS-04)
+- Complete: 45
 
 ---
 *Requirements defined: 2026-05-26*

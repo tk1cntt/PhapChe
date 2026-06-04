@@ -13,7 +13,12 @@ export default function StartReviewButton({
   requestId: string;
   documentVersionId: string;
 }) {
-  const [state, formAction] = useActionState(startReviewAction, initialState);
+  const [state, formAction] = useActionState(
+    async (_prevState: ReviewerActionResult, formData: FormData) => {
+      return startReviewAction(formData);
+    },
+    initialState,
+  );
 
   return (
     <Card className="space-y-4">

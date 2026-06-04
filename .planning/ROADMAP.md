@@ -220,7 +220,7 @@ Success criteria:
 **Gap Closure:** Closes G-6 from v1.0-MILESTONE-AUDIT.md (Flow B broken at step 4)
 
 Plans:
-- [ ] 11-01-PLAN.md — Add startReviewAction server action, StartReviewButton client component, wire into detail page
+- [x] 11-01-PLAN.md — Add startReviewAction server action, StartReviewButton client component, wire into detail page
 
 Success criteria:
 1. Reviewer detail page shows "Bat dau duyet" button when no review exists for the document version.

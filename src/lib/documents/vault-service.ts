@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { recordAuditEvent } from '@/lib/audit/audit';
 import { canAccessRequest, canAccessVaultFile } from '@/lib/security/rbac';
+import type { Prisma } from '@prisma/client';
 import type { AppSession } from '@/lib/security/session';
 
 type VaultFileMetadata = {
@@ -214,20 +215,24 @@ export async function requestVaultFileAccess(
 }
 
 // storeVaultFile: create vault file with RBAC check
-export async function storeVaultFile(input: StoreVaultFileInput) {
+// Accepts optional externalTx for use inside an existing $transaction block.
+// When externalTx is provided, RBAC check is skipped (caller is responsible).
+export async function storeVaultFile(input: StoreVaultFileInput, externalTx?: Prisma.TransactionClient | null) {
   const { session, requestId, storageKey, filename, fileKind, source, documentVersionId, size, contentType, correlationId } = input;
 
-  if (!(await canAccessRequest(session, requestId))) throw new Error('FORBIDDEN');
+  if (externalTx == null) {
+    if (!(await canAccessRequest(session, requestId))) throw new Error('FORBIDDEN');
+  }
 
-  const request = await prisma.legalRequest.findUnique({
+  const request = await (externalTx ?? prisma).legalRequest.findUnique({
     where: { id: requestId },
     select: { id: true, workspaceId: true },
   });
 
   if (!request) throw new Error('REQUEST_NOT_FOUND');
 
-  const vaultFile = await prisma.$transaction(async (tx) => {
-    const created = await tx.vaultFile.create({
+  const work = async (db: typeof prisma | Prisma.TransactionClient) => {
+    const created = await db.vaultFile.create({
       data: {
         requestId,
         workspaceId: request.workspaceId,
@@ -242,7 +247,6 @@ export async function storeVaultFile(input: StoreVaultFileInput) {
       },
     });
 
-    // Record audit event
     await recordAuditEvent(
       {
         actorId: session.userId,
@@ -254,11 +258,15 @@ export async function storeVaultFile(input: StoreVaultFileInput) {
         correlationId: correlationId ?? `vault-store-${created.id}`,
         metadataSummary: `vaultFileId=${created.id}; fileKind=${fileKind ?? 'unknown'}; filename=${filename}`,
       },
-      tx,
+      db,
     );
 
     return created;
-  });
+  };
+
+  const vaultFile = externalTx
+    ? await work(externalTx)
+    : await prisma.$transaction((tx) => work(tx));
 
   return {
     id: vaultFile.id,

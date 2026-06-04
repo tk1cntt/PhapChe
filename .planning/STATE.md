@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to plan
-last_updated: "2026-06-04T15:15:05.882Z"
-last_activity: 2026-06-04
+last_updated: "2026-06-05T11:00:00.000Z"
+last_activity: 2026-06-05
 progress:
   total_phases: 13
   completed_phases: 11
@@ -20,7 +20,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-26)
 
 **Core value:** SME sends legal requests through simple chat and receives quality-reviewed deliverables with full traceability.
-**Current focus:** Phase 11 — wire-review-init
+**Current focus:** Phase 12 — ops-sla-drill-in
 
 ## Current Phase
 
@@ -28,7 +28,7 @@ Gap closure in progress. Original v1.0 Phases 01..07 executed; Phases 08..10 add
 
 ## Status
 
-Gap closure in progress. 7/10 phases executed; 3 gap-closure phases need discuss/plan/execute.
+Gap closure in progress. 11/13 phases executed; Phase 12 context gathered, Phase 13 pending.
 
 ## Progress Summary
 
@@ -44,11 +44,14 @@ Gap closure in progress. 7/10 phases executed; 3 gap-closure phases need discuss
 | 08 | reviewer-service | 2/2 | Complete | `08-02-SUMMARY.md`: passed |
 | 09 | folder-tag | — | Gap closure (planned) | — |
 | 10 | ux-hardening | — | Gap closure (planned) | — |
+| 11 | wire-review-init | — | Gap closure (planned) | — |
+| 12 | ops-sla-drill-in | 0/0 | Gap closure (context gathered) | — |
+| 13 | service-cleanup-wiring | — | Gap closure (planned) | — |
 
 ### Blockers/Concerns
 
-- Phase 08 is a blocker: reviewer service layer is missing; `approved` status cannot be reached from UI; entire post-draft flow is broken.
-- Phase 10 has a blocker: `listDocumentVersions` duplicate `document` key causes runtime Prisma throw on specialist workbench.
+- Phase 11 blocker resolved: startReview now wired to UI per Phase 11 gap closure.
+- Phase 12 context gathered: SLA drill-in page code confirmed complete (commit `f29979e`).
 - Phase 01 has human verification debt recorded in `01-VERIFICATION.md`.
 - `npm run typecheck` has known pre-existing TypeScript errors outside Phase 7 ops.
 - `.planning/v1.0-MILESTONE-AUDIT.md` is the authoritative gap source.

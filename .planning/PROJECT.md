@@ -16,6 +16,8 @@ SME gửi yêu cầu pháp lý theo cách đơn giản như nhắn tin và nhậ
 
 - [x] Admin có thể xem danh sách request, trạng thái xử lý và phân công specialist (RTE-04) — Phase 3
 - [x] Capability Matrix gợi ý specialist/reviewer phù hợp theo loại nghiệp vụ (RTE-01, RTE-02, RTE-03) — Phase 3
+- [x] Reviewer có portal split view: bản thảo bên trái, checklist QC bên phải (REV-02) — Phase 08 + Phase 11
+- [x] Reviewer có thể approve hoặc reject/revise kèm tiêu chí chưa đạt và comment (REV-06, REV-07, REV-08, REV-09) — Phase 08 + Phase 11
 
 ### Active
 
@@ -109,4 +111,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-26 after initialization*
+*Last updated: 2026-06-04*

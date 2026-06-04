@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { requireAppSession } from '@/lib/security/session';
 import ReviewForm from './components/review-form';
+import StartReviewButton from './components/start-review-button';
 
 export default async function ReviewDetailPage({
   params,
@@ -93,11 +94,7 @@ export default async function ReviewDetailPage({
             isReadOnly={existingReview.status === 'approved' || existingReview.status === 'rejected'}
           />
         ) : (
-          <Card className="space-y-4">
-            <p className="text-[16px] leading-[1.5] text-[#475569]">
-              Phiên duyệt chưa được khởi tạo. Vui lòng liên hệ chuyên viên phụ trách.
-            </p>
-          </Card>
+          <StartReviewButton requestId={requestId} documentVersionId={documentVersionId} />
         )}
       </div>
     </main>

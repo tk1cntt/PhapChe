@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { requireAppSession } from '@/lib/security/session';
-import { approveReview, rejectReview } from '@/lib/reviews/review-service';
+import { approveReview, rejectReview, startReview } from '@/lib/reviews/review-service';
 
 export type ReviewerActionResult = { ok: boolean; message: string };
 
@@ -36,6 +36,8 @@ function mapReviewError(err: unknown): ReviewerActionResult {
       return { ok: false, message: 'Bạn không có quyền thực hiện thao tác này.' };
     case 'DOCUMENT_VERSION_NOT_FOUND':
       return { ok: false, message: 'Không tìm thấy phiên bản tài liệu.' };
+    case 'INVALID_DOCUMENT_VERSION_STATUS':
+      return { ok: false, message: 'Phien ban tai lieu khong o trang thai cho duyet.' };
     case 'REVIEW_NOT_FOUND':
       return { ok: false, message: 'Phiên duyệt chưa được khởi tạo.' };
     case 'REVIEW_NOT_ACTIVE':
@@ -88,4 +90,22 @@ export async function rejectReviewAction(formData: FormData): Promise<ReviewerAc
     return mapReviewError(err);
   }
   redirect('/reviewer/requests?notice=revision');
+}
+
+export async function startReviewAction(formData: FormData): Promise<ReviewerActionResult> {
+  const documentVersionId = stringValue(formData, 'documentVersionId');
+  const requestId = stringValue(formData, 'requestId');
+  if (!documentVersionId) return { ok: false, message: 'Thieu ma phien ban tai lieu.' };
+  if (!requestId) return { ok: false, message: 'Thieu ma yeu cau.' };
+
+  const session = await requireAppSession();
+  try {
+    await startReview({ session, documentVersionId });
+    revalidatePath(
+      `/reviewer/requests/${requestId}/review/${documentVersionId}`,
+    );
+  } catch (err) {
+    return mapReviewError(err);
+  }
+  redirect(`/reviewer/requests/${requestId}/review/${documentVersionId}`);
 }

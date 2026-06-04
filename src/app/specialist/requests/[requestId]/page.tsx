@@ -4,6 +4,7 @@ import { Badge, Card, PageHeader } from '@/app/admin/components/ui';
 import { prisma } from '@/lib/prisma';
 import { getTemplatesForGeneration } from '@/lib/documents/template-service';
 import { listVaultFiles } from '@/lib/documents/vault-service';
+import { listDocumentVersions } from '@/lib/documents/draft-service';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { requireAppSession } from '@/lib/security/session';
 import GenerateDraftForm from './components/generate-draft-form';
@@ -57,25 +58,11 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
       createdBy: { select: { name: true, email: true } },
       intakeSubmission: { select: { matterTypeKey: true, answerLabels: true, answers: true } },
       vaultFiles: { select: { id: true, filename: true, createdAt: true }, orderBy: { createdAt: 'desc' } },
-      documents: {
-        select: {
-          id: true,
-          documentVersions: {
-            select: {
-              id: true,
-              templateId: true,
-              templateVersion: true,
-              status: true,
-              generatedContent: true,
-              createdAt: true,
-            },
-            orderBy: { createdAt: 'desc' },
-          },
-        },
-      },
     },
   });
   if (!request) notFound();
+
+  const versionsFromService = await listDocumentVersions({ session, requestId }).catch(() => []);
 
   const status = statusLabels[request.status];
   const answers = asObject(request.intakeSubmission?.answers);
@@ -94,32 +81,14 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
 
   const allVaultFiles = await listVaultFiles(session, requestId).catch(() => []);
 
-  // Flatten document versions with template info
-  const documentVersions = request.documents.flatMap((doc) =>
-    doc.documentVersions.map((v) => ({
-      ...v,
-      template: { label: '', version: v.templateVersion },
-    })),
-  );
-
-  // Enrich versions with template labels
-  const templateIds = [...new Set(documentVersions.map((v) => v.templateId))];
-  const templateMap = new Map(
-    templates.map((t) => [t.id, { label: t.label, version: t.version }]),
-  );
-  if (templateIds.length > 0) {
-    const dbTemplates = await prisma.documentTemplate.findMany({
-      where: { id: { in: templateIds } },
-      select: { id: true, label: true, version: true },
-    });
-    for (const t of dbTemplates) {
-      templateMap.set(t.id, { label: t.label, version: t.version });
-    }
-  }
-
-  const enrichedVersions = documentVersions.map((v) => ({
-    ...v,
-    template: templateMap.get(v.templateId) ?? { label: 'Unknown', version: v.templateVersion },
+  const enrichedVersions = versionsFromService.map((v) => ({
+    id: v.id,
+    templateId: v.templateId,
+    templateVersion: v.templateVersion,
+    status: v.status,
+    generatedContent: v.generatedContent,
+    createdAt: v.createdAt,
+    template: { label: v.templateLabel, version: v.templateVersion },
   }));
 
   const showDraftSection = request.status === 'assigned' || request.status === 'in_progress';

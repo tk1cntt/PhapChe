@@ -213,7 +213,7 @@ Success criteria:
 
 ## Phase 11: wire-review-init
 
-**Status:** Gap closure (planned)  
+**Status:** Executed (2026-06-04) — UAT passed, Nyquist-compliant, threats verified  
 **Goal:** Wire `startReview` to reviewer UI so reviewer can initialize a review session, unblocking the `approved → delivered → closed` flow.  
 **Requirements:** REV-02, REV-06, REV-07, REV-08, REV-09  
 **UI hint:** yes  
@@ -274,7 +274,7 @@ Success criteria:
 | 08 reviewer-service | REV-01..REV-09 | 9 | Executed | 2026-06-03 |
 | 09 folder-tag | VLT-05 | 1 | Executed | 2026-06-03 |
 | 10 ux-hardening | DOC-04, DLV-02, DLV-05 | 0/0 | Executed | 2026-06-03 |
-| 11 wire-review-init | REV-02, REV-06, REV-07, REV-08, REV-09 | 0/0 | Gap closure (planned) | — |
+| 11 wire-review-init | REV-02, REV-06, REV-07, REV-08, REV-09 | 1/1 | Executed | 2026-06-04 |
 | 12 ops-sla-drill-in | OPS-04 | 0/0 | Gap closure (planned) | — |
 | 13 service-cleanup-wiring | — | 0/0 | Gap closure (planned) | — |
 

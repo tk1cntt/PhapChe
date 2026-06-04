@@ -249,13 +249,13 @@ Success criteria:
 **Goal:** Clean up orphaned service exports — wire `listDocumentVersions` to specialist workbench, adopt `storeVaultFile` in draft/upload services, and fix `/admin/audit` mock data.  
 **Requirements:** none (technical debt)  
 **UI hint:** no  
-**Plans:** 3 plans  
+**Plans:** 3/3 plans complete
 **Gap Closure:** Closes tech debt items from v1.0-MILESTONE-AUDIT.md (orphaned exports, mock data)
 
 Plans:
-- [ ] 13-01-PLAN.md — Wire `listDocumentVersions` to specialist workbench (replace inline Prisma query)
-- [ ] 13-02-PLAN.md — Adopt `storeVaultFile` in draft-service.ts and upload-service.ts (add optional tx param)
-- [ ] 13-03-PLAN.md — Replace hardcoded mock data in `/admin/audit` with real Prisma query
+- [x] 13-01-PLAN.md — Wire `listDocumentVersions` to specialist workbench (replace inline Prisma query)
+- [x] 13-02-PLAN.md — Adopt `storeVaultFile` in draft-service.ts and upload-service.ts (add optional tx param)
+- [x] 13-03-PLAN.md — Replace hardcoded mock data in `/admin/audit` with real Prisma query
 
 Success criteria:
 1. Specialist workbench calls `listDocumentVersions` from `draft-service.ts` instead of raw Prisma query.

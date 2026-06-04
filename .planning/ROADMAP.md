@@ -1,7 +1,7 @@
 # Roadmap: Legal-as-a-Service Platform
 
 **Created:** 2026-05-26
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-05
 **Milestone:** v1.0 — Gap closure in progress
 **Total phases:** 13
 **v1 requirements covered:** 46/46
@@ -23,7 +23,7 @@
 | 09 | folder-tag | VLT-05 | 0/0 | Gap closure | — |
 | 10 | ux-hardening | DLV-02 UX, DOC-04 listDocumentVersions, deliver/close feedback | 0/0 | Gap closure | — |
 | 11 | wire-review-init | REV-02, REV-06, REV-07, REV-08, REV-09 | 1/1 | Gap closure (planned) | — |
-| 12 | ops-sla-drill-in | OPS-04 | 0/0 | Gap closure (planned) | — |
+| 12 | ops-sla-drill-in | OPS-04 | 1/1 | Complete | 2026-06-05 |
 | 13 | service-cleanup-wiring | — | 0/0 | Gap closure (planned) | — |
 
 ## Phase 01: foundation
@@ -231,7 +231,7 @@ Success criteria:
 
 ## Phase 12: ops-sla-drill-in
 
-**Status:** Gap closure (planned)  
+**Status:** Complete  
 **Goal:** Render SLA context on request-specific ops drill-in page to satisfy OPS-04.  
 **Requirements:** OPS-04  
 **UI hint:** yes  
@@ -275,7 +275,7 @@ Success criteria:
 | 09 folder-tag | VLT-05 | 1 | Executed | 2026-06-03 |
 | 10 ux-hardening | DOC-04, DLV-02, DLV-05 | 0/0 | Executed | 2026-06-03 |
 | 11 wire-review-init | REV-02, REV-06, REV-07, REV-08, REV-09 | 1/1 | Executed | 2026-06-04 |
-| 12 ops-sla-drill-in | OPS-04 | 0/0 | Gap closure (planned) | — |
+| 12 ops-sla-drill-in | OPS-04 | 1/1 | Complete | 2026-06-05 |
 | 13 service-cleanup-wiring | — | 0/0 | Gap closure (planned) | — |
 
 **Coverage:** 46/46 v1 requirements mapped.  

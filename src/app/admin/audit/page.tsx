@@ -1,28 +1,32 @@
+import { prisma } from '@/lib/prisma';
+import { requireAppSession } from '@/lib/security/session';
 import { AdminShell } from '../components/admin-shell';
 import { Badge, Card, PageHeader, Table } from '../components/ui';
 
-const auditEvents = [
-  {
-    time: '2026-05-26 09:00',
-    actor: 'coordinator@example.com',
-    workspace: 'Công ty An Phát',
-    action: 'user.role_updated',
-    target: 'user:user-123',
-    correlationId: 'corr-001',
-    metadataSummary: 'role=reviewer',
-  },
-  {
-    time: '2026-05-26 09:05',
-    actor: 'system',
-    workspace: 'Công ty Minh Khang',
-    action: 'request.status_changed',
-    target: 'request:req-002',
-    correlationId: 'corr-002',
-    metadataSummary: 'triage -> assigned',
-  },
-];
+export default async function AuditPage() {
+  const session = await requireAppSession();
 
-export default function AuditPage() {
+  const auditEvents = await prisma.auditEvent.findMany({
+    where: session.activeWorkspaceId
+      ? { workspaceId: session.activeWorkspaceId }
+      : undefined,
+    select: {
+      id: true,
+      actorId: true,
+      workspaceId: true,
+      action: true,
+      targetType: true,
+      targetId: true,
+      correlationId: true,
+      metadataSummary: true,
+      createdAt: true,
+      actor: { select: { email: true, name: true } },
+      workspace: { select: { name: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 100,
+  });
+
   return (
     <AdminShell>
       <PageHeader
@@ -37,17 +41,39 @@ export default function AuditPage() {
       </Card>
 
       <Table headers={['Thời gian', 'Actor', 'Workspace', 'Hành động', 'Đối tượng', 'Mã tương quan', 'Tóm tắt metadata']}>
-        {auditEvents.map((event) => (
-          <tr key={event.correlationId} className="hover:bg-[#F1F5F9]">
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{event.time}</td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{event.actor}</td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{event.workspace}</td>
-            <td className="whitespace-nowrap px-4 py-3"><Badge tone="info">{event.action}</Badge></td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{event.target}</td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">{event.correlationId}</td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">{event.metadataSummary}</td>
+        {auditEvents.length === 0 ? (
+          <tr>
+            <td colSpan={7} className="px-4 py-8 text-center text-[14px] leading-[1.4] text-[#475569]">
+              Chưa có sự kiện kiểm toán nào.
+            </td>
           </tr>
-        ))}
+        ) : (
+          auditEvents.map((event) => (
+            <tr key={event.id} className="hover:bg-[#F1F5F9]">
+              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">
+                {new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(event.createdAt)}
+              </td>
+              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">
+                {event.actor?.email ?? 'system'}
+              </td>
+              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">
+                {event.workspace.name}
+              </td>
+              <td className="whitespace-nowrap px-4 py-3">
+                <Badge tone="info">{event.action}</Badge>
+              </td>
+              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">
+                {event.targetType}:{event.targetId}
+              </td>
+              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">
+                {event.correlationId ?? '-'}
+              </td>
+              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">
+                {event.metadataSummary ?? '-'}
+              </td>
+            </tr>
+          ))
+        )}
       </Table>
     </AdminShell>
   );

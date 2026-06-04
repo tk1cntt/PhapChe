@@ -1,6 +1,6 @@
-import { randomUUID } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { recordAuditEvent } from '@/lib/audit/audit';
+import { storeVaultFile } from '@/lib/documents/vault-service';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { transitionRequestStatus } from '@/lib/workflow/request-workflow';
 import { getTemplatesForGeneration } from './template-service';
@@ -139,23 +139,21 @@ export async function generateDraft(input: GenerateDraftInput): Promise<Generate
       },
     });
 
-    // Create VaultFile for the draft
+    // Create VaultFile for the draft via storeVaultFile wrapper (includes audit event)
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `${template.matterTypeKey}-v${template.version}-${timestamp}.txt`;
     const storageKey = `private/drafts/${request.workspaceId}/${requestId}/${created.id}/${filename}`;
 
-    await tx.vaultFile.create({
-      data: {
-        requestId,
-        workspaceId: request.workspaceId,
-        actorId: session.userId,
-        filename,
-        storageKey,
-        fileKind: 'generated_draft',
-        source: 'template_generation',
-        documentVersionId: created.id,
-      },
-    });
+    await storeVaultFile({
+      session,
+      requestId,
+      storageKey,
+      filename,
+      fileKind: 'generated_draft',
+      source: 'template_generation',
+      documentVersionId: created.id,
+      correlationId: correlationId ?? `draft-store-${created.id}`,
+    }, tx);
 
     // Record audit event
     await recordAuditEvent(

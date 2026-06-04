@@ -11,7 +11,7 @@
 ## Progress
 
 | Phase | Name | Requirements | Plans | Status | Completed |
-|---|---|---|---:|---|---|
+|---|---|---|---|---|---:|---|
 | 01 | foundation | FND-01, FND-02, FND-03, FND-04, FND-05 | 4/4 | Complete with human review debt | 2026-06-01 |
 | 02 | intake | INT-01, INT-02, INT-03, INT-04, INT-05, INT-06 | 4/4 | Complete | 2026-06-01 |
 | 03 | routing | RTE-01, RTE-02, RTE-03, RTE-04, RTE-05 | 5/5 | Complete | 2026-06-01 |
@@ -24,7 +24,7 @@
 | 10 | ux-hardening | DLV-02 UX, DOC-04 listDocumentVersions, deliver/close feedback | 0/0 | Gap closure | — |
 | 11 | wire-review-init | REV-02, REV-06, REV-07, REV-08, REV-09 | 1/1 | Gap closure (planned) | — |
 | 12 | ops-sla-drill-in | OPS-04 | 1/1 | Complete | 2026-06-05 |
-| 13 | service-cleanup-wiring | — | 0/0 | Gap closure (planned) | — |
+| 13 | service-cleanup-wiring | — | 3/3 | Gap closure (planned) | — |
 
 ## Phase 01: foundation
 
@@ -249,7 +249,13 @@ Success criteria:
 **Goal:** Clean up orphaned service exports — wire `listDocumentVersions` to specialist workbench, adopt `storeVaultFile` in draft/upload services, and fix `/admin/audit` mock data.  
 **Requirements:** none (technical debt)  
 **UI hint:** no  
+**Plans:** 3 plans  
 **Gap Closure:** Closes tech debt items from v1.0-MILESTONE-AUDIT.md (orphaned exports, mock data)
+
+Plans:
+- [ ] 13-01-PLAN.md — Wire `listDocumentVersions` to specialist workbench (replace inline Prisma query)
+- [ ] 13-02-PLAN.md — Adopt `storeVaultFile` in draft-service.ts and upload-service.ts (add optional tx param)
+- [ ] 13-03-PLAN.md — Replace hardcoded mock data in `/admin/audit` with real Prisma query
 
 Success criteria:
 1. Specialist workbench calls `listDocumentVersions` from `draft-service.ts` instead of raw Prisma query.
@@ -263,7 +269,7 @@ Success criteria:
 ## Requirements Summary
 
 | Phase | Requirements | Count | Status |
-|---|---|---:|---|
+|---|---|---|---:|---|
 | 01 foundation | FND-01..FND-05 | 05 | Complete |
 | 02 intake | INT-01..INT-06 | 06 | Complete |
 | 03 routing | RTE-01..RTE-05 | 05 | Complete |
@@ -276,7 +282,7 @@ Success criteria:
 | 10 ux-hardening | DOC-04, DLV-02, DLV-05 | 0/0 | Executed | 2026-06-03 |
 | 11 wire-review-init | REV-02, REV-06, REV-07, REV-08, REV-09 | 1/1 | Executed | 2026-06-04 |
 | 12 ops-sla-drill-in | OPS-04 | 1/1 | Complete | 2026-06-05 |
-| 13 service-cleanup-wiring | — | 0/0 | Gap closure (planned) | — |
+| 13 service-cleanup-wiring | — | 3/3 | Gap closure (planned) | — |
 
 **Coverage:** 46/46 v1 requirements mapped.  
 **Traceability:** 10 requirements moved to Pending under gap-closure phases per `.planning/v1.0-MILESTONE-AUDIT.md`.  

@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { prisma } from '@/lib/prisma';
-import { approveReview, rejectReview } from './review-service';
+import { approveReview, rejectReview, startReview } from './review-service';
+import { startReviewAction } from '@/app/reviewer/requests/[requestId]/review/[documentVersionId]/actions';
 import type { AppSession } from '@/lib/security/session';
 import { CHECKLIST_ITEMS } from '@/constants/checklist-items';
 
@@ -19,6 +20,8 @@ type ReviewSeed = {
   requestId: string;
   documentId: string;
   documentVersionId: string;
+  freshDocVersionId: string;
+  draftDocVersionId: string;
   reviewId: string;
   userIds: string[];
   correlationPrefix: string;
@@ -121,6 +124,29 @@ async function seedReviewTest(): Promise<ReviewSeed> {
     },
   });
 
+  // Extra document versions for startReview tests (no pre-existing review).
+  const freshDocVersion = await prisma.documentVersion.create({
+    data: {
+      documentId: document.id,
+      templateId: 'tpl-fresh-' + suffix,
+      templateVersion: 1,
+      status: 'submitted_for_review',
+      inputSnapshot: { variables: { foo: 'fresh' } },
+      generatedContent: 'Fresh doc version for startReview happy path.',
+    },
+  });
+
+  const draftDocVersion = await prisma.documentVersion.create({
+    data: {
+      documentId: document.id,
+      templateId: 'tpl-draft-' + suffix,
+      templateVersion: 1,
+      status: 'draft',
+      inputSnapshot: { variables: { foo: 'draft' } },
+      generatedContent: 'Draft doc version for startReview negative test.',
+    },
+  });
+
   return {
     suffix,
     workspaceId: workspace.id,
@@ -131,6 +157,8 @@ async function seedReviewTest(): Promise<ReviewSeed> {
     requestId: request.id,
     documentId: document.id,
     documentVersionId: documentVersion.id,
+    freshDocVersionId: freshDocVersion.id,
+    draftDocVersionId: draftDocVersion.id,
     reviewId: review.id,
     userIds: [coordinator.id, specialist.id, reviewer.id, customer.id],
     correlationPrefix,
@@ -410,5 +438,209 @@ test('rejectReview rejects when caller is not the assigned reviewer', async () =
 
     await prisma.workspaceMembership.deleteMany({ where: { userId: otherReviewer.id } });
     await prisma.user.delete({ where: { id: otherReviewer.id } });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 7 (service): startReview happy path
+// ---------------------------------------------------------------------------
+
+test('startReview creates Review with in_progress status and emits review.started audit', async () => {
+  await withReviewSeed(async (seed) => {
+    const result = await startReview({
+      session: reviewerSession(seed),
+      documentVersionId: seed.freshDocVersionId,
+      correlationId: `${seed.correlationPrefix}_startReview_happy`,
+    });
+
+    assert.equal(result.status, 'in_progress');
+    assert.ok(result.reviewId);
+
+    const review = await prisma.review.findUniqueOrThrow({ where: { id: result.reviewId } });
+    assert.equal(review.status, 'in_progress');
+    assert.equal(review.reviewerId, seed.reviewerId);
+    assert.equal(review.documentVersionId, seed.freshDocVersionId);
+    assert.equal(review.requestId, seed.requestId);
+
+    const audit = await prisma.auditEvent.findFirst({
+      where: { action: 'review.started', targetId: result.reviewId },
+    });
+    assert.ok(audit);
+    assert.ok(audit.metadataSummary?.includes('docVersionId='));
+    assert.ok(audit.metadataSummary?.includes('reviewerId='));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 8 (negative): startReview with non-existent documentVersionId
+// ---------------------------------------------------------------------------
+
+test('startReview rejects DOCUMENT_VERSION_NOT_FOUND for non-existent documentVersionId', async () => {
+  await withReviewSeed(async (seed) => {
+    await assert.rejects(
+      startReview({
+        session: reviewerSession(seed),
+        documentVersionId: 'non-existent-id',
+        correlationId: `${seed.correlationPrefix}_startReview_notfound`,
+      }),
+      /DOCUMENT_VERSION_NOT_FOUND/,
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 9 (negative): startReview with documentVersion not in submitted_for_review
+// ---------------------------------------------------------------------------
+
+test('startReview rejects INVALID_DOCUMENT_VERSION_STATUS when docVersion is not submitted_for_review', async () => {
+  await withReviewSeed(async (seed) => {
+    await assert.rejects(
+      startReview({
+        session: reviewerSession(seed),
+        documentVersionId: seed.draftDocVersionId,
+        correlationId: `${seed.correlationPrefix}_startReview_invalid_status`,
+      }),
+      /INVALID_DOCUMENT_VERSION_STATUS/,
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 10 (negative): startReview when caller is not assigned reviewer
+// ---------------------------------------------------------------------------
+
+test('startReview rejects FORBIDDEN when caller is not the assigned reviewer', async () => {
+  await withReviewSeed(async (seed) => {
+    const otherReviewer = await prisma.user.create({
+      data: {
+        email: `${REVIEW_E2E_PREFIX}_other_rev3_${seed.suffix}@example.test`,
+        name: 'Other Reviewer 3',
+        memberships: { create: { workspaceId: seed.workspaceId, role: 'reviewer' } },
+      },
+    });
+
+    const otherSession: AppSession = {
+      userId: otherReviewer.id,
+      activeWorkspaceId: seed.workspaceId,
+      roles: ['reviewer'],
+    };
+
+    await assert.rejects(
+      startReview({
+        session: otherSession,
+        documentVersionId: seed.freshDocVersionId,
+        correlationId: `${seed.correlationPrefix}_startReview_forbidden`,
+      }),
+      /FORBIDDEN/,
+    );
+
+    await prisma.workspaceMembership.deleteMany({ where: { userId: otherReviewer.id } });
+    await prisma.user.delete({ where: { id: otherReviewer.id } });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 11 (service): startReview double-create guard returns existing review
+// ---------------------------------------------------------------------------
+
+test('startReview returns existing review on second call (double-create guard)', async () => {
+  await withReviewSeed(async (seed) => {
+    const first = await startReview({
+      session: reviewerSession(seed),
+      documentVersionId: seed.freshDocVersionId,
+      correlationId: `${seed.correlationPrefix}_startReview_double_1`,
+    });
+    assert.equal(first.status, 'in_progress');
+
+    const second = await startReview({
+      session: reviewerSession(seed),
+      documentVersionId: seed.freshDocVersionId,
+      correlationId: `${seed.correlationPrefix}_startReview_double_2`,
+    });
+
+    assert.equal(second.reviewId, first.reviewId);
+    assert.equal(second.status, 'in_progress');
+
+    // Exactly one Review record for this (documentVersionId, reviewerId)
+    const reviews = await prisma.review.findMany({
+      where: { documentVersionId: seed.freshDocVersionId, reviewerId: seed.reviewerId },
+    });
+    assert.equal(reviews.length, 1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 12 (server action): startReviewAction calls startReview and creates review
+// NOTE: revalidatePath/redirect are Next.js server-only APIs, so the action
+// returns a generic error in a vanilla Node.js test environment. We verify
+// the side effect (review created in DB) to prove startReview was invoked.
+// ---------------------------------------------------------------------------
+
+test('startReviewAction calls startReview and creates review in database', async () => {
+  await withReviewSeed(async (seed) => {
+    process.env.APP_SESSION_USER_ID = seed.reviewerId;
+
+    const formData = new FormData();
+    formData.set('documentVersionId', seed.freshDocVersionId);
+    formData.set('requestId', seed.requestId);
+
+    const result = await startReviewAction(formData);
+
+    // revalidatePath/redirect throw in non-Next.js runtime, so the action
+    // returns a generic error. Verify the review WAS created despite this.
+    assert.equal(result.ok, false);
+
+    const review = await prisma.review.findFirst({
+      where: { documentVersionId: seed.freshDocVersionId, reviewerId: seed.reviewerId },
+    });
+    assert.ok(review);
+    assert.equal(review!.status, 'in_progress');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test 13 (server action): startReviewAction missing documentVersionId
+// ---------------------------------------------------------------------------
+
+test('startReviewAction returns Vietnamese error when documentVersionId is missing', async () => {
+  const formData = new FormData();
+  formData.set('requestId', 'some-request-id');
+
+  const result = await startReviewAction(formData);
+
+  assert.equal(result.ok, false);
+  assert.equal(result.message, 'Thieu ma phien ban tai lieu.');
+});
+
+// ---------------------------------------------------------------------------
+// Test 14 (server action): startReviewAction missing requestId
+// ---------------------------------------------------------------------------
+
+test('startReviewAction returns Vietnamese error when requestId is missing', async () => {
+  const formData = new FormData();
+  formData.set('documentVersionId', 'some-doc-version-id');
+
+  const result = await startReviewAction(formData);
+
+  assert.equal(result.ok, false);
+  assert.equal(result.message, 'Thieu ma yeu cau.');
+});
+
+// ---------------------------------------------------------------------------
+// Test 15 (server action): startReviewAction maps service error to Vietnamese
+// ---------------------------------------------------------------------------
+
+test('startReviewAction maps DOCUMENT_VERSION_NOT_FOUND to Vietnamese message', async () => {
+  await withReviewSeed(async (seed) => {
+    process.env.APP_SESSION_USER_ID = seed.reviewerId;
+
+    const formData = new FormData();
+    formData.set('documentVersionId', 'non-existent-id');
+    formData.set('requestId', seed.requestId);
+
+    const result = await startReviewAction(formData);
+
+    assert.equal(result.ok, false);
+    assert.equal(result.message, 'Không tìm thấy phiên bản tài liệu.');
   });
 });

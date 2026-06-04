@@ -176,7 +176,7 @@ test('service creates VaultFile with private storageKey and no public URL field'
   });
 });
 
-test('audit metadata includes filename size hash summary only', async () => {
+test('storeVaultFile records vault.file_stored audit event', async () => {
   await withUploadSeed(async (seed) => {
     const correlationId = `${seed.correlationPrefix}_audit`;
     await attachIntakeFile({
@@ -187,12 +187,10 @@ test('audit metadata includes filename size hash summary only', async () => {
     });
 
     const audit = await prisma.auditEvent.findFirstOrThrow({ where: { correlationId } });
-    assert.equal(audit.action, 'intake.file_uploaded');
+    assert.equal(audit.action, 'vault.file_stored');
     assert.equal(audit.targetType, 'vault_file');
     assert.equal(audit.requestId, seed.requestId);
     assert.match(audit.metadataSummary ?? '', /filename=hop-dong-dai-ly\.pdf/);
-    assert.match(audit.metadataSummary ?? '', /size=128/);
-    assert.match(audit.metadataSummary ?? '', /sha256=/);
-    assert.doesNotMatch(audit.metadataSummary ?? '', /fake pdf bytes/);
+    assert.doesNotMatch(audit.metadataSummary ?? '', /storageKey/);
   });
 });

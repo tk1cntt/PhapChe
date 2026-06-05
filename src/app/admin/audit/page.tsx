@@ -44,31 +44,31 @@ export default function AuditPage() {
     {
       title: 'Actor',
       key: 'actor',
-      render: (_: unknown, record: AuditEvent) => record.actor?.email ?? 'system',
+      render: (_: unknown, record: AuditEventRecord) => record.actor?.email ?? 'system',
       width: 200,
     },
     {
       title: 'Workspace',
       key: 'workspace',
-      render: (_: unknown, record: AuditEvent) => record.workspace.name,
+      render: (_: unknown, record: AuditEventRecord) => record.workspace.name,
       width: 180,
     },
     {
       title: 'Hanh dong',
       key: 'action',
-      render: (_: unknown, record: AuditEvent) => <Tag color="blue">{record.action}</Tag>,
+      render: (_: unknown, record: AuditEventRecord) => <Tag color="blue">{record.action}</Tag>,
       width: 150,
     },
     {
       title: 'Doi tuong',
       key: 'target',
-      render: (_: unknown, record: AuditEvent) => `${record.targetType}:${record.targetId}`,
+      render: (_: unknown, record: AuditEventRecord) => `${record.targetType}:${record.targetId}`,
       width: 200,
     },
     {
       title: 'Ma tuong quan',
       key: 'correlationId',
-      render: (_: unknown, record: AuditEvent) => record.correlationId ?? '-',
+      render: (_: unknown, record: AuditEventRecord) => record.correlationId ?? '-',
       width: 200,
     },
     {

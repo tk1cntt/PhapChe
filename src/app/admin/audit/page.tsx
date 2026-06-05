@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
-import { AdminShell } from '../components/admin-shell';
-import { Badge, Card, PageHeader, Table } from '../components/ui';
+import { Tag, Card, Table, Typography, Flex } from 'antd';
 
 export default async function AuditPage() {
   const session = await requireAppSession();
@@ -27,54 +26,80 @@ export default async function AuditPage() {
     take: 100,
   });
 
-  return (
-    <AdminShell>
-      <PageHeader
-        title="Audit"
-        description="Dòng thời gian thao tác quan trọng chỉ hiển thị định danh, action, mã tương quan và tóm tắt metadata an toàn."
-      />
+  type AuditEvent = (typeof auditEvents)[number];
 
-      <Card>
-        <p className="text-[14px] font-normal leading-[1.4] text-[#475569]">
-          Không hiển thị nội dung pháp lý thô trong audit; dùng metadataSummary, identifier hoặc hash khi cần truy vết.
-        </p>
+  const columns = [
+    {
+      title: 'Thoi gian',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (val: Date) =>
+        new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(val),
+      width: 180,
+    },
+    {
+      title: 'Actor',
+      key: 'actor',
+      render: (_: unknown, record: AuditEvent) => record.actor?.email ?? 'system',
+      width: 200,
+    },
+    {
+      title: 'Workspace',
+      key: 'workspace',
+      render: (_: unknown, record: AuditEvent) => record.workspace.name,
+      width: 180,
+    },
+    {
+      title: 'Hanh dong',
+      key: 'action',
+      render: (_: unknown, record: AuditEvent) => <Tag color="blue">{record.action}</Tag>,
+      width: 150,
+    },
+    {
+      title: 'Doi tuong',
+      key: 'target',
+      render: (_: unknown, record: AuditEvent) => `${record.targetType}:${record.targetId}`,
+      width: 200,
+    },
+    {
+      title: 'Ma tuong quan',
+      key: 'correlationId',
+      render: (_: unknown, record: AuditEvent) => record.correlationId ?? '-',
+      width: 200,
+    },
+    {
+      title: 'Tom tat metadata',
+      key: 'metadataSummary',
+      render: (_: unknown, record: AuditEvent) => record.metadataSummary ?? '-',
+    },
+  ];
+
+  return (
+    <>
+      <Flex vertical gap={4} style={{ marginBottom: 16 }}>
+        <Typography.Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600 }}>
+          Audit
+        </Typography.Title>
+        <Typography.Paragraph style={{ color: '#475569', margin: 0, fontSize: 16 }}>
+          Dong thoi gian thao tac quan trong chi hien thi dinh danh, action, ma tuong quan va tom tat metadata an toan.
+        </Typography.Paragraph>
+      </Flex>
+
+      <Card style={{ marginBottom: 16 }}>
+        <Typography.Text style={{ color: '#475569' }}>
+          Khong hien thi noi dung phap ly tho trong audit; dung metadataSummary, identifier hoac hash khi can truy vet.
+        </Typography.Text>
       </Card>
 
-      <Table headers={['Thời gian', 'Actor', 'Workspace', 'Hành động', 'Đối tượng', 'Mã tương quan', 'Tóm tắt metadata']}>
-        {auditEvents.length === 0 ? (
-          <tr>
-            <td colSpan={7} className="px-4 py-8 text-center text-[14px] leading-[1.4] text-[#475569]">
-              Chưa có sự kiện kiểm toán nào.
-            </td>
-          </tr>
-        ) : (
-          auditEvents.map((event) => (
-            <tr key={event.id} className="hover:bg-[#F1F5F9]">
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">
-                {new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(event.createdAt)}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">
-                {event.actor?.email ?? 'system'}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">
-                {event.workspace.name}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3">
-                <Badge tone="info">{event.action}</Badge>
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">
-                {event.targetType}:{event.targetId}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">
-                {event.correlationId ?? '-'}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">
-                {event.metadataSummary ?? '-'}
-              </td>
-            </tr>
-          ))
-        )}
-      </Table>
-    </AdminShell>
+      <Table
+        dataSource={auditEvents}
+        rowKey="id"
+        columns={columns}
+        pagination={false}
+        size="middle"
+        bordered
+        locale={{ emptyText: 'Chua co su kien kiem toan nao.' }}
+      />
+    </>
   );
 }

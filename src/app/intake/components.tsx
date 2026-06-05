@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Badge, Button, Card, PageHeader } from '@/app/admin/components/ui';
+import { Tag, Button, Card, Typography, Flex } from 'antd';
 import type { MatterCatalogItem } from '@/lib/intake/catalog';
 
 type UploadedFile = { filename: string; size: number };
@@ -10,7 +10,16 @@ export function IntakeShell({ children }: { children: ReactNode }) {
 }
 
 export function IntakeHeader() {
-  return <PageHeader title="Gửi yêu cầu pháp lý" description="Trả lời vài câu hỏi để chuyên viên có đủ thông tin tiếp nhận hồ sơ." />;
+  return (
+    <Flex vertical gap={4} style={{ marginBottom: 16 }}>
+      <Typography.Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600 }}>
+        Gửi yêu cầu pháp lý
+      </Typography.Title>
+      <Typography.Paragraph style={{ color: '#475569', margin: 0, fontSize: 16 }}>
+        Trả lời vài câu hỏi để chuyên viên có đủ thông tin tiếp nhận hồ sơ.
+      </Typography.Paragraph>
+    </Flex>
+  );
 }
 
 export function ProgressSteps({ activeStep }: { activeStep: number }) {
@@ -45,7 +54,7 @@ export function ServiceSelection({ catalog }: { catalog: readonly MatterCatalogI
           </label>
         ))}
       </div>
-      <Button type="submit">Tiếp tục</Button>
+      <Button type="primary" htmlType="submit">Tiếp tục</Button>
     </Card>
   );
 }
@@ -58,7 +67,7 @@ export function QuestionStep({ matterType }: { matterType: MatterCatalogItem }) 
           <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Thông tin cần cung cấp</h2>
           <p className="text-[16px] leading-[1.5] text-[#475569]">{matterType.label}</p>
         </div>
-        {matterType.key === 'unsupported' ? <Badge tone="warning">Hồ sơ sẽ được chuyển để chuyên viên phân loại trước khi xử lý.</Badge> : null}
+        {matterType.key === 'unsupported' ? <Tag color="orange">Hồ sơ sẽ được chuyển để chuyên viên phân loại trước khi xử lý.</Tag> : null}
       </div>
       <div className="space-y-4">
         {matterType.questions.map((question) => (
@@ -73,7 +82,7 @@ export function QuestionStep({ matterType }: { matterType: MatterCatalogItem }) 
         ))}
       </div>
       <p className="text-[14px] leading-[1.4] text-[#DC2626]">Vui lòng điền thông tin bắt buộc trước khi tiếp tục.</p>
-      <Button type="submit">Lưu câu trả lời</Button>
+      <Button type="primary" htmlType="submit">Lưu câu trả lời</Button>
     </Card>
   );
 }
@@ -91,7 +100,7 @@ export function UploadStep({ files }: { files: UploadedFile[] }) {
       </label>
       <p className="text-[14px] leading-[1.4] text-[#475569]">Tệp được lưu riêng tư theo hồ sơ và không tạo đường dẫn công khai.</p>
       <FileList files={files} />
-      <Button type="submit">Tải tệp lên</Button>
+      <Button type="primary" htmlType="submit">Tải tệp lên</Button>
     </Card>
   );
 }
@@ -114,7 +123,7 @@ export function ReviewSummary({ matterType, answers, files }: { matterType: Matt
       </div>
       <FileList files={files} />
       <p className="text-[14px] leading-[1.4] text-[#475569]">Tệp được lưu riêng tư theo hồ sơ và không tạo đường dẫn công khai.</p>
-      <Button type="submit">Gửi yêu cầu</Button>
+      <Button type="primary" htmlType="submit">Gửi yêu cầu</Button>
     </Card>
   );
 }

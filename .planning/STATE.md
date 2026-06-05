@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Milestone complete
-last_updated: "2026-06-05T03:36:42.240Z"
+status: v1.0 milestone complete
+last_updated: "2026-06-05T11:00:00Z"
 last_activity: 2026-06-05
 progress:
   total_phases: 14
@@ -17,18 +17,15 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-26)
+See: .planning/PROJECT.md (updated 2026-06-05)
 
 **Core value:** SME sends legal requests through simple chat and receives quality-reviewed deliverables with full traceability.
-**Current focus:** Phase 14 — antd-layout-redesign
+**Status:** Milestone v1.0 MVP shipped 2026-06-05
+**Next:** Planning v2.0
 
-## Current Phase
+## Milestone v1.0 Complete
 
-All v1.0 gap-closure phases executed (08..13). Phase 14 added as post-milestone enhancement: integrate Ant Design UI library and redesign layout system.
-
-## Status
-
-Milestone v1.0 complete. Phase 14 added for Ant Design + layout redesign.
+14 phases, 49 plans, 70 tasks all executed. All v1.0 requirements (46/46) validated.
 
 ## Progress Summary
 
@@ -47,15 +44,19 @@ Milestone v1.0 complete. Phase 14 added for Ant Design + layout redesign.
 | 11 | wire-review-init | 1/1 | Complete | `11-VERIFICATION.md`: passed |
 | 12 | ops-sla-drill-in | 1/1 | Complete | `12-VERIFICATION.md`: passed |
 | 13 | service-cleanup-wiring | 3/3 | Complete | `13-VERIFICATION.md`: passed |
-| 14 | antd-layout-redesign | — | Not planned | — |
+| 14 | antd-layout-redesign | 9/9 | Complete | `14-VERIFICATION.md`: passed |
 
-### Blockers/Concerns
+## Deferred Items
 
-- Phase 11 complete: startReview wired to UI.
-- Phase 12 complete: OPS-04 SLA drill-in gap closed (verified code already existed).
-- Phase 01 has human verification debt recorded in `01-VERIFICATION.md`.
-- `npm run typecheck` has known pre-existing TypeScript errors outside Phase 7 ops.
-- `.planning/v1.0-MILESTONE-AUDIT.md` is the authoritative gap source.
+Items acknowledged at milestone close (2026-06-05):
+
+| Category | Item | Status |
+|----------|------|--------|
+| verification | Phase 01 human_needed (browser check for UI interaction) | open |
+| tech_debt | Pre-existing TypeScript errors in template pages | open |
+| tech_debt | No DATABASE_URL for demo data seeding | open |
+| tech_debt | npm run typecheck pre-existing failures | open |
+| tech_debt | No e2e tests beyond Phase 1 foundation | open |
 
 ### Quick Tasks Completed
 

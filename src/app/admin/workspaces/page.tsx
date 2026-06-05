@@ -1,3 +1,5 @@
+'use client';
+
 import { Tag, Button, Card, Table, Typography, Flex } from 'antd';
 
 const workspaces = [

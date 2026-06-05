@@ -1,3 +1,5 @@
+'use client';
+
 import type { ReactNode } from 'react';
 import { Tag, Button, Card, Typography, Flex } from 'antd';
 import type { MatterCatalogItem } from '@/lib/intake/catalog';

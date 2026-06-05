@@ -1,5 +1,9 @@
 import { Tag, Button, Card, Table, Typography, Flex, Space } from 'antd';
 
+'use client';
+
+import { Tag, Button, Card, Table, Typography, Flex, Space } from 'antd';
+
 const roles = [
   { value: 'customer', label: 'Khách hàng', tone: 'neutral' as const },
   { value: 'specialist', label: 'Chuyên viên', tone: 'info' as const },

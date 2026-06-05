@@ -1,32 +1,36 @@
-import { prisma } from '@/lib/prisma';
-import { requireAppSession } from '@/lib/security/session';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Tag, Card, Table, Typography, Flex } from 'antd';
+import { prisma } from '@/lib/prisma';
 
-export default async function AuditPage() {
-  const session = await requireAppSession();
+type AuditEventRecord = {
+  id: string;
+  actorId: string | null;
+  workspaceId: string;
+  action: string;
+  targetType: string;
+  targetId: string;
+  correlationId: string | null;
+  metadataSummary: string | null;
+  createdAt: Date;
+  actor: { email: string | null; name: string | null } | null;
+  workspace: { name: string };
+};
 
-  const auditEvents = await prisma.auditEvent.findMany({
-    where: session.activeWorkspaceId
-      ? { workspaceId: session.activeWorkspaceId }
-      : undefined,
-    select: {
-      id: true,
-      actorId: true,
-      workspaceId: true,
-      action: true,
-      targetType: true,
-      targetId: true,
-      correlationId: true,
-      metadataSummary: true,
-      createdAt: true,
-      actor: { select: { email: true, name: true } },
-      workspace: { select: { name: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 100,
-  });
+export default function AuditPage() {
+  const [auditEvents, setAuditEvents] = useState<AuditEventRecord[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  type AuditEvent = (typeof auditEvents)[number];
+  useEffect(() => {
+    fetch('/api/audit/events')
+      .then((r) => r.json())
+      .then((data) => {
+        setAuditEvents(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const columns = [
     {
@@ -76,6 +80,10 @@ export default async function AuditPage() {
 
   return (
     <>
+      {loading ? (
+        <Flex justify="center" style={{ padding: 48 }}><Typography.Text>Dang tai...</Typography.Text></Flex>
+      ) : (
+      <>
       <Flex vertical gap={4} style={{ marginBottom: 16 }}>
         <Typography.Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600 }}>
           Audit
@@ -100,6 +108,8 @@ export default async function AuditPage() {
         bordered
         locale={{ emptyText: 'Chua co su kien kiem toan nao.' }}
       />
+      </>
+      )}
     </>
   );
 }

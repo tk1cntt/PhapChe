@@ -1,3 +1,5 @@
+'use client';
+
 import type { RequestStatus } from '@prisma/client';
 import { getAllowedTransitions } from '@/lib/workflow/request-workflow';
 import { Tag, Button, Card, Table, Typography, Flex, Space } from 'antd';

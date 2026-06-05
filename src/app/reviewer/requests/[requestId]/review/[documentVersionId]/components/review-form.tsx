@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { Badge, Button, Card } from '@/app/admin/components/ui';
+import { Tag, Button, Card } from 'antd';
 import { CHECKLIST_GROUPS, CHECKLIST_ITEMS, GROUP_LABELS } from '@/lib/reviews/checklist';
 import { approveReviewAction, rejectReviewAction, type ReviewerActionResult } from '../actions';
 
@@ -13,7 +13,7 @@ type ExistingAnswer = { checklistItemId: string; passed: boolean; comment: strin
 
 function FeedbackBadge({ result }: { result: ReviewerActionResult }) {
   if (!result.message) return null;
-  return <Badge tone={result.ok ? 'accent' : 'destructive'}>{result.message}</Badge>;
+  return <Tag color={result.ok ? 'cyan' : 'red'}>{result.message}</Tag>;
 }
 
 export default function ReviewForm({
@@ -94,7 +94,7 @@ export default function ReviewForm({
                           {item.label}
                           {item.required ? (
                             <span className="ml-2 text-[11px] font-semibold uppercase text-[#DC2626]">
-                              Bắt buộc
+                              Bat buoc
                             </span>
                           ) : null}
                         </p>
@@ -115,7 +115,7 @@ export default function ReviewForm({
                                 return next;
                               })
                             }
-                            placeholder="Nhận xét cho mục chưa đạt"
+                            placeholder="Nhan xet cho muc chua dat"
                             className="mt-2 w-full rounded-xl border border-[#CBD5E1] bg-white px-3 py-2 text-[14px] focus:border-[#0F766E] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20"
                           />
                         ) : null}
@@ -141,8 +141,8 @@ export default function ReviewForm({
             value={a.passed ? '1' : '0'}
           />
         ))}
-        <Button type="submit" variant="primary" disabled={!allRequiredPassed || isReadOnly}>
-          Duyệt
+        <Button type="primary" htmlType="submit" disabled={!allRequiredPassed || isReadOnly}>
+          Duyet
         </Button>
         <FeedbackBadge result={approveState} />
       </form>
@@ -160,7 +160,7 @@ export default function ReviewForm({
           />
         ))}
         <label className="block space-y-2">
-          <span className="text-[14px] font-semibold text-[#475569]">Nhận xét chung</span>
+          <span className="text-[14px] font-semibold text-[#475569]">Nhan xet chung</span>
           <textarea
             name="generalComment"
             value={generalComment}
@@ -169,8 +169,8 @@ export default function ReviewForm({
             className="min-h-24 w-full rounded-xl border border-[#CBD5E1] bg-white px-3 py-2 text-[14px] focus:border-[#0F766E] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20"
           />
         </label>
-        <Button type="submit" variant="destructive" disabled={isReadOnly}>
-          Yêu cầu chỉnh sửa
+        <Button danger htmlType="submit" disabled={isReadOnly}>
+          Yeu cau chinh sua
         </Button>
         <FeedbackBadge result={rejectState} />
       </form>

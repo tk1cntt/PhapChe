@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Button, Card, PageHeader } from '@/app/admin/components/ui';
+import { Button, Card, Typography, Flex } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { requireAppSession } from '@/lib/security/session';
 import ReviewForm from './components/review-form';
 import StartReviewButton from './components/start-review-button';
+
+const { Title, Paragraph } = Typography;
 
 export default async function ReviewDetailPage({
   params,
@@ -63,19 +65,21 @@ export default async function ReviewDetailPage({
   });
 
   return (
-    <main className="mx-auto flex max-w-[1280px] flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">
-      <PageHeader
-        title="Duyệt tài liệu"
-        description="Đọc tài liệu bên trái và hoàn thành checklist bên phải trước khi duyệt."
-        action={
-          <Link href="/reviewer/requests">
-            <Button variant="secondary">Quay lại hàng chờ</Button>
-          </Link>
-        }
-      />
+    <Flex vertical gap="middle">
+      <Flex justify="space-between" align="flex-start" wrap="wrap">
+        <div>
+          <Title level={3} style={{ margin: 0 }}>Duyet tai lieu</Title>
+          <Paragraph style={{ margin: 0, color: '#475569' }}>
+            Doc tai lieu ben trai va hoan thanh checklist ben phai truoc khi duyet.
+          </Paragraph>
+        </div>
+        <Link href="/reviewer/requests">
+          <Button>Quay lai hang cho</Button>
+        </Link>
+      </Flex>
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_420px]">
         <Card className="space-y-4">
-          <h2 className="text-lg font-semibold text-[#0F172A]">Nội dung tài liệu</h2>
+          <h2 className="text-lg font-semibold text-[#0F172A]">Noi dung tai lieu</h2>
           <pre className="whitespace-pre-wrap text-[14px] leading-[1.6] text-[#0F172A]">
             {docVersion.generatedContent}
           </pre>
@@ -97,6 +101,6 @@ export default async function ReviewDetailPage({
           <StartReviewButton requestId={requestId} documentVersionId={documentVersionId} />
         )}
       </div>
-    </main>
+    </Flex>
   );
 }

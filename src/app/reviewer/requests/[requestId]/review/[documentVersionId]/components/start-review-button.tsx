@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { Button, Card } from '@/app/admin/components/ui';
+import { Button, Card } from 'antd';
 import { startReviewAction, type ReviewerActionResult } from '../actions';
 
 const initialState: ReviewerActionResult = { ok: false, message: '' };
@@ -28,7 +28,7 @@ export default function StartReviewButton({
       <form action={formAction}>
         <input type="hidden" name="documentVersionId" value={documentVersionId} />
         <input type="hidden" name="requestId" value={requestId} />
-        <Button type="submit" variant="primary">Bat dau duyet</Button>
+        <Button type="primary" htmlType="submit">Bat dau duyet</Button>
       </form>
       {state.message && !state.ok && (
         <p className="text-[14px] leading-[1.5] text-[#DC2626]">{state.message}</p>

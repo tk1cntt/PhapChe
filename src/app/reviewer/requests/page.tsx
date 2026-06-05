@@ -1,11 +1,27 @@
 import Link from 'next/link';
-import { Badge, Button, Card, PageHeader, Table } from '@/app/admin/components/ui';
+import { Tag, Card, Table, Typography, Flex } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 }
+
+type PendingReview = {
+  id: string;
+  templateVersion: number;
+  createdAt: Date;
+  document: {
+    id: string;
+    request: {
+      id: string;
+      title: string;
+      intakeSubmission: { matterTypeKey: string } | null;
+      assignedSpecialist: { name: string; email: string } | null;
+    };
+  };
+};
 
 export default async function ReviewerQueuePage({
   searchParams,
@@ -15,7 +31,7 @@ export default async function ReviewerQueuePage({
   const { notice } = await searchParams;
   const session = await requireAppSession();
 
-  const pendingReviews = await prisma.documentVersion.findMany({
+  const pendingReviews: PendingReview[] = await prisma.documentVersion.findMany({
     where: {
       status: 'submitted_for_review',
       document: {
@@ -45,60 +61,87 @@ export default async function ReviewerQueuePage({
     orderBy: { createdAt: 'desc' },
   });
 
+  const columns: ColumnsType<PendingReview> = [
+    {
+      title: 'Yeu cau',
+      dataIndex: ['document', 'request', 'title'],
+      key: 'title',
+      render: (title: string, record: PendingReview) => (
+        <Link
+          href={`/reviewer/requests/${record.document.request.id}/review/${record.id}`}
+          style={{ color: '#0F766E' }}
+        >
+          {title}
+        </Link>
+      ),
+    },
+    {
+      title: 'Loai vu viec',
+      key: 'matterType',
+      render: (_: unknown, record: PendingReview) =>
+        record.document.request.intakeSubmission?.matterTypeKey ?? 'Chua co loai',
+    },
+    {
+      title: 'Chuyen vien',
+      key: 'specialist',
+      render: (_: unknown, record: PendingReview) =>
+        record.document.request.assignedSpecialist?.name ?? 'Chua co',
+    },
+    {
+      title: 'Phien ban',
+      dataIndex: 'templateVersion',
+      key: 'templateVersion',
+      render: (v: number) => `v${v}`,
+    },
+    {
+      title: 'Gui luc',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (date: Date) => formatDate(date),
+    },
+  ];
+
   return (
-    <main className="mx-auto flex max-w-[1280px] flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">
+    <Flex vertical gap="middle">
       {notice === 'approved' ? (
-        <Badge tone="accent">Đã duyệt tài liệu. Tài liệu đã được chuyển sang trạng thái cuối.</Badge>
+        <Tag color="cyan">Da duyet tai lieu. Tai lieu da duoc chuyen sang trang thai cuoi.</Tag>
       ) : notice === 'revision' ? (
-        <Badge tone="destructive">Đã gửi yêu cầu chỉnh sửa cho chuyên viên.</Badge>
+        <Tag color="red">Da gui yeu cau chinh sua cho chuyen vien.</Tag>
       ) : null}
 
-      <PageHeader
-        title="Hàng chờ duyệt"
-        description="Danh sách phiên bản tài liệu được chuyên viên gửi lên chờ bạn duyệt."
-      />
+      <Flex vertical>
+        <Typography.Title level={3} style={{ margin: 0 }}>
+          Hang cho duyet
+        </Typography.Title>
+        <Typography.Paragraph style={{ margin: 0, color: '#475569' }}>
+          Danh sach phien ban tai lieu duoc chuyen vien gui len cho ban duyet.
+        </Typography.Paragraph>
+      </Flex>
 
-      <Card className="space-y-4">
-        <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Hàng chờ duyệt</h2>
-        <p className="text-[16px] font-normal leading-[1.5] text-[#475569]">
-          Danh sách này được lọc trên máy chủ theo reviewer đang đăng nhập.
-        </p>
+      <Card>
+        <Typography.Title level={5}>Hang cho duyet</Typography.Title>
+        <Typography.Paragraph style={{ color: '#475569' }}>
+          Danh sach nay duoc loc tren may chu theo reviewer dang dang nhap.
+        </Typography.Paragraph>
       </Card>
 
-      <Table headers={['Yêu cầu', 'Loại vụ việc', 'Chuyên viên', 'Phiên bản', 'Gửi lúc']}>
-        {pendingReviews.map((review) => (
-          <tr key={review.id} className="hover:bg-[#F1F5F9]">
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#0F172A]">
-              <Link
-                href={`/reviewer/requests/${review.document.request.id}/review/${review.id}`}
-                className="text-[#0F766E] hover:underline"
-              >
-                {review.document.request.title}
-              </Link>
-            </td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">
-              {review.document.request.intakeSubmission?.matterTypeKey ?? 'Chưa có loại'}
-            </td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">
-              {review.document.request.assignedSpecialist?.name ?? 'Chưa có'}
-            </td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">
-              v{review.templateVersion}
-            </td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">
-              {formatDate(review.createdAt)}
-            </td>
-          </tr>
-        ))}
-        {pendingReviews.length === 0 ? (
-          <tr>
-            <td colSpan={5} className="px-4 py-8 text-center text-[16px] font-normal leading-[1.5] text-[#475569]">
-              <p className="font-semibold text-[#0F172A]">Chưa có tài liệu chờ duyệt</p>
-              <p className="mt-1">Khi chuyên viên gửi tài liệu lên, tài liệu sẽ xuất hiện tại đây.</p>
-            </td>
-          </tr>
-        ) : null}
-      </Table>
-    </main>
+      <Table
+        dataSource={pendingReviews}
+        columns={columns}
+        rowKey="id"
+        pagination={false}
+        locale={{
+          emptyText: (
+            <div style={{ textAlign: 'center', padding: '32px 0' }}>
+              <Typography.Text strong>Chua co tai lieu cho duyet</Typography.Text>
+              <br />
+              <Typography.Text type="secondary">
+                Khi chuyen vien gui tai lieu len, tai lieu se xuat hien tai day.
+              </Typography.Text>
+            </div>
+          ),
+        }}
+      />
+    </Flex>
   );
 }

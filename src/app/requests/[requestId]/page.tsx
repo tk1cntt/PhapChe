@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation';
 import type { RequestStatus } from '@prisma/client';
-import { Badge, Card, PageHeader } from '@/app/admin/components/ui';
+import { Tag, Card, Typography, Flex } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { requireAppSession } from '@/lib/security/session';
+
+const { Title, Paragraph } = Typography;
 
 const statusCopy: Record<RequestStatus, { label: string; body: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Đang nhập thông tin', body: 'Hồ sơ đang ở bước nhập thông tin trước khi gửi.', tone: 'neutral' },
@@ -18,6 +20,18 @@ const statusCopy: Record<RequestStatus, { label: string; body: string; tone: 'ne
   closed: { label: 'Đã đóng hồ sơ', body: 'Hồ sơ đã hoàn tất và được đóng.', tone: 'neutral' },
   cancelled: { label: 'Đã hủy', body: 'Hồ sơ đã bị hủy.', tone: 'destructive' },
 };
+
+function toneToTagColor(tone: string): string {
+  switch (tone) {
+    case 'neutral': return 'default';
+    case 'info': return 'blue';
+    case 'warning': return 'orange';
+    case 'accent': return 'cyan';
+    case 'destructive': return 'red';
+    case 'outline': return 'default';
+    default: return 'default';
+  }
+}
 
 export default async function RequestStatusPage({ params }: { params: Promise<{ requestId: string }> }) {
   const { requestId } = await params;
@@ -40,27 +54,30 @@ export default async function RequestStatusPage({ params }: { params: Promise<{ 
 
   return (
     <main className="mx-auto flex max-w-[960px] flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">
-      <PageHeader title="Đã gửi yêu cầu" description="Trạng thái do hệ thống xử lý cập nhật. Bạn không cần thao tác thêm ở bước này." />
+      <Flex vertical gap={4}>
+        <Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600, color: '#0F172A' }}>Đã gửi yêu cầu</Title>
+        <Paragraph style={{ margin: 0, fontSize: 16, color: '#475569', maxWidth: 720 }}>Trạng thái do hệ thống xử lý cập nhật. Bạn không cần thao tác thêm ở bước này.</Paragraph>
+      </Flex>
 
-      <Card className="space-y-4">
+      <Card styles={{ body: { padding: 16 } }}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[14px] font-semibold leading-[1.4] text-[#475569]">Mã hồ sơ</p>
             <h1 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">{request.id}</h1>
           </div>
-          <Badge tone={status.tone}>{status.label}</Badge>
+          <Tag color={toneToTagColor(status.tone)}>{status.label}</Tag>
         </div>
-        <p className="text-[16px] leading-[1.5] text-[#475569]">{status.body}</p>
-        {request.status === 'triage' ? <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[16px] leading-[1.5] text-[#B45309]">Cần chuyên viên phân loại</p> : null}
+        <p className="mt-4 text-[16px] leading-[1.5] text-[#475569]">{status.body}</p>
+        {request.status === 'triage' ? <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-[16px] leading-[1.5] text-[#B45309]">Cần chuyên viên phân loại</p> : null}
       </Card>
 
-      <Card className="space-y-4">
-        <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Thông tin hồ sơ</h2>
+      <Card styles={{ body: { padding: 16 } }}>
+        <h2 className="mb-4 text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Thông tin hồ sơ</h2>
         <div className="rounded-xl border border-[#E2E8F0] p-4">
           <p className="text-[14px] font-semibold leading-[1.4] text-[#475569]">Loại việc</p>
           <p className="text-[16px] leading-[1.5] text-[#0F172A]">{request.title}</p>
         </div>
-        <div className="rounded-xl border border-[#E2E8F0] p-4">
+        <div className="mt-4 rounded-xl border border-[#E2E8F0] p-4">
           <p className="text-[14px] font-semibold leading-[1.4] text-[#475569]">Tệp đính kèm</p>
           {request.vaultFiles.length > 0 ? (
             <ul className="mt-2 space-y-2">

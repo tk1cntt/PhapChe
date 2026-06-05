@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation';
-import { AdminShell } from '../../components/admin-shell';
-import { Button, Card } from '../../components/ui';
+import { Button, Card } from 'antd';
 import { requireAppSession } from '@/lib/security/session';
 import { createTemplateAction } from './actions';
 import { VariableSchemaBuilder } from './variable-schema-builder';
@@ -20,7 +19,7 @@ export default async function NewTemplatePage() {
   }
 
   return (
-    <AdminShell>
+    <>
       <div className="mb-6">
         <a href="/admin/templates" className="text-[14px] font-medium text-[#0F766E] hover:underline">
           &larr; Quay lại danh sách mẫu tài liệu
@@ -109,12 +108,12 @@ export default async function NewTemplatePage() {
             <a href="/admin/templates" className="rounded-xl border border-[#CBD5E1] bg-white px-4 py-2.5 text-[14px] font-semibold text-[#475569] shadow-sm hover:bg-[#F8FAFC]">
               Hủy
             </a>
-            <Button type="submit" variant="primary">
+            <Button type="primary" htmlType="submit">
               Tạo mẫu (Nháp)
             </Button>
           </div>
         </form>
       </Card>
-    </AdminShell>
+    </>
   );
 }

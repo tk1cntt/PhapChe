@@ -1,6 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
-import { AdminShell } from '../../components/admin-shell';
-import { Badge, Button, Card } from '../../components/ui';
+import { Tag, Button, Card } from 'antd';
 import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 import { updateTemplateAction, approveTemplateAction, publishTemplateAction, deprecateTemplateAction, createVersionAction } from './actions';
@@ -12,11 +11,11 @@ const STATUS_LABELS: Record<string, string> = {
   deprecated: 'Không còn sử dụng',
 };
 
-const STATUS_TONES: Record<string, 'neutral' | 'info' | 'accent' | 'destructive'> = {
-  draft: 'neutral',
-  approved: 'info',
-  published: 'accent',
-  deprecated: 'destructive',
+const STATUS_TONES: Record<string, string> = {
+  draft: 'default',
+  approved: 'blue',
+  published: 'cyan',
+  deprecated: 'red',
 };
 
 const MATTER_TYPE_LABELS: Record<string, string> = {
@@ -47,7 +46,7 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
   // Edit mode for draft templates
   if (action === 'edit') {
     return (
-      <AdminShell>
+      <>
         <div className="mb-6">
           <a href={`/admin/templates/${template.id}`} className="text-[14px] font-medium text-[#0F766E] hover:underline">
             &larr; Quay lại chi tiết
@@ -104,20 +103,20 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
               <a href={`/admin/templates/${template.id}`} className="rounded-xl border border-[#CBD5E1] bg-white px-4 py-2.5 text-[14px] font-semibold text-[#475569] shadow-sm hover:bg-[#F8FAFC]">
                 Hủy
               </a>
-              <Button type="submit" variant="primary">
+              <Button type="primary" htmlType="submit">
                 Lưu thay đổi
               </Button>
             </div>
           </form>
         </Card>
-      </AdminShell>
+      </>
     );
   }
 
   // New version mode for published/approved templates
   if (action === 'new_version') {
     return (
-      <AdminShell>
+      <>
         <div className="mb-6">
           <a href={`/admin/templates/${template.id}`} className="text-[14px] font-medium text-[#0F766E] hover:underline">
             &larr; Quay lại chi tiết
@@ -156,13 +155,13 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
               <a href={`/admin/templates/${template.id}`} className="rounded-xl border border-[#CBD5E1] bg-white px-4 py-2.5 text-[14px] font-semibold text-[#475569] shadow-sm hover:bg-[#F8FAFC]">
                 Hủy
               </a>
-              <Button type="submit" variant="primary">
+              <Button type="primary" htmlType="submit">
                 Tạo phiên bản v{template.version + 1}
               </Button>
             </div>
           </form>
         </Card>
-      </AdminShell>
+      </>
     );
   }
 
@@ -170,7 +169,7 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
   const matterLabel = MATTER_TYPE_LABELS[template.matterTypeKey] ?? template.matterTypeKey;
 
   return (
-    <AdminShell>
+    <>
       <div className="mb-6">
         <a href="/admin/templates" className="text-[14px] font-medium text-[#0F766E] hover:underline">
           &larr; Quay lại danh sách mẫu tài liệu
@@ -183,7 +182,7 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
             <div>
               <div className="mb-2 flex items-center gap-3">
                 <h1 className="text-[24px] font-semibold leading-[1.2]">{template.label}</h1>
-                <Badge tone={STATUS_TONES[template.status]}>{STATUS_LABELS[template.status]}</Badge>
+                <Tag color={STATUS_TONES[template.status]}>{STATUS_LABELS[template.status]}</Tag>
               </div>
               <p className="text-[14px] text-[#64748B]">
                 {matterLabel} &bull; Phiên bản v{template.version} &bull;{' '}
@@ -219,17 +218,17 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
             {template.status === 'draft' && (
               <>
                 <a href={`/admin/templates/${template.id}?action=edit`}>
-                  <Button variant="secondary">Chỉnh sửa</Button>
+                  <Button>Chỉnh sửa</Button>
                 </a>
                 <form action={approveTemplateAction} method="POST" style={{ display: 'inline' }}>
                   <input type="hidden" name="templateId" value={template.id} />
-                  <Button type="submit" variant="secondary">
+                  <Button htmlType="submit">
                     Phê duyệt
                   </Button>
                 </form>
                 <form action={publishTemplateAction} method="POST" style={{ display: 'inline' }}>
                   <input type="hidden" name="templateId" value={template.id} />
-                  <Button type="submit" variant="primary">
+                  <Button type="primary" htmlType="submit">
                     Xuất bản
                   </Button>
                 </form>
@@ -237,13 +236,13 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
             )}
             {(template.status === 'approved' || template.status === 'published') && (
               <a href={`/admin/templates/${template.id}?action=new_version`}>
-                <Button variant="secondary">Tạo phiên bản mới</Button>
+                <Button>Tạo phiên bản mới</Button>
               </a>
             )}
             {template.status !== 'deprecated' && (
               <form action={deprecateTemplateAction} method="POST" style={{ display: 'inline' }}>
                 <input type="hidden" name="templateId" value={template.id} />
-                <Button type="submit" variant="destructive">
+                <Button danger htmlType="submit">
                   Không còn sử dụng
                 </Button>
               </form>
@@ -251,6 +250,6 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
           </div>
         </Card>
       </div>
-    </AdminShell>
+    </>
   );
 }

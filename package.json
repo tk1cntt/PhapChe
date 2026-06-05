@@ -12,7 +12,10 @@
     "db:push": "prisma db push"
   },
   "dependencies": {
+    "@ant-design/cssinjs": "^2.1.2",
+    "@ant-design/icons": "^6.2.5",
     "@prisma/client": "^6.19.0",
+    "antd": "^6.4.3",
     "lucide-react": "latest",
     "next": "latest",
     "react": "latest",

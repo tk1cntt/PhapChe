@@ -456,12 +456,11 @@ async function createUserWithPassword(email: string, name: string, password: str
 | A2 | Better Auth's Prisma adapter works with the existing `User` model having custom fields (`isActive`, `memberships`) | Architecture Patterns | MEDIUM -- Better Auth uses `additionalFields` for custom columns; the workspace membership is a separate model not touched by Better Auth |
 | A3 | The 46 callers of `requireAppSession()` need zero changes | Common Pitfalls | LOW -- verified by reading return type; the adapted wrapper preserves `AppSession` exactly |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should admin user creation route through Better Auth API or stay in existing `createAdminUser`?**
+   - **RESOLVED:** For MVP, admin creates user via existing `createAdminUser` (email only, no password). Newly created users get a "set password" flow triggered by admin (Better Auth magic link or reset password). The Phase 15 focus is login for existing users + seed data. Admin user creation with password flow is deferred.
    - What we know: Existing `createAdminUser` in `src/lib/admin/users.ts` creates User + WorkspaceMembership in a transaction. It does NOT set a password.
-   - What's unclear: Does the admin create users without passwords (invite via email) or set a temporary password?
-   - Recommendation: For MVP, admin creates user with email only, then triggers a "set password" email flow (Better Auth magic link plugin). If email flow is out of scope, admin must set a password during creation.
 
 ## Environment Availability
 

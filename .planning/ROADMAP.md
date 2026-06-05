@@ -269,18 +269,18 @@ Success criteria:
 **Goal:** Integrate Ant Design UI library and redesign layout across all route groups (admin, specialist, customer, reviewer). Replace all hand-rolled custom UI components with Ant Design equivalents.
 **Requirements**: none (UI enhancement phase)
 **Depends on:** Phase 13
-**Plans:** 9 plans
+**Plans:** 9/9 plans complete
 
 Plans:
-- [ ] 14-01-PLAN.md — Install antd + create provider tree, breadcrumb config, simplify globals.css
-- [ ] 14-02-PLAN.md — Admin route group layout (antd Layout+Sider+Menu+Breadcrumb)
-- [ ] 14-03-PLAN.md — Migrate admin pages: audit, users, workspaces
-- [ ] 14-04-PLAN.md — Migrate admin pages: ops, requests, routing, templates, vault
-- [ ] 14-05-PLAN.md — Specialist layout + specialist pages + sub-components
-- [ ] 14-06-PLAN.md — Customer layout + customer pages + request status page
-- [ ] 14-07-PLAN.md — Reviewer layout + reviewer pages + sub-components
-- [ ] 14-08-PLAN.md — Migrate remaining consumers: template detail/new, vault sub-components, intake components
-- [ ] 14-09-PLAN.md — Delete orphaned ui.tsx and admin-shell.tsx
+- [x] 14-01-PLAN.md — Install antd + create provider tree, breadcrumb config, simplify globals.css
+- [x] 14-02-PLAN.md — Admin route group layout (antd Layout+Sider+Menu+Breadcrumb)
+- [x] 14-03-PLAN.md — Migrate admin pages: audit, users, workspaces
+- [x] 14-04-PLAN.md — Migrate admin pages: ops, requests, routing, templates, vault
+- [x] 14-05-PLAN.md — Specialist layout + specialist pages + sub-components
+- [x] 14-06-PLAN.md — Customer layout + customer pages + request status page
+- [x] 14-07-PLAN.md — Reviewer layout + reviewer pages + sub-components
+- [x] 14-08-PLAN.md — Migrate remaining consumers: template detail/new, vault sub-components, intake components
+- [x] 14-09-PLAN.md — Delete orphaned ui.tsx and admin-shell.tsx
 
 ---
 

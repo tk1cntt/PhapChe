@@ -1,37 +1,84 @@
 import Link from 'next/link';
+import type { OpsTimelineItemDto } from '@/lib/ops/ops-service';
 import { getOpsRequestTimeline } from '@/lib/ops/ops-service';
 import { requireAppSession } from '@/lib/security/session';
-import { AdminShell } from '../../components/admin-shell';
-import { Badge, Card, PageHeader, Table } from '../../components/ui';
+import { Tag, Card, Table, Typography, Flex, Space } from 'antd';
 
-const timelineHeaders = ['Time', 'Actor', 'Kind', 'Action/status change', 'Target identifier', 'Reason', 'Correlation ID', 'metadataSummary'];
+const timelineColumns = [
+  {
+    title: 'Time',
+    key: 'at',
+    render: (_: unknown, record: OpsTimelineItemDto) =>
+      record.at.toISOString().slice(0, 16).replace('T', ' '),
+    width: 150,
+  },
+  {
+    title: 'Actor',
+    key: 'actor',
+    render: (_: unknown, record: OpsTimelineItemDto) =>
+      record.actorName || record.actorEmail || record.actorId || 'system',
+    width: 180,
+  },
+  {
+    title: 'Kind',
+    key: 'kind',
+    render: (_: unknown, record: OpsTimelineItemDto) => (
+      <Tag color={record.kind === 'audit' ? 'blue' : 'default'}>{record.kind}</Tag>
+    ),
+    width: 100,
+  },
+  {
+    title: 'Action/status change',
+    key: 'action',
+    render: (_: unknown, record: OpsTimelineItemDto) => {
+      if (record.fromStatus && record.toStatus) {
+        return `${record.fromStatus} → ${record.toStatus}`;
+      }
+      return record.action;
+    },
+    width: 200,
+  },
+  {
+    title: 'Target identifier',
+    key: 'target',
+    render: (_: unknown, record: OpsTimelineItemDto) => {
+      const { targetType, targetId } = record;
+      if (!targetType && !targetId) return '—';
+      if (!targetType) return targetId;
+      if (!targetId) return targetType;
+      return `${targetType}:${targetId}`;
+    },
+    width: 200,
+  },
+  {
+    title: 'Reason',
+    key: 'reason',
+    render: (_: unknown, record: OpsTimelineItemDto) => record.reason || '—',
+    width: 180,
+  },
+  {
+    title: 'Correlation ID',
+    key: 'correlationId',
+    render: (_: unknown, record: OpsTimelineItemDto) => record.correlationId || '—',
+    width: 180,
+  },
+  {
+    title: 'metadataSummary',
+    key: 'metadataSummary',
+    render: (_: unknown, record: OpsTimelineItemDto) => record.metadataSummary || '—',
+  },
+];
 
 function formatDateTime(value: Date) {
   return value.toISOString().slice(0, 16).replace('T', ' ');
 }
 
-function actorLabel(actorName: string | null, actorEmail: string | null, actorId: string | null) {
-  return actorName || actorEmail || actorId || 'system';
-}
-
-function targetIdentifier(targetType: string | null, targetId: string | null) {
-  if (!targetType && !targetId) return '—';
-  if (!targetType) return targetId;
-  if (!targetId) return targetType;
-  return `${targetType}:${targetId}`;
-}
-
-function statusChange(fromStatus: string | null, toStatus: string | null, action: string) {
-  if (fromStatus && toStatus) return `${fromStatus} → ${toStatus}`;
-  return action;
+function formatAge(days: number) {
+  return `${days} ngày`;
 }
 
 function formatOptionalDate(value: Date | null) {
   return value ? formatDateTime(value) : '—';
-}
-
-function formatAge(days: number) {
-  return `${days} ngày`;
 }
 
 export default async function OpsRequestTimelinePage({ params }: { params: Promise<{ requestId: string }> }) {
@@ -48,25 +95,33 @@ export default async function OpsRequestTimelinePage({ params }: { params: Promi
   }
 
   return (
-    <AdminShell>
-      <PageHeader
-        title="Timeline audit"
-        description={timeline ? `Hồ sơ ${timeline.title} (${timeline.requestId})` : 'Dòng thời gian audit/workflow an toàn theo từng hồ sơ.'}
-        action={
+    <>
+      <Flex vertical gap={4} style={{ marginBottom: 16 }}>
+        <Flex justify="space-between" align="flex-start">
+          <Flex vertical>
+            <Typography.Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600 }}>
+              Timeline audit
+            </Typography.Title>
+            <Typography.Paragraph style={{ color: '#475569', margin: 0, fontSize: 16 }}>
+              {timeline
+                ? `Hồ sơ ${timeline.title} (${timeline.requestId})`
+                : 'Dòng thời gian audit/workflow an toàn theo từng hồ sơ.'}
+            </Typography.Paragraph>
+          </Flex>
           <Link href="/admin/ops" className="inline-flex min-h-10 items-center rounded-xl border border-[#CBD5E1] bg-white px-4 py-2 text-[14px] font-semibold leading-[1.4] text-[#0F172A] shadow-sm hover:bg-[#F8FAFC]">
             Quay lại vận hành
           </Link>
-        }
-      />
+        </Flex>
+      </Flex>
 
-      <Card>
-        <p className="text-[14px] font-normal leading-[1.4] text-[#475569]">
+      <Card style={{ marginBottom: 16 }}>
+        <Typography.Text style={{ color: '#475569' }}>
           Timeline chỉ hiển thị định danh, action, lý do, mã tương quan và metadataSummary an toàn; không hiển thị nội dung pháp lý thô.
-        </p>
+        </Typography.Text>
       </Card>
 
       {timeline ? (
-        <Card className="space-y-4">
+        <Card className="space-y-4" style={{ marginBottom: 16 }}>
           <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">SLA cơ bản</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <div>
@@ -94,31 +149,27 @@ export default async function OpsRequestTimelinePage({ params }: { params: Promi
       ) : null}
 
       {errorMessage ? (
-        <Card className="space-y-2">
+        <Card className="space-y-2" style={{ marginBottom: 16 }}>
           <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Không thể tải timeline</h2>
           <p className="text-[16px] font-normal leading-[1.5] text-[#475569]">{errorMessage}</p>
         </Card>
       ) : timeline && timeline.items.length === 0 ? (
         <Card className="space-y-2">
           <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Chưa có sự kiện audit</h2>
-          <p className="text-[16px] font-normal leading-[1.5] text-[#475569]">Timeline sẽ hiển thị khi hồ sơ có workflow transition hoặc audit event an toàn.</p>
+          <p className="text-[16px] font-normal leading-[1.5] text-[#475569]">
+            Timeline sẽ hiển thị khi hồ sơ có workflow transition hoặc audit event an toàn.
+          </p>
         </Card>
       ) : timeline ? (
-        <Table headers={timelineHeaders}>
-          {timeline.items.map((item) => (
-            <tr key={item.id} className="align-top hover:bg-[#F1F5F9]">
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{formatDateTime(item.at)}</td>
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{actorLabel(item.actorName, item.actorEmail, item.actorId)}</td>
-              <td className="whitespace-nowrap px-4 py-3"><Badge tone={item.kind === 'audit' ? 'info' : 'neutral'}>{item.kind}</Badge></td>
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{statusChange(item.fromStatus, item.toStatus, item.action)}</td>
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{targetIdentifier(item.targetType, item.targetId)}</td>
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">{item.reason || '—'}</td>
-              <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">{item.correlationId || '—'}</td>
-              <td className="max-w-md px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">{item.metadataSummary || '—'}</td>
-            </tr>
-          ))}
-        </Table>
+        <Table
+          dataSource={timeline.items}
+          rowKey="id"
+          columns={timelineColumns}
+          pagination={false}
+          size="middle"
+          bordered
+        />
       ) : null}
-    </AdminShell>
+    </>
   );
 }

@@ -22,6 +22,7 @@ export async function requireAppSession(): Promise<AppSession> {
       memberships: {
         where: { isActive: true, workspace: { isActive: true } },
         select: { workspaceId: true, role: true },
+        orderBy: { createdAt: 'asc' },
         take: 1,
       },
     },

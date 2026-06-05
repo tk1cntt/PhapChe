@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { Badge, Button } from '../../components/ui';
+import { Tag, Button } from 'antd';
 import { createFolderAction, type CreateFolderState } from '../actions';
 
 type FolderOption = { id: string; name: string };
@@ -54,14 +54,14 @@ export function FolderForm({ folders }: { folders: FolderOption[] }) {
       )}
 
       <div className="flex items-center justify-between">
-        <Button type="submit" disabled={pending}>
+        <Button type="primary" htmlType="submit" loading={pending}>
           {pending ? 'Đang tạo...' : 'Tạo thư mục'}
         </Button>
         {state.message && state.message !== 'FORBIDDEN' && (
-          <Badge tone="destructive">{state.message}</Badge>
+          <Tag color="red">{state.message}</Tag>
         )}
         {state.message === undefined && state.errors === undefined && Object.keys(state).length === 0 && (
-          <Badge tone="accent">Đã tạo</Badge>
+          <Tag color="cyan">Đã tạo</Tag>
         )}
       </div>
     </form>

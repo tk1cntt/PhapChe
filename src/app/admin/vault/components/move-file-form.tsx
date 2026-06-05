@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition, useState } from 'react';
-import { Badge, Button } from '../../components/ui';
+import { Tag, Button } from 'antd';
 import { moveFileToFolderAction, tagFileAction, untagFileAction } from '../actions';
 
 type FolderOption = { id: string; name: string };
@@ -105,7 +105,7 @@ export function MoveFileForm({
         </div>
       )}
 
-      {feedback && <Badge tone={feedback.tone}>{feedback.message}</Badge>}
+      {feedback && <Tag color={feedback.tone === 'accent' ? 'cyan' : 'red'}>{feedback.message}</Tag>}
     </div>
   );
 }

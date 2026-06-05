@@ -2,8 +2,7 @@ import type { AssignmentKind, RequestStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getRoutingSuggestions, listRoutingCapabilities, listRoutingMatterTypes, requireRoutingAdmin } from '@/lib/routing/routing-service';
 import { requireAppSession } from '@/lib/security/session';
-import { AdminShell } from '../components/admin-shell';
-import { Badge, Button, Card, PageHeader, Table } from '../components/ui';
+import { Tag, Button, Card, Table, Typography, Flex } from 'antd';
 import { assignRequestAction, saveCapabilityAction, saveMatterTypeAction } from './actions';
 
 const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
@@ -18,6 +17,15 @@ const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'in
   delivered: { label: 'Đã giao', tone: 'outline' },
   closed: { label: 'Đã đóng', tone: 'neutral' },
   cancelled: { label: 'Đã hủy', tone: 'destructive' },
+};
+
+const toneToColor: Record<string, string> = {
+  neutral: 'default',
+  info: 'blue',
+  warning: 'orange',
+  accent: 'cyan',
+  destructive: 'red',
+  outline: 'default',
 };
 
 const kindLabels: Record<AssignmentKind, string> = {
@@ -84,7 +92,7 @@ function AssignmentForm({ requestId, kind, suggestions, assigned }: { requestId:
         <span>Lý do phân công</span>
         <textarea name="reason" required placeholder="Ví dụ: Phù hợp loại vụ việc và đang phụ trách nhóm hợp đồng lao động" className="min-h-24 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" />
       </label>
-      <Button type="submit">{assigned ? `Cập nhật ${label.toLowerCase()}` : `Phân công ${label.toLowerCase()}`}</Button>
+      <Button htmlType="submit">{assigned ? `Cập nhật ${label.toLowerCase()}` : `Phân công ${label.toLowerCase()}`}</Button>
     </form>
   );
 }
@@ -118,11 +126,155 @@ export default async function RoutingPage() {
   ]);
   const suggestionRows = await Promise.all(requests.map((request) => suggestionsFor(request.id, workspaceId)));
 
-  return (
-    <AdminShell>
-      <PageHeader title="Điều phối yêu cầu pháp lý" description="Xem yêu cầu đã gửi hoặc cần triage, kiểm tra gợi ý phù hợp và phân công người xử lý." />
+  const requestColumns = [
+    {
+      title: 'Yêu cầu',
+      key: 'title',
+      render: (_: unknown, record: (typeof requests)[number]) => record.title,
+      width: 200,
+    },
+    {
+      title: 'Khách hàng',
+      key: 'customer',
+      render: (_: unknown, record: (typeof requests)[number]) => record.createdBy.name || record.createdBy.email,
+      width: 180,
+    },
+    {
+      title: 'Loại vụ việc',
+      key: 'matterType',
+      render: (_: unknown, record: (typeof requests)[number]) =>
+        record.intakeSubmission?.matterType?.label || record.intakeSubmission?.matterTypeKey || 'Chưa phân loại',
+      width: 180,
+    },
+    {
+      title: 'Trạng thái',
+      key: 'status',
+      render: (_: unknown, record: (typeof requests)[number]) => {
+        const meta = statusLabels[record.status];
+        return <Tag color={toneToColor[meta.tone] ?? 'default'}>{meta.label}</Tag>;
+      },
+      width: 150,
+    },
+    {
+      title: 'Chuyên viên hiện tại',
+      key: 'specialist',
+      render: (_: unknown, record: (typeof requests)[number]) =>
+        record.assignedSpecialist?.name || record.assignedSpecialist?.email || 'Chưa phân công',
+      width: 180,
+    },
+    {
+      title: 'Reviewer hiện tại',
+      key: 'reviewer',
+      render: (_: unknown, record: (typeof requests)[number]) =>
+        record.assignedReviewer?.name || record.assignedReviewer?.email || 'Chưa phân công',
+      width: 180,
+    },
+    {
+      title: 'Gợi ý chuyên viên',
+      key: 'specialistSuggestions',
+      render: (_: unknown, record: (typeof requests)[number], index: number) => {
+        const suggestions = suggestionRows[index] || { specialists: [], reviewers: [] };
+        return <SuggestionList suggestions={suggestions.specialists} />;
+      },
+      width: 250,
+    },
+    {
+      title: 'Gợi ý reviewer',
+      key: 'reviewerSuggestions',
+      render: (_: unknown, record: (typeof requests)[number], index: number) => {
+        const suggestions = suggestionRows[index] || { specialists: [], reviewers: [] };
+        return <SuggestionList suggestions={suggestions.reviewers} />;
+      },
+      width: 250,
+    },
+    {
+      title: 'Hành động',
+      key: 'actions',
+      render: (_: unknown, record: (typeof requests)[number], index: number) => {
+        const suggestions = suggestionRows[index] || { specialists: [], reviewers: [] };
+        return (
+          <Flex vertical gap={16}>
+            <AssignmentForm requestId={record.id} kind="specialist" suggestions={suggestions.specialists} assigned={Boolean(record.assignedSpecialist)} />
+            <AssignmentForm requestId={record.id} kind="reviewer" suggestions={suggestions.reviewers} assigned={Boolean(record.assignedReviewer)} />
+          </Flex>
+        );
+      },
+      width: 300,
+    },
+  ];
 
-      <Card className="space-y-4">
+  const matterTypeColumns = [
+    {
+      title: 'Tên loại vụ việc',
+      key: 'label',
+      render: (_: unknown, record: (typeof matterTypes)[number]) => record.label,
+      width: 220,
+    },
+    {
+      title: 'Mã loại vụ việc',
+      key: 'key',
+      render: (_: unknown, record: (typeof matterTypes)[number]) => record.key,
+      width: 180,
+    },
+    {
+      title: 'Mô tả',
+      key: 'description',
+      render: (_: unknown, record: (typeof matterTypes)[number]) => record.description,
+      width: 300,
+    },
+    {
+      title: 'Trạng thái',
+      key: 'isActive',
+      render: (_: unknown, record: (typeof matterTypes)[number]) => (
+        <Tag color={record.isActive ? 'cyan' : 'default'}>{record.isActive ? 'Đang dùng' : 'Tạm ẩn'}</Tag>
+      ),
+      width: 120,
+    },
+  ];
+
+  const capabilityColumns = [
+    {
+      title: 'Người dùng',
+      key: 'user',
+      render: (_: unknown, record: (typeof capabilities)[number]) => record.user.name || record.user.email,
+      width: 220,
+    },
+    {
+      title: 'Vai trò năng lực',
+      key: 'kind',
+      render: (_: unknown, record: (typeof capabilities)[number]) => (
+        <Tag color={record.kind === 'specialist' ? 'cyan' : 'blue'}>{kindLabels[record.kind]}</Tag>
+      ),
+      width: 160,
+    },
+    {
+      title: 'Loại vụ việc',
+      key: 'matterType',
+      render: (_: unknown, record: (typeof capabilities)[number]) => record.matterType.label,
+      width: 220,
+    },
+    {
+      title: 'Trạng thái',
+      key: 'isActive',
+      render: (_: unknown, record: (typeof capabilities)[number]) => (
+        <Tag color={record.isActive ? 'cyan' : 'default'}>{record.isActive ? 'Đang dùng' : 'Tạm ẩn'}</Tag>
+      ),
+      width: 120,
+    },
+  ];
+
+  return (
+    <>
+      <Flex vertical gap={4} style={{ marginBottom: 16 }}>
+        <Typography.Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600 }}>
+          Điều phối yêu cầu pháp lý
+        </Typography.Title>
+        <Typography.Paragraph style={{ color: '#475569', margin: 0, fontSize: 16 }}>
+          Xem yêu cầu đã gửi hoặc cần triage, kiểm tra gợi ý phù hợp và phân công người xử lý.
+        </Typography.Paragraph>
+      </Flex>
+
+      <Card className="space-y-4" style={{ marginBottom: 16 }}>
         <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Hàng chờ điều phối</h2>
         {requests.length === 0 ? (
           <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-6">
@@ -130,44 +282,34 @@ export default async function RoutingPage() {
             <p className="mt-2 text-[16px] font-normal leading-[1.5] text-[#475569]">Khi khách hàng gửi yêu cầu mới hoặc yêu cầu cần triage, hồ sơ sẽ xuất hiện tại đây để điều phối viên phân công.</p>
           </div>
         ) : (
-          <Table headers={routingHeaders}>
-            {requests.map((request, index) => {
-              const suggestions = suggestionRows[index] || { specialists: [], reviewers: [] };
-              return (
-                <tr key={request.id} className="align-top hover:bg-[#F1F5F9]">
-                  <td className="whitespace-nowrap px-4 py-3 text-[16px] font-normal leading-[1.5]">{request.title}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{request.createdBy.name || request.createdBy.email}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{request.intakeSubmission?.matterType?.label || request.intakeSubmission?.matterTypeKey || 'Chưa phân loại'}</td>
-                  <td className="whitespace-nowrap px-4 py-3"><Badge tone={statusLabels[request.status].tone}>{statusLabels[request.status].label}</Badge></td>
-                  <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{request.assignedSpecialist?.name || request.assignedSpecialist?.email || 'Chưa phân công'}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{request.assignedReviewer?.name || request.assignedReviewer?.email || 'Chưa phân công'}</td>
-                  <td className="px-4 py-3"><SuggestionList suggestions={suggestions.specialists} /></td>
-                  <td className="px-4 py-3"><SuggestionList suggestions={suggestions.reviewers} /></td>
-                  <td className="space-y-4 px-4 py-3">
-                    <AssignmentForm requestId={request.id} kind="specialist" suggestions={suggestions.specialists} assigned={Boolean(request.assignedSpecialist)} />
-                    <AssignmentForm requestId={request.id} kind="reviewer" suggestions={suggestions.reviewers} assigned={Boolean(request.assignedReviewer)} />
-                  </td>
-                </tr>
-              );
-            })}
-          </Table>
+          <Table
+            dataSource={requests}
+            rowKey="id"
+            columns={requestColumns}
+            pagination={false}
+            size="middle"
+            bordered
+          />
         )}
       </Card>
 
-      <Card className="space-y-4">
+      <Card className="space-y-4" style={{ marginBottom: 16 }}>
         <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Loại vụ việc</h2>
         <form action={saveMatterTypeAction} className="grid gap-4 md:grid-cols-2">
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]"><span>Tên loại vụ việc</span><input name="label" required className="min-h-10 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" /></label>
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]"><span>Mã loại vụ việc</span><input name="key" required className="min-h-10 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" /></label>
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4] md:col-span-2"><span>Mô tả</span><textarea name="description" className="min-h-24 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" /></label>
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]"><span>Trạng thái</span><select name="isActive" defaultValue="true" className="min-h-10 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2"><option value="true">Đang dùng</option><option value="false">Tạm ẩn</option></select></label>
-          <div className="flex items-end"><Button type="submit">Lưu loại vụ việc</Button></div>
+          <div className="flex items-end"><Button htmlType="submit">Lưu loại vụ việc</Button></div>
         </form>
-        <Table headers={['Tên loại vụ việc', 'Mã loại vụ việc', 'Mô tả', 'Trạng thái']}>
-          {matterTypes.map((matterType) => (
-            <tr key={matterType.key} className="hover:bg-[#F1F5F9]"><td className="px-4 py-3 text-[16px] font-normal leading-[1.5]">{matterType.label}</td><td className="px-4 py-3 text-[14px] font-normal leading-[1.4]">{matterType.key}</td><td className="px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">{matterType.description}</td><td className="px-4 py-3"><Badge tone={matterType.isActive ? 'accent' : 'neutral'}>{matterType.isActive ? 'Đang dùng' : 'Tạm ẩn'}</Badge></td></tr>
-          ))}
-        </Table>
+        <Table
+          dataSource={matterTypes}
+          rowKey="key"
+          columns={matterTypeColumns}
+          pagination={false}
+          size="middle"
+          bordered
+        />
       </Card>
 
       <Card className="space-y-4">
@@ -177,14 +319,17 @@ export default async function RoutingPage() {
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]"><span>Vai trò năng lực</span><select name="kind" defaultValue="specialist" className="min-h-10 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2"><option value="specialist">Chuyên viên</option><option value="reviewer">Reviewer</option></select></label>
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]"><span>Loại vụ việc</span><select name="matterTypeKey" required defaultValue="" className="min-h-10 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2"><option value="">Chọn loại vụ việc</option>{matterTypes.map((matterType) => <option key={matterType.key} value={matterType.key}>{matterType.label}</option>)}</select></label>
           <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]"><span>Trạng thái</span><select name="isActive" defaultValue="true" className="min-h-10 w-full rounded-md border border-[#E2E8F0] px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2"><option value="true">Đang dùng</option><option value="false">Tạm ẩn</option></select></label>
-          <div className="flex items-end"><Button type="submit">Lưu năng lực</Button></div>
+          <div className="flex items-end"><Button htmlType="submit">Lưu năng lực</Button></div>
         </form>
-        <Table headers={['Người dùng', 'Vai trò năng lực', 'Loại vụ việc', 'Trạng thái']}>
-          {capabilities.map((capability) => (
-            <tr key={`${capability.userId}-${capability.matterTypeKey}-${capability.kind}`} className="hover:bg-[#F1F5F9]"><td className="px-4 py-3 text-[16px] font-normal leading-[1.5]">{capability.user.name || capability.user.email}</td><td className="px-4 py-3"><Badge tone={capability.kind === 'specialist' ? 'accent' : 'info'}>{kindLabels[capability.kind]}</Badge></td><td className="px-4 py-3 text-[14px] font-normal leading-[1.4]">{capability.matterType.label}</td><td className="px-4 py-3"><Badge tone={capability.isActive ? 'accent' : 'neutral'}>{capability.isActive ? 'Đang dùng' : 'Tạm ẩn'}</Badge></td></tr>
-          ))}
-        </Table>
+        <Table
+          dataSource={capabilities}
+          rowKey={(record: (typeof capabilities)[number]) => `${record.userId}-${record.matterTypeKey}-${record.kind}`}
+          columns={capabilityColumns}
+          pagination={false}
+          size="middle"
+          bordered
+        />
       </Card>
-    </AdminShell>
+    </>
   );
 }

@@ -1,4 +1,6 @@
-import { prisma } from '@/lib/prisma';
+import { auth } from "@/auth";
+import { headers } from "next/headers";
+import { prisma } from "@/lib/prisma";
 
 export type AppRole = 'customer' | 'specialist' | 'reviewer' | 'coordinator_admin' | 'super_admin';
 
@@ -9,9 +11,10 @@ export type AppSession = {
 };
 
 export async function requireAppSession(): Promise<AppSession> {
-  const userId = process.env.APP_SESSION_USER_ID?.trim();
-  if (!userId) throw new Error('UNAUTHENTICATED');
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) throw new Error('UNAUTHENTICATED');
 
+  const userId = session.user.id;
   const user = await prisma.user.findFirst({
     where: { id: userId, isActive: true },
     select: {

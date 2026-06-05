@@ -1,5 +1,4 @@
-import { AdminShell } from '../components/admin-shell';
-import { Badge, Button, Card, PageHeader, Table } from '../components/ui';
+import { Tag, Button, Card, Table, Typography, Flex } from 'antd';
 
 const workspaces = [
   { name: 'Công ty An Phát', slug: 'an-phat', members: '3 thành viên', status: 'Đang hoạt động' },
@@ -8,31 +7,69 @@ const workspaces = [
 ];
 
 export default function WorkspacesPage() {
-  return (
-    <AdminShell>
-      <PageHeader
-        title="Workspace khách hàng"
-        description="Mỗi SME có workspace riêng để hiển thị membership và giảm rủi ro lộ dữ liệu giữa tenant."
-        action={<Button>Tạo workspace</Button>}
-      />
+  const columns = [
+    {
+      title: 'Tên workspace',
+      dataIndex: 'name',
+      key: 'name',
+      width: 250,
+    },
+    {
+      title: 'Slug',
+      dataIndex: 'slug',
+      key: 'slug',
+      width: 200,
+    },
+    {
+      title: 'Thành viên',
+      dataIndex: 'members',
+      key: 'members',
+      width: 200,
+    },
+    {
+      title: 'Trạng thái',
+      key: 'status',
+      render: (_: unknown, record: (typeof workspaces)[number]) => (
+        <Tag color="cyan">{record.status}</Tag>
+      ),
+      width: 150,
+    },
+  ];
 
-      <Card className="space-y-3">
-        <h2 className="text-[20px] font-semibold leading-[1.2]">Ranh giới quyền truy cập</h2>
-        <p className="text-[16px] font-normal leading-[1.5] text-[#475569]">
-          Bạn không có quyền xem nội dung này. Nếu cần truy cập, hãy liên hệ quản trị viên.
-        </p>
+  return (
+    <>
+      <Flex vertical gap={4} style={{ marginBottom: 16 }}>
+        <Typography.Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600 }}>
+          Workspace khách hàng
+        </Typography.Title>
+        <Typography.Paragraph style={{ color: '#475569', margin: 0, fontSize: 16 }}>
+          Mỗi SME có workspace riêng để hiển thị membership và giảm rủi ro lộ dữ liệu giữa tenant.
+        </Typography.Paragraph>
+      </Flex>
+
+      <Card style={{ marginBottom: 16 }}>
+        <Flex vertical gap={8}>
+          <Typography.Title level={4} style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>
+            Ranh giới quyền truy cập
+          </Typography.Title>
+          <Typography.Paragraph style={{ color: '#475569', margin: 0, fontSize: 16 }}>
+            Bạn không có quyền xem nội dung này. Nếu cần truy cập, hãy liên hệ quản trị viên.
+          </Typography.Paragraph>
+        </Flex>
       </Card>
 
-      <Table headers={['Tên workspace', 'Slug', 'Thành viên', 'Trạng thái']}>
-        {workspaces.map((workspace) => (
-          <tr key={workspace.slug} className="hover:bg-[#F1F5F9]">
-            <td className="whitespace-nowrap px-4 py-3 text-[16px] font-normal leading-[1.5]">{workspace.name}</td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">{workspace.slug}</td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4]">{workspace.members}</td>
-            <td className="whitespace-nowrap px-4 py-3"><Badge tone="accent">{workspace.status}</Badge></td>
-          </tr>
-        ))}
-      </Table>
-    </AdminShell>
+      <Table
+        dataSource={workspaces}
+        rowKey="slug"
+        columns={columns}
+        pagination={false}
+        size="middle"
+        bordered
+      />
+
+      <Flex justify="flex-end" style={{ marginTop: 16 }}>
+        <Button type="primary">Tạo workspace</Button>
+      </Flex>
+    </>
   );
 }

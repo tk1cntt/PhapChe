@@ -39,12 +39,14 @@ Milestone audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md`
 
 ### Phase 15: auth
 
-**Goal:** Implement real authentication system — login page, session management, NextAuth.js or equivalent provider.
+**Goal:** Replace stub auth (APP_SESSION_USER_ID) with real authentication — Better Auth with Prisma, login page, session management, protected routes, adapted requireAppSession().
 **Requirements**: TBD
 **Depends on:** Phase 14
-**Plans:** 0 plans
+**Plans:** 3 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 15 to break down)
+- [ ] 15-01-PLAN.md — Foundation: install better-auth, merge auth schema into Prisma, push DB, configure env vars
+- [ ] 15-02-PLAN.md — Auth Infrastructure: auth.ts instance, proxy.ts, API route handler, client SDK, adapted requireAppSession()
+- [ ] 15-03-PLAN.md — Login UI & Seed Data: Ant Design sign-in page, password-hashed seed users, real admin users page
 
 ---

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AntdProvider from "@/app/providers/antd-provider";
 
 export const metadata: Metadata = {
-  title: "Nền tảng pháp lý SME",
-  description: "Nền tảng vận hành dịch vụ pháp lý cho SME.",
+  title: "Nen tang phap ly SME",
+  description: "Nen tang van hanh dich vu phap ly cho SME.",
 };
 
 export default function RootLayout({
@@ -13,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body>{children}</body>
+      <body>
+        <AntdProvider>{children}</AntdProvider>
+      </body>
     </html>
   );
 }

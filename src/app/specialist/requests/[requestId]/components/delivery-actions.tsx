@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { Badge, Button } from '@/app/admin/components/ui';
+import { Tag, Button } from 'antd';
 import { closeDeliveredAction, markDeliveredAction, type SpecialistRequestActionResult } from '../actions';
 
 const initialState: SpecialistRequestActionResult = { ok: false, message: '' };
@@ -9,7 +9,7 @@ const initialState: SpecialistRequestActionResult = { ok: false, message: '' };
 function FeedbackMessage({ result }: { result: SpecialistRequestActionResult }) {
   if (!result.message) return null;
 
-  return <Badge tone={result.ok ? 'accent' : 'destructive'}>{result.message}</Badge>;
+  return <Tag color={result.ok ? 'cyan' : 'red'}>{result.message}</Tag>;
 }
 
 export function DeliverForm({ requestId }: { requestId: string }) {
@@ -18,7 +18,7 @@ export function DeliverForm({ requestId }: { requestId: string }) {
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="requestId" value={requestId} />
-      <Button type="submit">Giao cho khách hàng</Button>
+      <Button type="primary" htmlType="submit">Giao cho khách hàng</Button>
       <FeedbackMessage result={result} />
     </form>
   );
@@ -39,7 +39,7 @@ export function CloseDeliveredForm({ requestId }: { requestId: string }) {
         />
       </label>
       <p className="text-[14px] leading-[1.4] text-[#475569]">Yêu cầu sẽ được đóng lại. Hành động này sẽ được ghi nhận.</p>
-      <Button type="submit">Đóng hồ sơ</Button>
+      <Button type="primary" htmlType="submit">Đóng hồ sơ</Button>
       <FeedbackMessage result={result} />
     </form>
   );

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Badge } from '@/app/admin/components/ui';
+import { Tag } from 'antd';
 import { submitForReviewAction } from '../actions';
 
 type VersionStatus = 'draft' | 'submitted_for_review' | 'final';
@@ -81,7 +81,7 @@ export default function DocumentVersionsList({ documentVersions, requestId, requ
                       Ngày tạo: {formatDate(version.createdAt)}
                     </p>
                   </div>
-                  <Badge tone={statusInfo.tone}>{statusInfo.label}</Badge>
+                  <Tag color={statusInfo.tone === 'neutral' ? 'default' : statusInfo.tone === 'info' ? 'blue' : statusInfo.tone === 'warning' ? 'orange' : 'cyan'}>{statusInfo.label}</Tag>
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">

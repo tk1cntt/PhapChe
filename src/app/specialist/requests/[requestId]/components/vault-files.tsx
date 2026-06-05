@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge } from '@/app/admin/components/ui';
+import { Tag } from 'antd';
 
 type VaultFile = {
   id: string;
@@ -51,7 +51,7 @@ export default function VaultFilesList({ vaultFiles }: Props) {
         <li key={file.id} className="rounded-xl border border-[#E2E8F0] p-4">
           <div className="flex items-center justify-between">
             <p className="text-[16px] font-normal leading-[1.5] text-[#0F172A]">{file.filename ?? 'Không tên'}</p>
-            <Badge tone={fileKindTone(file.fileKind)}>{fileKindLabel(file.fileKind)}</Badge>
+            <Tag color={fileKindTone(file.fileKind) === 'info' ? 'blue' : fileKindTone(file.fileKind) === 'warning' ? 'orange' : 'default'}>{fileKindLabel(file.fileKind)}</Tag>
           </div>
           <p className="mt-1 text-[14px] leading-[1.4] text-[#475569]">
             Ngày: {formatDate(file.createdAt)}

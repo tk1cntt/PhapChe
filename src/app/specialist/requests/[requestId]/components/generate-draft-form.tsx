@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/app/admin/components/ui';
+import { Button } from 'antd';
 import { generateDraftAction } from '../actions';
 import type { TemplateVariable } from '@/lib/documents/template-service';
 
@@ -128,7 +128,7 @@ export default function GenerateDraftForm({ requestId, templates, initialAnswers
           {error && <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-[14px] text-red-600">{error}</p>}
           {success && <p className="rounded-xl border border-teal-200 bg-teal-50 p-3 text-[14px] text-[#0F766E]">{success}</p>}
 
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="primary" htmlType="submit" loading={isSubmitting}>
             {isSubmitting ? 'Đang tạo...' : 'Tạo bản nháp'}
           </Button>
         </form>

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { RequestStatus } from '@prisma/client';
-import { Badge, Card, PageHeader } from '@/app/admin/components/ui';
+import { Tag, Card, Typography, Flex } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { getTemplatesForGeneration } from '@/lib/documents/template-service';
 import { listVaultFiles } from '@/lib/documents/vault-service';
@@ -11,6 +11,8 @@ import GenerateDraftForm from './components/generate-draft-form';
 import DocumentVersionsList from './components/document-versions';
 import VaultFilesList from './components/vault-files';
 import { CloseDeliveredForm, DeliverForm } from './components/delivery-actions';
+
+const { Title, Paragraph } = Typography;
 
 const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Nháp tiếp nhận', tone: 'neutral' },
@@ -24,6 +26,15 @@ const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'in
   delivered: { label: 'Đã giao tài liệu', tone: 'outline' },
   closed: { label: 'Đã đóng hồ sơ', tone: 'neutral' },
   cancelled: { label: 'Đã hủy', tone: 'destructive' },
+};
+
+const toneColorMap: Record<string, string> = {
+  neutral: 'default',
+  info: 'blue',
+  warning: 'orange',
+  accent: 'cyan',
+  destructive: 'red',
+  outline: 'default',
 };
 
 type JsonObject = Record<string, unknown>;
@@ -94,67 +105,78 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
   const showDraftSection = request.status === 'assigned' || request.status === 'in_progress';
 
   return (
-    <main className="mx-auto flex max-w-[960px] flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">
-      <PageHeader title="Chi tiết yêu cầu" description="Thông tin tiếp nhận và metadata tệp hỗ trợ cho chuyên viên xử lý." />
+    <>
+      <Flex vertical gap={8} style={{ marginBottom: 24 }}>
+        <Title level={3} style={{ margin: 0 }}>Chi tiết yêu cầu</Title>
+        <Paragraph style={{ color: '#475569', margin: 0, fontSize: 16 }}>
+          Thông tin tiếp nhận và metadata tệp hỗ trợ cho chuyên viên xử lý.
+        </Paragraph>
+      </Flex>
 
-      <Card className="space-y-4">
+      <Card>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-[14px] font-semibold leading-[1.4] text-[#475569]">Yêu cầu</p>
-            <h1 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">{request.title}</h1>
+            <p style={{ fontSize: 14, fontWeight: 600, color: '#475569', marginBottom: 4 }}>Yêu cầu</p>
+            <h1 style={{ fontSize: 20, fontWeight: 600, color: '#0F172A', margin: 0 }}>{request.title}</h1>
           </div>
-          <Badge tone={status.tone}>{status.label}</Badge>
+          <Tag color={toneColorMap[status.tone] ?? 'default'}>{status.label}</Tag>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2" style={{ marginTop: 16 }}>
           <div className="rounded-xl border border-[#E2E8F0] p-4">
-            <p className="text-[14px] font-semibold leading-[1.4] text-[#475569]">Khách hàng</p>
-            <p className="mt-2 text-[16px] leading-[1.5] text-[#0F172A]">{request.createdBy.name}</p>
-            <p className="text-[14px] leading-[1.4] text-[#475569]">{request.createdBy.email}</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: '#475569', marginBottom: 8 }}>Khách hàng</p>
+            <p style={{ fontSize: 16, color: '#0F172A', margin: 0 }}>{request.createdBy.name}</p>
+            <p style={{ fontSize: 14, color: '#475569', margin: 0 }}>{request.createdBy.email}</p>
           </div>
           <div className="rounded-xl border border-[#E2E8F0] p-4">
-            <p className="text-[14px] font-semibold leading-[1.4] text-[#475569]">Loại vụ việc</p>
-            <p className="mt-2 text-[16px] leading-[1.5] text-[#0F172A]">{request.intakeSubmission?.matterTypeKey ?? 'Chưa có loại vụ việc'}</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: '#475569', marginBottom: 8 }}>Loại vụ việc</p>
+            <p style={{ fontSize: 16, color: '#0F172A', margin: 0 }}>{request.intakeSubmission?.matterTypeKey ?? 'Chưa có loại vụ việc'}</p>
           </div>
         </div>
       </Card>
 
-      <Card className="space-y-4">
-        <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Tóm tắt thông tin tiếp nhận</h2>
+      <Card style={{ marginTop: 24 }}>
+        <Title level={5} style={{ marginBottom: 16 }}>Tóm tắt thông tin tiếp nhận</Title>
         {summaryRows.length > 0 ? (
           <dl className="space-y-3">
             {summaryRows.map((row) => (
               <div key={row.key} className="rounded-xl border border-[#E2E8F0] p-4">
-                <dt className="text-[14px] font-semibold leading-[1.4] text-[#475569]">{row.label}</dt>
-                <dd className="mt-2 text-[16px] leading-[1.5] text-[#0F172A]">{row.value}</dd>
+                <dt style={{ fontSize: 14, fontWeight: 600, color: '#475569', marginBottom: 8 }}>{row.label}</dt>
+                <dd style={{ fontSize: 16, color: '#0F172A', margin: 0 }}>{row.value}</dd>
               </div>
             ))}
           </dl>
         ) : (
-          <p className="rounded-xl border border-[#E2E8F0] p-4 text-[16px] leading-[1.5] text-[#475569]">Chưa có thông tin tiếp nhận có cấu trúc.</p>
+          <p className="rounded-xl border border-[#E2E8F0] p-4" style={{ fontSize: 16, color: '#475569', margin: 0 }}>
+            Chưa có thông tin tiếp nhận có cấu trúc.
+          </p>
         )}
       </Card>
 
-      <Card className="space-y-4">
-        <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Tệp khách hàng đã gửi</h2>
+      <Card style={{ marginTop: 24 }}>
+        <Title level={5} style={{ marginBottom: 16 }}>Tệp khách hàng đã gửi</Title>
         {request.vaultFiles.length > 0 ? (
-          <ul className="space-y-3">
+          <ul className="space-y-3" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {request.vaultFiles.map((file) => (
               <li key={file.id} className="rounded-xl border border-[#E2E8F0] p-4">
-                <p className="text-[16px] font-normal leading-[1.5] text-[#0F172A]">{file.filename}</p>
-                <p className="mt-1 text-[14px] font-normal leading-[1.4] text-[#475569]">Ngày gửi: {formatDate(file.createdAt)}</p>
+                <p style={{ fontSize: 16, color: '#0F172A', margin: 0 }}>{file.filename}</p>
+                <p style={{ fontSize: 14, color: '#475569', marginTop: 4, marginBottom: 0 }}>
+                  Ngày gửi: {formatDate(file.createdAt)}
+                </p>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="rounded-xl border border-[#E2E8F0] p-4 text-[16px] leading-[1.5] text-[#475569]">Khách hàng chưa gửi tệp hỗ trợ.</p>
+          <p className="rounded-xl border border-[#E2E8F0] p-4" style={{ fontSize: 16, color: '#475569', margin: 0 }}>
+            Khách hàng chưa gửi tệp hỗ trợ.
+          </p>
         )}
       </Card>
 
       {showDraftSection && (
-        <Card className="space-y-4">
-          <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Tạo bản nháp</h2>
+        <Card style={{ marginTop: 24 }}>
+          <Title level={5} style={{ marginBottom: 16 }}>Tạo bản nháp</Title>
           {templates.length === 0 ? (
-            <p className="rounded-xl border border-[#E2E8F0] p-4 text-[16px] leading-[1.5] text-[#475569]">
+            <p className="rounded-xl border border-[#E2E8F0] p-4" style={{ fontSize: 16, color: '#475569', margin: 0 }}>
               Chưa có mẫu tài liệu nào cho loại vụ việc này.
             </p>
           ) : (
@@ -177,13 +199,13 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
       )}
 
       {enrichedVersions.length > 0 && (
-        <Card className="space-y-4">
-          <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">
+        <Card style={{ marginTop: 24 }}>
+          <Title level={5} style={{ marginBottom: 16 }}>
             Các phiên bản tài liệu
-            <span className="ml-2 text-[16px] font-normal text-[#475569]">
+            <span style={{ marginLeft: 8, fontSize: 16, fontWeight: 400, color: '#475569' }}>
               (Có {enrichedVersions.length} phiên bản)
             </span>
-          </h2>
+          </Title>
           <DocumentVersionsList
             documentVersions={enrichedVersions}
             requestId={requestId}
@@ -193,17 +215,17 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
       )}
 
       {(request.status === 'approved' || request.status === 'delivered') && (
-        <Card className="space-y-4">
-          <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Giao và đóng hồ sơ</h2>
+        <Card style={{ marginTop: 24 }}>
+          <Title level={5} style={{ marginBottom: 16 }}>Giao và đóng hồ sơ</Title>
           {request.status === 'approved' ? <DeliverForm requestId={request.id} /> : null}
           {request.status === 'delivered' ? <CloseDeliveredForm requestId={request.id} /> : null}
         </Card>
       )}
 
-      <Card className="space-y-4">
-        <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Tệp trong kho lưu trữ</h2>
+      <Card style={{ marginTop: 24 }}>
+        <Title level={5} style={{ marginBottom: 16 }}>Tệp trong kho lưu trữ</Title>
         <VaultFilesList vaultFiles={allVaultFiles} />
       </Card>
-    </main>
+    </>
   );
 }

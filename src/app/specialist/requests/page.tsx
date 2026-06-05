@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import type { RequestStatus } from '@prisma/client';
-import { Badge, Button, Card, PageHeader, Table } from '@/app/admin/components/ui';
+import { Tag, Button, Card, Table, Typography, Flex } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
+
+const { Title, Paragraph } = Typography;
 
 const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Nháp tiếp nhận', tone: 'neutral' },
@@ -21,6 +23,15 @@ const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'in
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(date);
 }
+
+const toneColorMap: Record<string, string> = {
+  neutral: 'default',
+  info: 'blue',
+  warning: 'orange',
+  accent: 'cyan',
+  destructive: 'red',
+  outline: 'default',
+};
 
 export default async function SpecialistRequestsPage() {
   const session = await requireAppSession();
@@ -41,44 +52,83 @@ export default async function SpecialistRequestsPage() {
     orderBy: { createdAt: 'desc' },
   });
 
-  return (
-    <main className="mx-auto flex max-w-[1280px] flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">
-      <PageHeader title="Yêu cầu được giao" description="Danh sách yêu cầu đã được điều phối cho bạn." />
+  const columns = [
+    {
+      title: 'Yêu cầu',
+      dataIndex: 'title',
+      key: 'title',
+      render: (title: string) => (
+        <span style={{ color: '#0F172A', fontWeight: 400, fontSize: 16 }}>{title}</span>
+      ),
+    },
+    {
+      title: 'Khách hàng',
+      key: 'customer',
+      render: (_: unknown, record: (typeof requests)[number]) => (
+        <span style={{ color: '#475569', fontSize: 14 }}>
+          {record.createdBy.name} &middot; {record.createdBy.email}
+        </span>
+      ),
+    },
+    {
+      title: 'Loại vụ việc',
+      key: 'matterType',
+      render: (_: unknown, record: (typeof requests)[number]) => (
+        <span style={{ color: '#475569', fontSize: 14 }}>
+          {record.intakeSubmission?.matterTypeKey ?? 'Chưa có loại vụ việc'}
+        </span>
+      ),
+    },
+    {
+      title: 'Trạng thái',
+      key: 'status',
+      render: (_: unknown, record: (typeof requests)[number]) => {
+        const status = statusLabels[record.status];
+        return <Tag color={toneColorMap[status.tone] ?? 'default'}>{status.label}</Tag>;
+      },
+    },
+    {
+      title: 'Ngày gửi',
+      key: 'createdAt',
+      render: (_: unknown, record: (typeof requests)[number]) => (
+        <span style={{ color: '#475569', fontSize: 14 }}>{formatDate(record.createdAt)}</span>
+      ),
+    },
+    {
+      title: 'Hành động',
+      key: 'action',
+      render: (_: unknown, record: (typeof requests)[number]) => (
+        <Link href={`/specialist/requests/${record.id}`}>
+          <Button>Mở chi tiết</Button>
+        </Link>
+      ),
+    },
+  ];
 
-      <Card className="space-y-4">
-        <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Hàng chờ xử lý</h2>
-        <p className="text-[16px] font-normal leading-[1.5] text-[#475569]">
+  return (
+    <>
+      <Flex vertical gap={8} style={{ marginBottom: 24 }}>
+        <Title level={3} style={{ margin: 0 }}>Yêu cầu được giao</Title>
+        <Paragraph style={{ color: '#475569', margin: 0, fontSize: 16 }}>
+          Danh sách yêu cầu đã được điều phối cho bạn.
+        </Paragraph>
+      </Flex>
+
+      <Card>
+        <Title level={5} style={{ marginBottom: 4 }}>Hàng chờ xử lý</Title>
+        <Paragraph style={{ color: '#475569', marginBottom: 0 }}>
           Danh sách này được lọc trên máy chủ theo workspace hiện tại và chuyên viên đang đăng nhập.
-        </p>
+        </Paragraph>
       </Card>
 
-      <Table headers={['Yêu cầu', 'Khách hàng', 'Loại vụ việc', 'Trạng thái', 'Ngày gửi', 'Hành động']}>
-        {requests.map((request) => (
-          <tr key={request.id} className="hover:bg-[#F1F5F9]">
-            <td className="whitespace-nowrap px-4 py-3 text-[16px] font-normal leading-[1.5] text-[#0F172A]">{request.title}</td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">
-              {request.createdBy.name} · {request.createdBy.email}
-            </td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">
-              {request.intakeSubmission?.matterTypeKey ?? 'Chưa có loại vụ việc'}
-            </td>
-            <td className="whitespace-nowrap px-4 py-3"><Badge tone={statusLabels[request.status].tone}>{statusLabels[request.status].label}</Badge></td>
-            <td className="whitespace-nowrap px-4 py-3 text-[14px] font-normal leading-[1.4] text-[#475569]">{formatDate(request.createdAt)}</td>
-            <td className="whitespace-nowrap px-4 py-3">
-              <Link href={`/specialist/requests/${request.id}`}>
-                <Button variant="secondary">Mở chi tiết</Button>
-              </Link>
-            </td>
-          </tr>
-        ))}
-        {requests.length === 0 ? (
-          <tr>
-            <td colSpan={6} className="px-4 py-8 text-center text-[16px] font-normal leading-[1.5] text-[#475569]">
-              Chưa có yêu cầu nào được giao cho bạn.
-            </td>
-          </tr>
-        ) : null}
-      </Table>
-    </main>
+      <Table
+        dataSource={requests}
+        columns={columns}
+        rowKey="id"
+        pagination={false}
+        style={{ marginTop: 24 }}
+        locale={{ emptyText: 'Chưa có yêu cầu nào được giao cho bạn.' }}
+      />
+    </>
   );
 }

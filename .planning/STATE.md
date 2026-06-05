@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: v1.0 milestone complete
+milestone: v1.1
+milestone_name: auth
+status: Ready to plan
 last_updated: "2026-06-05T11:00:00Z"
 last_activity: 2026-06-05
 progress:
-  total_phases: 14
+  total_phases: 15
   completed_phases: 14
   total_plans: 49
   completed_plans: 49
-  percent: 100
+  percent: 93
 ---
 
 # State
@@ -20,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-05)
 
 **Core value:** SME sends legal requests through simple chat and receives quality-reviewed deliverables with full traceability.
-**Status:** Milestone v1.0 MVP shipped 2026-06-05
-**Next:** Planning v2.0
+**Status:** Planning Phase 15 — auth
+**Next:** Phase 15: auth
 
-## Milestone v1.0 Complete
+## Current Milestone: v1.1 Auth & Hardening
 
-14 phases, 49 plans, 70 tasks all executed. All v1.0 requirements (46/46) validated.
+All v1.0 MVP phases complete. Phase 15 kicks off v1.1 with authentication system implementation (login page, session management, auth provider).
 
 ## Progress Summary
 
@@ -45,6 +45,7 @@ See: .planning/PROJECT.md (updated 2026-06-05)
 | 12 | ops-sla-drill-in | 1/1 | Complete | `12-VERIFICATION.md`: passed |
 | 13 | service-cleanup-wiring | 3/3 | Complete | `13-VERIFICATION.md`: passed |
 | 14 | antd-layout-redesign | 9/9 | Complete | `14-VERIFICATION.md`: passed |
+| 15 | auth | — | Not planned | — |
 
 ## Deferred Items
 
@@ -57,6 +58,7 @@ Items acknowledged at milestone close (2026-06-05):
 | tech_debt | No DATABASE_URL for demo data seeding | open |
 | tech_debt | npm run typecheck pre-existing failures | open |
 | tech_debt | No e2e tests beyond Phase 1 foundation | open |
+| tech_debt | APP_SESSION_USER_ID stub auth — no real login page | open (Phase 15) |
 
 ### Quick Tasks Completed
 

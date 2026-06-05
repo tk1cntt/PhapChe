@@ -1,7 +1,7 @@
 # Roadmap: Legal-as-a-Service Platform
 
 **Last updated:** 2026-06-05
-**Current milestone:** v1.0 MVP — SHIPPED
+**Current milestone:** v1.1 Auth & Hardening
 
 ## Milestones
 
@@ -35,6 +35,16 @@ Full milestone details: `.planning/milestones/v1.0-ROADMAP.md`
 Requirements archive: `.planning/milestones/v1.0-REQUIREMENTS.md`
 Milestone audit: `.planning/milestones/v1.0-MILESTONE-AUDIT.md`
 
----
+### 🚧 v1.1 Auth & Hardening (Planned)
 
-_For current project status, see .planning/STATE.md and .planning/PROJECT.md_
+### Phase 15: auth
+
+**Goal:** Implement real authentication system — login page, session management, NextAuth.js or equivalent provider.
+**Requirements**: TBD
+**Depends on:** Phase 14
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 15 to break down)
+
+---

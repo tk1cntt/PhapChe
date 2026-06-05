@@ -3,7 +3,7 @@
 **Created:** 2026-05-26
 **Last updated:** 2026-06-05
 **Milestone:** v1.0 — Gap closure in progress
-**Total phases:** 13
+**Total phases:** 14
 **v1 requirements covered:** 46/46
 **Plans executed:** 31/31
 **Audit:** `.planning/v1.0-MILESTONE-AUDIT.md`
@@ -266,13 +266,21 @@ Success criteria:
 
 ### Phase 14: Bổ sung thêm thư viện Ant Design và thiết kế lại layout cho chuẩn
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Integrate Ant Design UI library and redesign layout across all route groups (admin, specialist, customer, reviewer). Replace all hand-rolled custom UI components with Ant Design equivalents.
+**Requirements**: none (UI enhancement phase)
 **Depends on:** Phase 13
-**Plans:** 0 plans
+**Plans:** 9 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 14 to break down)
+- [ ] 14-01-PLAN.md — Install antd + create provider tree, breadcrumb config, simplify globals.css
+- [ ] 14-02-PLAN.md — Admin route group layout (antd Layout+Sider+Menu+Breadcrumb)
+- [ ] 14-03-PLAN.md — Migrate admin pages: audit, users, workspaces
+- [ ] 14-04-PLAN.md — Migrate admin pages: ops, requests, routing, templates, vault
+- [ ] 14-05-PLAN.md — Specialist layout + specialist pages + sub-components
+- [ ] 14-06-PLAN.md — Customer layout + customer pages + request status page
+- [ ] 14-07-PLAN.md — Reviewer layout + reviewer pages + sub-components
+- [ ] 14-08-PLAN.md — Migrate remaining consumers: template detail/new, vault sub-components, intake components
+- [ ] 14-09-PLAN.md — Delete orphaned ui.tsx and admin-shell.tsx
 
 ---
 

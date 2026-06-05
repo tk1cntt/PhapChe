@@ -14,15 +14,12 @@ export const breadcrumbLabels: Record<string, string> = {
   review: "Duyet",
 };
 
-export interface BreadcrumbItem {
-  title: string;
-  href?: string;
-}
+import type { ItemType } from 'antd/es/breadcrumb/Breadcrumb';
 
-export function getBreadcrumbItems(pathname: string): BreadcrumbItem[] {
+export function getBreadcrumbItems(pathname: string): ItemType[] {
   const segments = pathname.split("/").filter(Boolean);
   const filteredSegments = segments.filter((s) => !s.startsWith("("));
-  const items: BreadcrumbItem[] = [];
+  const items: ItemType[] = [];
 
   for (let i = 0; i < filteredSegments.length; i++) {
     const segment = filteredSegments[i];

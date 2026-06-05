@@ -1,20 +1,43 @@
 import { PrismaClient } from '@prisma/client';
 import { MATTER_CATALOG } from '../src/lib/intake/catalog';
+import { auth } from '../src/auth';
 
 const prisma = new PrismaClient();
+
+const seedUsers: { email: string; name: string; password: string; role: 'specialist' | 'reviewer' }[] = [
+  { email: 'specialist.demo@example.test', name: 'Chuyen vien Lao dong Demo', password: 'Demo@123456', role: 'specialist' },
+  { email: 'reviewer.demo@example.test', name: 'Reviewer Lao dong Demo', password: 'Demo@123456', role: 'reviewer' },
+];
 
 const routingCapability = {
   workspaceSlug: 'demo-legal-workspace',
   matterTypeKey: 'labor_contract',
-  specialist: {
-    email: 'specialist.demo@example.test',
-    name: 'Chuyên viên Lao động Demo',
-  },
-  reviewer: {
-    email: 'reviewer.demo@example.test',
-    name: 'Reviewer Lao động Demo',
-  },
 };
+
+async function ensureUser(email: string, name: string, password: string) {
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    // Check if password already exists in Account table
+    const existingAccount = await prisma.account.findFirst({
+      where: { userId: existing.id, providerId: 'credential' },
+    });
+    if (!existingAccount) {
+      try {
+        await auth.api.signUpEmail({
+          body: { email, name, password },
+        });
+      } catch {
+        // User already exists in Better Auth but has no credential account yet;
+        // skip — Better Auth may have rejected duplicate signup
+      }
+    }
+    return prisma.user.findUniqueOrThrow({ where: { email } });
+  }
+  const { user } = await auth.api.signUpEmail({
+    body: { email, name, password },
+  });
+  return prisma.user.findUniqueOrThrow({ where: { id: user.id } });
+}
 
 async function main() {
   const workspace = await prisma.workspace.upsert({
@@ -27,7 +50,7 @@ async function main() {
     },
   });
 
-  const matterTypes = prisma.matterType as { upsert(input: unknown): Promise<unknown> };
+  const matterTypes = prisma.matterType as unknown as { upsert(input: unknown): Promise<unknown> };
 
   for (const matterType of MATTER_CATALOG) {
     await matterTypes.upsert({
@@ -51,67 +74,34 @@ async function main() {
     });
   }
 
-  const specialist = await prisma.user.upsert({
-    where: { email: routingCapability.specialist.email },
-    update: { name: routingCapability.specialist.name, isActive: true },
-    create: { email: routingCapability.specialist.email, name: routingCapability.specialist.name, isActive: true },
-  });
+  for (const userData of seedUsers) {
+    const user = await ensureUser(userData.email, userData.name, userData.password);
 
-  const reviewer = await prisma.user.upsert({
-    where: { email: routingCapability.reviewer.email },
-    update: { name: routingCapability.reviewer.name, isActive: true },
-    create: { email: routingCapability.reviewer.email, name: routingCapability.reviewer.name, isActive: true },
-  });
+    await prisma.workspaceMembership.upsert({
+      where: { userId_workspaceId_role: { userId: user.id, workspaceId: workspace.id, role: userData.role } },
+      update: { isActive: true },
+      create: { userId: user.id, workspaceId: workspace.id, role: userData.role, isActive: true },
+    });
 
-  await prisma.workspaceMembership.upsert({
-    where: { userId_workspaceId_role: { userId: specialist.id, workspaceId: workspace.id, role: 'specialist' } },
-    update: { isActive: true },
-    create: { userId: specialist.id, workspaceId: workspace.id, role: 'specialist', isActive: true },
-  });
-
-  await prisma.workspaceMembership.upsert({
-    where: { userId_workspaceId_role: { userId: reviewer.id, workspaceId: workspace.id, role: 'reviewer' } },
-    update: { isActive: true },
-    create: { userId: reviewer.id, workspaceId: workspace.id, role: 'reviewer', isActive: true },
-  });
-
-  await prisma.routingCapability.upsert({
-    where: {
-      workspaceId_userId_matterTypeKey_kind: {
-        workspaceId: workspace.id,
-        userId: specialist.id,
-        matterTypeKey: routingCapability.matterTypeKey,
-        kind: 'specialist',
+    await prisma.routingCapability.upsert({
+      where: {
+        workspaceId_userId_matterTypeKey_kind: {
+          workspaceId: workspace.id,
+          userId: user.id,
+          matterTypeKey: routingCapability.matterTypeKey,
+          kind: userData.role,
+        },
       },
-    },
-    update: { isActive: true },
-    create: {
-      workspaceId: workspace.id,
-      userId: specialist.id,
-      matterTypeKey: routingCapability.matterTypeKey,
-      kind: 'specialist',
-      isActive: true,
-    },
-  });
-
-  await prisma.routingCapability.upsert({
-    where: {
-      workspaceId_userId_matterTypeKey_kind: {
+      update: { isActive: true },
+      create: {
         workspaceId: workspace.id,
-        userId: reviewer.id,
+        userId: user.id,
         matterTypeKey: routingCapability.matterTypeKey,
-        kind: 'reviewer',
+        kind: userData.role,
+        isActive: true,
       },
-    },
-    update: { isActive: true },
-    create: {
-      workspaceId: workspace.id,
-      userId: reviewer.id,
-      matterTypeKey: routingCapability.matterTypeKey,
-      kind: 'reviewer',
-      isActive: true,
-    },
-  });
+    });
+  }
 }
 
 main()

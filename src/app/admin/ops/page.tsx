@@ -22,23 +22,9 @@ const statusLabels: Record<RequestStatus, { label: string; tone: string }> = {
   cancelled: { label: 'Đã hủy', tone: 'destructive' },
 };
 
-const toneToColor: Record<string, string> = {
-  neutral: 'default',
-  info: 'blue',
-  warning: 'orange',
-  accent: 'cyan',
-  destructive: 'red',
-  outline: 'default',
-};
-
 function selected(params: Record<string, string | string[] | undefined>, key: string) {
   const value = params[key];
   return Array.isArray(value) ? value[0] || '' : value || '';
-}
-
-function formatAge(days: number) {
-  if (days <= 0) return 'Vừa cập nhật';
-  return `${days} ngày`;
 }
 
 function EmptyState({ title, body }: { title: string; body: string }) {
@@ -117,17 +103,15 @@ export default async function OpsPage({ searchParams }: { searchParams: Promise<
                 body="Khi hồ sơ phát sinh, số lượng theo trạng thái, workload và aging sẽ hiển thị tại đây."
               />
             ) : dashboard ? (
-              <>
-                <Flex vertical gap={8} style={{ marginBottom: 16 }}>
-                  <Flex gap={4} wrap="wrap">
-                    {dashboard.byStatus.map((row) => (
-                      <Text key={row.status}>
-                        {statusLabels[row.status]?.label ?? row.status}: {row.count}{' '}
-                      </Text>
-                    ))}
-                  </Flex>
+              <Flex vertical gap={8} style={{ marginBottom: 16 }}>
+                <Flex gap={4} wrap="wrap">
+                  {dashboard.byStatus.map((row) => (
+                    <Text key={row.status}>
+                      {statusLabels[row.status]?.label ?? row.status}: {row.count}{' '}
+                    </Text>
+                  ))}
                 </Flex>
-              </>
+              </Flex>
             ) : null}
           </Card>
 
@@ -175,27 +159,22 @@ export default async function OpsPage({ searchParams }: { searchParams: Promise<
           </Card>
 
           {hasData && dashboard ? (
-            <>
-              <Card style={{ marginBottom: 16 }}>
-                <Title level={4} style={{ marginBottom: 8 }}>Danh sách hồ sơ</Title>
-                {requestRows.length === 0 ? (
-                  <EmptyState
-                    title="Không có hồ sơ phù hợp"
-                    body="Thử điều chỉnh bộ lọc."
-                  />
-                ) : (
-                  <OpsDashboardTables requests={requestRows} workload={workloadRows} />
-                )}
-              </Card>
-            </>
-          ) : (
             <Card style={{ marginBottom: 16 }}>
+              <Title level={4} style={{ marginBottom: 8 }}>Danh sách hồ sơ</Title>
+              {requestRows.length === 0 ? (
+                <EmptyState
+                  title="Không có hồ sơ phù hợp"
+                  body="Thử điều chỉnh bộ lọc."
+                />
+              ) : (
+                <OpsDashboardTables requests={requestRows} workload={workloadRows} />
+              )}
             </Card>
+          ) : (
+            <Card style={{ marginBottom: 16 }} />
           )}
         </>
       )}
     </>
   );
 }
-
-export { OpsPage as default };

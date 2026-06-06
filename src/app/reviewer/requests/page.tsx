@@ -1,27 +1,7 @@
-import Link from 'next/link';
-import { Tag, Card, Table, Typography, Flex } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Tag, Card, Typography, Flex } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
-
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
-}
-
-type PendingReview = {
-  id: string;
-  templateVersion: number;
-  createdAt: Date;
-  document: {
-    id: string;
-    request: {
-      id: string;
-      title: string;
-      intakeSubmission: { matterTypeKey: string } | null;
-      assignedSpecialist: { name: string; email: string } | null;
-    };
-  };
-};
+import ReviewerRequestsTable from './ReviewerRequestsTable';
 
 export default async function ReviewerQueuePage({
   searchParams,
@@ -31,7 +11,7 @@ export default async function ReviewerQueuePage({
   const { notice } = await searchParams;
   const session = await requireAppSession();
 
-  const pendingReviews: PendingReview[] = await prisma.documentVersion.findMany({
+  const pendingReviews = await prisma.documentVersion.findMany({
     where: {
       status: 'submitted_for_review',
       document: {
@@ -52,7 +32,7 @@ export default async function ReviewerQueuePage({
               id: true,
               title: true,
               intakeSubmission: { select: { matterTypeKey: true } },
-              assignedSpecialist: { select: { name: true, email: true } },
+              assignedSpecialist: { select: { name: true } },
             },
           },
         },
@@ -61,45 +41,16 @@ export default async function ReviewerQueuePage({
     orderBy: { createdAt: 'desc' },
   });
 
-  const columns: ColumnsType<PendingReview> = [
-    {
-      title: 'Yeu cau',
-      dataIndex: ['document', 'request', 'title'],
-      key: 'title',
-      render: (title: string, record: PendingReview) => (
-        <Link
-          href={`/reviewer/requests/${record.document.request.id}/review/${record.id}`}
-          style={{ color: '#0F766E' }}
-        >
-          {title}
-        </Link>
-      ),
-    },
-    {
-      title: 'Loai vu viec',
-      key: 'matterType',
-      render: (_: unknown, record: PendingReview) =>
-        record.document.request.intakeSubmission?.matterTypeKey ?? 'Chua co loai',
-    },
-    {
-      title: 'Chuyen vien',
-      key: 'specialist',
-      render: (_: unknown, record: PendingReview) =>
-        record.document.request.assignedSpecialist?.name ?? 'Chua co',
-    },
-    {
-      title: 'Phien ban',
-      dataIndex: 'templateVersion',
-      key: 'templateVersion',
-      render: (v: number) => `v${v}`,
-    },
-    {
-      title: 'Gui luc',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (date: Date) => formatDate(date),
-    },
-  ];
+  const rows = pendingReviews.map((r) => ({
+    id: r.id,
+    requestId: r.document.request.id,
+    title: r.document.request.title,
+    matterTypeKey: r.document.request.intakeSubmission?.matterTypeKey ?? null,
+    specialistName: r.document.request.assignedSpecialist?.name ?? null,
+    templateVersion: r.templateVersion,
+    createdAt: r.createdAt.toISOString(),
+    reviewHref: `/reviewer/requests/${r.document.request.id}/review/${r.id}`,
+  }));
 
   return (
     <Flex vertical gap="middle">
@@ -125,23 +76,7 @@ export default async function ReviewerQueuePage({
         </Typography.Paragraph>
       </Card>
 
-      <Table
-        dataSource={pendingReviews}
-        columns={columns}
-        rowKey="id"
-        pagination={false}
-        locale={{
-          emptyText: (
-            <div style={{ textAlign: 'center', padding: '32px 0' }}>
-              <Typography.Text strong>Chua co tai lieu cho duyet</Typography.Text>
-              <br />
-              <Typography.Text type="secondary">
-                Khi chuyen vien gui tai lieu len, tai lieu se xuat hien tai day.
-              </Typography.Text>
-            </div>
-          ),
-        }}
-      />
+      <ReviewerRequestsTable rows={rows} notice={notice} />
     </Flex>
   );
 }

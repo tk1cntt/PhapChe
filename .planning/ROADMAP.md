@@ -49,4 +49,14 @@ Plans:
 - [ ] 15-02-PLAN.md — Auth Infrastructure: auth.ts instance, proxy.ts, API route handler, client SDK, adapted requireAppSession()
 - [ ] 15-03-PLAN.md — Login UI & Seed Data: Ant Design sign-in page, password-hashed seed users, real admin users page
 
+### Phase 16: Fix 14 failed routes discovered by validated screenshot capture
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 15
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 16 to break down)
+
 ---

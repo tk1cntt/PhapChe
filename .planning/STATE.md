@@ -60,6 +60,12 @@ Items acknowledged at milestone close (2026-06-05):
 | tech_debt | No e2e tests beyond Phase 1 foundation | open |
 | tech_debt | APP_SESSION_USER_ID stub auth — no real login page | open (Phase 15) |
 
+## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 16 added: Fix 14 failed routes discovered by validated screenshot capture
+
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Status | Directory |

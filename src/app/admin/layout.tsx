@@ -11,6 +11,11 @@ import { getBreadcrumbItems } from '@/lib/navigation/breadcrumb-labels';
 
 const { Sider, Content, Header } = Layout;
 
+// By-design: sidebar shows all admin links regardless of user role. Each admin page
+// calls requireAppSession() + role check internally and returns 404 for unauthorized
+// users (security-through-obscurity). This avoids a client-side session fetch in layout.
+// To filter menu by role, refactor layout to a server component that calls requireAppSession()
+// and conditionally builds navItems.
 const navItems = [
   { key: '/admin/users', icon: <UserOutlined />, label: <Link href="/admin/users">Nguoi dung</Link> },
   { key: '/admin/workspaces', icon: <TeamOutlined />, label: <Link href="/admin/workspaces">Workspace</Link> },

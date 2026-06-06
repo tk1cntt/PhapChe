@@ -26,9 +26,8 @@ async function ensureUser(email: string, name: string, password: string) {
         await auth.api.signUpEmail({
           body: { email, name, password },
         });
-      } catch {
-        // User already exists in Better Auth but has no credential account yet;
-        // skip — Better Auth may have rejected duplicate signup
+      } catch (err) {
+        console.warn(`signUpEmail failed for ${email} (likely duplicate, skipping):`, err);
       }
     }
     return prisma.user.findUniqueOrThrow({ where: { email } });

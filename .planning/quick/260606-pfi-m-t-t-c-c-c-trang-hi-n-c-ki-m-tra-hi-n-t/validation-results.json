@@ -1,0 +1,365 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "samples": {
+    "requestId": "cmpxfwfgj00334wrxuh9hzvbm",
+    "templateId": "cmpxfugxq00314wf2m6w54rfz",
+    "documentVersionId": "cmpzpib2c00094w8nyw37n7nf"
+  },
+  "routes": [
+    {
+      "route": "/",
+      "concreteRoute": "/"
+    },
+    {
+      "route": "/admin/audit",
+      "concreteRoute": "/admin/audit"
+    },
+    {
+      "route": "/admin/ops",
+      "concreteRoute": "/admin/ops"
+    },
+    {
+      "route": "/admin/ops/[requestId]",
+      "concreteRoute": "/admin/ops/cmpxfwfgj00334wrxuh9hzvbm"
+    },
+    {
+      "route": "/admin/requests",
+      "concreteRoute": "/admin/requests"
+    },
+    {
+      "route": "/admin/routing",
+      "concreteRoute": "/admin/routing"
+    },
+    {
+      "route": "/admin/templates",
+      "concreteRoute": "/admin/templates"
+    },
+    {
+      "route": "/admin/templates/[templateId]",
+      "concreteRoute": "/admin/templates/cmpxfugxq00314wf2m6w54rfz"
+    },
+    {
+      "route": "/admin/templates/new",
+      "concreteRoute": "/admin/templates/new"
+    },
+    {
+      "route": "/admin/users",
+      "concreteRoute": "/admin/users"
+    },
+    {
+      "route": "/admin/vault",
+      "concreteRoute": "/admin/vault"
+    },
+    {
+      "route": "/admin/workspaces",
+      "concreteRoute": "/admin/workspaces"
+    },
+    {
+      "route": "/customer/requests/[requestId]",
+      "concreteRoute": "/customer/requests/cmpxfwfgj00334wrxuh9hzvbm"
+    },
+    {
+      "route": "/intake",
+      "concreteRoute": "/intake"
+    },
+    {
+      "route": "/requests/[requestId]",
+      "concreteRoute": "/requests/cmpxfwfgj00334wrxuh9hzvbm"
+    },
+    {
+      "route": "/reviewer/requests",
+      "concreteRoute": "/reviewer/requests"
+    },
+    {
+      "route": "/reviewer/requests/[requestId]/review/[documentVersionId]",
+      "concreteRoute": "/reviewer/requests/cmpxfwfgj00334wrxuh9hzvbm/review/cmpzpib2c00094w8nyw37n7nf"
+    },
+    {
+      "route": "/sign-in",
+      "concreteRoute": "/sign-in"
+    },
+    {
+      "route": "/specialist/requests",
+      "concreteRoute": "/specialist/requests"
+    },
+    {
+      "route": "/specialist/requests/[requestId]",
+      "concreteRoute": "/specialist/requests/cmpxfwfgj00334wrxuh9hzvbm"
+    }
+  ],
+  "results": [
+    {
+      "route": "/sign-in",
+      "concreteRoute": "/sign-in",
+      "validation": "PASS",
+      "screenshot": null,
+      "errors": [],
+      "note": "Authentication bootstrap"
+    },
+    {
+      "route": "/",
+      "concreteRoute": "/",
+      "validation": "PASS",
+      "screenshot": ".planning/quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/screenshots/home.png",
+      "errors": [],
+      "title": "Nen tang phap ly SME",
+      "status": 200,
+      "bodyPreview": "Legal-as-a-Service\n\nNền tảng quản trị pháp lý\n\nTruy cập khu vực admin để quản lý người dùng, workspace, hồ sơ yêu cầu và audit.\n\nVào quản trị người dùng"
+    },
+    {
+      "route": "/admin/audit",
+      "concreteRoute": "/admin/audit",
+      "validation": "PASS",
+      "screenshot": ".planning/quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/screenshots/admin-audit.png",
+      "errors": [],
+      "title": "Nen tang phap ly SME",
+      "status": 200,
+      "bodyPreview": "GitNexus Legal\nNguoi dung\nWorkspace\nHo so yeu cau\nVan hanh\nAudit\nPhan loai vault\nQuan tri\n/\nAudit\nAudit\nDong thoi gian thao tac quan trong chi hien thi dinh danh, action, ma tuong quan va tom tat metadata an toan.\nKhong hien thi noi dung phap ly tho trong audit; dung metadataSummary, identifier hoac"
+    },
+    {
+      "route": "/admin/ops",
+      "concreteRoute": "/admin/ops",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 500",
+        "Blank body",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `OpsPage`.\n    at createFiberFromTypeAndProps (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at reconcileChildrenArray (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "title": "Nen tang phap ly SME",
+      "status": 500,
+      "bodyPreview": ""
+    },
+    {
+      "route": "/admin/ops/[requestId]",
+      "concreteRoute": "/admin/ops/cmpxfwfgj00334wrxuh9hzvbm",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 500",
+        "Blank body",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `OpsRequestTimelinePage`.\n    at createFiberFromTypeAndProps (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at reconcileChildrenArray (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "title": "Nen tang phap ly SME",
+      "status": 500,
+      "bodyPreview": ""
+    },
+    {
+      "route": "/admin/requests",
+      "concreteRoute": "/admin/requests",
+      "validation": "PASS",
+      "screenshot": ".planning/quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/screenshots/admin-requests.png",
+      "errors": [],
+      "title": "Nen tang phap ly SME",
+      "status": 200,
+      "bodyPreview": "GitNexus Legal\nNguoi dung\nWorkspace\nHo so yeu cau\nVan hanh\nAudit\nPhan loai vault\nQuan tri\n/\nHo so yeu cau\nHồ sơ yêu cầu\nTrạng thái hồ sơ được hiển thị từ backend-owned workflow, không chỉnh sửa trực tiếp bằng raw dropdown.\nTạo hồ sơ yêu cầu\nChuyển trạng thái hợp lệ\n\nTrạng thái này chỉ có thể thay đổ"
+    },
+    {
+      "route": "/admin/routing",
+      "concreteRoute": "/admin/routing",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 500",
+        "Blank body",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: FORBIDDEN\n    at requireRoutingAdmin (about://React/Server/file:///mnt/d/PhapChe/.next/dev/server/chunks/ssr/%5Broot-of-the-server%5D__0.24mob._.js?0:450:28)\n    at  RoutingPage (about://React/Server/file:///mnt/d/PhapChe/.next/dev/server/chunks/ssr/%5Broot-of-the-server%5D__0hp-y7o._.js?1:280:5)\n    at resolveErrorDev (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:1919:105)\n    at processFullStringRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2434:29)\n    at processFullBinaryRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2393:9)\n    at processBinaryChunk (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2502:221)\n    at progress (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2689:13) The above error occurred in the <RoutingPage> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "title": "Nen tang phap ly SME",
+      "status": 500,
+      "bodyPreview": ""
+    },
+    {
+      "route": "/admin/templates",
+      "concreteRoute": "/admin/templates",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 404",
+        "Visible error signal: this page could not be found",
+        "Visible error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "title": "Nen tang phap ly SME",
+      "status": 404,
+      "bodyPreview": "404\nThis page could not be found."
+    },
+    {
+      "route": "/admin/templates/[templateId]",
+      "concreteRoute": "/admin/templates/cmpxfugxq00314wf2m6w54rfz",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 404",
+        "Visible error signal: this page could not be found",
+        "Visible error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "title": "Nen tang phap ly SME",
+      "status": 404,
+      "bodyPreview": "404\nThis page could not be found."
+    },
+    {
+      "route": "/admin/templates/new",
+      "concreteRoute": "/admin/templates/new",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 404",
+        "Visible error signal: this page could not be found",
+        "Visible error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "title": "Nen tang phap ly SME",
+      "status": 404,
+      "bodyPreview": "404\nThis page could not be found."
+    },
+    {
+      "route": "/admin/users",
+      "concreteRoute": "/admin/users",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 404",
+        "Visible error signal: this page could not be found",
+        "Visible error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "title": "404: This page could not be found.",
+      "status": 404,
+      "bodyPreview": "404\nThis page could not be found."
+    },
+    {
+      "route": "/admin/vault",
+      "concreteRoute": "/admin/vault",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 404",
+        "Visible error signal: this page could not be found",
+        "Visible error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "title": "Nen tang phap ly SME",
+      "status": 404,
+      "bodyPreview": "404\nThis page could not be found."
+    },
+    {
+      "route": "/admin/workspaces",
+      "concreteRoute": "/admin/workspaces",
+      "validation": "PASS",
+      "screenshot": ".planning/quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/screenshots/admin-workspaces.png",
+      "errors": [],
+      "title": "Nen tang phap ly SME",
+      "status": 200,
+      "bodyPreview": "GitNexus Legal\nNguoi dung\nWorkspace\nHo so yeu cau\nVan hanh\nAudit\nPhan loai vault\nQuan tri\n/\nWorkspace\nWorkspace khách hàng\nMỗi SME có workspace riêng để hiển thị membership và giảm rủi ro lộ dữ liệu giữa tenant.\nRanh giới quyền truy cập\nBạn không có quyền xem nội dung này. Nếu cần truy cập, hãy liên"
+    },
+    {
+      "route": "/customer/requests/[requestId]",
+      "concreteRoute": "/customer/requests/cmpxfwfgj00334wrxuh9hzvbm",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 404",
+        "Visible error signal: this page could not be found",
+        "Visible error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "title": "404: This page could not be found.",
+      "status": 404,
+      "bodyPreview": "404\nThis page could not be found."
+    },
+    {
+      "route": "/intake",
+      "concreteRoute": "/intake",
+      "validation": "PASS",
+      "screenshot": ".planning/quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/screenshots/intake.png",
+      "errors": [],
+      "title": "Nen tang phap ly SME",
+      "status": 200,
+      "bodyPreview": "Gửi yêu cầu pháp lý\nTrả lời vài câu hỏi để chuyên viên có đủ thông tin tiếp nhận hồ sơ.\n1. Dịch vụ\n2. Câu hỏi\n3. Tài liệu\n4. Kiểm tra\nBạn cần hỗ trợ việc gì?\n\nChọn một nhóm dịch vụ để bắt đầu tạo hồ sơ nháp.\n\nSoạn hợp đồng đại lý\nChuẩn hóa thông tin đối tác, chiết khấu và thời hạn hợp đồng đại lý.\nS"
+    },
+    {
+      "route": "/requests/[requestId]",
+      "concreteRoute": "/requests/cmpxfwfgj00334wrxuh9hzvbm",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 404",
+        "Visible error signal: this page could not be found",
+        "Visible error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "title": "404: This page could not be found.",
+      "status": 404,
+      "bodyPreview": "404\nThis page could not be found."
+    },
+    {
+      "route": "/reviewer/requests",
+      "concreteRoute": "/reviewer/requests",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 500",
+        "Blank body",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with \"use server\". Or maybe you meant to call this function rather than return it.\n  {title: \"Yeu cau\", dataIndex: ..., key: ..., render: function render}\n                                                       ^^^^^^^^^^^^^^^\n    at stringify (<anonymous>:1:18)\n    at resolveErrorDev (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:1919:150)\n    at processFullStringRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2434:29)\n    at processFullBinaryRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2393:9)\n    at processBinaryChunk (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2502:221)\n    at progress (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2689:13) The above error occurred in the <Unknown> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "title": "Nen tang phap ly SME",
+      "status": 500,
+      "bodyPreview": ""
+    },
+    {
+      "route": "/reviewer/requests/[requestId]/review/[documentVersionId]",
+      "concreteRoute": "/reviewer/requests/cmpxfwfgj00334wrxuh9hzvbm/review/cmpzpib2c00094w8nyw37n7nf",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 404",
+        "Visible error signal: this page could not be found",
+        "Visible error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "title": "404: This page could not be found.",
+      "status": 404,
+      "bodyPreview": "404\nThis page could not be found."
+    },
+    {
+      "route": "/sign-in",
+      "concreteRoute": "/sign-in",
+      "validation": "PASS",
+      "screenshot": ".planning/quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/screenshots/sign-in.png",
+      "errors": [],
+      "title": "Nen tang phap ly SME",
+      "status": 200,
+      "bodyPreview": "GitNexus Legal\nDang nhap"
+    },
+    {
+      "route": "/specialist/requests",
+      "concreteRoute": "/specialist/requests",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 500",
+        "Blank body",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with \"use server\". Or maybe you meant to call this function rather than return it.\n  {title: \"Yêu cầu\", dataIndex: \"title\", key: ..., render: function render}\n                                                           ^^^^^^^^^^^^^^^\n    at stringify (<anonymous>:1:18)\n    at resolveErrorDev (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:1919:105)\n    at processFullStringRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2434:29)\n    at processFullBinaryRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2393:9)\n    at processBinaryChunk (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2502:221)\n    at progress (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2689:13) The above error occurred in the <Unknown> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "title": "Nen tang phap ly SME",
+      "status": 500,
+      "bodyPreview": ""
+    },
+    {
+      "route": "/specialist/requests/[requestId]",
+      "concreteRoute": "/specialist/requests/cmpxfwfgj00334wrxuh9hzvbm",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 404",
+        "Visible error signal: this page could not be found",
+        "Visible error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "title": "404: This page could not be found.",
+      "status": 404,
+      "bodyPreview": "404\nThis page could not be found."
+    }
+  ]
+}

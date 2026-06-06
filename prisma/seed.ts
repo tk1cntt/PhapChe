@@ -4,9 +4,11 @@ import { auth } from '../src/auth';
 
 const prisma = new PrismaClient();
 
-const seedUsers: { email: string; name: string; password: string; role: 'specialist' | 'reviewer' }[] = [
+const seedUsers: { email: string; name: string; password: string; role: 'customer' | 'specialist' | 'reviewer' | 'coordinator_admin' }[] = [
+  { email: 'customer.demo@example.test', name: 'Khach hang Demo', password: 'Demo@123456', role: 'customer' },
   { email: 'specialist.demo@example.test', name: 'Chuyen vien Lao dong Demo', password: 'Demo@123456', role: 'specialist' },
   { email: 'reviewer.demo@example.test', name: 'Reviewer Lao dong Demo', password: 'Demo@123456', role: 'reviewer' },
+  { email: 'admin.demo@example.test', name: 'Dieu phoi Demo', password: 'Demo@123456', role: 'coordinator_admin' },
 ];
 
 const routingCapability = {
@@ -100,6 +102,76 @@ async function main() {
         isActive: true,
       },
     });
+  }
+
+  // Phase 16 fixtures: minimum demo legal request, document, and document version
+  // so dynamic detail routes can validate with role-owned IDs.
+  const customerUser = await prisma.user.findUniqueOrThrow({
+    where: { email: 'customer.demo@example.test' },
+  });
+  const specialistUser = await prisma.user.findUniqueOrThrow({
+    where: { email: 'specialist.demo@example.test' },
+  });
+  const reviewerUser = await prisma.user.findUniqueOrThrow({
+    where: { email: 'reviewer.demo@example.test' },
+  });
+
+  const existingRequest = await prisma.legalRequest.findFirst({
+    where: { workspaceId: workspace.id, title: 'Phase 16 fixture request' },
+  });
+
+  const fixtureRequest = existingRequest ?? await prisma.legalRequest.create({
+    data: {
+      workspaceId: workspace.id,
+      title: 'Phase 16 fixture request',
+      status: 'in_progress',
+      createdById: customerUser.id,
+      assignedSpecialistId: specialistUser.id,
+      assignedReviewerId: reviewerUser.id,
+    },
+  });
+
+  if (!fixtureRequest.assignedSpecialistId || !fixtureRequest.assignedReviewerId) {
+    await prisma.legalRequest.update({
+      where: { id: fixtureRequest.id },
+      data: {
+        assignedSpecialistId: specialistUser.id,
+        assignedReviewerId: reviewerUser.id,
+      },
+    });
+  }
+
+  const existingDocument = await prisma.document.findFirst({
+    where: { requestId: fixtureRequest.id, title: 'Phase 16 fixture document' },
+  });
+  const fixtureDocument = existingDocument ?? await prisma.document.create({
+    data: {
+      workspaceId: workspace.id,
+      requestId: fixtureRequest.id,
+      title: 'Phase 16 fixture document',
+    },
+  });
+
+  const fixtureDocumentVersion = await prisma.documentVersion.findFirst({
+    where: { documentId: fixtureDocument.id, status: 'submitted_for_review' },
+  });
+  if (!fixtureDocumentVersion) {
+    const firstTemplate = await prisma.documentTemplate.findFirst({
+      where: { workspaceId: workspace.id },
+      select: { id: true },
+    });
+    if (firstTemplate) {
+      await prisma.documentVersion.create({
+        data: {
+          documentId: fixtureDocument.id,
+          templateId: firstTemplate.id,
+          templateVersion: 1,
+          status: 'submitted_for_review',
+          inputSnapshot: { seed: 'phase-16' },
+          generatedContent: 'Phase 16 fixture document version content.',
+        },
+      });
+    }
   }
 }
 

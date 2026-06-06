@@ -14,17 +14,22 @@ export function SignInForm() {
 
   const onFinish = async (values: { email: string; password: string }) => {
     setLoading(true);
-    const { error } = await authClient.signIn.email({
-      email: values.email,
-      password: values.password,
-      callbackURL: '/intake',
-    });
+    try {
+      const { error } = await authClient.signIn.email({
+        email: values.email,
+        password: values.password,
+      });
 
-    if (error) {
-      message.error('Email hoac mat khau khong dung');
+      if (error) {
+        message.error('Email hoac mat khau khong dung');
+      } else {
+        router.push('/intake');
+      }
+    } catch (e) {
+      message.error('Co loi xay ra, vui long thu lai');
+      console.error(e);
+    } finally {
       setLoading(false);
-    } else {
-      router.push('/intake');
     }
   };
 

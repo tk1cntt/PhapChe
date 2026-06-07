@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { getOpsRequestTimeline } from '@/lib/ops/ops-service';
 import { requireAppSession } from '@/lib/security/session';
 import { Card, Typography, Flex } from 'antd';
-import OpsTimelineTable from '@/app/admin/ops/[requestId]/OpsTimelineTable';
-import type { OpsTimelineRow } from '@/app/admin/ops/[requestId]/OpsTimelineTable';
+import OpsTimelineTable from './OpsTimelineTable';
+import type { OpsTimelineRow } from './OpsTimelineTable';
 
 const { Title, Paragraph } = Typography;
 

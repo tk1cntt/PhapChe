@@ -1,9 +1,10 @@
 'use client';
 
-import { Tag, Button, Card, Typography, Flex, Steps, Radio, Input, Upload, List, Space, Divider, Alert, Form } from 'antd';
+import { Tag, Button, Card, Typography, Flex, Steps, Radio, Input, Upload, List, Space, Divider, Alert, Form, message } from 'antd';
 import { UploadOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import type { MatterCatalogItem } from '@/lib/intake/catalog';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -61,12 +62,46 @@ export function ProgressSteps({ activeStep }: { activeStep: number }) {
 
 export function ServiceSelection({ catalog }: { catalog: readonly MatterCatalogItem[] }) {
   const [selected, setSelected] = useState(catalog[0]?.key || '');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async () => {
+    if (!selected) {
+      setError('Vui lòng chọn một nhóm dịch vụ để tiếp tục.');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('matterTypeKey', selected);
+      const response = await fetch('/intake/api/create-draft', {
+        method: 'POST',
+        body: formData,
+      });
+      if (response.redirected) {
+        router.push(response.url);
+        return;
+      }
+      const result = await response.json();
+      if (result.requestId) {
+        router.push(`/intake?requestId=${result.requestId}`);
+      } else {
+        message.error(result.error || 'Có lỗi xảy ra');
+      }
+    } catch {
+      message.error('Có lỗi xảy ra khi tạo hồ sơ');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Card title={<Title level={4} style={{ margin: 0 }}>Bạn cần hỗ trợ việc gì?</Title>}>
-      <Form.Item style={{ marginBottom: 16 }}>
+      <Form.Item style={{ marginBottom: 16 }} validateStatus={error ? 'error' : ''} help={error}>
         <Paragraph type="secondary">Chọn một nhóm dịch vụ để bắt đầu tạo hồ sơ nháp.</Paragraph>
-        <Radio.Group value={selected} onChange={(e) => setSelected(e.target.value)} name="matterTypeKey" style={{ width: '100%' }}>
+        <Radio.Group value={selected} onChange={(e) => { setSelected(e.target.value); setError(''); }} name="matterTypeKey" style={{ width: '100%' }}>
           <Space direction="vertical" style={{ width: '100%' }} size={12}>
             {catalog.map((item) => {
               const isSelected = selected === item.key;
@@ -99,7 +134,7 @@ export function ServiceSelection({ catalog }: { catalog: readonly MatterCatalogI
         </Radio.Group>
       </Form.Item>
       <Form.Item style={{ marginBottom: 0 }}>
-        <Button type="primary" htmlType="submit" size="large" block>
+        <Button type="primary" size="large" block onClick={handleSubmit} loading={loading}>
           Tiếp tục
         </Button>
       </Form.Item>

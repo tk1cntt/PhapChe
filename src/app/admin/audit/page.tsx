@@ -74,7 +74,7 @@ export default function AuditPage() {
     {
       title: 'Tom tat metadata',
       key: 'metadataSummary',
-      render: (_: unknown, record: AuditEvent) => record.metadataSummary ?? '-',
+      render: (_: unknown, record: AuditEventRecord) => record.metadataSummary ?? '-',
     },
   ];
 

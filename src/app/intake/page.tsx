@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { MATTER_CATALOG, getMatterType } from '@/lib/intake/catalog';
 import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
@@ -51,7 +51,13 @@ export default async function IntakePage({ searchParams }: IntakePageProps) {
     );
   }
 
-  const session = await requireAppSession();
+  let session;
+  try {
+    session = await requireAppSession();
+  } catch {
+    redirect('/sign-in');
+  }
+
   if (!(await canAccessRequest(session, requestId))) notFound();
 
   const request = await prisma.legalRequest.findUnique({

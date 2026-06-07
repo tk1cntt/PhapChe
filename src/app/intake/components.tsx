@@ -186,7 +186,36 @@ export function QuestionStep({ matterType }: { matterType: MatterCatalogItem }) 
   );
 }
 
-export function UploadStep({ files }: { files: UploadedFile[] }) {
+export function UploadStep({ files, requestId }: { files: UploadedFile[]; requestId: string }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const uploadProps: Record<string, unknown> = {
+    accept: '.pdf,.doc,.docx,.png,.jpg,.jpeg',
+    showUploadList: false,
+    name: 'file',
+    customRequest: async (options: { file: File | Blob | string; onSuccess: (body?: unknown) => void; onError: (error: Error) => void }) => {
+      const { file, onSuccess, onError } = options;
+      const formData = new FormData();
+      formData.append('file', file as File);
+      formData.append('requestId', requestId);
+      try {
+        const response = await fetch('/intake/api/attach-file', {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await response.json();
+        if (response.ok) {
+          onSuccess(result);
+          message.success('Tải tệp lên thành công');
+        } else {
+          onError(new Error(result.error || 'Upload failed'));
+        }
+      } catch (error) {
+        onError(error as Error);
+        message.error('Có lỗi khi tải tệp');
+      }
+    },
+  };
+
   return (
     <Card
       title={<Title level={4} style={{ margin: 0 }}>Tài liệu hỗ trợ</Title>}
@@ -194,7 +223,7 @@ export function UploadStep({ files }: { files: UploadedFile[] }) {
       <Paragraph type="secondary" style={{ marginBottom: 16 }}>
         Tải lên hợp đồng, giấy phép, email trao đổi hoặc tài liệu liên quan. Không cần OCR ở bước này.
       </Paragraph>
-      <Dragger accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" showUploadList={false} name="file">
+      <Dragger {...uploadProps}>
         <p style={{ marginBottom: 8 }}>
           <UploadOutlined style={{ fontSize: 32, color: '#0F766E' }} />
         </p>

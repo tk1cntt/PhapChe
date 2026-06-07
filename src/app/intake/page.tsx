@@ -112,7 +112,7 @@ export default async function IntakePage({ searchParams }: IntakePageProps) {
 
       <form action={attachFileFormAction} className="space-y-8">
         <input type="hidden" name="requestId" value={request.id} />
-        <UploadStep files={uploadedFiles} />
+        <UploadStep files={uploadedFiles} requestId={request.id} />
       </form>
 
       <form action={submitIntakeAction} className="space-y-8">

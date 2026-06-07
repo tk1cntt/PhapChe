@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation';
 import type { RequestStatus } from '@prisma/client';
-import { Tag, Card, Typography, Flex } from 'antd';
+import { Tag, Card, Typography, Flex, Button, message } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { requireAppSession } from '@/lib/security/session';
 
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph, Text } = Typography;
 
 const statusCopy: Record<RequestStatus, { label: string; body: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Đang nhập thông tin', body: 'Hồ sơ đang ở bước nhập thông tin trước khi gửi.', tone: 'neutral' },
@@ -34,10 +34,33 @@ function toneToTagColor(tone: string): string {
 }
 
 export default async function RequestStatusPage({ params }: { params: Promise<{ requestId: string }> }) {
+  // Await params first
   const { requestId } = await params;
-  const session = await requireAppSession();
-  if (!(await canAccessRequest(session, requestId))) notFound();
 
+  // Validate requestId format
+  if (!requestId || typeof requestId !== 'string' || requestId.trim() === '') {
+    notFound();
+    return null; // This line is never reached but satisfies TypeScript
+  }
+
+  // Require session - redirect to sign-in if not authenticated
+  let session;
+  try {
+    session = await requireAppSession();
+  } catch {
+    // Redirect to sign-in page
+    redirect('/sign-in');
+    return null;
+  }
+
+  // Check access
+  const hasAccess = await canAccessRequest(session, requestId);
+  if (!hasAccess) {
+    notFound();
+    return null;
+  }
+
+  // Fetch request
   const request = await prisma.legalRequest.findUnique({
     where: { id: requestId },
     select: {
@@ -48,48 +71,77 @@ export default async function RequestStatusPage({ params }: { params: Promise<{ 
       intakeSubmission: { select: { matterTypeKey: true } },
     },
   });
-  if (!request) notFound();
+
+  if (!request) {
+    notFound();
+    return null;
+  }
 
   const status = statusCopy[request.status];
+  const hasFiles = request.vaultFiles.length > 0;
 
   return (
-    <main className="mx-auto flex max-w-[960px] flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">
-      <Flex vertical gap={4}>
-        <Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600, color: '#0F172A' }}>Đã gửi yêu cầu</Title>
-        <Paragraph style={{ margin: 0, fontSize: 16, color: '#475569', maxWidth: 720 }}>Trạng thái do hệ thống xử lý cập nhật. Bạn không cần thao tác thêm ở bước này.</Paragraph>
+    <main style={{ maxWidth: 960, margin: '0 auto', padding: '32px 16px', minHeight: '100vh', background: '#F8FAFC' }}>
+      <Flex vertical gap={24}>
+        {/* Header */}
+        <Flex vertical gap={8}>
+          <Title level={2} style={{ margin: 0, color: '#0F172A' }}>Đã gửi yêu cầu</Title>
+          <Paragraph style={{ margin: 0, color: '#475569', fontSize: 16 }}>
+            Trạng thái do hệ thống xử lý cập nhật. Bạn không cần thao tác thêm ở bước này.
+          </Paragraph>
+        </Flex>
+
+        {/* Status Card */}
+        <Card>
+          <Flex vertical gap={16}>
+            <Flex justify="space-between" align="center" wrap>
+              <div>
+                <Text type="secondary" style={{ fontSize: 14, fontWeight: 600 }}>Mã hồ sơ</Text>
+                <div><Text strong style={{ fontSize: 20, color: '#0F172A' }}>{request.id}</Text></div>
+              </div>
+              <Tag color={toneToTagColor(status.tone)} style={{ fontSize: 14, padding: '4px 12px' }}>
+                {status.label}
+              </Tag>
+            </Flex>
+            <Text style={{ color: '#475569', fontSize: 16 }}>{status.body}</Text>
+            {request.status === 'triage' && (
+              <div style={{ padding: 16, background: '#FEF3C7', borderRadius: 8, border: '1px solid #FCD34D' }}>
+                <Text style={{ color: '#B45309', fontSize: 16 }}>Cần chuyên viên phân loại</Text>
+              </div>
+            )}
+          </Flex>
+        </Card>
+
+        {/* Request Info Card */}
+        <Card title={<Text strong style={{ fontSize: 18 }}>Thông tin hồ sơ</Text>}>
+          <Flex vertical gap={16}>
+            {/* Matter Type */}
+            <div style={{ padding: 16, background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0' }}>
+              <Text type="secondary" style={{ fontSize: 14 }}>Loại việc</Text>
+              <div><Text strong style={{ fontSize: 16, color: '#0F172A' }}>{request.title}</Text></div>
+            </div>
+
+            {/* Attached Files */}
+            <div style={{ padding: 16, background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0' }}>
+              <Text type="secondary" style={{ fontSize: 14 }}>Tệp đính kèm</Text>
+              {hasFiles ? (
+                <ul style={{ margin: '8px 0 0 0', paddingLeft: 20 }}>
+                  {request.vaultFiles.map((file) => (
+                    <li key={file.id} style={{ fontSize: 16, color: '#0F172A', marginBottom: 4 }}>
+                      {file.filename || 'Tệp không có tên'}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <Text type="secondary" style={{ fontSize: 16 }}>Chưa có tệp đính kèm.</Text>
+              )}
+            </div>
+          </Flex>
+        </Card>
       </Flex>
-
-      <Card styles={{ body: { padding: 16 } }}>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-[14px] font-semibold leading-[1.4] text-[#475569]">Mã hồ sơ</p>
-            <h1 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">{request.id}</h1>
-          </div>
-          <Tag color={toneToTagColor(status.tone)}>{status.label}</Tag>
-        </div>
-        <p className="mt-4 text-[16px] leading-[1.5] text-[#475569]">{status.body}</p>
-        {request.status === 'triage' ? <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-[16px] leading-[1.5] text-[#B45309]">Cần chuyên viên phân loại</p> : null}
-      </Card>
-
-      <Card styles={{ body: { padding: 16 } }}>
-        <h2 className="mb-4 text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Thông tin hồ sơ</h2>
-        <div className="rounded-xl border border-[#E2E8F0] p-4">
-          <p className="text-[14px] font-semibold leading-[1.4] text-[#475569]">Loại việc</p>
-          <p className="text-[16px] leading-[1.5] text-[#0F172A]">{request.title}</p>
-        </div>
-        <div className="mt-4 rounded-xl border border-[#E2E8F0] p-4">
-          <p className="text-[14px] font-semibold leading-[1.4] text-[#475569]">Tệp đính kèm</p>
-          {request.vaultFiles.length > 0 ? (
-            <ul className="mt-2 space-y-2">
-              {request.vaultFiles.map((file) => (
-                <li key={file.id} className="text-[16px] leading-[1.5] text-[#0F172A]">{file.filename}</li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-2 text-[16px] leading-[1.5] text-[#475569]">Chưa có tệp đính kèm.</p>
-          )}
-        </div>
-      </Card>
     </main>
   );
 }
+
+// Need to import redirect
+import { redirect } from 'next/navigation';

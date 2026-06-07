@@ -21,12 +21,12 @@ export function SignInForm() {
       });
 
       if (error) {
-        message.error('Email hoac mat khau khong dung');
+        message.error('Email hoặc mật khẩu không đúng');
       } else {
         router.push('/intake');
       }
     } catch (e) {
-      message.error('Co loi xay ra, vui long thu lai');
+      message.error('Có lỗi xảy ra, vui lòng thử lại');
       console.error(e);
     } finally {
       setLoading(false);
@@ -43,15 +43,15 @@ export function SignInForm() {
           <Form.Item
             name="email"
             rules={[
-              { required: true, message: 'Email la bat buoc' },
-              { type: 'email', message: 'Email khong hop le' },
+              { required: true, message: 'Email là bắt buộc' },
+              { type: 'email', message: 'Email không hợp lệ' },
             ]}
           >
             <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
           </Form.Item>
           <Form.Item
             name="password"
-            rules={[{ required: true, message: 'Mật khẩu la bat buoc' }]}
+            rules={[{ required: true, message: 'Mật khẩu là bắt buộc' }]}
           >
             <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" size="large" />
           </Form.Item>

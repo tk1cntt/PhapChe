@@ -124,8 +124,10 @@ export function QuestionStep({ matterType }: { matterType: MatterCatalogItem }) 
         {matterType.questions.map((question) => (
           <Form.Item
             key={question.key}
+            name={`answer.${question.key}`}
             label={<Text strong>{question.label}{question.required && <Text type="danger"> *</Text>}</Text>}
             required={question.required}
+            rules={question.required ? [{ required: true, message: `Vui lòng nhập ${question.label}` }] : []}
             style={{ marginBottom: 16 }}
           >
             {question.type === 'textarea' ? (
@@ -157,7 +159,7 @@ export function UploadStep({ files }: { files: UploadedFile[] }) {
       <Paragraph type="secondary" style={{ marginBottom: 16 }}>
         Tải lên hợp đồng, giấy phép, email trao đổi hoặc tài liệu liên quan. Không cần OCR ở bước này.
       </Paragraph>
-      <Dragger accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" showUploadList={false}>
+      <Dragger accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" showUploadList={false} name="file">
         <p style={{ marginBottom: 8 }}>
           <UploadOutlined style={{ fontSize: 32, color: '#0F766E' }} />
         </p>

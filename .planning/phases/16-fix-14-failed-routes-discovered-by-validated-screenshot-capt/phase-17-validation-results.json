@@ -1,12 +1,7 @@
 {
   "baseUrl": "http://localhost:3000",
   "options": {
-    "groups": [
-      "ops",
-      "admin",
-      "queues",
-      "dynamic"
-    ],
+    "groups": null,
     "quick": false
   },
   "fixtures": {
@@ -49,11 +44,11 @@
     "/admin/templates/new",
     "/admin/users",
     "/admin/vault",
-    "/specialist/requests",
-    "/reviewer/requests",
     "/customer/requests/[requestId]",
     "/requests/[requestId]",
+    "/reviewer/requests",
     "/reviewer/requests/[requestId]/review/[documentVersionId]",
+    "/specialist/requests",
     "/specialist/requests/[requestId]"
   ],
   "results": [
@@ -78,7 +73,7 @@
       "errors": [
         "HTTP status 500",
         "Blank body",
-        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `OpsRequestTimelinePage`.\n    at createFiberFromTypeAndProps (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at reconcileChildrenArray (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `OpsRequestTimelinePage`.\n    at createFiberFromTypeAndProps (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4022:39)\n    at reconcileChildrenArray (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
       ],
       "status": 500,
       "title": "Nen tang phap ly SME",
@@ -158,30 +153,6 @@
       "group": "admin"
     },
     {
-      "route": "/specialist/requests",
-      "concreteRoute": "/specialist/requests",
-      "role": "specialist",
-      "validation": "PASS",
-      "screenshot": ".planning/phases/16-fix-14-failed-routes-discovered-by-validated-screenshot-capt/screenshots/specialist-requests.png",
-      "errors": [],
-      "status": 200,
-      "title": "Nen tang phap ly SME",
-      "bodyPreview": "GitNexus Legal\nChuyen vien\nHang cho\nChuyen vien\n/\nHo so yeu cau\nYêu cầu được giao\nDanh sách yêu cầu đã được điều phối cho bạn.\nHàng chờ xử lý\nDanh sách này được lọc theo workspace hiện tại và chuyên viên đang đăng nhập.\nYêu cầu\tKhách hàng\tLoại vụ việc\tTrạng thái\tNgày gửi\tHành động\nChưa có yêu cầu nà",
-      "group": "queues"
-    },
-    {
-      "route": "/reviewer/requests",
-      "concreteRoute": "/reviewer/requests",
-      "role": "reviewer",
-      "validation": "PASS",
-      "screenshot": ".planning/phases/16-fix-14-failed-routes-discovered-by-validated-screenshot-capt/screenshots/reviewer-requests.png",
-      "errors": [],
-      "status": 200,
-      "title": "Nen tang phap ly SME",
-      "bodyPreview": "GitNexus Legal\nNguoi duyet\nHang cho duyet\nNguoi duyet\n/\nHo so yeu cau\nHang cho duyet\nDanh sach phien ban tai lieu duoc chuyen vien gui len cho ban duyet.\nHang cho duyet\nDanh sach nay duoc loc theo reviewer dang dang nhap.\nYêu cầu\tLoại vụ việc\tChuyên viên\tPhiên bản\tGửi lúc\n\nChưa có tài liệu cho duyệt",
-      "group": "queues"
-    },
-    {
       "route": "/customer/requests/[requestId]",
       "concreteRoute": "/customer/requests/cmpzpib1600054w8nvb60s3h2",
       "role": "customer",
@@ -210,6 +181,18 @@
       "group": "dynamic"
     },
     {
+      "route": "/reviewer/requests",
+      "concreteRoute": "/reviewer/requests",
+      "role": "reviewer",
+      "validation": "PASS",
+      "screenshot": ".planning/phases/16-fix-14-failed-routes-discovered-by-validated-screenshot-capt/screenshots/reviewer-requests.png",
+      "errors": [],
+      "status": 200,
+      "title": "Nen tang phap ly SME",
+      "bodyPreview": "GitNexus Legal\nNguoi duyet\nHang cho duyet\nNguoi duyet\n/\nHo so yeu cau\nHang cho duyet\nDanh sach phien ban tai lieu duoc chuyen vien gui len cho ban duyet.\nHang cho duyet\nDanh sach nay duoc loc theo reviewer dang dang nhap.\nYêu cầu\tLoại vụ việc\tChuyên viên\tPhiên bản\tGửi lúc\n\nChưa có tài liệu cho duyệt",
+      "group": "queues"
+    },
+    {
       "route": "/reviewer/requests/[requestId]/review/[documentVersionId]",
       "concreteRoute": "/reviewer/requests/cmpzpib1600054w8nvb60s3h2/review/cmpzpib2c00094w8nyw37n7nf",
       "role": "reviewer",
@@ -222,6 +205,18 @@
       "title": "404: This page could not be found.",
       "bodyPreview": "404\nThis page could not be found.",
       "group": "dynamic"
+    },
+    {
+      "route": "/specialist/requests",
+      "concreteRoute": "/specialist/requests",
+      "role": "specialist",
+      "validation": "PASS",
+      "screenshot": ".planning/phases/16-fix-14-failed-routes-discovered-by-validated-screenshot-capt/screenshots/specialist-requests.png",
+      "errors": [],
+      "status": 200,
+      "title": "Nen tang phap ly SME",
+      "bodyPreview": "GitNexus Legal\nChuyen vien\nHang cho\nChuyen vien\n/\nHo so yeu cau\nYêu cầu được giao\nDanh sách yêu cầu đã được điều phối cho bạn.\nHàng chờ xử lý\nDanh sách này được lọc theo workspace hiện tại và chuyên viên đang đăng nhập.\nYêu cầu\tKhách hàng\tLoại vụ việc\tTrạng thái\tNgày gửi\tHành động\nChưa có yêu cầu nà",
+      "group": "queues"
     },
     {
       "route": "/specialist/requests/[requestId]",

@@ -170,8 +170,8 @@ test('service creates VaultFile with private storageKey and no public URL field'
     const vaultFile = await prisma.vaultFile.findUniqueOrThrow({ where: { id: result.vaultFileId } });
     assert.equal(vaultFile.workspaceId, seed.workspaceId);
     assert.equal(vaultFile.requestId, seed.requestId);
-    assert.equal(vaultFile.filename, 'hop-dong-dai-ly.pdf');
-    assert.match(vaultFile.storageKey, /^private\/intake\//);
+    assert.equal(vaultFile.filename ?? '', 'hop-dong-dai-ly.pdf');
+    assert.match(vaultFile.storageKey ?? '', /^private\/intake\//);
     assert.equal(Object.hasOwn(vaultFile, 'publicUrl'), false);
   });
 });

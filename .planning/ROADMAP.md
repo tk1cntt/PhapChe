@@ -64,13 +64,13 @@ Plans:
 **Goal:** Fix 8 remaining routes that still fail after Phase 16 client component conversion. Phase 16 successfully converted 6/14 routes to Client Component + API route pattern.
 **Requirements**: TBD
 **Depends on:** Phase 16
-**Plans:** 5 plans
+**Plans:** 5/5 plans complete
 
 Plans:
-- [ ] 17-01-PLAN.md — Fix OpsTimelineTable + /admin/users: Fix HTTP 500 on /admin/ops/[requestId] (OpsTimelineTable undefined) and antd Space deprecated direction warning on /admin/users
-- [ ] 17-02-PLAN.md — Fix Validation Harness with Real IDs: Query Prisma for real seeded request/template/document IDs, replace placeholder IDs (sample-request-id, etc.)
-- [ ] 17-03-PLAN.md — Final Validation: Re-run validation harness against all 14 routes, confirm all routes pass or intentional error state
-- [ ] 17-04-PLAN.md — Fix OpsTimelineTable: Fix HTTP 500 on /admin/ops/[requestId] by verifying client component export/import chain
-- [ ] 17-05-PLAN.md — Investigate 404 Routes: Audit 4 dynamic routes returning 404, determine if fixable or should be removed from validation
+- [x] 17-01-PLAN.md — Fix OpsTimelineTable + /admin/users: Fix HTTP 500 on /admin/ops/[requestId] (OpsTimelineTable undefined) and antd Space deprecated direction warning on /admin/users
+- [x] 17-02-PLAN.md — Fix Validation Harness with Real IDs: Query Prisma for real seeded request/template/document IDs, replace placeholder IDs (sample-request-id, etc.)
+- [x] 17-03-PLAN.md — Final Validation: Re-run validation harness against all 14 routes, confirm all routes pass or intentional error state
+- [x] 17-04-PLAN.md — Fix OpsTimelineTable: Fix HTTP 500 on /admin/ops/[requestId] by verifying client component export/import chain
+- [x] 17-05-PLAN.md — Investigate 404 Routes: Audit 4 dynamic routes returning 404, determine if fixable or should be removed from validation
 
 ---

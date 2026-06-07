@@ -46,12 +46,14 @@ export function SignInForm() {
               { required: true, message: 'Email là bắt buộc' },
               { type: 'email', message: 'Email không hợp lệ' },
             ]}
+            initialValue="admin.demo@example.test"
           >
             <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
           </Form.Item>
           <Form.Item
             name="password"
             rules={[{ required: true, message: 'Mật khẩu là bắt buộc' }]}
+            initialValue="Demo@123456"
           >
             <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" size="large" />
           </Form.Item>

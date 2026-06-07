@@ -1,10 +1,10 @@
-import Link from 'next/link';
-import type { RequestStatus } from '@prisma/client';
+import { Card, Typography, Flex, Button } from 'antd';
 import { getOpsDashboard, parseOpsFilters } from '@/lib/ops/ops-service';
 import { requireAppSession } from '@/lib/security/session';
-import { Button, Card, Typography, Flex } from 'antd';
 import AdminOpsTables from './AdminOpsTables';
 import type { OpsRequestRow, OpsWorkloadRow } from './AdminOpsTables';
+import type { RequestStatus } from '@prisma/client';
+import Link from 'next/link';
 
 const { Text, Title, Paragraph } = Typography;
 
@@ -52,7 +52,6 @@ export default async function OpsPage({ searchParams }: { searchParams: Promise<
 
   const hasData = dashboard && (dashboard.total > 0 || dashboard.requests.length > 0 || dashboard.workload.length > 0);
 
-  // Serialize Date objects to ISO strings for client-safe DTOs
   const requestRows: OpsRequestRow[] = (dashboard?.requests ?? []).map((r) => ({
     id: r.id,
     title: r.title,

@@ -1,7 +1,9 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
-import { Tag, Card, Table, Typography, Flex, Button, Space } from 'antd';
+import { Card, Typography, Flex, Button, Space, Tag } from 'antd';
 import { notFound } from 'next/navigation';
+import AdminUsersTable from './AdminUsersTable';
+import type { UserRow } from './AdminUsersTable';
 
 const roles = [
   { value: 'customer', label: 'Khach hang', tone: 'neutral' as const },
@@ -18,10 +20,6 @@ const toneToColor: Record<string, string> = {
   accent: 'cyan',
   destructive: 'red',
 };
-
-function roleMeta(role: string) {
-  return roles.find((item) => item.value === role) ?? roles[0];
-}
 
 export default async function UsersPage() {
   const session = await requireAppSession();
@@ -42,7 +40,7 @@ export default async function UsersPage() {
     orderBy: { createdAt: 'desc' },
   });
 
-  const dataSource = users.map((user) => ({
+  const dataSource: UserRow[] = users.map((user) => ({
     key: user.id,
     name: user.name,
     email: user.email,
@@ -50,44 +48,6 @@ export default async function UsersPage() {
     workspace: user.memberships[0]?.workspace.name ?? '-',
     status: user.isActive ? 'Dang hoat dong' : 'Vo hieu hoa',
   }));
-
-  const columns = [
-    {
-      title: 'Ten',
-      dataIndex: 'name',
-      key: 'name',
-      width: 200,
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-      width: 250,
-    },
-    {
-      title: 'Vai tro',
-      key: 'role',
-      render: (_: unknown, record: (typeof dataSource)[number]) => {
-        const meta = roleMeta(record.role);
-        return <Tag color={toneToColor[meta.tone] ?? 'default'}>{meta.label}</Tag>;
-      },
-      width: 200,
-    },
-    {
-      title: 'Workspace',
-      dataIndex: 'workspace',
-      key: 'workspace',
-      width: 200,
-    },
-    {
-      title: 'Trang thai',
-      key: 'status',
-      render: (_: unknown, record: (typeof dataSource)[number]) => (
-        <Tag color={record.status === 'Dang hoat dong' ? 'cyan' : 'red'}>{record.status}</Tag>
-      ),
-      width: 150,
-    },
-  ];
 
   return (
     <>
@@ -118,14 +78,7 @@ export default async function UsersPage() {
         </Space>
       </Card>
 
-      <Table
-        dataSource={dataSource}
-        rowKey="key"
-        columns={columns}
-        pagination={false}
-        size="middle"
-        bordered
-      />
+      <AdminUsersTable dataSource={dataSource} />
 
       <Flex justify="flex-end" style={{ marginTop: 16 }}>
         <Button type="primary">Tao nguoi dung</Button>

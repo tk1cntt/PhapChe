@@ -84,24 +84,27 @@ async function main() {
       create: { userId: user.id, workspaceId: workspace.id, role: userData.role, isActive: true },
     });
 
-    await prisma.routingCapability.upsert({
-      where: {
-        workspaceId_userId_matterTypeKey_kind: {
+    // Only create routingCapability for specialist/reviewer roles (AssignmentKind enum)
+    if (userData.role === 'specialist' || userData.role === 'reviewer') {
+      await prisma.routingCapability.upsert({
+        where: {
+          workspaceId_userId_matterTypeKey_kind: {
+            workspaceId: workspace.id,
+            userId: user.id,
+            matterTypeKey: routingCapability.matterTypeKey,
+            kind: userData.role,
+          },
+        },
+        update: { isActive: true },
+        create: {
           workspaceId: workspace.id,
           userId: user.id,
           matterTypeKey: routingCapability.matterTypeKey,
           kind: userData.role,
+          isActive: true,
         },
-      },
-      update: { isActive: true },
-      create: {
-        workspaceId: workspace.id,
-        userId: user.id,
-        matterTypeKey: routingCapability.matterTypeKey,
-        kind: userData.role,
-        isActive: true,
-      },
-    });
+      });
+    }
   }
 
   // Phase 16 fixtures: minimum demo legal request, document, and document version

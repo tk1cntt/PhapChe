@@ -1,39 +1,25 @@
-import { Card, Typography, Flex } from 'antd';
-import { prisma } from '@/lib/prisma';
-import { requireAppSession } from '@/lib/security/session';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Card, Typography, Flex, Spin } from 'antd';
 import SpecialistRequestsTable from './SpecialistRequestsTable';
+import type { SpecialistRequestRow } from './SpecialistRequestsTable';
 
 const { Title, Paragraph } = Typography;
 
-export default async function SpecialistRequestsPage() {
-  const session = await requireAppSession();
+export default function SpecialistRequestsPage() {
+  const [rows, setRows] = useState<SpecialistRequestRow[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const requests = await prisma.legalRequest.findMany({
-    where: {
-      workspaceId: session.activeWorkspaceId ?? '',
-      assignedSpecialistId: session.userId,
-    },
-    select: {
-      id: true,
-      title: true,
-      status: true,
-      createdAt: true,
-      createdBy: { select: { name: true, email: true } },
-      intakeSubmission: { select: { matterTypeKey: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  // Map to serializable DTOs — Date objects converted to ISO strings for client component
-  const rows = requests.map((r) => ({
-    id: r.id,
-    title: r.title,
-    status: r.status,
-    createdAt: r.createdAt.toISOString(),
-    customerName: r.createdBy.name,
-    customerEmail: r.createdBy.email,
-    matterTypeKey: r.intakeSubmission?.matterTypeKey ?? null,
-  }));
+  useEffect(() => {
+    fetch('/api/specialist/requests')
+      .then((r) => r.json())
+      .then((data) => {
+        setRows(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   return (
     <>
@@ -44,14 +30,20 @@ export default async function SpecialistRequestsPage() {
         </Paragraph>
       </Flex>
 
-      <Card>
+      <Card style={{ marginBottom: 16 }}>
         <Title level={5} style={{ marginBottom: 4 }}>Hàng chờ xử lý</Title>
         <Paragraph style={{ color: '#475569', marginBottom: 0 }}>
-          Danh sách này được lọc trên máy chủ theo workspace hiện tại và chuyên viên đang đăng nhập.
+          Danh sách này được lọc theo workspace hiện tại và chuyên viên đang đăng nhập.
         </Paragraph>
       </Card>
 
-      <SpecialistRequestsTable rows={rows} />
+      {loading ? (
+        <Flex justify="center" style={{ padding: 48 }}>
+          <Spin />
+        </Flex>
+      ) : (
+        <SpecialistRequestsTable rows={rows} />
+      )}
     </>
   );
 }

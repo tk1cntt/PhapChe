@@ -1,0 +1,246 @@
+{
+  "generated": "2026-06-06T17:28:43.034Z",
+  "baseUrl": "http://localhost:3001",
+  "samples": {
+    "requestId": "cmpzpib1600054w8nvb60s3h2",
+    "templateId": "cmpxfugxq00314wf2m6w54rfz",
+    "documentVersionId": "cmpzpib2c00094w8nyw37n7nf",
+    "dbAvailable": true
+  },
+  "routes": [
+    {
+      "route": "/admin/ops",
+      "concreteRoute": "/admin/ops",
+      "group": "admin",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 500",
+        "Blank body",
+        "Next.js overlay: Runtime ErrorElement type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `OpsPage`.\n    at createFiberFromTypeAndProps (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at createChild (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4022:39)\n    at reconcileChildrenArray (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "status": 500,
+      "screenshot": null,
+      "contentNote": "Missing heading: \"Điều phối\". Body preview: ",
+      "bodyPreview": ""
+    },
+    {
+      "route": "/admin/routing",
+      "concreteRoute": "/admin/routing",
+      "group": "admin",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 500",
+        "Blank body",
+        "Next.js overlay: Runtime ErrorElement type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `RoutingPage`.\n    at createFiberFromTypeAndProps (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at reconcileChildrenArray (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "status": 500,
+      "screenshot": null,
+      "contentNote": "Missing heading: \"Điều phối yêu cầu\". Body preview: ",
+      "bodyPreview": ""
+    },
+    {
+      "route": "/admin/templates",
+      "concreteRoute": "/admin/templates",
+      "group": "admin",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 500",
+        "Blank body",
+        "Next.js overlay: Runtime ErrorElement type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `TemplatesPage`.\n    at createFiberFromTypeAndProps (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at reconcileChildrenArray (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "status": 500,
+      "screenshot": null,
+      "contentNote": "Missing heading: \"Quản lý mẫu\". Body preview: ",
+      "bodyPreview": ""
+    },
+    {
+      "route": "/admin/templates/new",
+      "concreteRoute": "/admin/templates/new",
+      "group": "admin",
+      "pass": true,
+      "contentVerified": true,
+      "errors": [],
+      "status": 200,
+      "screenshot": ".planning/quick/260606-udu-verify-all-screens-with-screenshot-evide/screenshots/__admin__templates__new.png",
+      "contentNote": "Found heading: \"Tạo mẫu\"",
+      "bodyPreview": "GitNexus Legal\nNguoi dung\nWorkspace\nHo so yeu cau\nVan hanh\nAudit\nPhan loai vault\nQuan tri\n/\nMau van ban\n/\nnew\n← Quay lại danh sách mẫu tài liệu\nTạo mẫu tài liệu mới\nLoại vụ việc *\n-- Chọn loại vụ việc --\nHợp đồng lao động\nHợp đồng đại lý\nĐăng ký nhãn hiệu\nKhác / Chưa rõ\n\nMatter type key xác định loạ"
+    },
+    {
+      "route": "/admin/users",
+      "concreteRoute": "/admin/users",
+      "group": "admin",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 500",
+        "Blank body",
+        "Next.js overlay: Runtime ErrorElement type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `UsersPage`.\n    at createFiberFromTypeAndProps (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at reconcileChildrenArray (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "status": 500,
+      "screenshot": null,
+      "contentNote": "Missing heading: \"Quản lý người\". Body preview: ",
+      "bodyPreview": ""
+    },
+    {
+      "route": "/admin/vault",
+      "concreteRoute": "/admin/vault",
+      "group": "admin",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 500",
+        "Blank body",
+        "Next.js overlay: Runtime ErrorElement type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `AdminVaultPage`.\n    at createFiberFromTypeAndProps (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at reconcileChildrenArray (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "status": 500,
+      "screenshot": null,
+      "contentNote": "Missing heading: \"Phân loại\". Body preview: ",
+      "bodyPreview": ""
+    },
+    {
+      "route": "/admin/ops/[requestId]",
+      "concreteRoute": "/admin/ops/cmpzpib1600054w8nvb60s3h2",
+      "group": "admin",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 500",
+        "Blank body",
+        "Next.js overlay: Runtime ErrorElement type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `OpsRequestTimelinePage`.\n    at createFiberFromTypeAndProps (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at createChild (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4022:39)\n    at reconcileChildrenArray (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "status": 500,
+      "screenshot": null,
+      "contentNote": "Page appears empty or errored",
+      "bodyPreview": ""
+    },
+    {
+      "route": "/admin/templates/[templateId]",
+      "concreteRoute": "/admin/templates/cmpxfugxq00314wf2m6w54rfz",
+      "group": "admin",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 500",
+        "Blank body",
+        "Next.js overlay: Runtime ErrorServerFunctions cannot be passed directly to Client Components unless you explicitly expose it by marking it with \"use server\". Or maybe you meant to call this function rather than return",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with \"use server\". Or maybe you meant to call this function rather than return it.\n  <form action={function deprecateTemplateAction} method=... style=... children=...>\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    at stringify (<anonymous>:1:18)\n    at resolveErrorDev (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:1919:150)\n    at processFullStringRow (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2434:29)\n    at processFullBinaryRow (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2393:9)\n    at processBinaryChunk (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2502:221)\n    at progress (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2689:13) The above error occurred in the <form> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "status": 500,
+      "screenshot": null,
+      "contentNote": "Page appears empty or errored",
+      "bodyPreview": ""
+    },
+    {
+      "route": "/specialist/requests",
+      "concreteRoute": "/specialist/requests",
+      "group": "specialist",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 500",
+        "Blank body",
+        "Next.js overlay: Runtime ErrorElement type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `SpecialistRequestsPage`.\n    at createFiberFromTypeAndProps (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at createChild (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4022:39)\n    at reconcileChildrenArray (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "status": 500,
+      "screenshot": null,
+      "contentNote": "Missing heading: \"Yêu cầu\". Body preview: ",
+      "bodyPreview": ""
+    },
+    {
+      "route": "/specialist/requests/[requestId]",
+      "concreteRoute": "/specialist/requests/cmpzpib1600054w8nvb60s3h2",
+      "group": "dynamic",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 404",
+        "Error signal: this page could not be found",
+        "Error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "status": 404,
+      "screenshot": null,
+      "contentNote": "Missing heading: \"Chi tiết yêu cầu\". Body preview: 404\nThis page could not be found.",
+      "bodyPreview": "404\nThis page could not be found."
+    },
+    {
+      "route": "/reviewer/requests",
+      "concreteRoute": "/reviewer/requests",
+      "group": "reviewer",
+      "pass": true,
+      "contentVerified": false,
+      "errors": [],
+      "status": 200,
+      "screenshot": ".planning/quick/260606-udu-verify-all-screens-with-screenshot-evide/screenshots/__reviewer__requests.png",
+      "contentNote": "Missing heading: \"Yêu cầu\". Body preview: GitNexus Legal\nNguoi duyet\nHang cho duyet\nNguoi duyet\n/\nHo so yeu cau\nHang cho duyet\n\nDanh sach phien ban tai lieu duoc chuyen vien gui len cho ban du",
+      "bodyPreview": "GitNexus Legal\nNguoi duyet\nHang cho duyet\nNguoi duyet\n/\nHo so yeu cau\nHang cho duyet\n\nDanh sach phien ban tai lieu duoc chuyen vien gui len cho ban duyet.\n\nHang cho duyet\n\nDanh sach nay duoc loc tren may chu theo reviewer dang dang nhap.\n\nChua co tai lieu cho duyet"
+    },
+    {
+      "route": "/reviewer/requests/[requestId]/review/[documentVersionId]",
+      "concreteRoute": "/reviewer/requests/cmpzpib1600054w8nvb60s3h2/review/cmpzpib2c00094w8nyw37n7nf",
+      "group": "dynamic",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 404",
+        "Error signal: this page could not be found",
+        "Error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "status": 404,
+      "screenshot": null,
+      "contentNote": "Page appears empty or errored",
+      "bodyPreview": "404\nThis page could not be found."
+    },
+    {
+      "route": "/customer/requests/[requestId]",
+      "concreteRoute": "/customer/requests/cmpzpib1600054w8nvb60s3h2",
+      "group": "dynamic",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 404",
+        "Error signal: this page could not be found",
+        "Error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "status": 404,
+      "screenshot": null,
+      "contentNote": "Missing heading: \"Yêu cầu pháp lý\". Body preview: 404\nThis page could not be found.",
+      "bodyPreview": "404\nThis page could not be found."
+    },
+    {
+      "route": "/requests/[requestId]",
+      "concreteRoute": "/requests/cmpzpib1600054w8nvb60s3h2",
+      "group": "dynamic",
+      "pass": false,
+      "contentVerified": false,
+      "errors": [
+        "HTTP 404",
+        "Error signal: this page could not be found",
+        "Error signal: 404",
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "status": 404,
+      "screenshot": null,
+      "contentNote": "Missing heading: \"Đã gửi yêu cầu\". Body preview: 404\nThis page could not be found.",
+      "bodyPreview": "404\nThis page could not be found."
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "pass": 2,
+    "fail": 12,
+    "contentVerified": 1
+  }
+}

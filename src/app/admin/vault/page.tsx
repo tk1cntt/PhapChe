@@ -1,20 +1,10 @@
 import { redirect } from 'next/navigation';
-import { Tag, Card, Table, Typography, Flex, Row, Col } from 'antd';
+import { Card, Typography, Flex, Row, Col } from 'antd';
 import { listFolders, listTags, listFileClassifications } from '@/lib/documents/classification-service';
 import { requireAppSession } from '@/lib/security/session';
 import { FolderForm } from './components/folder-form';
 import { TagForm } from './components/tag-form';
-import { MoveFileForm } from './components/move-file-form';
-
-const toneToColor: Record<string, string> = {
-  neutral: 'default',
-  info: 'blue',
-  accent: 'cyan',
-};
-
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
-}
+import { VaultFilesTable } from './VaultFilesTable';
 
 export default async function AdminVaultPage() {
   const session = await requireAppSession();
@@ -31,70 +21,6 @@ export default async function AdminVaultPage() {
     listTags(session, workspaceId),
     listFileClassifications(session, workspaceId),
   ]);
-
-  const fileColumns = [
-    {
-      title: 'Tên tệp',
-      key: 'filename',
-      render: (_: unknown, record: (typeof classifications)[number]) =>
-        record.vaultFile.filename ?? '(không tên)',
-      width: 250,
-    },
-    {
-      title: 'Thư mục',
-      key: 'folders',
-      render: (_: unknown, record: (typeof classifications)[number]) => {
-        if (record.folders.length === 0) {
-          return <span className="text-[12px] text-[#94A3B8]">—</span>;
-        }
-        return (
-          <Flex wrap="wrap" gap={4}>
-            {record.folders.map((f) => (
-              <Tag key={f.id} color="blue">{f.name}</Tag>
-            ))}
-          </Flex>
-        );
-      },
-      width: 220,
-    },
-    {
-      title: 'Thẻ',
-      key: 'tags',
-      render: (_: unknown, record: (typeof classifications)[number]) => {
-        if (record.tags.length === 0) {
-          return <span className="text-[12px] text-[#94A3B8]">—</span>;
-        }
-        return (
-          <Flex wrap="wrap" gap={4}>
-            {record.tags.map((t) => (
-              <Tag key={t.id} color="cyan">{t.label}</Tag>
-            ))}
-          </Flex>
-        );
-      },
-      width: 220,
-    },
-    {
-      title: 'Cập nhật',
-      key: 'createdAt',
-      render: (_: unknown, record: (typeof classifications)[number]) =>
-        formatDate(record.vaultFile.createdAt),
-      width: 130,
-    },
-    {
-      title: 'Hành động',
-      key: 'actions',
-      render: (_: unknown, record: (typeof classifications)[number]) => (
-        <MoveFileForm
-          vaultFileId={record.vaultFile.id}
-          folders={folders.map((f: { id: string; name: string }) => ({ id: f.id, name: f.name }))}
-          tags={tags.map((t: { id: string; key: string; label: string }) => ({ id: t.id, key: t.key, label: t.label }))}
-          appliedTags={record.tags.map((t: { id: string; key: string; label: string }) => ({ id: t.id, key: t.key, label: t.label }))}
-        />
-      ),
-      width: 250,
-    },
-  ];
 
   return (
     <>
@@ -130,8 +56,8 @@ export default async function AdminVaultPage() {
                       {f.parentId && <span className="text-[12px] text-[#64748B]">trong thư mục cha</span>}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Tag color="default">{f._count.vaultFileFolders} tệp</Tag>
-                      {f._count.children > 0 && <Tag color="blue">{f._count.children} thư mục con</Tag>}
+                      <span className="rounded bg-[#F1F5F9] px-2 py-0.5 text-[12px] text-[#64748B]">{f._count.vaultFileFolders} tệp</span>
+                      {f._count.children > 0 && <span className="rounded bg-[#E0F2FE] px-2 py-0.5 text-[12px] text-[#0369A1]">{f._count.children} thư mục con</span>}
                     </div>
                   </li>
                 ))}
@@ -161,7 +87,7 @@ export default async function AdminVaultPage() {
                       <span className="text-[14px] font-semibold text-[#0F172A]">{t.label}</span>
                       <span className="font-mono text-[12px] text-[#64748B]">{t.key}</span>
                     </div>
-                    <Tag color="default">{t._count.vaultFileTags} tệp</Tag>
+                    <span className="rounded bg-[#F1F5F9] px-2 py-0.5 text-[12px] text-[#64748B]">{t._count.vaultFileTags} tệp</span>
                   </li>
                 ))}
               </ul>
@@ -178,13 +104,10 @@ export default async function AdminVaultPage() {
             Chưa có tệp nào trong vault này.
           </p>
         ) : (
-          <Table
-            dataSource={classifications}
-            rowKey={(record: (typeof classifications)[number]) => record.vaultFile.id}
-            columns={fileColumns}
-            pagination={false}
-            size="middle"
-            bordered
+          <VaultFilesTable
+            classifications={classifications}
+            folders={folders.map((f: { id: string; name: string }) => ({ id: f.id, name: f.name }))}
+            tags={tags.map((t: { id: string; key: string; label: string }) => ({ id: t.id, key: t.key, label: t.label }))}
           />
         )}
       </Card>

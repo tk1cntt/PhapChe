@@ -9,6 +9,7 @@ export type OpsTimelineRow = {
   at: string; // ISO string
   actorId: string | null;
   actorName: string | null;
+  actorEmail: string | null;
   action: string;
   targetType: string | null;
   targetId: string | null;

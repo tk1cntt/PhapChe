@@ -1,9 +1,7 @@
 {
   "baseUrl": "http://localhost:3000",
   "options": {
-    "groups": [
-      "admin"
-    ],
+    "groups": null,
     "quick": false
   },
   "fixtures": {
@@ -44,7 +42,13 @@
     "/admin/templates/[templateId]",
     "/admin/templates/new",
     "/admin/users",
-    "/admin/vault"
+    "/admin/vault",
+    "/customer/requests/[requestId]",
+    "/requests/[requestId]",
+    "/reviewer/requests",
+    "/reviewer/requests/[requestId]/review/[documentVersionId]",
+    "/specialist/requests",
+    "/specialist/requests/[requestId]"
   ],
   "results": [
     {
@@ -54,13 +58,8 @@
       "validation": "FAIL",
       "screenshot": null,
       "errors": [
-        "HTTP status 500",
-        "Blank body",
-        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `OpsPage`.\n    at createFiberFromTypeAndProps (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4022:39)\n    at reconcileChildrenArray (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+        "Sign-in failed for admin: Still on sign-in after submit. URL: http://localhost:3000/sign-in"
       ],
-      "status": 500,
-      "title": "Nen tang phap ly SME",
-      "bodyPreview": "",
       "group": "ops"
     },
     {
@@ -88,7 +87,7 @@
       "errors": [
         "HTTP status 500",
         "Blank body",
-        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `RoutingPage`.\n    at createFiberFromTypeAndProps (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4022:39)\n    at reconcileChildrenArray (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `RoutingPage`.\n    at createFiberFromTypeAndProps (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at reconcileChildrenArray (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
       ],
       "status": 500,
       "title": "Nen tang phap ly SME",
@@ -104,7 +103,7 @@
       "errors": [
         "HTTP status 500",
         "Blank body",
-        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s PrismaClientKnownRequestError: \nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__[\"prisma\"].documentTemplate.findMany()` invocation in\nD:\\PhapChe\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__0arc75y._.js:219:156\n\n  216 }\n  217 async function listTemplates(session, workspaceId, matterTypeKey) {\n  218     if (!await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$security$2f$rbac$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__[\"canAccessWorkspace\"])(session, workspaceId)) throw new Error('FORBIDDEN');\n→ 219     return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__[\"prisma\"].documentTemplate.findMany(\nThe column `DocumentTemplate.createdById` does not exist in the current database.\n    at TemplatesPage (about://React/Server/D:%5CPhapChe%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C%5Broot-of-the-server%5D__0arc75y._.js?0:702:23)\n    at resolveErrorDev (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:1919:105)\n    at processFullStringRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2434:29)\n    at processFullBinaryRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2393:9)\n    at processBinaryChunk (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2502:221)\n    at progress (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2689:13) The above error occurred in the <TemplatesPage> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s PrismaClientKnownRequestError: \nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__[\"prisma\"].documentTemplate.findMany()` invocation in\nD:\\PhapChe\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__0arc75y._.js:219:156\n\n  216 }\n  217 async function listTemplates(session, workspaceId, matterTypeKey) {\n  218     if (!await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$security$2f$rbac$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__[\"canAccessWorkspace\"])(session, workspaceId)) throw new Error('FORBIDDEN');\n→ 219     return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__[\"prisma\"].documentTemplate.findMany(\nThe column `DocumentTemplate.createdById` does not exist in the current database.\n    at TemplatesPage (about://React/Server/D:%5CPhapChe%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C%5Broot-of-the-server%5D__0arc75y._.js?0:693:23)\n    at resolveErrorDev (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:1919:105)\n    at processFullStringRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2434:29)\n    at processFullBinaryRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2393:9)\n    at processBinaryChunk (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2502:221)\n    at progress (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2689:13) The above error occurred in the <TemplatesPage> component. It was handled by the <ErrorBoundaryHandler> error boundary."
       ],
       "status": 500,
       "title": "Nen tang phap ly SME",
@@ -118,13 +117,11 @@
       "validation": "FAIL",
       "screenshot": null,
       "errors": [
-        "HTTP status 500",
-        "Blank body",
-        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s PrismaClientValidationError: \nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__[\"prisma\"].documentTemplate.findUnique()` invocation in\nD:\\PhapChe\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__0xibkvr._.js:51:172\n\n  48 if (!session.roles.includes('coordinator_admin') && !session.roles.includes('super_admin')) {\n  49     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$components$2f$navigation$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__[\"redirect\"])('/admin');\n  50 }\n→ 51 const template = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__[\"prisma\"].documentTemplate.findUnique({\n       where: {\n         id: undefined,\n     ?   workspaceId_matterTypeKey_version?: DocumentTemplateWorkspaceIdMatterTypeKeyVersionCompoundUniqueInput,\n     ?   AND?: DocumentTemplateWhereInput | DocumentTemplateWhereInput[],\n     ?   OR?: DocumentTemplateWhereInput[],\n     ?   NOT?: DocumentTemplateWhereInput | DocumentTemplateWhereInput[],\n     ?   workspaceId?: StringFilter | String,\n     ?   matterTypeKey?: StringFilter | String,\n     ?   version?: IntFilter | Int,\n     ?   status?: EnumTemplateStatusFilter | TemplateStatus,\n     ?   label?: StringFilter | String,\n     ?   description?: StringNullableFilter | String | Null,\n     ?   variableSchema?: JsonFilter,\n     ?   content?: StringFilter | String,\n     ?   previousVersionId?: StringNullableFilter | String | Null,\n     ?   createdById?: StringFilter | String,\n     ?   createdAt?: DateTimeFilter | DateTime,\n     ?   updatedAt?: DateTimeFilter | DateTime,\n     ?   workspace?: WorkspaceScalarRelationFilter | WorkspaceWhereInput,\n     ?   createdBy?: UserScalarRelationFilter | UserWhereInput,\n     ?   previousVersion?: DocumentTemplateNullableScalarRelationFilter | DocumentTemplateWhereInput | Null,\n     ?   nextVersions?: DocumentTemplateListRelationFilter\n       },\n       include: {\n         previousVersion: {\n           select: {\n             id: true,\n             version: true,\n             status: true\n           }\n         }\n       }\n     })\n\nArgument `where` of type DocumentTemplateWhereUniqueInput needs at least one of `id` or `workspaceId_matterTypeKey_version` arguments. Available options are marked with ?.\n    at  TemplateDetailPage (about://React/Server/D:%5CPhapChe%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C%5Broot-of-the-server%5D__0xibkvr._.js?0:51:22)\n    at resolveErrorDev (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:1919:105)\n    at processFullStringRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2434:29)\n    at processFullBinaryRow (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2393:9)\n    at processBinaryChunk (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2502:221)\n    at progress (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_0p3wegg._.js:2689:13) The above error occurred in the <TemplateDetailPage> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
       ],
-      "status": 500,
-      "title": "Nen tang phap ly SME",
-      "bodyPreview": "",
+      "status": 404,
+      "title": "404: This page could not be found.",
+      "bodyPreview": "404\nThis page could not be found.",
       "group": "admin"
     },
     {
@@ -148,7 +145,7 @@
       "errors": [
         "HTTP status 500",
         "Blank body",
-        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `UsersPage`.\n    at createFiberFromTypeAndProps (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4022:39)\n    at reconcileChildrenArray (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `UsersPage`.\n    at createFiberFromTypeAndProps (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at reconcileChildrenArray (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
       ],
       "status": 500,
       "title": "Nen tang phap ly SME",
@@ -170,6 +167,94 @@
       "title": "Nen tang phap ly SME",
       "bodyPreview": "",
       "group": "admin"
+    },
+    {
+      "route": "/customer/requests/[requestId]",
+      "concreteRoute": "/customer/requests/sample-request-id",
+      "role": "customer",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "status": 404,
+      "title": "404: This page could not be found.",
+      "bodyPreview": "404\nThis page could not be found.",
+      "group": "dynamic"
+    },
+    {
+      "route": "/requests/[requestId]",
+      "concreteRoute": "/requests/sample-request-id",
+      "role": "customer",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "status": 404,
+      "title": "404: This page could not be found.",
+      "bodyPreview": "404\nThis page could not be found.",
+      "group": "dynamic"
+    },
+    {
+      "route": "/reviewer/requests",
+      "concreteRoute": "/reviewer/requests",
+      "role": "reviewer",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 500",
+        "Blank body",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `ReviewerQueuePage`.\n    at createFiberFromTypeAndProps (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at reconcileChildrenArray (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "status": 500,
+      "title": "Nen tang phap ly SME",
+      "bodyPreview": "",
+      "group": "queues"
+    },
+    {
+      "route": "/reviewer/requests/[requestId]/review/[documentVersionId]",
+      "concreteRoute": "/reviewer/requests/sample-request-id/review/sample-document-version-id",
+      "role": "reviewer",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "status": 404,
+      "title": "404: This page could not be found.",
+      "bodyPreview": "404\nThis page could not be found.",
+      "group": "dynamic"
+    },
+    {
+      "route": "/specialist/requests",
+      "concreteRoute": "/specialist/requests",
+      "role": "specialist",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "HTTP status 500",
+        "Blank body",
+        "Console errors: Failed to load resource: the server responded with a status of 500 (Internal Server Error) | %o\n\n%s Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.\n\nCheck the render method of `SpecialistRequestsPage`.\n    at createFiberFromTypeAndProps (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3167:32)\n    at createFiberFromElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:3178:16)\n    at createChild (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4016:40)\n    at reconcileChildrenArray (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4129:72)\n    at reconcileChildFibersImpl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4236:51)\n    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4261:39\n    at reconcileChildren (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5898:51)\n    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6758:1573)\n    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)\n    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)\n    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)\n    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)\n    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)\n    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10255:9)\n    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:2647:64) The above error occurred in the <div> component. It was handled by the <ErrorBoundaryHandler> error boundary."
+      ],
+      "status": 500,
+      "title": "Nen tang phap ly SME",
+      "bodyPreview": "",
+      "group": "queues"
+    },
+    {
+      "route": "/specialist/requests/[requestId]",
+      "concreteRoute": "/specialist/requests/sample-request-id",
+      "role": "specialist",
+      "validation": "FAIL",
+      "screenshot": null,
+      "errors": [
+        "Console errors: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "status": 404,
+      "title": "404: This page could not be found.",
+      "bodyPreview": "404\nThis page could not be found.",
+      "group": "dynamic"
     }
   ]
 }

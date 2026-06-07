@@ -2,6 +2,8 @@
 
 Mọi trao đổi phải dùng tiếng Việt.
 
+Cấm sử dụng lệnh taskkill //F //IM node.exe.
+
 Tên slug của từng phase hay quick phải là tiếng anh và ngắn gọn.
 
 ## 1. Think Before Coding

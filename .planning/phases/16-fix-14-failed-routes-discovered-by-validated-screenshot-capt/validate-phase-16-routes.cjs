@@ -144,18 +144,22 @@ async function waitForServer(page) {
 async function signIn(page, credentials) {
   await page.context().clearCookies();
   await page.goto(baseUrl + '/sign-in', { waitUntil: 'networkidle', timeout: 30000 });
-  const emailField = page.getByLabel(/email/i).or(page.getByPlaceholder(/email/i)).or(page.locator('input[type="email"]')).first();
-  const passwordField = page.getByLabel(/password|mật khẩu|mat khau/i).or(page.getByPlaceholder(/password|mật khẩu|mat khau/i)).or(page.locator('input[type="password"]')).first();
-  if ((await emailField.count()) === 0 || (await passwordField.count()) === 0) {
+
+  // SignInForm: placeholder="Email" and placeholder="Mat khau" (no label, no diacritics)
+  const inputs = page.locator('input');
+  const count = await inputs.count();
+  if (count < 2) {
     return { ok: false, reason: 'Sign-in form fields not found' };
   }
-  await emailField.fill(credentials.email);
-  await passwordField.fill(credentials.password);
-  const submit = page.locator('button[type="submit"], button').filter({ hasText: /sign in|đăng nhập|login|dang nhap/i }).first();
-  if ((await submit.count()) > 0) await submit.click();
-  else await passwordField.press('Enter');
-  await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
-  await page.waitForTimeout(1500);
+
+  // First input is email, second is password
+  await inputs.nth(0).fill(credentials.email);
+  await inputs.nth(1).fill(credentials.password);
+
+  // Submit
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(3000);
+
   const url = page.url();
   if (url.includes('/sign-in')) {
     return { ok: false, reason: `Still on sign-in after submit. URL: ${url}` };

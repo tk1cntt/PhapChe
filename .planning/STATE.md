@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Auth & Hardening
 status: executing
-last_updated: "2026-06-07T06:55:51.480Z"
+last_updated: "2026-06-07T06:59:10.273Z"
 last_activity: 2026-06-07
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 11
-  completed_plans: 9
-  percent: 82
+  completed_plans: 11
+  percent: 91
 ---
 
 # State
@@ -80,7 +80,17 @@ Items acknowledged at milestone close (2026-06-05):
 | 260606-pfi | Mở tất cả các trang hiện có, kiểm tra hiển thị đã đúng chưa, thực hiện chụp tất cả các màn hình sau khi đã validate hiển thị đúng | 2026-06-06 | 004e617 | Needs Review | [260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t](./quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/) |
 
 Last activity: 2026-06-07
-**Completed:** Phase 17 plan 03
+**Completed:** Phase 17 plan 04
+
+## Phase 17 Plan 04 Execution
+
+| Task | Description | Status | Commit |
+|------|-------------|--------|--------|
+| 17-04-01 | Fix OpsTimelineTable import path | Complete | e0ba66b |
+| 17-04-02 | Clear Next.js build cache | Complete | be60bf7 |
+| 17-04-03 | Verify route returns HTTP 200 | Complete | 8b0e85c |
+
+**Result:** HTTP 500 fixed by changing @/ alias to relative ./ import. Route /admin/ops/[requestId] now returns 200.
 
 ## Phase 17 Plan 03 Execution
 

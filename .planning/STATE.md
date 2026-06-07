@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Auth & Hardening
 status: executing
-last_updated: "2026-06-07T06:59:10.273Z"
+last_updated: "2026-06-07T06:59:54.990Z"
 last_activity: 2026-06-07
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 11
   completed_plans: 11
-  percent: 91
+  percent: 100
 ---
 
 # State
@@ -47,7 +47,7 @@ All v1.0 MVP phases complete. Phase 15 kicks off v1.1 with authentication system
 | 14 | antd-layout-redesign | 9/9 | Complete | `14-VERIFICATION.md`: passed |
 | 15 | auth | — | Not planned | — |
 | 16 | fix-14-failed-routes | 3/3 | Complete | `16-03-SUMMARY.md`: pending_user_review |
-| 17 | fix-remaining-routes | 3/3 | Complete | `17-03-SUMMARY.md` |
+| 17 | fix-remaining-routes | 3/3 | Complete | `17-03-SUMMARY.md`, `17-05-SUMMARY.md` |
 
 ## Deferred Items
 
@@ -80,7 +80,17 @@ Items acknowledged at milestone close (2026-06-05):
 | 260606-pfi | Mở tất cả các trang hiện có, kiểm tra hiển thị đã đúng chưa, thực hiện chụp tất cả các màn hình sau khi đã validate hiển thị đúng | 2026-06-06 | 004e617 | Needs Review | [260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t](./quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/) |
 
 Last activity: 2026-06-07
-**Completed:** Phase 17 plan 04
+**Completed:** Phase 17 plan 05
+
+## Phase 17 Plan 05 Execution
+
+| Task | Description | Status | Commit |
+|------|-------------|--------|--------|
+| 17-05-01 | Audit route existence and directory structure | Complete | 8cc0530 |
+| 17-05-02 | Investigate 404 root cause for each route | Complete | - |
+| 17-05-03 | Decide fix strategy for each route | Complete | 9b2d840 |
+
+**Result:** Removed 4 dynamic routes from validation suite. Routes return HTTP 404 (route matching failure), not access errors. Decision: option-b - Remove from validation suite as Phase 16 restructuring artifacts.
 
 ## Phase 17 Plan 04 Execution
 

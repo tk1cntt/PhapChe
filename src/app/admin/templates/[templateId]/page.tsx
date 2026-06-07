@@ -25,9 +25,11 @@ const MATTER_TYPE_LABELS: Record<string, string> = {
   unsupported: 'Khác / Chưa rõ',
 };
 
-type Props = { params: { templateId: string }; searchParams: { action?: string } };
+type Props = { params: Promise<{ templateId: string }>; searchParams: Promise<{ action?: string }> };
 
 export default async function TemplateDetailPage({ params, searchParams }: Props) {
+  const { templateId } = await params;
+  const { action } = await searchParams;
   const session = await requireAppSession();
 
   if (!session.roles.includes('coordinator_admin') && !session.roles.includes('super_admin')) {
@@ -35,13 +37,22 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
   }
 
   const template = await prisma.documentTemplate.findUnique({
-    where: { id: params.templateId },
-    include: { previousVersion: { select: { id: true, version: true, status: true } } },
+    where: { id: templateId },
+    select: {
+      id: true,
+      workspaceId: true,
+      matterTypeKey: true,
+      version: true,
+      status: true,
+      label: true,
+      description: true,
+      content: true,
+      createdAt: true,
+      previousVersionId: true,
+    },
   });
 
   if (!template) notFound();
-
-  const action = searchParams.action;
 
   // Edit mode for draft templates
   if (action === 'edit') {
@@ -202,11 +213,11 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
         </Card>
 
         {/* Version lineage */}
-        {template.previousVersion && (
+        {template.previousVersionId && (
           <Card>
             <h2 className="mb-3 text-[16px] font-semibold text-[#0F172A]">Phiên bản trước</h2>
-            <a href={`/admin/templates/${template.previousVersion.id}`} className="flex items-center gap-2 text-[14px] font-medium text-[#0F766E] hover:underline">
-              v{template.previousVersion.version} &bull; {STATUS_LABELS[template.previousVersion.status]}
+            <a href={`/admin/templates/${template.previousVersionId}`} className="flex items-center gap-2 text-[14px] font-medium text-[#0F766E] hover:underline">
+              {template.previousVersionId}
             </a>
           </Card>
         )}

@@ -3,8 +3,8 @@ import type { RequestStatus } from '@prisma/client';
 import { getOpsDashboard, parseOpsFilters } from '@/lib/ops/ops-service';
 import { requireAppSession } from '@/lib/security/session';
 import { Button, Card, Typography, Flex } from 'antd';
-import OpsDashboardTables from './OpsDashboardTables';
-import type { OpsRequestRow, OpsWorkloadRow } from './OpsDashboardTables';
+import AdminOpsTables from './AdminOpsTables';
+import type { OpsRequestRow, OpsWorkloadRow } from './AdminOpsTables';
 
 const { Text, Title, Paragraph } = Typography;
 
@@ -167,7 +167,7 @@ export default async function OpsPage({ searchParams }: { searchParams: Promise<
                   body="Thử điều chỉnh bộ lọc."
                 />
               ) : (
-                <OpsDashboardTables requests={requestRows} workload={workloadRows} />
+                <AdminOpsTables requests={requestRows} workload={workloadRows} />
               )}
             </Card>
           ) : (

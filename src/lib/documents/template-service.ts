@@ -47,11 +47,6 @@ export async function listTemplates(session: AppSession, workspaceId: string, ma
       workspaceId,
       ...(matterTypeKey ? { matterTypeKey } : {}),
     },
-    include: {
-      previousVersion: {
-        select: { id: true, version: true, status: true },
-      },
-    },
     orderBy: [{ matterTypeKey: 'asc' }, { version: 'desc' }],
   });
 }

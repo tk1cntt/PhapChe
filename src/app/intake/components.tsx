@@ -1,149 +1,241 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import { Tag, Button, Card, Typography, Flex } from 'antd';
+import { Tag, Button, Card, Typography, Flex, Steps, Radio, Input, Upload, List, Space, Divider, Alert, Form } from 'antd';
+import { UploadOutlined, CheckCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import type { MatterCatalogItem } from '@/lib/intake/catalog';
+import type { UploadFile } from 'antd';
+
+const { Title, Paragraph, Text } = Typography;
+const { TextArea } = Input;
+const { Dragger } = Upload;
 
 type UploadedFile = { filename: string; size: number };
 type Answer = { key: string; label: string; value: string };
 
-export function IntakeShell({ children }: { children: ReactNode }) {
-  return <main className="mx-auto flex max-w-[960px] flex-col gap-8 px-4 py-8 sm:px-8 sm:py-12">{children}</main>;
+export function IntakeShell({ children }: { children: React.ReactNode }) {
+  return (
+    <main style={{ maxWidth: 960, margin: '0 auto', padding: '32px 16px', minHeight: '100vh', background: '#F8FAFC' }}>
+      <Flex vertical gap={32}>
+        {children}
+      </Flex>
+    </main>
+  );
 }
 
 export function IntakeHeader() {
   return (
-    <Flex vertical gap={4} style={{ marginBottom: 16 }}>
-      <Typography.Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600 }}>
-        Gửi yêu cầu pháp lý
-      </Typography.Title>
-      <Typography.Paragraph style={{ color: '#475569', margin: 0, fontSize: 16 }}>
-        Trả lời vài câu hỏi để chuyên viên có đủ thông tin tiếp nhận hồ sơ.
-      </Typography.Paragraph>
-    </Flex>
+    <Card size="small" style={{ background: 'transparent', border: 'none', padding: 0 }}>
+      <Flex vertical gap={8}>
+        <Title level={2} style={{ margin: 0, color: '#0F172A' }}>
+          Gửi yêu cầu pháp lý
+        </Title>
+        <Paragraph style={{ margin: 0, color: '#475569', fontSize: 16 }}>
+          Trả lời vài câu hỏi để chuyên viên có đủ thông tin tiếp nhận hồ sơ.
+        </Paragraph>
+      </Flex>
+    </Card>
   );
 }
 
 export function ProgressSteps({ activeStep }: { activeStep: number }) {
-  const steps = ['Dịch vụ', 'Câu hỏi', 'Tài liệu', 'Kiểm tra'];
+  const steps = [
+    { title: 'Dịch vụ' },
+    { title: 'Câu hỏi' },
+    { title: 'Tài liệu' },
+    { title: 'Kiểm tra' },
+  ];
+
   return (
-    <ol className="grid gap-3 sm:grid-cols-4">
-      {steps.map((step, index) => {
-        const active = index <= activeStep;
-        return (
-          <li key={step} className={`min-h-10 rounded-xl border px-4 py-2 text-[14px] font-semibold leading-[1.4] ${active ? 'border-[#0F766E] bg-teal-50 text-[#0F766E]' : 'border-[#E2E8F0] bg-[#F8FAFC] text-[#475569]'}`}>
-            {index + 1}. {step}
-          </li>
-        );
-      })}
-    </ol>
+    <Card style={{ borderRadius: 16 }}>
+      <Steps
+        current={activeStep}
+        size="small"
+        items={steps.map((step, index) => ({
+          title: step.title,
+          status: index < activeStep ? 'finish' : index === activeStep ? 'process' : 'wait',
+        }))}
+      />
+    </Card>
   );
 }
 
 export function ServiceSelection({ catalog }: { catalog: readonly MatterCatalogItem[] }) {
   return (
-    <Card className="space-y-4">
-      <div className="space-y-2">
-        <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Bạn cần hỗ trợ việc gì?</h2>
-        <p className="text-[16px] leading-[1.5] text-[#475569]">Chọn một nhóm dịch vụ để bắt đầu tạo hồ sơ nháp.</p>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {catalog.map((item, index) => (
-          <label key={item.key} className="cursor-pointer rounded-2xl border border-[#E2E8F0] bg-white p-4 transition hover:bg-[#F8FAFC] focus-within:ring-2 focus-within:ring-[#0F766E] focus-within:ring-offset-2">
-            <input className="sr-only" type="radio" name="matterTypeKey" value={item.key} defaultChecked={index === 0} />
-            <span className="block text-[16px] font-semibold leading-[1.5] text-[#0F172A]">{item.label}</span>
-            <span className="mt-2 block text-[14px] leading-[1.4] text-[#475569]">{item.description}</span>
-          </label>
-        ))}
-      </div>
-      <Button type="primary" htmlType="submit">Tiếp tục</Button>
+    <Card title={<Title level={4} style={{ margin: 0 }}>Bạn cần hỗ trợ việc gì?</Title>} size="large">
+      <Form.Item style={{ marginBottom: 16 }}>
+        <Paragraph type="secondary">Chọn một nhóm dịch vụ để bắt đầu tạo hồ sơ nháp.</Paragraph>
+        <Radio.Group>
+          <Space direction="vertical" style={{ width: '100%' }} size={12}>
+            {catalog.map((item, index) => (
+              <Card key={item.key} size="small" style={{ width: '100%', cursor: 'pointer', borderColor: index === 0 ? '#0F766E' : undefined }}>
+                <Radio value={item.key}>
+                  <Space>
+                    <Text strong>{item.label}</Text>
+                  </Space>
+                </Radio>
+                <Paragraph type="secondary" style={{ marginBottom: 0, marginLeft: 24, fontSize: 14 }}>
+                  {item.description}
+                </Paragraph>
+              </Card>
+            ))}
+          </Space>
+        </Radio.Group>
+      </Form.Item>
+      <Form.Item style={{ marginBottom: 0 }}>
+        <Button type="primary" htmlType="submit" size="large" block>
+          Tiếp tục
+        </Button>
+      </Form.Item>
     </Card>
   );
 }
 
 export function QuestionStep({ matterType }: { matterType: MatterCatalogItem }) {
   return (
-    <Card className="space-y-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Thông tin cần cung cấp</h2>
-          <p className="text-[16px] leading-[1.5] text-[#475569]">{matterType.label}</p>
-        </div>
-        {matterType.key === 'unsupported' ? <Tag color="orange">Hồ sơ sẽ được chuyển để chuyên viên phân loại trước khi xử lý.</Tag> : null}
-      </div>
-      <div className="space-y-4">
+    <Card
+      title={<Space><span>Thông tin cần cung cấp</span><Tag color="blue">{matterType.label}</Tag></Space>}
+      size="large"
+    >
+      {matterType.key === 'unsupported' && (
+        <Alert
+          message="Hồ sơ sẽ được chuyển để chuyên viên phân loại trước khi xử lý."
+          type="warning"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      )}
+      <Form.Item labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
         {matterType.questions.map((question) => (
-          <label key={question.key} className="block space-y-2 text-[14px] font-semibold leading-[1.4] text-[#0F172A]">
-            <span>{question.label}{question.required ? ' *' : ''}</span>
+          <Form.Item
+            key={question.key}
+            label={<Text strong>{question.label}{question.required && <Text type="danger"> *</Text>}</Text>}
+            required={question.required}
+            style={{ marginBottom: 16 }}
+          >
             {question.type === 'textarea' ? (
-              <textarea name={`answer.${question.key}`} required={question.required} className="min-h-28 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" />
+              <TextArea rows={4} placeholder={`Nhập ${question.label.toLowerCase()}...`} />
             ) : (
-              <input name={`answer.${question.key}`} required={question.required} className="min-h-10 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" />
+              <Input placeholder={`Nhập ${question.label.toLowerCase()}...`} size="large" />
             )}
-          </label>
+          </Form.Item>
         ))}
-      </div>
-      <p className="text-[14px] leading-[1.4] text-[#DC2626]">Vui lòng điền thông tin bắt buộc trước khi tiếp tục.</p>
-      <Button type="primary" htmlType="submit">Lưu câu trả lời</Button>
+      </Form.Item>
+      <Alert
+        message="Vui lòng điền thông tin bắt buộc trước khi tiếp tục."
+        type="info"
+        showIcon
+        style={{ marginBottom: 16 }}
+      />
+      <Button type="primary" htmlType="submit" size="large" block>
+        Lưu câu trả lời
+      </Button>
     </Card>
   );
 }
 
 export function UploadStep({ files }: { files: UploadedFile[] }) {
   return (
-    <Card className="space-y-4">
-      <div className="space-y-2">
-        <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Tài liệu hỗ trợ</h2>
-        <p className="text-[16px] leading-[1.5] text-[#475569]">Tải lên hợp đồng, giấy phép, email trao đổi hoặc tài liệu liên quan. Không cần OCR ở bước này.</p>
-      </div>
-      <label className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#CBD5E1] bg-white p-6 text-center focus-within:ring-2 focus-within:ring-[#0F766E] focus-within:ring-offset-2">
-        <span className="text-[16px] font-semibold leading-[1.5] text-[#0F172A]">Chọn tệp đính kèm</span>
-        <input className="mt-4" type="file" name="file" />
-      </label>
-      <p className="text-[14px] leading-[1.4] text-[#475569]">Tệp được lưu riêng tư theo hồ sơ và không tạo đường dẫn công khai.</p>
-      <FileList files={files} />
-      <Button type="primary" htmlType="submit">Tải tệp lên</Button>
+    <Card
+      title={<Title level={4} style={{ margin: 0 }}>Tài liệu hỗ trợ</Title>}
+      size="large"
+    >
+      <Paragraph type="secondary" style={{ marginBottom: 16 }}>
+        Tải lên hợp đồng, giấy phép, email trao đổi hoặc tài liệu liên quan. Không cần OCR ở bước này.
+      </Paragraph>
+      <Dragger accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" showUploadList={false}>
+        <p style={{ marginBottom: 8 }}>
+          <UploadOutlined style={{ fontSize: 32, color: '#0F766E' }} />
+        </p>
+        <Text strong style={{ fontSize: 16 }}>Chọn tệp đính kèm</Text>
+        <Paragraph type="secondary" style={{ marginBottom: 0 }}>
+          hoặc kéo thả tệp vào đây
+        </Paragraph>
+      </Dragger>
+      <Paragraph type="secondary" style={{ marginTop: 8, fontSize: 12 }}>
+        Tệp được lưu riêng tư theo hồ sơ và không tạo đường dẫn công khai.
+      </Paragraph>
+      {files.length > 0 && (
+        <>
+          <Divider />
+          <List
+            size="small"
+            header={<Text strong>Đã tải lên ({files.length})</Text>}
+            dataSource={files}
+            renderItem={(file) => (
+              <List.Item>
+                <Space>
+                  <CheckCircleOutlined style={{ color: '#0F766E' }} />
+                  <Text>{file.filename}</Text>
+                  <Text type="secondary">({formatFileSize(file.size)})</Text>
+                </Space>
+              </List.Item>
+            )}
+          />
+        </>
+      )}
+      <Divider />
+      <Button type="primary" htmlType="submit" size="large" block>
+        Tải tệp lên
+      </Button>
     </Card>
   );
 }
 
 export function ReviewSummary({ matterType, answers, files }: { matterType: MatterCatalogItem; answers: Answer[]; files: UploadedFile[] }) {
   return (
-    <Card className="space-y-4">
-      <h2 className="text-[20px] font-semibold leading-[1.2] text-[#0F172A]">Kiểm tra trước khi gửi</h2>
-      <div className="rounded-xl border border-[#E2E8F0] p-4">
-        <p className="text-[14px] font-semibold leading-[1.4] text-[#475569]">Loại việc</p>
-        <p className="text-[16px] leading-[1.5] text-[#0F172A]">{matterType.label}</p>
-      </div>
-      <div className="space-y-3">
-        {answers.map((answer) => (
-          <div key={answer.key} className="rounded-xl border border-[#E2E8F0] p-4">
-            <p className="text-[14px] font-semibold leading-[1.4] text-[#475569]">{answer.label}</p>
-            <p className="text-[16px] leading-[1.5] text-[#0F172A]">{answer.value}</p>
-          </div>
-        ))}
-      </div>
-      <FileList files={files} />
-      <p className="text-[14px] leading-[1.4] text-[#475569]">Tệp được lưu riêng tư theo hồ sơ và không tạo đường dẫn công khai.</p>
-      <Button type="primary" htmlType="submit">Gửi yêu cầu</Button>
-    </Card>
-  );
-}
+    <Card
+      title={<Title level={4} style={{ margin: 0 }}>Kiểm tra trước khi gửi</Title>}
+      size="large"
+    >
+      <Card size="small" style={{ marginBottom: 16, background: '#F8FAFC' }}>
+        <Text type="secondary" style={{ fontSize: 12 }}>Loại việc</Text>
+        <div><Text strong>{matterType.label}</Text></div>
+      </Card>
 
-function FileList({ files }: { files: UploadedFile[] }) {
-  if (files.length === 0) return <p className="text-[14px] leading-[1.4] text-[#475569]">Chưa có tệp đính kèm.</p>;
-  return (
-    <ul className="space-y-2">
-      {files.map((file) => (
-        <li key={`${file.filename}-${file.size}`} className="rounded-xl border border-[#E2E8F0] px-4 py-3 text-[14px] leading-[1.4] text-[#0F172A]">
-          {file.filename} · {formatFileSize(file.size)}
-        </li>
-      ))}
-    </ul>
+      {answers.length > 0 && (
+        <Card size="small" title="Câu trả lời của bạn" style={{ marginBottom: 16 }}>
+          {answers.map((answer, index) => (
+            <div key={answer.key} style={{ marginBottom: index < answers.length - 1 ? 12 : 0 }}>
+              <Text type="secondary">{answer.label}</Text>
+              <div><Text>{answer.value || <Text type="secondary">Chưa trả lời</Text>}</Text></div>
+            </div>
+          ))}
+        </Card>
+      )}
+
+      {files.length > 0 && (
+        <Card size="small" title={`Tài liệu (${files.length})`} style={{ marginBottom: 16 }}>
+          <List
+            size="small"
+            dataSource={files}
+            renderItem={(file) => (
+              <List.Item>
+                <Space>
+                  <CheckCircleOutlined style={{ color: '#0F766E' }} />
+                  <Text>{file.filename}</Text>
+                  <Text type="secondary">({formatFileSize(file.size)})</Text>
+                </Space>
+              </List.Item>
+            )}
+          />
+        </Card>
+      )}
+
+      <Alert
+        message="Tệp được lưu riêng tư theo hồ sơ và không tạo đường dẫn công khai."
+        type="info"
+        showIcon
+        style={{ marginBottom: 16 }}
+      />
+      <Button type="primary" htmlType="submit" size="large" block danger>
+        Gửi yêu cầu
+      </Button>
+    </Card>
   );
 }
 
 function formatFileSize(size: number) {
   if (size < 1024) return `${size} B`;
-  return `${Math.round(size / 1024)} KB`;
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }

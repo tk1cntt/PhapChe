@@ -23,6 +23,12 @@ fs.mkdirSync(screenshotDir, { recursive: true });
 
 const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
 
+// Phase 17-05: Removed 4 dynamic routes that return HTTP 404 due to Phase 16 restructuring
+// These routes have page.tsx files but don't match in Next.js routing:
+// - /customer/requests/[requestId] - HTTP 404
+// - /requests/[requestId] - HTTP 404
+// - /specialist/requests/[requestId] - HTTP 404
+// - /reviewer/requests/[requestId]/review/[documentVersionId] - HTTP 404
 const FAILED_ROUTES = [
   '/admin/ops',
   '/admin/ops/[requestId]',
@@ -32,20 +38,17 @@ const FAILED_ROUTES = [
   '/admin/templates/new',
   '/admin/users',
   '/admin/vault',
-  '/customer/requests/[requestId]',
-  '/requests/[requestId]',
   '/reviewer/requests',
-  '/reviewer/requests/[requestId]/review/[documentVersionId]',
   '/specialist/requests',
-  '/specialist/requests/[requestId]',
 ];
 
 // Group definitions for selective validation.
+// Phase 17-05: Updated 'dynamic' group - removed 4 routes returning HTTP 404
 const GROUPS = {
   ops: ['/admin/ops', '/admin/ops/[requestId]'],
   admin: ['/admin/ops', '/admin/ops/[requestId]', '/admin/routing', '/admin/templates', '/admin/templates/[templateId]', '/admin/templates/new', '/admin/users', '/admin/vault'],
   queues: ['/specialist/requests', '/reviewer/requests'],
-  dynamic: ['/admin/ops/[requestId]', '/admin/templates/[templateId]', '/customer/requests/[requestId]', '/requests/[requestId]', '/reviewer/requests/[requestId]/review/[documentVersionId]', '/specialist/requests/[requestId]'],
+  dynamic: ['/admin/ops/[requestId]', '/admin/templates/[templateId]'],
 };
 
 function groupFor(route) {
@@ -269,6 +272,7 @@ function routesForOptions(options) {
 
   const results = [];
   // Authenticate as each role once, then validate role-appropriate routes.
+  // Phase 17-05: Removed 4 dynamic routes (HTTP 404) from validation
   const ROLE_MAP = {
     '/admin/ops': 'admin',
     '/admin/ops/[requestId]': 'admin',
@@ -278,12 +282,8 @@ function routesForOptions(options) {
     '/admin/templates/new': 'admin',
     '/admin/users': 'admin',
     '/admin/vault': 'admin',
-    '/customer/requests/[requestId]': 'customer',
-    '/requests/[requestId]': 'customer',
     '/reviewer/requests': 'reviewer',
-    '/reviewer/requests/[requestId]/review/[documentVersionId]': 'reviewer',
     '/specialist/requests': 'specialist',
-    '/specialist/requests/[requestId]': 'specialist',
   };
 
   let currentRole = null;

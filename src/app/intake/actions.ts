@@ -16,10 +16,15 @@ function stringValue(formData: FormData, key: string) {
 
 export async function createIntakeDraftAction(formData: FormData) {
   const session = await requireAppSession();
+  const matterTypeKey = stringValue(formData, 'matterTypeKey');
+
+  if (!matterTypeKey) {
+    throw new Error('Vui lòng chọn một nhóm dịch vụ để tiếp tục.');
+  }
 
   const draft = await createDraftIntake({
     session,
-    matterTypeKey: stringValue(formData, 'matterTypeKey'),
+    matterTypeKey,
     correlationId: correlationId(),
   });
 
@@ -61,11 +66,21 @@ export async function attachIntakeFileAction(formData: FormData) {
 export async function submitIntakeAction(formData: FormData) {
   const session = await requireAppSession();
   const requestId = stringValue(formData, 'requestId');
-  const submitted = await submitIntake({
-    session,
-    requestId,
-    correlationId: correlationId(),
-  });
 
-  redirect(`/requests/${submitted.id}`);
+  if (!requestId) {
+    throw new Error('Yêu cầu không hợp lệ. Vui lòng bắt đầu lại.');
+  }
+
+  try {
+    const submitted = await submitIntake({
+      session,
+      requestId,
+      correlationId: correlationId(),
+    });
+    redirect(`/requests/${submitted.id}`);
+  } catch (error) {
+    // Log error with correlationId for debugging
+    console.error(`Submit intake failed [${correlationId()}]:`, error);
+    throw new Error('Không thể gửi yêu cầu. Vui lòng thử lại sau.');
+  }
 }

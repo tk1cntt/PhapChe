@@ -1,54 +1,67 @@
 import { Page } from '@playwright/test';
 
+export const CREDENTIALS = {
+  specialist: { email: 'specialist.demo@example.test', password: 'Demo@123456' },
+  reviewer: { email: 'reviewer.demo@example.test', password: 'Demo@123456' },
+  admin: { email: 'admin.demo@example.test', password: 'Demo@123456' },
+  customer: { email: 'customer.demo@example.test', password: 'Demo@123456' },
+};
+
 /**
- * Login helper for E2E tests
- * Uses demo credentials from the sign-in form
+ * Sign in to the application with given role.
+ * Uses demo credentials pre-filled in the form.
  */
-export async function loginAs(page: Page, role: 'admin' | 'specialist' | 'reviewer' = 'admin'): Promise<void> {
-  await page.goto('/sign-in');
-  await page.waitForLoadState('networkidle');
+export async function loginAs(page: Page, role: keyof typeof CREDENTIALS): Promise<void> {
+  await page.context().clearCookies();
+  await page.goto('/sign-in', { waitUntil: 'networkidle', timeout: 30000 });
 
-  // Demo credentials - prefilled in the form
-  const demoCredentials = {
-    admin: { email: 'admin@phapche.vn', password: 'admin123' },
-    specialist: { email: 'specialist@phapche.vn', password: 'specialist123' },
-    reviewer: { email: 'reviewer@phapche.vn', password: 'reviewer123' },
-  };
+  // Wait for form inputs to be visible
+  await page.waitForSelector('input[placeholder="Email"]', { timeout: 5000 });
 
-  const creds = demoCredentials[role];
+  const creds = CREDENTIALS[role];
 
-  // Fill login form if not prefilled
-  const emailInput = page.locator('input[type="email"], input[id="email"], input[placeholder*="email"]');
-  const passwordInput = page.locator('input[type="password"]');
-
-  if (await emailInput.isVisible()) {
-    await emailInput.fill(creds.email);
-  }
-  if (await passwordInput.isVisible()) {
-    await passwordInput.fill(creds.password);
+  // Get inputs
+  const inputs = page.locator('input');
+  const count = await inputs.count();
+  if (count < 2) {
+    throw new Error('Sign-in form fields not found');
   }
 
-  // Submit form
-  const submitButton = page.locator('button[type="submit"]');
-  await submitButton.click();
+  // Clear any pre-filled values and enter credentials
+  await inputs.nth(0).clear();
+  await inputs.nth(1).clear();
+  await inputs.nth(0).fill(creds.email);
+  await inputs.nth(1).fill(creds.password);
 
-  // Wait for navigation after login
-  await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(1000);
+  // Click submit button instead of pressing Enter
+  await page.locator('button[type="submit"]').click();
+
+  // Wait for navigation or response
+  try {
+    await page.waitForURL(url => !url.includes('/sign-in'), { timeout: 5000 });
+  } catch {
+    // If no navigation, wait a bit more and check state
+    await page.waitForTimeout(2000);
+  }
+
+  // Verify we're not still on sign-in page
+  const url = page.url();
+  if (url.includes('/sign-in')) {
+    console.warn(`loginAs: Still on sign-in page after login attempt for role: ${role}`);
+  }
 }
 
 /**
- * Navigate to admin section
+ * Wait for server to be reachable
  */
-export async function navigateToAdmin(page: Page): Promise<void> {
-  await page.goto('/admin');
-  await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(1000);
-}
-
-/**
- * Take a screenshot with descriptive name
- */
-export async function takeScreenshot(page: Page, name: string): Promise<void> {
-  await page.screenshot({ path: `e2e/screenshots/${name}.png`, fullPage: true });
+export async function waitForServer(page: Page): Promise<void> {
+  for (let i = 0; i < 20; i++) {
+    try {
+      await page.goto('/sign-in', { waitUntil: 'domcontentloaded', timeout: 5000 });
+      return;
+    } catch {
+      await page.waitForTimeout(1000);
+    }
+  }
+  throw new Error('Server not reachable');
 }

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Auth & Hardening
 status: executing
-last_updated: "2026-06-06T12:55:29.249Z"
-last_activity: 2026-06-06
+last_updated: "2026-06-07T02:34:06.823Z"
+last_activity: 2026-06-07
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 6
-  completed_plans: 3
-  percent: 50
+  completed_plans: 5
+  percent: 83
 ---
 
 # State
@@ -46,6 +46,7 @@ All v1.0 MVP phases complete. Phase 15 kicks off v1.1 with authentication system
 | 13 | service-cleanup-wiring | 3/3 | Complete | `13-VERIFICATION.md`: passed |
 | 14 | antd-layout-redesign | 9/9 | Complete | `14-VERIFICATION.md`: passed |
 | 15 | auth | — | Not planned | — |
+| 16 | fix-14-failed-routes | 3/3 | Executing | `16-03-SUMMARY.md`: pending_user_review |
 
 ## Deferred Items
 
@@ -76,4 +77,14 @@ Items acknowledged at milestone close (2026-06-05):
 | 260527-kby | Mở rộng e2e Phase 1 thành coverage chi tiết theo từng database model và chức năng | 2026-05-27 | cffbe42 | Verified | [260527-kby-m-r-ng-e2e-phase-1-th-nh-coverage-chi-ti](./quick/260527-kby-m-r-ng-e2e-phase-1-th-nh-coverage-chi-ti/) |
 | 260606-pfi | Mở tất cả các trang hiện có, kiểm tra hiển thị đã đúng chưa, thực hiện chụp tất cả các màn hình sau khi đã validate hiển thị đúng | 2026-06-06 | 004e617 | Needs Review | [260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t](./quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/) |
 
-Last activity: 2026-06-06
+Last activity: 2026-06-07
+
+## Phase 16 Plan 03 Execution
+
+| Task | Description | Status | Commit |
+|------|-------------|--------|--------|
+| 16-03-01 | Repair admin-only routes | Complete | 1e7ef5a |
+| 16-03-02 | Verify dynamic routes | Complete | 21b903c |
+| 16-03-03 | Run final validation | Deferred | - |
+
+**Note**: Dev server not running. Live validation deferred until server restart.

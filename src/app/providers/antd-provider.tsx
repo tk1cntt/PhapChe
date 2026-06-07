@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { StyleProvider } from "@ant-design/cssinjs";
+import { createCache, extractStyle } from "@ant-design/cssinjs";
 import { ConfigProvider, App, type ThemeConfig } from "antd";
+import { useServerInsertedHTML } from "next/navigation";
 
 const theme: ThemeConfig = {
   token: {
@@ -74,11 +75,21 @@ export default function AntdProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const cache = React.useMemo(() => createCache(), []);
+
+  useServerInsertedHTML(() => {
+    const styles = extractStyle(cache, true);
+    return (
+      <style
+        id="antd"
+        dangerouslySetInnerHTML={{ __html: styles }}
+      />
+    );
+  });
+
   return (
-    <StyleProvider>
-      <ConfigProvider theme={theme}>
-        <App>{children}</App>
-      </ConfigProvider>
-    </StyleProvider>
+    <ConfigProvider theme={theme}>
+      <App>{children}</App>
+    </ConfigProvider>
   );
 }

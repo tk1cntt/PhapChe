@@ -1,6 +1,6 @@
 # Roadmap: Legal-as-a-Service Platform
 
-**Last updated:** 2026-06-05
+**Last updated:** 2026-06-07
 **Current milestone:** v1.1 Auth & Hardening
 
 ## Milestones
@@ -58,5 +58,17 @@ Plans:
 
 Plans:
 - [ ] TBD (run /gsd-plan-phase 16 to break down)
+
+### Phase 17: Fix remaining routes after Phase 16 client component conversion
+
+**Goal:** Fix 8 remaining routes that still fail after Phase 16 client component conversion. Phase 16 successfully converted 6/14 routes to Client Component + API route pattern.
+**Requirements**: TBD
+**Depends on:** Phase 16
+**Plans:** 3 plans
+
+Plans:
+- [ ] 17-01-PLAN.md — Fix OpsTimelineTable + /admin/users: Fix HTTP 500 on /admin/ops/[requestId] (OpsTimelineTable undefined) and antd Space deprecated direction warning on /admin/users
+- [ ] 17-02-PLAN.md — Fix Validation Harness with Real IDs: Query Prisma for real seeded request/template/document IDs, replace placeholder IDs (sample-request-id, etc.)
+- [ ] 17-03-PLAN.md — Final Validation: Re-run validation harness against all 14 routes, confirm all routes pass or intentional error state
 
 ---

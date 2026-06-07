@@ -131,6 +131,7 @@ async function seedFoundationE2E(): Promise<FoundationSeed> {
       requestId: request.id,
       storageKey: `${FOUNDATION_E2E_PREFIX}/${suffix}/contract.pdf`,
       filename: `contract-${suffix}.pdf`,
+      actorId: customer.id,
     },
   });
 

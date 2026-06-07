@@ -75,6 +75,7 @@ export async function createTemplate(session: AppSession, input: CreateTemplateI
       content: input.content,
       version: existingCount + 1,
       status: 'draft',
+      createdById: session.userId,
     },
   });
 
@@ -234,6 +235,7 @@ export async function createNewVersion(session: AppSession, templateId: string, 
       variableSchema: (input?.variableSchema as object[]) ?? (template.variableSchema as object[]),
       content: input?.content ?? template.content,
       previousVersionId: templateId,
+      createdById: session.userId,
     },
   });
 

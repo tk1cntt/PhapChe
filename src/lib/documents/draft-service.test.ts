@@ -85,6 +85,7 @@ async function seedDraftTest(): Promise<DraftSeed> {
       status: 'published',
       label: 'Hợp đồng lao động v2.0',
       description: 'Template for labor contract',
+      createdById: coordinator.id,
       variableSchema: [
         { key: 'company_name', label: 'Tên công ty', required: true, type: 'text' },
         { key: 'tax_id', label: 'Mã số thuế', required: true, type: 'text' },
@@ -216,7 +217,7 @@ test('generateDraft creates document version with template snapshot', async () =
     assert.equal(docVersion.status, 'draft');
 
     // Verify inputSnapshot contains variables and intake answers
-    const snapshot = docVersion.inputSnapshot as Record<string, unknown>;
+    const snapshot = docVersion.inputSnapshot as { variables: Record<string, unknown>; intakeAnswers: Record<string, unknown> };
     assert.equal(snapshot.variables?.company_name, 'Test Company');
     assert.ok(snapshot.intakeAnswers);
 

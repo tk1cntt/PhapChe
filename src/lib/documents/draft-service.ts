@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { recordAuditEvent } from '@/lib/audit/audit';
 import { storeVaultFile } from '@/lib/documents/vault-service';
 import { canAccessRequest } from '@/lib/security/rbac';
@@ -134,7 +135,7 @@ export async function generateDraft(input: GenerateDraftInput): Promise<Generate
           variables,
           intakeAnswers: intake?.answers ?? {},
           intakeAnswerLabels: intake?.answerLabels ?? {},
-        },
+        } as Prisma.InputJsonValue,
         generatedContent,
       },
     });

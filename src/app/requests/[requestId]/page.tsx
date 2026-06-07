@@ -1,6 +1,6 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import type { RequestStatus } from '@prisma/client';
-import { Tag, Card, Typography, Flex, Button, message } from 'antd';
+import { Tag, Card, Typography, Flex } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { requireAppSession } from '@/lib/security/session';
@@ -143,5 +143,3 @@ export default async function RequestStatusPage({ params }: { params: Promise<{ 
   );
 }
 
-// Need to import redirect
-import { redirect } from 'next/navigation';

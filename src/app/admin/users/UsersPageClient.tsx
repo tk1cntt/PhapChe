@@ -56,7 +56,7 @@ export default function UsersPageClient() {
       </Flex>
 
       <Card style={{ marginBottom: 16 }}>
-        <Space direction="vertical" size={16}>
+        <Space orientation="vertical" size={16}>
           <Title level={4} style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>
             Vai tro he thong
           </Title>

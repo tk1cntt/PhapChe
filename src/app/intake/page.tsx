@@ -3,26 +3,10 @@ import { MATTER_CATALOG, getMatterType } from '@/lib/intake/catalog';
 import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { requireAppSession } from '@/lib/security/session';
-import { attachIntakeFileAction, createIntakeDraftAction, saveIntakeAnswersAction, submitIntakeAction } from './actions';
 import { IntakeHeader, IntakeShell, ProgressSteps, QuestionStep, ReviewSummary, ServiceSelection, UploadStep } from './components';
 
-async function createDraftFormAction(formData: FormData) {
-  'use server';
-  await createIntakeDraftAction(formData);
-}
-
-async function saveAnswersFormAction(formData: FormData) {
-  'use server';
-  await saveIntakeAnswersAction(formData);
-}
-
-async function attachFileFormAction(formData: FormData) {
-  'use server';
-  await attachIntakeFileAction(formData);
-}
-
 type IntakePageProps = {
-  searchParams?: Promise<{ requestId?: string }>;
+  searchParams?: Promise<{ requestId?: string; step?: string }>;
 };
 
 function asRecord(value: unknown): Record<string, string> {
@@ -35,22 +19,30 @@ function asAnswerLabels(value: unknown): { key: string; label: string }[] {
   return value.filter((item): item is { key: string; label: string } => Boolean(item) && typeof item === 'object' && typeof item.key === 'string' && typeof item.label === 'string');
 }
 
+function getStepFromParams(params: { requestId?: string; step?: string }): number {
+  if (!params.requestId) return 0;
+  const step = parseInt(params.step || '1', 10);
+  if (isNaN(step) || step < 1 || step > 3) return 1;
+  return step;
+}
+
 export default async function IntakePage({ searchParams }: IntakePageProps) {
   const params = await searchParams;
   const requestId = params?.requestId?.trim();
+  const activeStep = getStepFromParams(params || {});
 
+  // Step 0: Service Selection (no requestId yet)
   if (!requestId) {
     return (
       <IntakeShell>
         <IntakeHeader />
         <ProgressSteps activeStep={0} />
-        <form action={createDraftFormAction} className="space-y-8">
-          <ServiceSelection catalog={MATTER_CATALOG} />
-        </form>
+        <ServiceSelection catalog={MATTER_CATALOG} />
       </IntakeShell>
     );
   }
 
+  // Require session for all subsequent steps
   let session;
   try {
     session = await requireAppSession();
@@ -60,6 +52,7 @@ export default async function IntakePage({ searchParams }: IntakePageProps) {
 
   if (!(await canAccessRequest(session, requestId))) notFound();
 
+  // Fetch request data
   const request = await prisma.legalRequest.findUnique({
     where: { id: requestId },
     select: {
@@ -72,7 +65,7 @@ export default async function IntakePage({ searchParams }: IntakePageProps) {
         },
       },
       vaultFiles: {
-        select: { filename: true },
+        select: { filename: true, size: true },
         orderBy: { createdAt: 'asc' },
       },
     },
@@ -92,33 +85,51 @@ export default async function IntakePage({ searchParams }: IntakePageProps) {
       value: answers[answerLabel.key] ?? '',
     }))
     .filter((answer) => answer.value !== '');
-  const uploadedFiles = request.vaultFiles
-    .filter((file): file is { filename: string } => file.filename !== null)
-    .map((file) => ({ filename: file.filename, size: 0 }));
+  const uploadedFiles: { filename: string; size: number }[] = request.vaultFiles
+    .filter((file) => file.filename !== null && file.size !== null)
+    .map((file) => ({ filename: file.filename as string, size: typeof file.size === 'bigint' ? Number(file.size) : (file.size as number) }));
 
-  return (
-    <IntakeShell>
-      <IntakeHeader />
-      <ProgressSteps activeStep={3} />
+  // Step 1: Questions
+  if (activeStep === 1) {
+    return (
+      <IntakeShell>
+        <IntakeHeader />
+        <ProgressSteps activeStep={1} />
+        <QuestionStep
+          matterType={selectedMatterType}
+          savedAnswers={answers}
+          requestId={requestId}
+        />
+      </IntakeShell>
+    );
+  }
 
-      <form action={createDraftFormAction} className="space-y-8">
-        <ServiceSelection catalog={MATTER_CATALOG} />
-      </form>
+  // Step 2: Upload Documents
+  if (activeStep === 2) {
+    return (
+      <IntakeShell>
+        <IntakeHeader />
+        <ProgressSteps activeStep={2} />
+        <UploadStep requestId={requestId} files={uploadedFiles} />
+      </IntakeShell>
+    );
+  }
 
-      <form action={saveAnswersFormAction} className="space-y-8">
-        <input type="hidden" name="requestId" value={request.id} />
-        <QuestionStep matterType={selectedMatterType} />
-      </form>
+  // Step 3: Review & Submit
+  if (activeStep === 3) {
+    return (
+      <IntakeShell>
+        <IntakeHeader />
+        <ProgressSteps activeStep={3} />
+        <ReviewSummary
+          matterType={selectedMatterType}
+          answers={reviewAnswers}
+          files={uploadedFiles}
+          requestId={requestId}
+        />
+      </IntakeShell>
+    );
+  }
 
-      <form action={attachFileFormAction} className="space-y-8">
-        <input type="hidden" name="requestId" value={request.id} />
-        <UploadStep files={uploadedFiles} requestId={request.id} />
-      </form>
-
-      <form action={submitIntakeAction} className="space-y-8">
-        <input type="hidden" name="requestId" value={request.id} />
-        <ReviewSummary matterType={selectedMatterType} answers={reviewAnswers} files={uploadedFiles} />
-      </form>
-    </IntakeShell>
-  );
+  notFound();
 }

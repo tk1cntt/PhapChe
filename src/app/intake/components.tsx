@@ -3,8 +3,9 @@
 import { Tag, Button, Card, Typography, Flex, Steps, Radio, Input, Upload, List, Space, Divider, Alert, Form, message } from 'antd';
 import { UploadOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import type { MatterCatalogItem } from '@/lib/intake/catalog';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import type { UploadProps } from 'antd';
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -80,13 +81,9 @@ export function ServiceSelection({ catalog }: { catalog: readonly MatterCatalogI
         method: 'POST',
         body: formData,
       });
-      if (response.redirected) {
-        router.push(response.url);
-        return;
-      }
       const result = await response.json();
       if (result.requestId) {
-        router.push(`/intake?requestId=${result.requestId}`);
+        router.push(`/intake?requestId=${result.requestId}&step=1`);
       } else {
         message.error(result.error || 'Có lỗi xảy ra');
       }
@@ -142,7 +139,77 @@ export function ServiceSelection({ catalog }: { catalog: readonly MatterCatalogI
   );
 }
 
-export function QuestionStep({ matterType }: { matterType: MatterCatalogItem }) {
+type QuestionStepProps = {
+  matterType: MatterCatalogItem;
+  savedAnswers?: Record<string, string>;
+  requestId: string;
+};
+
+export function QuestionStep({ matterType, savedAnswers = {}, requestId }: QuestionStepProps) {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Client-side validation
+    const form = formRef.current;
+    if (!form) return;
+
+    const formData = new FormData(form);
+    const newErrors: Record<string, string> = {};
+
+    for (const question of matterType.questions) {
+      if (question.required) {
+        const value = formData.get(`answer.${question.key}`) as string;
+        if (!value?.trim()) {
+          newErrors[question.key] = `Vui lòng nhập ${question.label}`;
+        }
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      message.error('Vui lòng điền đầy đủ thông tin bắt buộc');
+      return;
+    }
+
+    setErrors({});
+    setLoading(true);
+
+    try {
+      // Collect answers
+      const answers: Record<string, string> = {};
+      for (const question of matterType.questions) {
+        const value = formData.get(`answer.${question.key}`) as string;
+        if (value?.trim()) {
+          answers[question.key] = value.trim();
+        }
+      }
+
+      // Save answers via API
+      const saveResponse = await fetch('/intake/api/save-answers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requestId, answers }),
+      });
+
+      const saveResult = await saveResponse.json();
+
+      if (saveResponse.ok) {
+        router.push(`/intake?requestId=${requestId}&step=2`);
+      } else {
+        message.error(saveResult.error || 'Có lỗi khi lưu câu trả lời');
+      }
+    } catch {
+      message.error('Có lỗi xảy ra khi lưu câu trả lời');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Card
       title={<Space><span>Thông tin cần cung cấp</span><Tag color="blue">{matterType.label}</Tag></Space>}
@@ -155,45 +222,64 @@ export function QuestionStep({ matterType }: { matterType: MatterCatalogItem }) 
           style={{ marginBottom: 16 }}
         />
       )}
-      <Form.Item labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+      <form ref={formRef} onSubmit={handleSubmit}>
         {matterType.questions.map((question) => (
           <Form.Item
             key={question.key}
-            name={`answer.${question.key}`}
             label={<Text strong>{question.label}{question.required && <Text type="danger"> *</Text>}</Text>}
-            required={question.required}
-            rules={question.required ? [{ required: true, message: `Vui lòng nhập ${question.label}` }] : []}
+            validateStatus={errors[question.key] ? 'error' : ''}
+            help={errors[question.key] || ''}
             style={{ marginBottom: 16 }}
           >
             {question.type === 'textarea' ? (
-              <TextArea rows={4} placeholder={`Nhập ${question.label.toLowerCase()}...`} />
+              <TextArea
+                rows={4}
+                placeholder={`Nhập ${question.label.toLowerCase()}...`}
+                name={`answer.${question.key}`}
+                defaultValue={savedAnswers[question.key] || ''}
+              />
             ) : (
-              <Input placeholder={`Nhập ${question.label.toLowerCase()}...`} size="large" />
+              <Input
+                placeholder={`Nhập ${question.label.toLowerCase()}...`}
+                size="large"
+                name={`answer.${question.key}`}
+                defaultValue={savedAnswers[question.key] || ''}
+              />
             )}
           </Form.Item>
         ))}
-      </Form.Item>
-      <Alert
-        message="Vui lòng điền thông tin bắt buộc trước khi tiếp tục."
-        type="info"
-        showIcon
-        style={{ marginBottom: 16 }}
-      />
-      <Button type="primary" htmlType="submit" size="large" block>
-        Lưu câu trả lời
-      </Button>
+        <Alert
+          message="Vui lòng điền thông tin bắt buộc trước khi tiếp tục."
+          type="info"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+        <Button type="primary" htmlType="submit" size="large" block loading={loading}>
+          Lưu câu trả lời
+        </Button>
+      </form>
     </Card>
   );
 }
 
-export function UploadStep({ files, requestId }: { files: UploadedFile[]; requestId: string }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const uploadProps: Record<string, unknown> = {
+type UploadStepProps = {
+  requestId: string;
+  files: UploadedFile[];
+};
+
+export function UploadStep({ requestId, files: initialFiles }: UploadStepProps) {
+  const [files, setFiles] = useState<UploadedFile[]>(initialFiles);
+  const [uploading, setUploading] = useState(false);
+  const router = useRouter();
+
+  const uploadProps: UploadProps = {
     accept: '.pdf,.doc,.docx,.png,.jpg,.jpeg',
-    showUploadList: false,
+    showUploadList: true,
     name: 'file',
-    customRequest: async (options: { file: File | Blob | string; onSuccess: (body?: unknown) => void; onError: (error: Error) => void }) => {
+    disabled: uploading,
+    customRequest: async (options) => {
       const { file, onSuccess, onError } = options;
+      setUploading(true);
       const formData = new FormData();
       formData.append('file', file as File);
       formData.append('requestId', requestId);
@@ -204,22 +290,28 @@ export function UploadStep({ files, requestId }: { files: UploadedFile[]; reques
         });
         const result = await response.json();
         if (response.ok) {
-          onSuccess(result);
-          message.success('Tải tệp lên thành công');
+          setFiles((prev) => [...prev, { filename: result.filename, size: result.size }]);
+          onSuccess?.(result);
+          message.success(`Đã tải lên: ${result.filename}`);
         } else {
-          onError(new Error(result.error || 'Upload failed'));
+          onError?.(new Error(result.error || 'Upload failed'));
+          message.error(result.error || 'Có lỗi khi tải tệp');
         }
       } catch (error) {
-        onError(error as Error);
+        onError?.(error as Error);
         message.error('Có lỗi khi tải tệp');
+      } finally {
+        setUploading(false);
       }
     },
   };
 
+  const handleContinue = () => {
+    router.push(`/intake?requestId=${requestId}&step=3`);
+  };
+
   return (
-    <Card
-      title={<Title level={4} style={{ margin: 0 }}>Tài liệu hỗ trợ</Title>}
-    >
+    <Card title={<Title level={4} style={{ margin: 0 }}>Tài liệu hỗ trợ</Title>}>
       <Paragraph type="secondary" style={{ marginBottom: 16 }}>
         Tải lên hợp đồng, giấy phép, email trao đổi hoặc tài liệu liên quan. Không cần OCR ở bước này.
       </Paragraph>
@@ -255,17 +347,52 @@ export function UploadStep({ files, requestId }: { files: UploadedFile[]; reques
         </>
       )}
       <Divider />
-      <Button type="primary" htmlType="submit" size="large" block>
-        Tải tệp lên
+      <Button type="primary" size="large" block onClick={handleContinue}>
+        Tiếp tục
       </Button>
     </Card>
   );
 }
 
-export function ReviewSummary({ matterType, answers, files }: { matterType: MatterCatalogItem; answers: Answer[]; files: UploadedFile[] }) {
+type ReviewSummaryProps = {
+  matterType: MatterCatalogItem;
+  answers: Answer[];
+  files: UploadedFile[];
+  requestId: string;
+};
+
+export function ReviewSummary({ matterType, answers, files, requestId }: ReviewSummaryProps) {
+  const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      const response = await fetch('/intake/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requestId }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.id) {
+        message.success('Yêu cầu đã được gửi thành công!');
+        router.push(`/requests/${result.id}`);
+      } else {
+        message.error(result.error || 'Có lỗi khi gửi yêu cầu');
+      }
+    } catch {
+      message.error('Có lỗi khi gửi yêu cầu');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <Card
       title={<Title level={4} style={{ margin: 0 }}>Kiểm tra trước khi gửi</Title>}
+      extra={<Tag color="blue">{matterType.label}</Tag>}
     >
       <Card size="small" style={{ marginBottom: 16, background: '#F8FAFC' }}>
         <Text type="secondary" style={{ fontSize: 12 }}>Loại việc</Text>
@@ -307,7 +434,7 @@ export function ReviewSummary({ matterType, answers, files }: { matterType: Matt
         showIcon
         style={{ marginBottom: 16 }}
       />
-      <Button type="primary" htmlType="submit" size="large" block danger>
+      <Button type="primary" size="large" block danger loading={submitting} onClick={handleSubmit}>
         Gửi yêu cầu
       </Button>
     </Card>
@@ -315,6 +442,7 @@ export function ReviewSummary({ matterType, answers, files }: { matterType: Matt
 }
 
 function formatFileSize(size: number) {
+  if (size === 0) return 'N/A';
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;

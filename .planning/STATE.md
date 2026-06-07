@@ -80,9 +80,10 @@ Items acknowledged at milestone close (2026-06-05):
 | 260606-pfi | Mở tất cả các trang hiện có, kiểm tra hiển thị đã đúng chưa, thực hiện chụp tất cả các màn hình sau khi đã validate hiển thị đúng | 2026-06-06 | 004e617 | Needs Review | [260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t](./quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/) |
 | 260607-mdo | Create e2e tests for intake screen | 2026-06-07 | 62f1e20 | Verified | [260607-mdo-create-e2e-tests-for-intake-screen](./quick/260607-mdo-create-e2e-tests-for-intake-screen/) |
 | 260607-o5f | Fix 3 bugs on /intake: validation, upload 500, submit 500 | 2026-06-07 | a8238f3 | Verified | [260607-o5f-v-n-c-n-c-c-l-i-d-i-http-localhost-3000-](./quick/260607-o5f-v-n-c-n-c-c-l-i-d-i-http-localhost-3000-/) |
+| 260607-pfj | Fix blank page at /requests/[id] after intake submit | 2026-06-07 | bcf3062 | Verified | [260607-pfj-s-a-y-u-c-u-sau-khi-g-i-y-u-c-u-intake-xong-qun-trang-tr-ng](./quick/260607-pfj-s-a-y-u-c-u-sau-khi-g-i-y-u-c-u-intake-xong-qun-trang-tr-ng/) |
 
 Last activity: 2026-06-07
-**Completed:** Quick task 260607-o5f: Fix 3 bugs on /intake page
+**Completed:** Quick task 260607-pfj: Fix blank page at /requests/[id] after intake submit
 
 ## Phase 17 Plan 05 Execution
 

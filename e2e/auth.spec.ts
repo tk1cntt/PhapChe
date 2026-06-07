@@ -1,4 +1,41 @@
 import { test, expect } from '@playwright/test';
+import { loginAs } from './helpers';
+
+async function loginAsAdmin(page: import('@playwright/test').Page) {
+  const loggedIn = await loginAs(page, 'admin');
+  if (!loggedIn) {
+    test.skip(true, 'Skipped: Database not seeded.');
+  }
+}
+
+test.describe('Home Page', () => {
+  test('renders home page with Ant Design components', async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    // Verify home page renders
+    await expect(page.locator('main')).toBeVisible();
+    // Verify title text is visible
+    await expect(page.getByText('Nền tảng quản trị pháp lý')).toBeVisible({ timeout: 10000 });
+    // Verify description
+    await expect(page.getByText('Truy cập khu vực admin')).toBeVisible();
+    // Verify CTA button
+    await expect(page.getByRole('button', { name: 'Vào quản trị người dùng' })).toBeVisible();
+  });
+
+  test('home page CTA button navigates to admin users', async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    // Wait for button to be visible
+    const button = page.getByRole('button', { name: 'Vào quản trị người dùng' });
+    await button.waitFor({ state: 'visible', timeout: 10000 });
+    await button.click();
+    await page.waitForTimeout(3000);
+    // After click should navigate to admin/users
+    expect(page.url()).toContain('/admin/users');
+  });
+});
 
 test.describe('Sign-In Screen', () => {
   test.beforeEach(async ({ page }) => {

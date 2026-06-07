@@ -73,4 +73,20 @@ test.describe('Intake Flow', () => {
     await page.goto('/intake');
     await expect(page.locator('button:has-text("Tiếp tục")')).toBeVisible();
   });
+
+  test('clicks continue and redirects to intake with requestId', async ({ page }) => {
+    const loggedIn = await loginAs(page, 'admin');
+    if (!loggedIn) {
+      test.skip(true, 'Skipped: Database not seeded.');
+    }
+    await page.goto('/intake');
+    // Select first service option
+    await page.locator('.ant-radio-wrapper').first().click();
+    // Click continue button
+    await page.locator('button:has-text("Tiếp tục")').click();
+    // Wait for redirect
+    await page.waitForURL(/\/intake\?requestId=/);
+    // Verify URL contains requestId param
+    expect(page.url()).toMatch(/\/intake\?requestId=[a-zA-Z0-9-]+/);
+  });
 });

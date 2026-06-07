@@ -38,15 +38,15 @@ export async function loginAs(page: Page, role: keyof typeof CREDENTIALS): Promi
 
   // Wait for navigation or response
   try {
-    await page.waitForURL(url => !url.includes('/sign-in'), { timeout: 5000 });
+    await page.waitForURL(url => !String(url).includes('/sign-in'), { timeout: 5000 });
   } catch {
     // If no navigation, wait a bit more and check state
     await page.waitForTimeout(2000);
   }
 
   // Verify we're not still on sign-in page
-  const url = page.url();
-  if (url.includes('/sign-in')) {
+  const currentUrl = page.url();
+  if (currentUrl.includes('/sign-in')) {
     console.warn(`loginAs: Still on sign-in page after login attempt for role: ${role}`);
   }
 }
@@ -64,4 +64,12 @@ export async function waitForServer(page: Page): Promise<void> {
     }
   }
   throw new Error('Server not reachable');
+}
+
+/**
+ * Navigate to admin dashboard
+ */
+export async function navigateToAdmin(page: Page): Promise<void> {
+  await page.goto('/admin');
+  await page.waitForURL(url => !String(url).includes('/sign-in'), { timeout: 10000 });
 }

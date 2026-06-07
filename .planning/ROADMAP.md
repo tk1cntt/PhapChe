@@ -73,4 +73,17 @@ Plans:
 - [x] 17-04-PLAN.md — Fix OpsTimelineTable: Fix HTTP 500 on /admin/ops/[requestId] by verifying client component export/import chain
 - [x] 17-05-PLAN.md — Investigate 404 Routes: Audit 4 dynamic routes returning 404, determine if fixable or should be removed from validation
 
+### Phase 18: UI Test Cases
+
+**Goal:** Create UI testcases for each screen, test flow between screens, fix bugs if found. 100% completion required before reporting.
+
+**Requirements**: TBD
+**Depends on:** Phase 17
+**Plans:** 3 plans
+
+Plans:
+- [ ] 18-01-PLAN.md — Auth & Intake Tests: Playwright E2E tests for sign-in and intake flow
+- [ ] 18-02-PLAN.md — Specialist & Reviewer Tests: Playwright E2E tests for queue screens  
+- [ ] 18-03-PLAN.md — Admin Tests: Playwright E2E tests for all admin screens
+
 ---

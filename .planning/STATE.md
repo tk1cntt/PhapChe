@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Auth & Hardening
 status: executing
-last_updated: "2026-06-07T06:32:36.577Z"
+last_updated: "2026-06-07T06:36:12.266Z"
 last_activity: 2026-06-07
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 9
-  completed_plans: 7
-  percent: 78
+  completed_plans: 8
+  percent: 89
 ---
 
 # State
@@ -46,7 +46,8 @@ All v1.0 MVP phases complete. Phase 15 kicks off v1.1 with authentication system
 | 13 | service-cleanup-wiring | 3/3 | Complete | `13-VERIFICATION.md`: passed |
 | 14 | antd-layout-redesign | 9/9 | Complete | `14-VERIFICATION.md`: passed |
 | 15 | auth | — | Not planned | — |
-| 16 | fix-14-failed-routes | 3/3 | Executing | `16-03-SUMMARY.md`: pending_user_review |
+| 16 | fix-14-failed-routes | 3/3 | Complete | `16-03-SUMMARY.md`: pending_user_review |
+| 17 | fix-remaining-routes | 2/2 | Executing | `17-02-SUMMARY.md` |
 
 ## Deferred Items
 
@@ -79,6 +80,15 @@ Items acknowledged at milestone close (2026-06-05):
 | 260606-pfi | Mở tất cả các trang hiện có, kiểm tra hiển thị đã đúng chưa, thực hiện chụp tất cả các màn hình sau khi đã validate hiển thị đúng | 2026-06-06 | 004e617 | Needs Review | [260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t](./quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/) |
 
 Last activity: 2026-06-07
+
+## Phase 17 Plan 02 Execution
+
+| Task | Description | Status | Commit |
+|------|-------------|--------|--------|
+| 17-02-01 | Fix validation harness Prisma queries for real IDs | Complete | 4594362 |
+| 17-02-02 | Verify fixture resolution works with seeded data | Complete | - |
+
+**Result:** Fixtures now resolve real IDs from database instead of placeholder values. Dual-pass queries with workspace-scoped fallback enable validation to work regardless of which workspace contains the seed data.
 
 ## Phase 16 Plan 03 Execution
 

@@ -32,7 +32,7 @@ export default function ReviewerQueuePage() {
 
       <Flex vertical>
         <Typography.Title level={3} style={{ margin: 0 }}>
-          Hang cho duyet
+          Hàng chờ duyet
         </Typography.Title>
         <Typography.Paragraph style={{ margin: 0, color: '#475569' }}>
           Danh sach phien ban tai lieu duoc chuyen vien gui len cho ban duyet.
@@ -40,7 +40,7 @@ export default function ReviewerQueuePage() {
       </Flex>
 
       <Card>
-        <Typography.Title level={5}>Hang cho duyet</Typography.Title>
+        <Typography.Title level={5}>Hàng chờ duyet</Typography.Title>
         <Typography.Paragraph style={{ color: '#475569' }}>
           Danh sach nay duoc loc theo reviewer dang dang nhap.
         </Typography.Paragraph>

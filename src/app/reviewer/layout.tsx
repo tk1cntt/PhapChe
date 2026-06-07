@@ -9,7 +9,7 @@ import { getBreadcrumbItems } from '@/lib/navigation/breadcrumb-labels';
 const { Sider, Content, Header } = Layout;
 
 const navItems = [
-  { key: '/reviewer/requests', icon: <OrderedListOutlined />, label: <Link href="/reviewer/requests">Hang cho duyet</Link> },
+  { key: '/reviewer/requests', icon: <OrderedListOutlined />, label: <Link href="/reviewer/requests">Hàng chờ duyet</Link> },
 ];
 
 export default function ReviewerLayout({ children }: { children: React.ReactNode }) {
@@ -32,7 +32,7 @@ export default function ReviewerLayout({ children }: { children: React.ReactNode
             GitNexus Legal
           </Typography.Text>
           <Typography.Paragraph style={{ fontSize: 12, color: '#475569', margin: 0 }}>
-            Nguoi duyet
+            Người duyệt
           </Typography.Paragraph>
         </div>
         <Menu

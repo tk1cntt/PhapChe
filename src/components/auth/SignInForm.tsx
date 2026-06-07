@@ -51,13 +51,13 @@ export function SignInForm() {
           </Form.Item>
           <Form.Item
             name="password"
-            rules={[{ required: true, message: 'Mat khau la bat buoc' }]}
+            rules={[{ required: true, message: 'Mật khẩu la bat buoc' }]}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="Mat khau" size="large" />
+            <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" size="large" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading} block size="large">
-              Dang nhap
+              Đăng nhập
             </Button>
           </Form.Item>
         </Form>

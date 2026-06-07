@@ -17,9 +17,9 @@ const { Sider, Content, Header } = Layout;
 // To filter menu by role, refactor layout to a server component that calls requireAppSession()
 // and conditionally builds navItems.
 const navItems = [
-  { key: '/admin/users', icon: <UserOutlined />, label: <Link href="/admin/users">Nguoi dung</Link> },
+  { key: '/admin/users', icon: <UserOutlined />, label: <Link href="/admin/users">Người dùng</Link> },
   { key: '/admin/workspaces', icon: <TeamOutlined />, label: <Link href="/admin/workspaces">Workspace</Link> },
-  { key: '/admin/requests', icon: <FileTextOutlined />, label: <Link href="/admin/requests">Ho so yeu cau</Link> },
+  { key: '/admin/requests', icon: <FileTextOutlined />, label: <Link href="/admin/requests">Hồ sơ yêu cầu</Link> },
   { key: '/admin/ops', icon: <DashboardOutlined />, label: <Link href="/admin/ops">Van hanh</Link> },
   { key: '/admin/audit', icon: <SafetyOutlined />, label: <Link href="/admin/audit">Audit</Link> },
   { key: '/admin/vault', icon: <FolderOutlined />, label: <Link href="/admin/vault">Phan loai vault</Link> },

@@ -8,7 +8,7 @@ const { Title, Paragraph } = Typography;
 
 const roles = [
   { value: 'customer', label: 'Khach hang', tone: 'neutral' as const },
-  { value: 'specialist', label: 'Chuyen vien', tone: 'info' as const },
+  { value: 'specialist', label: 'Chuyên viên', tone: 'info' as const },
   { value: 'reviewer', label: 'Reviewer', tone: 'warning' as const },
   { value: 'coordinator_admin', label: 'Dieu phoi vien', tone: 'accent' as const },
   { value: 'super_admin', label: 'Super admin', tone: 'destructive' as const },

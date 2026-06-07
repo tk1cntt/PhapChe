@@ -170,7 +170,7 @@ export default function ReviewForm({
           />
         </label>
         <Button danger htmlType="submit" disabled={isReadOnly}>
-          Yeu cau chinh sua
+          Yêu cầu chinh sua
         </Button>
         <FeedbackBadge result={rejectState} />
       </form>

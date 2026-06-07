@@ -9,7 +9,7 @@ import { getBreadcrumbItems } from '@/lib/navigation/breadcrumb-labels';
 const { Sider, Content, Header } = Layout;
 
 const navItems = [
-  { key: '/specialist/requests', icon: <OrderedListOutlined />, label: <Link href="/specialist/requests">Hang cho</Link> },
+  { key: '/specialist/requests', icon: <OrderedListOutlined />, label: <Link href="/specialist/requests">Hàng chờ</Link> },
 ];
 
 export default function SpecialistLayout({ children }: { children: React.ReactNode }) {
@@ -32,7 +32,7 @@ export default function SpecialistLayout({ children }: { children: React.ReactNo
             GitNexus Legal
           </Typography.Text>
           <Typography.Paragraph style={{ fontSize: 12, color: '#475569', margin: 0 }}>
-            Chuyen vien
+            Chuyên viên
           </Typography.Paragraph>
         </div>
         <Menu

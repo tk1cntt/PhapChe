@@ -1,9 +1,9 @@
 'use client';
 
 import { Tag, Button, Card, Typography, Flex, Steps, Radio, Input, Upload, List, Space, Divider, Alert, Form } from 'antd';
-import { UploadOutlined, CheckCircleOutlined, LoadingOutlined } from '@ant-design/icons';
+import { UploadOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import type { MatterCatalogItem } from '@/lib/intake/catalog';
-import type { UploadFile } from 'antd';
+import { useState } from 'react';
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -60,24 +60,41 @@ export function ProgressSteps({ activeStep }: { activeStep: number }) {
 }
 
 export function ServiceSelection({ catalog }: { catalog: readonly MatterCatalogItem[] }) {
+  const [selected, setSelected] = useState(catalog[0]?.key || '');
+
   return (
     <Card title={<Title level={4} style={{ margin: 0 }}>Bạn cần hỗ trợ việc gì?</Title>} size="large">
       <Form.Item style={{ marginBottom: 16 }}>
         <Paragraph type="secondary">Chọn một nhóm dịch vụ để bắt đầu tạo hồ sơ nháp.</Paragraph>
-        <Radio.Group>
+        <Radio.Group value={selected} onChange={(e) => setSelected(e.target.value)} style={{ width: '100%' }}>
           <Space direction="vertical" style={{ width: '100%' }} size={12}>
-            {catalog.map((item, index) => (
-              <Card key={item.key} size="small" style={{ width: '100%', cursor: 'pointer', borderColor: index === 0 ? '#0F766E' : undefined }}>
-                <Radio value={item.key}>
-                  <Space>
-                    <Text strong>{item.label}</Text>
-                  </Space>
-                </Radio>
-                <Paragraph type="secondary" style={{ marginBottom: 0, marginLeft: 24, fontSize: 14 }}>
-                  {item.description}
-                </Paragraph>
-              </Card>
-            ))}
+            {catalog.map((item) => {
+              const isSelected = selected === item.key;
+              return (
+                <Card
+                  key={item.key}
+                  size="small"
+                  style={{
+                    width: '100%',
+                    cursor: 'pointer',
+                    borderColor: isSelected ? '#0F766E' : '#E2E8F0',
+                    background: isSelected ? '#F0FDFA' : '#FFFFFF',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <Radio value={item.key} style={{ width: '100%' }}>
+                    <Space direction="vertical" size={4}>
+                      <Text strong style={{ color: isSelected ? '#0F766E' : '#0F172A' }}>
+                        {item.label}
+                      </Text>
+                      <Text type="secondary" style={{ fontSize: 14 }}>
+                        {item.description}
+                      </Text>
+                    </Space>
+                  </Radio>
+                </Card>
+              );
+            })}
           </Space>
         </Radio.Group>
       </Form.Item>

@@ -4,6 +4,8 @@ Mọi trao đổi phải dùng tiếng Việt.
 
 Cấm sử dụng lệnh taskkill //F //IM node.exe.
 
+Mỗi tính năng UI cần phải có 1 testcase kèm theo. Fix bất kỳ một lỗi nào đều phải có e2e testcase đi kèm.
+
 Tên slug của từng phase hay quick phải là tiếng anh và ngắn gọn.
 
 ## 1. Think Before Coding

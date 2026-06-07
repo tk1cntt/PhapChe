@@ -3,6 +3,7 @@ import { Button, Card } from 'antd';
 import { requireAppSession } from '@/lib/security/session';
 import { createTemplateAction } from './actions';
 import { VariableSchemaBuilder } from './variable-schema-builder';
+import { prisma } from '@/lib/prisma';
 
 const MATTER_TYPE_OPTIONS = [
   { key: 'labor_contract', label: 'Hợp đồng lao động' },

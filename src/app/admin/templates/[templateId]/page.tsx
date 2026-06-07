@@ -66,7 +66,7 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
         <Card>
           <h1 className="mb-6 text-[24px] font-semibold leading-[1.2]">Chỉnh sửa mẫu tài liệu</h1>
 
-          <form action={updateTemplateAction} method="POST" className="space-y-6">
+          <form action={updateTemplateAction} className="space-y-6">
             <input type="hidden" name="templateId" value={template.id} />
 
             <div className="space-y-1.5">
@@ -139,7 +139,7 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
             Phiên bản mới sẽ bắt đầu ở trạng thái Nháp và liên kết với phiên bản {template.version} hiện tại.
           </p>
 
-          <form action={createVersionAction} method="POST" className="space-y-6">
+          <form action={createVersionAction} className="space-y-6">
             <input type="hidden" name="templateId" value={template.id} />
             <input type="hidden" name="baseVersion" value={template.version} />
 
@@ -231,13 +231,13 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
                 <a href={`/admin/templates/${template.id}?action=edit`}>
                   <Button>Chỉnh sửa</Button>
                 </a>
-                <form action={approveTemplateAction} method="POST" style={{ display: 'inline' }}>
+                <form action={approveTemplateAction} style={{ display: 'inline' }}>
                   <input type="hidden" name="templateId" value={template.id} />
                   <Button htmlType="submit">
                     Phê duyệt
                   </Button>
                 </form>
-                <form action={publishTemplateAction} method="POST" style={{ display: 'inline' }}>
+                <form action={publishTemplateAction} style={{ display: 'inline' }}>
                   <input type="hidden" name="templateId" value={template.id} />
                   <Button type="primary" htmlType="submit">
                     Xuất bản
@@ -251,7 +251,7 @@ export default async function TemplateDetailPage({ params, searchParams }: Props
               </a>
             )}
             {template.status !== 'deprecated' && (
-              <form action={deprecateTemplateAction} method="POST" style={{ display: 'inline' }}>
+              <form action={deprecateTemplateAction} style={{ display: 'inline' }}>
                 <input type="hidden" name="templateId" value={template.id} />
                 <Button danger htmlType="submit">
                   Không còn sử dụng

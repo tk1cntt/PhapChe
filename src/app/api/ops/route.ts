@@ -6,11 +6,11 @@ export async function GET(request: Request) {
   try {
     const session = await requireAppSession();
     const { searchParams } = new URL(request.url);
-    const filters = {
+    const filters = parseOpsFilters({
       workspaceId: searchParams.get('workspaceId') ?? undefined,
       matterTypeKey: searchParams.get('matterTypeKey') ?? undefined,
       status: searchParams.get('status') ?? undefined,
-    };
+    });
 
     const dashboard = await getOpsDashboard(session, filters);
 

@@ -5,11 +5,11 @@ import { revalidatePath } from 'next/cache';
 import { requireAppSession } from '@/lib/security/session';
 import { updateTemplate, approveTemplate, publishTemplate, deprecateTemplate, createNewVersion } from '@/lib/documents/template-service';
 
-export async function updateTemplateAction(formData: FormData) {
+export async function updateTemplateAction(formData: FormData): Promise<void> {
   const session = await requireAppSession();
 
   if (!session.roles.includes('coordinator_admin') && !session.roles.includes('super_admin')) {
-    return { error: 'FORBIDDEN' };
+    redirect('/admin');
   }
 
   const templateId = formData.get('templateId')?.toString();
@@ -17,104 +17,75 @@ export async function updateTemplateAction(formData: FormData) {
   const description = formData.get('description')?.toString().trim() || undefined;
   const content = formData.get('content')?.toString() || '';
 
-  if (!templateId) return { error: 'TEMPLATE_ID_REQUIRED' };
-  if (!label) return { error: 'LABEL_REQUIRED' };
-  if (!content.trim()) return { error: 'CONTENT_REQUIRED' };
-
-  try {
-    await updateTemplate(session, templateId, { label, description, content });
-    revalidatePath('/admin/templates');
-    revalidatePath(`/admin/templates/${templateId}`);
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : 'UNKNOWN_ERROR' };
+  if (!templateId || !label || !content.trim()) {
+    redirect(`/admin/templates/${templateId}`);
   }
 
-  return { success: true };
+  await updateTemplate(session, templateId, { label, description, content });
+  revalidatePath('/admin/templates');
+  revalidatePath(`/admin/templates/${templateId}`);
 }
 
-export async function approveTemplateAction(formData: FormData) {
+export async function approveTemplateAction(formData: FormData): Promise<void> {
   const session = await requireAppSession();
 
   if (!session.roles.includes('coordinator_admin') && !session.roles.includes('super_admin')) {
-    return { error: 'FORBIDDEN' };
+    redirect('/admin');
   }
 
   const templateId = formData.get('templateId')?.toString();
-  if (!templateId) return { error: 'TEMPLATE_ID_REQUIRED' };
+  if (!templateId) redirect('/admin/templates');
 
-  try {
-    await approveTemplate(session, templateId);
-    revalidatePath('/admin/templates');
-    revalidatePath(`/admin/templates/${templateId}`);
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : 'UNKNOWN_ERROR' };
-  }
-
-  return { success: true };
+  await approveTemplate(session, templateId);
+  revalidatePath('/admin/templates');
+  revalidatePath(`/admin/templates/${templateId}`);
 }
 
-export async function publishTemplateAction(formData: FormData) {
+export async function publishTemplateAction(formData: FormData): Promise<void> {
   const session = await requireAppSession();
 
   if (!session.roles.includes('coordinator_admin') && !session.roles.includes('super_admin')) {
-    return { error: 'FORBIDDEN' };
+    redirect('/admin');
   }
 
   const templateId = formData.get('templateId')?.toString();
-  if (!templateId) return { error: 'TEMPLATE_ID_REQUIRED' };
+  if (!templateId) redirect('/admin/templates');
 
-  try {
-    await publishTemplate(session, templateId);
-    revalidatePath('/admin/templates');
-    revalidatePath(`/admin/templates/${templateId}`);
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : 'UNKNOWN_ERROR' };
-  }
-
-  return { success: true };
+  await publishTemplate(session, templateId);
+  revalidatePath('/admin/templates');
+  revalidatePath(`/admin/templates/${templateId}`);
 }
 
-export async function deprecateTemplateAction(formData: FormData) {
+export async function deprecateTemplateAction(formData: FormData): Promise<void> {
   const session = await requireAppSession();
 
   if (!session.roles.includes('coordinator_admin') && !session.roles.includes('super_admin')) {
-    return { error: 'FORBIDDEN' };
+    redirect('/admin');
   }
 
   const templateId = formData.get('templateId')?.toString();
-  if (!templateId) return { error: 'TEMPLATE_ID_REQUIRED' };
+  if (!templateId) redirect('/admin/templates');
 
-  try {
-    await deprecateTemplate(session, templateId);
-    revalidatePath('/admin/templates');
-    revalidatePath(`/admin/templates/${templateId}`);
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : 'UNKNOWN_ERROR' };
-  }
-
-  return { success: true };
+  await deprecateTemplate(session, templateId);
+  revalidatePath('/admin/templates');
+  revalidatePath(`/admin/templates/${templateId}`);
 }
 
-export async function createVersionAction(formData: FormData) {
+export async function createVersionAction(formData: FormData): Promise<void> {
   const session = await requireAppSession();
 
   if (!session.roles.includes('coordinator_admin') && !session.roles.includes('super_admin')) {
-    return { error: 'FORBIDDEN' };
+    redirect('/admin');
   }
 
   const templateId = formData.get('templateId')?.toString();
   const content = formData.get('content')?.toString() || '';
 
-  if (!templateId) return { error: 'TEMPLATE_ID_REQUIRED' };
-  if (!content.trim()) return { error: 'CONTENT_REQUIRED' };
-
-  try {
-    const newTemplate = await createNewVersion(session, templateId, { content });
-    revalidatePath('/admin/templates');
-    redirect(`/admin/templates/${newTemplate.id}`);
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : 'UNKNOWN_ERROR' };
+  if (!templateId || !content.trim()) {
+    redirect(templateId ? `/admin/templates/${templateId}` : '/admin/templates');
   }
 
-  return { success: true };
+  const newTemplate = await createNewVersion(session, templateId, { content });
+  revalidatePath('/admin/templates');
+  redirect(`/admin/templates/${newTemplate.id}`);
 }

@@ -63,10 +63,10 @@ export function ServiceSelection({ catalog }: { catalog: readonly MatterCatalogI
   const [selected, setSelected] = useState(catalog[0]?.key || '');
 
   return (
-    <Card title={<Title level={4} style={{ margin: 0 }}>Bạn cần hỗ trợ việc gì?</Title>} size="large">
+    <Card title={<Title level={4} style={{ margin: 0 }}>Bạn cần hỗ trợ việc gì?</Title>}>
       <Form.Item style={{ marginBottom: 16 }}>
         <Paragraph type="secondary">Chọn một nhóm dịch vụ để bắt đầu tạo hồ sơ nháp.</Paragraph>
-        <Radio.Group value={selected} onChange={(e) => setSelected(e.target.value)} style={{ width: '100%' }}>
+        <Radio.Group value={selected} onChange={(e) => setSelected(e.target.value)} name="matterTypeKey" style={{ width: '100%' }}>
           <Space direction="vertical" style={{ width: '100%' }} size={12}>
             {catalog.map((item) => {
               const isSelected = selected === item.key;
@@ -111,7 +111,6 @@ export function QuestionStep({ matterType }: { matterType: MatterCatalogItem }) 
   return (
     <Card
       title={<Space><span>Thông tin cần cung cấp</span><Tag color="blue">{matterType.label}</Tag></Space>}
-      size="large"
     >
       {matterType.key === 'unsupported' && (
         <Alert
@@ -154,7 +153,6 @@ export function UploadStep({ files }: { files: UploadedFile[] }) {
   return (
     <Card
       title={<Title level={4} style={{ margin: 0 }}>Tài liệu hỗ trợ</Title>}
-      size="large"
     >
       <Paragraph type="secondary" style={{ marginBottom: 16 }}>
         Tải lên hợp đồng, giấy phép, email trao đổi hoặc tài liệu liên quan. Không cần OCR ở bước này.
@@ -202,7 +200,6 @@ export function ReviewSummary({ matterType, answers, files }: { matterType: Matt
   return (
     <Card
       title={<Title level={4} style={{ margin: 0 }}>Kiểm tra trước khi gửi</Title>}
-      size="large"
     >
       <Card size="small" style={{ marginBottom: 16, background: '#F8FAFC' }}>
         <Text type="secondary" style={{ fontSize: 12 }}>Loại việc</Text>

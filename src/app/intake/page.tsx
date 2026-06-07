@@ -86,7 +86,9 @@ export default async function IntakePage({ searchParams }: IntakePageProps) {
       value: answers[answerLabel.key] ?? '',
     }))
     .filter((answer) => answer.value !== '');
-  const uploadedFiles = request.vaultFiles.map((file) => ({ filename: file.filename, size: 0 }));
+  const uploadedFiles = request.vaultFiles
+    .filter((file): file is { filename: string } => file.filename !== null)
+    .map((file) => ({ filename: file.filename, size: 0 }));
 
   return (
     <IntakeShell>

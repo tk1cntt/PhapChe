@@ -78,9 +78,10 @@ Items acknowledged at milestone close (2026-06-05):
 | 260527-gig | Phase 1 có rất nhiều func và tính năng cần test e2e. Hãy thực hiện test e2e cho tất các tính năng hiện tại của phase 1. K thể chỉ có 1 testcase như vậy đc | 2026-05-27 | add4cf6 | Verified | [260527-gig-phase-1-c-r-t-nhi-u-func-v-t-nh-n-ng-c-n](./quick/260527-gig-phase-1-c-r-t-nhi-u-func-v-t-nh-n-ng-c-n/) |
 | 260527-kby | Mở rộng e2e Phase 1 thành coverage chi tiết theo từng database model và chức năng | 2026-05-27 | cffbe42 | Verified | [260527-kby-m-r-ng-e2e-phase-1-th-nh-coverage-chi-ti](./quick/260527-kby-m-r-ng-e2e-phase-1-th-nh-coverage-chi-ti/) |
 | 260606-pfi | Mở tất cả các trang hiện có, kiểm tra hiển thị đã đúng chưa, thực hiện chụp tất cả các màn hình sau khi đã validate hiển thị đúng | 2026-06-06 | 004e617 | Needs Review | [260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t](./quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/) |
+| 260607-mdo | Create e2e tests for intake screen | 2026-06-07 | 62f1e20 | Verified | [260607-mdo-create-e2e-tests-for-intake-screen](./quick/260607-mdo-create-e2e-tests-for-intake-screen/) |
 
 Last activity: 2026-06-07
-**Completed:** Phase 17 plan 05
+**Completed:** Quick task 260607-mdo: Create e2e tests for intake screen
 
 ## Phase 17 Plan 05 Execution
 

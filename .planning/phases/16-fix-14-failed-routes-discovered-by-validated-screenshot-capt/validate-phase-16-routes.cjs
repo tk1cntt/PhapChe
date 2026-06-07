@@ -81,30 +81,56 @@ async function loadFixtures() {
       customer: { email: 'customer.demo@example.test', password: 'Demo@123456' },
     },
   };
+  console.error('[validate-phase-16-routes] fixtures loading...');
   try {
     const { PrismaClient } = require('@prisma/client');
     const prisma = new PrismaClient();
     const workspace = await prisma.workspace.findFirst({ select: { id: true, slug: true } });
     if (workspace) fixtures.workspace = workspace;
 
-    const request = await prisma.legalRequest.findFirst({
+    // legalRequest: try workspace-scoped first, then fallback to any request
+    let request = await prisma.legalRequest.findFirst({
       where: { workspaceId: workspace?.id },
       orderBy: { createdAt: 'desc' },
       select: { id: true },
     });
+    if (!request?.id) {
+      // Fallback: any legalRequest regardless of workspace
+      request = await prisma.legalRequest.findFirst({
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, workspaceId: true },
+      });
+      console.error(`[validate-phase-16-routes] workspace-scoped request not found, used fallback request workspaceId=${request?.workspaceId ?? 'none'}`);
+    }
     if (request?.id) fixtures.samples.requestId = request.id;
 
-    const template = await prisma.documentTemplate.findFirst({
+    // documentTemplate: try workspace-scoped first, then fallback to any template
+    let template = await prisma.documentTemplate.findFirst({
       where: { workspaceId: workspace?.id },
       select: { id: true },
     });
+    if (!template?.id) {
+      template = await prisma.documentTemplate.findFirst({
+        select: { id: true, workspaceId: true },
+      });
+      console.error(`[validate-phase-16-routes] workspace-scoped template not found, used fallback template workspaceId=${template?.workspaceId ?? 'none'}`);
+    }
     if (template?.id) fixtures.samples.templateId = template.id;
 
-    const docVersion = await prisma.documentVersion.findFirst({
+    // documentVersion: try submitted_for_review status first, then any version with a document
+    let docVersion = await prisma.documentVersion.findFirst({
       where: { status: 'submitted_for_review', document: { request: { workspaceId: workspace?.id } } },
       orderBy: { createdAt: 'desc' },
       select: { id: true, documentId: true, document: { select: { requestId: true } } },
     });
+    if (!docVersion?.id) {
+      // Fallback: any documentVersion regardless of workspace
+      docVersion = await prisma.documentVersion.findFirst({
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, documentId: true, document: { select: { requestId: true } } },
+      });
+      console.error(`[validate-phase-16-routes] submitted_for_review docVersion not found, used fallback docVersion id=${docVersion?.id ?? 'none'}`);
+    }
     if (docVersion?.id) {
       fixtures.samples.documentVersionId = docVersion.id;
       if (docVersion.document?.requestId) fixtures.samples.reviewRequestId = docVersion.document.requestId;
@@ -117,6 +143,16 @@ async function loadFixtures() {
   } catch (error) {
     fixtures.dbError = String(error?.message ?? error);
   }
+  console.error('[validate-phase-16-routes] fixtures resolved:', JSON.stringify(fixtures.samples, null, 2));
+
+  // Fail validation if real IDs could not be resolved
+  if (fixtures.samples.requestId === 'sample-request-id') {
+    throw new Error('CRITICAL: Could not resolve real requestId from database. Cannot validate dynamic routes.');
+  }
+  if (fixtures.samples.templateId === 'sample-template-id') {
+    throw new Error('CRITICAL: Could not resolve real templateId from database. Cannot validate dynamic routes.');
+  }
+
   return fixtures;
 }
 
@@ -275,7 +311,7 @@ function routesForOptions(options) {
   await browser.close();
 
   const report = { baseUrl, options, fixtures, routes: targetRoutes, results };
-  const outPath = path.join(phaseDir, 'phase-16-validation-results.json');
+  const outPath = path.join(phaseDir, 'phase-17-validation-results.json');
   fs.writeFileSync(outPath, JSON.stringify(report, null, 2));
 
   const passCount = results.filter((r) => r.validation === 'PASS').length;

@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Auth & Hardening
 status: completed
-last_updated: "2026-06-08T14:35:10.404Z"
+last_updated: "2026-06-08T14:54:23.219Z"
 last_activity: 2026-06-08
 progress:
   total_phases: 5
@@ -30,7 +30,7 @@ All v1.0 MVP phases complete. Phase 15 kicks off v1.1 with authentication system
 ## Progress Summary
 
 | Phase | Name | Plans | Status | Verification |
-|---|---|---:|---|---|
+|---|---:|---|---|
 | 01 | foundation | 4/4 | Complete with human review debt | `01-VERIFICATION.md`: human_needed |
 | 02 | intake | 4/4 | Complete | `02-VERIFICATION.md`: passed |
 | 03 | routing | 5/5 | Complete | `03-VERIFICATION.md`: passed |
@@ -48,6 +48,8 @@ All v1.0 MVP phases complete. Phase 15 kicks off v1.1 with authentication system
 | 15 | auth | — | Not planned | — |
 | 16 | fix-14-failed-routes | 3/3 | Complete | `16-03-SUMMARY.md`: pending_user_review |
 | 17 | fix-remaining-routes | 3/3 | Complete | `17-03-SUMMARY.md`, `17-05-SUMMARY.md` |
+| 18 | ui-test-cases | — | Gap closure (planned) | — |
+| 19 | customer-dashboard | 1/1 | Complete | `19-VERIFICATION.md`: passed |
 
 ## Deferred Items
 
@@ -68,6 +70,7 @@ Items acknowledged at milestone close (2026-06-05):
 
 - Phase 16 added: Fix 14 failed routes discovered by validated screenshot capture
 - Phase 17 added: Fix remaining routes after Phase 16 client component conversion
+- Phase 18 added: UI Test Cases
 - Phase 19 added: customer-dashboard
 
 ### Quick Tasks Completed
@@ -76,22 +79,23 @@ Items acknowledged at milestone close (2026-06-05):
 |---|-------------|------|--------|--------|-----------|
 | 260527-9ud | Cần bổ sung thêm css. Layout xấu quá | 2026-05-27 | 3006ffc | Needs Review | [260527-9ud-c-n-b-sung-th-m-css-layout-x-u-qu](./quick/260527-9ud-c-n-b-sung-th-m-css-layout-x-u-qu/) |
 | 260527-aqj | Bổ sung e2e test tất cả các tính năng của phase 1 với db thực tế. Có init data trước khi test và sau khi test xong thì xóa data test đi | 2026-05-27 | e596734 | Verified | [260527-aqj-b-sung-e2e-test-t-t-c-c-c-t-nh-n-ng-c-a-](./quick/260527-aqj-b-sung-e2e-test-t-t-c-c-c-t-nh-n-ng-c-a-/) |
-| 260527-gig | Phase 1 có rất nhiều func và tính năng cần test e2e. Hãy thực hiện test e2e cho tất các tính năng hiện tại của phase 1. K thể chỉ có 1 testcase như vậy đc | 2026-05-27 | add4cf6 | Verified | [260527-gig-phase-1-c-r-t-nhi-u-func-v-t-nh-n-ng-c-n](./quick/260527-gig-phase-1-c-r-t-nhi-u-func-v-t-nh-n-ng-c-n/) |
+| 260527-gig | Phase 1 có rất nhiều func và tính năng cần test e2e. Hãy thực hiện test e2e cho tất cả tính năng hiện tại của phase 1. Không thể chỉ có 1 testcase như vậy được | 2026-05-27 | add4cf6 | Verified | [260527-gig-phase-1-c-r-t-nhi-u-func-v-t-nh-n-ng-c-n](./quick/260527-gig-phase-1-c-r-t-nhi-u-func-v-t-nh-n-ng-c-n/) |
 | 260527-kby | Mở rộng e2e Phase 1 thành coverage chi tiết theo từng database model và chức năng | 2026-05-27 | cffbe42 | Verified | [260527-kby-m-r-ng-e2e-phase-1-th-nh-coverage-chi-ti](./quick/260527-kby-m-r-ng-e2e-phase-1-th-nh-coverage-chi-ti/) |
 | 260606-pfi | Mở tất cả các trang hiện có, kiểm tra hiển thị đã đúng chưa, thực hiện chụp tất cả các màn hình sau khi đã validate hiển thị đúng | 2026-06-06 | 004e617 | Needs Review | [260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t](./quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/) |
 | 260607-mdo | Create e2e tests for intake screen | 2026-06-07 | 62f1e20 | Verified | [260607-mdo-create-e2e-tests-for-intake-screen](./quick/260607-mdo-create-e2e-tests-for-intake-screen/) |
 | 260607-o5f | Fix 3 bugs on /intake: validation, upload 500, submit 500 | 2026-06-07 | a8238f3 | Verified | [260607-o5f-v-n-c-n-c-c-l-i-d-i-http-localhost-3000-](./quick/260607-o5f-v-n-c-n-c-c-l-i-d-i-http-localhost-3000-/) |
-| 260607-pfj | Fix blank page at /requests/[id] after intake submit | 2026-06-07 | bcf3062 | Verified | [260607-pfj-s-a-y-u-c-u-sau-khi-g-i-y-u-c-u-intake-xong-qun-trang-tr-ng](./quick/260607-pfj-s-a-y-u-c-u-sau-khi-g-i-y-u-c-u-intake-xong-qun-trang-tr-ng/) |
+| 260607-pfj | Fix blank page at /requests/[id] after intake submit | 2026-06-07 | bcf3062 | Verified | [260607-pfj-s-a-y-u-c-u-sau-khi-g-i-y-u-c-u-intake-xong-qun-trang-tr-ng](./quick/260607-pfj-s-a-y-u-c-u-sau-khi-g-i-y-c-u-intake-xong-qun-trang-tr-ng/) |
+| 260608-ufb | Fix draft intake edit/delete and PDF upload 500 error | 2026-06-08 | 8ef062a | Verified | [260608-ufb-fix-draft-intake-edit-delete-and-pdf-upl](./quick/260608-ufb-fix-draft-intake-edit-delete-and-pdf-upl/) |
 
 Last activity: 2026-06-08
-**Completed:** Quick task 260607-pfj: Fix blank page at /requests/[id] after intake submit
+**Completed:** Quick task 260608-ufb: Fix draft intake edit/delete and PDF upload 500 error
 
 ## Phase 17 Plan 05 Execution
 
 | Task | Description | Status | Commit |
 |------|-------------|--------|--------|
 | 17-05-01 | Audit route existence and directory structure | Complete | 8cc0530 |
-| 17-05-02 | Investigate 404 root cause for each route | Complete | - |
+| 17-05-02 | Investigate 404 root cause for each route | Complete | — |
 | 17-05-03 | Decide fix strategy for each route | Complete | 9b2d840 |
 
 **Result:** Removed 4 dynamic routes from validation suite. Routes return HTTP 404 (route matching failure), not access errors. Decision: option-b - Remove from validation suite as Phase 16 restructuring artifacts.
@@ -120,7 +124,7 @@ Last activity: 2026-06-08
 | Task | Description | Status | Commit |
 |------|-------------|--------|--------|
 | 17-02-01 | Fix validation harness Prisma queries for real IDs | Complete | 4594362 |
-| 17-02-02 | Verify fixture resolution works with seeded data | Complete | - |
+| 17-02-02 | Verify fixture resolution works with seeded data | Complete | — |
 
 **Result:** Fixtures now resolve real IDs from database instead of placeholder values. Dual-pass queries with workspace-scoped fallback enable validation to work regardless of which workspace contains the seed data.
 
@@ -130,6 +134,6 @@ Last activity: 2026-06-08
 |------|-------------|--------|--------|
 | 16-03-01 | Repair admin-only routes | Complete | 1e7ef5a |
 | 16-03-02 | Verify dynamic routes | Complete | 21b903c |
-| 16-03-03 | Run final validation | Deferred | - |
+| 16-03-03 | Run final validation | Deferred | — |
 
 **Note**: Dev server not running. Live validation deferred until server restart.

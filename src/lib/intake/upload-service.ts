@@ -32,27 +32,37 @@ export async function attachIntakeFile(input: AttachIntakeFileInput) {
   const filename = input.file.name.trim();
   if (!filename) throw new Error('FILE_NAME_REQUIRED');
   const safeFilename = filename
-    .replace(/[\\/\0-\x1f\x7f]+/g, '-')
-    .replace(/\.\.+/g, '.')
+    .replace(/[\\/:*?"<>|]+/g, '-')
+    .replace(/\.{2,}/g, '.')
     .slice(0, 180);
 
-  const vaultFile = await storeVaultFile({
-    session: input.session!,
-    requestId: request.id,
-    storageKey: `private/intake/${request.workspaceId}/${request.id}/${randomUUID()}-${safeFilename}`,
-    filename,
-    fileKind: 'intake_upload',
-    source: 'customer_upload',
-    size: input.file.size,
-    contentType: input.file.type ?? 'application/octet-stream',
-    correlationId: input.correlationId ?? `intake-upload-${randomUUID()}`,
-  });
+  try {
+    const vaultFile = await storeVaultFile({
+      session: input.session!,
+      requestId: request.id,
+      storageKey: `private/intake/${request.workspaceId}/${request.id}/${randomUUID()}-${safeFilename}`,
+      filename,
+      fileKind: 'intake_upload',
+      source: 'customer_upload',
+      size: input.file.size,
+      contentType: input.file.type ?? 'application/octet-stream',
+      correlationId: input.correlationId ?? `intake-upload-${randomUUID()}`,
+    });
 
-  return {
-    vaultFileId: vaultFile.id,
-    filename: vaultFile.filename,
-    size: input.file.size,
-    contentType: input.file.type ?? 'application/octet-stream',
-    private: true,
-  };
+    return {
+      vaultFileId: vaultFile.id,
+      filename: vaultFile.filename,
+      size: input.file.size,
+      contentType: input.file.type ?? 'application/octet-stream',
+      private: true,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message.includes('STORAGE') || error.message.includes('S3') || error.message.includes('OSS') || error.message.includes('upload')) {
+        throw new Error('UPLOAD_STORAGE_NOT_CONFIGURED');
+      }
+      throw error;
+    }
+    throw new Error('UPLOAD_STORAGE_NOT_CONFIGURED');
+  }
 }

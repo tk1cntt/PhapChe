@@ -26,7 +26,17 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ filename: uploaded.filename, size: uploaded.size });
   } catch (error) {
-    console.error('Attach file failed:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Attach file failed:', message);
+    if (message === 'UPLOAD_STORAGE_NOT_CONFIGURED') {
+      return NextResponse.json(
+        { error: 'Storage service is not configured. Please contact support.' },
+        { status: 503 },
+      );
+    }
+    if (message === 'FORBIDDEN') {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
     return NextResponse.json({ error: 'Failed to attach file' }, { status: 500 });
   }
 }

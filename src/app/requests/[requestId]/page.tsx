@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import type { RequestStatus } from '@prisma/client';
-import { Button, Tag, Card, Flex } from 'antd';
+import { Button, Tag, Card, Flex, Modal, message } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { requireAppSession } from '@/lib/security/session';
+import { deleteDraftIntakeAction } from '@/app/intake/actions';
 
 const statusCopy: Record<RequestStatus, { label: string; body: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Đang nhập thông tin', body: 'Hồ sơ đang ở bước nhập thông tin trước khi gửi.', tone: 'neutral' },
@@ -33,39 +34,34 @@ function toneToTagColor(tone: string): string {
 }
 
 export default async function RequestStatusPage({ params }: { params: Promise<{ requestId: string }> }) {
-  // Await params first
   const { requestId } = await params;
 
-  // Validate requestId format
   if (!requestId || typeof requestId !== 'string' || requestId.trim() === '') {
     notFound();
-    return null; // This line is never reached but satisfies TypeScript
+    return null;
   }
 
-  // Require session - redirect to sign-in if not authenticated
   let session;
   try {
     session = await requireAppSession();
   } catch {
-    // Redirect to sign-in page
     redirect('/sign-in');
     return null;
   }
 
-  // Check access
   const hasAccess = await canAccessRequest(session, requestId);
   if (!hasAccess) {
     notFound();
     return null;
   }
 
-  // Fetch request
   const request = await prisma.legalRequest.findUnique({
     where: { id: requestId },
     select: {
       id: true,
       title: true,
       status: true,
+      createdById: true,
       vaultFiles: { select: { id: true, filename: true } },
       intakeSubmission: { select: { matterTypeKey: true } },
     },
@@ -78,6 +74,9 @@ export default async function RequestStatusPage({ params }: { params: Promise<{ 
 
   const status = statusCopy[request.status];
   const hasFiles = request.vaultFiles.length > 0;
+  const isOwner = request.createdById === session.userId;
+  const isDraft = request.status === 'draft_intake';
+  const canEditOrDelete = isDraft && isOwner;
 
   return (
     <main style={{ maxWidth: 960, margin: '0 auto', padding: '32px 16px', minHeight: '100vh', background: '#F8FAFC' }}>
@@ -103,9 +102,27 @@ export default async function RequestStatusPage({ params }: { params: Promise<{ 
               </Tag>
             </Flex>
             <p style={{ margin: 0, color: '#475569', fontSize: 16 }}>{status.body}</p>
+
+            {canEditOrDelete && (
+              <Flex gap={8} wrap>
+                <Link href={`/intake?requestId=${request.id}&step=1`}>
+                  <Button type="primary">Sửa hồ sơ</Button>
+                </Link>
+                <form action={async () => {
+                  'use server';
+                  const fd = new FormData();
+                  fd.append('requestId', requestId);
+                  await deleteDraftIntakeAction(fd);
+                }}>
+                  <Button danger htmlType="submit">Xóa hồ sơ</Button>
+                </form>
+              </Flex>
+            )}
+
             <Link href="/customer/requests">
               <Button>Xem tất cả yêu cầu của tôi</Button>
             </Link>
+
             {request.status === 'triage' && (
               <div style={{ padding: 16, background: '#FEF3C7', borderRadius: 8, border: '1px solid #FCD34D' }}>
                 <span style={{ color: '#B45309', fontSize: 16 }}>Cần chuyên viên phân loại</span>
@@ -144,4 +161,3 @@ export default async function RequestStatusPage({ params }: { params: Promise<{ 
     </main>
   );
 }
-

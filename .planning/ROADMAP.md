@@ -103,7 +103,7 @@ Plans:
 **Goal:** Set up Next.js i18n infrastructure with locale routing, header language switcher, and 4-language support (Vietnamese, English, Chinese, Japanese). Complete i18n infrastructure by updating middleware.ts, adding [locale] route group, and integrating LanguageSwitcher.
 **Requirements**: TBD
 **Depends on:** Phase 19
-**Plans:** 1/1 plans
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 20-01-PLAN.md — i18n Foundation: Update next.config.ts with next-intl plugin, update i18n.ts for dynamic locale detection, integrate i18n middleware with auth middleware, add [locale] route group with layout, add NextIntlClientProvider to root layout
+- [x] 20-01-PLAN.md — i18n Foundation: Update next.config.ts with next-intl plugin, update i18n.ts for dynamic locale detection, integrate i18n middleware with auth middleware, add [locale] route group with layout, add NextIntlClientProvider to root layout

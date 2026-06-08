@@ -1,0 +1,519 @@
+{
+  "locales": [
+    "vi",
+    "en",
+    "zh",
+    "ja"
+  ],
+  "screens": [
+    {
+      "name": "home",
+      "path": "/",
+      "localized": true
+    },
+    {
+      "name": "sign-in",
+      "path": "/sign-in",
+      "localized": false
+    },
+    {
+      "name": "intake",
+      "path": "/intake",
+      "localized": true
+    },
+    {
+      "name": "customer-dashboard",
+      "path": "/customer",
+      "localized": true,
+      "role": "customer"
+    },
+    {
+      "name": "customer-requests",
+      "path": "/customer/requests",
+      "localized": true,
+      "role": "customer"
+    },
+    {
+      "name": "admin-users",
+      "path": "/admin/users",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-requests",
+      "path": "/admin/requests",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-ops",
+      "path": "/admin/ops",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-routing",
+      "path": "/admin/routing",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-templates",
+      "path": "/admin/templates",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-vault",
+      "path": "/admin/vault",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-audit",
+      "path": "/admin/audit",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-workspaces",
+      "path": "/admin/workspaces",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "specialist-requests",
+      "path": "/specialist/requests",
+      "localized": true,
+      "role": "specialist"
+    },
+    {
+      "name": "reviewer-requests",
+      "path": "/reviewer/requests",
+      "localized": true,
+      "role": "reviewer"
+    }
+  ],
+  "results": [
+    {
+      "locale": "vi",
+      "screen": "home",
+      "path": "/vi",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/home.png"
+    },
+    {
+      "locale": "vi",
+      "screen": "sign-in",
+      "path": "/sign-in",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/sign-in.png"
+    },
+    {
+      "locale": "vi",
+      "screen": "intake",
+      "path": "/vi/intake",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/intake.png"
+    },
+    {
+      "locale": "vi",
+      "screen": "customer-dashboard",
+      "path": "/vi/customer",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "vi",
+      "screen": "customer-requests",
+      "path": "/vi/customer/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-users",
+      "path": "/vi/admin/users",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-requests",
+      "path": "/vi/admin/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-ops",
+      "path": "/vi/admin/ops",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-routing",
+      "path": "/vi/admin/routing",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-templates",
+      "path": "/vi/admin/templates",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-vault",
+      "path": "/vi/admin/vault",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-audit",
+      "path": "/vi/admin/audit",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-workspaces",
+      "path": "/vi/admin/workspaces",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "vi",
+      "screen": "specialist-requests",
+      "path": "/vi/specialist/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "vi",
+      "screen": "reviewer-requests",
+      "path": "/vi/reviewer/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "home",
+      "path": "/en",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/home.png"
+    },
+    {
+      "locale": "en",
+      "screen": "sign-in",
+      "path": "/sign-in",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/sign-in.png"
+    },
+    {
+      "locale": "en",
+      "screen": "intake",
+      "path": "/en/intake",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/intake.png"
+    },
+    {
+      "locale": "en",
+      "screen": "customer-dashboard",
+      "path": "/en/customer",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "customer-requests",
+      "path": "/en/customer/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "admin-users",
+      "path": "/en/admin/users",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "admin-requests",
+      "path": "/en/admin/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "admin-ops",
+      "path": "/en/admin/ops",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "admin-routing",
+      "path": "/en/admin/routing",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "admin-templates",
+      "path": "/en/admin/templates",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "admin-vault",
+      "path": "/en/admin/vault",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "admin-audit",
+      "path": "/en/admin/audit",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "admin-workspaces",
+      "path": "/en/admin/workspaces",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "specialist-requests",
+      "path": "/en/specialist/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "en",
+      "screen": "reviewer-requests",
+      "path": "/en/reviewer/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "home",
+      "path": "/zh",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/home.png"
+    },
+    {
+      "locale": "zh",
+      "screen": "sign-in",
+      "path": "/sign-in",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/sign-in.png"
+    },
+    {
+      "locale": "zh",
+      "screen": "intake",
+      "path": "/zh/intake",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/intake.png"
+    },
+    {
+      "locale": "zh",
+      "screen": "customer-dashboard",
+      "path": "/zh/customer",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "customer-requests",
+      "path": "/zh/customer/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-users",
+      "path": "/zh/admin/users",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-requests",
+      "path": "/zh/admin/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-ops",
+      "path": "/zh/admin/ops",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-routing",
+      "path": "/zh/admin/routing",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-templates",
+      "path": "/zh/admin/templates",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-vault",
+      "path": "/zh/admin/vault",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-audit",
+      "path": "/zh/admin/audit",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-workspaces",
+      "path": "/zh/admin/workspaces",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "specialist-requests",
+      "path": "/zh/specialist/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "zh",
+      "screen": "reviewer-requests",
+      "path": "/zh/reviewer/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "home",
+      "path": "/ja",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/home.png"
+    },
+    {
+      "locale": "ja",
+      "screen": "sign-in",
+      "path": "/sign-in",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/sign-in.png"
+    },
+    {
+      "locale": "ja",
+      "screen": "intake",
+      "path": "/ja/intake",
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/intake.png"
+    },
+    {
+      "locale": "ja",
+      "screen": "customer-dashboard",
+      "path": "/ja/customer",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "customer-requests",
+      "path": "/ja/customer/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-users",
+      "path": "/ja/admin/users",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-requests",
+      "path": "/ja/admin/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-ops",
+      "path": "/ja/admin/ops",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-routing",
+      "path": "/ja/admin/routing",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-templates",
+      "path": "/ja/admin/templates",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-vault",
+      "path": "/ja/admin/vault",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-audit",
+      "path": "/ja/admin/audit",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-workspaces",
+      "path": "/ja/admin/workspaces",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "specialist-requests",
+      "path": "/ja/specialist/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    },
+    {
+      "locale": "ja",
+      "screen": "reviewer-requests",
+      "path": "/ja/reviewer/requests",
+      "status": "skipped",
+      "reason": "Skipped: Database not seeded."
+    }
+  ]
+}

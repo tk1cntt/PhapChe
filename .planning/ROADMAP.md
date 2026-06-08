@@ -86,4 +86,14 @@ Plans:
 - [ ] 18-02-PLAN.md — Specialist & Reviewer Tests: Playwright E2E tests for queue screens  
 - [ ] 18-03-PLAN.md — Admin Tests: Playwright E2E tests for all admin screens
 
+### Phase 19: customer-dashboard
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 18
+**Plans:** 1/1 plans complete
+
+Plans:
+- [x] TBD (run /gsd-plan-phase 19 to break down) (completed 2026-06-08)
+
 ---

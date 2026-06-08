@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 import { loginAs } from './helpers';
 
 async function loginAsAdmin(page: import('@playwright/test').Page) {
-  const loggedIn = await loginAs(page, 'admin');
-  if (!loggedIn) {
+  await loginAs(page, 'admin');
+  if (page.url().includes('/sign-in')) {
     test.skip(true, 'Skipped: Database not seeded.');
   }
 }

@@ -1,17 +1,17 @@
 export const breadcrumbLabels: Record<string, string> = {
-  admin: "Quan tri",
+  admin: "Quản trị",
   users: "Người dùng",
   workspaces: "Workspace",
   requests: "Hồ sơ yêu cầu",
-  ops: "Van hanh",
+  ops: "Vận hành",
   audit: "Audit",
-  vault: "Phan loai vault",
+  vault: "Phân loại vault",
   specialist: "Chuyên viên",
   reviewer: "Người duyệt",
-  customer: "Khach hang",
-  delivery: "Ban giao",
-  templates: "Mau van ban",
-  review: "Duyet",
+  customer: "Khách hàng",
+  delivery: "Bàn giao",
+  templates: "Mẫu văn bản",
+  review: "Duyệt",
 };
 
 import type { ItemType } from 'antd/es/breadcrumb/Breadcrumb';

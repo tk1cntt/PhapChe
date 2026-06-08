@@ -1,11 +1,10 @@
+import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import type { RequestStatus } from '@prisma/client';
-import { Tag, Card, Typography, Flex } from 'antd';
+import { Button, Tag, Card, Flex } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { requireAppSession } from '@/lib/security/session';
-
-const { Title, Paragraph, Text } = Typography;
 
 const statusCopy: Record<RequestStatus, { label: string; body: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Đang nhập thông tin', body: 'Hồ sơ đang ở bước nhập thông tin trước khi gửi.', tone: 'neutral' },
@@ -85,10 +84,10 @@ export default async function RequestStatusPage({ params }: { params: Promise<{ 
       <Flex vertical gap={24}>
         {/* Header */}
         <Flex vertical gap={8}>
-          <Title level={2} style={{ margin: 0, color: '#0F172A' }}>Đã gửi yêu cầu</Title>
-          <Paragraph style={{ margin: 0, color: '#475569', fontSize: 16 }}>
+          <h1 style={{ margin: 0, color: '#0F172A', fontSize: 30, fontWeight: 600, lineHeight: 1.2 }}>Đã gửi yêu cầu</h1>
+          <p style={{ margin: 0, color: '#475569', fontSize: 16 }}>
             Trạng thái do hệ thống xử lý cập nhật. Bạn không cần thao tác thêm ở bước này.
-          </Paragraph>
+          </p>
         </Flex>
 
         {/* Status Card */}
@@ -96,34 +95,37 @@ export default async function RequestStatusPage({ params }: { params: Promise<{ 
           <Flex vertical gap={16}>
             <Flex justify="space-between" align="center" wrap>
               <div>
-                <Text type="secondary" style={{ fontSize: 14, fontWeight: 600 }}>Mã hồ sơ</Text>
-                <div><Text strong style={{ fontSize: 20, color: '#0F172A' }}>{request.id}</Text></div>
+                <span style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#64748B' }}>Mã hồ sơ</span>
+                <div><strong style={{ fontSize: 20, color: '#0F172A' }}>{request.id}</strong></div>
               </div>
               <Tag color={toneToTagColor(status.tone)} style={{ fontSize: 14, padding: '4px 12px' }}>
                 {status.label}
               </Tag>
             </Flex>
-            <Text style={{ color: '#475569', fontSize: 16 }}>{status.body}</Text>
+            <p style={{ margin: 0, color: '#475569', fontSize: 16 }}>{status.body}</p>
+            <Link href="/customer/requests">
+              <Button>Xem tất cả yêu cầu của tôi</Button>
+            </Link>
             {request.status === 'triage' && (
               <div style={{ padding: 16, background: '#FEF3C7', borderRadius: 8, border: '1px solid #FCD34D' }}>
-                <Text style={{ color: '#B45309', fontSize: 16 }}>Cần chuyên viên phân loại</Text>
+                <span style={{ color: '#B45309', fontSize: 16 }}>Cần chuyên viên phân loại</span>
               </div>
             )}
           </Flex>
         </Card>
 
         {/* Request Info Card */}
-        <Card title={<Text strong style={{ fontSize: 18 }}>Thông tin hồ sơ</Text>}>
+        <Card title={<strong style={{ fontSize: 18 }}>Thông tin hồ sơ</strong>}>
           <Flex vertical gap={16}>
             {/* Matter Type */}
             <div style={{ padding: 16, background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0' }}>
-              <Text type="secondary" style={{ fontSize: 14 }}>Loại việc</Text>
-              <div><Text strong style={{ fontSize: 16, color: '#0F172A' }}>{request.title}</Text></div>
+              <span style={{ display: 'block', fontSize: 14, color: '#64748B' }}>Loại việc</span>
+              <div><strong style={{ fontSize: 16, color: '#0F172A' }}>{request.title}</strong></div>
             </div>
 
             {/* Attached Files */}
             <div style={{ padding: 16, background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0' }}>
-              <Text type="secondary" style={{ fontSize: 14 }}>Tệp đính kèm</Text>
+              <span style={{ display: 'block', fontSize: 14, color: '#64748B' }}>Tệp đính kèm</span>
               {hasFiles ? (
                 <ul style={{ margin: '8px 0 0 0', paddingLeft: 20 }}>
                   {request.vaultFiles.map((file) => (
@@ -133,7 +135,7 @@ export default async function RequestStatusPage({ params }: { params: Promise<{ 
                   ))}
                 </ul>
               ) : (
-                <Text type="secondary" style={{ fontSize: 16 }}>Chưa có tệp đính kèm.</Text>
+                <span style={{ fontSize: 16, color: '#64748B' }}>Chưa có tệp đính kèm.</span>
               )}
             </div>
           </Flex>

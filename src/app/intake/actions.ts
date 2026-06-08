@@ -120,5 +120,5 @@ export async function deleteDraftIntakeAction(formData: FormData) {
     prisma.legalRequest.delete({ where: { id: requestId } }),
   ]);
 
-  redirect('/intake');
+  redirect('/customer/requests');
 }

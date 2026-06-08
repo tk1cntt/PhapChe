@@ -1,0 +1,75 @@
+{
+  "Nav": {
+    "dashboard": "Dashboard",
+    "requests": "Hồ sơ yêu cầu",
+    "users": "Người dùng",
+    "intake": "Tiếp nhận"
+  },
+  "Breadcrumb": {
+    "admin": "Quản trị",
+    "users": "Người dùng",
+    "requests": "Hồ sơ yêu cầu",
+    "ops": "Vận hành",
+    "specialist": "Chuyên viên",
+    "reviewer": "Người duyệt",
+    "customer": "Khách hàng",
+    "intake": "Tiếp nhận",
+    "delivery": "Bàn giao",
+    "review": "Duyệt",
+    "vault": "Phân loại vault",
+    "templates": "Mẫu văn bản",
+    "audit": "Audit",
+    "workspaces": "Workspace"
+  },
+  "RequestStatus": {
+    "draft_intake": "Đang nhập thông tin",
+    "intake_submitted": "Đã gửi yêu cầu",
+    "triage": "Cần phân loại",
+    "assigned": "Đã phân công",
+    "in_progress": "Đang xử lý",
+    "pending_review": "Chờ kiểm tra chất lượng",
+    "revision_required": "Cần chỉnh sửa nội bộ",
+    "approved": "Đã được duyệt",
+    "delivered": "Đã giao tài liệu",
+    "closed": "Đã đóng hồ sơ",
+    "cancelled": "Đã hủy"
+  },
+  "Actions": {
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "submit": "Gửi",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "continue": "Tiếp tục",
+    "view": "Xem",
+    "download": "Tải về",
+    "upload": "Tải lên",
+    "signIn": "Đăng nhập",
+    "signOut": "Đăng xuất",
+    "viewStatus": "Xem trạng thái",
+    "viewDocuments": "Xem tài liệu",
+    "createRequest": "Tạo yêu cầu mới",
+    "deleteRequest": "Xóa hồ sơ"
+  },
+  "Intake": {
+    "serviceSelection": "Chọn dịch vụ",
+    "questions": "Câu hỏi",
+    "upload": "Tải lên tài liệu",
+    "review": "Kiểm tra trước khi gửi",
+    "success": "Yêu cầu đã được gửi thành công!"
+  },
+  "Common": {
+    "noItems": "Chưa có dữ liệu.",
+    "loading": "Đang tải...",
+    "error": "Đã xảy ra lỗi.",
+    "required": "Trường bắt buộc",
+    "optional": "Tùy chọn"
+  },
+  "Language": {
+    "switch": "Đổi ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "zh": "中文",
+    "ja": "日本語"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "Nav": {
+    "dashboard": "仪表板",
+    "requests": "请求",
+    "users": "用户",
+    "intake": "接收"
+  },
+  "Breadcrumb": {
+    "admin": "管理",
+    "users": "用户",
+    "requests": "请求",
+    "ops": "运营",
+    "specialist": "专员",
+    "reviewer": "审核员",
+    "customer": "客户",
+    "intake": "接收",
+    "delivery": "交付",
+    "review": "审核",
+    "vault": "档案",
+    "templates": "模板",
+    "audit": "审计",
+    "workspaces": "工作区"
+  },
+  "RequestStatus": {
+    "draft_intake": "正在填写信息",
+    "intake_submitted": "已提交请求",
+    "triage": "待分诊",
+    "assigned": "已分配",
+    "in_progress": "处理中",
+    "pending_review": "待质量审核",
+    "revision_required": "需内部修订",
+    "approved": "已批准",
+    "delivered": "文档已交付",
+    "closed": "案件已关闭",
+    "cancelled": "已取消"
+  },
+  "Actions": {
+    "edit": "编辑",
+    "delete": "删除",
+    "submit": "提交",
+    "cancel": "取消",
+    "save": "保存",
+    "continue": "继续",
+    "view": "查看",
+    "download": "下载",
+    "upload": "上传",
+    "signIn": "登录",
+    "signOut": "退出",
+    "viewStatus": "查看状态",
+    "viewDocuments": "查看文档",
+    "createRequest": "创建新请求",
+    "deleteRequest": "删除案件"
+  },
+  "Intake": {
+    "serviceSelection": "选择服务",
+    "questions": "问题",
+    "upload": "上传文档",
+    "review": "提交前审核",
+    "success": "请求提交成功！"
+  },
+  "Common": {
+    "noItems": "暂无数据。",
+    "loading": "加载中...",
+    "error": "发生错误。",
+    "required": "必填项",
+    "optional": "选填"
+  },
+  "Language": {
+    "switch": "切换语言",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "zh": "中文",
+    "ja": "日本語"
+  }
+}

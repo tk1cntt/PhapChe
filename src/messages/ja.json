@@ -1,0 +1,75 @@
+{
+  "Nav": {
+    "dashboard": "ダッシュボード",
+    "requests": "リクエスト",
+    "users": "ユーザー",
+    "intake": "受付"
+  },
+  "Breadcrumb": {
+    "admin": "管理",
+    "users": "ユーザー",
+    "requests": "リクエスト",
+    "ops": "運用",
+    "specialist": "担当者",
+    "reviewer": "レビュアー",
+    "customer": "顧客",
+    "intake": "受付",
+    "delivery": "納品",
+    "review": "レビュー",
+    "vault": "ボルト",
+    "templates": "テンプレート",
+    "audit": "監査",
+    "workspaces": "ワークスペース"
+  },
+  "RequestStatus": {
+    "draft_intake": "情報入力中",
+    "intake_submitted": "リクエスト送信済み",
+    "triage": "トリアージュ必要",
+    "assigned": "担当者決定",
+    "in_progress": "処理中",
+    "pending_review": "品質レビュー待ち",
+    "revision_required": "内部修正必要",
+    "approved": "承認済み",
+    "delivered": "書類納品済み",
+    "closed": "ケースクローズ",
+    "cancelled": "キャンセル"
+  },
+  "Actions": {
+    "edit": "編集",
+    "delete": "削除",
+    "submit": "送信",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "continue": "次へ",
+    "view": "表示",
+    "download": "ダウンロード",
+    "upload": "アップロード",
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "viewStatus": "状況確認",
+    "viewDocuments": "書類表示",
+    "createRequest": "新規リクエスト作成",
+    "deleteRequest": "ケース削除"
+  },
+  "Intake": {
+    "serviceSelection": "サービス選択",
+    "questions": "質問",
+    "upload": "書類アップロード",
+    "review": "送信前確認",
+    "success": "リクエストが正常に送信されました！"
+  },
+  "Common": {
+    "noItems": "データがありません。",
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました。",
+    "required": "必須項目",
+    "optional": "任意"
+  },
+  "Language": {
+    "switch": "言語切替",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "zh": "中文",
+    "ja": "日本語"
+  }
+}

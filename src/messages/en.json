@@ -1,0 +1,75 @@
+{
+  "Nav": {
+    "dashboard": "Dashboard",
+    "requests": "Requests",
+    "users": "Users",
+    "intake": "Intake"
+  },
+  "Breadcrumb": {
+    "admin": "Admin",
+    "users": "Users",
+    "requests": "Requests",
+    "ops": "Operations",
+    "specialist": "Specialist",
+    "reviewer": "Reviewer",
+    "customer": "Customer",
+    "intake": "Intake",
+    "delivery": "Delivery",
+    "review": "Review",
+    "vault": "Vault",
+    "templates": "Templates",
+    "audit": "Audit",
+    "workspaces": "Workspaces"
+  },
+  "RequestStatus": {
+    "draft_intake": "Filling in information",
+    "intake_submitted": "Request submitted",
+    "triage": "Needs triage",
+    "assigned": "Assigned",
+    "in_progress": "In progress",
+    "pending_review": "Pending quality review",
+    "revision_required": "Needs internal revision",
+    "approved": "Approved",
+    "delivered": "Documents delivered",
+    "closed": "Case closed",
+    "cancelled": "Cancelled"
+  },
+  "Actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "continue": "Continue",
+    "view": "View",
+    "download": "Download",
+    "upload": "Upload",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "viewStatus": "View status",
+    "viewDocuments": "View documents",
+    "createRequest": "Create new request",
+    "deleteRequest": "Delete case"
+  },
+  "Intake": {
+    "serviceSelection": "Select service",
+    "questions": "Questions",
+    "upload": "Upload documents",
+    "review": "Review before submitting",
+    "success": "Request submitted successfully!"
+  },
+  "Common": {
+    "noItems": "No data yet.",
+    "loading": "Loading...",
+    "error": "An error occurred.",
+    "required": "Required field",
+    "optional": "Optional"
+  },
+  "Language": {
+    "switch": "Change language",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "zh": "中文",
+    "ja": "日本語"
+  }
+}

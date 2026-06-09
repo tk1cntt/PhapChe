@@ -71,5 +71,17 @@
     "en": "English",
     "zh": "中文",
     "ja": "日本語"
+  },
+  "AdminUsers": {
+    "pageTitle": "ユーザー管理",
+    "pageDescription": "5つのロールを管理：customer、specialist、reviewer、coordinator_admin、super_admin。",
+    "systemRoles": "システムロール",
+    "roleChangeNote": "ユーザー/ロール/ワークスペースの変更はcreateAdminUser、updateAdminUserRole、deactivateAdminUser、assignUserToWorkspaceを呼び出し、監査ログに記録されます。",
+    "createUserButton": "ユーザー作成",
+    "role_customer": "顧客",
+    "role_specialist": "スペシャリスト",
+    "role_reviewer": "レビュアー",
+    "role_coordinator_admin": "コーディネーター",
+    "role_super_admin": "スーパーユーザー"
   }
 }

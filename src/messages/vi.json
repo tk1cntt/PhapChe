@@ -71,5 +71,17 @@
     "en": "English",
     "zh": "中文",
     "ja": "日本語"
+  },
+  "AdminUsers": {
+    "pageTitle": "Quản lý người dùng",
+    "pageDescription": "Nền tảng quản trị 5 vai trò: customer, specialist, reviewer, coordinator_admin và super_admin.",
+    "systemRoles": "Vai trò hệ thống",
+    "roleChangeNote": "Thay đổi user/role/workspace gọi createAdminUser, updateAdminUserRole, deactivateAdminUser, assignUserToWorkspace và được ghi audit.",
+    "createUserButton": "Tạo người dùng",
+    "role_customer": "Khách hàng",
+    "role_specialist": "Chuyên viên",
+    "role_reviewer": "Người duyệt",
+    "role_coordinator_admin": "Điều phối viên",
+    "role_super_admin": "Quản trị viên"
   }
 }

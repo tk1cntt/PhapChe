@@ -71,5 +71,17 @@
     "en": "English",
     "zh": "中文",
     "ja": "日本語"
+  },
+  "AdminUsers": {
+    "pageTitle": "User Management",
+    "pageDescription": "Platform with 5 roles: customer, specialist, reviewer, coordinator_admin and super_admin.",
+    "systemRoles": "System Roles",
+    "roleChangeNote": "User/role/workspace changes call createAdminUser, updateAdminUserRole, deactivateAdminUser, assignUserToWorkspace and are audited.",
+    "createUserButton": "Create User",
+    "role_customer": "Customer",
+    "role_specialist": "Specialist",
+    "role_reviewer": "Reviewer",
+    "role_coordinator_admin": "Coordinator Admin",
+    "role_super_admin": "Super Admin"
   }
 }

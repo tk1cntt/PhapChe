@@ -71,5 +71,17 @@
     "en": "English",
     "zh": "中文",
     "ja": "日本語"
+  },
+  "AdminUsers": {
+    "pageTitle": "用户管理",
+    "pageDescription": "平台管理5种角色：customer、specialist、reviewer、coordinator_admin和super_admin。",
+    "systemRoles": "系统角色",
+    "roleChangeNote": "更改用户/角色/工作区时调用createAdminUser、updateAdminUserRole、deactivateAdminUser、assignUserToWorkspace，并记录审计日志。",
+    "createUserButton": "创建用户",
+    "role_customer": "客户",
+    "role_specialist": "专员",
+    "role_reviewer": "审核员",
+    "role_coordinator_admin": "协调员",
+    "role_super_admin": "管理员"
   }
 }

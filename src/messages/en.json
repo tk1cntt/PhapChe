@@ -92,5 +92,13 @@
     "status": "Status",
     "active": "Active",
     "inactive": "Inactive"
+  },
+  "AdminNav": {
+    "users": "Users",
+    "workspaces": "Workspaces",
+    "requests": "Requests",
+    "ops": "Operations",
+    "audit": "Audit",
+    "vault": "Vault"
   }
 }

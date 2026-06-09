@@ -92,5 +92,13 @@
     "status": "状态",
     "active": "活跃",
     "inactive": "停用"
+  },
+  "AdminNav": {
+    "users": "用户",
+    "workspaces": "工作区",
+    "requests": "请求",
+    "ops": "运营",
+    "audit": "审计",
+    "vault": "档案"
   }
 }

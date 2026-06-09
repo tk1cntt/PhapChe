@@ -92,5 +92,13 @@
     "status": "Trạng thái",
     "active": "Đang hoạt động",
     "inactive": "Vô hiệu hóa"
+  },
+  "AdminNav": {
+    "users": "Người dùng",
+    "workspaces": "Workspace",
+    "requests": "Hồ sơ yêu cầu",
+    "ops": "Vận hành",
+    "audit": "Audit",
+    "vault": "Phân loại vault"
   }
 }

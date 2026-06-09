@@ -7,6 +7,7 @@ import {
   UserOutlined, TeamOutlined, FileTextOutlined,
   DashboardOutlined, SafetyOutlined, FolderOutlined,
 } from '@ant-design/icons';
+import { useTranslations } from 'next-intl';
 import { getBreadcrumbItems } from '@/lib/navigation/breadcrumb-labels';
 
 const { Sider, Content, Header } = Layout;
@@ -16,18 +17,19 @@ const { Sider, Content, Header } = Layout;
 // users (security-through-obscurity). This avoids a client-side session fetch in layout.
 // To filter menu by role, refactor layout to a server component that calls requireAppSession()
 // and conditionally builds navItems.
-const navItems = [
-  { key: '/admin/users', icon: <UserOutlined />, label: <Link href="/admin/users">Người dùng</Link> },
-  { key: '/admin/workspaces', icon: <TeamOutlined />, label: <Link href="/admin/workspaces">Workspace</Link> },
-  { key: '/admin/requests', icon: <FileTextOutlined />, label: <Link href="/admin/requests">Hồ sơ yêu cầu</Link> },
-  { key: '/admin/ops', icon: <DashboardOutlined />, label: <Link href="/admin/ops">Van hanh</Link> },
-  { key: '/admin/audit', icon: <SafetyOutlined />, label: <Link href="/admin/audit">Audit</Link> },
-  { key: '/admin/vault', icon: <FolderOutlined />, label: <Link href="/admin/vault">Phan loai vault</Link> },
-];
-
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const t = useTranslations('AdminNav');
   const pathname = usePathname();
   const breadcrumbItems = getBreadcrumbItems(pathname);
+
+  const navItems = [
+    { key: '/admin/users', icon: <UserOutlined />, label: <Link href="/admin/users">{t('users')}</Link> },
+    { key: '/admin/workspaces', icon: <TeamOutlined />, label: <Link href="/admin/workspaces">{t('workspaces')}</Link> },
+    { key: '/admin/requests', icon: <FileTextOutlined />, label: <Link href="/admin/requests">{t('requests')}</Link> },
+    { key: '/admin/ops', icon: <DashboardOutlined />, label: <Link href="/admin/ops">{t('ops')}</Link> },
+    { key: '/admin/audit', icon: <SafetyOutlined />, label: <Link href="/admin/audit">{t('audit')}</Link> },
+    { key: '/admin/vault', icon: <FolderOutlined />, label: <Link href="/admin/vault">{t('vault')}</Link> },
+  ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>

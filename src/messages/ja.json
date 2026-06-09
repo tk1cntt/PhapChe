@@ -92,5 +92,13 @@
     "status": "ステータス",
     "active": "アクティブ",
     "inactive": "非活性"
+  },
+  "AdminNav": {
+    "users": "ユーザー",
+    "workspaces": "ワークスペース",
+    "requests": "リクエスト",
+    "ops": "運用",
+    "audit": "監査",
+    "vault": "ボルト"
   }
 }

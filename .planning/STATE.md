@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Auth & Hardening
 status: completed
-last_updated: "2026-06-09T12:30:00.000Z"
-last_activity: "2026-06-09 - Completed quick task 260609-qnu: Kết quả chụp màn hình của các chức năng admin toàn trả về kết quả 404 thôi. Kiểm tra lại đi nguyên nhân và fix cho tôi."
+last_updated: "2026-06-09T13:59:24.113Z"
+last_activity: "2026-06-09 - Completed quick task 260609-sq4: Fix i18n: Màn hình /zh/admin/users hiển thị tiếng Việt không dấu. Dịch đầy đủ các ngôn ngữ"
 progress:
   total_phases: 6
   completed_phases: 6
@@ -89,8 +89,9 @@ Items acknowledged at milestone close (2026-06-05):
 | 260609-8jq | Thực hiện test e2e tất cả các màn hình và tất cả các ngôn ngữ. Chụp ảnh theo từng màn hình và từng ngôn ngữ | 2026-06-08 | 7dbb2e2 | Verified | [260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-](./quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/) |
 | 260609-qnu | Kết quả chụp màn hình của các chức năng admin toàn trả về kết quả 404 thôi. Kiểm tra lại đi nguyên nhân và fix cho tôi. | 2026-06-09 | ba8559a | Verified | [260609-qnu-k-t-qu-ch-p-m-n-h-nh-c-a-c-c-ch-c-n-ng-a](./quick/260609-qnu-k-t-qu-ch-p-m-n-h-nh-c-a-c-c-ch-c-n-ng-a/) |
 | 260609-sq4 | Fix i18n: Màn hình /zh/admin/users hiển thị tiếng Việt không dấu. Dịch đầy đủ các ngôn ngữ | 2026-06-09 | 5ef970a | Verified | [260609-sq4-fix-i18n-m-n-h-nh-zh-admin-users-hi-n-th](./quick/260609-sq4-fix-i18n-m-n-h-nh-zh-admin-users-hi-n-th/) |
+| 260609-t1h | Fix 3 issues: Vietnamese without diacritics, demo data, admin menu | 2026-06-09 | b985fb3 | Verified | [260609-t1h-fix-3-issues-1-zh-admin-users-still-show](./quick/260609-t1h-fix-3-issues-1-zh-admin-users-still-show/) |
 
-Last activity: 2026-06-09 - Completed quick task 260609-sq4: Fix i18n: Màn hình /zh/admin/users hiển thị tiếng Việt không dấu. Dịch đầy đủ các ngôn ngữ
+Last activity: 2026-06-09 - Completed quick task 260609-t1h: Fix 3 issues - i18n table, admin layout, demo data
 
 ## Phase 17 Plan 05 Execution
 

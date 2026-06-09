@@ -147,7 +147,8 @@
     "target": "对象",
     "correlationId": "关联ID",
     "metadataSummary": "元数据摘要",
-    "noData": "暂无审计事件。"
+    "noData": "暂无审计事件。",
+    "loading": "加载中..."
   },
   "Vault": {
     "pageTitle": "档案分类",

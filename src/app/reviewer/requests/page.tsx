@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Tag, Card, Typography, Flex, Spin } from 'antd';
 import ReviewerRequestsTable from './ReviewerRequestsTable';
 import type { ReviewerRequestRow } from './ReviewerRequestsTable';
 
-export default function ReviewerQueuePage() {
+function ReviewerQueueContent() {
   const searchParams = useSearchParams();
   const notice = searchParams.get('notice');
   const [rows, setRows] = useState<ReviewerRequestRow[]>([]);
@@ -54,5 +54,17 @@ export default function ReviewerQueuePage() {
         <ReviewerRequestsTable rows={rows} notice={notice ?? undefined} />
       )}
     </Flex>
+  );
+}
+
+export default function ReviewerQueuePage() {
+  return (
+    <Suspense fallback={
+      <Flex justify="center" style={{ padding: 48 }}>
+        <Spin />
+      </Flex>
+    }>
+      <ReviewerQueueContent />
+    </Suspense>
   );
 }

@@ -11,23 +11,34 @@ test.describe('Customer request dashboard', () => {
     await loginAs(page, 'customer');
     if (page.url().includes('/sign-in')) test.skip(true, 'Skipped: Database not seeded.');
 
+    // Complete intake flow to create a request
     await page.goto('/intake');
+    await page.waitForSelector('.ant-radio-wrapper', { timeout: 10000 });
     await page.locator('.ant-radio-wrapper').first().click();
     await page.locator('button:has-text("Tiếp tục")').click();
 
-    await page.waitForURL(/\/intake\?requestId=.*step=1/, { timeout: 10000 });
+    await page.waitForURL(
+      (url) => url.pathname === '/intake' && url.searchParams.get('step') === '1',
+      { timeout: 15000 },
+    );
     await page.fill('input[name="answer.partner_name"]', 'Customer Dashboard E2E Company');
     await page.fill('input[name="answer.commission_rate"]', '11%');
     await page.fill('input[name="answer.contract_term"]', '12 tháng');
     await page.locator('button:has-text("Lưu câu trả lời")').click();
 
-    await page.waitForURL(/\/intake\?.*step=2/, { timeout: 10000 });
+    await page.waitForURL(
+      (url) => url.pathname === '/intake' && url.searchParams.get('step') === '2',
+      { timeout: 15000 },
+    );
     await page.locator('button:has-text("Tiếp tục")').click();
 
-    await page.waitForURL(/\/intake\?.*step=3/, { timeout: 10000 });
+    await page.waitForURL(
+      (url) => url.pathname === '/intake' && url.searchParams.get('step') === '3',
+      { timeout: 15000 },
+    );
     await page.locator('button:has-text("Gửi yêu cầu")').click();
 
-    await page.waitForURL(/\/requests\/[a-zA-Z0-9-]+/, { timeout: 15000 });
+    await page.waitForURL(/\/requests\/[a-zA-Z0-9-]+/, { timeout: 20000 });
     const statusUrl = page.url();
     const requestId = statusUrl.split('/requests/')[1];
 

@@ -95,8 +95,9 @@ Items acknowledged at milestone close (2026-06-05):
 | 260609-tnt | Fix 404 API routes: /en/api/audit/events and /en/api/vault | 2026-06-09 | d0311da | Verified | [260609-tnt-fix-404-api-routes-en-api-audit-events-a](./quick/260609-tnt-fix-404-api-routes-en-api-audit-events-a/) |
 | 260609-tsy | Fix /en/admin/audit page: RangeError Invalid time value | 2026-06-09 | 28ef8d5 | Verified | [260609-tsy-fix-en-admin-audit-page rangeerror-inval](./quick/260609-tsy-fix-en-admin-audit-page%20rangeerror-inval/) |
 | 260609-u0x | Fix i18n for admin pages: workspaces, requests, ops, audit, vault - all have Vietnamese without diacritics | 2026-06-09 | 3c4041f | Verified | [260609-u0x-fix-i18n-for-admin-pages-workspaces-requ](./quick/260609-u0x-fix-i18n-for-admin-pages-workspaces-requ/) |
+| 260609-u95 | Fix missing i18n messages and API 404 errors | 2026-06-09 | — | Verified | [260609-u95-fix-missing-i18n-messages-and-api-404-er](./quick/260609-u95-fix-missing-i18n-messages-and-api-404-er/) |
 
-Last activity: 2026-06-09 - Completed quick task 260609-u0x: Fix i18n for admin pages
+Last activity: 2026-06-09 - Completed quick task 260609-u95: Fix missing i18n messages and API 404 errors (commit: 12b197a)
 
 ## Phase 17 Plan 05 Execution
 

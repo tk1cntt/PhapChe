@@ -147,7 +147,8 @@
     "target": "Đối tượng",
     "correlationId": "Mã tương quan",
     "metadataSummary": "Tóm tắt metadata",
-    "noData": "Chưa có sự kiện kiểm toan nào."
+    "noData": "Chưa có sự kiện kiểm toan nào.",
+    "loading": "Đang tải..."
   },
   "Vault": {
     "pageTitle": "Phân loại vault",

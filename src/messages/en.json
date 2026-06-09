@@ -147,7 +147,8 @@
     "target": "Target",
     "correlationId": "Correlation ID",
     "metadataSummary": "Metadata Summary",
-    "noData": "No audit events yet."
+    "noData": "No audit events yet.",
+    "loading": "Loading..."
   },
   "Vault": {
     "pageTitle": "Vault Classification",

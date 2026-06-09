@@ -1,1 +1,5 @@
-export { default } from '../../../admin/vault/page';
+import VaultPageClient from './VaultPageClient';
+
+export default function VaultPage() {
+  return <VaultPageClient />;
+}

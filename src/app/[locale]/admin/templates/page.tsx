@@ -1,1 +1,5 @@
-export { default } from '../../../admin/templates/page';
+import TemplatesPageClient from './TemplatesPageClient';
+
+export default function TemplatesPage() {
+  return <TemplatesPageClient />;
+}

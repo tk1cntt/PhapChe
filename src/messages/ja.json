@@ -147,7 +147,8 @@
     "target": "対象",
     "correlationId": "相関ID",
     "metadataSummary": "メタデータサマリ",
-    "noData": "監査イベントがありません。"
+    "noData": "監査イベントがありません。",
+    "loading": "読み込み中..."
   },
   "Vault": {
     "pageTitle": "ボルト分類",

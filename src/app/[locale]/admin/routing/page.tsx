@@ -1,1 +1,5 @@
-export { default } from '../../../admin/routing/page';
+import RoutingPageClient from './RoutingPageClient';
+
+export default function RoutingPage() {
+  return <RoutingPageClient />;
+}

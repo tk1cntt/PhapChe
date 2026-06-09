@@ -92,8 +92,9 @@ Items acknowledged at milestone close (2026-06-05):
 | 260609-t1h | Fix 3 issues: Vietnamese without diacritics, demo data, admin menu | 2026-06-09 | b985fb3 | Verified | [260609-t1h-fix-3-issues-1-zh-admin-users-still-show](./quick/260609-t1h-fix-3-issues-1-zh-admin-users-still-show/) |
 | 260609-t8t | Restore admin dashboard sidebar menu that disappeared | 2026-06-09 | 2cf624d | Verified | [260609-t8t-restore-admin-dashboard-sidebar-menu-tha](./quick/260609-t8t-restore-admin-dashboard-sidebar-menu-tha/) |
 | 260609-thz | Translate admin sidebar menu to all languages using i18n | 2026-06-09 | e38ee28 | Verified | [260609-thz-translate-admin-sidebar-menu-to-all-lang](./quick/260609-thz-translate-admin-sidebar-menu-to-all-lang/) |
+| 260609-tnt | Fix 404 API routes: /en/api/audit/events and /en/api/vault | 2026-06-09 | d0311da | Verified | [260609-tnt-fix-404-api-routes-en-api-audit-events-a](./quick/260609-tnt-fix-404-api-routes-en-api-audit-events-a/) |
 
-Last activity: 2026-06-09 - Completed quick task 260609-thz: Translate admin sidebar menu to all languages
+Last activity: 2026-06-09 - Completed quick task 260609-tnt: Fix 404 API routes
 
 ## Phase 17 Plan 05 Execution
 

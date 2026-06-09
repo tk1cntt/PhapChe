@@ -91,8 +91,9 @@ Items acknowledged at milestone close (2026-06-05):
 | 260609-sq4 | Fix i18n: Màn hình /zh/admin/users hiển thị tiếng Việt không dấu. Dịch đầy đủ các ngôn ngữ | 2026-06-09 | 5ef970a | Verified | [260609-sq4-fix-i18n-m-n-h-nh-zh-admin-users-hi-n-th](./quick/260609-sq4-fix-i18n-m-n-h-nh-zh-admin-users-hi-n-th/) |
 | 260609-t1h | Fix 3 issues: Vietnamese without diacritics, demo data, admin menu | 2026-06-09 | b985fb3 | Verified | [260609-t1h-fix-3-issues-1-zh-admin-users-still-show](./quick/260609-t1h-fix-3-issues-1-zh-admin-users-still-show/) |
 | 260609-t8t | Restore admin dashboard sidebar menu that disappeared | 2026-06-09 | 2cf624d | Verified | [260609-t8t-restore-admin-dashboard-sidebar-menu-tha](./quick/260609-t8t-restore-admin-dashboard-sidebar-menu-tha/) |
+| 260609-thz | Translate admin sidebar menu to all languages using i18n | 2026-06-09 | e38ee28 | Verified | [260609-thz-translate-admin-sidebar-menu-to-all-lang](./quick/260609-thz-translate-admin-sidebar-menu-to-all-lang/) |
 
-Last activity: 2026-06-09 - Completed quick task 260609-t8t: Restore admin dashboard sidebar menu
+Last activity: 2026-06-09 - Completed quick task 260609-thz: Translate admin sidebar menu to all languages
 
 ## Phase 17 Plan 05 Execution
 

@@ -74,9 +74,8 @@ export async function createDraftIntake(input: CreateDraftInput) {
   return prisma.$transaction(async (tx) => {
     const workspaceId = input.session.activeWorkspaceId!;
 
-    const matterTypes = tx.matterType as { upsert(input: unknown): Promise<unknown> };
-
-    await matterTypes.upsert({
+    // First, ensure matter type exists for this workspace
+    await tx.matterType.upsert({
       where: { workspaceId_key: { workspaceId, key: matterType.key } },
       update: {
         label: matterType.label,

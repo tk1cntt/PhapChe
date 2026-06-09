@@ -20,7 +20,15 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ requestId: draft.id });
   } catch (error) {
-    console.error('Create draft failed:', error);
-    return NextResponse.json({ error: 'Failed to create draft' }, { status: 500 });
+    // Log detailed error for debugging
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error('Create draft failed:', errorMessage, errorStack);
+
+    // Return the actual error message to help debugging
+    return NextResponse.json(
+      { error: 'Failed to create draft', details: errorMessage },
+      { status: 500 }
+    );
   }
 }

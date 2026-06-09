@@ -1,0 +1,79 @@
+
+Running 60 tests using 1 worker
+
+  ok  1 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - home (28.1s)
+  ok  2 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - sign-in (26.4s)
+  ok  3 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - intake (26.7s)
+loginAs: Still on sign-in page after login attempt for role: customer
+  ok  4 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - customer-dashboard (32.5s)
+loginAs: Still on sign-in page after login attempt for role: customer
+  ok  5 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - customer-requests (33.3s)
+loginAs: Still on sign-in page after login attempt for role: admin
+  ok  6 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - admin-users (34.0s)
+loginAs: Still on sign-in page after login attempt for role: admin
+  ok  7 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - admin-requests (34.5s)
+loginAs: Still on sign-in page after login attempt for role: admin
+  ok  8 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - admin-ops (36.0s)
+loginAs: Still on sign-in page after login attempt for role: admin
+  ok  9 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - admin-routing (37.2s)
+loginAs: Still on sign-in page after login attempt for role: admin
+  ok 10 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - admin-templates (37.1s)
+  ok 11 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - admin-vault (30.4s)
+  ok 12 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - admin-audit (30.4s)
+loginAs: Still on sign-in page after login attempt for role: admin
+  ok 13 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - admin-workspaces (38.2s)
+  ok 14 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - specialist-requests (30.2s)
+  ok 15 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › vi - reviewer-requests (30.2s)
+  ok 16 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - home (32.4s)
+  ok 17 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - sign-in (31.0s)
+  ok 18 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - intake (33.3s)
+loginAs: Still on sign-in page after login attempt for role: customer
+  ok 19 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - customer-dashboard (38.3s)
+loginAs: Still on sign-in page after login attempt for role: customer
+  ok 20 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - customer-requests (38.7s)
+  ok 21 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - admin-users (30.6s)
+  ok 22 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - admin-requests (30.3s)
+  ok 23 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - admin-ops (31.0s)
+  ok 24 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - admin-routing (30.7s)
+  ok 25 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - admin-templates (31.6s)
+  ok 26 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - admin-vault (30.8s)
+  ok 27 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - admin-audit (31.0s)
+loginAs: Still on sign-in page after login attempt for role: admin
+  ok 28 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - admin-workspaces (38.4s)
+  ok 29 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - specialist-requests (33.7s)
+  ok 30 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › en - reviewer-requests (30.9s)
+  ok 31 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - home (33.7s)
+  ok 32 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - sign-in (34.8s)
+  ok 33 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - intake (36.1s)
+  ok 34 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - customer-dashboard (34.9s)
+  ok 35 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - customer-requests (34.0s)
+  ok 36 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - admin-users (32.0s)
+  ok 37 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - admin-requests (31.9s)
+  ok 38 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - admin-ops (32.0s)
+  ok 39 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - admin-routing (31.8s)
+  ok 40 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - admin-templates (32.2s)
+  ok 41 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - admin-vault (31.8s)
+  ok 42 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - admin-audit (31.6s)
+  ok 43 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - admin-workspaces (31.3s)
+loginAs: Still on sign-in page after login attempt for role: specialist
+  ok 44 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - specialist-requests (38.3s)
+  ok 45 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › zh - reviewer-requests (30.4s)
+  ok 46 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - home (33.1s)
+  ok 47 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - sign-in (32.5s)
+  ok 48 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - intake (33.0s)
+  ok 49 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - customer-dashboard (30.6s)
+  ok 50 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - customer-requests (31.5s)
+  ok 51 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - admin-users (30.9s)
+  ok 52 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - admin-requests (30.2s)
+  ok 53 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - admin-ops (32.0s)
+  ok 54 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - admin-routing (31.2s)
+  ok 55 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - admin-templates (30.3s)
+  ok 56 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - admin-vault (31.7s)
+  ok 57 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - admin-audit (31.9s)
+  ok 58 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - admin-workspaces (2.5s)
+  ok 59 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - specialist-requests (2.5s)
+  ok 60 [chromium] › e2e\all-screens-i18n-screenshots.spec.ts:70:11 › All screens i18n screenshots › ja - reviewer-requests (35.1s)
+
+  Slow test file: [chromium] › e2e\all-screens-i18n-screenshots.spec.ts (31.6m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  60 passed (31.7m)

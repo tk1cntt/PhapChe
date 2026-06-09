@@ -120,85 +120,85 @@
       "locale": "vi",
       "screen": "customer-dashboard",
       "path": "/vi/customer",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/customer-dashboard.png"
     },
     {
       "locale": "vi",
       "screen": "customer-requests",
       "path": "/vi/customer/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/customer-requests.png"
     },
     {
       "locale": "vi",
       "screen": "admin-users",
       "path": "/vi/admin/users",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/admin-users.png"
     },
     {
       "locale": "vi",
       "screen": "admin-requests",
       "path": "/vi/admin/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/admin-requests.png"
     },
     {
       "locale": "vi",
       "screen": "admin-ops",
       "path": "/vi/admin/ops",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/admin-ops.png"
     },
     {
       "locale": "vi",
       "screen": "admin-routing",
       "path": "/vi/admin/routing",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/admin-routing.png"
     },
     {
       "locale": "vi",
       "screen": "admin-templates",
       "path": "/vi/admin/templates",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/admin-templates.png"
     },
     {
       "locale": "vi",
       "screen": "admin-vault",
       "path": "/vi/admin/vault",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/admin-vault.png"
     },
     {
       "locale": "vi",
       "screen": "admin-audit",
       "path": "/vi/admin/audit",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/admin-audit.png"
     },
     {
       "locale": "vi",
       "screen": "admin-workspaces",
       "path": "/vi/admin/workspaces",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/admin-workspaces.png"
     },
     {
       "locale": "vi",
       "screen": "specialist-requests",
       "path": "/vi/specialist/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/specialist-requests.png"
     },
     {
       "locale": "vi",
       "screen": "reviewer-requests",
       "path": "/vi/reviewer/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/vi/reviewer-requests.png"
     },
     {
       "locale": "en",
@@ -225,85 +225,85 @@
       "locale": "en",
       "screen": "customer-dashboard",
       "path": "/en/customer",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/customer-dashboard.png"
     },
     {
       "locale": "en",
       "screen": "customer-requests",
       "path": "/en/customer/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/customer-requests.png"
     },
     {
       "locale": "en",
       "screen": "admin-users",
       "path": "/en/admin/users",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/admin-users.png"
     },
     {
       "locale": "en",
       "screen": "admin-requests",
       "path": "/en/admin/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/admin-requests.png"
     },
     {
       "locale": "en",
       "screen": "admin-ops",
       "path": "/en/admin/ops",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/admin-ops.png"
     },
     {
       "locale": "en",
       "screen": "admin-routing",
       "path": "/en/admin/routing",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/admin-routing.png"
     },
     {
       "locale": "en",
       "screen": "admin-templates",
       "path": "/en/admin/templates",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/admin-templates.png"
     },
     {
       "locale": "en",
       "screen": "admin-vault",
       "path": "/en/admin/vault",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/admin-vault.png"
     },
     {
       "locale": "en",
       "screen": "admin-audit",
       "path": "/en/admin/audit",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/admin-audit.png"
     },
     {
       "locale": "en",
       "screen": "admin-workspaces",
       "path": "/en/admin/workspaces",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/admin-workspaces.png"
     },
     {
       "locale": "en",
       "screen": "specialist-requests",
       "path": "/en/specialist/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/specialist-requests.png"
     },
     {
       "locale": "en",
       "screen": "reviewer-requests",
       "path": "/en/reviewer/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/en/reviewer-requests.png"
     },
     {
       "locale": "zh",
@@ -330,85 +330,85 @@
       "locale": "zh",
       "screen": "customer-dashboard",
       "path": "/zh/customer",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/customer-dashboard.png"
     },
     {
       "locale": "zh",
       "screen": "customer-requests",
       "path": "/zh/customer/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/customer-requests.png"
     },
     {
       "locale": "zh",
       "screen": "admin-users",
       "path": "/zh/admin/users",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/admin-users.png"
     },
     {
       "locale": "zh",
       "screen": "admin-requests",
       "path": "/zh/admin/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/admin-requests.png"
     },
     {
       "locale": "zh",
       "screen": "admin-ops",
       "path": "/zh/admin/ops",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/admin-ops.png"
     },
     {
       "locale": "zh",
       "screen": "admin-routing",
       "path": "/zh/admin/routing",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/admin-routing.png"
     },
     {
       "locale": "zh",
       "screen": "admin-templates",
       "path": "/zh/admin/templates",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/admin-templates.png"
     },
     {
       "locale": "zh",
       "screen": "admin-vault",
       "path": "/zh/admin/vault",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/admin-vault.png"
     },
     {
       "locale": "zh",
       "screen": "admin-audit",
       "path": "/zh/admin/audit",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/admin-audit.png"
     },
     {
       "locale": "zh",
       "screen": "admin-workspaces",
       "path": "/zh/admin/workspaces",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/admin-workspaces.png"
     },
     {
       "locale": "zh",
       "screen": "specialist-requests",
       "path": "/zh/specialist/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/specialist-requests.png"
     },
     {
       "locale": "zh",
       "screen": "reviewer-requests",
       "path": "/zh/reviewer/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/zh/reviewer-requests.png"
     },
     {
       "locale": "ja",
@@ -435,85 +435,85 @@
       "locale": "ja",
       "screen": "customer-dashboard",
       "path": "/ja/customer",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/customer-dashboard.png"
     },
     {
       "locale": "ja",
       "screen": "customer-requests",
       "path": "/ja/customer/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/customer-requests.png"
     },
     {
       "locale": "ja",
       "screen": "admin-users",
       "path": "/ja/admin/users",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/admin-users.png"
     },
     {
       "locale": "ja",
       "screen": "admin-requests",
       "path": "/ja/admin/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/admin-requests.png"
     },
     {
       "locale": "ja",
       "screen": "admin-ops",
       "path": "/ja/admin/ops",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/admin-ops.png"
     },
     {
       "locale": "ja",
       "screen": "admin-routing",
       "path": "/ja/admin/routing",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/admin-routing.png"
     },
     {
       "locale": "ja",
       "screen": "admin-templates",
       "path": "/ja/admin/templates",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/admin-templates.png"
     },
     {
       "locale": "ja",
       "screen": "admin-vault",
       "path": "/ja/admin/vault",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/admin-vault.png"
     },
     {
       "locale": "ja",
       "screen": "admin-audit",
       "path": "/ja/admin/audit",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/admin-audit.png"
     },
     {
       "locale": "ja",
       "screen": "admin-workspaces",
       "path": "/ja/admin/workspaces",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/admin-workspaces.png"
     },
     {
       "locale": "ja",
       "screen": "specialist-requests",
       "path": "/ja/specialist/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/specialist-requests.png"
     },
     {
       "locale": "ja",
       "screen": "reviewer-requests",
       "path": "/ja/reviewer/requests",
-      "status": "skipped",
-      "reason": "Skipped: Database not seeded."
+      "status": "captured",
+      "screenshot": ".planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/screenshots/ja/reviewer-requests.png"
     }
   ]
 }

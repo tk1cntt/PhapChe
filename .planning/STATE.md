@@ -88,8 +88,9 @@ Items acknowledged at milestone close (2026-06-05):
 | 260608-ufb | Fix draft intake edit/delete and PDF upload 500 error | 2026-06-08 | 8ef062a | Verified | [260608-ufb-fix-draft-intake-edit-delete-and-pdf-upl](./quick/260608-ufb-fix-draft-intake-edit-delete-and-pdf-upl/) |
 | 260609-8jq | Thực hiện test e2e tất cả các màn hình và tất cả các ngôn ngữ. Chụp ảnh theo từng màn hình và từng ngôn ngữ | 2026-06-08 | 7dbb2e2 | Verified | [260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-](./quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/) |
 | 260609-qnu | Kết quả chụp màn hình của các chức năng admin toàn trả về kết quả 404 thôi. Kiểm tra lại đi nguyên nhân và fix cho tôi. | 2026-06-09 | ba8559a | Verified | [260609-qnu-k-t-qu-ch-p-m-n-h-nh-c-a-c-c-ch-c-n-ng-a](./quick/260609-qnu-k-t-qu-ch-p-m-n-h-nh-c-a-c-c-ch-c-n-ng-a/) |
+| 260609-sq4 | Fix i18n: Màn hình /zh/admin/users hiển thị tiếng Việt không dấu. Dịch đầy đủ các ngôn ngữ | 2026-06-09 | 5ef970a | Verified | [260609-sq4-fix-i18n-m-n-h-nh-zh-admin-users-hi-n-th](./quick/260609-sq4-fix-i18n-m-n-h-nh-zh-admin-users-hi-n-th/) |
 
-Last activity: 2026-06-09 - Completed quick task 260609-qnu: Kết quả chụp màn hình của các chức năng admin toàn trả về kết quả 404 thôi. Kiểm tra lại đi nguyên nhân và fix cho tôi.
+Last activity: 2026-06-09 - Completed quick task 260609-sq4: Fix i18n: Màn hình /zh/admin/users hiển thị tiếng Việt không dấu. Dịch đầy đủ các ngôn ngữ
 
 ## Phase 17 Plan 05 Execution
 

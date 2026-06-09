@@ -1,0 +1,523 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "locales": [
+    "vi",
+    "en",
+    "zh",
+    "ja"
+  ],
+  "screens": [
+    {
+      "name": "home",
+      "path": "/",
+      "localized": true
+    },
+    {
+      "name": "sign-in",
+      "path": "/sign-in",
+      "localized": false
+    },
+    {
+      "name": "intake",
+      "path": "/intake",
+      "localized": true
+    },
+    {
+      "name": "customer-dashboard",
+      "path": "/customer",
+      "localized": true,
+      "role": "customer"
+    },
+    {
+      "name": "customer-requests",
+      "path": "/customer/requests",
+      "localized": true,
+      "role": "customer"
+    },
+    {
+      "name": "admin-users",
+      "path": "/admin/users",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-requests",
+      "path": "/admin/requests",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-ops",
+      "path": "/admin/ops",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-routing",
+      "path": "/admin/routing",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-templates",
+      "path": "/admin/templates",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-vault",
+      "path": "/admin/vault",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-audit",
+      "path": "/admin/audit",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "admin-workspaces",
+      "path": "/admin/workspaces",
+      "localized": true,
+      "role": "admin"
+    },
+    {
+      "name": "specialist-requests",
+      "path": "/specialist/requests",
+      "localized": true,
+      "role": "specialist"
+    },
+    {
+      "name": "reviewer-requests",
+      "path": "/reviewer/requests",
+      "localized": true,
+      "role": "reviewer"
+    }
+  ],
+  "counts": {
+    "failed": 60
+  },
+  "results": [
+    {
+      "locale": "vi",
+      "screen": "home",
+      "path": "/vi",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/vi\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "vi",
+      "screen": "sign-in",
+      "path": "/sign-in",
+      "status": "failed",
+      "reason": "page.screenshot: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n"
+    },
+    {
+      "locale": "vi",
+      "screen": "intake",
+      "path": "/vi/intake",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/vi/intake\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "en",
+      "screen": "home",
+      "path": "/en",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/en\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "en",
+      "screen": "sign-in",
+      "path": "/sign-in",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "en",
+      "screen": "intake",
+      "path": "/en/intake",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/en/intake\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "zh",
+      "screen": "home",
+      "path": "/zh",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/zh\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "zh",
+      "screen": "sign-in",
+      "path": "/sign-in",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "zh",
+      "screen": "intake",
+      "path": "/zh/intake",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/zh/intake\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "ja",
+      "screen": "home",
+      "path": "/ja",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/ja\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "ja",
+      "screen": "sign-in",
+      "path": "/sign-in",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "ja",
+      "screen": "intake",
+      "path": "/ja/intake",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/ja/intake\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "vi",
+      "screen": "customer-dashboard",
+      "path": "/vi/customer",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "vi",
+      "screen": "customer-requests",
+      "path": "/vi/customer/requests",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "en",
+      "screen": "customer-dashboard",
+      "path": "/en/customer",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "en",
+      "screen": "customer-requests",
+      "path": "/en/customer/requests",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "zh",
+      "screen": "customer-dashboard",
+      "path": "/zh/customer",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "zh",
+      "screen": "customer-requests",
+      "path": "/zh/customer/requests",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "ja",
+      "screen": "customer-dashboard",
+      "path": "/ja/customer",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "ja",
+      "screen": "customer-requests",
+      "path": "/ja/customer/requests",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "vi",
+      "screen": "specialist-requests",
+      "path": "/vi/specialist/requests",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "en",
+      "screen": "specialist-requests",
+      "path": "/en/specialist/requests",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "zh",
+      "screen": "specialist-requests",
+      "path": "/zh/specialist/requests",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "ja",
+      "screen": "specialist-requests",
+      "path": "/ja/specialist/requests",
+      "status": "failed",
+      "reason": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/sign-in\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "locale": "vi",
+      "screen": "reviewer-requests",
+      "path": "/vi/reviewer/requests",
+      "status": "failed",
+      "reason": "login failed for reviewer"
+    },
+    {
+      "locale": "en",
+      "screen": "reviewer-requests",
+      "path": "/en/reviewer/requests",
+      "status": "failed",
+      "reason": "login failed for reviewer"
+    },
+    {
+      "locale": "zh",
+      "screen": "reviewer-requests",
+      "path": "/zh/reviewer/requests",
+      "status": "failed",
+      "reason": "login failed for reviewer"
+    },
+    {
+      "locale": "ja",
+      "screen": "reviewer-requests",
+      "path": "/ja/reviewer/requests",
+      "status": "failed",
+      "reason": "login failed for reviewer"
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-users",
+      "path": "/vi/admin/users",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-requests",
+      "path": "/vi/admin/requests",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-ops",
+      "path": "/vi/admin/ops",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-routing",
+      "path": "/vi/admin/routing",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-templates",
+      "path": "/vi/admin/templates",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-vault",
+      "path": "/vi/admin/vault",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-audit",
+      "path": "/vi/admin/audit",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "vi",
+      "screen": "admin-workspaces",
+      "path": "/vi/admin/workspaces",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "en",
+      "screen": "admin-users",
+      "path": "/en/admin/users",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "en",
+      "screen": "admin-requests",
+      "path": "/en/admin/requests",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "en",
+      "screen": "admin-ops",
+      "path": "/en/admin/ops",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "en",
+      "screen": "admin-routing",
+      "path": "/en/admin/routing",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "en",
+      "screen": "admin-templates",
+      "path": "/en/admin/templates",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "en",
+      "screen": "admin-vault",
+      "path": "/en/admin/vault",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "en",
+      "screen": "admin-audit",
+      "path": "/en/admin/audit",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "en",
+      "screen": "admin-workspaces",
+      "path": "/en/admin/workspaces",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-users",
+      "path": "/zh/admin/users",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-requests",
+      "path": "/zh/admin/requests",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-ops",
+      "path": "/zh/admin/ops",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-routing",
+      "path": "/zh/admin/routing",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-templates",
+      "path": "/zh/admin/templates",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-vault",
+      "path": "/zh/admin/vault",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-audit",
+      "path": "/zh/admin/audit",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "zh",
+      "screen": "admin-workspaces",
+      "path": "/zh/admin/workspaces",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-users",
+      "path": "/ja/admin/users",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-requests",
+      "path": "/ja/admin/requests",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-ops",
+      "path": "/ja/admin/ops",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-routing",
+      "path": "/ja/admin/routing",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-templates",
+      "path": "/ja/admin/templates",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-vault",
+      "path": "/ja/admin/vault",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-audit",
+      "path": "/ja/admin/audit",
+      "status": "failed",
+      "reason": "login failed for admin"
+    },
+    {
+      "locale": "ja",
+      "screen": "admin-workspaces",
+      "path": "/ja/admin/workspaces",
+      "status": "failed",
+      "reason": "login failed for admin"
+    }
+  ]
+}

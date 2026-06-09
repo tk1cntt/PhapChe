@@ -1,0 +1,65 @@
+FAILED vi home: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/vi", waiting until "domcontentloaded"[22m
+
+FAILED vi sign-in: page.screenshot: Timeout 10000ms exceeded.
+Call log:
+[2m  - taking page screenshot[22m
+[2m  - waiting for fonts to load...[22m
+
+FAILED vi intake: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/vi/intake", waiting until "domcontentloaded"[22m
+
+FAILED en home: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/en", waiting until "domcontentloaded"[22m
+
+FAILED en sign-in: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/sign-in", waiting until "domcontentloaded"[22m
+
+FAILED en intake: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/en/intake", waiting until "domcontentloaded"[22m
+
+FAILED zh home: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/zh", waiting until "domcontentloaded"[22m
+
+FAILED zh sign-in: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/sign-in", waiting until "domcontentloaded"[22m
+
+FAILED zh intake: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/zh/intake", waiting until "domcontentloaded"[22m
+
+FAILED ja home: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/ja", waiting until "domcontentloaded"[22m
+
+FAILED ja sign-in: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/sign-in", waiting until "domcontentloaded"[22m
+
+FAILED ja intake: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/ja/intake", waiting until "domcontentloaded"[22m
+
+ROLE FAILED customer: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/sign-in", waiting until "domcontentloaded"[22m
+
+ROLE FAILED specialist: page.goto: Timeout 15000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/sign-in", waiting until "domcontentloaded"[22m
+
+ROLE FAILED reviewer: login failed for reviewer
+ROLE FAILED admin: login failed for admin
+{
+  "total": 60,
+  "counts": {
+    "failed": 60
+  }
+}

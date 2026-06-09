@@ -107,6 +107,8 @@ test.describe('Public screens screenshots', () => {
 // ── Role-based screens (login once per role+locale) ──
 for (const [role, screens] of Object.entries(ROLE_SCREENS) as [Role, Screen[]][]) {
   test.describe(`${role} screens screenshots`, () => {
+    // Admin has 8 screens × ~5s = 40s; default 30s timeout too short
+    test.describe.configure({ timeout: 120_000 });
     for (const locale of LOCALES) {
       test(`all ${role} screens - ${locale}`, async ({ page }) => {
         // Login once for this role

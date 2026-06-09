@@ -100,5 +100,64 @@
     "ops": "运营",
     "audit": "审计",
     "vault": "档案"
+  },
+  "AdminWorkspaces": {
+    "pageTitle": "客户工作区",
+    "pageDescription": "每个SME拥有独立工作区以显示成员并降低租户间数据泄露风险。",
+    "permissionTitle": "权限边界",
+    "permissionDenied": "您无权查看此内容。如需访问，请联系管理员。",
+    "createButton": "创建工作区",
+    "name": "工作区名称",
+    "slug": "Slug",
+    "members": "成员",
+    "status": "状态",
+    "active": "活跃",
+    "noData": "暂无工作区。"
+  },
+  "AdminRequests": {
+    "pageTitle": "请求档案",
+    "pageDescription": "档案状态由后端工作流控制，无法通过下拉菜单直接编辑。",
+    "createButton": "创建请求",
+    "code": "档案编号",
+    "workspace": "工作区",
+    "status": "状态",
+    "validTransitions": "有效状态转换",
+    "validTransitionsNote": "状态只能通过服务器上的有效流程更改。",
+    "transitionReason": "状态转换原因",
+    "noData": "暂无请求。"
+  },
+  "AdminOps": {
+    "pageTitle": "运营",
+    "pageDescription": "监控档案状态、分配工作量、设置基本SLA和审计时间线。",
+    "overviewTitle": "运营概览",
+    "requestList": "请求列表",
+    "noData": "暂无运营数据",
+    "noDataHint": "产生请求后将显示按状态、数量、工作负载和老化的统计。",
+    "noRequests": "没有匹配的请求",
+    "noRequestsHint": "请尝试调整筛选条件。"
+  },
+  "AuditEvents": {
+    "pageTitle": "审计",
+    "pageDescription": "仅显示重要操作的时间戳、操作、关联ID和元数据摘要以保护安全。",
+    "securityNote": "审计中不显示法律内容；需要追踪时请使用元数据摘要、标识符或哈希。",
+    "time": "时间",
+    "actor": "操作者",
+    "workspace": "工作区",
+    "action": "操作",
+    "target": "对象",
+    "correlationId": "关联ID",
+    "metadataSummary": "元数据摘要",
+    "noData": "暂无审计事件。"
+  },
+  "Vault": {
+    "pageTitle": "档案分类",
+    "pageDescription": "创建文件夹和标签以组织法律档案。",
+    "folders": "文件夹",
+    "tags": "标签",
+    "files": "档案中的文件",
+    "noFolders": "暂无文件夹。",
+    "noTags": "暂无标签。",
+    "noFiles": "暂无文件。",
+    "fileCount": "个文件"
   }
 }

@@ -6,28 +6,38 @@ import AdminOpsTables from './AdminOpsTables';
 import type { OpsRequestRow, OpsWorkloadRow } from './AdminOpsTables';
 import type { RequestStatus } from '@prisma/client';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 const { Text, Title, Paragraph } = Typography;
 
-const statusLabels: Record<RequestStatus, { label: string; tone: string }> = {
-  draft_intake: { label: 'Nháp tiếp nhận', tone: 'neutral' },
-  intake_submitted: { label: 'Đã gửi tiếp nhận', tone: 'info' },
-  triage: { label: 'Đang phân loại', tone: 'warning' },
-  assigned: { label: 'Đã phân công', tone: 'info' },
-  in_progress: { label: 'Đang xử lý', tone: 'info' },
-  pending_review: { label: 'Chờ review', tone: 'warning' },
-  revision_required: { label: 'Cần chỉnh sửa', tone: 'destructive' },
-  approved: { label: 'Đã duyệt', tone: 'accent' },
-  delivered: { label: 'Đã giao', tone: 'outline' },
-  closed: { label: 'Đã đóng', tone: 'neutral' },
-  cancelled: { label: 'Đã hủy', tone: 'destructive' },
+const statusLabels: Record<RequestStatus, { labelKey: string; tone: string }> = {
+  draft_intake: { labelKey: 'draft_intake', tone: 'neutral' },
+  intake_submitted: { labelKey: 'intake_submitted', tone: 'info' },
+  triage: { labelKey: 'triage', tone: 'warning' },
+  assigned: { labelKey: 'assigned', tone: 'info' },
+  in_progress: { labelKey: 'in_progress', tone: 'info' },
+  pending_review: { labelKey: 'pending_review', tone: 'warning' },
+  revision_required: { labelKey: 'revision_required', tone: 'destructive' },
+  approved: { labelKey: 'approved', tone: 'accent' },
+  delivered: { labelKey: 'delivered', tone: 'outline' },
+  closed: { labelKey: 'closed', tone: 'neutral' },
+  cancelled: { labelKey: 'cancelled', tone: 'destructive' },
+};
+
+const toneToColor: Record<string, string> = {
+  neutral: 'default',
+  info: 'blue',
+  warning: 'orange',
+  accent: 'cyan',
+  destructive: 'red',
+  outline: 'default',
 };
 
 interface DashboardData {
   total: number;
   byStatus: Array<{ status: RequestStatus; count: number }>;
-  requests: any[];
-  workload: any[];
+  requests: OpsRequestRow[];
+  workload: OpsWorkloadRow[];
 }
 
 function EmptyState({ title, body }: { title: string; body: string }) {
@@ -40,6 +50,7 @@ function EmptyState({ title, body }: { title: string; body: string }) {
 }
 
 export default function OpsPageClient() {
+  const t = useTranslations('AdminOps');
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -63,7 +74,7 @@ export default function OpsPageClient() {
 
   const hasData = dashboard && (dashboard.total > 0 || dashboard.requests.length > 0);
 
-  const requestRows: OpsRequestRow[] = (dashboard?.requests ?? []).map((r: any) => ({
+  const requestRows: OpsRequestRow[] = (dashboard?.requests ?? []).map((r) => ({
     id: r.id,
     title: r.title,
     status: r.status,
@@ -78,7 +89,7 @@ export default function OpsPageClient() {
     currentStatusAgeDays: r.currentStatusAgeDays,
   }));
 
-  const workloadRows: OpsWorkloadRow[] = (dashboard?.workload ?? []).map((r: any) => ({
+  const workloadRows: OpsWorkloadRow[] = (dashboard?.workload ?? []).map((r) => ({
     kind: r.kind,
     userId: r.userId,
     name: r.name,
@@ -92,26 +103,23 @@ export default function OpsPageClient() {
     <>
       <Flex vertical gap={4} style={{ marginBottom: 16 }}>
         <Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600 }}>
-          Vận hành
+          {t('pageTitle')}
         </Title>
         <Paragraph style={{ color: '#475569', margin: 0, fontSize: 16 }}>
-          Theo dõi trạng thái hồ sơ, phân bổ workload, mốc SLA cơ bản và timeline audit an toàn.
+          {t('pageDescription')}
         </Paragraph>
       </Flex>
 
       <Card style={{ marginBottom: 16 }}>
-        <Title level={4} style={{ marginBottom: 8 }}>Tổng quan vận hành</Title>
+        <Title level={4} style={{ marginBottom: 8 }}>{t('overviewTitle')}</Title>
         {!hasData ? (
-          <EmptyState
-            title="Chưa có dữ liệu vận hành"
-            body="Khi hồ sơ phát sinh, số lượng theo trạng thái, workload và aging sẽ hiển thị tại đây."
-          />
+          <EmptyState title={t('noData')} body={t('noDataHint')} />
         ) : dashboard ? (
           <Flex vertical gap={8} style={{ marginBottom: 16 }}>
             <Flex gap={4} wrap="wrap">
               {dashboard.byStatus.map((row) => (
                 <Text key={row.status}>
-                  {statusLabels[row.status]?.label ?? row.status}: {row.count}{' '}
+                  {t(statusLabels[row.status]?.labelKey ?? row.status)}: {row.count}{' '}
                 </Text>
               ))}
             </Flex>
@@ -120,12 +128,9 @@ export default function OpsPageClient() {
       </Card>
 
       <Card style={{ marginBottom: 16 }}>
-        <Title level={4} style={{ marginBottom: 8 }}>Danh sách hồ sơ</Title>
+        <Title level={4} style={{ marginBottom: 8 }}>{t('requestList')}</Title>
         {!hasData ? (
-          <EmptyState
-            title="Không có hồ sơ phù hợp"
-            body="Thử điều chỉnh bộ lọc."
-          />
+          <EmptyState title={t('noRequests')} body={t('noRequestsHint')} />
         ) : (
           <AdminOpsTables requests={requestRows} workload={workloadRows} />
         )}

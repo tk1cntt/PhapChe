@@ -100,5 +100,64 @@
     "ops": "運用",
     "audit": "監査",
     "vault": "ボルト"
+  },
+  "AdminWorkspaces": {
+    "pageTitle": "顧客ワークスペース",
+    "pageDescription": "各SMEは専用ワークスペースを持ち、メンバーシップを表示し、テナント間のデータ漏洩リスクを低減します。",
+    "permissionTitle": "アクセス境界",
+    "permissionDenied": "このコンテンツを表示する権限がありません。アクセスが必要な場合は管理者に連絡してください。",
+    "createButton": "ワークスペース作成",
+    "name": "ワークスペース名",
+    "slug": "Slug",
+    "members": "メンバー",
+    "status": "ステータス",
+    "active": "アクティブ",
+    "noData": "ワークスペースがありません。"
+  },
+  "AdminRequests": {
+    "pageTitle": "リクエストファイル",
+    "pageDescription": "ファイルステータスはバックエンドワークフローによって制御されるため、ドロップダウンから直接編集できません。",
+    "createButton": "リクエスト作成",
+    "code": "ファイルコード",
+    "workspace": "ワークスペース",
+    "status": "ステータス",
+    "validTransitions": "有効な遷移",
+    "validTransitionsNote": "ステータスはサーバー上の有効なワークフロー 통해서만変更できます。",
+    "transitionReason": "遷移理由",
+    "noData": "リクエストがありません。"
+  },
+  "AdminOps": {
+    "pageTitle": "運用",
+    "pageDescription": "ファイルステータス、作業負荷の管理、基本SLA、監査タイムラインを追跡します。",
+    "overviewTitle": "運用概要",
+    "requestList": "リクエスト一覧",
+    "noData": "運用データがありません",
+    "noDataHint": "リクエストが発生するとステータス別、数量、作業負荷、老朽化の統計が表示されます。",
+    "noRequests": "一致するリクエストがありません",
+    "noRequestsHint": "フィルターを調整してみてください。"
+  },
+  "AuditEvents": {
+    "pageTitle": "監査",
+    "pageDescription": "セキュリティのため、重要な操作の時間戳、操作、相関ID、メタデータサマりのみが表示されます。",
+    "securityNote": "監査には法的内容は表示されません。追跡が必要な場合はメタデータサマリ、識別子、ハッシュを使用してください。",
+    "time": "時間",
+    "actor": "実行者",
+    "workspace": "ワークスペース",
+    "action": "操作",
+    "target": "対象",
+    "correlationId": "相関ID",
+    "metadataSummary": "メタデータサマリ",
+    "noData": "監査イベントがありません。"
+  },
+  "Vault": {
+    "pageTitle": "ボルト分類",
+    "pageDescription": "法的ファイルを整理するためにフォルダとタグを作成します。",
+    "folders": "フォルダ",
+    "tags": "タグ",
+    "files": "ボルト内ファイル",
+    "noFolders": "フォルダがありません。",
+    "noTags": "タグがありません。",
+    "noFiles": "ファイルがありません。",
+    "fileCount": "ファイル"
   }
 }

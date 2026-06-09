@@ -100,5 +100,64 @@
     "ops": "Operations",
     "audit": "Audit",
     "vault": "Vault"
+  },
+  "AdminWorkspaces": {
+    "pageTitle": "Customer Workspaces",
+    "pageDescription": "Each SME has a dedicated workspace to display membership and reduce cross-tenant data leakage risk.",
+    "permissionTitle": "Access Boundary",
+    "permissionDenied": "You do not have permission to view this content. Contact an administrator if access is needed.",
+    "createButton": "Create Workspace",
+    "name": "Workspace Name",
+    "slug": "Slug",
+    "members": "Members",
+    "status": "Status",
+    "active": "Active",
+    "noData": "No workspaces yet."
+  },
+  "AdminRequests": {
+    "pageTitle": "Request Files",
+    "pageDescription": "File status is controlled by backend workflow and cannot be directly edited via dropdown.",
+    "createButton": "Create Request",
+    "code": "File Code",
+    "workspace": "Workspace",
+    "status": "Status",
+    "validTransitions": "Valid Transitions",
+    "validTransitionsNote": "Status can only be changed through valid workflow on the server.",
+    "transitionReason": "Transition Reason",
+    "noData": "No requests yet."
+  },
+  "AdminOps": {
+    "pageTitle": "Operations",
+    "pageDescription": "Track file status, distribute workload, set basic SLA and audit timelines.",
+    "overviewTitle": "Operations Overview",
+    "requestList": "Request List",
+    "noData": "No operations data yet",
+    "noDataHint": "Statistics by status, workload and aging will appear when requests are generated.",
+    "noRequests": "No matching requests",
+    "noRequestsHint": "Try adjusting the filters."
+  },
+  "AuditEvents": {
+    "pageTitle": "Audit",
+    "pageDescription": "Only important operation timestamps, actions, correlation IDs and metadata summaries are displayed for security.",
+    "securityNote": "Legal content is not shown in audit; use metadata summary, identifiers or hash when tracing is needed.",
+    "time": "Time",
+    "actor": "Actor",
+    "workspace": "Workspace",
+    "action": "Action",
+    "target": "Target",
+    "correlationId": "Correlation ID",
+    "metadataSummary": "Metadata Summary",
+    "noData": "No audit events yet."
+  },
+  "Vault": {
+    "pageTitle": "Vault Classification",
+    "pageDescription": "Create folders and tags to organize legal files.",
+    "folders": "Folders",
+    "tags": "Tags",
+    "files": "Files in Vault",
+    "noFolders": "No folders yet.",
+    "noTags": "No tags yet.",
+    "noFiles": "No files yet.",
+    "fileCount": "files"
   }
 }

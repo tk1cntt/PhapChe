@@ -100,5 +100,64 @@
     "ops": "Vận hành",
     "audit": "Audit",
     "vault": "Phân loại vault"
+  },
+  "AdminWorkspaces": {
+    "pageTitle": "Workspace khách hàng",
+    "pageDescription": "Mỗi SME có workspace riêng để hiển thị membership và giảm rủi ro lộ dữ liệu giữa tenant.",
+    "permissionTitle": "Ranh giới quyền truy cập",
+    "permissionDenied": "Bạn không có quyền xem nội dung này. Nếu cần truy cập, hãy liên hệ quản trị viên.",
+    "createButton": "Tạo workspace",
+    "name": "Tên workspace",
+    "slug": "Slug",
+    "members": "Thành viên",
+    "status": "Trạng thái",
+    "active": "Đang hoạt động",
+    "noData": "Chưa có workspace nào."
+  },
+  "AdminRequests": {
+    "pageTitle": "Hồ sơ yêu cầu",
+    "pageDescription": "Trạng thái hồ sơ được hiển thị từ backend-owned workflow, không chỉnh sửa trực tiếp bằng raw dropdown.",
+    "createButton": "Tạo hồ sơ yêu cầu",
+    "code": "Mã hồ sơ",
+    "workspace": "Workspace",
+    "status": "Trạng thái",
+    "validTransitions": "Chuyển trạng thái hợp lệ",
+    "validTransitionsNote": "Trạng thái này chỉ có thể thay đổi qua quy trình hợp lệ trên máy chủ.",
+    "transitionReason": "Lý do chuyển trạng thái",
+    "noData": "Chưa có yêu cầu nào."
+  },
+  "AdminOps": {
+    "pageTitle": "Vận hành",
+    "pageDescription": "Theo dõi trạng thái hồ sơ, phân bổ workload, mốc SLA cơ bản và timeline audit an toàn.",
+    "overviewTitle": "Tổng quan vận hành",
+    "requestList": "Danh sách hồ sơ",
+    "noData": "Chưa có dữ liệu vận hành",
+    "noDataHint": "Khi hồ sơ phát sinh, số lượng theo trạng thái, workload và aging sẽ hiển thị tại đây.",
+    "noRequests": "Không có hồ sơ phù hợp",
+    "noRequestsHint": "Thử điều chỉnh bộ lọc."
+  },
+  "AuditEvents": {
+    "pageTitle": "Audit",
+    "pageDescription": "Đong thời gian thao tác quan trọng chi hiển thị định dạnh, action, mã tương quan và tóm tắt metadata an toàn.",
+    "securityNote": "Không hiển thị nội dung pháp lý tho trong audit; dùng metadataSummary, identifier hoặc hash khi cần truy vết.",
+    "time": "Thời gian",
+    "actor": "Actor",
+    "workspace": "Workspace",
+    "action": "Hành động",
+    "target": "Đối tượng",
+    "correlationId": "Mã tương quan",
+    "metadataSummary": "Tóm tắt metadata",
+    "noData": "Chưa có sự kiện kiểm toan nào."
+  },
+  "Vault": {
+    "pageTitle": "Phân loại vault",
+    "pageDescription": "Tạo thư mục và thẻ để tổ chức hồ sơ pháp lý.",
+    "folders": "Thư mục",
+    "tags": "Thẻ phân loại",
+    "files": "Tệp trong vault",
+    "noFolders": "Chưa có thư mục nào.",
+    "noTags": "Chưa có thẻ nào.",
+    "noFiles": "Chưa có tệp nào.",
+    "files": "tệp"
   }
 }

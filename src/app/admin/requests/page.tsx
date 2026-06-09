@@ -3,19 +3,20 @@
 import type { RequestStatus } from '@prisma/client';
 import { getAllowedTransitions } from '@/lib/workflow/request-workflow';
 import { Tag, Button, Card, Table, Typography, Flex, Space } from 'antd';
+import { useTranslations } from 'next-intl';
 
-const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
-  draft_intake: { label: 'Nháp tiếp nhận', tone: 'neutral' },
-  intake_submitted: { label: 'Đã gửi tiếp nhận', tone: 'info' },
-  triage: { label: 'Đang phân loại', tone: 'warning' },
-  assigned: { label: 'Đã phân công', tone: 'info' },
-  in_progress: { label: 'Đang xử lý', tone: 'info' },
-  pending_review: { label: 'Chờ review', tone: 'warning' },
-  revision_required: { label: 'Cần chỉnh sửa', tone: 'destructive' },
-  approved: { label: 'Đã duyệt', tone: 'accent' },
-  delivered: { label: 'Đã giao', tone: 'outline' },
-  closed: { label: 'Đã đóng', tone: 'neutral' },
-  cancelled: { label: 'Đã hủy', tone: 'destructive' },
+const statusLabels: Record<RequestStatus, { labelKey: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
+  draft_intake: { labelKey: 'draft_intake', tone: 'neutral' },
+  intake_submitted: { labelKey: 'intake_submitted', tone: 'info' },
+  triage: { labelKey: 'triage', tone: 'warning' },
+  assigned: { labelKey: 'assigned', tone: 'info' },
+  in_progress: { labelKey: 'in_progress', tone: 'info' },
+  pending_review: { labelKey: 'pending_review', tone: 'warning' },
+  revision_required: { labelKey: 'revision_required', tone: 'destructive' },
+  approved: { labelKey: 'approved', tone: 'accent' },
+  delivered: { labelKey: 'delivered', tone: 'outline' },
+  closed: { labelKey: 'closed', tone: 'neutral' },
+  cancelled: { labelKey: 'cancelled', tone: 'destructive' },
 };
 
 const toneToColor: Record<string, string> = {
@@ -34,36 +35,38 @@ const requests = [
 ];
 
 export default function RequestsPage() {
+  const t = useTranslations('AdminRequests');
+
   const allowedTransitions = getAllowedTransitions(sampleStatus);
 
   const columns = [
     {
-      title: 'Mã hồ sơ',
+      title: t('code'),
       dataIndex: 'code',
       key: 'code',
       width: 200,
     },
     {
-      title: 'Workspace',
+      title: t('workspace'),
       dataIndex: 'workspace',
       key: 'workspace',
       width: 250,
     },
     {
-      title: 'Trạng thái',
+      title: t('status'),
       key: 'status',
       render: (_: unknown, record: (typeof requests)[number]) => {
         const meta = statusLabels[record.status];
-        return <Tag color={toneToColor[meta.tone] ?? 'default'}>{meta.label}</Tag>;
+        return <Tag color={toneToColor[meta.tone] ?? 'default'}>{t(meta.labelKey)}</Tag>;
       },
       width: 180,
     },
     {
-      title: 'Thao tác hợp lệ',
+      title: t('validTransitions'),
       key: 'actions',
       render: () => (
         <span className="text-[14px] font-normal leading-[1.4] text-[#475569]">
-          Dùng getAllowedTransitions(status) trước khi render nút chuyển trạng thái.
+          {t('validTransitionsNote')}
         </span>
       ),
     },
@@ -75,20 +78,20 @@ export default function RequestsPage() {
         <Flex justify="space-between" align="flex-start">
           <Flex vertical>
             <Typography.Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600 }}>
-              Hồ sơ yêu cầu
+              {t('pageTitle')}
             </Typography.Title>
             <Typography.Paragraph style={{ color: '#475569', margin: 0, fontSize: 16 }}>
-              Trạng thái hồ sơ được hiển thị từ backend-owned workflow, không chỉnh sửa trực tiếp bằng raw dropdown.
+              {t('pageDescription')}
             </Typography.Paragraph>
           </Flex>
-          <Button type="primary">Tạo hồ sơ yêu cầu</Button>
+          <Button type="primary">{t('createButton')}</Button>
         </Flex>
       </Flex>
 
       <Card className="space-y-4" style={{ marginBottom: 16 }}>
-        <h2 className="text-[20px] font-semibold leading-[1.2]">Chuyển trạng thái hợp lệ</h2>
+        <h2 className="text-[20px] font-semibold leading-[1.2]">{t('validTransitions')}</h2>
         <p className="text-[16px] font-normal leading-[1.5] text-[#475569]">
-          Trạng thái này chỉ có thể thay đổi qua quy trình hợp lệ trên máy chủ.
+          {t('validTransitionsNote')}
         </p>
         <Flex wrap="wrap" gap={8}>
           {allowedTransitions.map((transition) => (
@@ -96,13 +99,13 @@ export default function RequestsPage() {
               key={transition}
               danger={transition === 'revision_required'}
             >
-              Chuyển sang {statusLabels[transition].label}
+              {t(statusLabels[transition].labelKey)}
             </Button>
           ))}
         </Flex>
         <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]">
-          <span>Lý do chuyển trạng thái</span>
-          <textarea className="min-h-24 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" />
+          <span>{t('transitionReason')}</span>
+          <textarea className="min-h-[96px] w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" />
         </label>
       </Card>
 
@@ -113,6 +116,7 @@ export default function RequestsPage() {
         pagination={false}
         size="middle"
         bordered
+        locale={{ emptyText: t('noData') }}
       />
     </>
   );

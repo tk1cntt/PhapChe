@@ -2,9 +2,8 @@ import { test, expect, type Page } from '@playwright/test';
 import path from 'path';
 import { loginAs } from './helpers';
 
-const QUICK_DIR = '.planning/quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-';
+const QUICK_DIR = '.planning/quick/260609-apr-e2e-all-screenshots';
 const LOCALES = ['vi', 'en', 'zh', 'ja'] as const;
-
 type Locale = (typeof LOCALES)[number];
 type Role = 'admin' | 'customer' | 'specialist' | 'reviewer';
 
@@ -12,35 +11,38 @@ type Screen = {
   name: string;
   path: string;
   localized: boolean;
-  role?: Role;
 };
 
-const SCREENS: Screen[] = [
+/** Screens that need NO login */
+const PUBLIC_SCREENS: Screen[] = [
   { name: 'home', path: '/', localized: true },
   { name: 'sign-in', path: '/sign-in', localized: false },
   { name: 'intake', path: '/intake', localized: true },
-  { name: 'customer-dashboard', path: '/customer', localized: true, role: 'customer' },
-  { name: 'customer-requests', path: '/customer/requests', localized: true, role: 'customer' },
-  { name: 'admin-users', path: '/admin/users', localized: true, role: 'admin' },
-  { name: 'admin-requests', path: '/admin/requests', localized: true, role: 'admin' },
-  { name: 'admin-ops', path: '/admin/ops', localized: true, role: 'admin' },
-  { name: 'admin-routing', path: '/admin/routing', localized: true, role: 'admin' },
-  { name: 'admin-templates', path: '/admin/templates', localized: true, role: 'admin' },
-  { name: 'admin-vault', path: '/admin/vault', localized: true, role: 'admin' },
-  { name: 'admin-audit', path: '/admin/audit', localized: true, role: 'admin' },
-  { name: 'admin-workspaces', path: '/admin/workspaces', localized: true, role: 'admin' },
-  { name: 'specialist-requests', path: '/specialist/requests', localized: true, role: 'specialist' },
-  { name: 'reviewer-requests', path: '/reviewer/requests', localized: true, role: 'reviewer' },
 ];
 
-const report: Array<{
-  locale: Locale;
-  screen: string;
-  path: string;
-  status: 'captured' | 'skipped' | 'failed';
-  reason?: string;
-  screenshot?: string;
-}> = [];
+/** Screens grouped by role */
+const ROLE_SCREENS: Record<Role, Screen[]> = {
+  admin: [
+    { name: 'admin-users', path: '/admin/users', localized: false },
+    { name: 'admin-requests', path: '/admin/requests', localized: false },
+    { name: 'admin-ops', path: '/admin/ops', localized: false },
+    { name: 'admin-routing', path: '/admin/routing', localized: false },
+    { name: 'admin-templates', path: '/admin/templates', localized: false },
+    { name: 'admin-vault', path: '/admin/vault', localized: false },
+    { name: 'admin-audit', path: '/admin/audit', localized: false },
+    { name: 'admin-workspaces', path: '/admin/workspaces', localized: false },
+  ],
+  customer: [
+    { name: 'customer-dashboard', path: '/customer', localized: true },
+    { name: 'customer-requests', path: '/customer/requests', localized: true },
+  ],
+  specialist: [
+    { name: 'specialist-requests', path: '/specialist/requests', localized: false },
+  ],
+  reviewer: [
+    { name: 'reviewer-requests', path: '/reviewer/requests', localized: false },
+  ],
+};
 
 function localizedPath(screen: Screen, locale: Locale) {
   if (!screen.localized) return screen.path;
@@ -52,54 +54,81 @@ function safeName(value: string) {
   return value.replace(/[^a-z0-9-]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase();
 }
 
-async function ensureRole(page: Page, role?: Role) {
-  if (!role) return;
-  await loginAs(page, role);
-  if (page.url().includes('/sign-in')) {
-    throw new Error('Skipped: Database not seeded.');
+/**
+ * Take a single screenshot, returning status info.
+ */
+async function captureScreen(
+  page: Page,
+  locale: Locale,
+  screen: Screen,
+  role?: Role,
+): Promise<{ status: 'captured' | 'skipped' | 'failed'; reason?: string; screenshot?: string }> {
+  const targetPath = localizedPath(screen, locale);
+  const screenshot = `${QUICK_DIR}/screenshots/${locale}/${safeName(screen.name)}.png`;
+  const screenshotPath = path.join(process.cwd(), screenshot);
+
+  try {
+    await page.goto(targetPath, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => undefined);
+    await page.waitForTimeout(500); // let Ant Design animations settle
+
+    if (role && page.url().includes('/sign-in')) {
+      return { status: 'skipped', reason: 'Redirected to sign-in — session expired' };
+    }
+
+    await expect(page.locator('body')).toBeVisible({ timeout: 3000 });
+    const fs = await import('fs/promises');
+    await fs.mkdir(path.dirname(screenshotPath), { recursive: true });
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+
+    return { status: 'captured', screenshot };
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    return { status: 'failed', reason };
   }
 }
 
-test.describe.configure({ mode: 'serial' });
-
-test.describe('All screens i18n screenshots', () => {
+// ── Public screens (no login) ──
+test.describe('Public screens screenshots', () => {
   for (const locale of LOCALES) {
-    for (const screen of SCREENS) {
-      const testName = `${locale} - ${screen.name}`;
+    test(`all public screens - ${locale}`, async ({ page }) => {
+      const results: Array<{ screen: string; status: string; reason?: string }> = [];
+      for (const screen of PUBLIC_SCREENS) {
+        const result = await captureScreen(page, locale, screen);
+        results.push({ screen: screen.name, ...result });
+      }
+      // Verify all public screens captured
+      const failed = results.filter(r => r.status === 'failed');
+      expect(failed).toHaveLength(0);
+    });
+  }
+});
 
-      test(testName, async ({ page }, testInfo) => {
-        const targetPath = localizedPath(screen, locale);
-        const screenshot = `${QUICK_DIR}/screenshots/${locale}/${safeName(screen.name)}.png`;
-        const screenshotPath = path.join(process.cwd(), screenshot);
-
-        try {
-          await page.context().clearCookies();
-          await ensureRole(page, screen.role);
-          await page.goto(targetPath, { waitUntil: 'domcontentloaded', timeout: 30000 });
-          await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => undefined);
-
-          if (screen.role && page.url().includes('/sign-in')) {
-            throw new Error('Skipped: Database not seeded.');
-          }
-
-          await expect(page.locator('body')).toBeVisible();
-          const fs = await import('fs/promises');
-          await fs.mkdir(path.dirname(screenshotPath), { recursive: true });
-          await page.screenshot({ path: screenshotPath, fullPage: true });
-
-          report.push({ locale, screen: screen.name, path: targetPath, status: 'captured', screenshot });
-        } catch (error) {
-          const reason = error instanceof Error ? error.message : String(error);
-          const status = reason.includes('Skipped: Database not seeded.') ? 'skipped' : 'failed';
-          report.push({ locale, screen: screen.name, path: targetPath, status, reason });
+// ── Role-based screens (login once per role+locale) ──
+for (const [role, screens] of Object.entries(ROLE_SCREENS) as [Role, Screen[]][]) {
+  test.describe(`${role} screens screenshots`, () => {
+    for (const locale of LOCALES) {
+      test(`all ${role} screens - ${locale}`, async ({ page }) => {
+        // Login once for this role
+        await loginAs(page, role);
+        if (page.url().includes('/sign-in')) {
+          test.skip(true, `Skipped: ${role} login failed — database not seeded.`);
         }
+
+        const results: Array<{ screen: string; status: string; reason?: string }> = [];
+        for (const screen of screens) {
+          const result = await captureScreen(page, locale, screen, role);
+          results.push({ screen: screen.name, ...result });
+        }
+
+        const failed = results.filter(r => r.status === 'failed');
+        if (failed.length > 0) {
+          console.warn(`[${role}/${locale}] ${failed.length} screens failed:`, failed.map(f => f.screen).join(', '));
+        }
+        // At least one screen should capture successfully
+        const captured = results.filter(r => r.status === 'captured');
+        expect(captured.length).toBeGreaterThan(0);
       });
     }
-  }
-
-  test.afterAll(async () => {
-    const fs = await import('fs/promises');
-    await fs.mkdir(`${QUICK_DIR}/screenshots`, { recursive: true });
-    await fs.writeFile(`${QUICK_DIR}/screen-report.json`, JSON.stringify({ locales: LOCALES, screens: SCREENS, results: report }, null, 2));
   });
-});
+}

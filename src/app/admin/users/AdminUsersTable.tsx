@@ -2,14 +2,7 @@
 
 import { Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-
-const roles = [
-  { value: 'customer', label: 'Khach hang', tone: 'neutral' as const },
-  { value: 'specialist', label: 'Chuyên viên', tone: 'info' as const },
-  { value: 'reviewer', label: 'Reviewer', tone: 'warning' as const },
-  { value: 'coordinator_admin', label: 'Dieu phoi vien', tone: 'accent' as const },
-  { value: 'super_admin', label: 'Super admin', tone: 'destructive' as const },
-];
+import { useTranslations } from 'next-intl';
 
 const toneToColor: Record<string, string> = {
   neutral: 'default',
@@ -18,10 +11,6 @@ const toneToColor: Record<string, string> = {
   accent: 'cyan',
   destructive: 'red',
 };
-
-function roleMeta(role: string) {
-  return roles.find((item) => item.value === role) ?? roles[0];
-}
 
 export type UserRow = {
   key: string;
@@ -37,39 +26,58 @@ interface AdminUsersTableProps {
 }
 
 export default function AdminUsersTable({ dataSource }: AdminUsersTableProps) {
+  const t = useTranslations();
+
+  const getRoleLabel = (role: string) => {
+    const roleKey = `AdminUsers.role_${role}` as const;
+    return t(roleKey);
+  };
+
+  const getRoleTone = (role: string) => {
+    const tones: Record<string, typeof toneToColor.default> = {
+      customer: 'neutral',
+      specialist: 'info',
+      reviewer: 'warning',
+      coordinator_admin: 'accent',
+      super_admin: 'destructive',
+    };
+    return tones[role] ?? 'neutral';
+  };
+
   const columns: ColumnsType<UserRow> = [
     {
-      title: 'Ten',
+      title: t('TableUsers.name'),
       dataIndex: 'name',
       key: 'name',
       width: 200,
     },
     {
-      title: 'Email',
+      title: t('TableUsers.email'),
       dataIndex: 'email',
       key: 'email',
       width: 250,
     },
     {
-      title: 'Vai tro',
+      title: t('TableUsers.role'),
       key: 'role',
-      render: (_: unknown, record: UserRow) => {
-        const meta = roleMeta(record.role);
-        return <Tag color={toneToColor[meta.tone] ?? 'default'}>{meta.label}</Tag>;
-      },
+      render: (_: unknown, record: UserRow) => (
+        <Tag color={toneToColor[getRoleTone(record.role)]}>{getRoleLabel(record.role)}</Tag>
+      ),
       width: 200,
     },
     {
-      title: 'Workspace',
+      title: t('TableUsers.workspace'),
       dataIndex: 'workspace',
       key: 'workspace',
       width: 200,
     },
     {
-      title: 'Trang thai',
+      title: t('TableUsers.status'),
       key: 'status',
       render: (_: unknown, record: UserRow) => (
-        <Tag color={record.status === 'Dang hoat dong' ? 'cyan' : 'red'}>{record.status}</Tag>
+        <Tag color={record.status === 'active' ? 'cyan' : 'red'}>
+          {record.status === 'active' ? t('TableUsers.active') : t('TableUsers.inactive')}
+        </Tag>
       ),
       width: 150,
     },

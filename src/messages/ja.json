@@ -83,5 +83,14 @@
     "role_reviewer": "レビュアー",
     "role_coordinator_admin": "コーディネーター",
     "role_super_admin": "スーパーユーザー"
+  },
+  "TableUsers": {
+    "name": "名前",
+    "email": "Email",
+    "role": "役割",
+    "workspace": "Workspace",
+    "status": "ステータス",
+    "active": "アクティブ",
+    "inactive": "非活性"
   }
 }

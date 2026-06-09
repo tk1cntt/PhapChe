@@ -83,5 +83,14 @@
     "role_reviewer": "审核员",
     "role_coordinator_admin": "协调员",
     "role_super_admin": "管理员"
+  },
+  "TableUsers": {
+    "name": "姓名",
+    "email": "Email",
+    "role": "角色",
+    "workspace": "Workspace",
+    "status": "状态",
+    "active": "活跃",
+    "inactive": "停用"
   }
 }

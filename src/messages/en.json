@@ -83,5 +83,14 @@
     "role_reviewer": "Reviewer",
     "role_coordinator_admin": "Coordinator Admin",
     "role_super_admin": "Super Admin"
+  },
+  "TableUsers": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "workspace": "Workspace",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive"
   }
 }

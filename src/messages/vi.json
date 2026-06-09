@@ -83,5 +83,14 @@
     "role_reviewer": "Người duyệt",
     "role_coordinator_admin": "Điều phối viên",
     "role_super_admin": "Quản trị viên"
+  },
+  "TableUsers": {
+    "name": "Tên",
+    "email": "Email",
+    "role": "Vai trò",
+    "workspace": "Workspace",
+    "status": "Trạng thái",
+    "active": "Đang hoạt động",
+    "inactive": "Vô hiệu hóa"
   }
 }

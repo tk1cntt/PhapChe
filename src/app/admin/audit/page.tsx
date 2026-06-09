@@ -37,8 +37,8 @@ export default function AuditPage() {
       title: 'Thoi gian',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (val: Date) =>
-        new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(val),
+      render: (val: string) =>
+        new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(val)),
       width: 180,
     },
     {

@@ -14,7 +14,7 @@ export async function GET() {
       email: user.email,
       role: 'customer',
       workspace: '-',
-      status: user.isActive ? 'Dang hoat dong' : 'Vo hieu hoa',
+      status: user.isActive ? 'active' : 'inactive',
     }));
     return NextResponse.json(dataSource);
   } catch {

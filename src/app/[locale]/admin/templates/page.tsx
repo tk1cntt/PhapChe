@@ -1,1 +1,1 @@
-export { default } from '../../../../admin/templates/page';
+export { default } from '../../../admin/templates/page';

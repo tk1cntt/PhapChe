@@ -1,1 +1,1 @@
-export { default } from '../../../../admin/routing/page';
+export { default } from '../../../admin/routing/page';

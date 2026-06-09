@@ -1,1 +1,1 @@
-export { default } from '../../../../specialist/requests/page';
+export { default } from '../../../specialist/requests/page';

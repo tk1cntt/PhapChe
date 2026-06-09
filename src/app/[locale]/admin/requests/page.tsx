@@ -35,6 +35,7 @@ const requests = [
 ];
 
 export default function RequestsPage() {
+  const tStatus = useTranslations('RequestStatus');
   const t = useTranslations('AdminRequests');
 
   const allowedTransitions = getAllowedTransitions(sampleStatus);
@@ -57,7 +58,7 @@ export default function RequestsPage() {
       key: 'status',
       render: (_: unknown, record: (typeof requests)[number]) => {
         const meta = statusLabels[record.status];
-        return <Tag color={toneToColor[meta.tone] ?? 'default'}>{t(meta.labelKey)}</Tag>;
+        return <Tag color={toneToColor[meta.tone] ?? 'default'}>{tStatus(meta.labelKey)}</Tag>;
       },
       width: 180,
     },
@@ -99,7 +100,7 @@ export default function RequestsPage() {
               key={transition}
               danger={transition === 'revision_required'}
             >
-              {t(statusLabels[transition].labelKey)}
+              {tStatus(statusLabels[transition].labelKey)}
             </Button>
           ))}
         </Flex>

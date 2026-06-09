@@ -52,6 +52,7 @@ function EmptyState({ title, body }: { title: string; body: string }) {
 
 export default function OpsPageClient() {
   const t = useTranslations('AdminOps');
+  const tStatus = useTranslations('RequestStatus');
   const pathname = usePathname();
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -123,7 +124,7 @@ export default function OpsPageClient() {
             <Flex gap={4} wrap="wrap">
               {dashboard.byStatus.map((row) => (
                 <Text key={row.status}>
-                  {t(statusLabels[row.status]?.labelKey ?? row.status)}: {row.count}{' '}
+                  {tStatus(statusLabels[row.status]?.labelKey ?? row.status)}: {row.count}{' '}
                 </Text>
               ))}
             </Flex>

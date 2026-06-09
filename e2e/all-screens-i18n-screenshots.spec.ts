@@ -23,24 +23,24 @@ const PUBLIC_SCREENS: Screen[] = [
 /** Screens grouped by role */
 const ROLE_SCREENS: Record<Role, Screen[]> = {
   admin: [
-    { name: 'admin-users', path: '/admin/users', localized: false },
-    { name: 'admin-requests', path: '/admin/requests', localized: false },
-    { name: 'admin-ops', path: '/admin/ops', localized: false },
-    { name: 'admin-routing', path: '/admin/routing', localized: false },
-    { name: 'admin-templates', path: '/admin/templates', localized: false },
-    { name: 'admin-vault', path: '/admin/vault', localized: false },
-    { name: 'admin-audit', path: '/admin/audit', localized: false },
-    { name: 'admin-workspaces', path: '/admin/workspaces', localized: false },
+    { name: 'admin-users', path: '/admin/users', localized: true },
+    { name: 'admin-requests', path: '/admin/requests', localized: true },
+    { name: 'admin-ops', path: '/admin/ops', localized: true },
+    { name: 'admin-routing', path: '/admin/routing', localized: true },
+    { name: 'admin-templates', path: '/admin/templates', localized: true },
+    { name: 'admin-vault', path: '/admin/vault', localized: true },
+    { name: 'admin-audit', path: '/admin/audit', localized: true },
+    { name: 'admin-workspaces', path: '/admin/workspaces', localized: true },
   ],
   customer: [
     { name: 'customer-dashboard', path: '/customer', localized: true },
     { name: 'customer-requests', path: '/customer/requests', localized: true },
   ],
   specialist: [
-    { name: 'specialist-requests', path: '/specialist/requests', localized: false },
+    { name: 'specialist-requests', path: '/specialist/requests', localized: true },
   ],
   reviewer: [
-    { name: 'reviewer-requests', path: '/reviewer/requests', localized: false },
+    { name: 'reviewer-requests', path: '/reviewer/requests', localized: true },
   ],
 };
 

@@ -93,8 +93,9 @@ Items acknowledged at milestone close (2026-06-05):
 | 260609-t8t | Restore admin dashboard sidebar menu that disappeared | 2026-06-09 | 2cf624d | Verified | [260609-t8t-restore-admin-dashboard-sidebar-menu-tha](./quick/260609-t8t-restore-admin-dashboard-sidebar-menu-tha/) |
 | 260609-thz | Translate admin sidebar menu to all languages using i18n | 2026-06-09 | e38ee28 | Verified | [260609-thz-translate-admin-sidebar-menu-to-all-lang](./quick/260609-thz-translate-admin-sidebar-menu-to-all-lang/) |
 | 260609-tnt | Fix 404 API routes: /en/api/audit/events and /en/api/vault | 2026-06-09 | d0311da | Verified | [260609-tnt-fix-404-api-routes-en-api-audit-events-a](./quick/260609-tnt-fix-404-api-routes-en-api-audit-events-a/) |
+| 260609-tsy | Fix /en/admin/audit page: RangeError Invalid time value | 2026-06-09 | 28ef8d5 | Verified | [260609-tsy-fix-en-admin-audit-page rangeerror-inval](./quick/260609-tsy-fix-en-admin-audit-page%20rangeerror-inval/) |
 
-Last activity: 2026-06-09 - Completed quick task 260609-tnt: Fix 404 API routes
+Last activity: 2026-06-09 - Completed quick task 260609-tsy: Fix /en/admin/audit page RangeError
 
 ## Phase 17 Plan 05 Execution
 

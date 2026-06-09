@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Auth & Hardening
 status: completed
-last_updated: "2026-06-08T17:36:52.178Z"
-last_activity: 2026-06-08
+last_updated: "2026-06-09T12:30:00.000Z"
+last_activity: "2026-06-09 - Completed quick task 260609-qnu: Kết quả chụp màn hình của các chức năng admin toàn trả về kết quả 404 thôi. Kiểm tra lại đi nguyên nhân và fix cho tôi."
 progress:
   total_phases: 6
   completed_phases: 6
@@ -87,9 +87,9 @@ Items acknowledged at milestone close (2026-06-05):
 | 260607-pfj | Fix blank page at /requests/[id] after intake submit | 2026-06-07 | bcf3062 | Verified | [260607-pfj-s-a-y-u-c-u-sau-khi-g-i-y-u-c-u-intake-xong-qun-trang-tr-ng](./quick/260607-pfj-s-a-y-u-c-u-sau-khi-g-i-y-c-u-intake-xong-qun-trang-tr-ng/) |
 | 260608-ufb | Fix draft intake edit/delete and PDF upload 500 error | 2026-06-08 | 8ef062a | Verified | [260608-ufb-fix-draft-intake-edit-delete-and-pdf-upl](./quick/260608-ufb-fix-draft-intake-edit-delete-and-pdf-upl/) |
 | 260609-8jq | Thực hiện test e2e tất cả các màn hình và tất cả các ngôn ngữ. Chụp ảnh theo từng màn hình và từng ngôn ngữ | 2026-06-08 | 7dbb2e2 | Verified | [260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-](./quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/) |
+| 260609-qnu | Kết quả chụp màn hình của các chức năng admin toàn trả về kết quả 404 thôi. Kiểm tra lại đi nguyên nhân và fix cho tôi. | 2026-06-09 | ba8559a | Verified | [260609-qnu-k-t-qu-ch-p-m-n-h-nh-c-a-c-c-ch-c-n-ng-a](./quick/260609-qnu-k-t-qu-ch-p-m-n-h-nh-c-a-c-c-ch-c-n-ng-a/) |
 
-Last activity: 2026-06-08 - Completed quick task 260609-8jq: Thực hiện test e2e tất cả các màn hình và tất cả các ngôn ngữ. Chụp ảnh theo từng màn hình và từng ngôn ngữ
-**Completed:** Quick task 260609-8jq: Thực hiện test e2e tất cả các màn hình và tất cả các ngôn ngữ. Chụp ảnh theo từng màn hình và từng ngôn ngữ
+Last activity: 2026-06-09 - Completed quick task 260609-qnu: Kết quả chụp màn hình của các chức năng admin toàn trả về kết quả 404 thôi. Kiểm tra lại đi nguyên nhân và fix cho tôi.
 
 ## Phase 17 Plan 05 Execution
 

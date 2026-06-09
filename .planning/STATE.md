@@ -97,8 +97,9 @@ Items acknowledged at milestone close (2026-06-05):
 | 260609-u0x | Fix i18n for admin pages: workspaces, requests, ops, audit, vault - all have Vietnamese without diacritics | 2026-06-09 | 3c4041f | Verified | [260609-u0x-fix-i18n-for-admin-pages-workspaces-requ](./quick/260609-u0x-fix-i18n-for-admin-pages-workspaces-requ/) |
 | 260609-u95 | Fix missing i18n messages and API 404 errors | 2026-06-09 | — | Verified | [260609-u95-fix-missing-i18n-messages-and-api-404-er](./quick/260609-u95-fix-missing-i18n-messages-and-api-404-er/) |
 | 260609-vps | Fix intake page 500 error when creating request - POST /ja/intake/api/create-draft | 2026-06-09 | e37f78e | Verified | [260609-vps-fix-intake-page-500-error-when-creating-](./quick/260609-vps-fix-intake-page-500-error-when-creating-/) |
+| 260609-wdw | Fix intake API 500 error - analyze root cause and verify with browser testing | 2026-06-09 | e37f78e | Verified | [260609-wdw-fix-intake-api-500-error-analyze-root-ca](./quick/260609-wdw-fix-intake-api-500-error-analyze-root-ca/) |
 
-Last activity: 2026-06-09 - Completed quick task 260609-vps: Fix intake page 500 error when creating request (commit: e37f78e)
+Last activity: 2026-06-09 - Completed quick task 260609-wdw: Fix intake API 500 error analysis
 
 ## Phase 17 Plan 05 Execution
 

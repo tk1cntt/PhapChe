@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, Typography, Flex, Button, Space, Tag, Spin } from 'antd';
-import { useTranslations } from '@/i18n';
+import { useTranslations } from 'next-intl';
 import AdminUsersTable from './AdminUsersTable';
 
 const { Title, Paragraph } = Typography;

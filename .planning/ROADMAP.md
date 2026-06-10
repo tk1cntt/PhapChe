@@ -99,10 +99,10 @@ Plans:
 4. React Query devtools panel visible in development mode, completely hidden in production
 5. Cache configured with staleTime: 30s and gcTime: 5min
 
-**Plans:** 1/1
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 24-01-PLAN.md — TanStack Query v5 setup and configuration
+- [x] 24-01-PLAN.md — TanStack Query v5 setup and configuration
 
 **UI hint:** yes
 
@@ -126,7 +126,10 @@ Plans:
 6. Search input debounces by 300ms before triggering query
 7. Search and filter state persists in URL params (shareable/bookmarkable URLs)
 
-**Plans:** Not planned yet
+**Plans:** 1/1 plans
+
+Plans:
+- [x] 25-01-PLAN.md — Server-side pagination + search/filter with URL persistence
 
 **UI hint:** yes
 
@@ -137,8 +140,8 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 23. Quick Wins | 1/1 | Complete    | 2026-06-10 |
-| 24. TanStack Query | 0/1 | Not started | - |
-| 25. Pagination & Search | 0/1 | Not started | - |
+| 24. TanStack Query | 1/1 | Complete   | 2026-06-10 |
+| 25. Pagination & Search | 1/1 | Planned | - |
 
 ## v1.2 Requirement Coverage
 

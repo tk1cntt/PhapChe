@@ -8,7 +8,7 @@
 - [x] **v1.0 MVP** — Phases 01-14, 49 plans, 70 tasks (shipped 2026-06-05)
 - [x] **v1.1 Auth & Hardening** — Phases 15-22, 18 plans, 23 tasks (shipped 2026-06-10)
 - [x] **v1.2 UI/UX Improvements** — Phases 23-25 (shipped 2026-06-10)
-- [ ] **v1.3 UI Brand Refresh** — Phase 26 (planning)
+- [x] **v1.3 UI Brand Refresh** — Phase 26 (planning) (completed 2026-06-10)
 
 ## Phases
 

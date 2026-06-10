@@ -1,5 +1,21 @@
 # Milestones
 
+## v1.1 Auth & Hardening (Shipped: 2026-06-10)
+
+**Phases completed:** 8 phases, 18 plans, 23 tasks
+
+**Key accomplishments:**
+
+- Real authentication with Better Auth — login page, password hashing, session management, protected routes
+- All 14+ broken routes fixed — client component conversion, OpsTimelineTable HTTP 500 resolved
+- 75 Playwright E2E tests covering auth, intake, specialist, reviewer, admin screens
+- Customer dashboard with locale-prefixed routing and workspace-scoped data
+- i18n infrastructure for 4 languages (VI/EN/ZH/JA) with middleware routing
+- Gap closure: login redirect with i18n, all auth flows validated
+- Tech debt cleanup: shared types, Suspense boundaries, 9 error boundaries added
+
+---
+
 ## v1.0 MVP (Shipped: 2026-06-05)
 
 **Phases completed:** 14 phases, 49 plans, 70 tasks
@@ -45,4 +61,3 @@
 - Customer delivery page
 - Created reviewer route group layout and migrated all 4 reviewer files from hand-rolled ui.tsx components to antd. The reviewer layout uses a compact Sider with a single queue nav item, matching the specialist layout pattern. All page-level Badge/PageHeader/Button/Card/Table imports replaced with antd Tag/Typography/Button/Card/Table equivalents.
 - Deleted `ui.tsx` and `admin-shell.tsx` after verifying zero remaining consumers in the project
-

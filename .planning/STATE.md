@@ -2,26 +2,26 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Auth & Hardening
-status: executing
-last_updated: "2026-06-10T10:29:07.029Z"
+status: completed
+last_updated: "2026-06-10T11:41:10.368Z"
 last_activity: 2026-06-10
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 18
-  completed_plans: 17
-  percent: 94
+  completed_plans: 18
+  percent: 100
 ---
 
 # State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-06-05)
+See: .planning/PROJECT.md (updated 2026-06-10)
 
 **Core value:** SME sends legal requests through simple chat and receives quality-reviewed deliverables with full traceability.
-**Status:** Ready to execute
-**Next:** Phase 15: auth
+**Status:** v1.1 shipped — planning v1.2
+**Next:** Run /gsd-new-milestone to start v1.2 planning
 
 ## Current Milestone: v1.1 Auth & Hardening
 

@@ -1,20 +1,20 @@
 # Legal-as-a-Service Platform
 
-## Current State (v1.0 MVP — Shipped 2026-06-05)
+## Current State (v1.1 Auth & Hardening — Shipped 2026-06-10)
 
-v1.0 MVP đã hoàn thành với **14 phases, 49 plans, 70 tasks** — 360 commits, 12,413 LOC TypeScript/TSX, 51,879 insertions across 304 files.
+v1.1 đã hoàn thành với **8 phases, 18 plans, 23 tasks** — 185 commits, +6,766/-864 LOC.
 
 **What shipped:**
-- Foundation: RBAC, audit, workspace isolation, workflow state machine
-- Intake: Vietnamese customer chat/form intake with structured answers, file upload, status tracking
-- Routing: Capability matrix, coordinator assignment, specialist/reviewer queue
-- Documents & Vault: Versioned templates, draft generation from intake, private file storage with permissions
-- Review: Reviewer portal with split-view, QC checklist, approve/reject workflow
-- Delivery: Customer delivery page with signed URL downloads, request close
-- Operations: Dashboard, filters, workload, SLA tracking, audit timeline
-- Ant Design: Full UI migration to antd across admin/specialist/customer/reviewer route groups
+- Auth: Real Better Auth with login page, password hashing, session management, protected routes
+- Route Hardening: All 14+ broken routes fixed, OpsTimelineTable HTTP 500 resolved
+- E2E Tests: 75 Playwright tests covering auth, intake, specialist, reviewer, admin screens
+- Customer Dashboard: Locale-prefixed routing with workspace-scoped data
+- i18n: 4 languages (VI/EN/ZH/JA) with middleware routing and LanguageSwitcher
+- Tech Debt: Shared types.ts, Suspense boundaries, 9 error boundaries
 
-**Tech stack:** Next.js 14 (App Router), TypeScript, Prisma + SQLite, Ant Design 6, Tailwind CSS
+**Total to date:** v1.0 + v1.1 = 22 phases, 67 plans, 93 tasks
+
+**Tech stack:** Next.js 14 (App Router), TypeScript, Prisma + SQLite, Ant Design 6, Tailwind CSS, Better Auth
 
 ## What This Is
 
@@ -99,7 +99,11 @@ Tài liệu nhấn mạnh tư duy E-Myth: không xây AI biết tất cả, mà 
 | Stack: modular monolith Next.js + PostgreSQL/Prisma + S3/R2 | Nhanh cho MVP, ít infra, vẫn đủ mở rộng | ✓ Good — validated by v1.0 |
 | Gap-closure phases (08-14) sau milestone audit | Fix broken flows và design gaps trước khi ship | ✓ Good — all gaps closed |
 | Ant Design UI cho phase 14 | Component library chuẩn, giảm maintenance UI custom | ✓ Good — zero custom UI remaining |
+| Better Auth cho v1.1 | Password hashing, session management, protected routes | ✓ Good — auth working with real users |
+| i18n với next-intl | Locale routing, middleware, LanguageSwitcher | ✓ Good — 4 languages functional |
+| SQLite cho dev | Simplify local development, avoid Docker | ✓ Good — faster setup |
+| Decimal phase cho gap closure | Phase 21, 22 cho gap closure sau audit | ✓ Good — audit-driven iteration |
 
 ---
 
-*Last updated: 2026-06-05 after v1.0 milestone*
+*Last updated: 2026-06-10 after v1.1 milestone*

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Progress Table
-status: Ready to execute
-stopped_at: Phase 23-01 plan completed
-last_updated: "2026-06-10T11:55:13.980Z"
+status: Plan complete
+stopped_at: Phase 25-01 plan complete
+last_updated: "2026-06-10T12:15:00Z"
 last_activity: 2026-06-10
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 1
-  completed_plans: 0
-  percent: 0
+  completed_phases: 3
+  total_plans: 3
+  completed_plans: 3
+  percent: 100
 ---
 
 # State
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-10)
 
 **Core value:** SME sends legal requests through simple chat and receives quality-reviewed deliverables with full traceability.
-**Current focus:** Phase 23 - Quick Wins
+**Current focus:** Phase 25 - Pagination & Search complete
 
 ## Current Milestone: v1.2 UI/UX Improvements
 
@@ -31,17 +31,17 @@ v1.1 complete. v1.2 focuses on UX improvements for Admin Dashboard based on UI-U
 
 | Phase | Name | Requirements | Status |
 |-------|------|-------------|--------|
-| 23 | quick-wins | ERR-01..04, LOAD-01..04 | In progress (1/1 plans) |
-| 24 | tanstack-query | DATA-01..05 | Not started |
-| 25 | pagination-search | PAGE-01..03, SCH-01..04 | Not started |
+| 23 | quick-wins | ERR-01..04, LOAD-01..04 | Complete |
+| 24 | tanstack-query | DATA-01..05 | Complete |
+| 25 | pagination-search | PAGE-01..03, SCH-01..04 | Complete |
 
 ## v1.2 Progress Summary
 
 | Phase | Plans | Status |
 |-------|-------|--------|
-| 23. Quick Wins | 1/1 | In progress |
-| 24. TanStack Query | 0/1 | Not started |
-| 25. Pagination & Search | 0/1 | Not started |
+| 23. Quick Wins | 1/1 | Complete |
+| 24. TanStack Query | 1/1 | Complete |
+| 25. Pagination & Search | 1/1 | Complete |
 
 **Coverage:** 20/20 requirements mapped
 
@@ -66,6 +66,19 @@ Items acknowledged at milestone close (2026-06-05):
 - Phase 24: TanStack Query v5 integration
 - Phase 25: Server-side pagination + search/filter with URL persistence
 
+### Phase 25 Summary
+
+Implemented server-side pagination with page sizes 10/25/50, global search with 300ms debounce, column filters, and full URL state persistence across admin tables.
+
+**Commits:**
+- `8396a6b`: usePaginationParams hook for URL sync
+- `ac0c37d`: useDebounce hook for search input
+- `d37ccd4`: API routes with server-side pagination
+- `01b3942`: Query hooks enhanced with pagination
+- `0175284`: Global search bar in admin header
+- `4e58b9b`: Paginated admin table pages
+- `3238905`: Table components updated
+
 ### Quick Tasks Completed (v1.1 era)
 
 | # | Description | Date | Status |
@@ -77,6 +90,6 @@ Last activity: 2026-06-10
 
 ## Session Continuity
 
-Last session: 2026-06-10T11:52:30.597Z
-Stopped at: Phase 23 context gathered
-Resume: Ready to plan Phase 23
+Last session: 2026-06-10T12:15:00Z
+Stopped at: Phase 25-01 plan complete
+Resume: All plans complete - v1.2 milestone complete

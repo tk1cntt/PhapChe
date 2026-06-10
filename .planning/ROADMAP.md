@@ -7,7 +7,7 @@
 
 - [x] **v1.0 MVP** — Phases 01-14, 49 plans, 70 tasks (shipped 2026-06-05)
 - [x] **v1.1 Auth & Hardening** — Phases 15-22, 18 plans, 23 tasks (shipped 2026-06-10)
-- [ ] **v1.2 UI/UX Improvements** — Phases 23-25 (planning)
+- [x] **v1.2 UI/UX Improvements** — Phases 23-25 (shipped 2026-06-10)
 
 ## Phases
 
@@ -46,11 +46,11 @@
 </details>
 
 <details>
-<summary>🚧 v1.2 UI/UX Improvements (Phases 23-25) — Planning</summary>
+<summary>✅ v1.2 UI/UX Improvements (Phases 23-25) — SHIPPED 2026-06-10</summary>
 
 - [x] Phase 23: quick-wins — Error boundaries + Skeleton templates
-- [ ] Phase 24: tanstack-query — TanStack Query setup + migration
-- [ ] Phase 25: pagination-search — Tables pagination + search/filter
+- [x] Phase 24: tanstack-query — TanStack Query setup + migration
+- [x] Phase 25: pagination-search — Tables pagination + search/filter
 
 </details>
 
@@ -139,9 +139,9 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 23. Quick Wins | 1/1 | Complete    | 2026-06-10 |
+| 23. Quick Wins | 1/1 | Complete   | 2026-06-10 |
 | 24. TanStack Query | 1/1 | Complete   | 2026-06-10 |
-| 25. Pagination & Search | 1/1 | Planned | - |
+| 25. Pagination & Search | 1/1 | Complete   | 2026-06-10 |
 
 ## v1.2 Requirement Coverage
 

@@ -10,38 +10,38 @@ Requirements cho milestone v1.2 — UI/UX Improvements cho Admin Dashboard.
 
 ### Loading States
 
-- [ ] **LOAD-01**: Admin pages display skeleton loading screens during data fetch
-- [ ] **LOAD-02**: PageSkeleton component matches table layout structure
-- [ ] **LOAD-03**: CardSkeleton component for card-based content
-- [ ] **LOAD-04**: Skeleton components reusable across all admin pages (no hard-coded per page)
+- [x] **LOAD-01**: Admin pages display skeleton loading screens during data fetch
+- [x] **LOAD-02**: PageSkeleton component matches table layout structure
+- [x] **LOAD-03**: CardSkeleton component for card-based content
+- [x] **LOAD-04**: Skeleton components reusable across all admin pages (no hard-coded per page)
 
 ### Error Handling
 
-- [ ] **ERR-01**: Each admin page wrapped in Error Boundary
-- [ ] **ERR-02**: Error fallback displays error message + Retry button
-- [ ] **ERR-03**: Errors logged to console for debugging
-- [ ] **ERR-04**: Shared ErrorFallback component used across all pages
+- [x] **ERR-01**: Each admin page wrapped in Error Boundary
+- [x] **ERR-02**: Error fallback displays error message + Retry button
+- [x] **ERR-03**: Errors logged to console for debugging
+- [x] **ERR-04**: Shared ErrorFallback component used across all pages
 
 ### Data Fetching
 
-- [ ] **DATA-01**: TanStack Query v5 installed and configured
-- [ ] **DATA-02**: QueryClientProvider added to app layout
-- [ ] **DATA-03**: Query key convention established: `['entity', workspaceId?, options]`
-- [ ] **DATA-04**: React Query devtools enabled in development only
-- [ ] **DATA-05**: Cache configuration: staleTime 30s, gcTime 5min
+- [x] **DATA-01**: TanStack Query v5 installed and configured
+- [x] **DATA-02**: QueryClientProvider added to app layout
+- [x] **DATA-03**: Query key convention established: `['entity', workspaceId?, options]`
+- [x] **DATA-04**: React Query devtools enabled in development only
+- [x] **DATA-05**: Cache configuration: staleTime 30s, gcTime 5min
 
 ### Pagination
 
-- [ ] **PAGE-01**: Tables support pagination with page sizes: 10, 25, 50
-- [ ] **PAGE-02**: Page state synced to URL query params
-- [ ] **PAGE-03**: Server-side pagination for requests, users, audit tables
+- [x] **PAGE-01**: Tables support pagination with page sizes: 10, 25, 50
+- [x] **PAGE-02**: Page state synced to URL query params
+- [x] **PAGE-03**: Server-side pagination for requests, users, audit tables
 
 ### Search & Filter
 
-- [ ] **SCH-01**: Global search bar in admin header
-- [ ] **SCH-02**: Column filters in table headers
-- [ ] **SCH-03**: Debounced search: 300ms delay
-- [ ] **SCH-04**: Search state persisted in URL params
+- [x] **SCH-01**: Global search bar in admin header
+- [x] **SCH-02**: Column filters in table headers
+- [x] **SCH-03**: Debounced search: 300ms delay
+- [x] **SCH-04**: Search state persisted in URL params
 
 ## v2 Requirements
 
@@ -82,26 +82,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LOAD-01 | Phase 23 | Pending |
-| LOAD-02 | Phase 23 | Pending |
-| LOAD-03 | Phase 23 | Pending |
-| LOAD-04 | Phase 23 | Pending |
-| ERR-01 | Phase 23 | Pending |
-| ERR-02 | Phase 23 | Pending |
-| ERR-03 | Phase 23 | Pending |
-| ERR-04 | Phase 23 | Pending |
-| DATA-01 | Phase 24 | Pending |
-| DATA-02 | Phase 24 | Pending |
-| DATA-03 | Phase 24 | Pending |
-| DATA-04 | Phase 24 | Pending |
-| DATA-05 | Phase 24 | Pending |
-| PAGE-01 | Phase 25 | Pending |
-| PAGE-02 | Phase 25 | Pending |
-| PAGE-03 | Phase 25 | Pending |
-| SCH-01 | Phase 25 | Pending |
-| SCH-02 | Phase 25 | Pending |
-| SCH-03 | Phase 25 | Pending |
-| SCH-04 | Phase 25 | Pending |
+| LOAD-01 | Phase 23 | Complete |
+| LOAD-02 | Phase 23 | Complete |
+| LOAD-03 | Phase 23 | Complete |
+| LOAD-04 | Phase 23 | Complete |
+| ERR-01 | Phase 23 | Complete |
+| ERR-02 | Phase 23 | Complete |
+| ERR-03 | Phase 23 | Complete |
+| ERR-04 | Phase 23 | Complete |
+| DATA-01 | Phase 24 | Complete |
+| DATA-02 | Phase 24 | Complete |
+| DATA-03 | Phase 24 | Complete |
+| DATA-04 | Phase 24 | Complete |
+| DATA-05 | Phase 24 | Complete |
+| PAGE-01 | Phase 25 | Complete |
+| PAGE-02 | Phase 25 | Complete |
+| PAGE-03 | Phase 25 | Complete |
+| SCH-01 | Phase 25 | Complete |
+| SCH-02 | Phase 25 | Complete |
+| SCH-03 | Phase 25 | Complete |
+| SCH-04 | Phase 25 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 20 total

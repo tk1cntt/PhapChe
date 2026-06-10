@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitNexus Legal - Tạo hồ sơ pháp lý</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --text: #101828;
+      --muted: #64748b;
+      --border: #dfe7f1;
+      --teal: #087f78;
+      --blue: #2563eb;
+      --green: #10b981;
+      --orange: #f97316;
+      --red: #ef4444;
+      --purple: #7c3aed;
+      --shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+      --soft-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      background:
+        radial-gradient(circle at 78% 8%, rgba(15, 118, 110, 0.05), transparent 28%),
+        radial-gradient(circle at 50% 70%, rgba(37, 99, 235, 0.035), transparent 34%),
+        #f8fafc;
+    }
+
+    .sidebar {
+      width: 262px;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 5px 0 20px rgba(15, 23, 42, 0.025);
+      z-index: 3;
+    }
+
+    .brand {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 0 30px;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, #07877e, #0f9f93);
+      clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+      position: relative;
+    }
+
+    .brand-mark::after {
+      content: "G";
+      position: absolute;
+      inset: 0;
+      color: #fff;
+      font-weight: 800;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-text {
+      font-size: 18px;
+      font-weight: 800;
+      color: #04786f;
+      letter-spacing: -0.3px;
+    }
+
+    .nav {
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item {
+      height: 48px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 0 20px;
+      color: #637083;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
+
+    .nav-item.active {
+      color: #087f78;
+      background: linear-gradient(90deg, rgba(20, 184, 166, 0.14), rgba(20, 184, 166, 0.05));
+      box-shadow: inset 0 0 0 1px rgba(8, 127, 120, 0.12);
+    }
+
+    .nav-item:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .sidebar-bottom {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .help-card {
+      height: 82px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      padding: 14px;
+      gap: 13px;
+      margin-bottom: 18px;
+      background: #fff;
+    }
+
+    .help-icon {
+      width: 39px;
+      height: 39px;
+      border-radius: 50%;
+      background: #e0f7f5;
+      color: #09847c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      border: 4px solid #f0fbfa;
+    }
+
+    .help-text strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .help-text span {
+      font-size: 12px;
+      color: #2563eb;
+      font-weight: 600;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 15px 14px;
+    }
+
+    .avatar {
+      width: 43px;
+      height: 43px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-info strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .profile-info span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 76px;
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 34px;
+      backdrop-filter: blur(14px);
+    }
+
+    .dashboard-title strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+
+    .dashboard-title span {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-top {
+      width: 285px;
+      height: 45px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 10px;
+    }
+
+    .search-top input {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 14px;
+      color: #334155;
+      background: transparent;
+    }
+
+    .top-pill {
+      height: 45px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #334155;
+      padding: 0 15px;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .circle {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #eef2f7;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .content {
+      flex: 1;
+      overflow: auto;
+      padding: 31px 36px 42px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: 31px;
+      letter-spacing: -0.8px;
+      margin-bottom: 12px;
+      color: #020617;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: #5f6e83;
+      font-weight: 500;
+    }
+
+    .create-btn {
+      height: 45px;
+      padding: 0 18px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #0b8f86, #087970);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(8, 127, 120, 0.25);
+      cursor: pointer;
+    }
+
+    .ghost-btn {
+      height: 45px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      color: #1e293b;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .wizard-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      box-shadow: var(--soft-shadow);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      color: #64748b;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #eef2f7;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .step.active {
+      color: #0f172a;
+    }
+
+    .step.active .step-number {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .step-line {
+      height: 2px;
+      background: #dbe3ec;
+      border-radius: 999px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .form-card,
+    .side-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 23px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .card-title svg {
+      color: #087f78;
+    }
+
+    .draft-badge {
+      height: 30px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      border-radius: 999px;
+      background: #ffedd5;
+      color: #ea580c;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    .hint {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.7;
+      margin-bottom: 18px;
+      font-weight: 500;
+    }
+
+    .service-list {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .service-option {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 17px;
+      display: grid;
+      grid-template-columns: 22px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .service-option:hover {
+      border-color: rgba(8, 127, 120, 0.35);
+      background: #fbfffe;
+    }
+
+    .service-option.selected {
+      border-color: #087f78;
+      background: #ecfdf9;
+      box-shadow: inset 0 0 0 1px rgba(8, 127, 120, 0.08);
+    }
+
+    .radio {
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .selected .radio {
+      border-color: #10b981;
+    }
+
+    .selected .radio::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+
+    .service-info strong {
+      display: block;
+      font-size: 14px;
+      color: #0f172a;
+      margin-bottom: 7px;
+    }
+
+    .service-info span {
+      display: block;
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .service-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tag {
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tag.green {
+      background: #ccfbf1;
+      color: #0f766e;
+    }
+
+    .tag.blue {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .tag.orange {
+      background: #ffedd5;
+      color: #ea580c;
+    }
+
+    .tag.purple {
+      background: #ede9fe;
+      color: #7c3aed;
+    }
+
+    .tag.red {
+      background: #ffe4e6;
+      color: #ef4444;
+    }
+
+    .form-section {
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 16px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      color: #334155;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 13px;
+      background: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      color: #0f172a;
+    }
+
+    .field input,
+    .field select {
+      height: 44px;
+    }
+
+    .field textarea {
+      height: 94px;
+      padding-top: 12px;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: #087f78;
+      box-shadow: 0 0 0 3px rgba(8, 127, 120, 0.08);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+
+    .actions-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    .side-card {
+      box-shadow: var(--soft-shadow);
+      margin-bottom: 20px;
+    }
+
+    .side-card .card-header {
+      padding: 20px;
+    }
+
+    .side-card .card-body {
+      padding: 20px;
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .summary-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid #edf2f7;
+      border-radius: 12px;
+      background: #fbfdff;
+    }
+
+    .summary-item strong {
+      display: block;
+      font-size: 13px;
+      color: #0f172a;
+      margin-bottom: 5px;
+    }
+
+    .summary-item span {
+      display: block;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .mini-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #d4f4ed, #eefbf8);
+      color: #087f78;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-weight: 800;
+    }
+
+    .check-list {
+      display: grid;
+      gap: 13px;
+    }
+
+    .check-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .check-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ccfbf1;
+      color: #0f766e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .check-item strong {
+      display: block;
+      font-size: 13px;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .check-item span {
+      display: block;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .floating-chat {
+      position: fixed;
+      right: 22px;
+      bottom: 20px;
+      min-width: 118px;
+      height: 48px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ef4444, #dc2626);
+      color: #fff;
+      border: 3px solid #facc15;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 800;
+      padding: 0 14px;
+    }
+
+    .floating-chat span:first-child {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 1400px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        min-width: 1400px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div>
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-text">GitNexus Legal</div>
+        </div>
+
+        <nav class="nav">
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M3 13h8V3H3z"/>
+              <path d="M13 21h8V11h-8z"/>
+              <path d="M13 3h8v6h-8z"/>
+              <path d="M3 21h8v-6H3z"/>
+            </svg>
+            Dashboard
+          </a>
+
+          <a class="nav-item active" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 2v6h6"/>
+              <path d="M9 13h6"/>
+              <path d="M9 17h6"/>
+            </svg>
+            Tạo hồ sơ
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 2v6h6"/>
+              <path d="M9 13h6"/>
+            </svg>
+            Hồ sơ của tôi
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M3 7h18v13H3z"/>
+              <path d="M3 7l3-4h12l3 4"/>
+            </svg>
+            Tài liệu
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+            </svg>
+            Tin nhắn
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.33 1.82V22a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 20.4a1.65 1.65 0 0 0-1.82-.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.82-.33H2a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 3.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .33-1.82V2a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 15 3.6a1.65 1.65 0 0 0 1.82.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.15.36.36.7.6 1a1.65 1.65 0 0 0 1.82.33H22a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0 20.4 15z"/>
+            </svg>
+            Cài đặt
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="help-card">
+          <div class="help-icon">?</div>
+          <div class="help-text">
+            <strong>Cần hỗ trợ?</strong>
+            <span>Xem hướng dẫn →</span>
+          </div>
+        </div>
+
+        <div class="profile">
+          <div class="avatar">MP</div>
+          <div class="profile-info">
+            <strong>Mai Phương</strong>
+            <span>Customer</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <header class="topbar">
+        <div class="dashboard-title">
+          <strong>Customer Portal</strong>
+          <span>Công ty An Phát · an-phat workspace</span>
+        </div>
+
+        <div class="top-actions">
+          <div class="search-top">
+            <input placeholder="Tìm hồ sơ, tài liệu..." />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+          </div>
+
+          <div class="top-pill">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            us English
+          </div>
+
+          <div class="top-pill">VN Tiếng Việt</div>
+
+          <div class="circle">MP</div>
+        </div>
+      </header>
+
+      <section class="content">
+
+        <div class="page-header">
+          <div>
+            <h1>Gửi yêu cầu pháp lý</h1>
+            <p class="subtitle">
+              Trả lời vài câu hỏi để chuyên viên có đủ thông tin tiếp nhận hồ sơ và xử lý đúng SLA.
+            </p>
+          </div>
+
+          <div class="header-actions">
+            <button class="ghost-btn">Lưu nháp</button>
+            <button class="create-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <path d="M14 2v6h6"/>
+              </svg>
+              Xem hồ sơ nháp
+            </button>
+          </div>
+        </div>
+
+        <div class="wizard-card">
+          <div class="steps">
+            <div class="step active">
+              <div class="step-number">1</div>
+              <span>Dịch vụ</span>
+            </div>
+
+            <div class="step-line"></div>
+
+            <div class="step">
+              <div class="step-number">2</div>
+              <span>Câu hỏi</span>
+            </div>
+
+            <div class="step-line"></div>
+
+            <div class="step">
+              <div class="step-number">3</div>
+              <span>Tài liệu</span>
+            </div>
+
+            <div class="step-line"></div>
+
+            <div class="step">
+              <div class="step-number">4</div>
+              <span>Kiểm tra</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="main-grid">
+
+          <div class="form-card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <path d="M14 2v6h6"/>
+                  <path d="M9 13h6"/>
+                </svg>
+                Bạn cần hỗ trợ việc gì?
+              </div>
+
+              <div class="draft-badge">Bước 1 / 4</div>
+            </div>
+
+            <div class="card-body">
+              <p class="hint">
+                Chọn một nhóm dịch vụ để hệ thống tạo hồ sơ nháp phù hợp. Ở các bước tiếp theo,
+                bạn sẽ bổ sung câu hỏi, tài liệu liên quan và kiểm tra thông tin trước khi gửi.
+              </p>
+
+              <div class="service-list">
+                <label class="service-option selected">
+                  <div class="radio"></div>
+                  <div class="service-info">
+                    <strong>Soạn hợp đồng đại lý</strong>
+                    <span>Chuẩn hóa thông tin đối tác, chiết khấu, điều khoản thanh toán, thời hạn hợp đồng và phạm vi phân phối.</span>
+                  </div>
+                  <div class="service-meta">
+                    <span class="tag green">Khuyến nghị</span>
+                    <span class="tag blue">2-3 ngày</span>
+                  </div>
+                </label>
+
+                <label class="service-option">
+                  <div class="radio"></div>
+                  <div class="service-info">
+                    <strong>Soạn hợp đồng lao động</strong>
+                    <span>Ghi nhận vị trí, lương, thời hạn, điều kiện làm việc, bảo mật thông tin và điều khoản chấm dứt.</span>
+                  </div>
+                  <div class="service-meta">
+                    <span class="tag blue">Nhanh</span>
+                  </div>
+                </label>
+
+                <label class="service-option">
+                  <div class="radio"></div>
+                  <div class="service-info">
+                    <strong>Đăng ký nhãn hiệu</strong>
+                    <span>Thu thập tên nhãn hiệu, nhóm sản phẩm/dịch vụ, chủ sở hữu, mẫu nhãn và phạm vi đăng ký.</span>
+                  </div>
+                  <div class="service-meta">
+                    <span class="tag purple">IP</span>
+                  </div>
+                </label>
+
+                <label class="service-option">
+                  <div class="radio"></div>
+                  <div class="service-info">
+                    <strong>Rà soát hợp đồng / NDA</strong>
+                    <span>Chuyên viên kiểm tra rủi ro pháp lý, điều khoản bất lợi, nghĩa vụ thanh toán, bảo mật và trách nhiệm bồi thường.</span>
+                  </div>
+                  <div class="service-meta">
+                    <span class="tag orange">Cần tài liệu</span>
+                  </div>
+                </label>
+
+                <label class="service-option">
+                  <div class="radio"></div>
+                  <div class="service-info">
+                    <strong>Dịch vụ khác / chưa rõ loại việc</strong>
+                    <span>Hồ sơ sẽ được chuyển để chuyên viên phân loại trước khi xử lý chính thức.</span>
+                  </div>
+                  <div class="service-meta">
+                    <span class="tag red">Phân loại</span>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title">Thông tin sơ bộ</div>
+
+                <div class="field-grid">
+                  <div class="field">
+                    <label>Workspace</label>
+                    <select>
+                      <option>Công ty An Phát</option>
+                      <option>Công ty Minh Khang</option>
+                      <option>Workspace nội bộ</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label>Mức độ ưu tiên</label>
+                    <select>
+                      <option>Thông thường</option>
+                      <option>Cần xử lý sớm</option>
+                      <option>Khẩn cấp</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label>Người liên hệ</label>
+                    <input value="Mai Phương" />
+                  </div>
+
+                  <div class="field">
+                    <label>Email liên hệ</label>
+                    <input value="mai.phuong@anphat.vn" />
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label>Mô tả ngắn yêu cầu</label>
+                  <textarea placeholder="Ví dụ: Cần soạn hợp đồng đại lý cho đối tác phân phối khu vực miền Bắc, có chiết khấu theo doanh số và thời hạn 12 tháng."></textarea>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button class="ghost-btn">Quay lại dashboard</button>
+
+                <div class="actions-right">
+                  <button class="ghost-btn">Lưu nháp</button>
+                  <button class="create-btn">
+                    Tiếp tục
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                      <path d="M5 12h14"/>
+                      <path d="m12 5 7 7-7 7"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside>
+            <div class="side-card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="M9 12l2 2 4-4"/>
+                  </svg>
+                  Tóm tắt hồ sơ
+                </div>
+              </div>
+
+              <div class="card-body">
+                <div class="summary-list">
+                  <div class="summary-item">
+                    <div>
+                      <strong>Dịch vụ đã chọn</strong>
+                      <span>Soạn hợp đồng đại lý</span>
+                    </div>
+                    <div class="mini-icon">1</div>
+                  </div>
+
+                  <div class="summary-item">
+                    <div>
+                      <strong>Workspace</strong>
+                      <span>Công ty An Phát · an-phat</span>
+                    </div>
+                    <div class="mini-icon">W</div>
+                  </div>
+
+                  <div class="summary-item">
+                    <div>
+                      <strong>Dự kiến xử lý</strong>
+                      <span>2-3 ngày làm việc sau khi đủ tài liệu</span>
+                    </div>
+                    <div class="mini-icon">S</div>
+                  </div>
+
+                  <div class="summary-item">
+                    <div>
+                      <strong>Trạng thái</strong>
+                      <span>Hồ sơ nháp, chưa gửi cho chuyên viên</span>
+                    </div>
+                    <div class="mini-icon">D</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="side-card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 11l3 3L22 4"/>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                  </svg>
+                  Checklist cần chuẩn bị
+                </div>
+              </div>
+
+              <div class="card-body">
+                <div class="check-list">
+                  <div class="check-item">
+                    <div class="check-dot">✓</div>
+                    <div>
+                      <strong>Thông tin đối tác</strong>
+                      <span>Tên pháp lý, mã số thuế, địa chỉ, người đại diện.</span>
+                    </div>
+                  </div>
+
+                  <div class="check-item">
+                    <div class="check-dot">✓</div>
+                    <div>
+                      <strong>Điều khoản thương mại</strong>
+                      <span>Chiết khấu, hoa hồng, doanh số, kỳ thanh toán.</span>
+                    </div>
+                  </div>
+
+                  <div class="check-item">
+                    <div class="check-dot">✓</div>
+                    <div>
+                      <strong>Phạm vi đại lý</strong>
+                      <span>Khu vực, sản phẩm, quyền độc quyền hoặc không độc quyền.</span>
+                    </div>
+                  </div>
+
+                  <div class="check-item">
+                    <div class="check-dot">✓</div>
+                    <div>
+                      <strong>Tài liệu liên quan</strong>
+                      <span>Báo giá, mẫu hợp đồng cũ, chính sách bán hàng nếu có.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+        </div>
+
+      </section>
+    </main>
+
+    <div class="floating-chat">
+      <span>N</span>
+      <span>Hỗ trợ</span>
+    </div>
+
+  </div>
+</body>
+</html>

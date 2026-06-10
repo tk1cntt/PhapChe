@@ -4,7 +4,9 @@ Mọi trao đổi phải dùng tiếng Việt.
 
 Cấm sử dụng lệnh taskkill //F //IM node.exe.
 
-Mỗi tính năng UI cần phải có 1 testcase kèm theo. Fix bất kỳ một lỗi nào đều phải có e2e testcase đi kèm.
+Mỗi tính năng UI cần phải có whitebox testcase, blackbox testcase, abnormal testcase, error testcase kèm theo. Fix bất kỳ một lỗi nào đều phải có e2e testcase đi kèm. Coverage phải tối thiểu 90%.
+
+Tất cả dữ liệu đều phải được lấy từ insert vào db và lấy ra hiển thị từ db. Không được phép hardcode bất kỳ data nào.
 
 Tên slug của từng phase hay quick phải là tiếng anh và ngắn gọn.
 

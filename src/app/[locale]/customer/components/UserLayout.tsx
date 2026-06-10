@@ -39,11 +39,12 @@ export default function UserLayout({
 
   const navItems = [
     { href: `/${workspaceSlug}/dashboard`, label: 'Dashboard', icon: LayoutDashboard, active: pathname.includes('/dashboard') },
-    { href: `/${workspaceSlug}/cases`, label: 'Hồ sơ của tôi', icon: FileText, active: pathname.includes('/cases') },
-    { href: `/${workspaceSlug}/documents`, label: 'Tài liệu', icon: Folder, active: pathname.includes('/documents') },
-    { href: `/${workspaceSlug}/messages`, label: 'Tin nhắn', icon: MessageSquare, active: pathname.includes('/messages') },
+    { href: `/${workspaceSlug}/create`, label: 'Tao ho so', icon: FileText, active: pathname.includes('/create') },
+    { href: `/${workspaceSlug}/cases`, label: 'Ho so cua toi', icon: FileText, active: pathname.includes('/cases') },
+    { href: `/${workspaceSlug}/documents`, label: 'Tai lieu', icon: Folder, active: pathname.includes('/documents') },
+    { href: `/${workspaceSlug}/messages`, label: 'Tin nhan', icon: MessageSquare, active: pathname.includes('/messages') },
     { href: `/${workspaceSlug}/workspace`, label: 'Workspace', icon: Users, active: pathname.includes('/workspace') },
-    { href: `/${workspaceSlug}/settings`, label: 'Cài đặt', icon: Settings, active: pathname.includes('/settings') },
+    { href: `/${workspaceSlug}/settings`, label: 'Cai dat', icon: Settings, active: pathname.includes('/settings') },
   ];
 
   return (

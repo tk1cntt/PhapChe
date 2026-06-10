@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitNexus Legal - Requests</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --text: #101828;
+      --muted: #64748b;
+      --border: #dfe7f1;
+      --border-soft: #eef3f8;
+      --teal: #087f78;
+      --teal-dark: #06716b;
+      --blue: #2563eb;
+      --sky: #2f96dc;
+      --orange: #f97316;
+      --green: #10b981;
+      --red: #ef4444;
+      --purple: #7c3aed;
+      --shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+      --soft-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      background:
+        radial-gradient(circle at 78% 8%, rgba(15, 118, 110, 0.05), transparent 28%),
+        radial-gradient(circle at 50% 70%, rgba(37, 99, 235, 0.035), transparent 34%),
+        #f8fafc;
+    }
+
+    /* Sidebar */
+
+    .sidebar {
+      width: 262px;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 5px 0 20px rgba(15, 23, 42, 0.025);
+      z-index: 3;
+    }
+
+    .brand {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 0 30px;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, #07877e, #0f9f93);
+      clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+      position: relative;
+    }
+
+    .brand-mark::after {
+      content: "G";
+      position: absolute;
+      inset: 0;
+      color: #fff;
+      font-weight: 800;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-text {
+      font-size: 18px;
+      font-weight: 800;
+      color: #04786f;
+      letter-spacing: -0.3px;
+    }
+
+    .nav {
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item {
+      height: 48px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 0 20px;
+      color: #637083;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
+
+    .nav-item.active {
+      color: #087f78;
+      background: linear-gradient(90deg, rgba(20, 184, 166, 0.14), rgba(20, 184, 166, 0.05));
+      box-shadow: inset 0 0 0 1px rgba(8, 127, 120, 0.12);
+    }
+
+    .nav-item:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .sidebar-bottom {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .help-card {
+      height: 82px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      padding: 14px;
+      gap: 13px;
+      margin-bottom: 18px;
+      background: #fff;
+    }
+
+    .help-icon {
+      width: 39px;
+      height: 39px;
+      border-radius: 50%;
+      background: #e0f7f5;
+      color: #09847c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      border: 4px solid #f0fbfa;
+    }
+
+    .help-text strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .help-text span {
+      font-size: 12px;
+      color: #2563eb;
+      font-weight: 600;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 15px 14px;
+    }
+
+    .avatar {
+      width: 43px;
+      height: 43px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-info strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .profile-info span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Main */
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 76px;
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 34px;
+      backdrop-filter: blur(14px);
+    }
+
+    .dashboard-title strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+
+    .dashboard-title span {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-top {
+      width: 285px;
+      height: 45px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 10px;
+    }
+
+    .search-top input {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 14px;
+      color: #334155;
+      background: transparent;
+    }
+
+    .top-pill {
+      height: 45px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #334155;
+      padding: 0 15px;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .circle {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #eef2f7;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .content {
+      flex: 1;
+      overflow: auto;
+      padding: 31px 36px 42px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: 31px;
+      letter-spacing: -0.8px;
+      margin-bottom: 12px;
+      color: #020617;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: #5f6e83;
+      font-weight: 500;
+    }
+
+    .create-btn {
+      height: 45px;
+      padding: 0 18px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #0b8f86, #087970);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(8, 127, 120, 0.25);
+      cursor: pointer;
+    }
+
+    .create-btn.blue {
+      background: linear-gradient(180deg, #3ba3e7, #2389d0);
+      box-shadow: 0 8px 18px rgba(35, 137, 208, 0.25);
+    }
+
+    /* Stats */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      height: 126px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      padding: 24px 22px;
+      box-shadow: var(--soft-shadow);
+      position: relative;
+    }
+
+    .stat-icon {
+      width: 62px;
+      height: 62px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 18px;
+    }
+
+    .stat-icon svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    .stat-icon.blue {
+      color: #2563eb;
+      background: linear-gradient(135deg, #dfe8ff, #eef4ff);
+    }
+
+    .stat-icon.orange {
+      color: #f97316;
+      background: linear-gradient(135deg, #ffe2bf, #fff1df);
+    }
+
+    .stat-icon.green {
+      color: #0f766e;
+      background: linear-gradient(135deg, #d4f4ed, #eefbf8);
+    }
+
+    .stat-icon.red {
+      color: #ef4444;
+      background: linear-gradient(135deg, #ffe4e6, #fff1f2);
+    }
+
+    .stat-title {
+      font-size: 14px;
+      color: #566579;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 10px;
+      color: #0f172a;
+    }
+
+    .stat-desc {
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    /* Toolbar */
+
+    .toolbar-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      box-shadow: var(--soft-shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .left-tools,
+    .right-tools {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .request-search {
+      width: 330px;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 14px;
+      color: #718096;
+      background: #fff;
+    }
+
+    .request-search input {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 14px;
+      background: transparent;
+    }
+
+    .tool-btn {
+      height: 44px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #1e293b;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tool-btn.square {
+      width: 52px;
+      padding: 0;
+      justify-content: center;
+    }
+
+    /* Table */
+
+    .table-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .table-head,
+    .table-row {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr;
+    }
+
+    .table-head {
+      background: linear-gradient(180deg, #f8fafc, #f5f7fb);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .th {
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      color: #59687e;
+      font-size: 14px;
+      font-weight: 700;
+      border-right: 1px solid var(--border);
+    }
+
+    .th:last-child {
+      border-right: none;
+    }
+
+    .table-row {
+      min-height: 68px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+      transition: 0.2s;
+    }
+
+    .table-row:last-child {
+      border-bottom: none;
+    }
+
+    .table-row:hover {
+      background: #fbfdff;
+    }
+
+    .td {
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      font-size: 14px;
+      color: #0f172a;
+      font-weight: 500;
+      border-right: 1px solid var(--border);
+      min-width: 0;
+    }
+
+    .td:last-child {
+      border-right: none;
+    }
+
+    .request-code {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .code-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #dbeafe, #eff6ff);
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .workspace strong {
+      font-size: 14px;
+      color: #0f172a;
+    }
+
+    .workspace span {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .customer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mini-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #eef2f7;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .customer-info strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .customer-info span {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 0 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-right: 7px;
+    }
+
+    .pending {
+      background: #ffedd5;
+      color: #ea580c;
+    }
+
+    .pending::before {
+      background: #f97316;
+    }
+
+    .reviewing {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .reviewing::before {
+      background: #2563eb;
+    }
+
+    .approved {
+      background: #ccfbf1;
+      color: #0f766e;
+    }
+
+    .approved::before {
+      background: #10b981;
+    }
+
+    .rejected {
+      background: #ffe4e6;
+      color: #ef4444;
+    }
+
+    .rejected::before {
+      background: #ef4444;
+    }
+
+    .priority {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .priority.high {
+      background: #ffe4e6;
+      color: #dc2626;
+    }
+
+    .priority.medium {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .priority.low {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .action-link {
+      color: #087f78;
+      font-weight: 800;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .floating-chat {
+      position: fixed;
+      right: 22px;
+      bottom: 20px;
+      min-width: 118px;
+      height: 48px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ef4444, #dc2626);
+      color: #fff;
+      border: 3px solid #facc15;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 800;
+      padding: 0 14px;
+    }
+
+    .floating-chat span:first-child {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 1300px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        min-width: 1300px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div>
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-text">GitNexus Legal</div>
+        </div>
+
+        <nav class="nav">
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Users
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Workspaces
+          </a>
+
+          <a class="nav-item active" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 2v6h6"/>
+              <path d="M9 13h6"/>
+              <path d="M9 17h6"/>
+              <path d="M9 9h1"/>
+            </svg>
+            Requests
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7v5l3 3"/>
+              <path d="M4.9 4.9l2.8 2.8"/>
+              <path d="M19.1 4.9l-2.8 2.8"/>
+            </svg>
+            Operations
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+            Audit
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M3 7h18v13H3z"/>
+              <path d="M3 7l3-4h12l3 4"/>
+            </svg>
+            Vault
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="help-card">
+          <div class="help-icon">?</div>
+          <div class="help-text">
+            <strong>Need help?</strong>
+            <span>View docs &amp; guides →</span>
+          </div>
+        </div>
+
+        <div class="profile">
+          <div class="avatar">A</div>
+          <div class="profile-info">
+            <strong>Alex Nguyen</strong>
+            <span>Super Admin</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <header class="topbar">
+        <div class="dashboard-title">
+          <strong>Dashboard</strong>
+          <span>GitNexus Legal Admin Panel</span>
+        </div>
+
+        <div class="top-actions">
+          <div class="search-top">
+            <input placeholder="Tìm kiếm..." />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+          </div>
+
+          <div class="top-pill">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            us English
+          </div>
+
+          <div class="top-pill">VN Tiếng Việt</div>
+
+          <div class="circle">A</div>
+        </div>
+      </header>
+
+      <section class="content">
+
+        <div class="page-header">
+          <div>
+            <h1>Hồ sơ yêu cầu</h1>
+            <p class="subtitle">
+              Trạng thái hồ sơ được hiển thị từ backend-owned workflow, không chỉnh sửa trực tiếp bằng raw dropdown.
+            </p>
+          </div>
+
+          <button class="create-btn blue">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <path d="M12 5v14"/>
+              <path d="M5 12h14"/>
+            </svg>
+            Tạo hồ sơ yêu cầu
+          </button>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <path d="M14 2v6h6"/>
+                <path d="M9 13h6"/>
+                <path d="M9 17h6"/>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-title">Tổng hồ sơ</div>
+              <div class="stat-value">18</div>
+              <div class="stat-desc">Tất cả workspace</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-title">Đang chờ</div>
+              <div class="stat-value">5</div>
+              <div class="stat-desc">Cần chuyên viên xử lý</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-title">Đã duyệt</div>
+              <div class="stat-value">9</div>
+              <div class="stat-desc">Hoàn tất workflow</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <path d="M12 9v4"/>
+                <path d="M12 17h.01"/>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-title">Ưu tiên cao</div>
+              <div class="stat-value">3</div>
+              <div class="stat-desc">Sắp đến hạn xử lý</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar-card">
+          <div class="toolbar">
+            <div class="left-tools">
+              <div class="request-search">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input placeholder="Tìm hồ sơ, khách hàng, workspace..." />
+              </div>
+
+              <button class="tool-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+                  <path d="M22 3H2l8 9.46V19l4 2v-8.54z"/>
+                </svg>
+                Bộ lọc
+              </button>
+
+              <button class="tool-btn">
+                Trạng thái
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+
+              <button class="tool-btn">
+                Workspace
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="right-tools">
+              <button class="tool-btn square">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                  <path d="M3 16v5h5"/>
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                  <path d="M21 8V3h-5"/>
+                </svg>
+              </button>
+
+              <button class="tool-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <path d="M7 10l5 5 5-5"/>
+                  <path d="M12 15V3"/>
+                </svg>
+                Export
+              </button>
+
+              <button class="tool-btn">
+                Cột hiển thị
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-head">
+            <div class="th">Mã hồ sơ</div>
+            <div class="th">Workspace</div>
+            <div class="th">Khách hàng</div>
+            <div class="th">Trạng thái</div>
+            <div class="th">Loại yêu cầu</div>
+            <div class="th">Phụ trách</div>
+            <div class="th">Thao tác</div>
+          </div>
+
+          <div class="table-row">
+            <div class="td">
+              <div class="request-code">
+                <div class="code-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                </div>
+                REQ-2026-001
+              </div>
+            </div>
+            <div class="td">
+              <div class="workspace">
+                <strong>Công ty An Phát</strong>
+                <span>an-phat</span>
+              </div>
+            </div>
+            <div class="td">
+              <div class="customer">
+                <div class="mini-avatar">MP</div>
+                <div class="customer-info">
+                  <strong>Mai Phương</strong>
+                  <span>mai.phuong@anphat.vn</span>
+                </div>
+              </div>
+            </div>
+            <div class="td"><span class="status reviewing">Đang xem xét</span></div>
+            <div class="td">Tư vấn hợp đồng</div>
+            <div class="td">AdminRequests.customer</div>
+            <div class="td"><a class="action-link" href="#">Xem chi tiết →</a></div>
+          </div>
+
+          <div class="table-row">
+            <div class="td">
+              <div class="request-code">
+                <div class="code-icon">📄</div>
+                REQ-2026-002
+              </div>
+            </div>
+            <div class="td">
+              <div class="workspace">
+                <strong>Công ty Minh Khang</strong>
+                <span>minh-khang</span>
+              </div>
+            </div>
+            <div class="td">
+              <div class="customer">
+                <div class="mini-avatar">TN</div>
+                <div class="customer-info">
+                  <strong>Trần Nam</strong>
+                  <span>nam.tran@minhkhang.vn</span>
+                </div>
+              </div>
+            </div>
+            <div class="td"><span class="status pending">Chờ xử lý</span></div>
+            <div class="td">Rà soát pháp lý</div>
+            <div class="td">Reviewer.team</div>
+            <div class="td"><a class="action-link" href="#">Xem chi tiết →</a></div>
+          </div>
+
+          <div class="table-row">
+            <div class="td">
+              <div class="request-code">
+                <div class="code-icon">📄</div>
+                REQ-2026-003
+              </div>
+            </div>
+            <div class="td">
+              <div class="workspace">
+                <strong>Workspace nội bộ</strong>
+                <span>internal</span>
+              </div>
+            </div>
+            <div class="td">
+              <div class="customer">
+                <div class="mini-avatar">HN</div>
+                <div class="customer-info">
+                  <strong>Hoàng Nam</strong>
+                  <span>nam.hoang@gitnexus.vn</span>
+                </div>
+              </div>
+            </div>
+            <div class="td"><span class="status approved">Đã duyệt</span></div>
+            <div class="td">Cập nhật hồ sơ</div>
+            <div class="td">Coordinator.admin</div>
+            <div class="td"><a class="action-link" href="#">Xem chi tiết →</a></div>
+          </div>
+
+          <div class="table-row">
+            <div class="td">
+              <div class="request-code">
+                <div class="code-icon">📄</div>
+                REQ-2026-004
+              </div>
+            </div>
+            <div class="td">
+              <div class="workspace">
+                <strong>Công ty An Phát</strong>
+                <span>an-phat</span>
+              </div>
+            </div>
+            <div class="td">
+              <div class="customer">
+                <div class="mini-avatar">LA</div>
+                <div class="customer-info">
+                  <strong>Linh Anh</strong>
+                  <span>linh.anh@anphat.vn</span>
+                </div>
+              </div>
+            </div>
+            <div class="td"><span class="status rejected">Từ chối</span></div>
+            <div class="td">Yêu cầu truy cập</div>
+            <div class="td">Security.audit</div>
+            <div class="td"><a class="action-link" href="#">Xem chi tiết →</a></div>
+          </div>
+
+          <div class="table-row">
+            <div class="td">
+              <div class="request-code">
+                <div class="code-icon">📄</div>
+                REQ-2026-005
+              </div>
+            </div>
+            <div class="td">
+              <div class="workspace">
+                <strong>Công ty Minh Khang</strong>
+                <span>minh-khang</span>
+              </div>
+            </div>
+            <div class="td">
+              <div class="customer">
+                <div class="mini-avatar">QD</div>
+                <div class="customer-info">
+                  <strong>Quang Dũng</strong>
+                  <span>dung.quang@minhkhang.vn</span>
+                </div>
+              </div>
+            </div>
+            <div class="td"><span class="status reviewing">Đang xem xét</span></div>
+            <div class="td">Soạn thảo điều khoản</div>
+            <div class="td">Specialist.legal</div>
+            <div class="td"><a class="action-link" href="#">Xem chi tiết →</a></div>
+          </div>
+
+          <div class="table-row">
+            <div class="td">
+              <div class="request-code">
+                <div class="code-icon">📄</div>
+                REQ-2026-006
+              </div>
+            </div>
+            <div class="td">
+              <div class="workspace">
+                <strong>Công ty An Phát</strong>
+                <span>an-phat</span>
+              </div>
+            </div>
+            <div class="td">
+              <div class="customer">
+                <div class="mini-avatar">VT</div>
+                <div class="customer-info">
+                  <strong>Vân Trang</strong>
+                  <span>trang.van@anphat.vn</span>
+                </div>
+              </div>
+            </div>
+            <div class="td"><span class="status pending">Chờ xử lý</span></div>
+            <div class="td">Thẩm định tài liệu</div>
+            <div class="td">AdminRequests.customer</div>
+            <div class="td"><a class="action-link" href="#">Xem chi tiết →</a></div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <div class="floating-chat">
+      <span>N</span>
+      <span>1 Issue ×</span>
+    </div>
+
+  </div>
+</body>
+</html>

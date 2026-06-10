@@ -13,36 +13,34 @@ export const CREDENTIALS = {
  */
 export async function loginAs(page: Page, role: keyof typeof CREDENTIALS): Promise<void> {
   await page.context().clearCookies();
-  await page.goto('/sign-in', { waitUntil: 'networkidle', timeout: 30000 });
 
-  // Wait for form inputs to be visible
-  await page.waitForSelector('input[placeholder="Email"]', { timeout: 5000 });
+  // Navigate to locale-prefixed sign-in page
+  await page.goto('/vi/sign-in', { waitUntil: 'networkidle', timeout: 30000 });
+
+  // Wait for the page to be fully loaded with form
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForTimeout(1500); // Let Ant Design initialize
 
   const creds = CREDENTIALS[role];
 
-  // Get inputs
-  const inputs = page.locator('input');
-  const count = await inputs.count();
-  if (count < 2) {
-    throw new Error('Sign-in form fields not found');
-  }
+  // Find the email input (first input with type text or first input)
+  const emailInput = page.locator('input[type="text"]').first();
+  const passwordInput = page.locator('input[type="password"]').first();
 
-  // Clear any pre-filled values and enter credentials
-  await inputs.nth(0).clear();
-  await inputs.nth(1).clear();
-  await inputs.nth(0).fill(creds.email);
-  await inputs.nth(1).fill(creds.password);
+  // Wait for inputs to be visible
+  await emailInput.waitFor({ state: 'visible', timeout: 10000 });
 
-  // Click submit button instead of pressing Enter
+  // Clear and fill credentials
+  await emailInput.clear();
+  await emailInput.fill(creds.email);
+  await passwordInput.fill(creds.password);
+
+  // Click submit button
   await page.locator('button[type="submit"]').click();
 
-  // Wait for navigation or response
-  try {
-    await page.waitForURL(url => !String(url).includes('/sign-in'), { timeout: 5000 });
-  } catch {
-    // If no navigation, wait a bit more and check state
-    await page.waitForTimeout(2000);
-  }
+  // Wait for navigation
+  await page.waitForLoadState('networkidle', { timeout: 15000 });
+  await page.waitForTimeout(2000);
 
   // Verify we're not still on sign-in page
   const currentUrl = page.url();
@@ -57,7 +55,7 @@ export async function loginAs(page: Page, role: keyof typeof CREDENTIALS): Promi
 export async function waitForServer(page: Page): Promise<void> {
   for (let i = 0; i < 20; i++) {
     try {
-      await page.goto('/sign-in', { waitUntil: 'domcontentloaded', timeout: 5000 });
+      await page.goto('/vi/sign-in', { waitUntil: 'domcontentloaded', timeout: 5000 });
       return;
     } catch {
       await page.waitForTimeout(1000);
@@ -70,6 +68,6 @@ export async function waitForServer(page: Page): Promise<void> {
  * Navigate to admin dashboard
  */
 export async function navigateToAdmin(page: Page): Promise<void> {
-  await page.goto('/admin');
+  await page.goto('/vi/admin');
   await page.waitForURL(url => !String(url).includes('/sign-in'), { timeout: 10000 });
 }

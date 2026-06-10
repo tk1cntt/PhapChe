@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitNexus Legal - Admin Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --text: #101828;
+      --muted: #64748b;
+      --border: #dfe7f1;
+      --teal: #087f78;
+      --blue: #2563eb;
+      --green: #10b981;
+      --orange: #f97316;
+      --red: #ef4444;
+      --purple: #7c3aed;
+      --shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+      --soft-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      background:
+        radial-gradient(circle at 78% 8%, rgba(15, 118, 110, 0.05), transparent 28%),
+        radial-gradient(circle at 50% 70%, rgba(37, 99, 235, 0.035), transparent 34%),
+        #f8fafc;
+    }
+
+    .sidebar {
+      width: 262px;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 5px 0 20px rgba(15, 23, 42, 0.025);
+      z-index: 3;
+    }
+
+    .brand {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 0 30px;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, #07877e, #0f9f93);
+      clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+      position: relative;
+    }
+
+    .brand-mark::after {
+      content: "G";
+      position: absolute;
+      inset: 0;
+      color: #fff;
+      font-weight: 800;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-text {
+      font-size: 18px;
+      font-weight: 800;
+      color: #04786f;
+      letter-spacing: -0.3px;
+    }
+
+    .nav {
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item {
+      height: 48px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 0 20px;
+      color: #637083;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
+
+    .nav-item.active {
+      color: #087f78;
+      background: linear-gradient(90deg, rgba(20, 184, 166, 0.14), rgba(20, 184, 166, 0.05));
+      box-shadow: inset 0 0 0 1px rgba(8, 127, 120, 0.12);
+    }
+
+    .nav-item:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .sidebar-bottom {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .help-card {
+      height: 82px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      padding: 14px;
+      gap: 13px;
+      margin-bottom: 18px;
+      background: #fff;
+    }
+
+    .help-icon {
+      width: 39px;
+      height: 39px;
+      border-radius: 50%;
+      background: #e0f7f5;
+      color: #09847c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      border: 4px solid #f0fbfa;
+    }
+
+    .help-text strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .help-text span {
+      font-size: 12px;
+      color: #2563eb;
+      font-weight: 600;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 15px 14px;
+    }
+
+    .avatar {
+      width: 43px;
+      height: 43px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-info strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .profile-info span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 76px;
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 34px;
+      backdrop-filter: blur(14px);
+    }
+
+    .dashboard-title strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+
+    .dashboard-title span {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-top {
+      width: 285px;
+      height: 45px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 10px;
+    }
+
+    .search-top input {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 14px;
+      color: #334155;
+      background: transparent;
+    }
+
+    .top-pill {
+      height: 45px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #334155;
+      padding: 0 15px;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .circle {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #eef2f7;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+    .content {
+      flex: 1;
+      overflow: auto;
+      padding: 31px 36px 42px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: 31px;
+      letter-spacing: -0.8px;
+      margin-bottom: 12px;
+      color: #020617;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: #5f6e83;
+      font-weight: 500;
+    }
+
+    .create-btn {
+      height: 45px;
+      padding: 0 18px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #0b8f86, #087970);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(8, 127, 120, 0.25);
+      cursor: pointer;
+    }
+
+    .ghost-btn {
+      height: 45px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      color: #1e293b;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      height: 126px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      padding: 24px 22px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .stat-icon {
+      width: 62px;
+      height: 62px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 18px;
+    }
+
+    .stat-icon svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    .stat-icon.blue {
+      color: #2563eb;
+      background: linear-gradient(135deg, #dfe8ff, #eef4ff);
+    }
+
+    .stat-icon.green {
+      color: #0f766e;
+      background: linear-gradient(135deg, #d4f4ed, #eefbf8);
+    }
+
+    .stat-icon.orange {
+      color: #f97316;
+      background: linear-gradient(135deg, #ffe2bf, #fff1df);
+    }
+
+    .stat-icon.red {
+      color: #ef4444;
+      background: linear-gradient(135deg, #ffe4e6, #fff1f2);
+    }
+
+    .stat-title {
+      font-size: 14px;
+      color: #566579;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 10px;
+      color: #0f172a;
+    }
+
+    .stat-desc {
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .admin-banner {
+      background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      box-shadow: var(--soft-shadow);
+      padding: 26px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .banner-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .banner-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #0b8f86, #087970);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 20px rgba(8, 127, 120, 0.22);
+    }
+
+    .admin-banner h2 {
+      font-size: 22px;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+
+    .admin-banner p {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .banner-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 0.9fr 0.9fr 1.2fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      box-shadow: var(--soft-shadow);
+      padding: 24px;
+    }
+
+    .panel-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .panel-title svg {
+      color: #087f78;
+    }
+
+    .small-link {
+      color: #087f78;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .workload-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .workload-item {
+      display: grid;
+      grid-template-columns: 190px 1fr 80px;
+      gap: 14px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid #edf2f7;
+      border-radius: 12px;
+      background: #fbfdff;
+    }
+
+    .person {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .person-avatar,
+    .mini-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #eef2f7;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .person strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .person span {
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .progress {
+      height: 10px;
+      background: #eaf0f6;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #0b8f86, #22c55e);
+    }
+
+    .progress span.warn {
+      background: #f97316;
+    }
+
+    .progress span.danger {
+      background: #ef4444;
+    }
+
+    .workload-count {
+      text-align: right;
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .alert-list,
+    .workspace-list,
+    .approval-list {
+      display: grid;
+      gap: 13px;
+    }
+
+    .alert-item,
+    .workspace-item,
+    .approval-item {
+      min-height: 72px;
+      border: 1px solid #edf2f7;
+      border-radius: 12px;
+      background: #fbfdff;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      min-width: 0;
+    }
+
+    .item-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-weight: 800;
+    }
+
+    .item-icon.blue {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .item-icon.green {
+      background: #ccfbf1;
+      color: #0f766e;
+    }
+
+    .item-icon.orange {
+      background: #ffedd5;
+      color: #f97316;
+    }
+
+    .item-icon.red {
+      background: #ffe4e6;
+      color: #ef4444;
+    }
+
+    .item-info {
+      min-width: 0;
+    }
+
+    .item-info strong,
+    .stack strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-info span,
+    .stack span {
+      display: block;
+      font-size: 12px;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 0 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-right: 7px;
+    }
+
+    .badge.green {
+      background: #ccfbf1;
+      color: #0f766e;
+    }
+
+    .badge.green::before {
+      background: #10b981;
+    }
+
+    .badge.orange {
+      background: #ffedd5;
+      color: #ea580c;
+    }
+
+    .badge.orange::before {
+      background: #f97316;
+    }
+
+    .badge.blue {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .badge.blue::before {
+      background: #2563eb;
+    }
+
+    .badge.red {
+      background: #ffe4e6;
+      color: #ef4444;
+    }
+
+    .badge.red::before {
+      background: #ef4444;
+    }
+
+    .badge.purple {
+      background: #ede9fe;
+      color: #7c3aed;
+    }
+
+    .badge.purple::before {
+      background: #7c3aed;
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 13px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: #e2e8f0;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 38px;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: 5px;
+      top: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #087f78;
+      border: 4px solid #d9f8f4;
+      z-index: 2;
+    }
+
+    .timeline-item strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .timeline-item p {
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .timeline-time {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 5px;
+      font-weight: 600;
+    }
+
+    .toolbar-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      box-shadow: var(--soft-shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .left-tools,
+    .right-tools {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .request-search {
+      width: 370px;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 14px;
+      color: #718096;
+      background: #fff;
+    }
+
+    .request-search input {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 14px;
+      background: transparent;
+    }
+
+    .tool-btn {
+      height: 44px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #1e293b;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tool-btn.square {
+      width: 52px;
+      padding: 0;
+      justify-content: center;
+    }
+
+    .table-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .table-head,
+    .table-row {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr 1fr 1fr 1.05fr 0.9fr 0.9fr;
+    }
+
+    .table-head {
+      background: linear-gradient(180deg, #f8fafc, #f5f7fb);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .th {
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      color: #59687e;
+      font-size: 14px;
+      font-weight: 700;
+      border-right: 1px solid var(--border);
+    }
+
+    .th:last-child {
+      border-right: none;
+    }
+
+    .table-row {
+      min-height: 72px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+      transition: 0.2s;
+    }
+
+    .table-row:last-child {
+      border-bottom: none;
+    }
+
+    .table-row:hover {
+      background: #fbfdff;
+    }
+
+    .td {
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      font-size: 14px;
+      color: #0f172a;
+      font-weight: 500;
+      border-right: 1px solid var(--border);
+      min-width: 0;
+    }
+
+    .td:last-child {
+      border-right: none;
+    }
+
+    .case-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .case-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #dbeafe, #eff6ff);
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .action-link {
+      color: #087f78;
+      font-weight: 800;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .floating-chat {
+      position: fixed;
+      right: 22px;
+      bottom: 20px;
+      min-width: 118px;
+      height: 48px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ef4444, #dc2626);
+      color: #fff;
+      border: 3px solid #facc15;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 800;
+      padding: 0 14px;
+    }
+
+    .floating-chat span:first-child {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 1450px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        min-width: 1450px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div>
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-text">GitNexus Legal</div>
+        </div>
+
+        <nav class="nav">
+          <a class="nav-item active" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M3 13h8V3H3z"/>
+              <path d="M13 21h8V11h-8z"/>
+              <path d="M13 3h8v6h-8z"/>
+              <path d="M3 21h8v-6H3z"/>
+            </svg>
+            Dashboard
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Users
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            </svg>
+            Workspaces
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 2v6h6"/>
+              <path d="M9 13h6"/>
+              <path d="M9 17h6"/>
+            </svg>
+            Requests
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7v5l3 3"/>
+            </svg>
+            Operations
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+            Audit
+          </a>
+
+          <a class="nav-item" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M3 7h18v13H3z"/>
+              <path d="M3 7l3-4h12l3 4"/>
+            </svg>
+            Vault
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="help-card">
+          <div class="help-icon">?</div>
+          <div class="help-text">
+            <strong>Need help?</strong>
+            <span>View docs & guides →</span>
+          </div>
+        </div>
+
+        <div class="profile">
+          <div class="avatar">A</div>
+          <div class="profile-info">
+            <strong>Alex Nguyen</strong>
+            <span>Super Admin</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <header class="topbar">
+        <div class="dashboard-title">
+          <strong>Dashboard</strong>
+          <span>GitNexus Legal Admin Panel</span>
+        </div>
+
+        <div class="top-actions">
+          <div class="search-top">
+            <input placeholder="Tìm kiếm..." />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+          </div>
+
+          <div class="top-pill">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            us English
+          </div>
+
+          <div class="top-pill">VN Tiếng Việt</div>
+
+          <div class="circle">A</div>
+        </div>
+      </header>
+
+      <section class="content">
+
+        <div class="page-header">
+          <div>
+            <h1>Admin Dashboard</h1>
+            <p class="subtitle">
+              Tổng quan vận hành hệ thống, người dùng, workspace, hồ sơ pháp lý, SLA và audit an toàn.
+            </p>
+          </div>
+
+          <div class="header-actions">
+            <button class="ghost-btn">Xuất báo cáo</button>
+            <button class="create-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M12 5v14"/>
+                <path d="M5 12h14"/>
+              </svg>
+              Tạo hồ sơ mới
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-banner">
+          <div class="banner-left">
+            <div class="banner-icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+
+            <div>
+              <h2>Hệ thống đang hoạt động ổn định</h2>
+              <p>
+                42 hồ sơ đang mở, 6 hồ sơ sắp quá SLA, 3 cảnh báo audit cần rà soát và 12 workspace đang hoạt động.
+                Các thay đổi quyền, role và workspace đều được ghi nhận trong audit log.
+              </p>
+            </div>
+          </div>
+
+          <div class="banner-actions">
+            <button class="ghost-btn">Xem audit</button>
+            <button class="create-btn">Điều phối workload</button>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-title">Tổng người dùng</div>
+              <div class="stat-value">128</div>
+              <div class="stat-desc">+14 người dùng trong tháng</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 21h18"/>
+                <path d="M5 21V7h6v14"/>
+                <path d="M13 21V3h6v18"/>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-title">Workspaces</div>
+              <div class="stat-value">12</div>
+              <div class="stat-desc">11 đang hoạt động</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-title">Sắp quá SLA</div>
+              <div class="stat-value">6</div>
+              <div class="stat-desc">Cần xử lý trong 24 giờ</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <path d="M12 9v4"/>
+                <path d="M12 17h.01"/>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-title">Cảnh báo audit</div>
+              <div class="stat-value">3</div>
+              <div class="stat-desc">Liên quan quyền truy cập</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-title">
+              <div class="panel-title-left">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3v18h18"/>
+                  <path d="M7 16l4-4 3 3 6-8"/>
+                </svg>
+                Workload chuyên viên
+              </div>
+              <a class="small-link" href="#">Xem chi tiết →</a>
+            </div>
+
+            <div class="workload-list">
+              <div class="workload-item">
+                <div class="person">
+                  <div class="person-avatar">HL</div>
+                  <div>
+                    <strong>Hà Linh</strong>
+                    <span>Specialist</span>
+                  </div>
+                </div>
+                <div class="progress"><span style="width: 84%"></span></div>
+                <div class="workload-count">16 hồ sơ</div>
+              </div>
+
+              <div class="workload-item">
+                <div class="person">
+                  <div class="person-avatar">QD</div>
+                  <div>
+                    <strong>Quang Dũng</strong>
+                    <span>Reviewer</span>
+                  </div>
+                </div>
+                <div class="progress"><span style="width: 68%"></span></div>
+                <div class="workload-count">12 hồ sơ</div>
+              </div>
+
+              <div class="workload-item">
+                <div class="person">
+                  <div class="person-avatar">MT</div>
+                  <div>
+                    <strong>Minh Trang</strong>
+                    <span>Coordinator Admin</span>
+                  </div>
+                </div>
+                <div class="progress"><span style="width: 52%"></span></div>
+                <div class="workload-count">8 hồ sơ</div>
+              </div>
+
+              <div class="workload-item">
+                <div class="person">
+                  <div class="person-avatar">KA</div>
+                  <div>
+                    <strong>Khánh An</strong>
+                    <span>Audit Admin</span>
+                  </div>
+                </div>
+                <div class="progress"><span class="warn" style="width: 74%"></span></div>
+                <div class="workload-count">11 hồ sơ</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">
+              <div class="panel-title-left">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <path d="M12 9v4"/>
+                  <path d="M12 17h.01"/>
+                </svg>
+                Cảnh báo cần xử lý
+              </div>
+            </div>
+
+            <div class="alert-list">
+              <div class="alert-item">
+                <div class="item-left">
+                  <div class="item-icon red">!</div>
+                  <div class="item-info">
+                    <strong>Truy cập bị từ chối</strong>
+                    <span>Reviewer ngoài workspace scope</span>
+                  </div>
+                </div>
+                <span class="badge red">Audit</span>
+              </div>
+
+              <div class="alert-item">
+                <div class="item-left">
+                  <div class="item-icon orange">S</div>
+                  <div class="item-info">
+                    <strong>6 hồ sơ sắp quá SLA</strong>
+                    <span>Cần điều phối trước 17:00</span>
+                  </div>
+                </div>
+                <span class="badge orange">SLA</span>
+              </div>
+
+              <div class="alert-item">
+                <div class="item-left">
+                  <div class="item-icon blue">R</div>
+                  <div class="item-info">
+                    <strong>2 yêu cầu đổi role</strong>
+                    <span>Đang chờ Super Admin duyệt</span>
+                  </div>
+                </div>
+                <span class="badge blue">Role</span>
+              </div>
+
+              <div class="alert-item">
+                <div class="item-left">
+                  <div class="item-icon green">V</div>
+                  <div class="item-info">
+                    <strong>Vault scan hoàn tất</strong>
+                    <span>96% tệp có workspace scope</span>
+                  </div>
+                </div>
+                <span class="badge green">Vault</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="panel">
+            <div class="panel-title">
+              <div class="panel-title-left">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 21h18"/>
+                  <path d="M5 21V7h6v14"/>
+                  <path d="M13 21V3h6v18"/>
+                </svg>
+                Workspace nổi bật
+              </div>
+            </div>
+
+            <div class="workspace-list">
+              <div class="workspace-item">
+                <div class="item-left">
+                  <div class="item-icon green">AP</div>
+                  <div class="item-info">
+                    <strong>Công ty An Phát</strong>
+                    <span>34 users · 18 hồ sơ</span>
+                  </div>
+                </div>
+                <span class="badge green">Active</span>
+              </div>
+
+              <div class="workspace-item">
+                <div class="item-left">
+                  <div class="item-icon blue">MK</div>
+                  <div class="item-info">
+                    <strong>Công ty Minh Khang</strong>
+                    <span>22 users · 13 hồ sơ</span>
+                  </div>
+                </div>
+                <span class="badge green">Active</span>
+              </div>
+
+              <div class="workspace-item">
+                <div class="item-left">
+                  <div class="item-icon orange">IN</div>
+                  <div class="item-info">
+                    <strong>Workspace nội bộ</strong>
+                    <span>41 users · audit enabled</span>
+                  </div>
+                </div>
+                <span class="badge blue">Internal</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">
+              <div class="panel-title-left">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
+                Chờ phê duyệt
+              </div>
+            </div>
+
+            <div class="approval-list">
+              <div class="approval-item">
+                <div class="item-left">
+                  <div class="item-icon orange">U</div>
+                  <div class="item-info">
+                    <strong>Mai Phương</strong>
+                    <span>Nâng role customer → specialist</span>
+                  </div>
+                </div>
+                <span class="badge orange">Pending</span>
+              </div>
+
+              <div class="approval-item">
+                <div class="item-left">
+                  <div class="item-icon blue">W</div>
+                  <div class="item-info">
+                    <strong>Workspace mới</strong>
+                    <span>Công ty Nam Việt</span>
+                  </div>
+                </div>
+                <span class="badge blue">Review</span>
+              </div>
+
+              <div class="approval-item">
+                <div class="item-left">
+                  <div class="item-icon red">A</div>
+                  <div class="item-info">
+                    <strong>Audit exception</strong>
+                    <span>Cần xác nhận truy cập bị từ chối</span>
+                  </div>
+                </div>
+                <span class="badge red">High</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">
+              <div class="panel-title-left">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 6v6l4 2"/>
+                </svg>
+                Timeline audit gần đây
+              </div>
+            </div>
+
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <strong>Alex Nguyen cập nhật role</strong>
+                <p>User MP-1042 được chuyển sang specialist trong workspace An Phát.</p>
+                <div class="timeline-time">8 phút trước</div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <strong>Export audit log</strong>
+                <p>Super Admin xuất báo cáo audit 7 ngày, 428 dòng.</p>
+                <div class="timeline-time">35 phút trước</div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <strong>Access denied</strong>
+                <p>Reviewer bị chặn khi truy cập vault ngoài workspace scope.</p>
+                <div class="timeline-time">1 giờ trước</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar-card">
+          <div class="toolbar">
+            <div class="left-tools">
+              <div class="request-search">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input placeholder="Tìm hồ sơ, workspace, người phụ trách..." />
+              </div>
+
+              <button class="tool-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+                  <path d="M22 3H2l8 9.46V19l4 2v-8.54z"/>
+                </svg>
+                Bộ lọc
+              </button>
+
+              <button class="tool-btn">
+                Trạng thái
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+
+              <button class="tool-btn">
+                Workspace
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="right-tools">
+              <button class="tool-btn square">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2">
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                  <path d="M3 16v5h5"/>
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                  <path d="M21 8V3h-5"/>
+                </svg>
+              </button>
+
+              <button class="tool-btn">Export</button>
+              <button class="tool-btn">Cột hiển thị</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-head">
+            <div class="th">Mã hồ sơ</div>
+            <div class="th">Workspace</div>
+            <div class="th">Khách hàng</div>
+            <div class="th">Trạng thái</div>
+            <div class="th">Người phụ trách</div>
+            <div class="th">SLA</div>
+            <div class="th">Thao tác</div>
+          </div>
+
+          <div class="table-row">
+            <div class="td">
+              <div class="case-cell">
+                <div class="case-icon">📄</div>
+                <div class="stack">
+                  <strong>REQ-2026-042</strong>
+                  <span>Contract Review</span>
+                </div>
+              </div>
+            </div>
+            <div class="td">
+              <div class="stack">
+                <strong>Công ty An Phát</strong>
+                <span>an-phat</span>
+              </div>
+            </div>
+            <div class="td">
+              <div class="stack">
+                <strong>Mai Phương</strong>
+                <span>mai.phuong@anphat.vn</span>
+              </div>
+            </div>
+            <div class="td"><span class="badge orange">Chờ xử lý</span></div>
+            <div class="td">
+              <div class="stack">
+                <strong>Hà Linh</strong>
+                <span>Specialist</span>
+              </div>
+            </div>
+            <div class="td"><span class="badge red">Còn 4h</span></div>
+            <div class="td"><a class="action-link" href="#">Điều phối →</a></div>
+          </div>
+
+          <div class="table-row">
+            <div class="td">
+              <div class="case-cell">
+                <div class="case-icon">📄</div>
+                <div class="stack">
+                  <strong>REQ-2026-041</strong>
+                  <span>NDA Advisory</span>
+                </div>
+              </div>
+            </div>
+            <div class="td">
+              <div class="stack">
+                <strong>Công ty Minh Khang</strong>
+                <span>minh-khang</span>
+              </div>
+            </div>
+            <div class="td">
+              <div class="stack">
+                <strong>Trần Nam</strong>
+                <span>nam.tran@minhkhang.vn</span>
+              </div>
+            </div>
+            <div class="td"><span class="badge blue">Đang review</span></div>
+            <div class="td">
+              <div class="stack">
+                <strong>Quang Dũng</strong>
+                <span>Reviewer</span>
+              </div>
+            </div>
+            <div class="td"><span class="badge orange">Còn 12h</span></div>
+            <div class="td"><a class="action-link" href="#">Xem →</a></div>
+          </div>
+
+          <div class="table-row">
+            <div class="td">
+              <div class="case-cell">
+                <div class="case-icon">📄</div>
+                <div class="stack">
+                  <strong>REQ-2026-040</strong>
+                  <span>Compliance Check</span>
+                </div>
+              </div>
+            </div>
+            <div class="td">
+              <div class="stack">
+                <strong>Workspace nội bộ</strong>
+                <span>internal</span>
+              </div>
+            </div>
+            <div class="td">
+              <div class="stack">
+                <strong>Hoàng Nam</strong>
+                <span>nam.hoang@gitnexus.vn</span>
+              </div>
+            </div>
+            <div class="td"><span class="badge green">Đã duyệt</span></div>
+            <div class="td">
+              <div class="stack">
+                <strong>Minh Trang</strong>
+                <span>Coordinator</span>
+              </div>
+            </div>
+            <div class="td"><span class="badge green">Đúng hạn</span></div>
+            <div class="td"><a class="action-link" href="#">Audit →</a></div>
+          </div>
+
+          <div class="table-row">
+            <div class="td">
+              <div class="case-cell">
+                <div class="case-icon">📄</div>
+                <div class="stack">
+                  <strong>REQ-2026-039</strong>
+                  <span>Access Request</span>
+                </div>
+              </div>
+            </div>
+            <div class="td">
+              <div class="stack">
+                <strong>Công ty An Phát</strong>
+                <span>an-phat</span>
+              </div>
+            </div>
+            <div class="td">
+              <div class="stack">
+                <strong>Linh Anh</strong>
+                <span>linh.anh@anphat.vn</span>
+              </div>
+            </div>
+            <div class="td"><span class="badge red">Bị từ chối</span></div>
+            <div class="td">
+              <div class="stack">
+                <strong>Khánh An</strong>
+                <span>Audit Admin</span>
+              </div>
+            </div>
+            <div class="td"><span class="badge blue">Closed</span></div>
+            <div class="td"><a class="action-link" href="#">Xem log →</a></div>
+          </div>
+
+          <div class="table-row">
+            <div class="td">
+              <div class="case-cell">
+                <div class="case-icon">📄</div>
+                <div class="stack">
+                  <strong>REQ-2026-038</strong>
+                  <span>Legal Amendment</span>
+                </div>
+              </div>
+            </div>
+            <div class="td">
+              <div class="stack">
+                <strong>Công ty Minh Khang</strong>
+                <span>minh-khang</span>
+              </div>
+            </div>
+            <div class="td">
+              <div class="stack">
+                <strong>Quang Dũng</strong>
+                <span>dung.quang@minhkhang.vn</span>
+              </div>
+            </div>
+            <div class="td"><span class="badge purple">Đang phân tích</span></div>
+            <div class="td">
+              <div class="stack">
+                <strong>Hà Linh</strong>
+                <span>Specialist</span>
+              </div>
+            </div>
+            <div class="td"><span class="badge orange">Còn 20h</span></div>
+            <div class="td"><a class="action-link" href="#">Điều phối →</a></div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <div class="floating-chat">
+      <span>N</span>
+      <span>3 Alerts</span>
+    </div>
+
+  </div>
+</body>
+</html>

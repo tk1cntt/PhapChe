@@ -1,113 +1,100 @@
 # Requirements: Legal-as-a-Service Platform
 
 **Defined:** 2026-06-10
-**Milestone:** v1.2 UI/UX Improvements
+**Milestone:** v1.3 Template Parity
 **Core Value:** SME gửi yêu cầu pháp lý theo cách đơn giản như nhắn tin và nhận tài liệu/tư vấn đã qua kiểm soát chất lượng, có thể truy vết toàn bộ quá trình xử lý.
 
-## v1.2 Requirements
+## v1.3 Requirements (Template Parity)
 
-Requirements cho milestone v1.2 — UI/UX Improvements cho Admin Dashboard.
+Requirements for aligning admin screens with HTML templates in layout/ folder. Each screen = 1 phase.
 
-### Loading States
+### Admin Dashboard (admin-dashboard.html)
 
-- [x] **LOAD-01**: Admin pages display skeleton loading screens during data fetch
-- [x] **LOAD-02**: PageSkeleton component matches table layout structure
-- [x] **LOAD-03**: CardSkeleton component for card-based content
-- [x] **LOAD-04**: Skeleton components reusable across all admin pages (no hard-coded per page)
+- [ ] **DASH-01**: Display 4 stat cards (Total Users: 128, Workspaces: 12, SLA Warnings: 6, Audit Alerts: 3) with matching icons and colors
+- [ ] **DASH-02**: Display Admin Banner with status message "Hệ thống đang hoạt động ổn định" and action buttons
+- [ ] **DASH-03**: Display Workload Panel with progress bars for 4 team members (Hà Linh, Quang Dũng, Minh Trang, Khánh An)
+- [ ] **DASH-04**: Display Alerts Panel with 4 alert items (Audit, SLA, Role, Vault)
+- [ ] **DASH-05**: Display Workspace Panel with 3 workspace items
+- [ ] **DASH-06**: Display Approval Panel with 3 pending items
+- [ ] **DASH-07**: Display Audit Timeline with 3 recent events
+- [ ] **DASH-08**: Display Toolbar with search, filters, status dropdown, workspace dropdown
+- [ ] **DASH-09**: Display Requests Table with 5 sample rows including SLA countdown
+- [ ] **DASH-10**: Display Floating Chat button with "3 Alerts" badge
 
-### Error Handling
+### User Management (admin-user-management.html)
 
-- [x] **ERR-01**: Each admin page wrapped in Error Boundary
-- [x] **ERR-02**: Error fallback displays error message + Retry button
-- [x] **ERR-03**: Errors logged to console for debugging
-- [x] **ERR-04**: Shared ErrorFallback component used across all pages
+- [ ] **USER-01**: Display 4 stat cards (Total Users: 128, Active: 112, Workspaces: 12, Pending: 9) with matching icons
+- [ ] **USER-02**: Display Role Pills for 6 roles (customer: 72, specialist: 18, reviewer: 14, coordinator_admin: 10, super_admin: 4, invited: 9)
+- [ ] **USER-03**: Display User Table with 8 columns (checkbox, name, email, role, workspace, status, last active, action)
+- [ ] **USER-04**: Display sample users with avatar initials and badge colors per role
+- [ ] **USER-05**: Display Toolbar with search, filters, role dropdown, workspace dropdown
+- [ ] **USER-06**: Display table with 8 sample rows (Alex Nguyen, Hà Linh, Quang Dũng, Minh Trang, Mai Phương, Trần Nam, Khánh An, Linh Anh)
 
-### Data Fetching
+### Admin Requests (admin-request.html)
 
-- [x] **DATA-01**: TanStack Query v5 installed and configured
-- [x] **DATA-02**: QueryClientProvider added to app layout
-- [x] **DATA-03**: Query key convention established: `['entity', workspaceId?, options]`
-- [x] **DATA-04**: React Query devtools enabled in development only
-- [x] **DATA-05**: Cache configuration: staleTime 30s, gcTime 5min
+- [ ] **REQ-01**: Display 4 stat cards (Total: 18, Pending: 5, Approved: 9, High Priority: 3)
+- [ ] **REQ-02**: Display Toolbar with search, filters, status dropdown, workspace dropdown
+- [ ] **REQ-03**: Display Requests Table with 7 columns (code, workspace, customer, status, type, assignee, action)
+- [ ] **REQ-04**: Display sample request rows with status badges and action links
+- [ ] **REQ-05**: Display Create Request button (blue variant)
 
-### Pagination
+### Admin Operations (admin-operations.html)
 
-- [x] **PAGE-01**: Tables support pagination with page sizes: 10, 25, 50
-- [x] **PAGE-02**: Page state synced to URL query params
-- [x] **PAGE-03**: Server-side pagination for requests, users, audit tables
+- [ ] **OPS-01**: Display 4 stat cards (Open: 24, SLA Warnings: 6, Completed: 11, Audit Alerts: 3)
+- [ ] **OPS-02**: Display Workload Overview Panel with progress bars for 4 team members
+- [ ] **OPS-03**: Display Audit Timeline Panel with 4 recent events
+- [ ] **OPS-04**: Display Toolbar with search, filters, SLA dropdown, assignee dropdown
+- [ ] **OPS-05**: Display Requests Table with SLA progress bars per row
+- [ ] **OPS-06**: Display 6 sample rows with case codes and SLA indicators
 
-### Search & Filter
+### Admin Audit (admin-audit.html)
 
-- [x] **SCH-01**: Global search bar in admin header
-- [x] **SCH-02**: Column filters in table headers
-- [x] **SCH-03**: Debounced search: 300ms delay
-- [x] **SCH-04**: Search state persisted in URL params
+- [ ] **AUD-01**: Display Audit Events Table with columns (time, actor, workspace, action, target, correlationId, metadata)
+- [ ] **AUD-02**: Display Security Note card with permission warning message
+- [ ] **AUD-03**: Display sample audit events matching template format
 
-## v2 Requirements
+### Admin Vault (admin-vault.html)
 
-Deferred to future releases.
+- [ ] **VAULT-01**: Display 4 stat cards (Total Folders: 12, Legal Files: 248, Tags: 18, Security: 96%)
+- [ ] **VAULT-02**: Display Folder Panel with 4 folders (Customer Contracts, NDA, Internal Compliance, Dispute)
+- [ ] **VAULT-03**: Display Tag Panel with 4 tags (Contract Review, Urgent SLA, Internal Only, Compliance)
+- [ ] **VAULT-04**: Display Toolbar with vault search and folder/tag filters
+- [ ] **VAULT-05**: Display Files Table with 7 columns (name, folder, tag, workspace, owner, security, action)
+- [ ] **VAULT-06**: Display 5 sample file rows with file icons (PDF, DOC, XLS, ZIP) and status badges
 
-### Performance
+### Admin Workspace (admin-workspace.html)
 
-- **PERF-01**: Virtual scrolling for 10k+ rows
-- **PERF-02**: First Contentful Paint < 1.5s
-- **PERF-03**: Time to Interactive < 3s
-- **PERF-04**: Bundle size increase < 50KB gzipped
-
-### Accessibility
-
-- **A11Y-01**: Keyboard navigation for all interactive elements
-- **A11Y-02**: ARIA labels for icons
-- **A11Y-03**: Focus management for modals
-
-### Responsive
-
-- **RESP-01**: Tablet: Collapsed sidebar
-- **RESP-02**: Mobile: Hamburger menu, horizontal scroll tables
+- [ ] **WS-01**: Display Permission Card with access boundary warning message
+- [ ] **WS-02**: Display Workspace Table with 4 columns (name, slug, members, status)
+- [ ] **WS-03**: Display 3 sample workspace rows with workspace icons and status badges
+- [ ] **WS-04**: Display Create Workspace buttons (primary and secondary)
 
 ## Out of Scope
 
-Explicitly excluded. Documented to prevent scope creep.
-
 | Feature | Reason |
 |---------|--------|
-| Real-time updates (WebSocket) | MVP focus on stability first |
-| Offline mode | Not critical for internal tool |
-| Full responsive redesign | Desktop-first, internal tool |
-| Command palette | Power user feature for later |
+| Template HTML/CSS refactoring | Pure UI alignment, not new features |
+| Backend API changes | Data is mock/sample, APIs already exist |
+| Authentication changes | Already implemented in v1.1 |
+| New business logic | Scope is UI parity only |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LOAD-01 | Phase 23 | Complete |
-| LOAD-02 | Phase 23 | Complete |
-| LOAD-03 | Phase 23 | Complete |
-| LOAD-04 | Phase 23 | Complete |
-| ERR-01 | Phase 23 | Complete |
-| ERR-02 | Phase 23 | Complete |
-| ERR-03 | Phase 23 | Complete |
-| ERR-04 | Phase 23 | Complete |
-| DATA-01 | Phase 24 | Complete |
-| DATA-02 | Phase 24 | Complete |
-| DATA-03 | Phase 24 | Complete |
-| DATA-04 | Phase 24 | Complete |
-| DATA-05 | Phase 24 | Complete |
-| PAGE-01 | Phase 25 | Complete |
-| PAGE-02 | Phase 25 | Complete |
-| PAGE-03 | Phase 25 | Complete |
-| SCH-01 | Phase 25 | Complete |
-| SCH-02 | Phase 25 | Complete |
-| SCH-03 | Phase 25 | Complete |
-| SCH-04 | Phase 25 | Complete |
+| DASH-01..10 | Phase 26 | Pending |
+| USER-01..06 | Phase 27 | Pending |
+| REQ-01..05 | Phase 28 | Pending |
+| OPS-01..06 | Phase 29 | Pending |
+| AUD-01..03 | Phase 30 | Pending |
+| VAULT-01..06 | Phase 31 | Pending |
+| WS-01..04 | Phase 32 | Pending |
 
 **Coverage:**
-- v1.2 requirements: 20 total
-- Mapped to phases: 20
-- Unmapped: 0
+- v1.3 requirements: 37 total
+- Mapped to phases: 37
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-06-10*
-*Last updated: 2026-06-10 after roadmap creation*
+*Last updated: 2026-06-10 after v1.3 milestone initialized*

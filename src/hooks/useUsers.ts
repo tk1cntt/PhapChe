@@ -1,37 +1,29 @@
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { PaginationOptions } from "./useRequests";
 
 // Query key convention: ['entity', workspaceId?, options]
 export const queryKeys = {
-  requests: (workspaceId?: string, options?: PaginationOptions) =>
-    ["requests", workspaceId, options] as const,
+  users: (workspaceId?: string, options?: PaginationOptions) =>
+    ["users", workspaceId, options] as const,
 };
 
-export interface PaginationOptions {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  filters?: Record<string, string>;
-}
-
-interface Request {
-  id: string;
-  title: string;
+export interface UserRow {
+  key: string;
+  name: string;
+  email: string;
+  role: string;
+  workspace: string;
   status: string;
-  createdAt: string;
-  workspaceName: string;
-  customerName: string;
-  customerEmail: string;
 }
 
 interface PaginatedResponse {
-  data: Request[];
+  data: UserRow[];
   total: number;
   page: number;
   pageSize: number;
 }
 
-async function fetchRequests(
+async function fetchUsers(
   workspaceId?: string,
   options?: PaginationOptions
 ): Promise<PaginatedResponse> {
@@ -40,25 +32,25 @@ async function fetchRequests(
   if (options?.page) params.set("page", String(options.page));
   if (options?.pageSize) params.set("pageSize", String(options.pageSize));
   if (options?.search) params.set("search", options.search);
-  if (options?.filters?.status) params.set("status", options.filters.status);
+  if (options?.filters?.role) params.set("role", options.filters.role);
 
   const queryString = params.toString();
-  const url = `/api/requests${queryString ? `?${queryString}` : ""}`;
+  const url = `/api/users${queryString ? `?${queryString}` : ""}`;
 
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error("Failed to fetch requests");
+    throw new Error("Failed to fetch users");
   }
   return response.json();
 }
 
-export function useRequests(
+export function useUsers(
   workspaceId?: string,
   options?: PaginationOptions
 ) {
   return useQuery({
-    queryKey: queryKeys.requests(workspaceId, options),
-    queryFn: () => fetchRequests(workspaceId, options),
+    queryKey: queryKeys.users(workspaceId, options),
+    queryFn: () => fetchUsers(workspaceId, options),
     staleTime: 30 * 1000, // 30 seconds
   });
 }

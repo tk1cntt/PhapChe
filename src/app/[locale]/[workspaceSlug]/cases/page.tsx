@@ -4,6 +4,8 @@ import React, { useState, useCallback, useMemo } from 'react';
 import UserLayout from '@/app/[locale]/customer/components/UserLayout';
 import SummaryBanner from '@/app/[locale]/customer/components/SummaryBanner';
 import StatCard from '@/app/[locale]/customer/components/StatCard';
+import MyCasesToolbar from '@/app/[locale]/customer/components/MyCasesToolbar';
+import MyCasesTable from '@/app/[locale]/customer/components/MyCasesTable';
 import FloatingChatButton from '@/app/[locale]/customer/components/FloatingChatButton';
 import '@/app/[locale]/customer/components/dashboard.css';
 
@@ -106,7 +108,50 @@ interface MyCasesClientProps {
 }
 
 export function MyCasesClient({ userName, workspaceName, workspaceSlug }: MyCasesClientProps) {
-  const [searchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
+
+  const handleStatusFilter = useCallback((status: string | null) => {
+    setSelectedStatus(status);
+  }, []);
+
+  const handleTypeFilter = useCallback((type: string | null) => {
+    setSelectedType(type);
+  }, []);
+
+  const filteredRequests = useMemo(() => {
+    return SAMPLE_REQUESTS.filter((req) => {
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesCode = req.code.toLowerCase().includes(query);
+        const matchesType = req.type.toLowerCase().includes(query);
+        const matchesTypeEn = req.typeEn.toLowerCase().includes(query);
+        if (!matchesCode && !matchesType && !matchesTypeEn) {
+          return false;
+        }
+      }
+      // Status filter
+      if (selectedStatus) {
+        const statusMap: Record<string, typeof req.statusBadge> = {
+          under_review: 'review',
+          needs_response: 'pending',
+          approved: 'approved',
+          submitted: 'submitted',
+          overdue: 'overdue',
+        };
+        if (req.statusBadge !== statusMap[selectedStatus]) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [searchQuery, selectedStatus, selectedType]);
 
   return (
     <>
@@ -124,10 +169,15 @@ export function MyCasesClient({ userName, workspaceName, workspaceSlug }: MyCase
         <StatCard title="Quá hạn" value={STATS.overdue} description="Thiếu tài liệu bổ sung" icon="alert" variant="red" />
       </div>
 
-      {/* Placeholder for toolbar and table - will be added in Plan 02 */}
-      <div style={{ minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', borderRadius: '15px', border: '1px solid var(--border)', marginBottom: '24px' }}>
-        <p style={{ color: 'var(--muted)' }}>Toolbar and table will be added in next phase</p>
-      </div>
+      <MyCasesToolbar
+        onSearch={handleSearch}
+        onStatusFilter={handleStatusFilter}
+        onTypeFilter={handleTypeFilter}
+        selectedStatus={selectedStatus}
+        selectedType={selectedType}
+      />
+
+      <MyCasesTable requests={filteredRequests} />
 
       <FloatingChatButton notificationCount={2} notificationText="Tin mới" />
     </>

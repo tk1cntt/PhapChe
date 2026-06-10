@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import type { RequestStatus } from '@/lib/types';
-import { getAllowedTransitions } from '@/lib/workflow/request-workflow';
-import { Tag, Button, Card, Table, Typography, Flex } from 'antd';
 import { useTranslations } from 'next-intl';
+import { Tag, Card, Table, Typography, Flex, Button } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { useSearchParams } from 'next/navigation';
 import { PageSkeleton } from '@/components/ui/PageSkeleton';
+import { usePaginationParams } from '@/lib/hooks/usePaginationParams';
+import { useDebounce } from '@/lib/hooks/useDebounce';
+import { useQuery } from '@tanstack/react-query';
+import type { RequestStatus } from '@/lib/types';
 
 const statusLabels: Record<RequestStatus, { labelKey: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { labelKey: 'draft_intake', tone: 'neutral' },
@@ -30,53 +33,112 @@ const toneToColor: Record<string, string> = {
   outline: 'default',
 };
 
-const sampleStatus: RequestStatus = 'pending_review';
-const requests = [
-  { code: 'REQ-001', workspace: 'Công ty An Phát', status: sampleStatus },
-  { code: 'REQ-002', workspace: 'Công ty Minh Khang', status: 'triage' as RequestStatus },
-];
+interface RequestRow {
+  id: string;
+  title: string;
+  status: RequestStatus;
+  createdAt: string;
+  workspaceName: string;
+  customerName: string;
+  customerEmail: string;
+}
+
+interface PaginatedResponse {
+  data: RequestRow[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
 
 export default function RequestsPage() {
-  const [loading] = useState(false);
-  const tStatus = useTranslations('RequestStatus');
   const t = useTranslations('AdminRequests');
+  const tStatus = useTranslations('RequestStatus');
 
-  const allowedTransitions = getAllowedTransitions(sampleStatus);
+  // Pagination params synced with URL
+  const { page, pageSize, search, filters, setPage, setPageSize, setFilter } = usePaginationParams(10);
 
-  const columns = [
+  // Debounce search value
+  const debouncedSearch = useDebounce(search, 300);
+
+  // Fetch data with pagination
+  const { data, isLoading } = useQuery<PaginatedResponse>({
+    queryKey: ['requests', { page, pageSize, search: debouncedSearch, filters }],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      params.set('page', String(page));
+      params.set('pageSize', String(pageSize));
+      if (debouncedSearch) params.set('search', debouncedSearch);
+      if (filters.status) params.set('status', filters.status);
+
+      const res = await fetch(`/api/requests?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      return res.json();
+    },
+    staleTime: 30 * 1000,
+  });
+
+  const requests = data?.data ?? [];
+  const total = data?.total ?? 0;
+
+  const columns: ColumnsType<RequestRow> = [
     {
       title: t('code'),
-      dataIndex: 'code',
-      key: 'code',
-      width: 200,
+      dataIndex: 'id',
+      key: 'id',
+      render: (id: string) => <span className="font-mono text-sm">{id.slice(-8).toUpperCase()}</span>,
+      width: 120,
     },
     {
       title: t('workspace'),
-      dataIndex: 'workspace',
-      key: 'workspace',
-      width: 250,
+      dataIndex: 'workspaceName',
+      key: 'workspaceName',
+      width: 200,
     },
     {
       title: t('status'),
+      dataIndex: 'status',
       key: 'status',
-      render: (_: unknown, record: (typeof requests)[number]) => {
-        const meta = statusLabels[record.status];
+      filters: [
+        { text: 'Triage', value: 'triage' },
+        { text: 'In Progress', value: 'in_progress' },
+        { text: 'Pending Review', value: 'pending_review' },
+        { text: 'Approved', value: 'approved' },
+        { text: 'Delivered', value: 'delivered' },
+      ],
+      filterMultiple: false,
+      onFilter: (value, record) => record.status === value,
+      render: (status: RequestStatus) => {
+        const meta = statusLabels[status] ?? { labelKey: status, tone: 'neutral' as const };
         return <Tag color={toneToColor[meta.tone] ?? 'default'}>{tStatus(meta.labelKey)}</Tag>;
       },
-      width: 180,
+      width: 160,
     },
     {
-      title: t('validTransitions'),
-      key: 'actions',
-      render: () => (
-        <span className="text-[14px] font-normal leading-[1.4] text-[#475569]">
-          {t('validTransitionsNote')}
-        </span>
+      title: t('customer'),
+      key: 'customer',
+      render: (_: unknown, record: RequestRow) => (
+        <div className="text-sm">
+          <div>{record.customerName}</div>
+          <div className="text-gray-500">{record.customerEmail}</div>
+        </div>
       ),
     },
   ];
 
-  if (loading) {
+  const paginationConfig = {
+    current: page,
+    pageSize: pageSize,
+    total: total,
+    showSizeChanger: true,
+    pageSizeOptions: ['10', '25', '50'],
+    showTotal: (total: number) => `Tong ${total} ban ghi`,
+    onChange: (newPage: number, newPageSize: number) => {
+      if (newPage !== page) setPage(newPage);
+      if (newPageSize !== pageSize) setPageSize(newPageSize);
+    },
+  };
+
+  if (isLoading) {
     return <PageSkeleton rows={5} />;
   }
 
@@ -96,32 +158,11 @@ export default function RequestsPage() {
         </Flex>
       </Flex>
 
-      <Card className="space-y-4" style={{ marginBottom: 16 }}>
-        <h2 className="text-[20px] font-semibold leading-[1.2]">{t('validTransitions')}</h2>
-        <p className="text-[16px] font-normal leading-[1.5] text-[#475569]">
-          {t('validTransitionsNote')}
-        </p>
-        <Flex wrap="wrap" gap={8}>
-          {allowedTransitions.map((transition) => (
-            <Button
-              key={transition}
-              danger={transition === 'revision_required'}
-            >
-              {tStatus(statusLabels[transition].labelKey)}
-            </Button>
-          ))}
-        </Flex>
-        <label className="block space-y-2 text-[14px] font-semibold leading-[1.4]">
-          <span>{t('transitionReason')}</span>
-          <textarea className="min-h-[96px] w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-2 text-[16px] font-normal leading-[1.5] focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2" />
-        </label>
-      </Card>
-
       <Table
         dataSource={requests}
-        rowKey="code"
+        rowKey="id"
         columns={columns}
-        pagination={false}
+        pagination={paginationConfig}
         size="middle"
         bordered
         locale={{ emptyText: t('noData') }}

@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Tag, Card, Table, Typography, Flex } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { useTranslations } from 'next-intl';
+import { PageSkeleton } from '@/components/ui/PageSkeleton';
+import { usePaginationParams } from '@/lib/hooks/usePaginationParams';
+import { useDebounce } from '@/lib/hooks/useDebounce';
+import { useQuery } from '@tanstack/react-query';
 
 type AuditEventRecord = {
   id: string;
@@ -18,22 +22,46 @@ type AuditEventRecord = {
   workspace: { name: string };
 };
 
+interface PaginatedResponse {
+  data: AuditEventRecord[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export default function AuditPage() {
   const t = useTranslations('AuditEvents');
-  const [auditEvents, setAuditEvents] = useState<AuditEventRecord[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch('/api/audit/events')
-      .then((r) => r.json())
-      .then((data) => {
-        setAuditEvents(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+  // Pagination params synced with URL
+  const { page, pageSize, search, filters, setPage, setPageSize } = usePaginationParams(10);
 
-  const columns = [
+  // Debounce search value
+  const debouncedSearch = useDebounce(search, 300);
+
+  // Fetch data with pagination
+  const { data, isLoading } = useQuery<PaginatedResponse>({
+    queryKey: ['auditEvents', { page, pageSize, search: debouncedSearch, filters }],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      params.set('page', String(page));
+      params.set('pageSize', String(pageSize));
+      if (debouncedSearch) params.set('search', debouncedSearch);
+      if (filters.action) params.set('action', filters.action);
+
+      const res = await fetch(`/api/audit/events?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      return res.json();
+    },
+    staleTime: 30 * 1000,
+  });
+
+  const events = data?.data ?? [];
+  const total = data?.total ?? 0;
+
+  // Get unique actions for filter dropdown
+  const uniqueActions = [...new Set(events.map(e => e.action))];
+
+  const columns: ColumnsType<AuditEventRecord> = [
     {
       title: t('time'),
       dataIndex: 'createdAt',
@@ -56,8 +84,12 @@ export default function AuditPage() {
     },
     {
       title: t('action'),
+      dataIndex: 'action',
       key: 'action',
-      render: (_: unknown, record: AuditEventRecord) => <Tag color="blue">{record.action}</Tag>,
+      filters: uniqueActions.map(a => ({ text: a, value: a })),
+      filterMultiple: false,
+      onFilter: (value, record) => record.action === value,
+      render: (action: string) => <Tag color="blue">{action}</Tag>,
       width: 150,
     },
     {
@@ -79,12 +111,25 @@ export default function AuditPage() {
     },
   ];
 
+  const paginationConfig = {
+    current: page,
+    pageSize: pageSize,
+    total: total,
+    showSizeChanger: true,
+    pageSizeOptions: ['10', '25', '50'],
+    showTotal: (total: number) => `Tong ${total} su kien`,
+    onChange: (newPage: number, newPageSize: number) => {
+      if (newPage !== page) setPage(newPage);
+      if (newPageSize !== pageSize) setPageSize(newPageSize);
+    },
+  };
+
+  if (isLoading) {
+    return <PageSkeleton rows={5} />;
+  }
+
   return (
     <>
-      {loading ? (
-        <Flex justify="center" style={{ padding: 48 }}><Typography.Text>{t('loading')}</Typography.Text></Flex>
-      ) : (
-      <>
       <Flex vertical gap={4} style={{ marginBottom: 16 }}>
         <Typography.Title level={3} style={{ margin: 0, fontSize: 30, fontWeight: 600 }}>
           {t('pageTitle')}
@@ -101,16 +146,14 @@ export default function AuditPage() {
       </Card>
 
       <Table
-        dataSource={auditEvents}
+        dataSource={events}
         rowKey="id"
         columns={columns}
-        pagination={false}
+        pagination={paginationConfig}
         size="middle"
         bordered
         locale={{ emptyText: t('noData') }}
       />
-      </>
-      )}
     </>
   );
 }

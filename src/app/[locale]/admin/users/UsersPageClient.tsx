@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Card, Typography, Flex, Button, Space, Tag, Spin } from 'antd';
+import { Card, Typography, Flex, Button, Tag, Spin } from 'antd';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
-import AdminUsersTable from './AdminUsersTable';
+import { usePaginationParams } from '@/lib/hooks/usePaginationParams';
+import { useDebounce } from '@/lib/hooks/useDebounce';
+import { useQuery } from '@tanstack/react-query';
+import { Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 
 const { Title, Paragraph } = Typography;
 
@@ -24,25 +27,127 @@ const toneToColor: Record<string, string> = {
   destructive: 'red',
 };
 
+interface UserRow {
+  key: string;
+  name: string;
+  email: string;
+  role: string;
+  workspace: string;
+  status: string;
+}
+
+interface PaginatedResponse {
+  data: UserRow[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export default function UsersPageClient() {
   const t = useTranslations('AdminUsers');
   const pathname = usePathname();
-  const [dataSource, setDataSource] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Extract locale from pathname: /en/admin/users -> en
-    const locale = pathname.split('/')[1] || 'vi';
-    fetch(`/${locale}/api/users`)
-      .then((r) => r.json())
-      .then((data) => {
-        setDataSource(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [pathname]);
+  // Pagination params synced with URL
+  const { page, pageSize, search, filters, setPage, setPageSize } = usePaginationParams(10);
 
-  if (loading) {
+  // Debounce search value
+  const debouncedSearch = useDebounce(search, 300);
+
+  // Extract locale from pathname
+  const locale = pathname.split('/')[1] || 'vi';
+
+  // Fetch data with pagination
+  const { data, isLoading } = useQuery<PaginatedResponse>({
+    queryKey: ['users', { page, pageSize, search: debouncedSearch, filters }],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      params.set('page', String(page));
+      params.set('pageSize', String(pageSize));
+      if (debouncedSearch) params.set('search', debouncedSearch);
+      if (filters.role) params.set('role', filters.role);
+
+      const res = await fetch(`/${locale}/api/users?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      return res.json();
+    },
+    staleTime: 30 * 1000,
+  });
+
+  const users = data?.data ?? [];
+  const total = data?.total ?? 0;
+
+  const getRoleLabel = (role: string) => {
+    const roleKey = `AdminUsers.${role}` as const;
+    return t(roleKey);
+  };
+
+  const getRoleTone = (role: string) => {
+    const tones: Record<string, typeof toneToColor.default> = {
+      customer: 'neutral',
+      specialist: 'info',
+      reviewer: 'warning',
+      coordinator_admin: 'accent',
+      super_admin: 'destructive',
+    };
+    return tones[role] ?? 'neutral';
+  };
+
+  const columns: ColumnsType<UserRow> = [
+    {
+      title: t('name'),
+      dataIndex: 'name',
+      key: 'name',
+      width: 200,
+    },
+    {
+      title: t('email'),
+      dataIndex: 'email',
+      key: 'email',
+      width: 250,
+    },
+    {
+      title: t('role'),
+      key: 'role',
+      filters: roles.map(r => ({ text: t(r.labelKey), value: r.value })),
+      filterMultiple: false,
+      onFilter: (value, record) => record.role === value,
+      render: (_: unknown, record: UserRow) => (
+        <Tag color={toneToColor[getRoleTone(record.role)]}>{getRoleLabel(record.role)}</Tag>
+      ),
+      width: 200,
+    },
+    {
+      title: t('workspace'),
+      dataIndex: 'workspace',
+      key: 'workspace',
+      width: 200,
+    },
+    {
+      title: t('status'),
+      key: 'status',
+      render: (_: unknown, record: UserRow) => (
+        <Tag color={record.status === 'active' ? 'cyan' : 'red'}>
+          {record.status === 'active' ? t('active') : t('inactive')}
+        </Tag>
+      ),
+      width: 150,
+    },
+  ];
+
+  const paginationConfig = {
+    current: page,
+    pageSize: pageSize,
+    total: total,
+    showSizeChanger: true,
+    pageSizeOptions: ['10', '25', '50'],
+    showTotal: (total: number) => `Tong ${total} nguoi dung`,
+    onChange: (newPage: number, newPageSize: number) => {
+      if (newPage !== page) setPage(newPage);
+      if (newPageSize !== pageSize) setPageSize(newPageSize);
+    },
+  };
+
+  if (isLoading) {
     return (
       <Flex justify="center" style={{ padding: 48 }}>
         <Spin />
@@ -62,7 +167,7 @@ export default function UsersPageClient() {
       </Flex>
 
       <Card style={{ marginBottom: 16 }}>
-        <Space orientation="vertical" size={16}>
+        <Flex vertical gap={16}>
           <Title level={4} style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>
             {t('systemRoles')}
           </Title>
@@ -76,10 +181,17 @@ export default function UsersPageClient() {
           <Paragraph style={{ color: '#475569', margin: 0 }}>
             {t('roleChangeNote')}
           </Paragraph>
-        </Space>
+        </Flex>
       </Card>
 
-      <AdminUsersTable dataSource={dataSource} />
+      <Table
+        dataSource={users}
+        rowKey="key"
+        columns={columns}
+        pagination={paginationConfig}
+        size="middle"
+        bordered
+      />
 
       <Flex justify="flex-end" style={{ marginTop: 16 }}>
         <Button type="primary">{t('createUserButton')}</Button>

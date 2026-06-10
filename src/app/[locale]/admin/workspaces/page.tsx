@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { Tag, Button, Card, Table, Typography, Flex } from 'antd';
 import { useTranslations } from 'next-intl';
+import { PageSkeleton } from '@/components/ui/PageSkeleton';
 
 const workspaces = [
   { name: 'Công ty An Phát', slug: 'an-phat', members: '3 thành viên', status: 'active' },
@@ -10,7 +12,12 @@ const workspaces = [
 ];
 
 export default function WorkspacesPage() {
+  const [loading] = useState(false);
   const t = useTranslations('AdminWorkspaces');
+
+  if (loading) {
+    return <PageSkeleton rows={5} />;
+  }
 
   const columns = [
     {

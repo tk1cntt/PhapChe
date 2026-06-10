@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Button, Card, Typography, Flex, Spin } from 'antd';
+import { Button, Card, Typography, Flex } from 'antd';
+import { CardSkeleton } from '@/components/ui/CardSkeleton';
 import AdminTemplatesTable from './AdminTemplatesTable';
 
 const { Title, Paragraph } = Typography;
@@ -29,11 +30,7 @@ export default function TemplatesPageClient() {
   }, []);
 
   if (loading) {
-    return (
-      <Flex justify="center" style={{ padding: 48 }}>
-        <Spin />
-      </Flex>
-    );
+    return <CardSkeleton count={3} />;
   }
 
   // Group by matterTypeKey

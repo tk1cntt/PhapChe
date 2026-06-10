@@ -1,9 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import type { RequestStatus } from '@/lib/types';
 import { getAllowedTransitions } from '@/lib/workflow/request-workflow';
-import { Tag, Button, Card, Table, Typography, Flex, Space } from 'antd';
+import { Tag, Button, Card, Table, Typography, Flex } from 'antd';
 import { useTranslations } from 'next-intl';
+import { PageSkeleton } from '@/components/ui/PageSkeleton';
 
 const statusLabels: Record<RequestStatus, { labelKey: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { labelKey: 'draft_intake', tone: 'neutral' },
@@ -35,6 +37,7 @@ const requests = [
 ];
 
 export default function RequestsPage() {
+  const [loading] = useState(false);
   const tStatus = useTranslations('RequestStatus');
   const t = useTranslations('AdminRequests');
 
@@ -72,6 +75,10 @@ export default function RequestsPage() {
       ),
     },
   ];
+
+  if (loading) {
+    return <PageSkeleton rows={5} />;
+  }
 
   return (
     <>

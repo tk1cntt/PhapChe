@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import type { RequestStatus } from '@prisma/client';
+import type { RequestStatus } from '@/lib/types';
 import { Button, Flex, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 

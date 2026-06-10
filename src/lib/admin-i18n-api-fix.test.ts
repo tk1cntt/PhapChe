@@ -43,7 +43,7 @@ test('admin-i18n-fix: AdminRequests namespace includes all status keys used in U
 
   for (const key of requiredKeys) {
     assert.ok(
-      messages.AdminRequests?.[key] || messages.RequestStatus?.[key],
+      (messages.AdminRequests as Record<string, unknown>)?.[key] || (messages.RequestStatus as Record<string, unknown>)?.[key],
       `AdminRequests or RequestStatus.${key} missing in en.json`
     );
   }

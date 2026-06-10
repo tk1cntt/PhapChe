@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import type { RequestStatus } from '@prisma/client';
+import type { RequestStatus } from '@/lib/types';
 import { Tag, Button, Card, Typography, Flex } from 'antd';
 import { getCustomerDeliveryRequest } from '@/lib/delivery/delivery-service';
 import { requestVaultFileAccess } from '@/lib/documents/vault-service';

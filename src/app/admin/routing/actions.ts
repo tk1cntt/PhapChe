@@ -1,7 +1,8 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import type { AssignmentKind, Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
+import type { AssignmentKind } from '@/lib/types';
 import { assignRequest, requireRoutingAdmin, upsertMatterType, upsertRoutingCapability } from '@/lib/routing/routing-service';
 import { requireAppSession } from '@/lib/security/session';
 

@@ -1,4 +1,5 @@
-import type { Prisma, RequestStatus, Role } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
+import type { RequestStatus, Role } from '@/lib/types';
 import { prisma } from '@/lib/prisma';
 import type { AppSession } from '@/lib/security/session';
 
@@ -232,7 +233,10 @@ export async function getOpsDashboard(session: AppSession, filters: OpsFilters):
     if (transition.toStatus === 'closed' && !closedByRequest.has(transition.requestId)) closedByRequest.set(transition.requestId, transition.createdAt);
   }
 
-  const byStatus = statusGroups.map((row) => ({ status: row.status, count: row._count._all }));
+  const byStatus: Array<{ status: RequestStatus; count: number }> = statusGroups.map((row) => ({
+    status: row.status as RequestStatus,
+    count: row._count._all,
+  }));
   const userIds = [...new Set([...specialistGroups.map((row) => row.assignedSpecialistId), ...reviewerGroups.map((row) => row.assignedReviewerId)].filter(Boolean))] as string[];
   const users = userIds.length
     ? await prisma.user.findMany({ where: { id: { in: userIds }, isActive: true }, select: { id: true, name: true, email: true } })
@@ -248,12 +252,12 @@ export async function getOpsDashboard(session: AppSession, filters: OpsFilters):
     return { userId: row.assignedReviewerId || '', name: user?.name || 'Unknown', email: user?.email || '', count: row._count._all };
   });
 
-  const requestRows = requests.map((request) => {
+  const requestRows: OpsRequestRowDto[] = requests.map((request) => {
     const currentStatusSince = latestByRequest.get(request.id) || request.createdAt;
     return {
       id: request.id,
       title: request.title,
-      status: request.status,
+      status: request.status as RequestStatus,
       workspaceId: request.workspaceId,
       matterTypeKey: request.intakeSubmission?.matterTypeKey ?? null,
       matterTypeLabel: request.intakeSubmission?.matterType?.label ?? null,
@@ -394,8 +398,8 @@ export async function getOpsRequestTimeline(session: AppSession, requestId: stri
       action: 'request.status_changed',
       targetType: 'workflow_transition',
       targetId: transition.id,
-      fromStatus: transition.fromStatus,
-      toStatus: transition.toStatus,
+      fromStatus: transition.fromStatus as RequestStatus | null,
+      toStatus: transition.toStatus as RequestStatus,
       correlationId: null,
       reason: transition.reason,
       metadataSummary: `${transition.fromStatus} -> ${transition.toStatus}`,

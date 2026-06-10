@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import type { RequestStatus } from '@prisma/client';
+import type { RequestStatus } from '@/lib/types';
 import { Tag, Card, Typography, Flex } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { getTemplatesForGeneration } from '@/lib/documents/template-service';
@@ -75,7 +75,7 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
 
   const versionsFromService = await listDocumentVersions({ session, requestId }).catch(() => []);
 
-  const status = statusLabels[request.status];
+  const status = statusLabels[request.status as RequestStatus];
   const answers = asObject(request.intakeSubmission?.answers);
   const answerLabels = asObject(request.intakeSubmission?.answerLabels);
   const summaryRows = Object.entries(answers).map(([key, value]) => ({
@@ -96,7 +96,7 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
     id: v.id,
     templateId: v.templateId,
     templateVersion: v.templateVersion,
-    status: v.status,
+    status: v.status as import('@/lib/types').VersionStatus,
     generatedContent: v.generatedContent,
     createdAt: v.createdAt,
     template: { label: v.templateLabel, version: v.templateVersion },

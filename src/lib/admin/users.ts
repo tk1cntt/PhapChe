@@ -1,4 +1,5 @@
-import type { Prisma, Role } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
+import type { Role } from '@/lib/types';
 import { prisma } from '@/lib/prisma';
 import { recordAuditEvent } from '@/lib/audit/audit';
 import type { AppSession } from '@/lib/security/session';

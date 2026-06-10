@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, Typography, Flex, Button, Spin } from 'antd';
 import AdminOpsTables from './AdminOpsTables';
 import type { OpsRequestRow, OpsWorkloadRow } from './AdminOpsTables';
-import type { RequestStatus } from '@prisma/client';
+import type { RequestStatus } from '@/lib/types';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';

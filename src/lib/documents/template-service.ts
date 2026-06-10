@@ -2,7 +2,6 @@ import { prisma } from '@/lib/prisma';
 import { recordAuditEvent } from '@/lib/audit/audit';
 import { canAccessWorkspace } from '@/lib/security/rbac';
 import type { AppSession } from '@/lib/security/session';
-import type { TemplateStatus } from '@prisma/client';
 
 function isAdmin(session: AppSession | null | undefined) {
   return session?.roles.includes('coordinator_admin') || session?.roles.includes('super_admin') || false;

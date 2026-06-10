@@ -1,4 +1,4 @@
-import type { AuditTargetType } from '@prisma/client';
+import type { AuditTargetType } from '@/lib/types';
 import { prisma } from '@/lib/prisma';
 
 type AuditDb = {

@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import type { AppRole } from "@/lib/types";
 
-export type AppRole = 'customer' | 'specialist' | 'reviewer' | 'coordinator_admin' | 'super_admin';
+export type { AppRole };
 
 export type AppSession = {
   userId: string;
@@ -34,6 +35,6 @@ export async function requireAppSession(): Promise<AppSession> {
   return {
     userId: user.id,
     activeWorkspaceId: membership.workspaceId,
-    roles: [membership.role],
+    roles: [membership.role as import('@/lib/types').AppRole],
   };
 }

@@ -1,5 +1,5 @@
-import type { RequestStatus } from '@prisma/client';
 import { getAllowedTransitions, REQUEST_TRANSITIONS } from './request-workflow';
+import type { RequestStatus } from '@/lib/types';
 
 type Assert<T extends true> = T;
 type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;

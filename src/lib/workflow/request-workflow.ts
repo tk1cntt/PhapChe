@@ -1,4 +1,5 @@
-import type { LegalRequest, RequestStatus, Role } from '@prisma/client';
+import type { LegalRequest } from '@prisma/client';
+import type { AppRole, RequestStatus, Role } from '@/lib/types';
 import { prisma } from '@/lib/prisma';
 import { recordAuditEvent } from '@/lib/audit/audit';
 import { canAccessRequest } from '@/lib/security/rbac';
@@ -90,10 +91,10 @@ export async function transitionRequestStatus(input: TransitionInput): Promise<{
   const actor: AppSession = {
     userId: input.actorId,
     activeWorkspaceId: request.workspaceId,
-    roles: request.workspace.memberships.map((membership) => membership.role),
+    roles: request.workspace.memberships.map((membership) => membership.role as Role),
   };
 
-  const allowedTransitions = getAllowedTransitions(request.status);
+  const allowedTransitions = getAllowedTransitions(request.status as RequestStatus);
 
   if (!allowedTransitions.includes(input.toStatus)) throw new Error('INVALID_REQUEST_TRANSITION');
   if (!(await canAccessRequest(actor, input.requestId))) throw new Error('FORBIDDEN');
@@ -101,7 +102,7 @@ export async function transitionRequestStatus(input: TransitionInput): Promise<{
 
   return prisma.$transaction(async (tx) => {
     const updated = await tx.legalRequest.updateMany({
-      where: { id: input.requestId, status: request.status },
+      where: { id: input.requestId, status: request.status as RequestStatus },
       data: { status: input.toStatus },
     });
 
@@ -110,7 +111,7 @@ export async function transitionRequestStatus(input: TransitionInput): Promise<{
     const updatedRequest = await tx.legalRequest.findUniqueOrThrow({
       where: { id: input.requestId },
       select: { id: true, status: true },
-    });
+    }) as { id: string; status: RequestStatus };
 
     await tx.workflowTransition.create({
       data: {

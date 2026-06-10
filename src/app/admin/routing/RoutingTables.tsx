@@ -1,7 +1,8 @@
 'use client';
 
 import { Table, Tag, Flex } from 'antd';
-import type { AssignmentKind, RequestStatus } from '@prisma/client';
+import type { ColumnsType } from 'antd/es/table';
+import type { AssignmentKind, RequestStatus } from '@/lib/types';
 
 const toneToColor: Record<string, string> = {
   neutral: 'default',

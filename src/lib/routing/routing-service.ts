@@ -1,4 +1,5 @@
-import type { AssignmentKind, Prisma, RequestStatus, Role } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
+import type { AssignmentKind, RequestStatus, Role } from '@/lib/types';
 import { prisma } from '@/lib/prisma';
 import { recordAuditEvent } from '@/lib/audit/audit';
 import { getAllowedTransitions } from '@/lib/workflow/request-workflow';
@@ -246,7 +247,7 @@ export async function assignRequest(input: AssignRequestInput) {
   if (!request.intakeSubmission) throw new Error('INTAKE_SUBMISSION_NOT_FOUND');
   const matterTypeKey = request.intakeSubmission.matterTypeKey;
 
-  const path = assertAssignmentPath(request.status);
+  const path = assertAssignmentPath(request.status as RequestStatus);
   const capability = await db.routingCapability.findFirst({
     where: {
       workspaceId,

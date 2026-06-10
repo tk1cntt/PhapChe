@@ -1,4 +1,4 @@
-import type { RequestStatus } from '@prisma/client';
+import type { RequestStatus } from '@/lib/types';
 import { prisma } from '@/lib/prisma';
 import { recordAuditEvent } from '@/lib/audit/audit';
 import { canAccessRequest } from '@/lib/security/rbac';
@@ -199,7 +199,7 @@ export async function getCustomerDeliveryRequest(session: AppSession, requestId:
   return {
     id: request.id,
     title: request.title,
-    status: request.status,
+    status: request.status as RequestStatus,
     createdAt: request.createdAt,
     matterTypeKey: intakeSubmission?.matterTypeKey ?? null,
     documents: deliveryDocuments,

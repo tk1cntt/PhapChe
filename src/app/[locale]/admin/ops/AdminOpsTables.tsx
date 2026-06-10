@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Table, Tag, Flex } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { RequestStatus } from '@prisma/client';
+import type { RequestStatus } from '@/lib/types';
 
 const statusLabels: Record<RequestStatus, { label: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Nháp tiếp nhận', tone: 'neutral' },

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import type { RequestStatus } from '@prisma/client';
+import type { RequestStatus } from '@/lib/types';
 import { Button, Tag, Card, Flex, Modal, message } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
@@ -72,7 +72,7 @@ export default async function RequestStatusPage({ params }: { params: Promise<{ 
     return null;
   }
 
-  const status = statusCopy[request.status];
+  const status = statusCopy[request.status as RequestStatus];
   const hasFiles = request.vaultFiles.length > 0;
   const isOwner = request.createdById === session.userId;
   const isDraft = request.status === 'draft_intake';

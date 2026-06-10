@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Table, Tag, Flex } from 'antd';
-import type { TemplateStatus } from '@prisma/client';
+import type { TemplateStatus } from '@/lib/types';
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Nháp',

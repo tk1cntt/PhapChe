@@ -74,7 +74,7 @@
 6. Card-based pages display `<CardSkeleton />` component
 7. Skeleton components are reusable â€” imported from shared location, not hard-coded per page
 
-**Plans:** TBD
+**Plans:** 1 plan\n\nPlans:\n- [ ] 23-01-PLAN.md — Shared ErrorFallback and Skeleton components + integration into admin pages
 
 **UI hint:** yes
 
@@ -96,7 +96,7 @@
 4. React Query devtools panel visible in development mode, completely hidden in production
 5. Cache configured with staleTime: 30s and gcTime: 5min
 
-**Plans:** TBD
+**Plans:** 1 plan\n\nPlans:\n- [ ] 23-01-PLAN.md — Shared ErrorFallback and Skeleton components + integration into admin pages
 
 **UI hint:** yes
 
@@ -120,7 +120,7 @@
 6. Search input debounces by 300ms before triggering query
 7. Search and filter state persists in URL params (shareable/bookmarkable URLs)
 
-**Plans:** TBD
+**Plans:** 1 plan\n\nPlans:\n- [ ] 23-01-PLAN.md — Shared ErrorFallback and Skeleton components + integration into admin pages
 
 **UI hint:** yes
 

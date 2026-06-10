@@ -15,8 +15,12 @@ export default async function middleware(request: NextRequest) {
   // Step 3: Check auth only for protected routes after i18n routing
   const sessionCookie = request.cookies.get("better-auth.session_token");
 
-  // Skip auth check for auth routes and static files
-  if (!pathname.startsWith('/sign-in') && !pathname.startsWith('/api/auth') && !pathname.startsWith('/_next')) {
+  // Skip auth check for auth routes, API routes, and static files
+  const isProtectedRoute = !pathname.startsWith('/sign-in') &&
+                          !pathname.startsWith('/api/auth') &&
+                          !pathname.startsWith('/_next') &&
+                          !pathname.startsWith('/intake');
+  if (isProtectedRoute) {
     if (!sessionCookie?.value) {
       return NextResponse.redirect(new URL('/sign-in', request.url));
     }
@@ -26,7 +30,7 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Match all paths except static files and auth routes
-  // I18n middleware handles locale routing for app routes
-  matcher: ['/((?!api/auth|sign-in|_next/static|_next/image|favicon.ico).*)'],
+  // Match all paths except static files, auth routes, and API routes
+  // API routes should not be i18n-prefixed
+  matcher: ['/((?!api|sign-in|_next/static|_next/image|favicon.ico).*)'],
 };

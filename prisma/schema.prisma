@@ -3,50 +3,19 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  customer
-  specialist
-  reviewer
-  coordinator_admin
-  super_admin
-}
-
-enum RequestStatus {
-  draft_intake
-  intake_submitted
-  triage
-  assigned
-  in_progress
-  pending_review
-  revision_required
-  approved
-  delivered
-  closed
-  cancelled
-}
-
-enum AssignmentKind {
-  specialist
-  reviewer
-}
-
-enum AuditTargetType {
-  user
-  workspace
-  membership
-  request
-  matter_type
-  intake_submission
-  assignment
-  document
-  review
-  vault_file
-  workflow_transition
-}
+// Note: SQLite doesn't support enums, using String fields instead
+// Role values: customer, specialist, reviewer, coordinator_admin, super_admin
+// RequestStatus values: draft_intake, intake_submitted, triage, assigned, in_progress, pending_review, revision_required, approved, delivered, closed, cancelled
+// AssignmentKind values: specialist, reviewer
+// AuditTargetType values: user, workspace, membership, request, matter_type, intake_submission, assignment, document, review, vault_file, workflow_transition
+// DocumentVersionStatus values: draft, submitted_for_review, final
+// TemplateStatus values: draft, approved, published, deprecated
+// ReviewStatus values: in_progress, approved, rejected
+// ReviewDecision values: approve, reject
 
 model User {
   id                 String               @id @default(cuid())
@@ -95,7 +64,7 @@ model WorkspaceMembership {
   id          String    @id @default(cuid())
   userId      String
   workspaceId String
-  role        Role
+  role        String    @default("customer")
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -111,7 +80,7 @@ model LegalRequest {
   id                   String               @id @default(cuid())
   workspaceId          String
   title                String
-  status               RequestStatus        @default(draft_intake)
+  status               String               @default("draft_intake")
   createdById          String
   assignedSpecialistId String?
   assignedReviewerId   String?
@@ -175,16 +144,16 @@ model IntakeSubmission {
 }
 
 model RequestAssignment {
-  id          String         @id @default(cuid())
+  id          String       @id @default(cuid())
   requestId   String
   userId      String
-  kind        AssignmentKind
+  kind        String       @default("specialist")
   reason      String?
-  createdAt   DateTime       @default(now())
+  createdAt   DateTime     @default(now())
   createdById String
-  request     LegalRequest   @relation(fields: [requestId], references: [id])
-  user        User           @relation("AssignmentUser", fields: [userId], references: [id])
-  createdBy   User           @relation("AssignmentCreator", fields: [createdById], references: [id])
+  request     LegalRequest @relation(fields: [requestId], references: [id])
+  user        User         @relation("AssignmentUser", fields: [userId], references: [id])
+  createdBy   User         @relation("AssignmentCreator", fields: [createdById], references: [id])
 
   @@index([requestId])
   @@index([userId])
@@ -192,40 +161,34 @@ model RequestAssignment {
 }
 
 model RoutingCapability {
-  id            String         @id @default(cuid())
+  id            String     @id @default(cuid())
   workspaceId   String
   userId        String
   matterTypeKey String
-  kind          AssignmentKind
-  isActive      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  workspace     Workspace      @relation(fields: [workspaceId], references: [id])
-  user          User           @relation(fields: [userId], references: [id])
-  matterType    MatterType     @relation(fields: [workspaceId, matterTypeKey], references: [workspaceId, key])
+  kind          String     @default("specialist")
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  workspace     Workspace  @relation(fields: [workspaceId], references: [id])
+  user          User       @relation(fields: [userId], references: [id])
+  matterType    MatterType @relation(fields: [workspaceId, matterTypeKey], references: [workspaceId, key])
 
   @@unique([workspaceId, userId, matterTypeKey, kind])
   @@index([workspaceId, matterTypeKey, kind, isActive])
   @@index([userId])
 }
 
-enum DocumentVersionStatus {
-  draft
-  submitted_for_review
-  final
-}
-
 model DocumentVersion {
-  id                String                 @id @default(cuid())
-  documentId        String
-  templateId        String
-  templateVersion   Int
-  status            DocumentVersionStatus  @default(draft)
-  inputSnapshot     Json
-  generatedContent String
-  createdAt         DateTime               @default(now())
-  updatedAt         DateTime               @updatedAt
-  document          Document              @relation(fields: [documentId], references: [id])
+  id                 String   @id @default(cuid())
+  documentId         String
+  templateId         String
+  templateVersion    Int
+  status             String   @default("draft")
+  inputSnapshot      Json
+  generatedContent   String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  document           Document @relation(fields: [documentId], references: [id])
 
   @@index([documentId])
   @@index([templateId])
@@ -235,8 +198,8 @@ model DocumentVersion {
 model WorkflowTransition {
   id          String       @id @default(cuid())
   requestId   String
-  fromStatus  RequestStatus
-  toStatus    RequestStatus
+  fromStatus  String
+  toStatus    String
   actorId     String
   reason      String?
   metadata    Json?
@@ -271,9 +234,9 @@ model Review {
   requestId   String
   documentId  String
   reviewerId  String
-  documentVersionId String?  // link to specific document version
-  status      ReviewStatus @default(in_progress)
-  decision    ReviewDecision?
+  documentVersionId String?
+  status      String       @default("in_progress")
+  decision    String?
   generalComment String?
   completedAt DateTime?
   createdAt   DateTime     @default(now())
@@ -292,24 +255,6 @@ model Review {
   @@index([status])
 }
 
-enum TemplateStatus {
-  draft
-  approved
-  published
-  deprecated
-}
-
-enum ReviewStatus {
-  in_progress
-  approved
-  rejected
-}
-
-enum ReviewDecision {
-  approve
-  reject
-}
-
 model ReviewChecklistAnswer {
   id             String   @id @default(cuid())
   reviewId       String
@@ -325,11 +270,11 @@ model ReviewChecklistAnswer {
 }
 
 model DocumentTemplate {
-  id                String         @id @default(cuid())
+  id                String   @id @default(cuid())
   workspaceId       String
   matterTypeKey     String
-  version           Int            @default(1)
-  status            TemplateStatus @default(draft)
+  version           Int      @default(1)
+  status            String   @default("draft")
   label             String
   description       String?
   variableSchema    Json           @default("[]")
@@ -347,7 +292,7 @@ model DocumentTemplate {
 }
 
 model VaultFile {
-  id                String         @id @default(cuid())
+  id                String       @id @default(cuid())
   requestId         String
   workspaceId       String
   actorId           String
@@ -356,15 +301,15 @@ model VaultFile {
   fileKind          String?
   source            String?
   documentVersionId String?
-  fromStatus        RequestStatus?
-  toStatus          RequestStatus?
+  fromStatus        String?
+  toStatus          String?
   reason            String?
   size              Int?
   contentType       String?
-  createdAt         DateTime       @default(now())
-  request           LegalRequest   @relation(fields: [requestId], references: [id])
-  workspace         Workspace      @relation(fields: [workspaceId], references: [id])
-  actor             User           @relation(fields: [actorId], references: [id])
+  createdAt         DateTime     @default(now())
+  request           LegalRequest @relation(fields: [requestId], references: [id])
+  workspace         Workspace    @relation(fields: [workspaceId], references: [id])
+  actor             User         @relation(fields: [actorId], references: [id])
   vaultFileFolders  VaultFileFolder[]
   vaultFileTags     VaultFileTag[]
 
@@ -427,19 +372,19 @@ model VaultFileTag {
 }
 
 model AuditEvent {
-  id              String          @id @default(cuid())
+  id              String      @id @default(cuid())
   actorId         String?
   workspaceId     String
   action          String
-  targetType      AuditTargetType
+  targetType      String
   targetId        String
   requestId       String?
   correlationId   String?
   metadataSummary String?
-  createdAt       DateTime        @default(now())
-  actor           User?           @relation(fields: [actorId], references: [id])
-  workspace       Workspace       @relation(fields: [workspaceId], references: [id])
-  request         LegalRequest?   @relation(fields: [requestId], references: [id])
+  createdAt       DateTime    @default(now())
+  actor           User?       @relation(fields: [actorId], references: [id])
+  workspace       Workspace   @relation(fields: [workspaceId], references: [id])
+  request         LegalRequest? @relation(fields: [requestId], references: [id])
 
   @@index([actorId])
   @@index([workspaceId])

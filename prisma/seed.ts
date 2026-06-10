@@ -41,6 +41,17 @@ async function ensureUser(email: string, name: string, password: string) {
   return prisma.user.findUniqueOrThrow({ where: { id: user.id } });
 }
 
+async function createSession(userId: string) {
+  const { createSession } = auth.api;
+  // Create session directly in database
+  const token = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  await prisma.session.create({
+    data: { userId, token, expiresAt },
+  });
+  return token;
+}
+
 async function main() {
   const workspace = await prisma.workspace.upsert({
     where: { slug: routingCapability.workspaceSlug },

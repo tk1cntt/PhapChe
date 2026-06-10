@@ -77,7 +77,7 @@ export function ServiceSelection({ catalog }: { catalog: readonly MatterCatalogI
     try {
       const formData = new FormData();
       formData.append('matterTypeKey', selected);
-      const response = await fetch('/intake/api/create-draft', {
+      const response = await fetch('/api/intake/create-draft', {
         method: 'POST',
         body: formData,
       });
@@ -190,7 +190,7 @@ export function QuestionStep({ matterType, savedAnswers = {}, requestId }: Quest
       }
 
       // Save answers via API
-      const saveResponse = await fetch('/intake/api/save-answers', {
+      const saveResponse = await fetch('/api/intake/save-answers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId, answers }),
@@ -284,7 +284,7 @@ export function UploadStep({ requestId, files: initialFiles }: UploadStepProps) 
       formData.append('file', file as File);
       formData.append('requestId', requestId);
       try {
-        const response = await fetch('/intake/api/attach-file', {
+        const response = await fetch('/api/intake/attach-file', {
           method: 'POST',
           body: formData,
         });
@@ -368,7 +368,7 @@ export function ReviewSummary({ matterType, answers, files, requestId }: ReviewS
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const response = await fetch('/intake/api/submit', {
+      const response = await fetch('/api/intake/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId }),

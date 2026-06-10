@@ -5,10 +5,13 @@ import { prisma } from "@/lib/prisma";
 
 const baseURL = process.env.BETTER_AUTH_URL || "http://localhost:3000";
 
+// SQLite for development, PostgreSQL for production
+const dbProvider = process.env.NODE_ENV === "production" ? "postgresql" : "sqlite";
+
 export const auth = betterAuth({
   baseURL,
   database: prismaAdapter(prisma, {
-    provider: "postgresql",
+    provider: dbProvider,
   }),
   emailAndPassword: {
     enabled: true,

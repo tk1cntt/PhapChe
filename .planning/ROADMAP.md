@@ -107,3 +107,27 @@ Plans:
 
 Plans:
 - [x] 20-01-PLAN.md — i18n Foundation: Update next.config.ts with next-intl plugin, update i18n.ts for dynamic locale detection, integrate i18n middleware with auth middleware, add [locale] route group with layout, add NextIntlClientProvider to root layout
+
+### Phase 21: Gap Validation & Quick Fixes
+
+**Goal:** Close gaps from v1.1 audit — validate Phase 18 e2e tests, fix login redirect URL with i18n, verify auth routes integration.
+
+**Gap Closure:** Closes INT-01, FLOW-01, FLOW-02 from audit
+
+**Depends on:** Phase 20
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 21-01-PLAN.md — Validate Phase 18 & Fix i18n Gaps: Create VERIFICATION.md for Phase 18, fix login redirect to /vi/intake, verify customer dashboard i18n routing, run full e2e suite
+
+### Phase 22: Tech Debt Cleanup
+
+**Goal:** Address accumulated tech debt — fix TypeScript errors, fix /reviewer/requests useSearchParams Suspense issue, add error boundaries.
+
+**Depends on:** Phase 21
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 22-01-PLAN.md — Tech Debt Cleanup: Audit and fix TypeScript errors, fix useSearchParams Suspense issue in /reviewer/requests, add Error Boundaries to admin pages

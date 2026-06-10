@@ -924,3 +924,169 @@ h1 {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* Toolbar styles */
+.toolbar-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--soft-shadow);
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.toolbar-left,
+.toolbar-right {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.request-search {
+  display: flex;
+  align-items: center;
+  width: 360px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 14px;
+  gap: 11px;
+  background: #fff;
+}
+
+.request-search svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.request-search input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+  color: var(--text);
+  background: transparent;
+}
+
+.request-search input::placeholder {
+  color: var(--muted);
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 16px;
+  gap: 10px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tool-btn:hover {
+  background: #f8fafc;
+  border-color: var(--teal);
+}
+
+.tool-btn.square {
+  width: 52px;
+  padding: 0;
+  justify-content: center;
+}
+
+/* Table styles */
+.table-card {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: var(--soft-shadow);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.table-head {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 0.95fr 1fr 1fr 0.9fr;
+  min-height: 54px;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid var(--border);
+}
+
+.table-head .th {
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #59687e;
+  border-right: 1px solid var(--border);
+}
+
+.table-head .th:last-child {
+  border-right: none;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 0.95fr 1fr 1fr 0.9fr;
+  min-height: 72px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background: #fbfdff;
+}
+
+.table-row .td {
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  font-size: 14px;
+  border-right: 1px solid var(--border);
+}
+
+.table-row .td:last-child {
+  border-right: none;
+}
+
+.table-empty {
+  padding: 48px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Table case icon (smaller version) */
+.table-row .case-icon {
+  width: 36px;
+  height: 36px;
+}
+
+/* Action link styling */
+.action-link {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--teal);
+  text-decoration: none;
+}
+
+.action-link:hover {
+  text-decoration: underline;
+}

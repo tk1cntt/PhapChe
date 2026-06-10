@@ -21,11 +21,19 @@ export type UserRow = {
   status: string;
 };
 
-interface AdminUsersTableProps {
-  dataSource: UserRow[];
+export interface PaginationConfig {
+  current: number;
+  pageSize: number;
+  total: number;
+  onChange: (page: number, pageSize: number) => void;
 }
 
-export default function AdminUsersTable({ dataSource }: AdminUsersTableProps) {
+interface AdminUsersTableProps {
+  dataSource: UserRow[];
+  pagination?: false | PaginationConfig;
+}
+
+export default function AdminUsersTable({ dataSource, pagination }: AdminUsersTableProps) {
   const t = useTranslations();
 
   const getRoleLabel = (role: string) => {
@@ -88,7 +96,7 @@ export default function AdminUsersTable({ dataSource }: AdminUsersTableProps) {
       dataSource={dataSource}
       rowKey="key"
       columns={columns}
-      pagination={false}
+      pagination={pagination}
       size="middle"
       bordered
     />

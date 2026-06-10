@@ -86,6 +86,9 @@ const requestColumns: ColumnsType<OpsRequestRow> = [
   {
     title: 'Trạng thái',
     key: 'status',
+    filters: Object.entries(statusLabels).map(([value, meta]) => ({ text: meta.label, value })),
+    filterMultiple: false,
+    onFilter: (value, record) => record.status === value,
     render: (_: unknown, record: OpsRequestRow) => {
       const meta = statusLabels[record.status];
       return <Tag color={toneToColor[meta.tone] ?? 'default'}>{meta.label}</Tag>;

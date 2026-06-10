@@ -1,14 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Layout, Menu, Breadcrumb, Typography } from 'antd';
+import { usePathname, useRouter } from 'next/navigation';
+import { Layout, Menu, Breadcrumb, Typography, Input } from 'antd';
 import {
   UserOutlined, TeamOutlined, FileTextOutlined,
   DashboardOutlined, SafetyOutlined, FolderOutlined,
 } from '@ant-design/icons';
 import { useTranslations } from 'next-intl';
 import { getBreadcrumbItems } from '@/lib/navigation/breadcrumb-labels';
+import { useDebounce } from '@/lib/hooks/useDebounce';
+import { useState } from 'react';
 
 const { Sider, Content, Header } = Layout;
 
@@ -20,7 +22,21 @@ const { Sider, Content, Header } = Layout;
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations('AdminNav');
   const pathname = usePathname();
+  const router = useRouter();
   const breadcrumbItems = getBreadcrumbItems(pathname);
+
+  // Global search state
+  const [searchValue, setSearchValue] = useState('');
+  const debouncedSearch = useDebounce(searchValue, 300);
+
+  // Navigate to requests page with search param when debounced search changes
+  const handleSearch = (value: string) => {
+    if (value.trim()) {
+      router.push(`/admin/requests?search=${encodeURIComponent(value)}&page=1`);
+    } else {
+      router.push('/admin/requests');
+    }
+  };
 
   const navItems = [
     { key: '/admin/users', icon: <UserOutlined />, label: <Link href="/admin/users">{t('users')}</Link> },
@@ -59,10 +75,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             padding: '0 24px',
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'space-between',
             height: 48,
           }}
         >
           <Breadcrumb items={breadcrumbItems} />
+          <Input.Search
+            placeholder="Tim kiem..."
+            style={{ width: 300 }}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onSearch={handleSearch}
+            allowClear
+          />
         </Header>
         <Content
           style={{

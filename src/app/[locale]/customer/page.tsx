@@ -8,6 +8,8 @@ import DeadlinePanel from './components/DeadlinePanel';
 import DocumentPanel from './components/DocumentPanel';
 import ActivityTimeline from './components/ActivityTimeline';
 import FloatingChatButton from './components/FloatingChatButton';
+import Toolbar from './components/Toolbar';
+import RequestsTable, { RequestRow } from './components/RequestsTable';
 import './components/dashboard.css';
 
 export default async function CustomerDashboardPage() {
@@ -42,7 +44,8 @@ export default async function CustomerDashboardPage() {
     recentRequests,
     recentVaultFiles,
     auditEvents,
-    deadlines
+    deadlines,
+    requests
   ] = await Promise.all([
     // CUST-DASH-01: Total requests count
     prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '' } }),
@@ -89,6 +92,16 @@ export default async function CustomerDashboardPage() {
       },
       orderBy: { updatedAt: 'desc' },
       take: 3,
+    }),
+    // Full requests for table (CUST-DASH-07, CUST-DASH-08)
+    prisma.legalRequest.findMany({
+      where: { workspaceId: activeWorkspaceId ?? '' },
+      include: {
+        assignedSpecialist: { select: { name: true } },
+        assignedReviewer: { select: { name: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 4,
     }),
   ]);
 
@@ -140,6 +153,21 @@ export default async function CustomerDashboardPage() {
     timestamp: getRelativeTime(e.createdAt),
   }));
 
+  // Map requests for table (CUST-DASH-07, CUST-DASH-08)
+  const requestRows: RequestRow[] = requests.map(req => ({
+    id: req.id,
+    code: `REQ-${req.createdAt.getFullYear()}-${String(req.id.slice(-3)).toUpperCase()}`,
+    statusText: req.status === 'in_progress' ? 'Đang xử lý' : req.status === 'pending_review' ? 'Cần phản hồi' : req.status === 'delivered' ? 'Hoàn tất' : req.status === 'closed' ? 'Hoàn tất' : 'Đang xử lý',
+    type: req.title.split(' ').slice(0, 3).join(' '),
+    typeEn: 'Contract Review',
+    specialistName: req.assignedSpecialist?.name ?? req.assignedReviewer?.name ?? 'Chưa phân công',
+    specialistRole: req.assignedSpecialist ? 'Specialist' : req.assignedReviewer ? 'Reviewer' : 'Coordinator',
+    updatedDate: req.updatedAt.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+    updatedTime: req.updatedAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ICT',
+    status: req.status === 'pending_review' || req.status === 'revision_required' ? 'pending' : req.status === 'delivered' || req.status === 'closed' ? 'approved' : 'review',
+    actionText: req.status === 'pending_review' ? 'Phản hồi' : req.status === 'delivered' || req.status === 'closed' ? 'Tải kết quả' : req.status === 'revision_required' ? 'Bổ sung' : 'Xem chi tiết',
+  }));
+
   // notificationCount from database (unread messages)
   const notificationCount = unreadMessages;
 
@@ -183,6 +211,10 @@ export default async function CustomerDashboardPage() {
         <DocumentPanel documents={documents} />
         <ActivityTimeline activities={activities} />
       </div>
+
+      {/* CUST-DASH-07, CUST-DASH-08, CUST-DASH-09: Requests table */}
+      <Toolbar />
+      <RequestsTable requests={requestRows} />
 
       {/* CUST-DASH-10: Floating chat button - notificationCount from database */}
       <FloatingChatButton notificationCount={notificationCount} notificationText="Tin mới" />

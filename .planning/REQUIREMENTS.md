@@ -4,6 +4,44 @@
 **Milestone:** v1.4 Template Parity — Full Coverage
 **Core Value:** SME gửi yêu cầu pháp lý đơn giản như nhắn tin và nhận tài liệu/tư vấn đã qua kiểm soát chất lượng, có thể truy vết toàn bộ quá trình xử lý.
 
+## Testing Requirements
+
+### Per-Screen Test Coverage
+
+Mỗi màn hình phase phải có đầy đủ test coverage:
+
+| Test Type | Description | Coverage Target |
+|-----------|-------------|----------------|
+| **Whitebox** | Unit tests cho components, hooks, utilities | ≥80% line coverage |
+| **Blackbox** | Integration tests cho API endpoints, database queries | ≥90% endpoint coverage |
+| **Abnormal** | Edge cases, boundary conditions, empty states | All user flows covered |
+| **Error** | Error boundaries, fallback UI, retry logic | All error paths covered |
+| **E2E** | Full user flows từ UI → DB → UI | All critical paths |
+
+### Data Rules
+
+**Strict DB-only data:**
+- ✅ Tất cả sample data phải insert vào SQLite qua Prisma seed scripts
+- ✅ Hiển thị từ database queries
+- ❌ Không hardcode bất kỳ giá trị nào trong UI components
+- ❌ Không mock data trong components (chỉ mock trong unit tests nếu cần)
+
+### Database Seeding
+
+Mỗi phase cần có seed script tạo:
+- Sample workspaces (An Phát, Minh Khang, Internal)
+- Sample users với roles (128 users total)
+- Sample requests với statuses
+- Sample vault files với folders/tags
+- Sample audit events
+
+### E2E Test Requirements
+
+- Playwright tests cho every user flow
+- Coverage minimum 90% lines/statement
+- Tests phải chạy trên CI
+- Data reset giữa các tests
+
 ## v1.4 Requirements
 
 ### User Portal
@@ -170,8 +208,8 @@
 | ADMIN-WS-01..04 | Phase 38 | Pending |
 
 **Coverage:**
-- v1.4 requirements: 70 total
-- Mapped to phases: 70
+- v1.4 requirements: 78 total
+- Mapped to phases: 78
 - Unmapped: 0 ✓
 
 ---

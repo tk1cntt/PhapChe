@@ -6,6 +6,25 @@
   box-sizing: border-box;
 }
 
+:root {
+  /* Template brand colors from images/template.png */
+  --brand-green: #27AE60;
+  --button-blue: #3498DB;
+
+  /* Sidebar */
+  --sidebar-bg: #E8E8E8;
+  --sidebar-border: #D0D0D0;
+
+  /* Content */
+  --content-bg: #F5F5F5;
+
+  /* Stats Card Borders */
+  --stat-gray: #8E8E8E;
+  --stat-orange: #F39C12;
+  --stat-green: #27AE60;
+  --stat-red: #E74C3C;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -17,7 +36,7 @@ body {
 }
 
 ::selection {
-  background: rgba(15, 118, 110, 0.18);
+  background: rgba(39, 174, 96, 0.18);
 }
 
 a {
@@ -34,4 +53,13 @@ textarea {
 
 table {
   font-variant-numeric: tabular-nums;
+}
+
+/* Ant Design layout overrides for template look */
+.ant-layout-sider {
+  background: var(--sidebar-bg) !important;
+}
+
+.ant-layout-content {
+  background: var(--content-bg) !important;
 }

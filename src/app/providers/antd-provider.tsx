@@ -7,9 +7,10 @@ import { useServerInsertedHTML } from "next/navigation";
 
 const theme: ThemeConfig = {
   token: {
-    colorPrimary: "#0F766E",
-    colorError: "#DC2626",
-    colorBgLayout: "#F8FAFC",
+    // Brand colors from template.png
+    colorPrimary: "#27AE60", // GREEN - Logo and active nav (was #0F766E teal)
+    colorError: "#DC2626", // Unchanged - Red for destructive actions
+    colorBgLayout: "#F5F5F5", // Changed from #F8FAFC - Content background
     colorBgContainer: "#FFFFFF",
     colorBgElevated: "#FFFFFF",
     colorText: "#0F172A",
@@ -18,32 +19,33 @@ const theme: ThemeConfig = {
     colorFillTertiary: "#F1F5F9",
     colorWhite: "#FFFFFF",
     fontSize: 14,
-    borderRadius: 16,
-    borderRadiusLG: 16,
-    borderRadiusSM: 8,
+    borderRadius: 8, // Reduced from 16 for template look
+    borderRadiusLG: 8,
+    borderRadiusSM: 6,
     wireframe: false,
   },
   components: {
     Menu: {
-      colorItemBgSelected: "#F0FDFA",
-      colorItemTextSelected: "#0F766E",
+      colorItemBgSelected: "#E8F8EF", // Green tint (was #F0FDFA)
+      colorItemTextSelected: "#27AE60", // Green for selected label
       colorItemBgHover: "#F1F5F9",
       colorItemTextHover: "#0F172A",
       colorItemBg: "transparent",
-      colorItemText: "#475569",
-      borderRadius: 12,
+      colorItemText: "#475569", // Gray text - matches template
+      borderRadius: 8,
       itemMarginInline: 8,
       itemMarginBlock: 4,
     },
     Button: {
-      borderRadius: 12,
+      borderRadius: 8, // Reduced from 12
       controlHeight: 40,
       primaryColor: "#FFFFFF",
-      defaultBorderColor: "#CBD5E1",
+      defaultBorderColor: "#E2E8F0",
       defaultColor: "#0F172A",
       defaultBg: "#FFFFFF",
-      colorPrimaryHover: "#115E59",
-      colorPrimaryActive: "#134E4A",
+      colorPrimary: "#3498DB", // BLUE - Primary buttons (was #0F766E)
+      colorPrimaryHover: "#2980B9", // Blue darker
+      colorPrimaryActive: "#1F6391", // Blue darkest
     },
     Card: {
       padding: 16,

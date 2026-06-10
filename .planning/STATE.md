@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Auth & Hardening
-status: completed
-last_updated: "2026-06-10T11:41:10.368Z"
+milestone: v1.2
+milestone_name: UI/UX Improvements
+status: planning
+last_updated: "2026-06-10T12:00:00.000Z"
 last_activity: 2026-06-10
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 18
-  completed_plans: 18
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # State
@@ -20,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-10)
 
 **Core value:** SME sends legal requests through simple chat and receives quality-reviewed deliverables with full traceability.
-**Status:** v1.1 shipped — planning v1.2
-**Next:** Run /gsd-new-milestone to start v1.2 planning
+**Status:** v1.2 milestone planning
+**Next:** Define requirements and create roadmap
 
-## Current Milestone: v1.1 Auth & Hardening
+## Current Milestone: v1.2 UI/UX Improvements
 
-All v1.0 MVP phases complete. Phase 15 kicks off v1.1 with authentication system implementation (login page, session management, auth provider).
+All v1.1 phases complete. v1.2 focuses on UX improvements based on UI-UX-ADVISORY.md.
 
 ## Progress Summary
 

@@ -1,6 +1,24 @@
 # Legal-as-a-Service Platform
 
-## Current State (v1.1 Auth & Hardening — Shipped 2026-06-10)
+## Current State (v1.2 UI/UX Improvements — In Progress)
+
+v1.2 đang được lên kế hoạch với focus vào UX improvements cho Admin Dashboard.
+
+**Total to date:** v1.0 + v1.1 = 22 phases, 67 plans, 93 tasks
+
+**Tech stack:** Next.js 14 (App Router), TypeScript, Prisma + SQLite, Ant Design 6, Tailwind CSS, Better Auth, next-intl
+
+## Current Milestone: v1.2 UI/UX Improvements
+
+**Goal:** Cải thiện UX cho Admin Dashboard — loading states, error handling, data fetching patterns.
+
+**Target features:**
+- Error boundaries với retry button cho tất cả admin pages
+- Skeleton loading screens thay vì spinner  
+- Shared skeleton components (PageSkeleton, CardSkeleton)
+- TanStack Query integration cho caching và dedup
+- Server-side pagination cho tables
+- Search/filter với debounce
 
 v1.1 đã hoàn thành với **8 phases, 18 plans, 23 tasks** — 185 commits, +6,766/-864 LOC.
 
@@ -106,4 +124,4 @@ Tài liệu nhấn mạnh tư duy E-Myth: không xây AI biết tất cả, mà 
 
 ---
 
-*Last updated: 2026-06-10 after v1.1 milestone*
+*Last updated: 2026-06-10 after v1.2 milestone started*

@@ -99,8 +99,9 @@ Items acknowledged at milestone close (2026-06-05):
 | 260609-vps | Fix intake page 500 error when creating request - POST /ja/intake/api/create-draft | 2026-06-09 | e37f78e | Verified | [260609-vps-fix-intake-page-500-error-when-creating-](./quick/260609-vps-fix-intake-page-500-error-when-creating-/) |
 | 260609-wdw | Fix intake API 500 error - analyze root cause and verify with browser testing | 2026-06-09 | e37f78e | Verified | [260609-wdw-fix-intake-api-500-error-analyze-root-ca](./quick/260609-wdw-fix-intake-api-500-error-analyze-root-ca/) |
 | 260610-wmr | Switch from PostgreSQL to SQLite for development | 2026-06-10 | 8afbd54 | Verified | [260610-wmr-switch-from-postgresql-to-sqlite-for-dev](./quick/260610-wmr-switch-from-postgresql-to-sqlite-for-dev/) |
+| 260610-axj | Test e2e 6 tính năng admin dashboard - kiểm tra dữ liệu hiển thị, bổ sung data test, chụp ảnh | 2026-06-10 | — | Verified | [260610-axj-test-e2e-6-t-nh-n-ng-admin-dashboard-ki-](./quick/260610-axj-test-e2e-6-t-nh-n-ng-admin-dashboard-ki-/) |
 
-Last activity: 2026-06-10 - Completed quick task 260610-wmr: Switch to SQLite for development (commit: 8afbd54)
+Last activity: 2026-06-10 - Completed quick task 260610-axj: Test e2e 6 tính năng admin dashboard (8/8 tests PASSED)
 
 ## Phase 17 Plan 05 Execution
 

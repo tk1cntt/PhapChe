@@ -50,16 +50,26 @@ export async function canAccessRequest(session: AppSession | null | undefined, r
   });
 
   if (!request) return false;
-  if (hasRole(session, 'super_admin')) return true;
 
   const typedSession = session as AppSession;
-  const hasMembership = await hasActiveMembership(typedSession, request.workspaceId);
-  if (!hasMembership) return false;
 
-  if (hasRole(typedSession, 'coordinator_admin')) return true;
-  if (hasRole(typedSession, 'customer') && request.createdById === typedSession.userId) return true;
-  if (hasRole(typedSession, 'specialist') && request.assignedSpecialistId === typedSession.userId) return true;
-  if (hasRole(typedSession, 'reviewer') && request.assignedReviewerId === typedSession.userId) return true;
+  // Super admin can access all requests
+  if (hasRole(typedSession, 'super_admin')) return true;
+
+  // Check if user has active membership in the request's workspace
+  const hasMembership = await hasActiveMembership(typedSession, request.workspaceId);
+
+  // Coordinator admin can access requests in their workspace (if they have membership)
+  if (hasMembership && hasRole(typedSession, 'coordinator_admin')) return true;
+
+  // Customer can access their own requests (if they have membership)
+  if (hasMembership && hasRole(typedSession, 'customer') && request.createdById === typedSession.userId) return true;
+
+  // Specialist can access requests assigned to them (if they have membership)
+  if (hasMembership && hasRole(typedSession, 'specialist') && request.assignedSpecialistId === typedSession.userId) return true;
+
+  // Reviewer can access requests assigned to them (if they have membership)
+  if (hasMembership && hasRole(typedSession, 'reviewer') && request.assignedReviewerId === typedSession.userId) return true;
 
   return false;
 }

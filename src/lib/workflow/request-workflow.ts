@@ -49,7 +49,8 @@ export function canTransitionRequestStatus(
   }
 
   if (hasRole('coordinator_admin')) {
-    return ['triage', 'assigned', 'cancelled', 'delivered', 'closed'].includes(toStatus);
+    // Coordinator can submit intake (for triage), triage, assign, deliver, close, or cancel
+    return ['intake_submitted', 'triage', 'assigned', 'cancelled', 'delivered', 'closed'].includes(toStatus);
   }
 
   if (hasRole('specialist') && isAssignedSpecialist) {

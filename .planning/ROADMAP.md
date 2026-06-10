@@ -1,13 +1,14 @@
 # Roadmap: Legal-as-a-Service Platform
 
 **Last updated:** 2026-06-10
-**Current milestone:** v1.2 UI/UX Improvements
+**Current milestone:** v1.3 UI Brand Refresh
 
 ## Milestones
 
 - [x] **v1.0 MVP** — Phases 01-14, 49 plans, 70 tasks (shipped 2026-06-05)
 - [x] **v1.1 Auth & Hardening** — Phases 15-22, 18 plans, 23 tasks (shipped 2026-06-10)
 - [x] **v1.2 UI/UX Improvements** — Phases 23-25 (shipped 2026-06-10)
+- [ ] **v1.3 UI Brand Refresh** — Phase 26 (planning)
 
 ## Phases
 
@@ -54,7 +55,37 @@
 
 </details>
 
+<details>
+<summary>🔄 v1.3 UI Brand Refresh (Phase 26) — IN PROGRESS</summary>
+
+- [ ] Phase 26: ui-refresh — UI redesign based on template.png
+
+</details>
+
 ## Phase Details
+
+### Phase 26: UI Brand Refresh
+
+**Goal:** Update toàn bộ giao diện dựa trên layout template từ images/template.png. Áp dụng brand "Pháp Chể" với màu xanh lá chính (#27AE60), nút primary màu xanh dương (#3498DB), và cập nhật sidebar navigation.
+
+**Depends on:** Phase 25
+
+**Reference:** images/template.png (brand layout mockup)
+
+**Success Criteria** (what must be TRUE):
+
+1. Brand logo/title updated từ "GitNexus Legal" sang "Pháp Chể"
+2. Primary color đổi từ teal (#0F766E) sang xanh lá (#27AE60)
+3. Primary button color đổi sang xanh dương (#3498DB)
+4. Sidebar navigation items được cập nhật theo template (Tổng quan, Biểu mẫu, Theo dõi, Tra cứu, Tài khoản)
+5. Typography và spacing giữ nguyên từ Phase 14 UI-SPEC
+6. Tất cả e2e tests vẫn pass sau khi update
+
+**UI hint:** yes
+
+---
+
+### Phase 23: Quick Wins
 
 ### Phase 23: Quick Wins
 

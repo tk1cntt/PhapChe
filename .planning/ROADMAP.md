@@ -13,7 +13,7 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
 
 ## Phases
 
-- [ ] **Phase 26: Customer Dashboard** - user-dashboard.html (10 requirements)
+- [x] **Phase 26: Customer Dashboard** - user-dashboard.html (10 requirements) (completed 2026-06-10)
 - [ ] **Phase 27: Create Request** - user-create-request.html (6 requirements)
 - [ ] **Phase 28: My Cases** - user-cases.html (5 requirements)
 - [ ] **Phase 29: Messages** - user-messages.html (4 requirements)
@@ -42,10 +42,10 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   6. User sees activity timeline with relative timestamps
   7. User sees requests table with 7 columns showing 4 sample rows
   8. User sees floating chat button with "2 Tin mới" badge
-**Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
+**Plans:** 3/3 plans complete
+- [x] 26-01-PLAN.md — Foundation components
+- [x] 26-02-PLAN.md — Dashboard page with panels
+- [x] 26-03-PLAN.md — Table and seed data
 **UI hint**: yes
 
 ### Phase 27: Create Request

@@ -3,6 +3,13 @@
 import React from 'react';
 import { Badge } from './Badge';
 
+export interface SLAData {
+  deadline: string;
+  deadlineText: string;
+  progress: number; // 0-100
+  status: 'ok' | 'warn' | 'danger';
+}
+
 export interface RequestRow {
   id: string;
   code: string;
@@ -15,6 +22,7 @@ export interface RequestRow {
   updatedTime: string;
   status: 'review' | 'pending' | 'approved' | 'overdue';
   actionText: string;
+  sla: SLAData;
 }
 
 export interface RequestsTableProps {
@@ -41,22 +49,33 @@ type BadgeProps = {
   children: React.ReactNode;
 };
 
+function ProgressBar({ value, status }: { value: number; status: 'ok' | 'warn' | 'danger' }): JSX.Element {
+  return (
+    <div className="sla-progress">
+      <div className="sla-progress-bar">
+        <div className={`sla-progress-fill ${status}`} style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
+      </div>
+    </div>
+  );
+}
+
 export function RequestsTable({ requests }: RequestsTableProps): JSX.Element {
   return (
     <div className="table-card">
-      <div className="table-head">
+      <div className="table-head table-head-7col">
         <div className="th">Mã hồ sơ</div>
         <div className="th">Loại yêu cầu</div>
         <div className="th">Trạng thái</div>
         <div className="th">Người phụ trách</div>
         <div className="th">Cập nhật gần nhất</div>
+        <div className="th">SLA</div>
         <div className="th">Thao tác</div>
       </div>
       {requests.length === 0 ? (
         <div className="table-empty">Không có hồ sơ nào</div>
       ) : (
         requests.map((item) => (
-          <div key={item.id} className="table-row">
+          <div key={item.id} className="table-row table-row-7col">
             <div className="td">
               <div className="case-main">
                 <div className="case-icon">
@@ -92,6 +111,12 @@ export function RequestsTable({ requests }: RequestsTableProps): JSX.Element {
               <div className="stack">
                 <strong>{item.updatedDate}</strong>
                 <span>{item.updatedTime}</span>
+              </div>
+            </div>
+            <div className="td sla-cell">
+              <div className="sla-info">
+                <span className="sla-deadline">{item.sla.deadlineText}</span>
+                <ProgressBar value={item.sla.progress} status={item.sla.status} />
               </div>
             </div>
             <div className="td">

@@ -4,8 +4,16 @@ import { RequestsTable } from '@/app/[locale]/customer/components/RequestsTable'
 import { Toolbar } from '@/app/[locale]/customer/components/Toolbar';
 
 describe('RequestsTable Component', () => {
-  // WHITEBOX: Unit test for table structure
-  it('renders table with 6 columns', () => {
+  // Sample SLA data for tests
+  const sampleSLA = {
+    deadline: '2026-06-15T00:00:00.000Z',
+    deadlineText: '15/06',
+    progress: 45,
+    status: 'ok' as const,
+  };
+
+  // WHITEBOX: Unit test for table structure (now 7 columns including SLA)
+  it('renders table with 7 columns including SLA', () => {
     const requests = [
       {
         id: '1',
@@ -19,6 +27,7 @@ describe('RequestsTable Component', () => {
         updatedTime: '14:30 ICT',
         status: 'review' as const,
         actionText: 'Xem chi tiết',
+        sla: sampleSLA,
       },
     ];
     render(<RequestsTable requests={requests} />);
@@ -29,11 +38,12 @@ describe('RequestsTable Component', () => {
     expect(screen.getByText('Trạng thái')).toBeInTheDocument();
     expect(screen.getByText('Người phụ trách')).toBeInTheDocument();
     expect(screen.getByText('Cập nhật gần nhất')).toBeInTheDocument();
+    expect(screen.getByText('SLA')).toBeInTheDocument();
     expect(screen.getByText('Thao tác')).toBeInTheDocument();
   });
 
-  // WHITEBOX: Test request row rendering
-  it('renders request row with correct data', () => {
+  // WHITEBOX: Test request row rendering with SLA
+  it('renders request row with correct data including SLA', () => {
     const requests = [
       {
         id: '1',
@@ -47,6 +57,7 @@ describe('RequestsTable Component', () => {
         updatedTime: '14:30 ICT',
         status: 'review' as const,
         actionText: 'Xem chi tiết',
+        sla: sampleSLA,
       },
     ];
     render(<RequestsTable requests={requests} />);
@@ -54,6 +65,36 @@ describe('RequestsTable Component', () => {
     expect(screen.getByText('REQ-2026-021')).toBeInTheDocument();
     expect(screen.getByText('Rà soát hợp đồng')).toBeInTheDocument();
     expect(screen.getByText('Hà Linh')).toBeInTheDocument();
+    expect(screen.getByText('15/06')).toBeInTheDocument(); // SLA deadline text
+  });
+
+  // WHITEBOX: Test SLA progress bar rendering
+  it('renders SLA progress bar with correct status', () => {
+    const requests = [
+      {
+        id: '1',
+        code: 'REQ-1',
+        statusText: 'Test',
+        type: 'Test',
+        typeEn: 'Test',
+        specialistName: 'User',
+        specialistRole: 'Role',
+        updatedDate: 'Date',
+        updatedTime: 'Time',
+        status: 'review' as const,
+        actionText: 'Action',
+        sla: {
+          deadline: '2026-06-15T00:00:00.000Z',
+          deadlineText: '15/06',
+          progress: 75,
+          status: 'warn' as const,
+        },
+      },
+    ];
+    render(<RequestsTable requests={requests} />);
+
+    const progressBar = document.querySelector('.sla-progress-fill.warn');
+    expect(progressBar).toBeInTheDocument();
   });
 
   // ABNORMAL: Empty requests
@@ -79,6 +120,7 @@ describe('RequestsTable Component', () => {
         updatedTime: 'Time',
         status,
         actionText: 'Action',
+        sla: sampleSLA,
       }];
       render(<RequestsTable requests={requests} />);
       // Use getAllByText since status appears in both case-info and badge
@@ -101,6 +143,7 @@ describe('RequestsTable Component', () => {
       updatedTime: 'Time',
       status: 'pending' as const,
       actionText: 'Phản hồi',
+      sla: sampleSLA,
     }];
     render(<RequestsTable requests={requests} />);
     expect(screen.getByText('Phản hồi')).toBeInTheDocument();

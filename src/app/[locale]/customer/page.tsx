@@ -153,6 +153,31 @@ export default async function CustomerDashboardPage() {
     timestamp: getRelativeTime(e.createdAt),
   }));
 
+  // Calculate SLA for each request (7-day SLA from creation)
+  const calculateSLA = (createdAt: Date) => {
+    const now = new Date();
+    const deadline = new Date(createdAt);
+    deadline.setDate(deadline.getDate() + 7); // 7-day SLA
+
+    const totalMs = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+    const elapsedMs = now.getTime() - createdAt.getTime();
+    const progress = Math.min(100, Math.round((elapsedMs / totalMs) * 100));
+
+    const status = progress >= 100 ? 'danger' : progress >= 70 ? 'warn' : 'ok';
+
+    const deadlineText = deadline.toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+    });
+
+    return {
+      deadline: deadline.toISOString(),
+      deadlineText: `${deadlineText}`,
+      progress,
+      status: status as 'ok' | 'warn' | 'danger',
+    };
+  };
+
   // Map requests for table (CUST-DASH-07, CUST-DASH-08)
   const requestRows: RequestRow[] = requests.map(req => ({
     id: req.id,
@@ -166,6 +191,7 @@ export default async function CustomerDashboardPage() {
     updatedTime: req.updatedAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ICT',
     status: req.status === 'pending_review' || req.status === 'revision_required' ? 'pending' : req.status === 'delivered' || req.status === 'closed' ? 'approved' : 'review',
     actionText: req.status === 'pending_review' ? 'Phản hồi' : req.status === 'delivered' || req.status === 'closed' ? 'Tải kết quả' : req.status === 'revision_required' ? 'Bổ sung' : 'Xem chi tiết',
+    sla: calculateSLA(req.createdAt),
   }));
 
   // notificationCount from database (unread messages)

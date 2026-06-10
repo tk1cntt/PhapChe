@@ -23,7 +23,7 @@ export function SignInForm() {
       if (error) {
         message.error('Email hoặc mật khẩu không đúng');
       } else {
-        router.push('/intake');
+        router.push('/vi/intake');
       }
     } catch (e) {
       message.error('Có lỗi xảy ra, vui lòng thử lại');

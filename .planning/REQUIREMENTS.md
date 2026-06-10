@@ -54,7 +54,7 @@ Mỗi phase cần có seed script tạo:
 - [ ] **CUST-DASH-04**: Display deadline/SLA panel with progress bars
 - [ ] **CUST-DASH-05**: Display recent documents panel with file type badges (PDF, DOC)
 - [ ] **CUST-DASH-06**: Display activity timeline with relative timestamps (12 phút, 38 phút, 2 giờ)
-- [ ] **CUST-DASH-07**: Display full requests table with 7 columns (mã, loại, trạng thái, phụ trách, cập nhật, SLA, thao tác)
+- [x] **CUST-DASH-07**: Display full requests table with 7 columns (mã, loại, trạng thái, phụ trách, cập nhật, SLA, thao tác)
 - [ ] **CUST-DASH-08**: Table shows 4 sample rows matching template data (REQ-2026-021, 019, 018, 016)
 - [ ] **CUST-DASH-09**: Toolbar with search and filter buttons functional
 - [ ] **CUST-DASH-10**: Floating chat button visible with "2 Tin mới" notification badge

@@ -74,7 +74,10 @@
 6. Card-based pages display `<CardSkeleton />` component
 7. Skeleton components are reusable — imported from shared location, not hard-coded per page
 
-**Plans:** 1 plan\n\nPlans:\n- [ ] 23-01-PLAN.md � Shared ErrorFallback and Skeleton components + integration into admin pages
+**Plans:** 1/1 plans complete
+
+Plans:
+- [x] 23-01-PLAN.md — Shared ErrorFallback and Skeleton components + integration into admin pages
 
 **UI hint:** yes
 
@@ -96,7 +99,10 @@
 4. React Query devtools panel visible in development mode, completely hidden in production
 5. Cache configured with staleTime: 30s and gcTime: 5min
 
-**Plans:** 1 plan\n\nPlans:\n- [ ] 23-01-PLAN.md � Shared ErrorFallback and Skeleton components + integration into admin pages
+**Plans:** 1/1
+
+Plans:
+- [ ] 24-01-PLAN.md — TanStack Query v5 setup and configuration
 
 **UI hint:** yes
 
@@ -120,7 +126,7 @@
 6. Search input debounces by 300ms before triggering query
 7. Search and filter state persists in URL params (shareable/bookmarkable URLs)
 
-**Plans:** 1 plan\n\nPlans:\n- [ ] 23-01-PLAN.md � Shared ErrorFallback and Skeleton components + integration into admin pages
+**Plans:** Not planned yet
 
 **UI hint:** yes
 
@@ -130,7 +136,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 23. Quick Wins | 1/1 | Completed | 2026-06-10 |
+| 23. Quick Wins | 1/1 | Complete    | 2026-06-10 |
 | 24. TanStack Query | 0/1 | Not started | - |
 | 25. Pagination & Search | 0/1 | Not started | - |
 

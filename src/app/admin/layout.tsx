@@ -2,166 +2,164 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Layout, Menu, Typography, Input, Avatar, Badge, Space, Button } from 'antd';
+import { Layout, Menu, Typography, Avatar, Dropdown, Button, Space } from 'antd';
+import type { MenuProps } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
   EyeOutlined,
   SearchOutlined,
   UserOutlined,
-  BellOutlined,
-  LogoutOutlined,
   EnvironmentOutlined,
+  LogoutOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
-import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { useDebounce } from '@/lib/hooks/useDebounce';
 
-const { Sider, Content, Header } = Layout;
+const { Header, Content } = Layout;
+const { Text } = Typography;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const t = useTranslations('AdminNav');
 
-  // Global search state
-  const [searchValue, setSearchValue] = useState('');
-  const debouncedSearch = useDebounce(searchValue, 300);
+  // Navigation items - horizontal in header (from template)
+  const navItems: MenuProps['items'] = [
+    {
+      key: '/vi/admin',
+      icon: <HomeOutlined />,
+      label: <Link href="/vi/admin">Trang chủ</Link>,
+    },
+    {
+      key: '/vi/admin/templates',
+      icon: <FileTextOutlined />,
+      label: <Link href="/vi/admin/templates">Biểu mẫu</Link>,
+    },
+    {
+      key: '/vi/admin/requests',
+      icon: <EyeOutlined />,
+      label: <Link href="/vi/admin/requests">Theo dõi</Link>,
+    },
+    {
+      key: '/vi/admin/vault',
+      icon: <SearchOutlined />,
+      label: <Link href="/vi/admin/vault">Tra cứu</Link>,
+    },
+    {
+      key: '/vi/admin/users',
+      icon: <UserOutlined />,
+      label: <Link href="/vi/admin/users">Tài khoản</Link>,
+    },
+  ];
 
-  // Navigate to requests page with search param when debounced search changes
-  const handleSearch = (value: string) => {
-    if (value.trim()) {
-      router.push(`/admin/requests?search=${encodeURIComponent(value)}&page=1`);
-    } else {
-      router.push('/admin/requests');
+  // User menu dropdown
+  const userMenuItems: MenuProps['items'] = [
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: 'Hồ sơ cá nhân',
+    },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Cài đặt',
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Đăng xuất',
+      danger: true,
+    },
+  ];
+
+  const handleUserMenuClick: MenuProps['onClick'] = ({ key }) => {
+    if (key === 'logout') {
+      router.push('/sign-out');
     }
   };
 
-  // Navigation items from template.png
-  const navItems = [
-    { key: '/vi/admin', icon: <HomeOutlined />, label: <Link href="/vi/admin">Trang chủ</Link> },
-    { key: '/vi/admin/templates', icon: <FileTextOutlined />, label: <Link href="/vi/admin/templates">Biểu mẫu</Link> },
-    { key: '/vi/admin/requests', icon: <EyeOutlined />, label: <Link href="/vi/admin/requests">Theo dõi</Link> },
-    { key: '/vi/admin/vault', icon: <SearchOutlined />, label: <Link href="/vi/admin/vault">Tra cứu</Link> },
-    { key: '/vi/admin/users', icon: <UserOutlined />, label: <Link href="/vi/admin/users">Tài khoản</Link> },
-  ];
-
-  // Handle logout
-  const handleLogout = () => {
-    router.push('/sign-out');
-  };
-
-  // Determine selected key based on current path
+  // Determine selected key from pathname
   const selectedKey = navItems.find(item =>
-    pathname === item.key || pathname.startsWith(item.key + '/')
+    item && 'key' in item && (
+      pathname === item.key || pathname.startsWith(String(item.key) + '/')
+    )
   )?.key || '/vi/admin';
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      {/* SIDEBAR - Gray background from template */}
-      <Sider
-        breakpoint="lg"
-        collapsedWidth={64}
-        width={220}
+    <Layout style={{ minHeight: '100vh', background: '#F5F5F5' }}>
+      {/* HEADER - Horizontal layout from template */}
+      <Header
         style={{
-          background: '#E8E8E8', // Gray sidebar from template
-          borderRight: 'none',
-          position: 'relative',
-        }}
-      >
-        {/* Logo Section */}
-        <div style={{
-          padding: '20px 16px',
-          borderBottom: '1px solid #D0D0D0',
+          background: '#FFFFFF',
+          borderBottom: '1px solid #E0E0E0',
+          padding: '0 24px',
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
-        }}>
-          <EnvironmentOutlined style={{ fontSize: '24px', color: '#27AE60' }} />
-          <span style={{
-            fontSize: '16px',
-            fontWeight: 700,
-            color: '#27AE60',
-            letterSpacing: '0.5px',
-          }}>
+          justifyContent: 'space-between',
+          height: 60,
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+        }}
+      >
+        {/* Left: Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <EnvironmentOutlined style={{ fontSize: 24, color: '#27AE60' }} />
+          <Text strong style={{ fontSize: 18, color: '#27AE60', letterSpacing: 1 }}>
             PHÁP CHỂ
-          </span>
+          </Text>
         </div>
 
-        {/* Navigation - Gray icons, black text from template */}
+        {/* Center: Navigation */}
         <Menu
-          mode="inline"
-          selectedKeys={[selectedKey]}
+          mode="horizontal"
+          selectedKeys={[String(selectedKey)]}
           items={navItems}
           style={{
-            background: 'transparent', // Transparent to show gray bg
-            borderRight: 'none',
-            marginTop: '8px',
+            flex: 1,
+            maxWidth: 600,
+            minWidth: 400,
+            borderBottom: 'none',
+            background: 'transparent',
           }}
         />
 
-        {/* Logout at bottom - from template */}
-        <div style={{
-          position: 'absolute',
-          bottom: '16px',
-          left: 0,
-          right: 0,
-          padding: '0 16px',
-        }}>
-          <Button
-            type="text"
-            icon={<LogoutOutlined />}
-            onClick={handleLogout}
-            style={{
-              width: '100%',
-              justifyContent: 'flex-start',
-              color: '#333',
-              fontSize: '14px',
-              height: '40px',
-            }}
+        {/* Right: User dropdown */}
+        <Space size="middle">
+          <Dropdown
+            menu={{ items: userMenuItems, onClick: handleUserMenuClick }}
+            placement="bottomRight"
+            trigger={['click']}
           >
-            Đăng xuất
-          </Button>
-        </div>
-      </Sider>
+            <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Avatar
+                style={{
+                  background: '#27AE60',
+                  cursor: 'pointer',
+                }}
+              >
+                NV
+              </Avatar>
+              <Text style={{ color: '#333' }}>Nguyễn Văn</Text>
+            </div>
+          </Dropdown>
+        </Space>
+      </Header>
 
-      {/* MAIN CONTENT */}
-      <Layout>
-        {/* Header from template - "Quản lý hồ sơ" + bell + avatar */}
-        <Header
-          style={{
-            background: '#FFFFFF',
-            borderBottom: '1px solid #E0E0E0',
-            padding: '0 24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            height: 64,
-          }}
-        >
-          <Typography.Title level={4} style={{ margin: 0, color: '#0F172A' }}>
-            Quản lý hồ sơ
-          </Typography.Title>
-
-          <Space size="middle">
-            <Badge count={3} size="small">
-              <BellOutlined style={{ fontSize: '18px', cursor: 'pointer', color: '#475569' }} />
-            </Badge>
-            <Avatar style={{ background: '#27AE60', cursor: 'pointer' }}>NV</Avatar>
-          </Space>
-        </Header>
-
-        {/* Content from template - #F5F5F5 background */}
-        <Content
-          style={{
-            padding: 24,
-            background: '#F5F5F5', // Light gray content bg from template
-            minHeight: 'calc(100vh - 64px)',
-          }}
-        >
-          {children}
-        </Content>
-      </Layout>
+      {/* CONTENT */}
+      <Content
+        style={{
+          padding: 24,
+          background: '#F5F5F5',
+          minHeight: 'calc(100vh - 60px)',
+        }}
+      >
+        {children}
+      </Content>
     </Layout>
   );
 }

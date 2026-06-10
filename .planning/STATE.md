@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: Progress Table
-status: Milestone complete
-stopped_at: Phase 25-01 plan complete
-last_updated: "2026-06-10T14:12:55.218Z"
+milestone: v1.3
+milestone_name: Template Parity
+status: Planning
+stopped_at: Milestone v1.3 initialized
+last_updated: "2026-06-10T14:50:00.000Z"
 last_activity: 2026-06-10
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # State
@@ -20,67 +20,42 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-06-10)
 
-**Core value:** SME sends legal requests through simple chat and receives quality-reviewed deliverables with full traceability.
-**Current focus:** Phase 26 — ui-refresh
+**Core value:** SME gửi yêu cầu pháp lý theo cách đơn giản như nhắn tin và nhận tài liệu/tư vấn đã qua kiểm soát chất lượng, có thể truy vết toàn bộ quá trình xử lý.
+**Current focus:** Milestone v1.3 — Template Parity
 
-## Current Milestone: v1.2 UI/UX Improvements
+## Current Milestone: v1.3 Template Parity
 
-v1.1 complete. v1.2 focuses on UX improvements for Admin Dashboard based on UI-UX-ADVISORY.md.
+v1.2 complete. v1.3 aligns all admin screens with HTML templates in layout/ folder.
 
-### Phase Structure
+### Target Screens
 
-| Phase | Name | Requirements | Status |
-|-------|------|-------------|--------|
-| 23 | quick-wins | ERR-01..04, LOAD-01..04 | Complete |
-| 24 | tanstack-query | DATA-01..05 | Complete |
-| 25 | pagination-search | PAGE-01..03, SCH-01..04 | Complete |
+| # | Screen | Template | Key Features |
+|---|--------|----------|--------------|
+| 1 | Admin Dashboard | admin-dashboard.html | Stats, workload, alerts, timeline, requests table |
+| 2 | User Management | admin-user-management.html | Stats, role pills, user table |
+| 3 | Admin Requests | admin-request.html | Stats, requests table with status badges |
+| 4 | Admin Operations | admin-operations.html | Stats, workload, audit timeline, SLA table |
+| 5 | Admin Audit | admin-audit.html | Audit events table, security notes |
+| 6 | Admin Vault | admin-vault.html | Stats, folder/tag panels, vault table |
+| 7 | Admin Workspace | admin-workspace.html | Permission card, workspace table |
 
-## v1.2 Progress Summary
+## v1.3 Requirements
 
-| Phase | Plans | Status |
-|-------|-------|--------|
-| 23. Quick Wins | 1/1 | Complete |
-| 24. TanStack Query | 1/1 | Complete |
-| 25. Pagination & Search | 1/1 | Complete |
-
-**Coverage:** 20/20 requirements mapped
-
-## Deferred Items
-
-Items acknowledged at milestone close (2026-06-05):
-
-| Category | Item | Status |
-|----------|------|--------|
-| verification | Phase 01 human_needed (browser check for UI interaction) | open |
-| tech_debt | Pre-existing TypeScript errors in template pages | open |
-| tech_debt | No DATABASE_URL for demo data seeding | open |
-| tech_debt | npm run typecheck pre-existing failures | open |
-| tech_debt | No e2e tests beyond Phase 1 foundation | open |
-| tech_debt | APP_SESSION_USER_ID stub auth — no real login page | open (Phase 15) |
+Each screen must:
+- Match template EXACTLY (colors, fonts, spacing, shadows)
+- Include sample data equivalent to template (128 users, 12 workspaces, etc.)
+- Use shared AdminLayout with Sidebar/Topbar
 
 ## Accumulated Context
 
-### v1.2 Roadmap Decisions
+### v1.2 Summary
 
-- Phase 23: Error boundaries + skeleton templates (no new dependencies)
-- Phase 24: TanStack Query v5 integration
-- Phase 25: Server-side pagination + search/filter with URL persistence
+v1.2 completed with 3 phases:
+- Phase 23: Quick Wins (error boundaries + skeleton templates)
+- Phase 24: TanStack Query integration
+- Phase 25: Pagination & Search with URL persistence
 
-### Phase 25 Summary
-
-Implemented server-side pagination with page sizes 10/25/50, global search with 300ms debounce, column filters, and full URL state persistence across admin tables.
-
-**Commits:**
-
-- `8396a6b`: usePaginationParams hook for URL sync
-- `ac0c37d`: useDebounce hook for search input
-- `d37ccd4`: API routes with server-side pagination
-- `01b3942`: Query hooks enhanced with pagination
-- `0175284`: Global search bar in admin header
-- `4e58b9b`: Paginated admin table pages
-- `3238905`: Table components updated
-
-### Quick Tasks Completed (v1.1 era)
+### Quick Tasks Completed (v1.2 era)
 
 | # | Description | Date | Status |
 |---|-------------|------|--------|
@@ -88,10 +63,10 @@ Implemented server-side pagination with page sizes 10/25/50, global search with 
 | 260610-axj | Test e2e 6 admin dashboard features | 2026-06-10 | Verified |
 | 260610-uaj | Apply template layout/index.html to all pages | 2026-06-10 | Verified |
 
-Last activity: 2026-06-10 - Completed quick task 260610-uaj: Apply template layout/index.html to all pages
+Last activity: 2026-06-10 - Milestone v1.3 initialized
 
 ## Session Continuity
 
-Last session: 2026-06-10T12:15:00Z
-Stopped at: Phase 25-01 plan complete
-Resume: All plans complete - v1.2 milestone complete
+Last session: 2026-06-10T14:50:00Z
+Stopped at: Milestone v1.3 initialized
+Resume: Starting template parity work

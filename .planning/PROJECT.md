@@ -1,24 +1,30 @@
 # Legal-as-a-Service Platform
 
-## Current State (v1.2 UI/UX Improvements — In Progress)
+## Current State (v1.3 Template Parity — Planning)
 
-v1.2 đang được lên kế hoạch với focus vào UX improvements cho Admin Dashboard.
+v1.3 tập trung vào việc align tất cả màn hình admin với template HTML trong thư mục layout/.
 
 **Total to date:** v1.0 + v1.1 = 22 phases, 67 plans, 93 tasks
 
 **Tech stack:** Next.js 14 (App Router), TypeScript, Prisma + SQLite, Ant Design 6, Tailwind CSS, Better Auth, next-intl
 
-## Current Milestone: v1.2 UI/UX Improvements
+## Current Milestone: v1.3 Template Parity
 
-**Goal:** Cải thiện UX cho Admin Dashboard — loading states, error handling, data fetching patterns.
+**Goal:** Align tất cả màn hình admin với template HTML trong thư mục layout/, mỗi màn hình là 1 phase riêng.
 
-**Target features:**
-- Error boundaries với retry button cho tất cả admin pages
-- Skeleton loading screens thay vì spinner  
-- Shared skeleton components (PageSkeleton, CardSkeleton)
-- TanStack Query integration cho caching và dedup
-- Server-side pagination cho tables
-- Search/filter với debounce
+**Target screens:**
+1. Admin Dashboard (admin-dashboard.html) - Stats, workload, alerts, timeline, requests table
+2. User Management (admin-user-management.html) - Stats, role pills, user table
+3. Admin Requests (admin-request.html) - Stats, requests table với status badges
+4. Admin Operations (admin-operations.html) - Stats, workload, audit timeline, SLA table
+5. Admin Audit (admin-audit.html) - Audit events table, security notes
+6. Admin Vault (admin-vault.html) - Stats, folder/tag panels, vault table
+7. Admin Workspace (admin-workspace.html) - Permission card, workspace table
+
+**Requirements:**
+- UI match template EXACTLY (colors, fonts, spacing, shadows)
+- Sample data tương đương template (128 users, 12 workspaces, etc.)
+- Shared AdminLayout với Sidebar/Topbar
 
 v1.1 đã hoàn thành với **8 phases, 18 plans, 23 tasks** — 185 commits, +6,766/-864 LOC.
 
@@ -124,4 +130,21 @@ Tài liệu nhấn mạnh tư duy E-Myth: không xây AI biết tất cả, mà 
 
 ---
 
-*Last updated: 2026-06-10 after v1.2 milestone started*
+*Last updated: 2026-06-10 after v1.3 milestone started*
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state (users, feedback, metrics)

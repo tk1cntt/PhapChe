@@ -2,16 +2,17 @@
 
 export interface ServiceOption {
   id: string;
-  title: string;
-  description: string;
-  tags: Array<{ label: string; variant: 'green' | 'blue' | 'orange' | 'purple' | 'red' }>;
-  estimatedTime?: string;
+  title: Record<string, string>;
+  description: Record<string, string>;
+  tags: Array<{ label: Record<string, string>; variant: 'green' | 'blue' | 'orange' | 'purple' | 'red' }>;
+  estimatedTime?: Record<string, string>;
 }
 
 interface ServiceCardProps {
   service: ServiceOption;
   selected: boolean;
   onSelect: () => void;
+  locale?: string;
 }
 
 const tagStyles = {
@@ -22,7 +23,7 @@ const tagStyles = {
   red: 'bg-red-100 text-red-700',
 };
 
-export default function ServiceCard({ service, selected, onSelect }: ServiceCardProps) {
+export default function ServiceCard({ service, selected, onSelect, locale = 'vi' }: ServiceCardProps) {
   return (
     <div
       onClick={onSelect}
@@ -40,22 +41,22 @@ export default function ServiceCard({ service, selected, onSelect }: ServiceCard
         
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-semibold text-slate-900 mb-2">{service.title}</h4>
-          <p className="text-sm text-slate-500 leading-relaxed mb-3">{service.description}</p>
+          <h4 className="text-sm font-semibold text-slate-900 mb-2">{service.title[locale] || service.title.vi}</h4>
+          <p className="text-sm text-slate-500 leading-relaxed mb-3">{service.description[locale] || service.description.vi}</p>
           
           {/* Tags */}
           <div className="flex items-center gap-2 flex-wrap">
             {service.tags.map((tag) => (
               <span 
-                key={tag.label}
+                key={tag.label.vi}
                 className={`inline-flex items-center h-7 px-3 rounded-full text-xs font-bold whitespace-nowrap ${tagStyles[tag.variant]}`}
               >
-                {tag.label}
+                {tag.label[locale] || tag.label.vi}
               </span>
             ))}
             {service.estimatedTime && (
               <span className="inline-flex items-center h-7 px-3 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
-                {service.estimatedTime}
+                {service.estimatedTime[locale] || service.estimatedTime.vi}
               </span>
             )}
           </div>

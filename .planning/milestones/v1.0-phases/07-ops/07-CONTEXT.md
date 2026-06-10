@@ -107,6 +107,57 @@ Provide admin operational visibility for the legal workflow: dashboard counts, r
 
 </specifics>
 
+<rules>
+## Rules
+
+### Technical Rules
+
+- **R-01:** Mọi thay đổi trạng thái hồ sơ pháp lý phải đi qua backend state machine, không hard-code logic ở frontend.
+- **R-02:** Audit log phải là append-only, ghi lại actor, workspace, action, target, timestamp và metadata summary an toàn.
+- **R-03:** Dữ liệu pháp lý nhạy cảm không được hiển thị trong audit metadata.
+- **R-04:** Dashboard metrics phải được derive từ backend data (LegalRequest, assignments, workflow timestamps), không phải hard-coded fixtures.
+- **R-05:** Filters phải compose với AND semantics, không có saved views hoặc fuzzy search trong MVP.
+- **R-06:** Timeline chỉ hiển thị safe audit events và workflow transitions.
+
+### i18n Rules (Quy tắc đa ngôn ngữ)
+
+#### Vietnamese (Tiếng Việt)
+- **R-07-VI:** Tất cả nhãn giao diện người dùng phải có tiếng Việt đầy đủ dấu.
+- **R-08-VI:** Trạng thái hồ sơ: Đang nhập thông tin, Đã gửi yêu cầu, Cần phân loại, Đã phân công, Đang xử lý, Chờ kiểm tra chất lượng, Cần chỉnh sửa nội bộ, Đã được duyệt, Đã giao tài liệu, Đã đóng hồ sơ, Đã hủy.
+- **R-09-VI:** Các nút hành động: Sửa, Xóa, Gửi, Hủy, Lưu, Tiếp tục, Xem, Tải về, Tải lên, Đăng nhập, Đăng xuất.
+- **R-10-VI:** Dashboard metrics: Tổng hồ sơ, Đang xử lý, Hoàn tất, Quá hạn, Sắp quá SLA.
+- **R-11-VI:** SLA labels: Bình thường, Cảnh báo, Nguy hiểm.
+
+#### English
+- **R-07-EN:** All user-facing labels must be in proper English.
+- **R-08-EN:** Request statuses: Filling in information, Request submitted, Needs triage, Assigned, In progress, Pending quality review, Needs internal revision, Approved, Documents delivered, Case closed, Cancelled.
+- **R-09-EN:** Action buttons: Edit, Delete, Submit, Cancel, Save, Continue, View, Download, Upload, Sign in, Sign out.
+- **R-10-EN:** Dashboard metrics: Total requests, In progress, Completed, Overdue, SLA warning.
+- **R-11-EN:** SLA labels: Normal, Warning, Critical.
+
+#### Chinese (中文)
+- **R-07-ZH:** 所有用户界面标签必须使用正确的中文。
+- **R-08-ZH:** 请求状态：正在填写信息、已提交请求、待分诊、已分配、处理中、待质量审核、需内部修订、已批准、文档已交付、案件已关闭、已取消。
+- **R-09-ZH:** 操作按钮：编辑、删除、提交、取消、保存、继续、查看、下载、上传、登录、退出。
+- **R-10-ZH:** 仪表板指标：总请求、处理中、已完成、已逾期、SLA警告。
+- **R-11-ZH:** SLA标签：正常、警告、危急。
+
+#### Japanese (日本語)
+- **R-07-JA:** すべてのユーザーインターフェースラベルには正しい日本語を使用してください。
+- **R-08-JA:** リクエストステータス：情報入力中、リクエスト送信済み、トリアージュ必要、担当者決定、処理中、品質レビュー待ち、内部修正必要、承認済み、書類納品済み、ケースクローズ、キャンセル。
+- **R-09-JA:** 操作ボタン：編集、削除、送信、キャンセル、保存、次へ、表示、ダウンロード、アップロード、ログイン、ログアウト。
+- **R-10-JA:** ダッシュボード指標：総リクエスト、処理中、完了、期限超過、SLA警告。
+- **R-11-JA:** SLAラベル：通常、警告、重大。
+
+### Phase-Specific Rules
+
+- **R-12:** Workload view hiển thị simple workload counts per specialist và reviewer.
+- **R-13:** SLA timestamps được track bằng cách derive milestone times từ request lifecycle fields.
+- **R-14:** Timeline hiển thị time, actor, action/status change, target, correlation id, reason.
+- **R-15:** Không expose raw legal content, full document text, hoặc internal reviewer-only comments trong timeline.
+
+</rules>
+
 <deferred>
 ## Deferred Ideas
 

@@ -114,6 +114,59 @@ This phase does not build reviewer QC portal/checklist decisions, customer deliv
 
 </specifics>
 
+<rules>
+## Rules
+
+### Technical Rules
+
+- **R-01:** Mọi thay đổi trạng thái hồ sơ pháp lý phải đi qua backend state machine, không hard-code logic ở frontend.
+- **R-02:** Audit log phải là append-only, ghi lại actor, workspace, action, target, timestamp và metadata summary an toàn.
+- **R-03:** Dữ liệu pháp lý nhạy cảm không được hiển thị trong audit metadata.
+- **R-04:** Không bao giờ expose raw storageKey như user-facing download URL.
+- **R-05:** Templates phải có version, status (draft/approved/published/deprecated), và immutable published versions.
+- **R-06:** Document versions phải là first-class records, mỗi generated draft tạo một version mới immutable.
+- **R-07:** Every generated document version phải store templateId/templateVersion và input snapshot.
+
+### i18n Rules (Quy tắc đa ngôn ngữ)
+
+#### Vietnamese (Tiếng Việt)
+- **R-08-VI:** Tất cả nhãn giao diện người dùng phải có tiếng Việt đầy đủ dấu.
+- **R-09-VI:** Trạng thái hồ sơ: Đang nhập thông tin, Đã gửi yêu cầu, Cần phân loại, Đã phân công, Đang xử lý, Chờ kiểm tra chất lượng, Cần chỉnh sửa nội bộ, Đã được duyệt, Đã giao tài liệu, Đã đóng hồ sơ, Đã hủy.
+- **R-10-VI:** Trạng thái document version: Bản nháp, Đã gửi duyệt, Bản cuối.
+- **R-11-VI:** Trạng thái template: Bản nháp, Đã phê duyệt, Đã xuất bản, Không còn sử dụng.
+- **R-12-VI:** Các nút hành động: Sửa, Xóa, Gửi, Hủy, Lưu, Tiếp tục, Xem, Tải về, Tải lên.
+
+#### English
+- **R-08-EN:** All user-facing labels must be in proper English.
+- **R-09-EN:** Request statuses: Filling in information, Request submitted, Needs triage, Assigned, In progress, Pending quality review, Needs internal revision, Approved, Documents delivered, Case closed, Cancelled.
+- **R-10-EN:** Document version statuses: Draft, Submitted for review, Final.
+- **R-11-EN:** Template statuses: Draft, Approved, Published, Deprecated.
+- **R-12-EN:** Action buttons: Edit, Delete, Submit, Cancel, Save, Continue, View, Download, Upload.
+
+#### Chinese (中文)
+- **R-08-ZH:** 所有用户界面标签必须使用正确的中文。
+- **R-09-ZH:** 请求状态：正在填写信息、已提交请求、待分诊、已分配、处理中、待质量审核、需内部修订、已批准、文档已交付、案件已关闭、已取消。
+- **R-10-ZH:** 文档版本状态：草稿、已提交审核、最终。
+- **R-11-ZH:** 模板状态：草稿、已批准、已发布、已弃用。
+- **R-12-ZH:** 操作按钮：编辑、删除、提交、取消、保存、继续、查看、下载、上传。
+
+#### Japanese (日本語)
+- **R-08-JA:** すべてのユーザーインターフェースラベルには正しい日本語を使用してください。
+- **R-09-JA:** リクエストステータス：情報入力中、リクエスト送信済み、トリアージュ必要、担当者決定、処理中、品質レビュー待ち、内部修正必要、承認済み、書類納品済み、ケースクローズ、キャンセル。
+- **R-10-JA:** ドキュメントバージョンステータス：草稿、レビュー提出済み、最終。
+- **R-11-JA:** テンプレートステータス：草稿、承認済み、公開済み、非推奨。
+- **R-12-JA:** 操作ボタン：編集、削除、送信、キャンセル、保存、次へ、表示、ダウンロード、アップロード。
+
+### Phase-Specific Rules
+
+- **R-13:** Chỉ approved hoặc published templates mới được dùng cho draft generation.
+- **R-14:** Published templates không thể edit in place; bất kỳ thay đổi nào tạo version mới linked to prior template identity.
+- **R-15:** Missing required template variables phải block generation với clear error messages.
+- **R-16:** Specialist request detail phát triển thành workbench hiển thị intake summary, uploaded files metadata, available templates, generated draft versions.
+- **R-17:** Vault entries phải private by default và always checked server-side với existing RBAC helpers.
+
+</rules>
+
 <deferred>
 ## Deferred Ideas
 

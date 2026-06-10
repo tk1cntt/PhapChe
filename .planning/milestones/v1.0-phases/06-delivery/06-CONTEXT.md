@@ -126,6 +126,59 @@ None.
 
 </specifics>
 
+<rules>
+## Rules
+
+### Technical Rules
+
+- **R-01:** Mọi thay đổi trạng thái hồ sơ pháp lý phải đi qua backend state machine, không hard-code logic ở frontend.
+- **R-02:** Audit log phải là append-only, ghi lại actor, workspace, action, target, timestamp và metadata summary an toàn.
+- **R-03:** Dữ liệu pháp lý nhạy cảm không được hiển thị trong audit metadata.
+- **R-04:** Customer chỉ thấy DocumentVersion records với status final và related VaultFile artifacts cho request của họ.
+- **R-05:** Tất cả draft, submitted_for_review, reviewer checklist/comment, internal notes, template input snapshots được ẩn khỏi customer routes.
+- **R-06:** Filtering phải xảy ra ở server-side queries/services trước khi data đến UI.
+- **R-07:** Signed URL TTL là 15 phút.
+- **R-08:** Download responses phải làm rõ expiry cho customer.
+
+### i18n Rules (Quy tắc đa ngôn ngữ)
+
+#### Vietnamese (Tiếng Việt)
+- **R-09-VI:** Tất cả nhãn giao diện người dùng phải có tiếng Việt đầy đủ dấu.
+- **R-10-VI:** Trạng thái hồ sơ: Đang nhập thông tin, Đã gửi yêu cầu, Cần phân loại, Đã phân công, Đang xử lý, Chờ kiểm tra chất lượng, Cần chỉnh sửa nội bộ, Đã được duyệt, Đã giao tài liệu, Đã đóng hồ sơ, Đã hủy.
+- **R-11-VI:** Thông báo: Đã giao tài liệu thành công, Đã đóng hồ sơ, Liên kết tải về sẽ hết hạn sau 15 phút.
+- **R-12-VI:** Các nút hành động: Tải về, Xem chi tiết, Liên hệ chuyên viên, Đóng hồ sơ.
+- **R-13-VI:** Email nội dung: tiêu đề yêu cầu, danh sách tài liệu, liên kết portal, cảnh báo hết hạn 15 phút.
+
+#### English
+- **R-09-EN:** All user-facing labels must be in proper English.
+- **R-10-EN:** Request statuses: Filling in information, Request submitted, Needs triage, Assigned, In progress, Pending quality review, Needs internal revision, Approved, Documents delivered, Case closed, Cancelled.
+- **R-11-EN:** Notifications: Documents delivered successfully, Case closed, Download link will expire in 15 minutes.
+- **R-12-EN:** Action buttons: Download, View details, Contact specialist, Close case.
+- **R-13-EN:** Email content: request title, document list, portal link, 15-minute expiry warning.
+
+#### Chinese (中文)
+- **R-09-ZH:** 所有用户界面标签必须使用正确的中文。
+- **R-10-ZH:** 请求状态：正在填写信息、已提交请求、待分诊、已分配、处理中、待质量审核、需内部修订、已批准、文档已交付、案件已关闭、已取消。
+- **R-11-ZH:** 通知：文档交付成功、案件已关闭、下载链接将在15分钟后过期。
+- **R-12-ZH:** 操作按钮：下载、查看详情、联系专员、关闭案件。
+- **R-13-ZH:** 邮件内容：请求标题、文档列表、门户链接、15分钟过期警告。
+
+#### Japanese (日本語)
+- **R-09-JA:** すべてのユーザーインターフェースラベルには正しい日本語を使用してください。
+- **R-10-JA:** リクエストステータス：情報入力中、リクエスト送信済み、トリアージュ必要、担当者決定、処理中、品質レビュー待ち、内部修正必要、承認済み、書類納品済み、ケースクローズ、キャンセル。
+- **R-11-JA:** 通知：書類納品成功、ケースクローズ、ダウンロードリンクは15分後に期限切れになります。
+- **R-12-JA:** 操作ボタン：ダウンロード、詳細を見る、スペシャリストに連絡、ケースを閉じる。
+- **R-13-JA:** メール内容：リクエストタイトル、ドキュメント一覧、ポータルリンク、15分期限切れ警告。
+
+### Phase-Specific Rules
+
+- **R-14:** Delivery transition: approved → delivered → closed qua backend workflow state machine.
+- **R-15:** Specialist hoặc coordinator/admin có thể mark approved request là delivered nếu final documents exist.
+- **R-16:** Close action requires a reason và records audit/workflow transition.
+- **R-17:** Notification triggers khi request transitions to delivered, không phải khi reviewer approves.
+
+</rules>
+
 <deferred>
 ## Deferred Ideas
 

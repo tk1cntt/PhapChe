@@ -377,6 +377,11 @@ h1 {
   background: linear-gradient(135deg, #ede9fe, #f5f3ff);
 }
 
+.stat-icon.red {
+  color: #ef4444;
+  background: linear-gradient(135deg, #ffe4e6, #fff1f2);
+}
+
 .stat-title {
   font-size: 14px;
   color: #566579;
@@ -446,6 +451,31 @@ h1 {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.summary-banner {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  box-shadow: var(--soft-shadow);
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summary-banner h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: #0f172a;
+}
+
+.summary-banner p {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+  font-weight: 500;
 }
 
 .ghost-btn {

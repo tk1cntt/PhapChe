@@ -93,6 +93,47 @@ This phase does not build customer intake, document generation, reviewer checkli
 
 </specifics>
 
+<rules>
+## Rules
+
+### Technical Rules
+
+- **R-01:** Mọi thay đổi trạng thái hồ sơ pháp lý phải đi qua backend state machine, không hard-code logic ở frontend.
+- **R-02:** Audit log phải là append-only từ Phase 1, ghi lại actor, workspace, action, target, timestamp và metadata summary an toàn.
+- **R-03:** Dữ liệu pháp lý nhạy cảm không được hiển thị trong audit metadata, chỉ dùng identifier hoặc hash khi cần truy vết.
+- **R-04:** Phân quyền phải được kiểm tra server-side cho mọi request, document, review và vault file access.
+- **R-05:** Frontend role checks chỉ mang tính UX, không phải bảo mật.
+
+### i18n Rules (Quy tắc đa ngôn ngữ)
+
+#### Vietnamese (Tiếng Việt)
+- **R-06-VI:** Tất cả nhãn giao diện người dùng phải có tiếng Việt đầy đủ dấu.
+- **R-07-VI:** Trạng thái hồ sơ: Đang nhập thông tin, Đã gửi yêu cầu, Cần phân loại, Đã phân công, Đang xử lý, Chờ kiểm tra chất lượng, Cần chỉnh sửa nội bộ, Đã được duyệt, Đã giao tài liệu, Đã đóng hồ sơ, Đã hủy.
+- **R-08-VI:** Các nút hành động: Sửa, Xóa, Gửi, Hủy, Lưu, Tiếp tục, Xem, Tải về, Tải lên, Đăng nhập, Đăng xuất.
+
+#### English
+- **R-06-EN:** All user-facing labels must be in proper English.
+- **R-07-EN:** Request statuses: Filling in information, Request submitted, Needs triage, Assigned, In progress, Pending quality review, Needs internal revision, Approved, Documents delivered, Case closed, Cancelled.
+- **R-08-EN:** Action buttons: Edit, Delete, Submit, Cancel, Save, Continue, View, Download, Upload, Sign in, Sign out.
+
+#### Chinese (中文)
+- **R-06-ZH:** 所有用户界面标签必须使用正确的中文。
+- **R-07-ZH:** 请求状态：正在填写信息、已提交请求、待分诊、已分配、处理中、待质量审核、需内部修订、已批准、文档已交付、案件已关闭、已取消。
+- **R-08-ZH:** 操作按钮：编辑、删除、提交、取消、保存、继续、查看、下载、上传、登录、退出。
+
+#### Japanese (日本語)
+- **R-06-JA:** すべてのユーザーインターフェースラベルには正しい日本語を使用してください。
+- **R-07-JA:** リクエストステータス：情報入力中、リクエスト送信済み、トリアージュ必要、担当者決定、処理中、品質レビュー待ち、内部修正必要、承認済み、書類納品済み、ケースクローズ、キャンセル。
+- **R-08-JA:** 操作ボタン：編集、削除、送信、キャンセル、保存、次へ、表示、ダウンロード、アップロード、ログイン、ログアウト。
+
+### Phase-Specific Rules
+
+- **R-09:** Phase 1 không xây dựng customer intake, document generation, reviewer checklist UI, Legal Vault file storage, delivery, reporting, OCR, e-sign, billing, hoặc AI automation.
+- **R-10:** 5 vai trò được hỗ trợ: customer, specialist, reviewer, coordinator_admin, super_admin.
+- **R-11:** Mỗi SME được mô hình như workspace/organization riêng biệt.
+
+</rules>
+
 <deferred>
 ## Deferred Ideas
 

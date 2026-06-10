@@ -94,6 +94,61 @@ This phase does not add dynamic per-template checklist configuration, reviewer p
 
 </specifics>
 
+<rules>
+## Rules
+
+### Technical Rules
+
+- **R-01:** Mọi thay đổi trạng thái hồ sơ pháp lý phải đi qua backend state machine, không hard-code logic ở frontend.
+- **R-02:** Audit log phải là append-only, ghi lại actor, workspace, action, target, timestamp và metadata summary an toàn.
+- **R-03:** Dữ liệu pháp lý nhạy cảm không được hiển thị trong audit metadata.
+- **R-04:** Reviewer chỉ có thể approve khi tất cả required checklist items được marked passed: true.
+- **R-05:** Review phải reference specific DocumentVersion id, không chỉ Document id.
+- **R-06:** Tất cả review actions phải emit recordAuditEvent với safe metadata.
+
+### i18n Rules (Quy tắc đa ngôn ngữ)
+
+#### Vietnamese (Tiếng Việt)
+- **R-07-VI:** Tất cả nhãn giao diện người dùng phải có tiếng Việt đầy đủ dấu.
+- **R-08-VI:** Trạng thái hồ sơ: Đang nhập thông tin, Đã gửi yêu cầu, Cần phân loại, Đã phân công, Đang xử lý, Chờ kiểm tra chất lượng, Cần chỉnh sửa nội bộ, Đã được duyệt, Đã giao tài liệu, Đã đóng hồ sơ, Đã hủy.
+- **R-09-VI:** Trạng thái review: Đang thực hiện, Đã phê duyệt, Đã từ chối.
+- **R-10-VI:** QC checklist groups: Yêu cầu hình thức, Nội dung pháp lý, Vận hành & Ký nhá.
+- **R-11-VI:** Các nút hành động: Phê duyệt, Yêu cầu chỉnh sửa, Bình luận, Gửi.
+- **R-12-VI:** Queue hiển thị: tiêu đề yêu cầu, loại việc, tên chuyên viên, thời gian gửi, số phiên bản.
+
+#### English
+- **R-07-EN:** All user-facing labels must be in proper English.
+- **R-08-EN:** Request statuses: Filling in information, Request submitted, Needs triage, Assigned, In progress, Pending quality review, Needs internal revision, Approved, Documents delivered, Case closed, Cancelled.
+- **R-09-EN:** Review statuses: In progress, Approved, Rejected.
+- **R-10-EN:** QC checklist groups: Formal Requirements, Legal Content, Operational & Signing.
+- **R-11-EN:** Action buttons: Approve, Request revision, Comment, Submit.
+- **R-12-EN:** Queue displays: request title, matter type, specialist name, submission time, version number.
+
+#### Chinese (中文)
+- **R-07-ZH:** 所有用户界面标签必须使用正确的中文。
+- **R-08-ZH:** 请求状态：正在填写信息、已提交请求、待分诊、已分配、处理中、待质量审核、需内部修订、已批准、文档已交付、案件已关闭、已取消。
+- **R-09-ZH:** 审核状态：进行中、已批准、已拒绝。
+- **R-10-ZH:** 质量审核清单组：形式要求、法律内容、操作与签署。
+- **R-11-ZH:** 操作按钮：批准、要求修订、评论、提交。
+- **R-12-ZH:** 队列显示：请求标题、事项类型、专员姓名、提交时间、版本号。
+
+#### Japanese (日本語)
+- **R-07-JA:** すべてのユーザーインターフェースラベルには正しい日本語を使用してください。
+- **R-08-JA:** リクエストステータス：情報入力中、リクエスト送信済み、トリアージュ必要、担当者決定、処理中、品質レビュー待ち、内部修正必要、承認済み、書類納品済み、ケースクローズ、キャンセル。
+- **R-09-JA:** レビューステータス：進行中、承認済み、却下。
+- **R-10-JA:** 品質チェックリストグループ：形式的要件、法的内容、運用と署名。
+- **R-11-JA:** 操作ボタン：承認、修正依頼、コメント、送信。
+- **R-12-JA:** キュー表示：リクエストタイトル、事項タイプ、スペシャリスト名、提交時間、バージョン番号。
+
+### Phase-Specific Rules
+
+- **R-13:** review-service.ts phải expose startReview, answerChecklistItem, approveReview, rejectReview.
+- **R-14:** approveReview phải kiểm tra all required checklist items passed trước khi set Review.status = approved.
+- **R-15:** rejectReview preserves review record (REV-08) và set Review.status = rejected.
+- **R-16:** Specialist không thấy reviewer-only comments cho đến khi revision được requested.
+
+</rules>
+
 <deferred>
 ## Deferred Ideas
 

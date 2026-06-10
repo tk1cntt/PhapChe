@@ -107,6 +107,57 @@ This phase does not build document generation, reviewer QC checklist, Legal Vaul
 
 </specifics>
 
+<rules>
+## Rules
+
+### Technical Rules
+
+- **R-01:** Mọi thay đổi trạng thái hồ sơ pháp lý phải đi qua backend state machine, không hard-code logic ở frontend.
+- **R-02:** Audit log phải là append-only, ghi lại actor, workspace, action, target, timestamp và metadata summary an toàn.
+- **R-03:** Dữ liệu pháp lý nhạy cảm không được hiển thị trong audit metadata.
+- **R-04:** Phân quyền phải được kiểm tra server-side cho tất cả routing reads và writes.
+- **R-05:** Assignment/Reassignment phải cập nhật LegalRequest.assignedSpecialistId và LegalRequest.assignedReviewerId.
+- **R-06:** Assignment phải tạo RequestAssignment history rows và ghi audit events.
+
+### i18n Rules (Quy tắc đa ngôn ngữ)
+
+#### Vietnamese (Tiếng Việt)
+- **R-07-VI:** Tất cả nhãn giao diện người dùng phải có tiếng Việt đầy đủ dấu.
+- **R-08-VI:** Trạng thái hồ sơ: Đang nhập thông tin, Đã gửi yêu cầu, Cần phân loại, Đã phân công, Đang xử lý, Chờ kiểm tra chất lượng, Cần chỉnh sửa nội bộ, Đã được duyệt, Đã giao tài liệu, Đã đóng hồ sơ, Đã hủy.
+- **R-09-VI:** Các nút hành động: Sửa, Xóa, Gửi, Hủy, Lưu, Tiếp tục, Xem, Tải về, Tải lên, Đăng nhập, Đăng xuất.
+- **R-10-VI:** Capability Matrix hiển thị specialist/reviewer tags: luật lao động, luật doanh nghiệp, thuế, hợp đồng đại lý, nhãn hiệu.
+- **R-11-VI:** Coordinator là người quyết định cuối cùng; system chỉ đề xuất candidates.
+
+#### English
+- **R-07-EN:** All user-facing labels must be in proper English.
+- **R-08-EN:** Request statuses: Filling in information, Request submitted, Needs triage, Assigned, In progress, Pending quality review, Needs internal revision, Approved, Documents delivered, Case closed, Cancelled.
+- **R-09-EN:** Action buttons: Edit, Delete, Submit, Cancel, Save, Continue, View, Download, Upload, Sign in, Sign out.
+- **R-10-EN:** Capability Matrix displays specialist/reviewer tags: labor law, enterprise law, tax, agency contract, trademark.
+- **R-11-EN:** Coordinator is the final decision maker; system only suggests candidates.
+
+#### Chinese (中文)
+- **R-07-ZH:** 所有用户界面标签必须使用正确的中文。
+- **R-08-ZH:** 请求状态：正在填写信息、已提交请求、待分诊、已分配、处理中、待质量审核、需内部修订、已批准、文档已交付、案件已关闭、已取消。
+- **R-09-ZH:** 操作按钮：编辑、删除、提交、取消、保存、继续、查看、下载、上传、登录、退出。
+- **R-10-ZH:** 能力矩阵显示专员/审核员标签：劳动法、企业法、税务、代理合同、商标。
+- **R-11-ZH:** 协调员是最终决策者；系统仅提供建议。
+
+#### Japanese (日本語)
+- **R-07-JA:** すべてのユーザーインターフェースラベルには正しい日本語を使用してください。
+- **R-08-JA:** リクエストステータス：情報入力中、リクエスト送信済み、トリアージュ必要、担当者決定、処理中、品質レビュー待ち、内部修正必要、承認済み、書類納品済み、ケースクローズ、キャンセル。
+- **R-09-JA:** 操作ボタン：編集、削除、送信、キャンセル、保存、次へ、表示、ダウンロード、アップロード、ログイン、ログアウト。
+- **R-10-JA:** 能力マトリックスはスペシャリスト/レビュアータグを表示：労働法、企業法、税、代理店契約、商標。
+- **R-11-JA:** コーディネーターが最終決定者；システムは候補を提案するのみ。
+
+### Phase-Specific Rules
+
+- **R-12:** Capability Matrix là rule-based trong MVP: users với specialist hoặc reviewer role eligible khi capabilities include request matter type.
+- **R-13:** Suggestions hiển thị eligible specialists và reviewers riêng biệt với clear reason text.
+- **R-14:** Specialist chỉ thấy requests được assigned qua server-side authorization.
+- **R-15:** Reviewer assignment có thể được configure trong routing nhưng reviewer queue/review UI thuộc Phase 5.
+
+</rules>
+
 <deferred>
 ## Deferred Ideas
 

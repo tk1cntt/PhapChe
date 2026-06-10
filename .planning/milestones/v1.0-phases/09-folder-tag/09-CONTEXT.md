@@ -68,6 +68,53 @@ This phase does not change customer delivery page, ops dashboard, reviewer porta
 
 </canonical_refs>
 
+<rules>
+## Rules
+
+### Technical Rules
+
+- **R-01:** Mọi thay đổi trạng thái hồ sơ pháp lý phải đi qua backend state machine, không hard-code logic ở frontend.
+- **R-02:** Audit log phải là append-only, ghi lại actor, workspace, action, target, timestamp và metadata summary an toàn.
+- **R-03:** Dữ liệu pháp lý nhạy cảm không được hiển thị trong audit metadata.
+- **R-04:** Folder/tag operations là coordinator/admin only.
+- **R-05:** Classification mutations phải emit recordAuditEvent với safe metadata.
+- **R-06:** Folder có recursive self-relation via parentId; Tag là flat per workspace.
+
+### i18n Rules (Quy tắc đa ngôn ngữ)
+
+#### Vietnamese (Tiếng Việt)
+- **R-07-VI:** Tất cả nhãn giao diện người dùng phải có tiếng Việt đầy đủ dấu.
+- **R-08-VI:** Trạng thái hồ sơ: Đang nhập thông tin, Đã gửi yêu cầu, Cần phân loại, Đã phân công, Đang xử lý, Chờ kiểm tra chất lượng, Cần chỉnh sửa nội bộ, Đã được duyệt, Đã giao tài liệu, Đã đóng hồ sơ, Đã hủy.
+- **R-09-VI:** Các nút hành động: Tạo thư mục, Tạo thẻ, Di chuyển, Gắn thẻ, Xóa thẻ.
+- **R-10-VI:** Vault labels: Thư mục, Thẻ phân loại, Tệp trong vault, Chưa có thư mục, Chưa có thẻ.
+
+#### English
+- **R-07-EN:** All user-facing labels must be in proper English.
+- **R-08-EN:** Request statuses: Filling in information, Request submitted, Needs triage, Assigned, In progress, Pending quality review, Needs internal revision, Approved, Documents delivered, Case closed, Cancelled.
+- **R-09-EN:** Action buttons: Create folder, Create tag, Move, Tag, Untag.
+- **R-10-EN:** Vault labels: Folders, Tags, Files in Vault, No folders, No tags.
+
+#### Chinese (中文)
+- **R-07-ZH:** 所有用户界面标签必须使用正确的中文。
+- **R-08-ZH:** 请求状态：正在填写信息、已提交请求、待分诊、已分配、处理中、待质量审核、需内部修订、已批准、文档已交付、案件已关闭、已取消。
+- **R-09-ZH:** 操作按钮：创建文件夹、创建标签、移动、添加标签、移除标签。
+- **R-10-ZH:** 档案标签：文件夹、标签、档案中的文件、无文件夹、无标签。
+
+#### Japanese (日本語)
+- **R-07-JA:** すべてのユーザーインターフェースラベルには正しい日本語を使用してください。
+- **R-08-JA:** リクエストステータス：情報入力中、リクエスト送信済み、トリアージュ必要、担当者決定、処理中、品質レビュー待ち、内部修正必要、承認済み、書類納品済み、ケースクローズ、キャンセル。
+- **R-09-JA:** 操作ボタン：フォルダ作成、タグ作成、移動、タグ付け、タグ解除。
+- **R-10-JA:** ボルトラベル：フォルダ、タグ分類、ボルト内ファイル、フォルダなし、タグなし。
+
+### Phase-Specific Rules
+
+- **R-11:** Folder model có id, workspaceId, name, parentId (self-FK), createdAt, updatedAt.
+- **R-12:** Tag model có id, workspaceId, key (unique per workspace), label, createdAt.
+- **R-13:** VaultFileFolder và VaultFileTag join tables với proper indexes.
+- **R-14:** Customer delivery page và ops dashboard có thể display folder/tag names read-only.
+
+</rules>
+
 <deferred>
 ## Deferred Ideas
 

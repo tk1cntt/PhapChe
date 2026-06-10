@@ -1,14 +1,14 @@
 'use client';
 
 import React from 'react';
-import { FileText, Clock, CheckCircle, Folder } from 'lucide-react';
+import { FileText, Clock, CheckCircle, Folder, AlertCircle } from 'lucide-react';
 
 export interface StatCardProps {
   title: string;
   value: number;
   description: string;
-  icon: 'file' | 'clock' | 'check' | 'folder';
-  variant: 'blue' | 'green' | 'orange' | 'purple';
+  icon: 'file' | 'clock' | 'check' | 'folder' | 'alert';
+  variant: 'blue' | 'green' | 'orange' | 'purple' | 'red';
 }
 
 const iconMap = {
@@ -16,6 +16,7 @@ const iconMap = {
   clock: Clock,
   check: CheckCircle,
   folder: Folder,
+  alert: AlertCircle,
 };
 
 export function StatCard({

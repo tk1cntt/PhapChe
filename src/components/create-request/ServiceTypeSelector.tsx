@@ -5,43 +5,98 @@ import ServiceCard, { ServiceOption } from './ServiceCard';
 const SERVICE_OPTIONS: ServiceOption[] = [
   {
     id: 'agent-contract',
-    title: 'Soan hop dong dai ly',
-    description: 'Chuan hoa thong tin doi tac, chiet khau, dieu khoan thanh toan, thoi han hop dong va pham vi phan phoi.',
+    title: {
+      vi: 'Soạn hợp đồng đại lý',
+      en: 'Draft Agency Contract',
+      zh: '起草代理合同',
+      ja: '代理契約書の作成',
+    },
+    description: {
+      vi: 'Chuẩn hóa thông tin đối tác, chiết khấu, điều khoản thanh toán, thời hạn hợp đồng và phạm vi phân phối.',
+      en: 'Standardize partner info, discounts, payment terms, contract duration, and distribution scope.',
+      zh: '标准化合作伙伴信息、折扣、付款条款、合同期限和分销范围。',
+      ja: 'パートナー情報、割引、支払条件、契約期間、流通範囲の標準化。',
+    },
     tags: [
-      { label: 'Khuyen nghi', variant: 'green' },
+      { label: { vi: 'Khuyến nghị', en: 'Recommended', zh: '推荐', ja: 'おすすめ' }, variant: 'green' },
     ],
-    estimatedTime: '2-3 ngay',
+    estimatedTime: {
+      vi: '2-3 ngày',
+      en: '2-3 days',
+      zh: '2-3天',
+      ja: '2〜3日',
+    },
   },
   {
     id: 'labor-contract',
-    title: 'Soan hop dong lao dong',
-    description: 'Ghi nhan vi tri, luong, thoi han, dieu kien lam viec, bao mat thong tin va dieu khoan cham dut.',
+    title: {
+      vi: 'Soạn hợp đồng lao động',
+      en: 'Draft Labor Contract',
+      zh: '起草劳动合同',
+      ja: '雇用契約書の作成',
+    },
+    description: {
+      vi: 'Ghi nhận vị trí, lương, thời hạn, điều kiện làm việc, bảo mật thông tin và điều khoản chấm dứt.',
+      en: 'Record position, salary, duration, working conditions, confidentiality, and termination terms.',
+      zh: '记录职位、薪资、期限、工作条件、保密信息和终止条款。',
+      ja: '職種、給与、期間、勤務条件、機密情報、終了条件の記録。',
+    },
     tags: [
-      { label: 'Nhanh', variant: 'blue' },
+      { label: { vi: 'Nhanh', en: 'Fast', zh: '快速', ja: '快速' }, variant: 'blue' },
     ],
   },
   {
     id: 'trademark',
-    title: 'Dang ky nhan hieu',
-    description: 'Thu thap ten nhan hieu, nhom san pham/dich vu, chu so huu, mau nhan va pham vi dang ky.',
+    title: {
+      vi: 'Đăng ký nhãn hiệu',
+      en: 'Register Trademark',
+      zh: '注册商标',
+      ja: ' Trademark registration',
+    },
+    description: {
+      vi: 'Thu thập tên nhãn hiệu, nhóm sản phẩm/dịch vụ, chủ sở hữu, mẫu nhãn và phạm vi đăng ký.',
+      en: 'Collect trademark name, product/service group, owner, sample, and registration scope.',
+      zh: '收集商标名称、产品/服务组、所有者、样本和注册范围。',
+      ja: ' Trademark名、製品/サービスグループ所有者、サンプル、登録範囲の収集。',
+    },
     tags: [
-      { label: 'IP', variant: 'purple' },
+      { label: { vi: 'IP', en: 'IP', zh: '知识产权', ja: 'IP' }, variant: 'purple' },
     ],
   },
   {
     id: 'nda',
-    title: 'Ra soat hop dong / NDA',
-    description: 'Chuyen vien kiem tra rui ro phap ly, dieu khoan bat loi, nghia vu thanh toan, bao mat va trai nhiem boi thuong.',
+    title: {
+      vi: 'Rà soát hợp đồng / NDA',
+      en: 'Review Contract / NDA',
+      zh: '审核合同/保密协议',
+      ja: '契約/NDAレビュー',
+    },
+    description: {
+      vi: 'Chuyên viên kiểm tra rủi ro pháp lý, điều khoản bất lợi, nghia vụ thanh toán, bảo mật và trách nhiệm bồi thường.',
+      en: 'Specialist reviews legal risks, unfavorable terms, payment obligations, confidentiality, and indemnification.',
+      zh: '专家审核法律风险、不利条款、付款义务、保密和赔偿。',
+      ja: '専門家が法的リスク、不利な条件、支払義務、機密保持、補償責任をレビュー。',
+    },
     tags: [
-      { label: 'Can tai lieu', variant: 'orange' },
+      { label: { vi: 'Cần tài liệu', en: 'Docs needed', zh: '需要文件', ja: '書類必要' }, variant: 'orange' },
     ],
   },
   {
     id: 'other',
-    title: 'Dich vu khac / chua ro loai viec',
-    description: 'Ho so se duoc chuyen de chuyen vien phan loai truoc khi xu ly chinh thuc.',
+    title: {
+      vi: 'Dịch vụ khác / chưa rõ loại việc',
+      en: 'Other / Unclear type',
+      zh: '其他/类型不明',
+      ja: 'その他/不明',
+    },
+    description: {
+      vi: 'Hồ sơ sẽ được chuyển để chuyên viên phân loại trước khi xử lý chính thức.',
+      en: 'Request will be forwarded to specialist for classification before official processing.',
+      zh: '文件将被转发给专家分类后再正式处理。',
+      ja: 'リクエストは正式処理前に専門家が分類します。',
+    },
     tags: [
-      { label: 'Phan loai', variant: 'red' },
+      { label: { vi: 'Phân loại', en: 'Classify', zh: '分类', ja: '分類' }, variant: 'red' },
     ],
   },
 ];
@@ -49,9 +104,10 @@ const SERVICE_OPTIONS: ServiceOption[] = [
 interface ServiceTypeSelectorProps {
   selectedId: string;
   onSelect: (id: string) => void;
+  locale?: string;
 }
 
-export default function ServiceTypeSelector({ selectedId, onSelect }: ServiceTypeSelectorProps) {
+export default function ServiceTypeSelector({ selectedId, onSelect, locale = 'vi' }: ServiceTypeSelectorProps) {
   return (
     <div className="space-y-4">
       {SERVICE_OPTIONS.map((service) => (
@@ -60,6 +116,7 @@ export default function ServiceTypeSelector({ selectedId, onSelect }: ServiceTyp
           service={service}
           selected={service.id === selectedId}
           onSelect={() => onSelect(service.id)}
+          locale={locale}
         />
       ))}
     </div>

@@ -5,14 +5,29 @@ import { Check } from 'lucide-react';
 interface WizardStepsProps {
   currentStep: number;
   steps?: string[];
+  locale?: string;
 }
 
-const DEFAULT_STEPS = ['Dich vu', 'Cau hoi', 'Tai lieu', 'Kiem tra'];
+const translations = {
+  vi: ['Dịch vụ', 'Câu hỏi', 'Tài liệu', 'Kiểm tra'],
+  en: ['Service', 'Questions', 'Documents', 'Review'],
+  zh: ['服务', '问题', '文件', '审核'],
+  ja: ['サービス', '質問', '書類', '確認'],
+};
 
-export default function WizardSteps({ currentStep, steps = DEFAULT_STEPS }: WizardStepsProps) {
+const defaultSteps = {
+  vi: 'Dịch vụ',
+  en: 'Service',
+  zh: '服务',
+  ja: 'サービス',
+};
+
+export default function WizardSteps({ currentStep, steps, locale = 'vi' }: WizardStepsProps) {
+  const stepLabels = steps || translations[locale as keyof typeof translations] || translations.vi;
+  
   return (
     <div className="flex items-center gap-3">
-      {steps.map((step, index) => {
+      {stepLabels.map((step, index) => {
         const stepNumber = index + 1;
         const isActive = stepNumber === currentStep;
         const isCompleted = stepNumber < currentStep;
@@ -28,7 +43,7 @@ export default function WizardSteps({ currentStep, steps = DEFAULT_STEPS }: Wiza
               </div>
               <span className="text-sm font-semibold whitespace-nowrap">{step}</span>
             </div>
-            {index < steps.length - 1 && (
+            {index < stepLabels.length - 1 && (
               <div className="h-0.5 w-12 bg-slate-200 rounded-full" />
             )}
           </div>

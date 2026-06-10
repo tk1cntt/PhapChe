@@ -3,14 +3,75 @@
 interface SummaryPanelProps {
   selectedService: string;
   workspaceName: string;
+  locale?: string;
 }
 
-const SERVICE_NAMES: Record<string, string> = {
-  'agent-contract': 'Soan hop dong dai ly',
-  'labor-contract': 'Soan hop dong lao dong',
-  'trademark': 'Dang ky nhan hieu',
-  'nda': 'Ra soat hop dong / NDA',
-  'other': 'Dich vu khac / chua ro loai viec',
+const SERVICE_NAMES = {
+  'agent-contract': {
+    vi: 'Soạn hợp đồng đại lý',
+    en: 'Draft Agency Contract',
+    zh: '起草代理合同',
+    ja: '代理契約書の作成',
+  },
+  'labor-contract': {
+    vi: 'Soạn hợp đồng lao động',
+    en: 'Draft Labor Contract',
+    zh: '起草劳动合同',
+    ja: '雇用契約書作成',
+  },
+  'trademark': {
+    vi: 'Đăng ký nhãn hiệu',
+    en: 'Register Trademark',
+    zh: '注册商标',
+    ja: ' trademark registration',
+  },
+  'nda': {
+    vi: 'Rà soát hợp đồng / NDA',
+    en: 'Review Contract / NDA',
+    zh: '审核合同/保密协议',
+    ja: '契約/NDAレビュー',
+  },
+  'other': {
+    vi: 'Dịch vụ khác / chưa rõ loại việc',
+    en: 'Other / Unclear type',
+    zh: '其他/类型不明',
+    ja: 'その他/タイプ不明',
+  },
+};
+
+const LABELS = {
+  vi: {
+    service: 'Dịch vụ đã chọn',
+    workspace: 'Workspace',
+    estimate: 'Dự kiến xử lý',
+    estimateValue: '2-3 ngày làm việc sau khi đủ tài liệu',
+    status: 'Trạng thái',
+    statusValue: 'Hồ sơ nháp, chưa gửi cho chuyên viên',
+  },
+  en: {
+    service: 'Selected service',
+    workspace: 'Workspace',
+    estimate: 'Processing estimate',
+    estimateValue: '2-3 business days after docs complete',
+    status: 'Status',
+    statusValue: 'Draft, not sent to specialist',
+  },
+  zh: {
+    service: '已选服务',
+    workspace: '工作区',
+    estimate: '预计处理时间',
+    estimateValue: '文件齐全后2-3个工作日',
+    status: '状态',
+    statusValue: '草稿，未发送给专家',
+  },
+  ja: {
+    service: '選択サービス',
+    workspace: ' workspace',
+    estimate: ' processing estimate',
+    estimateValue: '書類齐全後2〜3営業日',
+    status: 'ステータス',
+    statusValue: '下書き、専門家に未送信',
+  },
 };
 
 function MiniIcon({ letter }: { letter: string }) {
@@ -21,7 +82,10 @@ function MiniIcon({ letter }: { letter: string }) {
   );
 }
 
-export default function SummaryPanel({ selectedService, workspaceName }: SummaryPanelProps) {
+export default function SummaryPanel({ selectedService, workspaceName, locale = 'vi' }: SummaryPanelProps) {
+  const t = LABELS[locale as keyof typeof LABELS] || LABELS.vi;
+  const serviceName = SERVICE_NAMES[selectedService as keyof typeof SERVICE_NAMES]?.[locale as keyof typeof SERVICE_NAMES['agent-contract']] || SERVICE_NAMES[selectedService]?.vi || 'Chưa chọn dịch vụ';
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-md overflow-hidden">
       {/* Header */}
@@ -41,8 +105,8 @@ export default function SummaryPanel({ selectedService, workspaceName }: Summary
           {/* Selected Service */}
           <div className="flex items-start justify-between gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl">
             <div>
-              <p className="text-xs font-bold text-slate-700 mb-1">Dich vu da chon</p>
-              <p className="text-sm text-slate-600">{SERVICE_NAMES[selectedService] || 'Chua chon dich vu'}</p>
+              <p className="text-xs font-bold text-slate-700 mb-1">{t.service}</p>
+              <p className="text-sm text-slate-600">{serviceName}</p>
             </div>
             <MiniIcon letter="1" />
           </div>
@@ -50,7 +114,7 @@ export default function SummaryPanel({ selectedService, workspaceName }: Summary
           {/* Workspace */}
           <div className="flex items-start justify-between gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl">
             <div>
-              <p className="text-xs font-bold text-slate-700 mb-1">Workspace</p>
+              <p className="text-xs font-bold text-slate-700 mb-1">{t.workspace}</p>
               <p className="text-sm text-slate-600">{workspaceName} · an-phat</p>
             </div>
             <MiniIcon letter="W" />
@@ -59,8 +123,8 @@ export default function SummaryPanel({ selectedService, workspaceName }: Summary
           {/* Processing Estimate */}
           <div className="flex items-start justify-between gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl">
             <div>
-              <p className="text-xs font-bold text-slate-700 mb-1">Du kien xu ly</p>
-              <p className="text-sm text-slate-600">2-3 ngay lam viec sau khi du tai lieu</p>
+              <p className="text-xs font-bold text-slate-700 mb-1">{t.estimate}</p>
+              <p className="text-sm text-slate-600">{t.estimateValue}</p>
             </div>
             <MiniIcon letter="S" />
           </div>
@@ -68,8 +132,8 @@ export default function SummaryPanel({ selectedService, workspaceName }: Summary
           {/* Status */}
           <div className="flex items-start justify-between gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl">
             <div>
-              <p className="text-xs font-bold text-slate-700 mb-1">Trang thai</p>
-              <p className="text-sm text-slate-600">Ho so nap, chua gui cho chuyen vien</p>
+              <p className="text-xs font-bold text-slate-700 mb-1">{t.status}</p>
+              <p className="text-sm text-slate-600">{t.statusValue}</p>
             </div>
             <MiniIcon letter="D" />
           </div>

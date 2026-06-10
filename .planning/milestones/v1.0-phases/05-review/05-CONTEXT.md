@@ -119,6 +119,62 @@ This phase does not build customer delivery/download UX, e-signature integration
 
 </specifics>
 
+<rules>
+## Rules
+
+### Technical Rules
+
+- **R-01:** Mọi thay đổi trạng thái hồ sơ pháp lý phải đi qua backend state machine, không hard-code logic ở frontend.
+- **R-02:** Audit log phải là append-only, ghi lại actor, workspace, action, target, timestamp và metadata summary an toàn.
+- **R-03:** Dữ liệu pháp lý nhạy cảm không được hiển thị trong audit metadata.
+- **R-04:** Reviewer chỉ có thể approve khi tất cả required checklist items được marked passed: true.
+- **R-05:** Review phải reference specific DocumentVersion id, không chỉ Document id.
+- **R-06:** Previous review record và checklist answers được preserve kể cả sau revision — audit trail là append-only.
+- **R-07:** Customer không bao giờ thấy internal review data.
+
+### i18n Rules (Quy tắc đa ngôn ngữ)
+
+#### Vietnamese (Tiếng Việt)
+- **R-08-VI:** Tất cả nhãn giao diện người dùng phải có tiếng Việt đầy đủ dấu.
+- **R-09-VI:** Trạng thái hồ sơ: Đang nhập thông tin, Đã gửi yêu cầu, Cần phân loại, Đã phân công, Đang xử lý, Chờ kiểm tra chất lượng, Cần chỉnh sửa nội bộ, Đã được duyệt, Đã giao tài liệu, Đã đóng hồ sơ, Đã hủy.
+- **R-10-VI:** Trạng thái review: Đang thực hiện, Đã phê duyệt, Đã từ chối.
+- **R-11-VI:** QC checklist groups: Yêu cầu hình thức (3 items), Nội dung pháp lý (4 items), Vận hành & Ký nhá (2 items).
+- **R-12-VI:** Checklist items: Đúng template, Chính tả/trình bày, Thông tin đơn vị khớp, Căn cứ pháp lý còn hiệu lực, Quyền và nghĩa vụ rõ ràng, Điều khoản rủi ro, Phù hợp nhu cầu khách hàng, Vị trí ký, Phân loại bảo mật.
+- **R-13-VI:** Các nút hành động: Phê duyệt, Yêu cầu chỉnh sửa, Bình luận, Gửi.
+
+#### English
+- **R-08-EN:** All user-facing labels must be in proper English.
+- **R-09-EN:** Request statuses: Filling in information, Request submitted, Needs triage, Assigned, In progress, Pending quality review, Needs internal revision, Approved, Documents delivered, Case closed, Cancelled.
+- **R-10-EN:** Review statuses: In progress, Approved, Rejected.
+- **R-11-EN:** QC checklist groups: Formal Requirements (3 items), Legal Content (4 items), Operational & Signing (2 items).
+- **R-12-EN:** Checklist items: Template match, Spelling/presentation, Entity info match, Legal basis current, Clear rights/obligations, Risk clauses, Customer pain fit, Signature area, Confidentiality classification.
+- **R-13-EN:** Action buttons: Approve, Request revision, Comment, Submit.
+
+#### Chinese (中文)
+- **R-08-ZH:** 所有用户界面标签必须使用正确的中文。
+- **R-09-ZH:** 请求状态：正在填写信息、已提交请求、待分诊、已分配、处理中、待质量审核、需内部修订、已批准、文档已交付、案件已关闭、已取消。
+- **R-10-ZH:** 审核状态：进行中、已批准、已拒绝。
+- **R-11-ZH:** 质量审核清单组：形式要求（3项）、法律内容（4项）、操作与签署（2项）。
+- **R-12-ZH:** 清单项目：模板匹配、拼写/呈现、实体信息匹配、法律依据有效、权利义务明确、风险条款、客户痛点匹配、签名位置、保密分类。
+- **R-13-ZH:** 操作按钮：批准、要求修订、评论、提交。
+
+#### Japanese (日本語)
+- **R-08-JA:** すべてのユーザーインターフェースラベルには正しい日本語を使用してください。
+- **R-09-JA:** リクエストステータス：情報入力中、リクエスト送信済み、トリアージュ必要、担当者決定、処理中、品質レビュー待ち、内部修正必要、承認済み、書類納品済み、ケースクローズ、キャンセル。
+- **R-10-JA:** レビューステータス：進行中、承認済み、却下。
+- **R-11-JA:** 品質チェックリストグループ：形式的要件（3項目）、法的内容（4項目）、運用と署名（2項目）。
+- **R-12-JA:** チェックリスト項目：テンプレート一致、スペル/プレゼンテーション、实体情報一致、法的根拠有効、権利と義務明確、リスク条項、顧客課題適合、署名位置、保密分類。
+- **R-13-JA:** 操作ボタン：承認、修正依頼、コメント、送信。
+
+### Phase-Specific Rules
+
+- **R-14:** Checklist là static, derived from QC-LEG-01 defined in PROJECT.md.
+- **R-15:** Checklist items được stored như seed data hoặc code constants, không phải user-manageable records trong MVP.
+- **R-16:** Reviewer có thể request revision bằng cách mark một hoặc nhiều checklist items as failed với optional per-item comments.
+- **R-17:** Specialist không thấy reviewer-only comments cho đến khi revision được requested.
+
+</rules>
+
 <deferred>
 ## Deferred Ideas
 

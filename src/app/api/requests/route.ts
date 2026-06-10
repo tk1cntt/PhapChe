@@ -1,6 +1,6 @@
+import { NextResponse, type NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
-import { NextResponse, type NextRequest } from 'next/server';
 
 // Mitigate T-25-01: Enforce max pageSize
 const MAX_PAGE_SIZE = 100;
@@ -14,53 +14,55 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10));
     const pageSize = Math.min(MAX_PAGE_SIZE, parseInt(searchParams.get('pageSize') ?? String(DEFAULT_PAGE_SIZE), 10));
     const search = searchParams.get('search') ?? '';
-    const action = searchParams.get('action') ?? '';
+    const status = searchParams.get('status') ?? '';
 
     const where: Record<string, unknown> = {};
 
-    // Workspace filter (always applied for security)
+    // Search filter (case-insensitive via LIKE in SQLite)
+    if (search) {
+      where.title = { contains: search };
+    }
+
+    // Status filter
+    if (status) {
+      where.status = status;
+    }
+
+    // Admin sees all requests in their workspace
     if (session.activeWorkspaceId) {
       where.workspaceId = session.activeWorkspaceId;
     }
 
-    // Search filter on action and metadata
-    if (search) {
-      where.OR = [
-        { action: { contains: search } },
-        { metadataSummary: { contains: search } },
-      ];
-    }
-
-    // Action filter
-    if (action) {
-      where.action = action;
-    }
-
-    const [events, total] = await Promise.all([
-      prisma.auditEvent.findMany({
+    const [requests, total] = await Promise.all([
+      prisma.legalRequest.findMany({
         where,
         select: {
           id: true,
-          actorId: true,
-          workspaceId: true,
-          action: true,
-          targetType: true,
-          targetId: true,
-          correlationId: true,
-          metadataSummary: true,
+          title: true,
+          status: true,
           createdAt: true,
-          actor: { select: { email: true, name: true } },
           workspace: { select: { name: true } },
+          createdBy: { select: { name: true, email: true } },
         },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
-      prisma.auditEvent.count({ where }),
+      prisma.legalRequest.count({ where }),
     ]);
 
+    const data = requests.map((r) => ({
+      id: r.id,
+      title: r.title,
+      status: r.status,
+      createdAt: r.createdAt.toISOString(),
+      workspaceName: r.workspace.name,
+      customerName: r.createdBy.name,
+      customerEmail: r.createdBy.email,
+    }));
+
     return NextResponse.json({
-      data: events,
+      data,
       total,
       page,
       pageSize,

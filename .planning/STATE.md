@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: UI/UX Improvements
 status: planning
-last_updated: "2026-06-10T12:00:00.000Z"
-last_activity: 2026-06-10
+last_updated: "2026-06-10T12:30:00.000Z"
+last_activity: 2026-06-10 - v1.2 roadmap created
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,36 +20,29 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-10)
 
 **Core value:** SME sends legal requests through simple chat and receives quality-reviewed deliverables with full traceability.
-**Status:** v1.2 milestone planning
-**Next:** Define requirements and create roadmap
+**Current focus:** Phase 23 - Quick Wins
 
 ## Current Milestone: v1.2 UI/UX Improvements
 
-All v1.1 phases complete. v1.2 focuses on UX improvements based on UI-UX-ADVISORY.md.
+v1.1 complete. v1.2 focuses on UX improvements for Admin Dashboard based on UI-UX-ADVISORY.md.
 
-## Progress Summary
+### Phase Structure
 
-| Phase | Name | Plans | Status | Verification |
-|---|---:|---|---|
-| 01 | foundation | 4/4 | Complete with human review debt | `01-VERIFICATION.md`: human_needed |
-| 02 | intake | 4/4 | Complete | `02-VERIFICATION.md`: passed |
-| 03 | routing | 5/5 | Complete | `03-VERIFICATION.md`: passed |
-| 04 | documents-vault | 4/4 | Executed | `04-VERIFICATION.md`: gaps_found (VLT-05 reassigned to 09) |
-| 05 | review | 3/3 | Executed (stub only) | Verification artifact missing; REV-01..09 reassigned to 08 |
-| 06 | delivery | 6/6 | Executed | `06-VERIFICATION.md`: gaps_found (DLV-02 UX in 10) |
-| 07 | ops | 4/4 | Complete | `07-VERIFICATION.md`: passed |
-| 08 | reviewer-service | 2/2 | Complete | `08-02-SUMMARY.md`: passed |
-| 09 | folder-tag | — | Gap closure (planned) | — |
-| 10 | ux-hardening | — | Gap closure (planned) | — |
-| 11 | wire-review-init | 1/1 | Complete | `11-VERIFICATION.md`: passed |
-| 12 | ops-sla-drill-in | 1/1 | Complete | `12-VERIFICATION.md`: passed |
-| 13 | service-cleanup-wiring | 3/3 | Complete | `13-VERIFICATION.md`: passed |
-| 14 | antd-layout-redesign | 9/9 | Complete | `14-VERIFICATION.md`: passed |
-| 15 | auth | — | Not planned | — |
-| 16 | fix-14-failed-routes | 3/3 | Complete | `16-03-SUMMARY.md`: pending_user_review |
-| 17 | fix-remaining-routes | 3/3 | Complete | `17-03-SUMMARY.md`, `17-05-SUMMARY.md` |
-| 18 | ui-test-cases | — | Gap closure (planned) | — |
-| 19 | customer-dashboard | 1/1 | Complete | `19-VERIFICATION.md`: passed |
+| Phase | Name | Requirements | Status |
+|-------|------|-------------|--------|
+| 23 | quick-wins | ERR-01..04, LOAD-01..04 | Not started |
+| 24 | tanstack-query | DATA-01..05 | Not started |
+| 25 | pagination-search | PAGE-01..03, SCH-01..04 | Not started |
+
+## v1.2 Progress Summary
+
+| Phase | Plans | Status |
+|-------|-------|--------|
+| 23. Quick Wins | 0/1 | Not started |
+| 24. TanStack Query | 0/1 | Not started |
+| 25. Pagination & Search | 0/1 | Not started |
+
+**Coverage:** 20/20 requirements mapped
 
 ## Deferred Items
 
@@ -66,87 +59,23 @@ Items acknowledged at milestone close (2026-06-05):
 
 ## Accumulated Context
 
-### Roadmap Evolution
+### v1.2 Roadmap Decisions
 
-- Phase 16 added: Fix 14 failed routes discovered by validated screenshot capture
-- Phase 17 added: Fix remaining routes after Phase 16 client component conversion
-- Phase 18 added: UI Test Cases
-- Phase 19 added: customer-dashboard
+- Phase 23: Error boundaries + skeleton templates (no new dependencies)
+- Phase 24: TanStack Query v5 integration
+- Phase 25: Server-side pagination + search/filter with URL persistence
 
-### Quick Tasks Completed
+### Quick Tasks Completed (v1.1 era)
 
-| # | Description | Date | Commit | Status | Directory |
-|---|-------------|------|--------|--------|-----------|
-| 260527-9ud | Cần bổ sung thêm css. Layout xấu quá | 2026-05-27 | 3006ffc | Needs Review | [260527-9ud-c-n-b-sung-th-m-css-layout-x-u-qu](./quick/260527-9ud-c-n-b-sung-th-m-css-layout-x-u-qu/) |
-| 260527-aqj | Bổ sung e2e test tất cả các tính năng của phase 1 với db thực tế. Có init data trước khi test và sau khi test xong thì xóa data test đi | 2026-05-27 | e596734 | Verified | [260527-aqj-b-sung-e2e-test-t-t-c-c-c-t-nh-n-ng-c-a-](./quick/260527-aqj-b-sung-e2e-test-t-t-c-c-c-t-nh-n-ng-c-a-/) |
-| 260527-gig | Phase 1 có rất nhiều func và tính năng cần test e2e. Hãy thực hiện test e2e cho tất cả tính năng hiện tại của phase 1. Không thể chỉ có 1 testcase như vậy được | 2026-05-27 | add4cf6 | Verified | [260527-gig-phase-1-c-r-t-nhi-u-func-v-t-nh-n-ng-c-n](./quick/260527-gig-phase-1-c-r-t-nhi-u-func-v-t-nh-n-ng-c-n/) |
-| 260527-kby | Mở rộng e2e Phase 1 thành coverage chi tiết theo từng database model và chức năng | 2026-05-27 | cffbe42 | Verified | [260527-kby-m-r-ng-e2e-phase-1-th-nh-coverage-chi-ti](./quick/260527-kby-m-r-ng-e2e-phase-1-th-nh-coverage-chi-ti/) |
-| 260606-pfi | Mở tất cả các trang hiện có, kiểm tra hiển thị đã đúng chưa, thực hiện chụp tất cả các màn hình sau khi đã validate hiển thị đúng | 2026-06-06 | 004e617 | Needs Review | [260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t](./quick/260606-pfi-m-t-t-c-c-c-trang-hi-n-c-ki-m-tra-hi-n-t/) |
-| 260607-mdo | Create e2e tests for intake screen | 2026-06-07 | 62f1e20 | Verified | [260607-mdo-create-e2e-tests-for-intake-screen](./quick/260607-mdo-create-e2e-tests-for-intake-screen/) |
-| 260607-o5f | Fix 3 bugs on /intake: validation, upload 500, submit 500 | 2026-06-07 | a8238f3 | Verified | [260607-o5f-v-n-c-n-c-c-l-i-d-i-http-localhost-3000-](./quick/260607-o5f-v-n-c-n-c-c-l-i-d-i-http-localhost-3000-/) |
-| 260607-pfj | Fix blank page at /requests/[id] after intake submit | 2026-06-07 | bcf3062 | Verified | [260607-pfj-s-a-y-u-c-u-sau-khi-g-i-y-u-c-u-intake-xong-qun-trang-tr-ng](./quick/260607-pfj-s-a-y-u-c-u-sau-khi-g-i-y-c-u-intake-xong-qun-trang-tr-ng/) |
-| 260608-ufb | Fix draft intake edit/delete and PDF upload 500 error | 2026-06-08 | 8ef062a | Verified | [260608-ufb-fix-draft-intake-edit-delete-and-pdf-upl](./quick/260608-ufb-fix-draft-intake-edit-delete-and-pdf-upl/) |
-| 260609-8jq | Thực hiện test e2e tất cả các màn hình và tất cả các ngôn ngữ. Chụp ảnh theo từng màn hình và từng ngôn ngữ | 2026-06-08 | 7dbb2e2 | Verified | [260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-](./quick/260609-8jq-th-c-hi-n-test-e2e-t-t-c-c-c-m-n-h-nh-v-/) |
-| 260609-qnu | Kết quả chụp màn hình của các chức năng admin toàn trả về kết quả 404 thôi. Kiểm tra lại đi nguyên nhân và fix cho tôi. | 2026-06-09 | ba8559a | Verified | [260609-qnu-k-t-qu-ch-p-m-n-h-nh-c-a-c-c-ch-c-n-ng-a](./quick/260609-qnu-k-t-qu-ch-p-m-n-h-nh-c-a-c-c-ch-c-n-ng-a/) |
-| 260609-sq4 | Fix i18n: Màn hình /zh/admin/users hiển thị tiếng Việt không dấu. Dịch đầy đủ các ngôn ngữ | 2026-06-09 | 5ef970a | Verified | [260609-sq4-fix-i18n-m-n-h-nh-zh-admin-users-hi-n-th](./quick/260609-sq4-fix-i18n-m-n-h-nh-zh-admin-users-hi-n-th/) |
-| 260609-t1h | Fix 3 issues: Vietnamese without diacritics, demo data, admin menu | 2026-06-09 | b985fb3 | Verified | [260609-t1h-fix-3-issues-1-zh-admin-users-still-show](./quick/260609-t1h-fix-3-issues-1-zh-admin-users-still-show/) |
-| 260609-t8t | Restore admin dashboard sidebar menu that disappeared | 2026-06-09 | 2cf624d | Verified | [260609-t8t-restore-admin-dashboard-sidebar-menu-tha](./quick/260609-t8t-restore-admin-dashboard-sidebar-menu-tha/) |
-| 260609-thz | Translate admin sidebar menu to all languages using i18n | 2026-06-09 | e38ee28 | Verified | [260609-thz-translate-admin-sidebar-menu-to-all-lang](./quick/260609-thz-translate-admin-sidebar-menu-to-all-lang/) |
-| 260609-tnt | Fix 404 API routes: /en/api/audit/events and /en/api/vault | 2026-06-09 | d0311da | Verified | [260609-tnt-fix-404-api-routes-en-api-audit-events-a](./quick/260609-tnt-fix-404-api-routes-en-api-audit-events-a/) |
-| 260609-tsy | Fix /en/admin/audit page: RangeError Invalid time value | 2026-06-09 | 28ef8d5 | Verified | [260609-tsy-fix-en-admin-audit-page rangeerror-inval](./quick/260609-tsy-fix-en-admin-audit-page%20rangeerror-inval/) |
-| 260609-u0x | Fix i18n for admin pages: workspaces, requests, ops, audit, vault - all have Vietnamese without diacritics | 2026-06-09 | 3c4041f | Verified | [260609-u0x-fix-i18n-for-admin-pages-workspaces-requ](./quick/260609-u0x-fix-i18n-for-admin-pages-workspaces-requ/) |
-| 260609-u95 | Fix missing i18n messages and API 404 errors | 2026-06-09 | — | Verified | [260609-u95-fix-missing-i18n-messages-and-api-404-er](./quick/260609-u95-fix-missing-i18n-messages-and-api-404-er/) |
-| 260609-vps | Fix intake page 500 error when creating request - POST /ja/intake/api/create-draft | 2026-06-09 | e37f78e | Verified | [260609-vps-fix-intake-page-500-error-when-creating-](./quick/260609-vps-fix-intake-page-500-error-when-creating-/) |
-| 260609-wdw | Fix intake API 500 error - analyze root cause and verify with browser testing | 2026-06-09 | e37f78e | Verified | [260609-wdw-fix-intake-api-500-error-analyze-root-ca](./quick/260609-wdw-fix-intake-api-500-error-analyze-root-ca/) |
-| 260610-wmr | Switch from PostgreSQL to SQLite for development | 2026-06-10 | 8afbd54 | Verified | [260610-wmr-switch-from-postgresql-to-sqlite-for-dev](./quick/260610-wmr-switch-from-postgresql-to-sqlite-for-dev/) |
-| 260610-axj | Test e2e 6 tính năng admin dashboard - kiểm tra dữ liệu hiển thị, bổ sung data test, chụp ảnh | 2026-06-10 | — | Verified | [260610-axj-test-e2e-6-t-nh-n-ng-admin-dashboard-ki-](./quick/260610-axj-test-e2e-6-t-nh-n-ng-admin-dashboard-ki-/) |
+| # | Description | Date | Status |
+|---|-------------|------|--------|
+| 260610-wmr | Switch from PostgreSQL to SQLite for dev | 2026-06-10 | Verified |
+| 260610-axj | Test e2e 6 admin dashboard features | 2026-06-10 | Verified |
 
-Last activity: 2026-06-10
+Last activity: 2026-06-10 - v1.2 roadmap created with 3 phases, 20 requirements mapped
 
-## Phase 17 Plan 05 Execution
+## Session Continuity
 
-| Task | Description | Status | Commit |
-|------|-------------|--------|--------|
-| 17-05-01 | Audit route existence and directory structure | Complete | 8cc0530 |
-| 17-05-02 | Investigate 404 root cause for each route | Complete | — |
-| 17-05-03 | Decide fix strategy for each route | Complete | 9b2d840 |
-
-**Result:** Removed 4 dynamic routes from validation suite. Routes return HTTP 404 (route matching failure), not access errors. Decision: option-b - Remove from validation suite as Phase 16 restructuring artifacts.
-
-## Phase 17 Plan 04 Execution
-
-| Task | Description | Status | Commit |
-|------|-------------|--------|--------|
-| 17-04-01 | Fix OpsTimelineTable import path | Complete | e0ba66b |
-| 17-04-02 | Clear Next.js build cache | Complete | be60bf7 |
-| 17-04-03 | Verify route returns HTTP 200 | Complete | 8b0e85c |
-
-**Result:** HTTP 500 fixed by changing @/ alias to relative ./ import. Route /admin/ops/[requestId] now returns 200.
-
-## Phase 17 Plan 03 Execution
-
-| Task | Description | Status | Commit |
-|------|-------------|--------|--------|
-| 17-03-01 | Run full validation harness against all 14 routes | Complete | 747c4d7 |
-| 17-03-02 | Analyze and document results | Complete | ce5d064 |
-
-**Result:** Validation complete - 9 PASS, 5 FAIL. Critical finding: ops/[requestId] has OpsTimelineTable component error (HTTP 500). 4 dynamic routes returning 404 (likely removed in Phase 16 restructuring).
-
-## Phase 17 Plan 02 Execution
-
-| Task | Description | Status | Commit |
-|------|-------------|--------|--------|
-| 17-02-01 | Fix validation harness Prisma queries for real IDs | Complete | 4594362 |
-| 17-02-02 | Verify fixture resolution works with seeded data | Complete | — |
-
-**Result:** Fixtures now resolve real IDs from database instead of placeholder values. Dual-pass queries with workspace-scoped fallback enable validation to work regardless of which workspace contains the seed data.
-
-## Phase 16 Plan 03 Execution
-
-| Task | Description | Status | Commit |
-|------|-------------|--------|--------|
-| 16-03-01 | Repair admin-only routes | Complete | 1e7ef5a |
-| 16-03-02 | Verify dynamic routes | Complete | 21b903c |
-| 16-03-03 | Run final validation | Deferred | — |
-
-**Note**: Dev server not running. Live validation deferred until server restart.
+Last session: 2026-06-10 12:30
+Stopped at: Roadmap created, awaiting user approval
+Resume: Ready to plan Phase 23

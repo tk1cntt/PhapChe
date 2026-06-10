@@ -1,0 +1,113 @@
+# Requirements: Legal-as-a-Service Platform
+
+**Defined:** 2026-06-10
+**Milestone:** v1.2 UI/UX Improvements
+**Core Value:** SME gửi yêu cầu pháp lý theo cách đơn giản như nhắn tin và nhận tài liệu/tư vấn đã qua kiểm soát chất lượng, có thể truy vết toàn bộ quá trình xử lý.
+
+## v1.2 Requirements
+
+Requirements cho milestone v1.2 — UI/UX Improvements cho Admin Dashboard.
+
+### Loading States
+
+- [ ] **LOAD-01**: Admin pages display skeleton loading screens during data fetch
+- [ ] **LOAD-02**: PageSkeleton component matches table layout structure
+- [ ] **LOAD-03**: CardSkeleton component for card-based content
+- [ ] **LOAD-04**: Skeleton components reusable across all admin pages (no hard-coded per page)
+
+### Error Handling
+
+- [ ] **ERR-01**: Each admin page wrapped in Error Boundary
+- [ ] **ERR-02**: Error fallback displays error message + Retry button
+- [ ] **ERR-03**: Errors logged to console for debugging
+- [ ] **ERR-04**: Shared ErrorFallback component used across all pages
+
+### Data Fetching
+
+- [ ] **DATA-01**: TanStack Query v5 installed and configured
+- [ ] **DATA-02**: QueryClientProvider added to app layout
+- [ ] **DATA-03**: Query key convention established: `['entity', workspaceId?, options]`
+- [ ] **DATA-04**: React Query devtools enabled in development only
+- [ ] **DATA-05**: Cache configuration: staleTime 30s, gcTime 5min
+
+### Pagination
+
+- [ ] **PAGE-01**: Tables support pagination with page sizes: 10, 25, 50
+- [ ] **PAGE-02**: Page state synced to URL query params
+- [ ] **PAGE-03**: Server-side pagination for requests, users, audit tables
+
+### Search & Filter
+
+- [ ] **SCH-01**: Global search bar in admin header
+- [ ] **SCH-02**: Column filters in table headers
+- [ ] **SCH-03**: Debounced search: 300ms delay
+- [ ] **SCH-04**: Search state persisted in URL params
+
+## v2 Requirements
+
+Deferred to future releases.
+
+### Performance
+
+- **PERF-01**: Virtual scrolling for 10k+ rows
+- **PERF-02**: First Contentful Paint < 1.5s
+- **PERF-03**: Time to Interactive < 3s
+- **PERF-04**: Bundle size increase < 50KB gzipped
+
+### Accessibility
+
+- **A11Y-01**: Keyboard navigation for all interactive elements
+- **A11Y-02**: ARIA labels for icons
+- **A11Y-03**: Focus management for modals
+
+### Responsive
+
+- **RESP-01**: Tablet: Collapsed sidebar
+- **RESP-02**: Mobile: Hamburger menu, horizontal scroll tables
+
+## Out of Scope
+
+Explicitly excluded. Documented to prevent scope creep.
+
+| Feature | Reason |
+|---------|--------|
+| Real-time updates (WebSocket) | MVP focus on stability first |
+| Offline mode | Not critical for internal tool |
+| Full responsive redesign | Desktop-first, internal tool |
+| Command palette | Power user feature for later |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| LOAD-01 | Phase 23 | Pending |
+| LOAD-02 | Phase 23 | Pending |
+| LOAD-03 | Phase 23 | Pending |
+| LOAD-04 | Phase 23 | Pending |
+| ERR-01 | Phase 23 | Pending |
+| ERR-02 | Phase 23 | Pending |
+| ERR-03 | Phase 23 | Pending |
+| ERR-04 | Phase 23 | Pending |
+| DATA-01 | Phase 24 | Pending |
+| DATA-02 | Phase 24 | Pending |
+| DATA-03 | Phase 24 | Pending |
+| DATA-04 | Phase 24 | Pending |
+| DATA-05 | Phase 24 | Pending |
+| PAGE-01 | Phase 25 | Pending |
+| PAGE-02 | Phase 25 | Pending |
+| PAGE-03 | Phase 25 | Pending |
+| SCH-01 | Phase 25 | Pending |
+| SCH-02 | Phase 25 | Pending |
+| SCH-03 | Phase 25 | Pending |
+| SCH-04 | Phase 25 | Pending |
+
+**Coverage:**
+- v1.2 requirements: 20 total
+- Mapped to phases: 20
+- Unmapped: 0
+
+---
+*Requirements defined: 2026-06-10*
+*Last updated: 2026-06-10 after roadmap creation*

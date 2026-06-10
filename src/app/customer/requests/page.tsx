@@ -45,7 +45,7 @@ export default async function CustomerRequestsPage({
   const rows: CustomerRequestRow[] = requests.map((request) => ({
     id: request.id,
     title: request.title,
-    status: request.status,
+    status: request.status as CustomerRequestRow['status'],
     createdAt: request.createdAt.toISOString(),
     updatedAt: request.updatedAt.toISOString(),
     matterTypeKey: request.intakeSubmission?.matterTypeKey ?? null,

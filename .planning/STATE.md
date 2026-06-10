@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Auth & Hardening
-status: completed
-last_updated: "2026-06-09T13:59:24.113Z"
-last_activity: "2026-06-09 - Completed quick task 260609-sq4: Fix i18n: Màn hình /zh/admin/users hiển thị tiếng Việt không dấu. Dịch đầy đủ các ngôn ngữ"
+status: executing
+last_updated: "2026-06-10T10:29:07.029Z"
+last_activity: 2026-06-10
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 16
-  completed_plans: 16
-  percent: 100
+  total_phases: 8
+  completed_phases: 7
+  total_plans: 18
+  completed_plans: 17
+  percent: 94
 ---
 
 # State
@@ -20,7 +20,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-05)
 
 **Core value:** SME sends legal requests through simple chat and receives quality-reviewed deliverables with full traceability.
-**Status:** Milestone complete
+**Status:** Ready to execute
 **Next:** Phase 15: auth
 
 ## Current Milestone: v1.1 Auth & Hardening
@@ -101,7 +101,7 @@ Items acknowledged at milestone close (2026-06-05):
 | 260610-wmr | Switch from PostgreSQL to SQLite for development | 2026-06-10 | 8afbd54 | Verified | [260610-wmr-switch-from-postgresql-to-sqlite-for-dev](./quick/260610-wmr-switch-from-postgresql-to-sqlite-for-dev/) |
 | 260610-axj | Test e2e 6 tính năng admin dashboard - kiểm tra dữ liệu hiển thị, bổ sung data test, chụp ảnh | 2026-06-10 | — | Verified | [260610-axj-test-e2e-6-t-nh-n-ng-admin-dashboard-ki-](./quick/260610-axj-test-e2e-6-t-nh-n-ng-admin-dashboard-ki-/) |
 
-Last activity: 2026-06-10 - Completed quick task 260610-axj: Test e2e 6 tính năng admin dashboard (8/8 tests PASSED)
+Last activity: 2026-06-10
 
 ## Phase 17 Plan 05 Execution
 

@@ -115,8 +115,8 @@ Mỗi phase cần có seed script tạo:
 
 #### User Management (admin-user-management.html)
 
-- [ ] **ADMIN-USER-01**: Stats show 4 cards (Total Users: 128, Active: 112, Workspaces: 12, Pending: 9)
-- [ ] **ADMIN-USER-02**: Role pills display 6 roles with counts (72 customer, 18 specialist, 14 reviewer, 10 coordinator, 4 super_admin, 9 pending)
+- [x] **ADMIN-USER-01**: Stats show 4 cards (Total Users: 128, Active: 112, Workspaces: 12, Pending: 9)
+- [x] **ADMIN-USER-02**: Role pills display 6 roles with counts (72 customer, 18 specialist, 14 reviewer, 10 coordinator, 4 super_admin, 9 pending)
 - [ ] **ADMIN-USER-03**: User table shows 8 columns (checkbox, name, email, role, workspace, status, last active, action)
 - [ ] **ADMIN-USER-04**: Table displays 8 sample users matching template (Alex Nguyen, Hà Linh, Quang Dũng, Minh Trang, Mai Phương, Trần Nam, Khánh An, Linh Anh)
 - [ ] **ADMIN-USER-05**: Role badges color-coded (red=super_admin, blue=specialist/customer, orange=reviewer, green=coordinator_admin, purple=audit_admin)

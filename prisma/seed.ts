@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { MATTER_CATALOG } from '../src/lib/intake/catalog';
 import { auth } from '../src/auth';
+import { seedMessages } from './seed-messages';
 
 const prisma = new PrismaClient();
 
@@ -188,6 +189,9 @@ async function main() {
       });
     }
   }
+
+  // Seed sample message threads (Phase 29)
+  await seedMessages();
 }
 
 main()

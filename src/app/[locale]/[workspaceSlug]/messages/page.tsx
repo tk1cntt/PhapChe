@@ -1,8 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import UserLayout from '../../customer/components/UserLayout';
-import StatCard from '../../customer/components/StatCard';
-import FloatingChatButton from '../../customer/components/FloatingChatButton';
+import { StatCard } from '../../customer/components/StatCard';
+import { FloatingChatButton } from '../../customer/components/FloatingChatButton';
 import MessagesContainer from './components/MessagesContainer';
 import './messages.css';
 

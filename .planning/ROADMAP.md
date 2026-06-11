@@ -14,7 +14,7 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
 ## Phases
 
 - [x] **Phase 26: Customer Dashboard** - user-dashboard.html (10 requirements) (completed 2026-06-10)
-- [ ] **Phase 27: Create Request** - user-create-request.html (6 requirements)
+- [x] **Phase 27: Create Request** - user-create-request.html (6 requirements) (completed 2026-06-10)
 - [x] **Phase 28: My Cases** - user-cases.html (5 requirements) (completed 2026-06-10)
 - [ ] **Phase 29: Messages** - user-messages.html (4 requirements)
 - [ ] **Phase 30: Workspace** - user-workspace.html (4 requirements)
@@ -34,19 +34,18 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
 **Depends on**: Phase 25 (Auth & i18n)
 **Requirements**: CUST-DASH-01, CUST-DASH-02, CUST-DASH-03, CUST-DASH-04, CUST-DASH-05, CUST-DASH-06, CUST-DASH-07, CUST-DASH-08, CUST-DASH-09, CUST-DASH-10
 **Success Criteria** (what must be TRUE):
-  1. User sees 4 stat cards with exact values (12 hồ sơ, 3 đang xử lý, 8 hoàn tất, 36 vault)
+  1. User sees 4 stat cards with exact values (12 ho so, 3 dang xu ly, 8 hoan tat, 36 vault)
   2. User sees welcome banner with workspace status message
-  3. User sees case list with status badges (Đang review, Cần phản hồi, Đã duyệt)
+  3. User sees case list with status badges (Dang review, Can phan hoi, Da duyet)
   4. User sees deadline/SLA panel with progress bars
   5. User sees recent documents panel with PDF/DOC badges
   6. User sees activity timeline with relative timestamps
   7. User sees requests table with 7 columns showing 4 sample rows
-  8. User sees floating chat button with "2 Tin mới" badge
+  8. User sees floating chat button with "2 Tin moi" badge
 **Plans:** 3/3 plans complete
 - [x] 26-01-PLAN.md — Foundation components
 - [x] 26-02-PLAN.md — Dashboard page with panels
 - [x] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
 
 ### Phase 27: Create Request
 **Goal**: Create request wizard renders with 4-step flow, service options, sidebar summary, and checklist matching template
@@ -55,14 +54,13 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
 **Success Criteria** (what must be TRUE):
   1. User sees 4-step wizard (Service, Questions, Docs, Review) with step indicators
   2. User sees 5 service type options with radio selection
-  3. User sees service cards with tags (Khuyến nghị, Nhanh, IP, Cần tài liệu, Phân loại)
+  3. User sees service cards with tags (Khuyen nghi, Nhanh, IP, Can tai lieu, Phan loai)
   4. User sees sidebar summary panel with selected service and workspace info
   5. User sees checklist panel with 4 preparation items
-**Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+**Plans:** 3/3 plans complete
+- [x] 27-01-PLAN.md — Page route with UserLayout and WizardSteps
+- [x] 27-02-PLAN.md — Service selection components and sidebar panels
+- [x] 27-03-PLAN.md — Form fields, integration, and floating chat
 
 ### Phase 28: My Cases
 **Goal**: My Cases page renders with summary banner, 4 stats, toolbar filters, and requests table matching template
@@ -70,14 +68,13 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
 **Requirements**: CUST-CASES-01, CUST-CASES-02, CUST-CASES-03, CUST-CASES-04, CUST-CASES-05
 **Success Criteria** (what must be TRUE):
   1. User sees summary banner with total cases message
-  2. User sees 4 stats cards (Tổng: 12, Đang xử lý: 3, Hoàn tất: 8, Quá hạn: 1)
+  2. User sees 4 stats cards (Tong: 12, Dang xu ly: 3, Hoan tat: 8, Qua han: 1)
   3. User sees toolbar with search and filter dropdowns functional
   4. User sees requests table with 7 columns and 5 sample rows
 **Plans:** 3/3 plans complete
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+- [x] 28-01-PLAN.md — Summary banner and stat cards
+- [x] 28-02-PLAN.md — Toolbar and requests table
+- [x] 28-03-PLAN.md — E2E tests and seed data
 
 ### Phase 29: Messages
 **Goal**: Messages page renders with 3-column layout, thread list, chat panel, and info panel matching template
@@ -87,42 +84,39 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   1. User sees 3-column layout (thread list, chat panel, info panel)
   2. User sees thread list with 4 sample threads and avatars (HL, QD, MT, KA)
   3. User sees chat panel with message history and in/out styling
-  4. User sees info panel with request metadata (mã, SLA, tài liệu, người tham gia)
+  4. User sees info panel with request metadata (ma, SLA, tai lieu, nguoi tham gia)
 **Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+- [ ] 29-01-PLAN.md — Page route and layout foundation
+- [ ] 29-02-PLAN.md — Thread list panel component
+- [ ] 29-03-PLAN.md — Chat panel and info panel components
 
 ### Phase 30: Workspace
 **Goal**: Workspace page renders with stats, banner, member grid, and permission panel matching template
 **Depends on**: Phase 29
 **Requirements**: CUST-WS-01, CUST-WS-02, CUST-WS-03, CUST-WS-04
 **Success Criteria** (what must be TRUE):
-  1. User sees 4 stats cards (Workspace: Active, Thành viên: 6, Hồ sơ: 12, Vault scope: 96%)
-  2. User sees workspace banner with company name (Công ty An Phát)
+  1. User sees 4 stats cards (Workspace: Active, Thanh vien: 6, Ho so: 12, Vault scope: 96%)
+  2. User sees workspace banner with company name (Cong ty An Phat)
   3. User sees member grid with 4 sample members and role badges
   4. User sees permission/security panel with tenant isolation info
 **Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+- [ ] 30-01-PLAN.md — Page route and stat cards
+- [ ] 30-02-PLAN.md — Member grid and workspace banner
+- [ ] 30-03-PLAN.md — Permission panel and integration
 
 ### Phase 31: Settings
 **Goal**: Settings page renders with 6 tabs, profile form, notification toggles, and security settings matching template
 **Depends on**: Phase 30
 **Requirements**: CUST-SET-01, CUST-SET-02, CUST-SET-03, CUST-SET-04, CUST-SET-05
 **Success Criteria** (what must be TRUE):
-  1. User sees settings menu with 6 tabs (Hồ sơ cá nhân, Bảo mật, Thông báo, Workspace, Ngôn ngữ, Audit)
+  1. User sees settings menu with 6 tabs (Ho so ca nhan, Bao mat, Thong bao, Workspace, Ngon ngu, Audit)
   2. User sees profile form with 6 fields matching template
   3. User sees notification toggles with 3 items and on/off states
   4. User sees security toggles with 2FA and login alerts options
 **Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+- [ ] 31-01-PLAN.md — Page route and settings menu
+- [ ] 31-02-PLAN.md — Profile form and notification toggles
+- [ ] 31-03-PLAN.md — Security settings and integration
 
 ### Phase 32: Admin Dashboard
 **Goal**: Admin dashboard renders with stats, workload list, alerts, workspaces, approvals, audit timeline, and requests table matching template
@@ -138,10 +132,9 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   7. User sees audit timeline with 3 recent entries
   8. User sees requests table with 7 columns and 5 sample rows
 **Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+- [ ] 32-01-PLAN.md — Page route and stat cards
+- [ ] 32-02-PLAN.md — Workload, alerts, and approvals panels
+- [ ] 32-03-PLAN.md — Audit timeline and requests table
 
 ### Phase 33: User Management
 **Goal**: User management page renders with stats, role pills, and user table matching template
@@ -154,74 +147,69 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   4. User sees role badges color-coded by role type
   5. User sees toolbar with search and filter dropdowns functional
 **Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+- [ ] 33-01-PLAN.md — Page route and stat cards
+- [ ] 33-02-PLAN.md — Role pills and user table
+- [ ] 33-03-PLAN.md — Toolbar and integration
 
 ### Phase 34: Admin Requests
 **Goal**: Admin requests page renders with stats, requests table, and priority badges matching template
 **Depends on**: Phase 33
 **Requirements**: ADMIN-REQ-01, ADMIN-REQ-02, ADMIN-REQ-03, ADMIN-REQ-04, ADMIN-REQ-05
 **Success Criteria** (what must be TRUE):
-  1. User sees 4 stats cards (Tổng: 18, Đang chờ: 5, Đã duyệt: 9, Ưu tiên cao: 3)
+  1. User sees 4 stats cards (Tong: 18, Dang cho: 5, Da duyet: 9, Uu tien cao: 3)
   2. User sees requests table with 6 columns and 6 sample rows
   3. User sees status badges and priority badges (High/Medium/Low)
   4. User sees toolbar with search and filter functional
 **Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+- [ ] 34-01-PLAN.md — Page route and stat cards
+- [ ] 34-02-PLAN.md — Requests table with badges
+- [ ] 34-03-PLAN.md — Toolbar and integration
 
 ### Phase 35: Admin Operations
 **Goal**: Admin operations page renders with stats, workload panel, audit timeline, and operations table with SLA bars matching template
 **Depends on**: Phase 34
 **Requirements**: ADMIN-OPS-01, ADMIN-OPS-02, ADMIN-OPS-03, ADMIN-OPS-04, ADMIN-OPS-05, ADMIN-OPS-06
 **Success Criteria** (what must be TRUE):
-  1. User sees 4 stats cards (Hồ sơ đang mở: 24, Sắp quá SLA: 6, Hoàn tất hôm nay: 11, Cảnh báo: 3)
+  1. User sees 4 stats cards (Ho so dang mo: 24, Sap qua SLA: 6, Hoan tat hom nay: 11, Canh bao: 3)
   2. User sees workload panel with 4 specialists and progress bars
   3. User sees audit timeline with 4 recent operations
   4. User sees operations table with 7 columns and SLA bars
   5. User sees SLA bars color-coded (green/orange/red)
 **Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+- [ ] 35-01-PLAN.md — Page route and stat cards
+- [ ] 35-02-PLAN.md — Workload panel and audit timeline
+- [ ] 35-03-PLAN.md — Operations table with SLA bars
 
 ### Phase 36: Admin Audit
 **Goal**: Admin audit page renders with stats, security notice, security list, activity timeline, and audit table with correlation IDs matching template
 **Depends on**: Phase 35
 **Requirements**: ADMIN-AUD-01, ADMIN-AUD-02, ADMIN-AUD-03, ADMIN-AUD-04, ADMIN-AUD-05, ADMIN-AUD-06, ADMIN-AUD-07
 **Success Criteria** (what must be TRUE):
-  1. User sees 4 stats cards (Tổng: 1,284, Hợp lệ: 1,239, Cần rà soát: 32, Cảnh báo: 7)
+  1. User sees 4 stats cards (Tong: 1,284, Hop le: 1,239, Can ra soat: 32, Canh bao: 7)
   2. User sees security notice explaining safe display principles
-  3. User sees security list with 3 items (Truy cập bị từ chối: 7, Thay đổi role: 12, Audit hoàn chỉnh: 98%)
+  3. User sees security list with 3 items (Truy cap bi tu choi: 7, Thay doi role: 12, Audit hoan chinh: 98%)
   4. User sees activity timeline with 4 recent entries
   5. User sees audit table with 7 columns including correlation IDs
   6. User sees correlation IDs in monospace font and action badges color-coded
 **Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+- [ ] 36-01-PLAN.md — Page route and stat cards
+- [ ] 36-02-PLAN.md — Security notice and activity timeline
+- [ ] 36-03-PLAN.md — Audit table with correlation IDs
 
 ### Phase 37: Admin Vault
 **Goal**: Admin vault page renders with stats, folder panel, tag panel, and vault table with security badges matching template
 **Depends on**: Phase 36
 **Requirements**: ADMIN-VAULT-01, ADMIN-VAULT-02, ADMIN-VAULT-03, ADMIN-VAULT-04, ADMIN-VAULT-05, ADMIN-VAULT-06
 **Success Criteria** (what must be TRUE):
-  1. User sees 4 stats cards (Tổng thư mục: 12, Tệp pháp lý: 248, Thẻ: 18, Bảo mật: 96%)
+  1. User sees 4 stats cards (Tong thu muc: 12, Tep phap ly: 248, The: 18, Bao mat: 96%)
   2. User sees folder panel with 4 sample folders and file counts
   3. User sees tag panel with 4 sample tags and file counts
   4. User sees vault table with 7 columns and 6 sample files
   5. User sees security badges showing encryption/permission status
 **Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+- [ ] 37-01-PLAN.md — Page route and stat cards
+- [ ] 37-02-PLAN.md — Folder and tag panels
+- [ ] 37-03-PLAN.md — Vault table with security badges
 
 ### Phase 38: Admin Workspace
 **Goal**: Admin workspace page renders with permission card, workspace table, and toolbar matching template
@@ -230,37 +218,36 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
 **Success Criteria** (what must be TRUE):
   1. User sees permission card with workspace scope and security info
   2. User sees workspace table with permissions and member counts
-  3. User sees sample workspaces (An Phát, Minh Khang, Internal)
+  3. User sees sample workspaces (An Phat, Minh Khang, Internal)
   4. User sees toolbar with search and filter functional
 **Plans:** 3 plans
-- [ ] 26-01-PLAN.md — Foundation components
-- [ ] 26-02-PLAN.md — Dashboard page with panels
-- [ ] 26-03-PLAN.md — Table and seed data
-**UI hint**: yes
+- [ ] 38-01-PLAN.md — Page route and permission card
+- [ ] 38-02-PLAN.md — Workspace table
+- [ ] 38-03-PLAN.md — Toolbar and integration
 
 ## Progress
 
 | Phase | Screen | Requirements | Plans Complete | Status | Completed |
 |-------|--------|--------------|----------------|--------|-----------|
-| 26. Customer Dashboard | user-dashboard.html | 10 | 0/10 | Not started | - |
-| 27. Create Request | user-create-request.html | 6 | 0/6 | Not started | - |
-| 28. My Cases | user-cases.html | 5 | 0/5 | Not started | - |
-| 29. Messages | user-messages.html | 4 | 0/4 | Not started | - |
-| 30. Workspace | user-workspace.html | 4 | 0/4 | Not started | - |
-| 31. Settings | user-settings.html | 5 | 0/5 | Not started | - |
-| 32. Admin Dashboard | admin-dashboard.html | 10 | 0/10 | Not started | - |
-| 33. User Management | admin-user-management.html | 6 | 0/6 | Not started | - |
-| 34. Admin Requests | admin-request.html | 5 | 0/5 | Not started | - |
-| 35. Admin Operations | admin-operations.html | 6 | 0/6 | Not started | - |
-| 36. Admin Audit | admin-audit.html | 7 | 0/7 | Not started | - |
-| 37. Admin Vault | admin-vault.html | 6 | 0/6 | Not started | - |
-| 38. Admin Workspace | admin-workspace.html | 4 | 0/4 | Not started | - |
+| 26. Customer Dashboard | user-dashboard.html | 10 | 3/3 | Complete | 2026-06-10 |
+| 27. Create Request | user-create-request.html | 6 | 3/3 | Complete | 2026-06-10 |
+| 28. My Cases | user-cases.html | 5 | 3/3 | Complete | 2026-06-10 |
+| 29. Messages | user-messages.html | 4 | 0/3 | In progress | - |
+| 30. Workspace | user-workspace.html | 4 | 0/3 | Not started | - |
+| 31. Settings | user-settings.html | 5 | 0/3 | Not started | - |
+| 32. Admin Dashboard | admin-dashboard.html | 10 | 0/3 | Not started | - |
+| 33. User Management | admin-user-management.html | 6 | 0/3 | Not started | - |
+| 34. Admin Requests | admin-request.html | 5 | 0/3 | Not started | - |
+| 35. Admin Operations | admin-operations.html | 6 | 0/3 | Not started | - |
+| 36. Admin Audit | admin-audit.html | 7 | 0/3 | Not started | - |
+| 37. Admin Vault | admin-vault.html | 6 | 0/3 | Not started | - |
+| 38. Admin Workspace | admin-workspace.html | 4 | 0/3 | Not started | - |
 
 ---
 
 **Coverage:**
 - v1.4 requirements: 78 total
 - Mapped to phases: 78
-- Unmapped: 0 ✓
+- Unmapped: 0
 
-*Last updated: 2026-06-10*
+*Last updated: 2026-06-11*

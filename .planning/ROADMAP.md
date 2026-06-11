@@ -15,7 +15,7 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
 
 - [x] **Phase 26: Customer Dashboard** - user-dashboard.html (10 requirements) (completed 2026-06-10)
 - [ ] **Phase 27: Create Request** - user-create-request.html (6 requirements)
-- [ ] **Phase 28: My Cases** - user-cases.html (5 requirements)
+- [x] **Phase 28: My Cases** - user-cases.html (5 requirements) (completed 2026-06-10)
 - [ ] **Phase 29: Messages** - user-messages.html (4 requirements)
 - [ ] **Phase 30: Workspace** - user-workspace.html (4 requirements)
 - [ ] **Phase 31: Settings** - user-settings.html (5 requirements)
@@ -73,7 +73,7 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   2. User sees 4 stats cards (Tổng: 12, Đang xử lý: 3, Hoàn tất: 8, Quá hạn: 1)
   3. User sees toolbar with search and filter dropdowns functional
   4. User sees requests table with 7 columns and 5 sample rows
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 - [ ] 26-01-PLAN.md — Foundation components
 - [ ] 26-02-PLAN.md — Dashboard page with panels
 - [ ] 26-03-PLAN.md — Table and seed data

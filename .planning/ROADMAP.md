@@ -18,7 +18,7 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
 - [x] **Phase 28: My Cases** - user-cases.html (5 requirements) (completed 2026-06-10)
 - [x] **Phase 29: Messages** - user-messages.html (4 requirements) (completed 2026-06-11)
 - [x] **Phase 30: Workspace** - user-workspace.html (4 requirements) (completed 2026-06-11)
-- [ ] **Phase 31: Settings** - user-settings.html (5 requirements)
+- [x] **Phase 31: Settings** - user-settings.html (5 requirements)
 - [ ] **Phase 32: Admin Dashboard** - admin-dashboard.html (10 requirements)
 - [ ] **Phase 33: User Management** - admin-user-management.html (6 requirements)
 - [ ] **Phase 34: Admin Requests** - admin-request.html (5 requirements)
@@ -113,10 +113,10 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   2. User sees profile form with 6 fields matching template
   3. User sees notification toggles with 3 items and on/off states
   4. User sees security toggles with 2FA and login alerts options
-**Plans:** 3 plans
-- [ ] 31-01-PLAN.md — Page route and settings menu
-- [ ] 31-02-PLAN.md — Profile form and notification toggles
-- [ ] 31-03-PLAN.md — Security settings and integration
+**Plans:** 3/3 plans complete
+- [x] 31-01-PLAN.md — Page route and settings menu
+- [x] 31-02-PLAN.md — Profile form and notification toggles
+- [x] 31-03-PLAN.md — Security settings and integration
 
 ### Phase 32: Admin Dashboard
 **Goal**: Admin dashboard renders with stats, workload list, alerts, workspaces, approvals, audit timeline, and requests table matching template
@@ -232,9 +232,9 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
 | 26. Customer Dashboard | user-dashboard.html | 10 | 3/3 | Complete | 2026-06-10 |
 | 27. Create Request | user-create-request.html | 6 | 3/3 | Complete | 2026-06-10 |
 | 28. My Cases | user-cases.html | 5 | 3/3 | Complete | 2026-06-10 |
-| 29. Messages | user-messages.html | 4 | 0/3 | In progress | - |
-| 30. Workspace | user-workspace.html | 4 | 0/3 | Not started | - |
-| 31. Settings | user-settings.html | 5 | 0/3 | Not started | - |
+| 29. Messages | user-messages.html | 4 | 3/3 | Complete | 2026-06-11 |
+| 30. Workspace | user-workspace.html | 4 | 3/3 | Complete | 2026-06-11 |
+| 31. Settings | user-settings.html | 5 | 3/3 | Planned | - |
 | 32. Admin Dashboard | admin-dashboard.html | 10 | 0/3 | Not started | - |
 | 33. User Management | admin-user-management.html | 6 | 0/3 | Not started | - |
 | 34. Admin Requests | admin-request.html | 5 | 0/3 | Not started | - |

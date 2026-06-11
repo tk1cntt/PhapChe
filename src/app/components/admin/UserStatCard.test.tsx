@@ -17,18 +17,45 @@ describe('UserStatCard', () => {
     });
 
     it('renders with green variant', () => {
-      render(<UserStatCard {...defaultProps} variant="green" icon={<span>Icon</span>} />);
+      render(
+        <UserStatCard
+          variant="green"
+          title="Active Users"
+          value="112"
+          description="87.5% of total users"
+          icon={<span>Icon</span>}
+        />
+      );
       expect(screen.getByText('112')).toBeInTheDocument();
+      expect(screen.getByText('Active Users')).toBeInTheDocument();
     });
 
     it('renders with orange variant', () => {
-      render(<UserStatCard {...defaultProps} variant="orange" icon={<span>Icon</span>} />);
+      render(
+        <UserStatCard
+          variant="orange"
+          title="Pending Invitations"
+          value="9"
+          description="Awaiting acceptance"
+          icon={<span>Icon</span>}
+        />
+      );
       expect(screen.getByText('9')).toBeInTheDocument();
+      expect(screen.getByText('Pending Invitations')).toBeInTheDocument();
     });
 
     it('renders with purple variant', () => {
-      render(<UserStatCard {...defaultProps} variant="purple" icon={<span>Icon</span>} />);
+      render(
+        <UserStatCard
+          variant="purple"
+          title="Workspaces"
+          value="12"
+          description="11 active workspaces"
+          icon={<span>Icon</span>}
+        />
+      );
       expect(screen.getByText('12')).toBeInTheDocument();
+      expect(screen.getByText('Workspaces')).toBeInTheDocument();
     });
   });
 

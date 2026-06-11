@@ -19,7 +19,7 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
 - [x] **Phase 29: Messages** - user-messages.html (4 requirements) (completed 2026-06-11)
 - [x] **Phase 30: Workspace** - user-workspace.html (4 requirements) (completed 2026-06-11)
 - [x] **Phase 31: Settings** - user-settings.html (5 requirements)
-- [ ] **Phase 32: Admin Dashboard** - admin-dashboard.html (10 requirements)
+- [x] **Phase 32: Admin Dashboard** - admin-dashboard.html (10 requirements) (completed 2026-06-11)
 - [ ] **Phase 33: User Management** - admin-user-management.html (6 requirements)
 - [ ] **Phase 34: Admin Requests** - admin-request.html (5 requirements)
 - [ ] **Phase 35: Admin Operations** - admin-operations.html (6 requirements)
@@ -113,7 +113,7 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   2. User sees profile form with 6 fields matching template
   3. User sees notification toggles with 3 items and on/off states
   4. User sees security toggles with 2FA and login alerts options
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 - [x] 31-01-PLAN.md — Page route and settings menu
 - [x] 31-02-PLAN.md — Profile form and notification toggles
 - [x] 31-03-PLAN.md — Security settings and integration
@@ -131,10 +131,10 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   6. User sees approvals panel with 3 pending items
   7. User sees audit timeline with 3 recent entries
   8. User sees requests table with 7 columns and 5 sample rows
-**Plans:** 3 plans
-- [ ] 32-01-PLAN.md — Page route and stat cards
-- [ ] 32-02-PLAN.md — Workload, alerts, and approvals panels
-- [ ] 32-03-PLAN.md — Audit timeline and requests table
+**Plans:** 3/3 plans complete
+- [x] 32-01-PLAN.md — Page route and stat cards (2ef5069, 9b38bf2, 9077499)
+- [x] 32-02-PLAN.md — Workload, alerts, and approvals panels (f3bd64b, 01ce6be, 2b5b88f, 49302c3)
+- [x] 32-03-PLAN.md — Audit timeline and requests table (f406f80, 5f93775, a39be38, 114718e, 00a4a2b)
 
 ### Phase 33: User Management
 **Goal**: User management page renders with stats, role pills, and user table matching template

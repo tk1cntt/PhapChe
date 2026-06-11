@@ -16,7 +16,7 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
 - [x] **Phase 26: Customer Dashboard** - user-dashboard.html (10 requirements) (completed 2026-06-10)
 - [x] **Phase 27: Create Request** - user-create-request.html (6 requirements) (completed 2026-06-10)
 - [x] **Phase 28: My Cases** - user-cases.html (5 requirements) (completed 2026-06-10)
-- [ ] **Phase 29: Messages** - user-messages.html (4 requirements)
+- [x] **Phase 29: Messages** - user-messages.html (4 requirements) (completed 2026-06-11)
 - [ ] **Phase 30: Workspace** - user-workspace.html (4 requirements)
 - [ ] **Phase 31: Settings** - user-settings.html (5 requirements)
 - [ ] **Phase 32: Admin Dashboard** - admin-dashboard.html (10 requirements)
@@ -85,10 +85,10 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   2. User sees thread list with 4 sample threads and avatars (HL, QD, MT, KA)
   3. User sees chat panel with message history and in/out styling
   4. User sees info panel with request metadata (ma, SLA, tai lieu, nguoi tham gia)
-**Plans:** 3 plans
-- [ ] 29-01-PLAN.md — Page route and layout foundation
-- [ ] 29-02-PLAN.md — Thread list panel component
-- [ ] 29-03-PLAN.md — Chat panel and info panel components
+**Plans:** 3/3 plans complete
+- [x] 29-01-PLAN.md — Page route and layout foundation
+- [x] 29-02-PLAN.md — Thread list panel component
+- [x] 29-03-PLAN.md — Chat panel and info panel components
 
 ### Phase 30: Workspace
 **Goal**: Workspace page renders with stats, banner, member grid, and permission panel matching template

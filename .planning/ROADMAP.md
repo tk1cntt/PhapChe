@@ -131,7 +131,7 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   6. User sees approvals panel with 3 pending items
   7. User sees audit timeline with 3 recent entries
   8. User sees requests table with 7 columns and 5 sample rows
-**Plans:** 3/3 plans complete
+**Plans:** 2/3 plans complete
 - [x] 32-01-PLAN.md — Page route and stat cards (2ef5069, 9b38bf2, 9077499)
 - [x] 32-02-PLAN.md — Workload, alerts, and approvals panels (f3bd64b, 01ce6be, 2b5b88f, 49302c3)
 - [x] 32-03-PLAN.md — Audit timeline and requests table (f406f80, 5f93775, a39be38, 114718e, 00a4a2b)

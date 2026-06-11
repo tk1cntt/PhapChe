@@ -3,6 +3,7 @@ import { requireAppSession } from '@/lib/security/session';
 import UserLayout from '../../customer/components/UserLayout';
 import StatCard from '../../customer/components/StatCard';
 import FloatingChatButton from '../../customer/components/FloatingChatButton';
+import MessagesContainer from './components/MessagesContainer';
 import './messages.css';
 
 export default async function MessagesPage({
@@ -110,53 +111,42 @@ export default async function MessagesPage({
         </div>
 
         {/* 3-column message layout - D-02 */}
-        <div className="message-layout">
-          {/* Thread List Panel - 360px fixed */}
-          <div className="thread-list">
-            {sampleThreads.map((thread) => (
-              <div key={thread.id} className={`thread ${thread.isActive ? 'active' : ''}`}>
-                <div className={`thread-avatar ${thread.color}`}>{thread.initials}</div>
-                <div className="thread-body">
-                  <strong>{thread.title}</strong>
-                  <p>{thread.preview}</p>
-                </div>
-                <div className="thread-meta">{thread.time}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Chat Panel */}
-          <div className="chat-panel">
-            <div className="chat-header">
-              <div className="chat-header-info">
-                <strong>REQ-2026-019 · Soạn phụ lục SLA</strong>
-                <span>Hà Linh · Specialist · Đang online</span>
-              </div>
-              <span className="badge orange">Cần phản hồi</span>
-            </div>
-            <div className="messages-container">
-              {sampleMessages.map((msg) => (
-                <div key={msg.id} className={`msg ${msg.type}`}>{msg.content}</div>
-              ))}
-            </div>
-            <div className="composer">
-              <input type="text" placeholder="Nhập tin nhắn cho chuyên viên..." />
-              <button className="create-btn">Gửi</button>
-            </div>
-          </div>
-
-          {/* Info Panel */}
-          <div className="info-panel">
-            <div className="panel-title">
-              <div className="panel-title-left">Thông tin hồ sơ</div>
-            </div>
-            <div className="info-box"><strong>Mã hồ sơ</strong><span>REQ-2026-019 · Legal Amendment</span></div>
-            <div className="info-box"><strong>SLA còn lại</strong><span>{slaHours} giờ · cần phản hồi trước 17:00 hôm nay</span></div>
-            <div className="info-box"><strong>Tài liệu liên quan</strong><span>Phu-luc-SLA-v2.docx, Hop-dong-dich-vu-An-Phat.pdf</span></div>
-            <div className="info-box"><strong>Người tham gia</strong><span>Mai Phương, Hà Linh, Quang Dũng, Minh Trang</span></div>
-            <button className="ghost-btn" style={{ width: '100%' }}>Mở hồ sơ chi tiết</button>
-          </div>
-        </div>
+        <MessagesContainer
+          initialThreads={sampleThreads.map(t => ({
+            id: t.id,
+            requestId: t.id.replace('thread-', 'req-'),
+            requestCode: t.title.split('·')[0].trim(),
+            title: t.title.split('·').slice(1).join('·').trim() || t.title,
+            specialistName: t.initials === 'HL' ? 'Hà Linh' : t.initials === 'QD' ? 'Quang Dũng' : t.initials === 'MT' ? 'Minh Trang' : 'Khanh An',
+            specialistRole: 'Specialist',
+            specialistStatus: 'online' as const,
+            statusBadge: t.isActive ? 'pending' as const : 'review' as const,
+            preview: t.preview,
+            time: t.time,
+            color: t.color,
+            isActive: t.isActive,
+          }))}
+          initialMessages={{
+            'thread-1': sampleMessages.map((m, i) => ({
+              id: m.id,
+              content: m.content,
+              senderId: m.type === 'in' ? 'specialist-1' : 'user-1',
+              senderName: m.type === 'in' ? 'Hà Linh' : 'Mai Phương',
+              isOutgoing: m.type === 'out',
+              createdAt: new Date(Date.now() - (5 - i) * 60000),
+            })),
+          }}
+          initialCaseInfo={{
+            'thread-1': {
+              caseCode: 'REQ-2026-019 · Legal Amendment',
+              slaRemaining: '5 giờ',
+              slaDetail: 'cần phản hồi trước 17:00 hôm nay',
+              documents: 'Phu-luc-SLA-v2.docx, Hop-dong-dich-vu-An-Phat.pdf',
+              participants: 'Mai Phương, Hà Linh, Quang Dũng, Minh Trang',
+            },
+          }}
+          workspaceSlug={workspaceSlug}
+        />
 
         {/* Floating chat button */}
         <FloatingChatButton notificationCount={unreadMessages} notificationText="Tin mới" />
@@ -180,24 +170,43 @@ export default async function MessagesPage({
           <StatCard title="Tệp đính kèm" value={0} description="Trong các hồ sơ" icon="folder" variant="purple" />
         </div>
 
-        <div className="message-layout">
-          <div className="thread-list">
-            <div className="thread active">
-              <div className="thread-avatar blue">HL</div>
-              <div className="thread-body">
-                <strong>REQ-2026-019 · Phụ lục SLA</strong>
-                <p>Hà Linh: Chị vui lòng xác nhận mức phạt chậm thanh toán...</p>
-              </div>
-              <div className="thread-meta">12p</div>
-            </div>
-          </div>
-          <div className="chat-panel">
-            <div className="chat-placeholder">Select a thread to view messages</div>
-          </div>
-          <div className="info-panel">
-            <div className="info-placeholder">Select a thread to view details</div>
-          </div>
-        </div>
+        {/* Fallback: use sample data for development */}
+        <MessagesContainer
+          initialThreads={[
+            {
+              id: 'thread-1',
+              requestId: 'req-1',
+              requestCode: 'REQ-2026-019',
+              title: 'Phụ lục SLA',
+              specialistName: 'Hà Linh',
+              specialistRole: 'Specialist',
+              specialistStatus: 'online',
+              statusBadge: 'pending',
+              preview: 'Hà Linh: Chị vui lòng xác nhận mức phạt chậm thanh toán...',
+              time: '12p',
+              color: 'blue',
+              isActive: true,
+            },
+          ]}
+          initialMessages={{
+            'thread-1': [
+              { id: 'm1', content: 'Chào chị Phương, em đã xem bản phụ lục SLA. Hiện còn thiếu mức phạt khi đối tác chậm thanh toán quá 15 ngày.', senderId: 'specialist-1', senderName: 'Hà Linh', isOutgoing: false, createdAt: new Date() },
+              { id: 'm2', content: 'Bên em muốn áp dụng mức 0.05%/ngày trên số tiền chậm thanh toán, tối đa 8% giá trị phần nghĩa vụ vi phạm.', senderId: 'user-1', senderName: 'Mai Phương', isOutgoing: true, createdAt: new Date() },
+            ],
+          }}
+          initialCaseInfo={{
+            'thread-1': {
+              caseCode: 'REQ-2026-019 · Legal Amendment',
+              slaRemaining: '5 giờ',
+              slaDetail: 'cần phản hồi trước 17:00 hôm nay',
+              documents: 'Phu-luc-SLA-v2.docx, Hop-dong-dich-vu-An-Phat.pdf',
+              participants: 'Mai Phương, Hà Linh, Quang Dũng, Minh Trang',
+            },
+          }}
+          workspaceSlug={workspaceSlug}
+        />
+
+        <FloatingChatButton notificationCount={0} notificationText="Tin mới" />
       </UserLayout>
     );
   }

@@ -100,9 +100,9 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   3. User sees member grid with 4 sample members and role badges
   4. User sees permission/security panel with tenant isolation info
 **Plans:** 3 plans
-- [ ] 30-01-PLAN.md — Page route and stat cards
-- [ ] 30-02-PLAN.md — Member grid and workspace banner
-- [ ] 30-03-PLAN.md — Permission panel and integration
+- [x] 30-01-PLAN.md — Page route [planned] and stat cards
+- [x] 30-02-PLAN.md — Member grid [planned] and workspace banner
+- [x] 30-03-PLAN.md — Permission panel [planned] and integration
 
 ### Phase 31: Settings
 **Goal**: Settings page renders with 6 tabs, profile form, notification toggles, and security settings matching template

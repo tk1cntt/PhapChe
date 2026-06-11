@@ -1056,6 +1056,71 @@ a {
   text-decoration: underline;
 }
 
+/* Table Row & Header */
+.table-head,
+.table-row {
+  display: grid;
+  grid-template-columns: 52px 1.1fr 1.3fr 0.9fr 1.05fr 0.85fr 1fr 0.8fr;
+}
+
+.table-head {
+  background: linear-gradient(180deg, #f8fafc, #f5f7fb);
+  border-bottom: 1px solid var(--border);
+}
+
+.th {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  color: #59687e;
+  font-size: 14px;
+  font-weight: 700;
+  border-right: 1px solid var(--border);
+}
+
+.th:last-child {
+  border-right: none;
+}
+
+.table-row {
+  min-height: 72px;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+  transition: 0.2s;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background: #fbfdff;
+}
+
+.td {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 14px;
+  color: #0f172a;
+  font-weight: 500;
+  border-right: 1px solid var(--border);
+  min-width: 0;
+}
+
+.td:last-child {
+  border-right: none;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-radius: 4px;
+  background: #fff;
+}
+
 /* Workload Panel */
 .workload-list {
   display: grid;

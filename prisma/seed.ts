@@ -53,7 +53,101 @@ async function createSession(userId: string) {
   return token;
 }
 
+async function seedAnPhatWorkspace() {
+  // Phase 30: Workspace page seed data - "Cong ty An Phat" workspace
+  const anPhatWorkspace = await prisma.workspace.upsert({
+    where: { slug: 'an-phat' },
+    update: { isActive: true },
+    create: {
+      name: 'Cong ty An Phat',
+      slug: 'an-phat',
+      isActive: true,
+    },
+  });
+
+  // Create 4 sample members for an-phat workspace
+  const anPhatUsers = [
+    { email: 'mai.phuong@anphat.vn', name: 'Mai Phuong', role: 'owner' },
+    { email: 'linh.anh@anphat.vn', name: 'Linh Anh', role: 'finance' },
+    { email: 'trang.van@anphat.vn', name: 'Van Trang', role: 'viewer' },
+    { email: 'nam.hoang@anphat.vn', name: 'Nam Hoang', role: 'customer' },
+  ];
+
+  for (const userData of anPhatUsers) {
+    // Try to create user via signUpEmail, or skip if exists
+    let user = await prisma.user.findUnique({ where: { email: userData.email } });
+    if (!user) {
+      try {
+        const { user: newUser } = await auth.api.signUpEmail({
+          body: { email: userData.email, name: userData.name, password: 'AnPhat@123456' },
+        });
+        user = await prisma.user.findUniqueOrThrow({ where: { id: newUser.id } });
+      } catch {
+        // User might already exist, find by email
+        user = await prisma.user.findUnique({ where: { email: userData.email } });
+        if (!user) {
+          console.warn(`Could not create user ${userData.email}, skipping membership`);
+          continue;
+        }
+      }
+    }
+
+    const isActive = userData.role !== 'customer'; // 'customer' role means invited (not active yet)
+    await prisma.workspaceMembership.upsert({
+      where: {
+        userId_workspaceId_role: { userId: user.id, workspaceId: anPhatWorkspace.id, role: userData.role },
+      },
+      update: { isActive },
+      create: {
+        userId: user.id,
+        workspaceId: anPhatWorkspace.id,
+        role: userData.role,
+        isActive,
+      },
+    });
+  }
+
+  // Create 12 sample legal requests for an-phat workspace
+  const customerUser = await prisma.user.findUnique({ where: { email: 'mai.phuong@anphat.vn' } });
+  if (customerUser) {
+    const statuses = ['in_progress', 'pending_review', 'approved', 'draft_intake', 'in_progress', 'pending_review', 'in_progress', 'approved', 'draft_intake', 'pending_review', 'in_progress', 'approved'];
+    const titles = [
+      'Hop dong thue nha',
+      'NDA cong ty ABC',
+      'Phu luc hop dong',
+      'Hop dong lao dong',
+      'Dieu le cong ty',
+      'Bien ban thanh lap',
+      'Hop dong dai ly',
+      'Phu luc NDA',
+      'Thoa thuan mat gio',
+      'Hop dong ky gui',
+      'Phu luc hop dong xyz',
+      'Dieu khoan bao mat',
+    ];
+
+    for (let i = 0; i < 12; i++) {
+      await prisma.legalRequest.upsert({
+        where: { id: `req-anphat-${String(i + 1).padStart(3, '0')}` },
+        update: {},
+        create: {
+          id: `req-anphat-${String(i + 1).padStart(3, '0')}`,
+          workspaceId: anPhatWorkspace.id,
+          title: titles[i] || `Yeu cau ${i + 1}`,
+          status: statuses[i] || 'draft_intake',
+          createdById: customerUser.id,
+        },
+      });
+    }
+  }
+
+  console.log('Phase 30: An Phat workspace seeded with 4 members, 12 requests');
+}
+
 async function main() {
+  // Seed Phase 30: An Phat workspace
+  await seedAnPhatWorkspace();
+
   const workspace = await prisma.workspace.upsert({
     where: { slug: routingCapability.workspaceSlug },
     update: { isActive: true },

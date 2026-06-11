@@ -2,6 +2,14 @@
 
 import AdminStatCard from '@/app/components/admin/AdminStatCard';
 import AdminBanner from '@/app/components/admin/AdminBanner';
+import { WorkloadPanel } from '@/app/components/admin/WorkloadPanel';
+import { AlertPanel } from '@/app/components/admin/AlertPanel';
+import WorkspacePanel from '@/app/components/admin/WorkspacePanel';
+import ApprovalPanel from '@/app/components/admin/ApprovalPanel';
+import AuditTimeline from '@/app/components/admin/AuditTimeline';
+import AdminRequestsTable from '@/app/components/admin/AdminRequestsTable';
+import AdminToolbar from '@/app/components/admin/AdminToolbar';
+import FloatingAlertButton from '@/app/components/admin/FloatingAlertButton';
 
 export default function AdminDashboardPage() {
   return (
@@ -182,6 +190,42 @@ export default function AdminDashboardPage() {
           }
         />
       </div>
+
+      {/* Grid 2: WorkloadPanel + AlertPanel */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1.25fr 0.75fr',
+          gap: 20,
+          marginBottom: 24,
+        }}
+      >
+        <WorkloadPanel />
+        <AlertPanel />
+      </div>
+
+      {/* Grid 3: WorkspacePanel + ApprovalPanel + AuditTimeline */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '0.9fr 0.9fr 1.2fr',
+          gap: 20,
+          marginBottom: 24,
+        }}
+      >
+        <WorkspacePanel />
+        <ApprovalPanel />
+        <AuditTimeline />
+      </div>
+
+      {/* Toolbar */}
+      <AdminToolbar />
+
+      {/* Requests Table */}
+      <AdminRequestsTable />
+
+      {/* Floating Alert Button */}
+      <FloatingAlertButton alertCount={3} />
     </div>
   );
 }

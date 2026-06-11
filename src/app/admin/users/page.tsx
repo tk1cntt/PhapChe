@@ -1,8 +1,21 @@
 'use client';
 
 import UserStatCard from '@/app/components/admin/UserStatCard';
+import RolePill from '@/app/components/admin/RolePill';
+import UserToolbar from '@/app/components/admin/UserToolbar';
+import UserTable from '@/app/components/admin/UserTable';
+import FloatingAlertButton from '@/app/components/admin/FloatingAlertButton';
 
 export default function UsersPage() {
+  const rolePills = [
+    { role: 'Customer', count: 72, variant: 'blue' as const },
+    { role: 'Specialist', count: 18, variant: 'blue' as const },
+    { role: 'Reviewer', count: 14, variant: 'purple' as const },
+    { role: 'Coordinator', count: 10, variant: 'green' as const },
+    { role: 'Super Admin', count: 4, variant: 'red' as const },
+    { role: 'Pending', count: 9, variant: 'orange' as const },
+  ];
+
   return (
     <div style={{ padding: '31px 36px 42px' }}>
       {/* Page Header */}
@@ -168,6 +181,45 @@ export default function UsersPage() {
           }
         />
       </div>
+
+      {/* Role Pills Section */}
+      <div className="roles-card">
+        <div className="section-title">
+          <svg
+            width="21"
+            height="21"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          System Roles
+        </div>
+        <div className="pills">
+          {rolePills.map((pill) => (
+            <RolePill
+              key={pill.role}
+              role={pill.role}
+              count={pill.count}
+              variant={pill.variant}
+            />
+          ))}
+        </div>
+        <div className="audit-note">
+          Role assignments are audited. Changes require super_admin approval.
+        </div>
+      </div>
+
+      {/* User Toolbar */}
+      <UserToolbar />
+
+      {/* User Table */}
+      <UserTable />
+
+      {/* Floating Alert Button */}
+      <FloatingAlertButton alertCount={3} />
     </div>
   );
 }

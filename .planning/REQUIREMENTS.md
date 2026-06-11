@@ -92,8 +92,8 @@ Mỗi phase cần có seed script tạo:
 
 #### Settings (user-settings.html)
 
-- [ ] **CUST-SET-01**: Settings menu shows 6 tabs (Hồ sơ cá nhân, Bảo mật đăng nhập, Thông báo, Workspace, Ngôn ngữ & giao diện, Audit cá nhân)
-- [ ] **CUST-SET-02**: Profile form shows 6 fields matching template (name, email, phone, title, workspace, timezone)
+- [x] **CUST-SET-01**: Settings menu shows 6 tabs (Hồ sơ cá nhân, Bảo mật đăng nhập, Thông báo, Workspace, Ngôn ngữ & giao diện, Audit cá nhân)
+- [x] **CUST-SET-02**: Profile form shows 6 fields matching template (name, email, phone, title, workspace, timezone)
 - [ ] **CUST-SET-03**: Notification toggles display 3 items with on/off states
 - [ ] **CUST-SET-04**: Security toggles show 2FA and login alerts options
 - [ ] **CUST-SET-05**: 4 stats cards show account status (Account: Active, Security: 2FA, Notifications: 6, Workspace: 1)

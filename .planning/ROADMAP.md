@@ -113,7 +113,7 @@ v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) v
   2. User sees profile form with 6 fields matching template
   3. User sees notification toggles with 3 items and on/off states
   4. User sees security toggles with 2FA and login alerts options
-**Plans:** 3/3 plans complete
+**Plans:** 1/3 plans executed
 - [x] 31-01-PLAN.md — Page route and settings menu
 - [x] 31-02-PLAN.md — Profile form and notification toggles
 - [x] 31-03-PLAN.md — Security settings and integration

@@ -1159,6 +1159,26 @@ a {
   flex-shrink: 0;
 }
 
+.mini-avatar.green {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.mini-avatar.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.mini-avatar.orange {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.mini-avatar.purple {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
 .person strong {
   display: block;
   font-size: 14px;

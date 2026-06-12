@@ -2,13 +2,15 @@
 
 import React from 'react';
 import { Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export interface WorkspaceBannerProps {
   workspaceName: string;
   workspaceSlug: string;
 }
 
-export function WorkspaceBanner({ workspaceName, workspaceSlug }: WorkspaceBannerProps): JSX.Element {
+export function WorkspaceBanner({ workspaceName, workspaceSlug }: WorkspaceBannerProps): React.ReactElement {
+  const t = useTranslations('UserWorkspace');
   return (
     <div className="workspace-banner">
       <div>
@@ -16,13 +18,15 @@ export function WorkspaceBanner({ workspaceName, workspaceSlug }: WorkspaceBanne
           {workspaceName}
         </h2>
         <p className="subtitle">
-          Workspace rieng cho ho so, tai lieu, thanh vien va phan quyen du lieu cua cong ty.
+          {t('bannerDesc')}
         </p>
       </div>
       <button className="create-btn">
         <Plus size={18} />
-        Moi thanh vien
+        {t('inviteMember')}
       </button>
     </div>
   );
 }
+
+export default WorkspaceBanner;

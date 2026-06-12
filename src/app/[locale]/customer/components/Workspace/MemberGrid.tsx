@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Users, Shield } from 'lucide-react';
 import { Badge } from '../Badge';
 
@@ -40,38 +41,40 @@ function getRoleBadgeVariant(role: string, isActive: boolean): 'green' | 'blue' 
   }
 }
 
-function getRoleBadgeText(role: string, isActive: boolean): string {
-  if (!isActive) return 'Invited';
+function getRoleBadgeText(role: string, isActive: boolean, t: (key: string) => string): string {
+  if (!isActive) return t('roleInvited');
   switch (role.toLowerCase()) {
     case 'owner':
-      return 'Owner';
+      return t('roleOwner');
     case 'finance':
-      return 'Finance';
+      return t('roleFinance');
     case 'viewer':
-      return 'Viewer';
+      return t('roleViewer');
     case 'customer':
-      return 'Customer';
+      return t('roleCustomer');
     default:
       return role;
   }
 }
 
-function getRoleDisplay(role: string): string {
+function getRoleDisplay(role: string, t: (key: string) => string): string {
   switch (role.toLowerCase()) {
     case 'owner':
-      return 'Owner';
+      return t('roleOwner');
     case 'finance':
-      return 'Finance';
+      return t('roleFinance');
     case 'viewer':
-      return 'Legal Contact';
+      return t('roleViewer');
     case 'customer':
-      return '';
+      return t('roleCustomer');
     default:
       return role;
   }
 }
 
-export function MemberGrid({ members }: MemberGridProps): JSX.Element {
+export function MemberGrid({ members }: MemberGridProps): React.ReactElement {
+  const t = useTranslations('UserWorkspace');
+
   return (
     <div className="member-grid">
       {/* Members Panel */}
@@ -79,31 +82,34 @@ export function MemberGrid({ members }: MemberGridProps): JSX.Element {
         <div className="panel-title">
           <div className="panel-title-left">
             <Users size={20} color="#087f78" />
-            <span>Thanh vien workspace</span>
+            <span>{t('membersTitle')}</span>
           </div>
           <Link href="#" className="small-link">
-            Quan ly →
+            {t('manage')} →
           </Link>
         </div>
         <div className="item-list">
-          {members.map((member) => (
-            <div key={member.id} className="member">
-              <div className="member-left">
-                <div className="member-avatar">{getInitials(member.name)}</div>
-                <div className="stack">
-                  <strong>{member.name}</strong>
-                  <span>
-                    {getRoleDisplay(member.role)}
-                    {getRoleDisplay(member.role) && member.email ? ' · ' : ''}
-                    {member.email}
-                  </span>
+          {members.map((member) => {
+            const roleDisplay = getRoleDisplay(member.role, t);
+            return (
+              <div key={member.id} className="member">
+                <div className="member-left">
+                  <div className="member-avatar">{getInitials(member.name)}</div>
+                  <div className="stack">
+                    <strong>{member.name}</strong>
+                    <span>
+                      {roleDisplay}
+                      {roleDisplay && member.email ? ' · ' : ''}
+                      {member.email}
+                    </span>
+                  </div>
                 </div>
+                <Badge variant={getRoleBadgeVariant(member.role, member.isActive)}>
+                  {getRoleBadgeText(member.role, member.isActive, t)}
+                </Badge>
               </div>
-              <Badge variant={getRoleBadgeVariant(member.role, member.isActive)}>
-                {getRoleBadgeText(member.role, member.isActive)}
-              </Badge>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -112,30 +118,24 @@ export function MemberGrid({ members }: MemberGridProps): JSX.Element {
         <div className="panel-title">
           <div className="panel-title-left">
             <Shield size={20} color="#087f78" />
-            <span>Quyen &amp; bao mat</span>
+            <span>{t('permissionsTitle')}</span>
           </div>
         </div>
         <div className="scope">
-          <strong>Tenant isolation</strong>
-          <p>
-            Du lieu ho so va vault chi hien thi trong workspace Cong ty An Phat, khong lan voi
-            tenant khac.
-          </p>
+          <strong>{t('tenantIsolation')}</strong>
+          <p>{t('dataPrivacyNote')}</p>
         </div>
         <div className="scope">
-          <strong>Vai tro hien tai cua ban</strong>
-          <p>
-            Workspace Owner: tao yeu cau, xem tai lieu, moi thanh vien, phan hoi chuyen vien.
-          </p>
+          <strong>{t('yourRole')}</strong>
+          <p>{t('ownerRoleDesc')}</p>
         </div>
         <div className="scope">
-          <strong>Audit</strong>
-          <p>
-            Cac thao tac tai tep, xem tai lieu va moi thanh vien duoc ghi lai bang metadata an
-            toan.
-          </p>
+          <strong>{t('auditTitle')}</strong>
+          <p>{t('fileActionsNote')}</p>
         </div>
       </div>
     </div>
   );
 }
+
+export default MemberGrid;

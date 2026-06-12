@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Badge } from '../Badge';
 
 export interface ResourceData {
@@ -28,36 +29,38 @@ function formatDate(dateStr: string | null): string {
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
 
-export function ResourceTable({ resources }: ResourceTableProps): JSX.Element {
+export function ResourceTable({ resources }: ResourceTableProps): React.ReactElement {
+  const t = useTranslations('UserWorkspace');
+
   const rows = [
     {
-      name: 'Ho so phap ly',
-      description: 'Requests trong workspace',
-      count: `${resources.requestCount} ho so`,
+      name: t('legalRequests'),
+      description: t('legalRequestsDesc'),
+      count: t('countRequests', { count: resources.requestCount }),
       status: 'Healthy' as const,
       statusVariant: 'green' as const,
       date: resources.lastRequestUpdate,
-      action: 'Mo →',
+      action: t('open'),
       href: '../cases',
     },
     {
-      name: 'Tai lieu vault',
-      description: 'Hop dong, NDA, phu luc',
-      count: `${resources.vaultFileCount} tep`,
+      name: t('vaultDocs'),
+      description: t('vaultDocsDesc'),
+      count: t('countFiles', { count: resources.vaultFileCount }),
       status: 'Encrypted' as const,
       statusVariant: 'green' as const,
       date: resources.lastVaultUpdate,
-      action: 'Mo →',
+      action: t('open'),
       href: '../documents',
     },
     {
-      name: 'Loi moi thanh vien',
-      description: 'Dang cho xac nhan email',
-      count: `${resources.invitedCount} loi moi`,
+      name: t('memberInvites'),
+      description: t('memberInvitesDesc'),
+      count: t('countInvites', { count: resources.invitedCount }),
       status: 'Pending' as const,
       statusVariant: 'orange' as const,
       date: resources.lastInviteUpdate,
-      action: 'Gui lai →',
+      action: t('resend'),
       href: '#',
     },
   ];
@@ -66,11 +69,11 @@ export function ResourceTable({ resources }: ResourceTableProps): JSX.Element {
     <div className="table-card">
       {/* Table Header */}
       <div className="table-head">
-        <div className="th">Tai nguyen</div>
-        <div className="th">So luong</div>
-        <div className="th">Trang thai</div>
-        <div className="th">Cap nhat gan nhat</div>
-        <div className="th">Thao tac</div>
+        <div className="th">{t('resourcesTitle')}</div>
+        <div className="th">{t('resourceCount')}</div>
+        <div className="th">{t('resourceStatus')}</div>
+        <div className="th">{t('resourceUpdate')}</div>
+        <div className="th">{t('action')}</div>
       </div>
 
       {/* Table Rows */}
@@ -101,3 +104,5 @@ export function ResourceTable({ resources }: ResourceTableProps): JSX.Element {
     </div>
   );
 }
+
+export default ResourceTable;

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Building2, Users, FileText, Lock } from 'lucide-react';
 
 export interface StatsData {
@@ -18,35 +19,40 @@ export interface StatsGridProps {
   stats: StatsData;
 }
 
-export function StatsGrid({ stats }: StatsGridProps): JSX.Element {
+export function StatsGrid({ stats }: StatsGridProps): React.ReactElement {
+  const t = useTranslations('UserWorkspace');
+
   const statItems = [
     {
       icon: Building2,
       variant: 'green' as const,
-      title: 'Workspace',
-      value: stats.isActive ? 'Active' : 'Inactive',
+      title: t('statWorkspace'),
+      value: stats.isActive ? t('active') : t('inactive'),
       description: stats.slug,
     },
     {
       icon: Users,
       variant: 'blue' as const,
-      title: 'Thanh vien',
+      title: t('statMembers'),
       value: stats.memberCount,
-      description: `${stats.activeMemberCount} active, ${stats.invitedMemberCount} invited`,
+      description: t('statMembersDesc', {
+        active: stats.activeMemberCount,
+        invited: stats.invitedMemberCount,
+      }),
     },
     {
       icon: FileText,
       variant: 'orange' as const,
-      title: 'Ho so',
+      title: t('statRequests'),
       value: stats.requestCount,
-      description: `${stats.processingRequestCount} dang xu ly`,
+      description: t('statRequestsDesc', { processing: stats.processingRequestCount }),
     },
     {
       icon: Lock,
       variant: 'purple' as const,
-      title: 'Vault scope',
+      title: t('statVaultScope'),
       value: stats.vaultFileCount > 0 ? '96%' : '0%',
-      description: 'Tai lieu co phan quyen',
+      description: t('statVaultScopeDesc'),
     },
   ];
 
@@ -70,3 +76,5 @@ export function StatsGrid({ stats }: StatsGridProps): JSX.Element {
     </div>
   );
 }
+
+export default StatsGrid;

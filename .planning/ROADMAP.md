@@ -11,7 +11,7 @@
 
 ## Overview
 
-v2.0 tập trung vào việc kết nối Mock UI (đã hoàn thiện trong v1.4) với backend services thực tế. Approach: Adopt Mock UI Pattern — giữ UI đẹp, viết backend connection.
+v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4) với backend services thực tế. Approach: Adopt Mock UI Pattern — giữ UI đẹp, viết backend connection.
 
 **Current Status:**
 
@@ -304,6 +304,22 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn thiện trong v1.4)
 - [x] 39-02-PLAN.md — Seed data with 4 languages
 - [x] 39-03-PLAN.md — i18n cleanup and verification
 
+### Phase 40: v2 Create Request Wizard
+
+**Goal**: Connect Create Request wizard Steps 3-4 to real API endpoints
+**Depends on**: Phase 39 (Multilingual Schema)
+**Requirements**: CUST-CREATE-03, CUST-CREATE-04, CUST-CREATE-06
+**Success Criteria** (what must be TRUE):
+
+  1. User sees MatterType labels from SEED_MATTER_TYPES in their locale (VI/EN/ZH/JA)
+  2. User can upload documents via POST /api/v2/intake/attach-file
+  3. User can submit request via POST /api/v2/intake/submit
+  4. Inline errors display below invalid fields
+
+**Plans:** 1/1 plans
+
+- [ ] 40-01-PLAN.md — API endpoints and multilingual integration
+
 ## Progress
 
 | Phase | Screen | Requirements | Plans Complete | Status | Completed |
@@ -313,15 +329,16 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn thiện trong v1.4)
 | 28. My Cases | user-cases.html | 5 | 3/3 | Complete | 2026-06-10 |
 | 29. Messages | user-messages.html | 4 | 3/3 | Complete | 2026-06-11 |
 | 30. Workspace | user-workspace.html | 4 | 3/3 | Complete | 2026-06-11 |
-| 31. Settings | user-settings.html | 5 | 3/3 | Planned | - |
-| 32. Admin Dashboard | admin-dashboard.html | 10 | 0/3 | Not started | - |
-| 33. User Management | admin-user-management.html | 6 | 0/3 | Not started | - |
+| 31. Settings | user-settings.html | 5 | 3/3 | Complete | 2026-06-11 |
+| 32. Admin Dashboard | admin-dashboard.html | 10 | 3/3 | Complete | 2026-06-12 |
+| 33. User Management | admin-user-management.html | 6 | 3/3 | Complete | 2026-06-12 |
 | 34. Admin Requests | admin-request.html | 5 | 0/3 | Not started | - |
 | 35. Admin Operations | admin-operations.html | 6 | 0/3 | Not started | - |
 | 36. Admin Audit | admin-audit.html | 7 | 0/3 | Not started | - |
 | 37. Admin Vault | admin-vault.html | 6 | 0/3 | Not started | - |
 | 38. Admin Workspace | admin-workspace.html | 4 | 0/3 | Not started | - |
-| 39. Multilingual Schema | v2.0 foundation | 5 | 1/3 | In progress | - |
+| 39. Multilingual Schema | v2.0 foundation | 5 | 4/4 | Complete | 2026-06-12 |
+| 40. Create Request Wizard | v2 API connection | 3 | 0/1 | In progress | - |
 
 ---
 
@@ -331,4 +348,4 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn thiện trong v1.4)
 - Mapped to phases: 78
 - Unmapped: 0
 
-*Last updated: 2026-06-11*
+*Last updated: 2026-06-12*

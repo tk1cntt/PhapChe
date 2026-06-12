@@ -1,5 +1,5 @@
 import { UserLayout } from '@/components/layout/UserLayout';
-import { CreateRequestForm } from '@/components/create-request/CreateRequestForm';
+import CreateRequestForm from '@/components/create-request/CreateRequestForm';
 
 interface PageProps {
   params: Promise<{ locale: string }>;

@@ -23,8 +23,8 @@ export function SignInForm() {
       if (error) {
         message.error('Email hoặc mật khẩu không đúng');
       } else {
-        // Redirect to default workspace after successful login
-        router.push('/vi/an-phat');
+        // Redirect to the v2 dashboard after successful login
+        router.push('/vi/dashboard');
       }
     } catch (e) {
       message.error('Có lỗi xảy ra, vui lòng thử lại');

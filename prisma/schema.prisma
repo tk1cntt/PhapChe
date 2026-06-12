@@ -119,8 +119,16 @@ model MatterType {
   id             String             @id @default(cuid())
   workspaceId    String?
   key            String
-  label          String
-  description    String?
+  // Multilingual fields - _vi is primary (NOT NULL)
+  label_vi       String             // Primary label (REQUIRED)
+  label_en       String?            // Optional translations
+  label_zh       String?
+  label_ja       String?
+  description_vi String?            // Primary description (optional but recommended)
+  description_en String?
+  description_zh String?
+  description_ja String?
+  // Language-agnostic fields (stay as-is)
   schemaVersion  String
   questionSchema Json
   isActive       Boolean            @default(true)

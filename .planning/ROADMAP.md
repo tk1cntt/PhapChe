@@ -231,17 +231,18 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn thiện trong v1.4)
 - [ ] 38-02-PLAN.md — Workspace table
 - [ ] 38-03-PLAN.md — Toolbar and integration
 
-### Phase 39: v2.0 Foundation — Multilingual Database Schema
-**Goal**: Design and implement multilingual database schema supporting VI, ZH, JP, EN content
+### Phase 39: v2.0 Foundation — Restructure + Multilingual Schema
+**Goal**: Restructure source code + Design multilingual database schema
 **Depends on**: Phase 25 (Auth & i18n)
-**Requirements**: ARCH-01, ARCH-02, ARCH-03, i18n requirements from requirement.txt
+**Requirements**: ARCH-01, ARCH-02, ARCH-03, RESTRUCTURE, i18n requirements from requirement.txt
 **Success Criteria** (what must be TRUE):
-  1. Database schema supports multilingual content with title_vi, title_zh, title_jp, title_en columns
-  2. Seed data includes all 4 languages (VI, ZH, JP, EN)
-  3. All existing tables migrated to support multilingual content
-  4. No hardcoded text in components — all strings use i18n keys
-  5. Language switcher works correctly
-**Plans:** TBD
+  1. src/v2/ directory created with clean structure (app/, components/, lib/)
+  2. src/legacy/ contains old code for reference
+  3. Database schema supports multilingual content (title_vi, title_zh, title_jp, title_en)
+  4. Seed data includes all 4 languages (VI, ZH, JP, EN)
+  5. No hardcoded text in components — all strings use i18n keys
+**Plans:** 4 plans
+- [x] 39-00-PLAN.md — Source code restructure
 - [ ] 39-01-PLAN.md — Multilingual schema design
 - [ ] 39-02-PLAN.md — Seed data with 4 languages
 - [ ] 39-03-PLAN.md — i18n cleanup and verification
@@ -263,6 +264,7 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn thiện trong v1.4)
 | 36. Admin Audit | admin-audit.html | 7 | 0/3 | Not started | - |
 | 37. Admin Vault | admin-vault.html | 6 | 0/3 | Not started | - |
 | 38. Admin Workspace | admin-workspace.html | 4 | 0/3 | Not started | - |
+| 39. Multilingual Schema | v2.0 foundation | 5 | 1/3 | In progress | - |
 
 ---
 

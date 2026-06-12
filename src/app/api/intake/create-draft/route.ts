@@ -8,16 +8,29 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { matterTypeKey, title } = body;
 
-    // Create a draft legal request
+    const workspaceId = session.activeWorkspaceId!;
+    const resolvedMatterType = matterTypeKey || 'general';
+
+    // Create draft legal request WITH intake submission in a transaction
     const draft = await prisma.legalRequest.create({
       data: {
-        workspaceId: session.activeWorkspaceId!,
+        workspaceId,
         createdById: session.userId,
         status: 'draft_intake',
-        matterType: matterTypeKey || 'general',
+        matterType: resolvedMatterType,
         title: title || 'Yêu cầu mới',
         priority: 'normal',
         description: '',
+        // Create the intake submission alongside the request
+        intakeSubmission: {
+          create: {
+            workspaceId,
+            matterTypeKey: resolvedMatterType,
+            schemaVersion: '1.0',
+            answers: {},
+            answerLabels: [],
+          },
+        },
       },
       select: {
         id: true,

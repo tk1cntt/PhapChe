@@ -45,9 +45,9 @@ export default function CreateRequestForm({ workspaces, workspaceName = '' }: Cr
                   <path d="M14 2v6h6"/>
                   <path d="M9 13h6"/>
                 </svg>
-                Bạn cần hỗ trợ việc gì?
+                {t('formTitle')}
               </h2>
-              <span className="step-badge">Bước {currentStep} / 4</span>
+              <span className="step-badge">{t('stepBadge', { current: currentStep, total: 4 })}</span>
             </div>
 
             <div className="card-body">

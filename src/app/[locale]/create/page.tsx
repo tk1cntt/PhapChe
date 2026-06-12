@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import { getTranslations } from 'next-intl/server';
-import UserLayout from '@/legacy/[locale]/customer/components/UserLayout';
+import UserLayout from '@/components/layout/UserLayout';
 import CreateRequestForm from '@/components/create-request/CreateRequestForm';
 import '@/components/create-request/create-request.css';
 

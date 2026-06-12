@@ -1,31 +1,37 @@
-# Roadmap: GitNexus Legal — v1.4 Template Parity
+# Roadmap: GitNexus Legal — v2.0 UI Parity
 
 ## Milestones
 
 - ✅ **v1.0 MVP** - Phases 01-14 (shipped 2026-05-15)
 - ✅ **v1.1 Auth & i18n** - Phases 15-25 (shipped 2026-06-09)
-- 🚧 **v1.4 Template Parity** - Phases 26-33 (abandoned 2026-06-12 — scope moved to v2.0)
-- 📋 **v2.0 AI Features** - Phases TBD (planning)
+- ✅ **v1.4 Template Parity** - Phases 26-33 (UI completed, backend pending — 2026-06-12)
+- 🚧 **v2.0 UI Parity** - Phases 39-51 (in progress)
+- 📋 **v2.1 Architecture Refactor** - Phases TBD
+- 📋 **v2.2 AI Features** - Phases TBD
 
 ## Overview
 
-v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) với template HTML trong thư mục layout/, mỗi màn hình có data sample y hệt template. Mỗi phase là một screen riêng biệt với e2e test verify render.
+v2.0 tập trung vào việc kết nối Mock UI (đã hoàn thiện trong v1.4) với backend services thực tế. Approach: Adopt Mock UI Pattern — giữ UI đẹp, viết backend connection.
 
-## Phases
+**Current Status:**
+- Mock UI (src/app/[locale]/[workspaceSlug]/) ✅ Hoàn chỉnh
+- Backend services (src/lib/, src/app/api/) ⚠️ Cần kết nối
 
-- [x] **Phase 26: Customer Dashboard** - user-dashboard.html (10 requirements) (completed 2026-06-10)
-- [x] **Phase 27: Create Request** - user-create-request.html (6 requirements) (completed 2026-06-10)
-- [x] **Phase 28: My Cases** - user-cases.html (5 requirements) (completed 2026-06-10)
-- [x] **Phase 29: Messages** - user-messages.html (4 requirements) (completed 2026-06-11)
-- [x] **Phase 30: Workspace** - user-workspace.html (4 requirements) (completed 2026-06-11)
-- [x] **Phase 31: Settings** - user-settings.html (5 requirements)
-- [x] **Phase 32: Admin Dashboard** - admin-dashboard.html (10 requirements) (completed 2026-06-11)
-- [x] **Phase 33: User Management** - admin-user-management.html (6 requirements) (completed 2026-06-11)
-- [ ] **Phase 34: Admin Requests** - admin-request.html (5 requirements)
-- [ ] **Phase 35: Admin Operations** - admin-operations.html (6 requirements)
-- [ ] **Phase 36: Admin Audit** - admin-audit.html (7 requirements)
-- [ ] **Phase 37: Admin Vault** - admin-vault.html (6 requirements)
-- [ ] **Phase 38: Admin Workspace** - admin-workspace.html (4 requirements)
+## Phases (v2.0)
+
+- 📋 **Phase 39: Customer Dashboard** — Connect mock data → real Prisma queries
+- 📋 **Phase 40: Create Request Wizard** — Connect Steps 3-4 → real API
+- 📋 **Phase 41: My Cases** — Connect filter/search → real data
+- 📋 **Phase 42: Messages** — Connect real-time messaging API
+- 📋 **Phase 43: Workspace** — Connect workspace management
+- 📋 **Phase 44: Settings** — Connect profile/security forms
+- 📋 **Phase 45: Admin Dashboard** — Connect stats → real queries
+- 📋 **Phase 46: User Management** — Connect CRUD → real API
+- 📋 **Phase 47: Admin Requests** — Connect table → real data
+- 📋 **Phase 48: Admin Operations** — Connect audit timeline
+- 📋 **Phase 49: Admin Audit** — Connect security logs
+- 📋 **Phase 50: Admin Vault** — Connect file management
+- 📋 **Phase 51: Admin Workspace** — Connect permissions
 
 ## Phase Details
 

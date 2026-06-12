@@ -8,17 +8,25 @@
 
 **Tech stack:** Next.js 14 (App Router), TypeScript, Prisma + SQLite, Ant Design 6, Tailwind CSS, Better Auth, next-intl
 
-## Current Milestone: v2.0 AI Features + Architecture Refactor
+## Current Milestone: v2.0 UI Parity + Architecture Refactor
 
-**Goal:** Refactor architecture + thêm AI features vào Legal-as-a-Service platform
+**Goal:** Migrate Mock UI → Real Backend, thêm AI features
 
-**Approach:** Refactor + thêm features (giữ tech stack, cải thiện architecture, add AI capabilities)
+**Approach:** Adopt Mock UI Pattern
+- Phase 1: UI Parity — Connect Mock UI với backend services
+- Phase 2: Architecture Refactor — Clean up code
+- Phase 3: AI Features — Add AI capabilities
 
-**Planned scope:**
-- Architecture refactor (service layer, state management, API patterns)
-- AI features (intake assistant, document analysis, smart routing)
-- Real-time collab (websocket, live updates)
-- Enhanced workflow automation
+**Why Adopt Mock UI:**
+- Mock UI đã có UI/UX hoàn chỉnh (match template HTML)
+- E2E tests đã cover (Phase 26-33)
+- Chỉ cần connect services layer
+- Faster to market
+
+**v2.0 Roadmap:**
+1. **UI Parity** — Connect Mock UI → backend (Priority 1)
+2. **Architecture Refactor** — Type safety, i18n, error handling
+3. **AI Features** — Intake assistant, document analysis, risk flagging
 
 v1.1 đã hoàn thành với **8 phases, 18 plans, 23 tasks** — 185 commits, +6,766/-864 LOC.
 
@@ -59,35 +67,35 @@ SME gửi yêu cầu pháp lý theo cách đơn giản như nhắn tin và nhậ
 - ✓ **Folder/Tag** — Internal file classification for vault organization — v1.0
 - ✓ **Ant Design UI** — Complete migration to antd across all route groups — v1.0
 
-### Active (v2.0 Architecture Refactor)
+### Active (v2.0 UI Parity)
 
-**Phase 1: Foundation Fixes**
-- [ ] **ARCH-01**: Fix Type Safety — Remove `as any`/`as unknown` casts, define proper TypeScript interfaces
-- [ ] **ARCH-02**: Fix i18n — Replace hardcoded Vietnamese strings with i18n keys
-- [ ] **ARCH-03**: Error Handling — Add error boundaries, standardize error responses
+**Phase 1: User Portal UI Parity**
+- [ ] **UI-01**: Customer Dashboard — Connect mock data → real Prisma queries
+- [ ] **UI-02**: Create Request Wizard — Connect Steps 3-4 (Docs, Review) → real API
+- [ ] **UI-03**: My Cases — Connect filter/search → real data
+- [ ] **UI-04**: Messages — Connect real-time messaging API
+- [ ] **UI-05**: Workspace — Connect workspace management → real services
+- [ ] **UI-06**: Settings — Connect profile/security forms → real API
 
-**Phase 2: API Patterns**
-- [ ] **ARCH-04**: Rate Limiting — Add rate limiting middleware for auth-sensitive endpoints
-- [ ] **ARCH-05**: Input Validation — Standardize Zod schemas for all API inputs
-- [ ] **ARCH-06**: API Documentation — Add OpenAPI/Swagger for API routes
+**Phase 2: Admin Portal UI Parity**
+- [ ] **UI-07**: Admin Dashboard — Connect stats → real queries
+- [ ] **UI-08**: User Management — Connect CRUD → real API
+- [ ] **UI-09**: Admin Requests — Connect table → real data
+- [ ] **UI-10**: Admin Operations — Connect audit timeline → real events
+- [ ] **UI-11**: Admin Audit — Connect security logs → real data
+- [ ] **UI-12**: Admin Vault — Connect file management → real vault API
+- [ ] **UI-13**: Admin Workspace — Connect permissions → real RBAC
 
-**Phase 3: Service Layer Cleanup**
-- [ ] **ARCH-07**: Service Layer Reorganization — Dependency injection, consistent error handling
-- [ ] **ARCH-08**: RBAC Performance — Cache session roles, reduce DB queries per check
-- [ ] **ARCH-09**: Messages API — Implement message sending functionality
+**Phase 3: Architecture Refactor**
+- [ ] **ARCH-01**: Type Safety — Remove `as any` casts, proper interfaces
+- [ ] **ARCH-02**: i18n Fixes — Replace hardcoded strings
+- [ ] **ARCH-03**: Error Handling — Error boundaries, consistent responses
 
-**Phase 4: Observability**
-- [ ] **ARCH-10**: Logging — Replace console.log with structured logging
-- [ ] **ARCH-11**: Monitoring — Add APM/error tracking (Sentry)
-
-### Active (v2.0 AI Features)
-
-- [ ] **AI-01**: AI Intake Assistant — Chat-based intake with smart suggestions
-- [ ] **AI-02**: Document Analysis — OCR + extraction from uploaded documents
-- [ ] **AI-03**: Risk Flagging — AI highlight potential issues for reviewer
-- [ ] **AI-04**: Smart Routing — AI suggest specialist assignment based on request content
-
-### Out of Scope (v2.0)
+**Phase 4: AI Features (Future)**
+- [ ] **AI-01**: AI Intake Assistant
+- [ ] **AI-02**: Document Analysis (OCR)
+- [ ] **AI-03**: Risk Flagging
+- [ ] **AI-04**: Smart Routing
 
 ### Out of Scope
 

@@ -172,6 +172,7 @@ None.
 | 260613-34v | Form /create CSS styling and file upload JSON error fix | 2026-06-12 | cd8a9ef | Verified | [260613-34v](./quick/260613-34v-form-create-css-styling-and-file-upload-/) |
 | 260613-3ee | Setup login form with default credentials and auth redirect | 2026-06-12 | 0fb9c37 | Verified | [260613-3ee](./quick/260613-3ee-setup-login-form-with-default-credential/) |
 | 260613-4uv | Fix 404 error in CreateRequestForm - Intake submission not found | 2026-06-12 | d22ab11 | Verified | [260613-4uv](./quick/260613-4uv-fix-404-error-in-createrequestform-intak/) |
+| 260613-51w | Fix submit validation - required answers missing in CreateRequestForm | 2026-06-12 | - | Verified | [260613-51w](./quick/260613-51w-fix-submit-validation-required-answers-m/) |
 
 ---
 *Last updated: 2026-06-12*

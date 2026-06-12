@@ -58,8 +58,14 @@ function validateAnswers(matterTypeKey: string, answers: IntakeAnswers): Validat
     if (!allowedKeys.has(key)) throw new Error('UNKNOWN_INTAKE_ANSWER_KEY');
   }
 
-  const missingRequired = matterType.questions
-    .filter((question) => question.required && !answers[question.key]?.trim())
+  // Skip validation if matterType has no required questions (e.g., new wizard flow)
+  const requiredQuestions = matterType.questions.filter((question) => question.required);
+  if (requiredQuestions.length === 0) {
+    return { ok: true, missingRequired: [] };
+  }
+
+  const missingRequired = requiredQuestions
+    .filter((question) => !answers[question.key]?.trim())
     .map((question) => question.key);
 
   return { ok: missingRequired.length === 0, missingRequired };

@@ -2,10 +2,11 @@
 
 import { useTranslations } from 'next-intl';
 
-// TODO: workspace options should be fetched from DB per tenant
-const WORKSPACE_OPTIONS = ['Công ty An Phát', 'Công ty Minh Khang', 'Workspace nội bộ'];
+interface RequestFormProps {
+  workspaces: Array<{ id: string; name: string; slug: string }>;
+}
 
-export default function RequestForm() {
+export default function RequestForm({ workspaces }: RequestFormProps) {
   const t = useTranslations('UserCreateRequest');
 
   return (
@@ -15,9 +16,9 @@ export default function RequestForm() {
         <div className="space-y-2">
           <label className="text-xs font-bold text-slate-700">{t('workspace')}</label>
           <select className="h-11 w-full border border-slate-200 rounded-lg px-3 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none">
-            {WORKSPACE_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
+            {workspaces.map((ws) => (
+              <option key={ws.id} value={ws.id}>
+                {ws.name}
               </option>
             ))}
           </select>

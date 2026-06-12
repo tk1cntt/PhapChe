@@ -91,7 +91,7 @@ export default function CreateRequestPage() {
                 {/* Form Fields */}
                 <div className="mt-6 pt-6 border-t border-slate-200">
                   <h3 className="text-lg font-bold text-slate-900 mb-4">{t('description')}</h3>
-                  <RequestForm />
+                  <RequestForm workspaces={[]} />
                 </div>
               </div>
             </div>

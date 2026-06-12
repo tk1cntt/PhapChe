@@ -12,25 +12,37 @@ const path = require('path');
 
 const MESSAGES_DIR = 'src/messages';
 
-function loadMessages(locale) {
-  const filePath = path.join(MESSAGES_DIR, `${locale}.json`);
-  const content = fs.readFileSync(filePath, 'utf-8');
-  const data = JSON.parse(content);
+interface CoverageResult {
+  locale: string;
+  keys: Set<string>;
+  missing: string[];
+  extra: string[];
+}
 
-  const keys = new Set();
-  function extractKeys(obj, prefix = '') {
-    for (const [key, value] of Object.entries(obj)) {
-      const fullKey = prefix ? `${prefix}.${key}` : key;
-      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        extractKeys(value, fullKey);
-      } else {
-        keys.add(fullKey);
+function loadMessages(locale: string): CoverageResult {
+  const filePath = path.join(MESSAGES_DIR, `${locale}.json`);
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const data = JSON.parse(content);
+
+    const keys = new Set<string>();
+    function extractKeys(obj: unknown, prefix = '') {
+      if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) return;
+      for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+        const fullKey = prefix ? `${prefix}.${key}` : key;
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          extractKeys(value, fullKey);
+        } else {
+          keys.add(fullKey);
+        }
       }
     }
-  }
 
-  extractKeys(data);
-  return { locale, keys, missing: [], extra: [] };
+    extractKeys(data);
+    return { locale, keys, missing: [], extra: [] };
+  } catch (error) {
+    throw new Error(`Failed to load messages for locale ${locale}: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }
 
 function main() {
@@ -40,7 +52,7 @@ function main() {
   console.log('');
 
   const locales = ['vi', 'en', 'zh', 'ja'];
-  const files = [];
+  const files: CoverageResult[] = [];
 
   // Load all locales
   for (const locale of locales) {
@@ -61,7 +73,7 @@ function main() {
     for (const file of files) {
       if (file.locale === 'vi') continue;
 
-      const missing = [];
+      const missing: string[] = [];
       for (const key of primary.keys) {
         if (!file.keys.has(key)) {
           missing.push(key);
@@ -103,7 +115,7 @@ function main() {
   for (const file of files) {
     if (file.locale === 'vi') continue;
 
-    const extra = [];
+    const extra: string[] = [];
     if (primary) {
       for (const key of file.keys) {
         if (!primary.keys.has(key)) {

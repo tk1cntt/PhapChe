@@ -26,34 +26,7 @@ function WorkspaceItem({ initials, iconColor, name, description, badge, badgeCol
   );
 }
 
-export function WorkspacePanel() {
-  const workspaces: WorkspaceItemProps[] = [
-    {
-      initials: "AP",
-      iconColor: "green",
-      name: "Công ty An Phát",
-      description: "34 users · 18 hồ sơ",
-      badge: "Active",
-      badgeColor: "green",
-    },
-    {
-      initials: "MK",
-      iconColor: "blue",
-      name: "Công ty Minh Khang",
-      description: "22 users · 13 hồ sơ",
-      badge: "Active",
-      badgeColor: "green",
-    },
-    {
-      initials: "IN",
-      iconColor: "orange",
-      name: "Workspace nội bộ",
-      description: "41 users · audit enabled",
-      badge: "Internal",
-      badgeColor: "blue",
-    },
-  ];
-
+export function WorkspacePanel({ workspaces = [] }: { workspaces?: WorkspaceItemProps[] }) {
   return (
     <div className="panel">
       <div className="panel-title">
@@ -63,10 +36,18 @@ export function WorkspacePanel() {
         </div>
       </div>
       <div className="workspace-list">
-        {workspaces.map((ws, index) => (
-          <WorkspaceItem key={index} {...ws} />
-        ))}
+        {workspaces.length === 0 ? (
+          <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>
+            Chưa có workspace nào
+          </div>
+        ) : (
+          workspaces.map((ws, index) => (
+            <WorkspaceItem key={index} {...ws} />
+          ))
+        )}
       </div>
     </div>
   );
 }
+
+export default WorkspacePanel;

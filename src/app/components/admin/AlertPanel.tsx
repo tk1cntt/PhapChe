@@ -26,42 +26,7 @@ function AlertItem({ icon, iconColor, title, description, badge, badgeColor }: A
   );
 }
 
-export function AlertPanel() {
-  const alerts: AlertItemProps[] = [
-    {
-      icon: "!",
-      iconColor: "red",
-      title: "Truy cập bị từ chối",
-      description: "Reviewer ngoài workspace scope",
-      badge: "Audit",
-      badgeColor: "red",
-    },
-    {
-      icon: "S",
-      iconColor: "orange",
-      title: "6 hồ sơ sắp quá SLA",
-      description: "Cần điều phối trước 17:00",
-      badge: "SLA",
-      badgeColor: "orange",
-    },
-    {
-      icon: "R",
-      iconColor: "blue",
-      title: "2 yêu cầu đổi role",
-      description: "Đang chờ Super Admin duyệt",
-      badge: "Role",
-      badgeColor: "blue",
-    },
-    {
-      icon: "V",
-      iconColor: "green",
-      title: "Vault scan hoàn tất",
-      description: "96% tệp có workspace scope",
-      badge: "Vault",
-      badgeColor: "green",
-    },
-  ];
-
+export function AlertPanel({ alerts = [] }: { alerts?: AlertItemProps[] }) {
   return (
     <div className="panel">
       <div className="panel-title">
@@ -71,10 +36,18 @@ export function AlertPanel() {
         </div>
       </div>
       <div className="alert-list">
-        {alerts.map((alert, index) => (
-          <AlertItem key={index} {...alert} />
-        ))}
+        {alerts.length === 0 ? (
+          <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>
+            Không có cảnh báo
+          </div>
+        ) : (
+          alerts.map((alert, index) => (
+            <AlertItem key={index} {...alert} />
+          ))
+        )}
       </div>
     </div>
   );
 }
+
+export default AlertPanel;

@@ -26,34 +26,7 @@ function ApprovalItem({ icon, iconColor, title, description, badge, badgeColor }
   );
 }
 
-export function ApprovalPanel() {
-  const approvals: ApprovalItemProps[] = [
-    {
-      icon: "U",
-      iconColor: "orange",
-      title: "Mai Phương",
-      description: "Nâng role customer → specialist",
-      badge: "Pending",
-      badgeColor: "orange",
-    },
-    {
-      icon: "W",
-      iconColor: "blue",
-      title: "Workspace mới",
-      description: "Công ty Nam Việt",
-      badge: "Review",
-      badgeColor: "blue",
-    },
-    {
-      icon: "A",
-      iconColor: "red",
-      title: "Audit exception",
-      description: "Cần xác nhận truy cập bị từ chối",
-      badge: "High",
-      badgeColor: "red",
-    },
-  ];
-
+export function ApprovalPanel({ approvals = [] }: { approvals?: ApprovalItemProps[] }) {
   return (
     <div className="panel">
       <div className="panel-title">
@@ -63,10 +36,18 @@ export function ApprovalPanel() {
         </div>
       </div>
       <div className="approval-list">
-        {approvals.map((item, index) => (
-          <ApprovalItem key={index} {...item} />
-        ))}
+        {approvals.length === 0 ? (
+          <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>
+            Không có yêu cầu chờ duyệt
+          </div>
+        ) : (
+          approvals.map((item, index) => (
+            <ApprovalItem key={index} {...item} />
+          ))
+        )}
       </div>
     </div>
   );
 }
+
+export default ApprovalPanel;

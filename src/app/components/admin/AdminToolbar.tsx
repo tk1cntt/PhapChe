@@ -4,9 +4,25 @@ interface AdminToolbarProps {
   onSearch?: (query: string) => void;
   onFilter?: () => void;
   onExport?: () => void;
+  translations?: {
+    searchPlaceholder?: string;
+    filter?: string;
+    status?: string;
+    workspace?: string;
+    export?: string;
+    columns?: string;
+  };
 }
 
-export default function AdminToolbar({ onSearch, onFilter, onExport }: AdminToolbarProps) {
+export default function AdminToolbar({ onSearch, onFilter, onExport, translations = {} }: AdminToolbarProps) {
+  const t = {
+    searchPlaceholder: translations.searchPlaceholder || 'Tìm hồ sơ, workspace, người phụ trách...',
+    filter: translations.filter || 'Bộ lọc',
+    status: translations.status || 'Trạng thái',
+    workspace: translations.workspace || 'Workspace',
+    export: translations.export || 'Export',
+    columns: translations.columns || 'Cột hiển thị',
+  };
   return (
     <div
       style={{
@@ -56,7 +72,7 @@ export default function AdminToolbar({ onSearch, onFilter, onExport }: AdminTool
             </svg>
             <input
               type="text"
-              placeholder="Tìm hồ sơ, workspace, người phụ trách..."
+              placeholder={t.searchPlaceholder}
               style={{
                 border: 'none',
                 outline: 'none',
@@ -97,7 +113,7 @@ export default function AdminToolbar({ onSearch, onFilter, onExport }: AdminTool
             >
               <path d="M22 3H2l8 9.46V19l4 2v-8.54z" />
             </svg>
-            Bộ lọc
+            {t.filter}
           </button>
 
           {/* Status Dropdown */}
@@ -117,7 +133,7 @@ export default function AdminToolbar({ onSearch, onFilter, onExport }: AdminTool
               cursor: 'pointer',
             }}
           >
-            Trạng thái
+            {t.status}
             <svg
               width="15"
               height="15"
@@ -147,7 +163,7 @@ export default function AdminToolbar({ onSearch, onFilter, onExport }: AdminTool
               cursor: 'pointer',
             }}
           >
-            Workspace
+            {t.workspace}
             <svg
               width="15"
               height="15"
@@ -211,7 +227,7 @@ export default function AdminToolbar({ onSearch, onFilter, onExport }: AdminTool
               cursor: 'pointer',
             }}
           >
-            Export
+            {t.export}
           </button>
 
           {/* Columns Button */}
@@ -231,7 +247,7 @@ export default function AdminToolbar({ onSearch, onFilter, onExport }: AdminTool
               cursor: 'pointer',
             }}
           >
-            Cột hiển thị
+            {t.columns}
           </button>
         </div>
       </div>

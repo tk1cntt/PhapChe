@@ -100,8 +100,10 @@ describe('UserTable', () => {
 
     it('renders workspace names for regular users', () => {
       render(<UserTable />);
-      expect(screen.getByText('Công ty An Phát')).toBeInTheDocument();
-      expect(screen.getByText('Công ty Minh Khang')).toBeInTheDocument();
+      const anPhatWorkspaces = screen.getAllByText('Công ty An Phát');
+      expect(anPhatWorkspaces.length).toBeGreaterThan(0);
+      const minhKhangWorkspaces = screen.getAllByText('Công ty Minh Khang');
+      expect(minhKhangWorkspaces.length).toBeGreaterThan(0);
     });
   });
 

@@ -31,14 +31,7 @@ function WorkloadItem({ initials, name, role, progress, status, count }: Workloa
   );
 }
 
-export function WorkloadPanel() {
-  const specialists: WorkloadItemProps[] = [
-    { initials: "HL", name: "Hà Linh", role: "Specialist", progress: 84, status: "ok", count: "16 hồ sơ" },
-    { initials: "QD", name: "Quang Dũng", role: "Reviewer", progress: 68, status: "ok", count: "12 hồ sơ" },
-    { initials: "MT", name: "Minh Trang", role: "Coordinator Admin", progress: 52, status: "ok", count: "8 hồ sơ" },
-    { initials: "KA", name: "Khánh An", role: "Audit Admin", progress: 74, status: "warn", count: "11 hồ sơ" },
-  ];
-
+export function WorkloadPanel({ specialists = [] }: { specialists?: WorkloadItemProps[] }) {
   return (
     <div className="panel">
       <div className="panel-title">
@@ -51,10 +44,18 @@ export function WorkloadPanel() {
         </a>
       </div>
       <div className="workload-list">
-        {specialists.map((spec) => (
-          <WorkloadItem key={spec.initials} {...spec} />
-        ))}
+        {specialists.length === 0 ? (
+          <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>
+            Chưa có dữ liệu workload
+          </div>
+        ) : (
+          specialists.map((spec) => (
+            <WorkloadItem key={spec.initials} {...spec} />
+          ))
+        )}
       </div>
     </div>
   );
 }
+
+export default WorkloadPanel;

@@ -22,7 +22,7 @@ export interface MessageBubbleProps {
  * - .msg.in: background #f1f5f9, color #0f172a
  * - .msg.out: background #087f78, color #fff, margin-left auto
  */
-function MessageBubble({ message }: MessageBubbleProps): JSX.Element {
+function MessageBubble({ message }: MessageBubbleProps): React.ReactElement {
   return (
     <div className={`msg ${message.isOutgoing ? 'out' : 'in'}`}>
       {message.content}

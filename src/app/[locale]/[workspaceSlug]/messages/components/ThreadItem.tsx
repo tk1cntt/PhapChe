@@ -12,6 +12,12 @@ export interface ThreadData {
   timestamp: string;
   isActive: boolean;
   isRead: boolean;
+  // Optional fields for ChatPanel compatibility
+  requestId?: string;
+  specialistName?: string;
+  specialistRole?: string;
+  specialistStatus?: 'online' | 'offline';
+  statusBadge?: 'pending' | 'approved' | 'review';
 }
 
 export interface ThreadItemProps {
@@ -24,7 +30,7 @@ export interface ThreadItemProps {
  * ThreadItem component - Individual thread row in the thread list
  * Shows avatar circle (42px), title with request code, message preview, and timestamp
  */
-export function ThreadItem({ thread, isActive, onClick }: ThreadItemProps): JSX.Element {
+export function ThreadItem({ thread, isActive, onClick }: ThreadItemProps): React.ReactElement {
   return (
     <div
       className={`thread ${isActive ? 'active' : ''}`}

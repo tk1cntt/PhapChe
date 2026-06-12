@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 export interface CaseInfo {
   caseCode: string;
@@ -15,25 +16,19 @@ export interface InfoPanelProps {
   onOpenCase: () => void;
 }
 
-/**
- * InfoPanel component - displays case metadata in right column
- * Styling matches template (D-27 through D-31):
- * - Panel title: font-size 20px, font-weight 800
- * - Info boxes: border 1px solid #edf2f7, background #fbfdff, border-radius 12px, padding 14px
- * - .ghost-btn: width 100%, height 45px
- */
-function InfoPanel({ caseInfo, onOpenCase }: InfoPanelProps): JSX.Element {
+function InfoPanel({ caseInfo, onOpenCase }: InfoPanelProps): React.ReactElement {
+  const t = useTranslations('UserMessages');
+
   if (!caseInfo) {
     return (
       <div className="info-panel">
-        <div className="info-placeholder">Select a thread to view details</div>
+        <div className="info-placeholder">{t('noThreadSelected')}</div>
       </div>
     );
   }
 
   return (
     <div className="info-panel">
-      {/* Panel title */}
       <div className="panel-title">
         <div className="panel-title-left">
           <svg
@@ -52,34 +47,32 @@ function InfoPanel({ caseInfo, onOpenCase }: InfoPanelProps): JSX.Element {
             <path d="M16 17H8" />
             <path d="M10 9H8" />
           </svg>
-          Thông tin hồ sơ
+          {t('caseInfo')}
         </div>
       </div>
 
-      {/* Info boxes */}
       <div className="info-box">
-        <strong>Mã hồ sơ</strong>
+        <strong>{t('caseCode')}</strong>
         <span>{caseInfo.caseCode}</span>
       </div>
 
       <div className="info-box">
-        <strong>SLA còn lại</strong>
+        <strong>{t('slaRemaining')}</strong>
         <span>{caseInfo.slaRemaining} · {caseInfo.slaDetail}</span>
       </div>
 
       <div className="info-box">
-        <strong>Tài liệu liên quan</strong>
+        <strong>{t('relatedDocs')}</strong>
         <span>{caseInfo.documents}</span>
       </div>
 
       <div className="info-box">
-        <strong>Người tham gia</strong>
+        <strong>{t('participants')}</strong>
         <span>{caseInfo.participants}</span>
       </div>
 
-      {/* Detail button */}
       <button className="ghost-btn" onClick={onOpenCase}>
-        Mở hồ sơ chi tiết
+        {t('openCase')}
       </button>
     </div>
   );

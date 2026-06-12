@@ -19,7 +19,7 @@ function MessagesContainer({
   initialMessages,
   initialCaseInfo,
   workspaceSlug,
-}: MessagesContainerProps): JSX.Element {
+}: MessagesContainerProps): React.ReactElement {
   const router = useRouter();
   const [activeThreadId, setActiveThreadId] = useState<string | null>(
     initialThreads.length > 0 ? initialThreads[0].id : null
@@ -55,10 +55,10 @@ function MessagesContainer({
         requestId: activeThread.requestId,
         requestCode: activeThread.requestCode,
         title: activeThread.title,
-        specialistName: activeThread.specialistName,
-        specialistRole: activeThread.specialistRole,
-        specialistStatus: activeThread.specialistStatus,
-        statusBadge: activeThread.statusBadge,
+        specialistName: activeThread.specialistName || '',
+        specialistRole: activeThread.specialistRole || '',
+        specialistStatus: activeThread.specialistStatus || 'offline',
+        statusBadge: activeThread.statusBadge || 'review',
       }
     : null;
 

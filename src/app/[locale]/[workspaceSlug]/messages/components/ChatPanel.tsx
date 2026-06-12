@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import MessageBubble, { MessageData } from './MessageBubble';
 import Composer from './Composer';
+import { useTranslations } from 'next-intl';
 
 export interface ThreadData {
   id: string;
@@ -21,37 +22,30 @@ export interface ChatPanelProps {
   onSendMessage: (content: string) => void;
 }
 
-/**
- * ChatPanel component - main chat area with header, messages, and composer
- * Styling matches template (D-18, D-19, D-20):
- * - Chat header: height 72px, border-bottom, request title + specialist info + status badge
- * - Messages container: padding 20px, gap 16px, min-height 460px
- * - Composer at bottom
- */
-function ChatPanel({ thread, messages, onSendMessage }: ChatPanelProps): JSX.Element {
+function ChatPanel({ thread, messages, onSendMessage }: ChatPanelProps): React.ReactElement {
+  const t = useTranslations('UserMessages');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
-  const getStatusText = (badge: ChatPanelProps['thread'] extends null ? never : ThreadData['statusBadge']) => {
+  const getStatusText = (badge: string) => {
     switch (badge) {
       case 'pending':
-        return 'Cần phản hồi';
+        return t('statusNeedReply');
       case 'approved':
-        return 'Đã duyệt';
+        return t('statusApproved');
       case 'review':
-        return 'Đang xem xét';
+        return t('statusReviewing');
       default:
-        return 'Cần phản hồi';
+        return t('statusNeedReply');
     }
   };
 
-  const getStatusClass = (badge: ChatPanelProps['thread'] extends null ? never : ThreadData['statusBadge']) => {
+  const getStatusClass = (badge: string) => {
     switch (badge) {
       case 'pending':
         return 'badge orange';
@@ -67,14 +61,13 @@ function ChatPanel({ thread, messages, onSendMessage }: ChatPanelProps): JSX.Ele
   if (!thread) {
     return (
       <div className="chat-panel">
-        <div className="chat-placeholder">Select a thread to view messages</div>
+        <div className="chat-placeholder">{t('noThreadSelected')}</div>
       </div>
     );
   }
 
   return (
     <div className="chat-panel">
-      {/* Chat header with request info and specialist status */}
       <div className="chat-header">
         <div className="chat-header-info">
           <strong>
@@ -82,7 +75,7 @@ function ChatPanel({ thread, messages, onSendMessage }: ChatPanelProps): JSX.Ele
           </strong>
           <span>
             {thread.specialistName} · {thread.specialistRole} ·
-            {thread.specialistStatus === 'online' ? ' Đang online' : ' Offline'}
+            {thread.specialistStatus === 'online' ? t('specialistOnline') : t('specialistOffline')}
           </span>
         </div>
         <span className={getStatusClass(thread.statusBadge)}>
@@ -90,7 +83,6 @@ function ChatPanel({ thread, messages, onSendMessage }: ChatPanelProps): JSX.Ele
         </span>
       </div>
 
-      {/* Messages area */}
       <div className="messages-container">
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />
@@ -98,7 +90,6 @@ function ChatPanel({ thread, messages, onSendMessage }: ChatPanelProps): JSX.Ele
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Composer */}
       <Composer onSend={onSendMessage} />
     </div>
   );

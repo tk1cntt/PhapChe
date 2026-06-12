@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import ThreadItem, { ThreadData } from './ThreadItem';
+import ThreadItem, { type ThreadData } from './ThreadItem';
+import { useTranslations } from 'next-intl';
 
 export interface ThreadListPanelProps {
   threads: ThreadData[];
@@ -9,14 +10,10 @@ export interface ThreadListPanelProps {
   onThreadSelect: (threadId: string) => void;
 }
 
-/**
- * ThreadListPanel container component
- * Renders a scrollable list of ThreadItem components
- * Sample data from template (database integration in Plan 03)
- */
-function ThreadListPanel({ threads, activeThreadId, onThreadSelect }: ThreadListPanelProps): JSX.Element {
+function ThreadListPanel({ threads, activeThreadId, onThreadSelect }: ThreadListPanelProps): React.ReactElement {
+  const t = useTranslations('UserMessages');
   return (
-    <div className="thread-list" role="list" aria-label="Danh sách cuộc hội thoại">
+    <div className="thread-list" role="list" aria-label={t('threadListLabel')}>
       {threads.map((thread) => (
         <ThreadItem
           key={thread.id}
@@ -29,4 +26,5 @@ function ThreadListPanel({ threads, activeThreadId, onThreadSelect }: ThreadList
   );
 }
 
+export { ThreadData };
 export default ThreadListPanel;

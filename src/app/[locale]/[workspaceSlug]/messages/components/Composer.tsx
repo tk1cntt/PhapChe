@@ -1,20 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export interface ComposerProps {
   onSend: (message: string) => void;
   disabled?: boolean;
 }
 
-/**
- * Composer component - input field with send button
- * Styling matches template (D-24, D-25, D-26):
- * - .composer: border-top 1px solid var(--border), padding 16px, display flex, gap 12px
- * - .composer-input: flex 1, height 44px, border 1px solid var(--border), border-radius 8px, padding 0 14px
- * - .create-btn: height 45px, padding 0 18px, border none, border-radius 8px, teal gradient
- */
-function Composer({ onSend, disabled = false }: ComposerProps): JSX.Element {
+function Composer({ onSend, disabled = false }: ComposerProps): React.ReactElement {
+  const t = useTranslations('UserMessages');
   const [input, setInput] = useState('');
 
   const handleSend = () => {
@@ -36,20 +31,20 @@ function Composer({ onSend, disabled = false }: ComposerProps): JSX.Element {
       <input
         className="composer-input"
         type="text"
-        placeholder="Nhập tin nhắn cho chuyên viên..."
+        placeholder={t('messagePlaceholder')}
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
-        aria-label="Nhập tin nhắn"
+        aria-label={t('messagePlaceholder')}
       />
       <button
         className="create-btn"
         onClick={handleSend}
         disabled={!input.trim() || disabled}
-        aria-label="Gửi tin nhắn"
+        aria-label={t('send')}
       >
-        Gửi
+        {t('send')}
       </button>
     </div>
   );

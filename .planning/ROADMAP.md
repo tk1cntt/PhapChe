@@ -4,8 +4,8 @@
 
 - ✅ **v1.0 MVP** - Phases 01-14 (shipped 2026-05-15)
 - ✅ **v1.1 Auth & i18n** - Phases 15-25 (shipped 2026-06-09)
-- 🚧 **v1.4 Template Parity** - Phases 26-38 (in progress)
-- 📋 **v2.0 AI Features** - Phases TBD (planned)
+- 🚧 **v1.4 Template Parity** - Phases 26-33 (abandoned 2026-06-12 — scope moved to v2.0)
+- 📋 **v2.0 AI Features** - Phases TBD (planning)
 
 ## Overview
 

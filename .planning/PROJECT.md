@@ -1,45 +1,28 @@
 # Legal-as-a-Service Platform
 
-## Current State (v1.4 Template Parity — Full Coverage — Planning)
+## Current State (v2.0 Planning — AI Features + Architecture Refactor)
 
-v1.4 tập trung vào việc align toàn bộ 13 màn hình (6 user + 7 admin) với template HTML trong thư mục layout/, mỗi màn hình có data sample y hệt template.
+**v1.4 abandoned (2026-06-12)** — scope chuyển sang v2.0
 
-**Total to date:** v1.0 + v1.1 = 22 phases, 67 plans, 93 tasks
+**Total to date:** v1.0 + v1.1 = 22 phases, 67 plans, 93 tasks (shipped)
 
 **Tech stack:** Next.js 14 (App Router), TypeScript, Prisma + SQLite, Ant Design 6, Tailwind CSS, Better Auth, next-intl
 
-## Current Milestone: v1.4 Template Parity — Full Coverage
+## Current Milestone: v2.0 AI Features + Architecture Refactor
 
-**Goal:** Align toàn bộ 13 màn hình (6 user + 7 admin) với template HTML trong thư mục layout/, mỗi màn hình là 1 phase riêng với data sample y hệt template.
+**Goal:** Refactor architecture + thêm AI features vào Legal-as-a-Service platform
 
-**Target screens:**
+**Approach:** Refactor + thêm features (giữ tech stack, cải thiện architecture, add AI capabilities)
 
-**User Portal (6 screens):**
-1. Customer Dashboard (`user-dashboard.html`) - Stats (12 hồ sơ, 3 đang xử lý, 8 hoàn tất, 36 vault), welcome banner, case list, deadline/SLA panel, recent docs, activity timeline, full requests table
-2. Create Request (`user-create-request.html`) - 4-step wizard (Service→Questions→Docs→Review), service options, sidebar summary, checklist
-3. My Cases (`user-cases.html`) - Summary banner, 4 stats, toolbar với filters, 7-column table
-4. Messages (`user-messages.html`) - 3-column layout (thread list, chat panel, info panel), message stats
-5. Workspace (`user-workspace.html`) - Stats, workspace banner, member grid, permission panel, resource table
-6. Settings (`user-settings.html`) - Settings grid (menu + form), profile form, notification toggles, security settings
-
-**Admin Portal (7 screens):**
-7. Admin Dashboard (`admin-dashboard.html`) - Stats (128 users, 12 workspaces, 6 SLA warnings, 3 alerts), workload list, alerts, workspaces, approvals, audit timeline, requests table
-8. User Management (`admin-user-management.html`) - Stats, role pills (6 roles), 8-column user table
-9. Admin Requests (`admin-request.html`) - Stats, requests table với status/priority badges
-10. Admin Operations (`admin-operations.html`) - Stats, workload panel, audit timeline, operations table với SLA bars
-11. Admin Audit (`admin-audit.html`) - Stats, security notice, security list, 7-column audit table với correlation IDs
-12. Admin Vault (`admin-vault.html`) - Stats, folder/tag panels, vault table với security badges
-13. Admin Workspace (`admin-workspace.html`) - Workspace permission card, workspace table
-
-**Requirements:**
-- UI match template EXACTLY (colors, fonts, spacing, shadows)
-- Sample data tương đương template (128 users, 12 workspaces, etc.)
-- Shared UserLayout/AdminLayout với Sidebar/Topbar
-- Mỗi phase phải có e2e test verify render
+**Planned scope:**
+- Architecture refactor (service layer, state management, API patterns)
+- AI features (intake assistant, document analysis, smart routing)
+- Real-time collab (websocket, live updates)
+- Enhanced workflow automation
 
 v1.1 đã hoàn thành với **8 phases, 18 plans, 23 tasks** — 185 commits, +6,766/-864 LOC.
 
-**What shipped:**
+**What shipped (v1.0 + v1.1):**
 - Auth: Real Better Auth with login page, password hashing, session management, protected routes
 - Route Hardening: All 14+ broken routes fixed, OpsTimelineTable HTTP 500 resolved
 - E2E Tests: 75 Playwright tests covering auth, intake, specialist, reviewer, admin screens
@@ -141,7 +124,7 @@ Tài liệu nhấn mạnh tư duy E-Myth: không xây AI biết tất cả, mà 
 
 ---
 
-*Last updated: 2026-06-10 after v1.4 milestone initialized — expanded scope to 13 screens (6 user + 7 admin)*
+*Last updated: 2026-06-12 after v1.4 abandoned — v2.0 AI Features + Architecture Refactor planning*
 
 ## Evolution
 

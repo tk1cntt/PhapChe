@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Badge } from './Badge';
 
 export interface SLAData {
@@ -49,7 +50,14 @@ type BadgeProps = {
   children: React.ReactNode;
 };
 
-function ProgressBar({ value, status }: { value: number; status: 'ok' | 'warn' | 'danger' }): JSX.Element {
+const STATUS_I18N_MAP: Record<RequestRow['status'], string> = {
+  review: 'in_progress',
+  pending: 'pending_review',
+  approved: 'delivered',
+  overdue: 'cancelled',
+};
+
+function ProgressBar({ value, status }: { value: number; status: 'ok' | 'warn' | 'danger' }): React.ReactElement {
   return (
     <div className="sla-progress">
       <div className="sla-progress-bar">
@@ -59,20 +67,23 @@ function ProgressBar({ value, status }: { value: number; status: 'ok' | 'warn' |
   );
 }
 
-export function RequestsTable({ requests }: RequestsTableProps): JSX.Element {
+export function RequestsTable({ requests }: RequestsTableProps): React.ReactElement {
+  const t = useTranslations('UserDashboard');
+  const tStatus = useTranslations('RequestStatus');
+
   return (
     <div className="table-card">
       <div className="table-head table-head-7col">
-        <div className="th">Mã hồ sơ</div>
-        <div className="th">Loại yêu cầu</div>
-        <div className="th">Trạng thái</div>
-        <div className="th">Người phụ trách</div>
-        <div className="th">Cập nhật gần nhất</div>
+        <div className="th">{t('requestCode')}</div>
+        <div className="th">{t('requestType')}</div>
+        <div className="th">{t('status')}</div>
+        <div className="th">{t('assignee')}</div>
+        <div className="th">{t('lastUpdate')}</div>
         <div className="th">SLA</div>
-        <div className="th">Thao tác</div>
+        <div className="th">{t('actions')}</div>
       </div>
       {requests.length === 0 ? (
-        <div className="table-empty">Không có hồ sơ nào</div>
+        <div className="table-empty">{t('noData')}</div>
       ) : (
         requests.map((item) => (
           <div key={item.id} className="table-row table-row-7col">
@@ -98,7 +109,7 @@ export function RequestsTable({ requests }: RequestsTableProps): JSX.Element {
             </div>
             <div className="td">
               <Badge variant={getStatusVariant(item.status)}>
-                {item.statusText}
+                {tStatus(STATUS_I18N_MAP[item.status])}
               </Badge>
             </div>
             <div className="td">

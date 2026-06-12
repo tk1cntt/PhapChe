@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { FileText } from 'lucide-react';
 import { Badge } from './Badge';
 
@@ -42,20 +43,22 @@ function getStatusBadgeVariant(status: MyCaseRow['statusBadge']): 'green' | 'ora
   }
 }
 
-export function MyCasesTable({ requests }: MyCasesTableProps): JSX.Element {
+export function MyCasesTable({ requests }: MyCasesTableProps): React.ReactElement {
+  const t = useTranslations('UserCases');
+
   if (requests.length === 0) {
     return (
       <div className="table-card">
         <div className="table-head table-head-7col">
-          <div className="th">Mã hồ sơ</div>
-          <div className="th">Loại yêu cầu</div>
-          <div className="th">Trạng thái</div>
-          <div className="th">Người phụ trách</div>
-          <div className="th">Cập nhật</div>
-          <div className="th">SLA</div>
-          <div className="th">Thao tác</div>
+          <div className="th">{t('colCode')}</div>
+          <div className="th">{t('colType')}</div>
+          <div className="th">{t('colStatus')}</div>
+          <div className="th">{t('colAssignee')}</div>
+          <div className="th">{t('colUpdatedAt')}</div>
+          <div className="th">{t('colSla')}</div>
+          <div className="th">{t('colAction')}</div>
         </div>
-        <div className="table-empty">Không có hồ sơ nào</div>
+        <div className="table-empty">{t('noData')}</div>
       </div>
     );
   }
@@ -63,13 +66,13 @@ export function MyCasesTable({ requests }: MyCasesTableProps): JSX.Element {
   return (
     <div className="table-card">
       <div className="table-head table-head-7col">
-        <div className="th">Mã hồ sơ</div>
-        <div className="th">Loại yêu cầu</div>
-        <div className="th">Trạng thái</div>
-        <div className="th">Người phụ trách</div>
-        <div className="th">Cập nhật</div>
-        <div className="th">SLA</div>
-        <div className="th">Thao tác</div>
+        <div className="th">{t('colCode')}</div>
+        <div className="th">{t('colType')}</div>
+        <div className="th">{t('colStatus')}</div>
+        <div className="th">{t('colAssignee')}</div>
+        <div className="th">{t('colUpdatedAt')}</div>
+        <div className="th">{t('colSla')}</div>
+        <div className="th">{t('colAction')}</div>
       </div>
       {requests.map((item) => (
         <div key={item.id} className="table-row table-row-7col">

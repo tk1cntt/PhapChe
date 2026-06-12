@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
 
 export interface MyCasesToolbarProps {
@@ -17,25 +18,26 @@ export function MyCasesToolbar({
   onTypeFilter,
   selectedStatus,
   selectedType,
-}: MyCasesToolbarProps): JSX.Element {
+}: MyCasesToolbarProps): React.ReactElement {
+  const t = useTranslations('UserCases');
   const [searchValue, setSearchValue] = useState('');
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
 
   const statusOptions = [
-    { value: 'under_review', label: 'Đang review' },
-    { value: 'needs_response', label: 'Cần phản hồi' },
-    { value: 'approved', label: 'Đã duyệt' },
-    { value: 'submitted', label: 'Đã nộp' },
-    { value: 'overdue', label: 'Quá hạn' },
+    { value: 'under_review', label: t('statusUnderReview') },
+    { value: 'needs_response', label: t('statusNeedsResponse') },
+    { value: 'approved', label: t('statusApproved') },
+    { value: 'submitted', label: t('statusSubmitted') },
+    { value: 'overdue', label: t('statusOverdue') },
   ];
 
   const typeOptions = [
-    { value: 'contract_review', label: 'Rà soát hợp đồng' },
-    { value: 'legal_amendment', label: 'Soạn phụ lục SLA' },
-    { value: 'nda_advisory', label: 'Tư vấn NDA' },
-    { value: 'document_request', label: 'Bổ sung giấy phép' },
-    { value: 'ip_filing', label: 'Đăng ký nhãn hiệu' },
+    { value: 'contract_review', label: t('typeContractReview') },
+    { value: 'legal_amendment', label: t('typeLegalAmendment') },
+    { value: 'nda_advisory', label: t('typeNdaAdvisory') },
+    { value: 'document_request', label: t('typeDocumentRequest') },
+    { value: 'ip_filing', label: t('typeIpFiling') },
   ];
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,14 +64,14 @@ export function MyCasesToolbar({
             <Search size={18} />
             <input
               type="text"
-              placeholder="Tìm mã hồ sơ, loại yêu cầu..."
+              placeholder={t('searchPlaceholder')}
               value={searchValue}
               onChange={handleSearchChange}
             />
           </div>
           <button className="tool-btn">
             <SlidersHorizontal size={18} />
-            Bộ lọc
+            {t('filters')}
           </button>
 
           {/* Status dropdown */}
@@ -78,7 +80,7 @@ export function MyCasesToolbar({
               className="tool-btn"
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
             >
-              Trạng thái
+              {t('statusLabel')}
               <ChevronDown size={16} />
             </button>
             {showStatusDropdown && (
@@ -87,7 +89,7 @@ export function MyCasesToolbar({
                   className={`dropdown-item ${!selectedStatus ? 'active' : ''}`}
                   onClick={() => handleStatusSelect(null)}
                 >
-                  Tất cả
+                  {t('all')}
                 </button>
                 {statusOptions.map((opt) => (
                   <button
@@ -108,7 +110,7 @@ export function MyCasesToolbar({
               className="tool-btn"
               onClick={() => setShowTypeDropdown(!showTypeDropdown)}
             >
-              Loại yêu cầu
+              {t('typeLabel')}
               <ChevronDown size={16} />
             </button>
             {showTypeDropdown && (
@@ -117,7 +119,7 @@ export function MyCasesToolbar({
                   className={`dropdown-item ${!selectedType ? 'active' : ''}`}
                   onClick={() => handleTypeSelect(null)}
                 >
-                  Tất cả
+                  {t('all')}
                 </button>
                 {typeOptions.map((opt) => (
                   <button
@@ -138,7 +140,7 @@ export function MyCasesToolbar({
             Export
           </button>
           <button className="tool-btn">
-            Cột hiển thị
+            {t('columns')}
           </button>
         </div>
       </div>

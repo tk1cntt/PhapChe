@@ -1,9 +1,16 @@
 import { UserLayout } from '@/components/layout/UserLayout';
+import { CreateRequestForm } from '@/components/create-request/CreateRequestForm';
 
-export default function CreatePage() {
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function CreateRequestPage({ params }: PageProps) {
+  const { locale } = await params;
+
   return (
     <UserLayout>
-      <div>Create Request coming soon</div>
+      <CreateRequestForm locale={locale} />
     </UserLayout>
   );
 }

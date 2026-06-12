@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { MATTER_CATALOG } from '../src/lib/intake/catalog';
+import { SEED_MATTER_TYPES, SEED_FOLDERS, SEED_TAGS, SEED_VERSION, SEED_METADATA } from '../src/lib/i18n/seed-multilingual';
 import { auth } from '../src/auth';
 import { seedMessages } from './seed-messages';
 
@@ -157,29 +157,93 @@ async function main() {
     },
   });
 
-  const matterTypes = prisma.matterType as unknown as { upsert(input: unknown): Promise<unknown> };
+  console.log(`Seeding MatterTypes v${SEED_VERSION}...`);
 
-  for (const matterType of MATTER_CATALOG) {
-    await matterTypes.upsert({
-      where: { workspaceId_key: { workspaceId: workspace.id, key: matterType.key } },
+  for (const [key, matterType] of Object.entries(SEED_MATTER_TYPES)) {
+    await prisma.matterType.upsert({
+      where: { workspaceId_key: { workspaceId: workspace.id, key } },
       update: {
-        label: matterType.label,
-        description: matterType.description,
+        label_vi: matterType.label.vi,
+        label_en: matterType.label.en ?? null,
+        label_zh: matterType.label.zh ?? null,
+        label_ja: matterType.label.ja ?? null,
+        description_vi: matterType.description.vi ?? null,
+        description_en: matterType.description.en ?? null,
+        description_zh: matterType.description.zh ?? null,
+        description_ja: matterType.description.ja ?? null,
         schemaVersion: matterType.schemaVersion,
         questionSchema: matterType.questions,
         isActive: true,
       },
       create: {
         workspaceId: workspace.id,
-        key: matterType.key,
-        label: matterType.label,
-        description: matterType.description,
+        key,
+        label_vi: matterType.label.vi,
+        label_en: matterType.label.en ?? null,
+        label_zh: matterType.label.zh ?? null,
+        label_ja: matterType.label.ja ?? null,
+        description_vi: matterType.description.vi ?? null,
+        description_en: matterType.description.en ?? null,
+        description_zh: matterType.description.zh ?? null,
+        description_ja: matterType.description.ja ?? null,
         schemaVersion: matterType.schemaVersion,
         questionSchema: matterType.questions,
         isActive: true,
       },
     });
   }
+  console.log(`  ✓ ${Object.keys(SEED_MATTER_TYPES).length} MatterTypes seeded with ${SEED_METADATA.locales.length} languages`);
+
+  console.log('Seeding Folders...');
+
+  for (const [key, folder] of Object.entries(SEED_FOLDERS)) {
+    await prisma.folder.upsert({
+      where: {
+        workspaceId_parentId_name_vi: {
+          workspaceId: workspace.id,
+          parentId: null,
+          name_vi: folder.name.vi,
+        },
+      },
+      update: {},
+      create: {
+        workspaceId: workspace.id,
+        name_vi: folder.name.vi,
+        name_en: folder.name.en ?? null,
+        name_zh: folder.name.zh ?? null,
+        name_ja: folder.name.ja ?? null,
+      },
+    });
+  }
+  console.log(`  ✓ ${Object.keys(SEED_FOLDERS).length} Folders seeded`);
+
+  console.log('Seeding Tags...');
+
+  for (const [key, tag] of Object.entries(SEED_TAGS)) {
+    await prisma.tag.upsert({
+      where: {
+        workspaceId_key: {
+          workspaceId: workspace.id,
+          key,
+        },
+      },
+      update: {},
+      create: {
+        workspaceId: workspace.id,
+        key,
+        label_vi: tag.label.vi,
+        label_en: tag.label.en ?? null,
+        label_zh: tag.label.zh ?? null,
+        label_ja: tag.label.ja ?? null,
+      },
+    });
+  }
+  console.log(`  ✓ ${Object.keys(SEED_TAGS).length} Tags seeded`);
+
+  console.log('');
+  console.log(`Seed version: ${SEED_VERSION}`);
+  console.log(`Locales: ${SEED_METADATA.locales.join(', ')}`);
+  console.log('');
 
   for (const userData of seedUsers) {
     const user = await ensureUser(userData.email, userData.name, userData.password);

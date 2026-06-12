@@ -1,9 +1,10 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface SummaryPanelProps {
   selectedService: string;
   workspaceName: string;
-  locale?: string;
 }
 
 const SERVICE_NAMES = {
@@ -82,9 +83,16 @@ function MiniIcon({ letter }: { letter: string }) {
   );
 }
 
-export default function SummaryPanel({ selectedService, workspaceName, locale = 'vi' }: SummaryPanelProps) {
-  const t = LABELS[locale as keyof typeof LABELS] || LABELS.vi;
-  const serviceName = SERVICE_NAMES[selectedService as keyof typeof SERVICE_NAMES]?.[locale as keyof typeof SERVICE_NAMES['agent-contract']] || SERVICE_NAMES[selectedService]?.vi || 'Chưa chọn dịch vụ';
+export default function SummaryPanel({ selectedService, workspaceName }: SummaryPanelProps) {
+  const t = useTranslations('UserCreateRequest');
+
+  // Type-safe service name lookup
+  const validServices = Object.keys(SERVICE_NAMES) as Array<keyof typeof SERVICE_NAMES>;
+  const serviceNameKey = validServices.find(key => key === selectedService);
+  const serviceName = serviceNameKey
+    ? SERVICE_NAMES[serviceNameKey]?.vi
+    : SERVICE_NAMES['other']?.vi
+    || 'Chưa chọn dịch vụ';
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-md overflow-hidden">
@@ -96,7 +104,7 @@ export default function SummaryPanel({ selectedService, workspaceName, locale = 
             <path d="M9 12l2 2 4-4"/>
           </svg>
         </div>
-        <h3 className="text-lg font-extrabold text-slate-900">Tom tat ho so</h3>
+        <h3 className="text-lg font-extrabold text-slate-900">{t('summaryPanelTitle')}</h3>
       </div>
 
       {/* Content */}
@@ -105,7 +113,7 @@ export default function SummaryPanel({ selectedService, workspaceName, locale = 
           {/* Selected Service */}
           <div className="flex items-start justify-between gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl">
             <div>
-              <p className="text-xs font-bold text-slate-700 mb-1">{t.service}</p>
+              <p className="text-xs font-bold text-slate-700 mb-1">Dịch vụ đã chọn</p>
               <p className="text-sm text-slate-600">{serviceName}</p>
             </div>
             <MiniIcon letter="1" />
@@ -114,7 +122,7 @@ export default function SummaryPanel({ selectedService, workspaceName, locale = 
           {/* Workspace */}
           <div className="flex items-start justify-between gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl">
             <div>
-              <p className="text-xs font-bold text-slate-700 mb-1">{t.workspace}</p>
+              <p className="text-xs font-bold text-slate-700 mb-1">{t('workspace')}</p>
               <p className="text-sm text-slate-600">{workspaceName} · an-phat</p>
             </div>
             <MiniIcon letter="W" />
@@ -123,8 +131,8 @@ export default function SummaryPanel({ selectedService, workspaceName, locale = 
           {/* Processing Estimate */}
           <div className="flex items-start justify-between gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl">
             <div>
-              <p className="text-xs font-bold text-slate-700 mb-1">{t.estimate}</p>
-              <p className="text-sm text-slate-600">{t.estimateValue}</p>
+              <p className="text-xs font-bold text-slate-700 mb-1">Dự kiến xử lý</p>
+              <p className="text-sm text-slate-600">2-3 ngày làm việc sau khi đủ tài liệu</p>
             </div>
             <MiniIcon letter="S" />
           </div>
@@ -132,8 +140,8 @@ export default function SummaryPanel({ selectedService, workspaceName, locale = 
           {/* Status */}
           <div className="flex items-start justify-between gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl">
             <div>
-              <p className="text-xs font-bold text-slate-700 mb-1">{t.status}</p>
-              <p className="text-sm text-slate-600">{t.statusValue}</p>
+              <p className="text-xs font-bold text-slate-700 mb-1">Trạng thái</p>
+              <p className="text-sm text-slate-600">Hồ sơ nháp, chưa gửi cho chuyên viên</p>
             </div>
             <MiniIcon letter="D" />
           </div>

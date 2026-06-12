@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import ServiceCard, { ServiceOption } from './ServiceCard';
 
 const SERVICE_OPTIONS: ServiceOption[] = [
@@ -108,8 +109,13 @@ interface ServiceTypeSelectorProps {
 }
 
 export default function ServiceTypeSelector({ selectedId, onSelect, locale = 'vi' }: ServiceTypeSelectorProps) {
+  const t = useTranslations('UserCreateRequest');
+
   return (
     <div className="space-y-4">
+      <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '18px' }}>
+        {t('serviceTypeSelectHint')}
+      </p>
       {SERVICE_OPTIONS.map((service) => (
         <ServiceCard
           key={service.id}

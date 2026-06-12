@@ -41,7 +41,7 @@ export default function ServiceCard({ service, selected, onSelect, locale = 'vi'
         
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-semibold text-slate-900 mb-2">{service.title[locale] || service.title.vi}</h4>
+          <h4 className="text-sm font-extrabold text-slate-900 mb-2">{service.title[locale] || service.title.vi}</h4>
           <p className="text-sm text-slate-500 leading-relaxed mb-3">{service.description[locale] || service.description.vi}</p>
           
           {/* Tags */}

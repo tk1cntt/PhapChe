@@ -1,6 +1,7 @@
 'use client';
 
 import { Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface ChecklistPanelProps {
   locale?: string;
@@ -83,6 +84,7 @@ const CHECKLIST_ITEMS = {
 
 export default function ChecklistPanel({ locale = 'vi' }: ChecklistPanelProps) {
   const items = CHECKLIST_ITEMS[locale as keyof typeof CHECKLIST_ITEMS] || CHECKLIST_ITEMS.vi;
+  const t = useTranslations('UserCreateRequest');
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-md overflow-hidden">
@@ -94,7 +96,7 @@ export default function ChecklistPanel({ locale = 'vi' }: ChecklistPanelProps) {
             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
           </svg>
         </div>
-        <h3 className="text-lg font-extrabold text-slate-900">Checklist cần chuẩn bị</h3>
+        <h3 className="text-lg font-extrabold text-slate-900">{t('checklistTitle')}</h3>
       </div>
 
       {/* Content */}

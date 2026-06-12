@@ -44,7 +44,7 @@ export default function WizardSteps({ currentStep, steps, locale = 'vi' }: Wizar
               <span className="text-sm font-semibold whitespace-nowrap">{step}</span>
             </div>
             {index < stepLabels.length - 1 && (
-              <div className="h-0.5 w-12 bg-slate-200 rounded-full" />
+              <div className="h-0.5 flex-1 bg-slate-200 rounded-full" />
             )}
           </div>
         );

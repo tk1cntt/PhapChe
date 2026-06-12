@@ -231,6 +231,21 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn thiện trong v1.4)
 - [ ] 38-02-PLAN.md — Workspace table
 - [ ] 38-03-PLAN.md — Toolbar and integration
 
+### Phase 39: v2.0 Foundation — Multilingual Database Schema
+**Goal**: Design and implement multilingual database schema supporting VI, ZH, JP, EN content
+**Depends on**: Phase 25 (Auth & i18n)
+**Requirements**: ARCH-01, ARCH-02, ARCH-03, i18n requirements from requirement.txt
+**Success Criteria** (what must be TRUE):
+  1. Database schema supports multilingual content with title_vi, title_zh, title_jp, title_en columns
+  2. Seed data includes all 4 languages (VI, ZH, JP, EN)
+  3. All existing tables migrated to support multilingual content
+  4. No hardcoded text in components — all strings use i18n keys
+  5. Language switcher works correctly
+**Plans:** TBD
+- [ ] 39-01-PLAN.md — Multilingual schema design
+- [ ] 39-02-PLAN.md — Seed data with 4 languages
+- [ ] 39-03-PLAN.md — i18n cleanup and verification
+
 ## Progress
 
 | Phase | Screen | Requirements | Plans Complete | Status | Completed |

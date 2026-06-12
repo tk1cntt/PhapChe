@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Template Parity
 status: planning
-last_updated: "2026-06-11T11:51:31.514Z"
+last_updated: "2026-06-11T12:55:55.451Z"
 progress:
   total_phases: 13
   completed_phases: 7
   total_plans: 24
   completed_plans: 23
-  percent: 96
+  percent: 54
 ---
 
 # State: v1.4 Template Parity — Full Coverage

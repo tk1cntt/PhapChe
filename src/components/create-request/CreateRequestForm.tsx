@@ -39,8 +39,15 @@ export default function CreateRequestForm({ workspaces, workspaceName = '' }: Cr
         <div className="form-column">
           <div className="form-card">
             <div className="card-header">
-              <h2 className="card-title">{t('formTitle')}</h2>
-              <span className="step-badge">{t('step')} {currentStep} / 4</span>
+              <h2 className="card-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <path d="M14 2v6h6"/>
+                  <path d="M9 13h6"/>
+                </svg>
+                Bạn cần hỗ trợ việc gì?
+              </h2>
+              <span className="step-badge">Bước {currentStep} / 4</span>
             </div>
 
             <div className="card-body">

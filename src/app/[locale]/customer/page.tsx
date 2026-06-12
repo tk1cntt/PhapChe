@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
+import { getTranslations } from 'next-intl/server';
 import UserLayout from './components/UserLayout';
 import StatCard from './components/StatCard';
 import WelcomeCard from './components/WelcomeCard';
@@ -15,6 +16,8 @@ import './components/dashboard.css';
 export default async function CustomerDashboardPage() {
   const session = await requireAppSession();
   const { userId, activeWorkspaceId, roles } = session;
+  const t = await getTranslations('UserDashboard');
+  const tActions = await getTranslations('Actions');
 
   // Get user and workspace info
   const user = await prisma.user.findUnique({
@@ -62,9 +65,9 @@ export default async function CustomerDashboardPage() {
       where: {
         workspaceId: activeWorkspaceId ?? '',
         recipientId: userId,
-        isRead: false
-      }
-    }),
+        isRead: false,
+      },
+    }).catch(() => 0), // Fallback if no messages table data
     // Recent requests for case list (CUST-DASH-03)
     prisma.legalRequest.findMany({
       where: { workspaceId: activeWorkspaceId ?? '' },
@@ -112,7 +115,7 @@ export default async function CustomerDashboardPage() {
     title: req.title,
     specialistName: req.assignedSpecialist?.name ?? req.assignedReviewer?.name ?? 'N/A',
     specialistRole: req.assignedSpecialist ? 'Specialist' : req.assignedReviewer ? 'Reviewer' : 'N/A',
-    status: req.status === 'pending_review' || req.status === 'revision_required' ? 'pending' : req.status === 'delivered' || req.status === 'closed' ? 'approved' : 'review',
+    status: (req.status === 'pending_review' || req.status === 'revision_required' ? 'pending' : req.status === 'delivered' || req.status === 'closed' ? 'approved' : 'review') as 'pending' | 'approved' | 'review',
   }));
 
   // Map deadlines from database to DeadlinePanel format
@@ -123,8 +126,8 @@ export default async function CustomerDashboardPage() {
     const progress = Math.min(100, daysSinceUpdate * 20); // 20% per day, max 100%
     const status = progress >= 80 ? 'danger' : progress >= 50 ? 'warn' : 'ok';
     const timeRemaining = progress >= 100
-      ? `Quá hạn ${progress - 100}%`
-      : `Còn ${Math.ceil((100 - progress) / 20)} ngày`;
+      ? `${t('overdueStatus')} ${progress - 100}%`
+      : `${t('daysRemaining')} ${Math.ceil((100 - progress) / 20)} ${t('days')}`;
 
     return {
       id: req.id,
@@ -133,14 +136,14 @@ export default async function CustomerDashboardPage() {
       progress,
       status: status as 'ok' | 'warn' | 'danger',
       note: req.status === 'pending_review'
-        ? 'Tài liệu đã sẵn sàng trong vault để bạn xem và xác nhận.'
-        : 'Cần xác nhận góp ý từ chuyên viên trước 17:00 hôm nay.',
+        ? t('pendingDocsNote1')
+        : t('pendingDocsNote2'),
     };
   });
 
   const documents = recentVaultFiles.map(f => ({
     id: f.id,
-    filename: f.filename ?? 'Tài liệu',
+    filename: f.filename ?? t('documentLabel'),
     size: f.size ? `${(f.size / 1024).toFixed(0)} KB` : 'N/A',
     updatedAt: f.createdAt.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
     status: 'pending' as const,
@@ -149,8 +152,8 @@ export default async function CustomerDashboardPage() {
   const activities = auditEvents.map(e => ({
     id: e.id,
     title: e.action,
-    description: e.metadataSummary ?? 'Không có mô tả',
-    timestamp: getRelativeTime(e.createdAt),
+    description: e.metadataSummary ?? t('noDescription'),
+    timestamp: getRelativeTime(e.createdAt, t),
   }));
 
   // Calculate SLA for each request (7-day SLA from creation)
@@ -182,15 +185,15 @@ export default async function CustomerDashboardPage() {
   const requestRows: RequestRow[] = requests.map(req => ({
     id: req.id,
     code: `REQ-${req.createdAt.getFullYear()}-${String(req.id.slice(-3)).toUpperCase()}`,
-    statusText: req.status === 'in_progress' ? 'Đang xử lý' : req.status === 'pending_review' ? 'Cần phản hồi' : req.status === 'delivered' ? 'Hoàn tất' : req.status === 'closed' ? 'Hoàn tất' : 'Đang xử lý',
+    statusText: req.status === 'in_progress' ? t('inProgressStatus') : req.status === 'pending_review' ? t('needsResponseStatus') : req.status === 'delivered' ? t('completedStatus') : req.status === 'closed' ? t('completedStatus') : t('inProgressStatus'),
     type: req.title.split(' ').slice(0, 3).join(' '),
     typeEn: 'Contract Review',
-    specialistName: req.assignedSpecialist?.name ?? req.assignedReviewer?.name ?? 'Chưa phân công',
+    specialistName: req.assignedSpecialist?.name ?? req.assignedReviewer?.name ?? t('unassigned'),
     specialistRole: req.assignedSpecialist ? 'Specialist' : req.assignedReviewer ? 'Reviewer' : 'Coordinator',
     updatedDate: req.updatedAt.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
     updatedTime: req.updatedAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ICT',
-    status: req.status === 'pending_review' || req.status === 'revision_required' ? 'pending' : req.status === 'delivered' || req.status === 'closed' ? 'approved' : 'review',
-    actionText: req.status === 'pending_review' ? 'Phản hồi' : req.status === 'delivered' || req.status === 'closed' ? 'Tải kết quả' : req.status === 'revision_required' ? 'Bổ sung' : 'Xem chi tiết',
+    status: (req.status === 'pending_review' || req.status === 'revision_required' ? 'pending' : req.status === 'delivered' || req.status === 'closed' ? 'approved' : 'review') as 'pending' | 'approved' | 'review',
+    actionText: req.status === 'pending_review' ? t('responseAction') : req.status === 'delivered' || req.status === 'closed' ? t('downloadResultAction') : req.status === 'revision_required' ? t('addDocsAction') : t('viewDetailAction'),
     sla: calculateSLA(req.createdAt),
   }));
 
@@ -201,20 +204,20 @@ export default async function CustomerDashboardPage() {
     <UserLayout userName={userName} userRole={roles[0] ?? 'customer'} workspaceName={workspaceName} workspaceSlug={workspaceSlug}>
       <div className="page-header">
         <div>
-          <h1>Xin chào, {userName}</h1>
-          <p className="subtitle">Theo dõi hồ sơ pháp lý, tài liệu, phản hồi từ chuyên viên và các mốc xử lý quan trọng của workspace.</p>
+          <h1>{t('welcomeTitle', { name: userName })}</h1>
+          <p className="subtitle">{t('welcomeSubtitle')}</p>
         </div>
         <button className="create-btn">
-          <span>+</span> Tạo yêu cầu mới
+          <span>+</span> {tActions('createRequest')}
         </button>
       </div>
 
       {/* CUST-DASH-01: Stat cards */}
       <div className="stats">
-        <StatCard title="Tổng hồ sơ" value={totalRequests} description="Trong workspace hiện tại" icon="file" variant="blue" />
-        <StatCard title="Đang xử lý" value={processingRequests} description="Chờ phản hồi chuyên viên" icon="clock" variant="orange" />
-        <StatCard title="Đã hoàn tất" value={completedRequests} description="Đúng SLA xử lý" icon="check" variant="green" />
-        <StatCard title="Tài liệu vault" value={vaultFiles} description="Được phân quyền an toàn" icon="folder" variant="purple" />
+        <StatCard titleKey="statTotal" value={totalRequests} descriptionKey="statTotalDesc" icon="file" variant="blue" />
+        <StatCard titleKey="statProcessing" value={processingRequests} descriptionKey="statProcessingDesc" icon="clock" variant="orange" />
+        <StatCard titleKey="statCompleted" value={completedRequests} descriptionKey="statCompletedDesc" icon="check" variant="green" />
+        <StatCard titleKey="statVault" value={vaultFiles} descriptionKey="statVaultDesc" icon="folder" variant="purple" />
       </div>
 
       {/* CUST-DASH-02: Welcome card - all values from database */}
@@ -243,17 +246,17 @@ export default async function CustomerDashboardPage() {
       <RequestsTable requests={requestRows} />
 
       {/* CUST-DASH-10: Floating chat button - notificationCount from database */}
-      <FloatingChatButton notificationCount={notificationCount} notificationText="Tin mới" />
+      <FloatingChatButton notificationCount={notificationCount} notificationText={t('newMessages')} />
     </UserLayout>
   );
 }
 
-function getRelativeTime(date: Date): string {
+function getRelativeTime(date: Date, t: (key: string) => string): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
-  if (diffMins < 60) return `${diffMins} phút trước`;
+  if (diffMins < 60) return `${diffMins} ${t('minutesAgo')}`;
   const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24) return `${diffHours} giờ trước`;
-  return 'Hôm qua';
+  if (diffHours < 24) return `${diffHours} ${t('hoursAgo')}`;
+  return t('yesterday');
 }

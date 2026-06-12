@@ -1,6 +1,7 @@
 'use client';
 
 import { Table, Tag, Flex } from 'antd';
+import { useTranslations } from 'next-intl';
 import type { ColumnsType } from 'antd/es/table';
 import type { AssignmentKind, RequestStatus } from '@/lib/types';
 
@@ -11,20 +12,6 @@ const toneToColor: Record<string, string> = {
   accent: 'cyan',
   destructive: 'red',
   outline: 'default',
-};
-
-const statusLabels: Record<RequestStatus, string> = {
-  draft_intake: 'Nháp tiếp nhận',
-  intake_submitted: 'Đã gửi tiếp nhận',
-  triage: 'Đang phân loại',
-  assigned: 'Đã phân công',
-  in_progress: 'Đang xử lý',
-  pending_review: 'Chờ review',
-  revision_required: 'Cần chỉnh sửa',
-  approved: 'Đã duyệt',
-  delivered: 'Đã giao',
-  closed: 'Đã đóng',
-  cancelled: 'Đã hủy',
 };
 
 type Suggestion = { userId: string; name: string; email: string };
@@ -63,50 +50,53 @@ interface RoutingRequestsTableProps {
 }
 
 export function RoutingRequestsTable({ requests, suggestionRows }: RoutingRequestsTableProps) {
+  const t = useTranslations('AdminRouting');
+  const tStatus = useTranslations('RequestStatus');
+
   const columns: ColumnsType<RequestRow> = [
     {
-      title: 'Yêu cầu',
+      title: t('colRequest'),
       dataIndex: 'title',
       key: 'title',
       width: 200,
     },
     {
-      title: 'Khách hàng',
+      title: t('colCustomer'),
       key: 'customer',
       render: (_: unknown, record: RequestRow) => record.createdBy.name || record.createdBy.email,
       width: 180,
     },
     {
-      title: 'Loại vụ việc',
+      title: t('colMatterType'),
       key: 'matterType',
       render: (_: unknown, record: RequestRow) =>
-        record.intakeSubmission?.matterType?.label || record.intakeSubmission?.matterTypeKey || 'Chưa phân loại',
+        record.intakeSubmission?.matterType?.label || record.intakeSubmission?.matterTypeKey || tStatus('statusUncategorized'),
       width: 180,
     },
     {
-      title: 'Trạng thái',
+      title: t('colStatus'),
       key: 'status',
       render: (_: unknown, record: RequestRow) => (
-        <Tag color={toneToColor[record.status] ?? 'default'}>{statusLabels[record.status] ?? record.status}</Tag>
+        <Tag color={toneToColor[record.status] ?? 'default'}>{tStatus(record.status)}</Tag>
       ),
       width: 150,
     },
     {
-      title: 'Chuyên viên',
+      title: t('colSpecialist'),
       key: 'specialist',
       render: (_: unknown, record: RequestRow) =>
         record.assignedSpecialist?.name || record.assignedSpecialist?.email || '—',
       width: 180,
     },
     {
-      title: 'Reviewer',
+      title: t('colReviewer'),
       key: 'reviewer',
       render: (_: unknown, record: RequestRow) =>
         record.assignedReviewer?.name || record.assignedReviewer?.email || '—',
       width: 180,
     },
     {
-      title: 'Gợi ý specialist',
+      title: t('colSpecialistSuggestions'),
       key: 'specialistSuggestions',
       render: (_: unknown, _rec: RequestRow, index: number) => {
         const list = suggestionRows[index]?.specialists ?? [];
@@ -126,7 +116,7 @@ export function RoutingRequestsTable({ requests, suggestionRows }: RoutingReques
       width: 220,
     },
     {
-      title: 'Gợi ý reviewer',
+      title: t('colReviewerSuggestions'),
       key: 'reviewerSuggestions',
       render: (_: unknown, _rec: RequestRow, index: number) => {
         const list = suggestionRows[index]?.reviewers ?? [];
@@ -164,30 +154,32 @@ interface RoutingMatterTypesTableProps {
 }
 
 export function RoutingMatterTypesTable({ matterTypes }: RoutingMatterTypesTableProps) {
+  const t = useTranslations('AdminRouting');
+
   const columns: ColumnsType<MatterTypeRow> = [
     {
-      title: 'Tên loại vụ việc',
+      title: t('colMatterTypeName'),
       dataIndex: 'label',
       key: 'label',
       width: 220,
     },
     {
-      title: 'Mã',
+      title: t('colKey'),
       dataIndex: 'key',
       key: 'key',
       width: 180,
     },
     {
-      title: 'Mô tả',
+      title: t('colDescription'),
       dataIndex: 'description',
       key: 'description',
       width: 300,
     },
     {
-      title: 'Trạng thái',
+      title: t('colIsActive'),
       key: 'isActive',
       render: (_: unknown, record: MatterTypeRow) => (
-        <Tag color={record.isActive ? 'cyan' : 'default'}>{record.isActive ? 'Đang dùng' : 'Tạm ẩn'}</Tag>
+        <Tag color={record.isActive ? 'cyan' : 'default'}>{record.isActive ? t('active') : t('inactive')}</Tag>
       ),
       width: 120,
     },
@@ -210,34 +202,36 @@ interface RoutingCapabilitiesTableProps {
 }
 
 export function RoutingCapabilitiesTable({ capabilities }: RoutingCapabilitiesTableProps) {
+  const t = useTranslations('AdminRouting');
+
   const columns: ColumnsType<CapabilityRow> = [
     {
-      title: 'Người dùng',
+      title: t('colUser'),
       key: 'user',
       render: (_: unknown, record: CapabilityRow) => record.user.name || record.user.email,
       width: 220,
     },
     {
-      title: 'Vai trò',
+      title: t('colRole'),
       key: 'kind',
       render: (_: unknown, record: CapabilityRow) => (
         <Tag color={record.kind === 'specialist' ? 'cyan' : 'blue'}>
-          {record.kind === 'specialist' ? 'Chuyên viên' : 'Reviewer'}
+          {record.kind === 'specialist' ? t('roleSpecialist') : t('roleReviewer')}
         </Tag>
       ),
       width: 160,
     },
     {
-      title: 'Loại vụ việc',
+      title: t('colMatterType'),
       dataIndex: ['matterType', 'label'],
       key: 'matterType',
       width: 220,
     },
     {
-      title: 'Trạng thái',
+      title: t('colIsActive'),
       key: 'isActive',
       render: (_: unknown, record: CapabilityRow) => (
-        <Tag color={record.isActive ? 'cyan' : 'default'}>{record.isActive ? 'Đang dùng' : 'Tạm ẩn'}</Tag>
+        <Tag color={record.isActive ? 'cyan' : 'default'}>{record.isActive ? t('active') : t('inactive')}</Tag>
       ),
       width: 120,
     },

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: Request) {
   const headers = new Headers();
@@ -16,10 +17,25 @@ export async function GET(request: Request) {
         success: false,
         message: 'No session found',
         cookieReceived: !!cookieHeader,
-        cookieName: 'better-auth.session_token',
-        userAgent: request.headers.get('user-agent'),
       });
     }
+
+    const userId = session.user.id;
+
+    // Check user membership (same as requireAppSession)
+    const user = await prisma.user.findFirst({
+      where: { id: userId, isActive: true },
+      select: {
+        id: true,
+        isActive: true,
+        memberships: {
+          where: { isActive: true, workspace: { isActive: true } },
+          select: { workspaceId: true, role: true, isActive: true, workspace: { select: { id: true, name: true, isActive: true } } },
+          orderBy: { createdAt: 'asc' },
+          take: 1,
+        },
+      },
+    });
 
     return NextResponse.json({
       success: true,
@@ -28,15 +44,19 @@ export async function GET(request: Request) {
         email: session.user.email,
         name: session.user.name,
       },
-      session: {
-        expiresAt: session.session.expiresAt,
-        token: session.session.token?.substring(0, 50) + '...',
+      dbCheck: {
+        userFound: !!user,
+        userIsActive: user?.isActive,
+        membershipCount: user?.memberships?.length,
+        memberships: user?.memberships,
+        hasActiveMembership: user?.memberships?.[0]?.isActive && user?.memberships?.[0]?.workspace?.isActive,
       },
     });
   } catch (error) {
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
     });
   }
 }

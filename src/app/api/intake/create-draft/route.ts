@@ -6,23 +6,24 @@ export async function POST(request: Request) {
   try {
     const session = await requireAppSession();
     const body = await request.json();
-    const { matterTypeKey } = body;
+    const { matterTypeKey, title } = body;
 
     // Create a draft legal request
     const draft = await prisma.legalRequest.create({
       data: {
         workspaceId: session.activeWorkspaceId!,
         createdById: session.userId,
-        status: 'draft',
-        matterTypeKey: matterTypeKey || 'general',
-        // Default values for draft
+        status: 'draft_intake',
+        matterType: matterTypeKey || 'general',
+        title: title || 'Yêu cầu mới',
         priority: 'normal',
         description: '',
       },
       select: {
         id: true,
         status: true,
-        matterTypeKey: true,
+        matterType: true,
+        title: true,
         createdAt: true,
       },
     });
@@ -30,7 +31,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       id: draft.id,
       status: draft.status,
-      matterTypeKey: draft.matterTypeKey,
+      matterType: draft.matterType,
+      title: draft.title,
       createdAt: draft.createdAt,
     });
   } catch (error) {
@@ -44,8 +46,9 @@ export async function POST(request: Request) {
       );
     }
 
+    // Return actual error for debugging
     return NextResponse.json(
-      { error: 'DRAFT_CREATION_FAILED', message: 'Failed to create draft' },
+      { error: 'DRAFT_CREATION_FAILED', message, stack: error instanceof Error ? error.stack : undefined },
       { status: 500 }
     );
   }

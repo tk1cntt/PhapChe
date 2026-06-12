@@ -604,9 +604,9 @@
     "emailOnResponseDesc": "Nhận email khi chuyên viên phản hồi hồ sơ của bạn"
   },
   "UserCreateRequest": {
-    "pageTitle": "Tạo hồ sơ pháp lý",
-    "pageDesc": "Gửi yêu cầu tư vấn pháp lý mới cho chuyên viên của bạn.",
-    "formTitle": "Thông tin yêu cầu",
+    "pageTitle": "Gửi yêu cầu pháp lý",
+    "pageDesc": "Trả lời vài câu hỏi để chuyên viên có đủ thông tin tiếp nhận hồ sơ và xử lý đúng SLA.",
+    "formTitle": "Bạn cần hỗ trợ việc gì?",
     "requestTitle": "Tiêu đề yêu cầu",
     "requestType": "Loại yêu cầu",
     "description": "Mô tả",

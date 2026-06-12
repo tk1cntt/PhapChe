@@ -348,7 +348,11 @@ model VaultFile {
 model Folder {
   id              String           @id @default(cuid())
   workspaceId     String
-  name            String
+  // Multilingual name
+  name_vi         String           // Primary name (REQUIRED)
+  name_en         String?          // Optional translations
+  name_zh         String?
+  name_ja         String?
   parentId        String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -357,7 +361,7 @@ model Folder {
   children        Folder[]         @relation("FolderHierarchy")
   vaultFileFolders VaultFileFolder[]
 
-  @@unique([workspaceId, parentId, name])
+  @@unique([workspaceId, parentId, name_vi])
   @@index([workspaceId])
   @@index([parentId])
 }
@@ -366,7 +370,11 @@ model Tag {
   id           String         @id @default(cuid())
   workspaceId  String
   key          String
-  label        String
+  // Multilingual label
+  label_vi     String        // Primary label (REQUIRED)
+  label_en     String?       // Optional translations
+  label_zh     String?
+  label_ja     String?
   createdAt    DateTime       @default(now())
   workspace    Workspace      @relation(fields: [workspaceId], references: [id])
   vaultFileTags VaultFileTag[]

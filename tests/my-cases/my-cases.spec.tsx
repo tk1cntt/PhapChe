@@ -57,9 +57,9 @@ test.describe('My Cases Page', () => {
     await expect(searchInput).toHaveAttribute('placeholder', 'Tìm mã hồ sơ, loại yêu cầu...');
 
     // Verify filter buttons
-    await expect(page.locator('.tool-btn', { hasText: 'Bộ lọc' }).toBeVisible();
-    await expect(page.locator('.tool-btn', { hasText: 'Trạng thái' }).toBeVisible();
-    await expect(page.locator('.tool-btn', { hasText: 'Loại yêu cầu' }).toBeVisible();
+    await expect(page.locator('.tool-btn', { hasText: 'Bộ lọc' })).toBeVisible();
+    await expect(page.locator('.tool-btn', { hasText: 'Trạng thái' })).toBeVisible();
+    await expect(page.locator('.tool-btn', { hasText: 'Loại yêu cầu' })).toBeVisible();
 
     // Test dropdown
     const statusDropdown = page.locator('.tool-btn', { hasText: 'Trạng thái' });

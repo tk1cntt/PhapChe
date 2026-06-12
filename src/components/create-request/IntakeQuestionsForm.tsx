@@ -1,13 +1,16 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useTranslations } from 'next-intl';
+import { useRef } from 'react';
 import { SEED_MATTER_TYPES } from '@/lib/i18n/seed-multilingual';
 
+interface IntakeAnswers {
+  [key: string]: string;
+}
+
 interface IntakeQuestionsFormProps {
-  requestId: string;
   selectedService: string;
-  onAnswersSaved: () => void;
+  onAnswersChange: (answers: IntakeAnswers) => void;
+  onValidChange: (isValid: boolean) => void;
   locale?: string;
 }
 
@@ -18,11 +21,7 @@ interface Question {
   type: 'text' | 'textarea';
 }
 
-export default function IntakeQuestionsForm({ requestId, selectedService, onAnswersSaved, locale = 'vi' }: IntakeQuestionsFormProps) {
-  const t = useTranslations('UserCreateRequest');
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+export default function IntakeQuestionsForm({ selectedService, onAnswersChange, onValidChange, locale = 'vi' }: IntakeQuestionsFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
 
   // Map selected service to matterTypeKey
@@ -32,125 +31,62 @@ export default function IntakeQuestionsForm({ requestId, selectedService, onAnsw
   const matterType = SEED_MATTER_TYPES[matterTypeKey as keyof typeof SEED_MATTER_TYPES];
   const questions: Question[] = matterType?.questions || [];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Client-side validation
+  const handleChange = () => {
     const form = formRef.current;
     if (!form) return;
 
     const formData = new FormData(form);
-    const newErrors: Record<string, string> = {};
+    const answers: IntakeAnswers = {};
+    let isValid = true;
 
     for (const question of questions) {
-      if (question.required) {
-        const value = formData.get(`answer.${question.key}`) as string;
-        if (!value?.trim()) {
-          newErrors[question.key] = `Vui lòng nhập ${question.label}`;
-        }
+      const value = formData.get(`answer.${question.key}`) as string;
+      if (value?.trim()) {
+        answers[question.key] = value.trim();
+      }
+
+      if (question.required && !value?.trim()) {
+        isValid = false;
       }
     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setErrors({});
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      // Collect answers
-      const answers: Record<string, string> = {};
-      for (const question of questions) {
-        const value = formData.get(`answer.${question.key}`) as string;
-        if (value?.trim()) {
-          answers[question.key] = value.trim();
-        }
-      }
-
-      // Save answers via API
-      const saveResponse = await fetch('/api/intake/save-answers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requestId, answers }),
-      });
-
-      const saveResult = await saveResponse.json();
-
-      if (saveResponse.ok) {
-        onAnswersSaved();
-      } else {
-        setSubmitError(saveResult.error || 'Có lỗi khi lưu câu trả lời');
-      }
-    } catch (error) {
-      console.error('Save answers failed:', error);
-      setSubmitError('Có lỗi xảy ra khi lưu câu trả lời');
-    } finally {
-      setIsSubmitting(false);
-    }
+    onAnswersChange(answers);
+    onValidChange(isValid);
   };
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit}>
+    <form ref={formRef} onChange={handleChange}>
       <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '18px' }}>
         {matterType?.description?.[locale as keyof typeof matterType.description] || matterType?.description?.vi || 'Điền thông tin cần thiết'}
       </p>
 
       {questions.map((question) => (
-        <div key={question.key} className="mb-4">
-          <label className="block text-xs font-bold text-slate-700 mb-1.5">
+        <div key={question.key} style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
             {question.label}
-            {question.required && <span className="text-red-500 ml-0.5">*</span>}
+            {question.required && <span style={{ color: '#ef4444', marginLeft: '2px' }}>*</span>}
           </label>
           {question.type === 'textarea' ? (
             <textarea
               name={`answer.${question.key}`}
               rows={4}
               placeholder={`Nhập ${question.label.toLowerCase()}...`}
-              className={`w-full border rounded-lg px-3 py-2.5 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none resize-none ${
-                errors[question.key] ? 'border-red-500' : 'border-slate-200'
-              }`}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none resize-none"
             />
           ) : (
             <input
               type="text"
               name={`answer.${question.key}`}
               placeholder={`Nhập ${question.label.toLowerCase()}...`}
-              className={`h-11 w-full border rounded-lg px-3 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none ${
-                errors[question.key] ? 'border-red-500' : 'border-slate-200'
-              }`}
+              className="h-11 w-full border border-slate-200 rounded-lg px-3 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none"
             />
-          )}
-          {errors[question.key] && (
-            <p className="text-red-500 text-xs mt-1">{errors[question.key]}</p>
           )}
         </div>
       ))}
 
-      {submitError && (
-        <div className="text-red-500 text-sm mb-4">{submitError}</div>
-      )}
-
-      <div className="text-xs text-slate-500 mb-4">
-        <span className="text-red-500">*</span> Thông tin bắt buộc
-      </div>
-
-      <button
-        type="submit"
-        className="w-full create-btn"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <span className="flex items-center justify-center gap-2">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-            Đang lưu...
-          </span>
-        ) : (
-          'Lưu câu trả lời'
-        )}
-      </button>
+      <p style={{ fontSize: '12px', color: '#64748b' }}>
+        <span style={{ color: '#ef4444' }}>*</span> Thông tin bắt buộc
+      </p>
     </form>
   );
 }

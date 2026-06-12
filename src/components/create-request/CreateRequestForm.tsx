@@ -14,6 +14,10 @@ interface UploadedFile {
   size: number;
 }
 
+interface IntakeAnswers {
+  [key: string]: string;
+}
+
 interface CreateRequestFormProps {
   workspaces?: Array<{ id: string; name: string; slug: string }>;
   workspaceName?: string;
@@ -27,7 +31,9 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
 
   // Draft state
   const [requestId, setRequestId] = useState<string | null>(null);
-  const [answersSaved, setAnswersSaved] = useState(false);
+  const [answers, setAnswers] = useState<IntakeAnswers>({});
+  const [answersValid, setAnswersValid] = useState(false);
+  const [isCreatingDraft, setIsCreatingDraft] = useState(false);
 
   // Step 3: Document upload state
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -39,47 +45,20 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Form errors
+  // Error state
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleNext = async () => {
-    if (currentStep === 1) {
-      // Only create draft if not exists
-      if (!requestId) {
-        await createDraft();
-      }
-      setCurrentStep(2);
-      return;
-    }
-
-    if (currentStep === 2) {
-      if (!answersSaved) {
-        setErrors({ answers: 'Vui lòng lưu câu trả lời trước' });
-        return;
-      }
-      setErrors({});
-      setCurrentStep(3);
-      return;
-    }
-
-    if (currentStep === 3) {
-      setCurrentStep(4);
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
-  };
-
-  const createDraft = async () => {
+  const createDraft = async (answersToSave: IntakeAnswers) => {
+    setIsCreatingDraft(true);
     try {
       const response = await fetch('/api/intake/create-draft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           matterTypeKey: selectedService === 'trademark' ? 'trademark_registration' : selectedService,
+          answers: answersToSave,
         }),
       });
 
@@ -90,9 +69,40 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
 
       const data = await response.json();
       setRequestId(data.id);
+      return true;
     } catch (error) {
       console.error('Failed to create draft:', error);
       setErrors({ draft: 'Failed to create draft. Please try again.' });
+      return false;
+    } finally {
+      setIsCreatingDraft(false);
+    }
+  };
+
+  const handleNext = async () => {
+    setErrors({});
+
+    if (currentStep === 1) {
+      // Step 1 → 2: Create draft with answers
+      const success = await createDraft(answers);
+      if (success) {
+        setCurrentStep(2);
+      }
+      return;
+    }
+
+    if (currentStep === 2) {
+      // Step 2 → 3: Validate answers before proceeding
+      if (!answersValid) {
+        setErrors({ answers: 'Vui lòng điền đầy đủ thông tin bắt buộc' });
+        return;
+      }
+      setCurrentStep(3);
+      return;
+    }
+
+    if (currentStep === 3) {
+      setCurrentStep(4);
     }
   };
 
@@ -106,7 +116,8 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
     try {
       // Create draft if needed
       if (!requestId) {
-        await createDraft();
+        const success = await createDraft(answers);
+        if (!success) return;
       }
 
       const formData = new FormData();
@@ -138,7 +149,6 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
       setErrors({ upload: error instanceof Error ? error.message : 'Upload failed' });
     } finally {
       setIsUploading(false);
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -179,7 +189,6 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
 
       setSubmitSuccess(true);
 
-      // Redirect to dashboard after 2 seconds
       setTimeout(() => {
         window.location.href = `/${locale}/dashboard`;
       }, 2000);
@@ -191,8 +200,6 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
       setIsSubmitting(false);
     }
   };
-
-  const canProceedFromStep3 = uploadedFiles.length > 0;
 
   return (
     <div className="create-request-container">
@@ -219,6 +226,15 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
             </div>
 
             <div className="card-body">
+              {/* Error Display */}
+              {errors.answers && (
+                <div className="text-red-500 text-sm mb-4">{errors.answers}</div>
+              )}
+              {errors.draft && (
+                <div className="text-red-500 text-sm mb-4">{errors.draft}</div>
+              )}
+
+              {/* Step 1: Service Selection */}
               {currentStep === 1 && (
                 <ServiceTypeSelector
                   selectedId={selectedService}
@@ -226,24 +242,24 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
                   locale={locale}
                 />
               )}
-              {currentStep === 2 && requestId && (
+
+              {/* Step 2: Questions */}
+              {currentStep === 2 && (
                 <IntakeQuestionsForm
-                  requestId={requestId}
                   selectedService={selectedService}
-                  onAnswersSaved={() => setAnswersSaved(true)}
+                  onAnswersChange={setAnswers}
+                  onValidChange={setAnswersValid}
                   locale={locale}
                 />
               )}
-              {currentStep === 2 && !requestId && (
-                <p className="text-slate-500">Đang tải...</p>
-              )}
+
+              {/* Step 3: Upload */}
               {currentStep === 3 && (
                 <div className="documents-step">
                   <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '18px' }}>
                     Tải lên tài liệu liên quan để hỗ trợ yêu cầu của bạn
                   </p>
 
-                  {/* Upload Zone */}
                   <div
                     className="upload-zone"
                     onClick={() => fileInputRef.current?.click()}
@@ -284,14 +300,10 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
                     )}
                   </div>
 
-                  {/* Upload Error */}
                   {uploadError && (
-                    <div style={{ color: '#ef4444', fontSize: '14px', marginBottom: '16px' }}>
-                      {uploadError}
-                    </div>
+                    <div className="text-red-500 text-sm mb-4">{uploadError}</div>
                   )}
 
-                  {/* Uploaded Files List */}
                   {uploadedFiles.length > 0 && (
                     <div className="uploaded-files-list">
                       <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>
@@ -328,6 +340,8 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
                   )}
                 </div>
               )}
+
+              {/* Step 4: Review & Submit */}
               {currentStep === 4 && (
                 <div className="review-step">
                   {submitSuccess ? (
@@ -346,7 +360,6 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
                         Kiểm tra thông tin trước khi gửi yêu cầu
                       </p>
 
-                      {/* Summary */}
                       <div className="bg-slate-50 rounded-lg p-4 mb-4">
                         <div className="flex items-center justify-between mb-2">
                           <span style={{ fontSize: '14px', color: '#64748b' }}>Loại dịch vụ</span>
@@ -362,11 +375,8 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
                         </div>
                       </div>
 
-                      {/* Submit Error */}
                       {submitError && (
-                        <div style={{ color: '#ef4444', fontSize: '14px', marginBottom: '16px' }}>
-                          {submitError}
-                        </div>
+                        <div className="text-red-500 text-sm mb-4">{submitError}</div>
                       )}
 
                       <button
@@ -400,21 +410,27 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
                   {t('backToDashboard')}
                 </button>
                 <div className="action-buttons-right">
-                  <button type="button" className="ghost-btn">
-                    {t('saveDraft')}
-                  </button>
                   {currentStep < 4 && (
                     <button
                       type="button"
                       className="create-btn"
                       onClick={handleNext}
-                      disabled={currentStep === 3 && !canProceedFromStep3}
+                      disabled={isCreatingDraft}
                     >
-                      {t('continue')}
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                        <path d="M5 12h14"/>
-                        <path d="m12 5 7 7-7 7"/>
-                      </svg>
+                      {isCreatingDraft ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          Đang xử lý...
+                        </span>
+                      ) : (
+                        <>
+                          {t('continue')}
+                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                            <path d="M5 12h14"/>
+                            <path d="m12 5 7 7-7 7"/>
+                          </svg>
+                        </>
+                      )}
                     </button>
                   )}
                 </div>

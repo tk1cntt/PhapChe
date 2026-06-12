@@ -1,8 +1,9 @@
 # Legal-as-a-Service Platform
 
-## Current State (v2.0 Planning — AI Features + Architecture Refactor)
+## Current State (v2.0 Planning — UI Parity + Backend Connection)
 
 **v1.4 abandoned (2026-06-12)** — scope chuyển sang v2.0
+**Requirement:** Tuân thủ requirement.txt standards
 
 **Total to date:** v1.0 + v1.1 = 22 phases, 67 plans, 93 tasks (shipped)
 
@@ -113,19 +114,63 @@ Luồng nghiệp vụ mẫu: khách chọn "Soạn hợp đồng đại lý", bo
 
 Tài liệu nhấn mạnh tư duy E-Myth: không xây AI biết tất cả, mà xây "cây thư mục quy trình/SOP". Mọi câu hỏi nên rơi vào quy trình đã định sẵn; ngoài quy trình thì chuyển con người xử lý, sau đó bổ sung SOP để máy hóa lần sau.
 
-### Technical Debt & Known Issues
+### Technical Debt & Known Issues (from requirement.txt analysis)
 
-- Pre-existing TypeScript errors in template pages (out of scope for v1.0)
-- `npm run typecheck` has pre-existing failures outside ops code
-- No DATABASE_URL configured for demo data seeding
-- Phase 01 verification has `human_needed` status (needs browser check for UI interaction)
-- No e2e tests beyond Phase 1 foundation
+**Critical:**
+- Mock UI đẹp nhưng hardcode data — cần kết nối SQLite
+- Working code có backend nhưng giao diện nghèo nàn
+- Cần migrate Mock UI pattern để có cả hai: UI đẹp + backend hoạt động
+
+**Database:**
+- Schema cần mở rộng để hỗ trợ đa ngôn ngữ (VI, ZH, JP, EN)
+- Seed data cần có đủ 4 ngôn ngữ
+
+**i18n:**
+- Hardcoded Vietnamese strings cần thay bằng i18n keys
+- Language switcher cần hoạt động đầy đủ
+
+**Type Safety:**
+- Nhiều `as any` casts cần fix
+- TypeScript interfaces cần rõ ràng hơn
 
 ## Constraints
 
 - **Legal accuracy**: Nội dung/tài liệu pháp lý phải qua reviewer trước khi final — giảm rủi ro tư vấn sai.
 - **Security**: Hồ sơ pháp lý doanh nghiệp nhạy cảm — file phải private, phân quyền theo tenant/request, signed URL ngắn hạn, audit đầy đủ.
 - **MVP scope**: Ưu tiên workflow end-to-end hơn OCR/e-sign/AI nâng cao — chứng minh vận hành trước khi automation.
+
+## v2.0 Quality Standards (from requirement.txt)
+
+### Database & Data Layer
+- ✅ SQLite database với schema rõ ràng
+- ✅ Mọi data phải từ database, không hardcode trong UI
+- ✅ Seed data phải có đủ 4 ngôn ngữ (VI, ZH, JP, EN)
+- ✅ CRUD operations cho mọi màn hình
+
+### i18n Requirements
+- ✅ 4 ngôn ngữ: Vietnamese (VI), Chinese (ZH), Japanese (JP), English (EN)
+- ✅ Không hardcode text trong component — dùng i18n keys
+- ✅ Language switcher trên UI
+- ✅ Ngôn ngữ mặc định: VI
+- ✅ Data content từ DB phải hỗ trợ đa ngôn ngữ
+
+### UI Requirements
+- ✅ Pixel-perfect match với mock UI template
+- ✅ Layout, spacing, typography, color, border, shadow đúng
+- ✅ Responsive behavior
+- ✅ No hardcode text/data trong JSX
+
+### Quality Gates
+- ✅ Build không lỗi TypeScript/lint
+- ✅ Không console errors
+- ✅ No `as any` type suppression
+- ✅ E2E tests cho mỗi feature
+
+### Architecture Requirements
+- ✅ Không phá vỡ kiến trúc hiện có
+- ✅ Tận dụng convention có sẵn
+- ✅ Service layer pattern
+- ✅ API/data layer tách biệt
 - **Template governance**: Template phải versioned, có trạng thái approved/published/deprecated — tránh dùng nhầm mẫu cũ.
 - **Workflow integrity**: Status thay đổi qua backend state machine — không hard-code logic ở frontend.
 - **Traceability**: Review phải gắn với document version cụ thể — tránh duyệt bản này nhưng gửi bản khác.

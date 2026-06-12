@@ -1,45 +1,57 @@
-'use client';
-
-import React, { useState } from 'react';
+import { prisma } from '@/lib/prisma';
+import { requireAppSession } from '@/lib/security/session';
+import { getTranslations } from 'next-intl/server';
+import '@/app/[locale]/customer/components/dashboard.css';
 import UserLayout from '../../customer/components/UserLayout';
-import { SettingsStats } from '../../customer/components/Settings/SettingsStats';
-import { SettingsMenu, SettingsTab } from '../../customer/components/Settings/SettingsMenu';
+import { SettingsClient } from './SettingsClient';
 
-export default function SettingsPage(): JSX.Element {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+export default async function SettingsPage({
+  params,
+}: {
+  params: { workspaceSlug: string };
+}) {
+  const session = await requireAppSession();
+  const { userId, activeWorkspaceId, roles } = session;
+  const { workspaceSlug } = params;
+  const t = await getTranslations('UserSettings');
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      name: true,
+      email: true,
+      memberships: {
+        where: { workspaceId: activeWorkspaceId ?? undefined },
+        select: { workspace: { select: { name: true } } }
+      }
+    },
+  });
+
+  const workspace = user?.memberships[0]?.workspace;
+  const userName = user?.name ?? 'User';
+  const workspaceName = workspace?.name ?? 'Workspace';
+  const userEmail = user?.email ?? '';
 
   return (
     <UserLayout
-      userName="Mai Phuong"
-      userRole="Customer"
-      workspaceName="Cong ty An Phat"
-      workspaceSlug="an-phat"
+      userName={userName}
+      userRole={roles[0] ?? 'customer'}
+      workspaceName={workspaceName}
+      workspaceSlug={workspaceSlug}
     >
       <div className="settings-page">
         <div className="page-header">
           <div>
-            <h1>Cai dat</h1>
-            <p className="subtitle">
-              Quan ly ho so ca nhan, thong bao, bao mat dang nhap va tuy chon workspace.
-            </p>
+            <h1>{t('pageTitle')}</h1>
+            <p className="subtitle">{t('pageDesc')}</p>
           </div>
         </div>
 
-        <SettingsStats />
-
-        <div className="settings-grid">
-          <SettingsMenu activeTab={activeTab} onTabChange={setActiveTab} />
-          <div className="form-card">
-            <div className="form-section">
-              <div className="panel-title">
-                <div className="panel-title-left">Tab: {activeTab}</div>
-              </div>
-              <p style={{ color: '#64748b', padding: '20px' }}>
-                Noi dung tab nay se duoc trien khai trong Plan 31-02.
-              </p>
-            </div>
-          </div>
-        </div>
+        <SettingsClient
+          userName={userName}
+          userEmail={userEmail}
+          workspaceName={workspaceName}
+        />
       </div>
     </UserLayout>
   );

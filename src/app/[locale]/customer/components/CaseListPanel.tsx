@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Badge } from './Badge';
 
 interface Case {
@@ -17,6 +18,12 @@ export interface CaseListPanelProps {
   cases: Case[];
 }
 
+const STATUS_LABELS: Record<Case['status'], string> = {
+  review: 'in_progress',
+  pending: 'pending_review',
+  approved: 'delivered',
+};
+
 function getStatusVariant(status: Case['status']): BadgeProps['variant'] {
   switch (status) {
     case 'review':
@@ -30,31 +37,21 @@ function getStatusVariant(status: Case['status']): BadgeProps['variant'] {
   }
 }
 
-function getStatusLabel(status: Case['status']): string {
-  switch (status) {
-    case 'review':
-      return 'Đang xem';
-    case 'pending':
-      return 'Chờ duyệt';
-    case 'approved':
-      return 'Đã duyệt';
-    default:
-      return status;
-  }
-}
-
 type BadgeProps = {
   variant: 'green' | 'orange' | 'blue' | 'red' | 'purple';
   children: React.ReactNode;
 };
 
-export function CaseListPanel({ cases }: CaseListPanelProps): JSX.Element {
+export function CaseListPanel({ cases }: CaseListPanelProps): React.ReactElement {
+  const t = useTranslations('RequestStatus');
+  const tDash = useTranslations('UserDashboard');
+
   return (
     <div className="panel">
-      <div className="panel-title">Hồ sơ đang xử lý</div>
+      <div className="panel-title">{t('in_progress')}</div>
       <div className="case-list">
         {cases.length === 0 ? (
-          <div className="empty-state">Không có hồ sơ nào đang xử lý</div>
+          <div className="empty-state">{tDash('noActiveCases')}</div>
         ) : (
           cases.map((item) => (
             <div key={item.id} className="case-item">
@@ -78,7 +75,7 @@ export function CaseListPanel({ cases }: CaseListPanelProps): JSX.Element {
                 <span>{item.specialistRole}</span>
               </div>
               <Badge variant={getStatusVariant(item.status)}>
-                {getStatusLabel(item.status)}
+                {t(STATUS_LABELS[item.status])}
               </Badge>
               <Link href={`/customer/cases/${item.id}`} className="action-link">
                 Mở <span>→</span>
@@ -90,3 +87,5 @@ export function CaseListPanel({ cases }: CaseListPanelProps): JSX.Element {
     </div>
   );
 }
+
+export default CaseListPanel;

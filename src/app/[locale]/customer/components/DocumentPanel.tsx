@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Badge } from './Badge';
 
 interface Document {
@@ -39,11 +40,11 @@ function getStatusVariant(status: Document['status']): BadgeProps['variant'] {
 function getStatusLabel(status: Document['status']): string {
   switch (status) {
     case 'encrypted':
-      return 'Mã hoá';
+      return 'encrypted';
     case 'pending':
-      return 'Chờ duyệt';
+      return 'pending';
     case 'approved':
-      return 'Đã duyệt';
+      return 'done';
     case 'nda':
       return 'NDA';
     default:
@@ -56,18 +57,21 @@ type BadgeProps = {
   children: React.ReactNode;
 };
 
-export function DocumentPanel({ documents }: DocumentPanelProps): JSX.Element {
+export function DocumentPanel({ documents }: DocumentPanelProps): React.ReactElement {
+  const t = useTranslations('UserDashboard');
+  const tCommon = useTranslations('Common');
+
   return (
     <div className="panel">
       <div className="panel-header">
-        <div className="panel-title">Tài liệu gần đây</div>
+        <div className="panel-title">{t('recentDocs')}</div>
         <Link href="/customer/vault" className="small-link">
-          Mở vault <span>→</span>
+          {t('openVault')} <span>→</span>
         </Link>
       </div>
       <div className="document-list">
         {documents.length === 0 ? (
-          <div className="empty-state">Không có tài liệu nào gần đây</div>
+          <div className="empty-state">{t('noRecentDocuments')}</div>
         ) : (
           documents.map((doc) => (
             <div key={doc.id} className="document-item">
@@ -81,7 +85,7 @@ export function DocumentPanel({ documents }: DocumentPanelProps): JSX.Element {
                 </div>
               </div>
               <Badge variant={getStatusVariant(doc.status)}>
-                {getStatusLabel(doc.status)}
+                {getStatusLabel(doc.status) === 'NDA' ? 'NDA' : tCommon(getStatusLabel(doc.status) as 'encrypted' | 'pending' | 'done')}
               </Badge>
             </div>
           ))
@@ -90,3 +94,5 @@ export function DocumentPanel({ documents }: DocumentPanelProps): JSX.Element {
     </div>
   );
 }
+
+export default DocumentPanel;

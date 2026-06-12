@@ -1,12 +1,14 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { FileText, Clock, CheckCircle, Folder, AlertCircle } from 'lucide-react';
 
 export interface StatCardProps {
-  title: string;
+  titleKey: string;
   value: number;
-  description: string;
+  descriptionKey?: string;
+  description?: string;
   icon: 'file' | 'clock' | 'check' | 'folder' | 'alert';
   variant: 'blue' | 'green' | 'orange' | 'purple' | 'red';
 }
@@ -20,13 +22,15 @@ const iconMap = {
 };
 
 export function StatCard({
-  title,
+  titleKey,
   value,
+  descriptionKey,
   description,
   icon,
   variant,
-}: StatCardProps): JSX.Element {
+}: StatCardProps): React.ReactElement {
   const IconComponent = iconMap[icon];
+  const t = useTranslations('UserDashboard');
 
   return (
     <div className="stat-card">
@@ -34,10 +38,14 @@ export function StatCard({
         <IconComponent />
       </div>
       <div className="stat-content">
-        <div className="stat-title">{title}</div>
+        <div className="stat-title">{t(titleKey)}</div>
         <div className="stat-value">{value}</div>
-        <div className="stat-desc">{description}</div>
+        <div className="stat-desc">
+          {description ?? (descriptionKey ? t(descriptionKey) : '')}
+        </div>
       </div>
     </div>
   );
 }
+
+export default StatCard;

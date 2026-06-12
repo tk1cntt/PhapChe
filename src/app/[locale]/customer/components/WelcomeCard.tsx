@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { ShieldCheck, FileText, Send } from 'lucide-react';
 
 export interface WelcomeCardProps {
@@ -18,7 +19,9 @@ export function WelcomeCard({
   processingCount,
   pendingDocs,
   newFeedback,
-}: WelcomeCardProps): JSX.Element {
+}: WelcomeCardProps): React.ReactElement {
+  const t = useTranslations('UserDashboard');
+
   return (
     <div className="welcome-card">
       <div className="welcome-left">
@@ -26,9 +29,9 @@ export function WelcomeCard({
           <ShieldCheck size={32} />
         </div>
         <div className="welcome-content">
-          <h2>Workspace của bạn đang hoạt động ổn định</h2>
+          <h2>{t('welcomeCardTitle')}</h2>
           <p>
-            {processingCount} hồ sơ đang được xử lý, {pendingDocs} tài liệu cần xác nhận và {newFeedback} phản hồi mới từ chuyên viên pháp lý. Dữ liệu chỉ hiển thị trong phạm vi workspace {workspaceName}.
+            {t('welcomeCardDesc', { processing: processingCount, pendingDocs, newFeedback })} {workspaceName}.
           </p>
         </div>
       </div>
@@ -36,13 +39,15 @@ export function WelcomeCard({
       <div className="quick-actions">
         <button className="ghost-btn">
           <FileText size={16} style={{ marginRight: 8 }} />
-          Xem tài liệu
+          {t('viewDocs')}
         </button>
         <button className="create-btn">
           <Send size={16} />
-          Gửi phản hồi
+          {t('sendFeedback')}
         </button>
       </div>
     </div>
   );
 }
+
+export default WelcomeCard;

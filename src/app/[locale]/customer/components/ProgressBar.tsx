@@ -7,7 +7,7 @@ export interface ProgressBarProps {
   status: 'ok' | 'warn' | 'danger';
 }
 
-export function ProgressBar({ value, status }: ProgressBarProps): JSX.Element {
+export function ProgressBar({ value, status }: ProgressBarProps): React.ReactElement {
   return (
     <div className="progress">
       <span
@@ -19,3 +19,5 @@ export function ProgressBar({ value, status }: ProgressBarProps): JSX.Element {
     </div>
   );
 }
+
+export default ProgressBar;

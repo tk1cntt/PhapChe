@@ -7,10 +7,12 @@ export interface BadgeProps {
   children: React.ReactNode;
 }
 
-export function Badge({ variant, children }: BadgeProps): JSX.Element {
+export function Badge({ variant, children }: BadgeProps): React.ReactElement {
   return (
     <span className={`badge ${variant}`}>
       {children}
     </span>
   );
 }
+
+export default Badge;

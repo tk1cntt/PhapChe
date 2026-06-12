@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { ProgressBar } from './ProgressBar';
 
 interface Deadline {
@@ -16,13 +17,15 @@ export interface DeadlinePanelProps {
   deadlines: Deadline[];
 }
 
-export function DeadlinePanel({ deadlines }: DeadlinePanelProps): JSX.Element {
+export function DeadlinePanel({ deadlines }: DeadlinePanelProps): React.ReactElement {
+  const t = useTranslations('UserDashboard');
+
   return (
     <div className="panel">
-      <div className="panel-title">Deadline & SLA</div>
+      <div className="panel-title">{t('deadlineSla')}</div>
       <div className="deadline-list">
         {deadlines.length === 0 ? (
-          <div className="empty-state">Không có deadline nào</div>
+          <div className="empty-state">{t('noDeadlines')}</div>
         ) : (
           deadlines.map((item) => (
             <div key={item.id} className="deadline-item">
@@ -39,3 +42,5 @@ export function DeadlinePanel({ deadlines }: DeadlinePanelProps): JSX.Element {
     </div>
   );
 }
+
+export default DeadlinePanel;

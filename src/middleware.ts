@@ -13,7 +13,9 @@ export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Step 3: Check auth only for protected routes after i18n routing
-  const sessionCookie = request.cookies.get("better-auth.session_token");
+  // Check both possible cookie names: better-auth.session_token and better-auth-session_token
+  const sessionCookie = request.cookies.get("better-auth.session_token") ||
+                       request.cookies.get("better-auth-session_token");
 
   // Skip auth check for auth routes, API routes, intake, and static files
   const isProtectedRoute = !pathname.includes('/sign-in') &&

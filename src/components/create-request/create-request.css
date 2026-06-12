@@ -74,6 +74,10 @@
   gap: 12px;
 }
 
+.wizard-steps-wrapper .step-fragment {
+  display: contents;
+}
+
 .wizard-steps-wrapper .step {
   display: flex;
   align-items: center;
@@ -189,6 +193,7 @@
 }
 
 .service-option {
+  width: 100%;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: #fff;
@@ -199,6 +204,8 @@
   align-items: center;
   cursor: pointer;
   transition: 0.2s;
+  text-align: left;
+  font-family: inherit;
 }
 
 .service-option:hover {

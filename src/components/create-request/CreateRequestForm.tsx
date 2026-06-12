@@ -23,7 +23,7 @@ interface CreateRequestFormProps {
 export default function CreateRequestForm({ workspaces = [], workspaceName = '', locale = 'vi' }: CreateRequestFormProps) {
   const t = useTranslations('UserCreateRequest');
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedService, setSelectedService] = useState('agent-contract');
+  const [selectedService, setSelectedService] = useState('agency_contract');
 
   // Step 3: Document upload state
   const [requestId, setRequestId] = useState<string | null>(null);

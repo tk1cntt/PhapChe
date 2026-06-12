@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import WizardSteps from './WizardSteps';
 import ServiceTypeSelector from './ServiceTypeSelector';
-import IntakeQuestionsForm from './IntakeQuestionsForm';
+import IntakeQuestionsForm, { IntakeQuestionsFormHandle } from './IntakeQuestionsForm';
 import SummaryPanel from './SummaryPanel';
 import ChecklistPanel from './ChecklistPanel';
 
@@ -31,8 +31,6 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
 
   // Draft state
   const [requestId, setRequestId] = useState<string | null>(null);
-  const [answers, setAnswers] = useState<IntakeAnswers>({});
-  const [answersValid, setAnswersValid] = useState(false);
   const [isCreatingDraft, setIsCreatingDraft] = useState(false);
 
   // Step 3: Document upload state
@@ -49,6 +47,7 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const questionsFormRef = useRef<IntakeQuestionsFormHandle>(null);
 
   const createDraft = async (answersToSave: IntakeAnswers) => {
     setIsCreatingDraft(true);
@@ -83,21 +82,22 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
     setErrors({});
 
     if (currentStep === 1) {
-      // Step 1 → 2: Create draft with answers
-      const success = await createDraft(answers);
-      if (success) {
-        setCurrentStep(2);
-      }
+      // Step 1 → 2: User hasn't filled answers yet, just go to step 2
+      setCurrentStep(2);
       return;
     }
 
     if (currentStep === 2) {
-      // Step 2 → 3: Validate answers before proceeding
-      if (!answersValid) {
+      // Step 2 → 3: Validate and create draft with answers from form
+      if (!questionsFormRef.current?.isValid()) {
         setErrors({ answers: 'Vui lòng điền đầy đủ thông tin bắt buộc' });
         return;
       }
-      setCurrentStep(3);
+      const answersFromForm = questionsFormRef.current?.getAnswers() || {};
+      const success = await createDraft(answersFromForm);
+      if (success) {
+        setCurrentStep(3);
+      }
       return;
     }
 
@@ -246,9 +246,8 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
               {/* Step 2: Questions */}
               {currentStep === 2 && (
                 <IntakeQuestionsForm
+                  ref={questionsFormRef}
                   selectedService={selectedService}
-                  onAnswersChange={setAnswers}
-                  onValidChange={setAnswersValid}
                   locale={locale}
                 />
               )}

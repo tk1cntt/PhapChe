@@ -293,8 +293,16 @@ model DocumentTemplate {
   matterTypeKey     String
   version           Int      @default(1)
   status            String   @default("draft")
-  label             String
-  description       String?
+  // Multilingual fields
+  label_vi         String   // Primary label (REQUIRED)
+  label_en         String?  // Optional translations
+  label_zh         String?
+  label_ja         String?
+  description_vi   String?  // Primary description
+  description_en   String?
+  description_zh   String?
+  description_ja   String?
+  // Language-agnostic fields
   variableSchema    Json           @default("[]")
   content           String
   previousVersionId String?

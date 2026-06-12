@@ -24,8 +24,32 @@ const FLAG: Record<string, string> = {
 function getLocalizedPath(pathname: string, locale: string) {
   const segments = pathname.split('/').filter(Boolean);
   const firstSegment = segments[0];
+
+  // Extract query string and hash from pathname
+  let queryString = '';
+  let hash = '';
+  if (segments.length > 0) {
+    const lastSegment = segments[segments.length - 1];
+    const hashIndex = lastSegment.indexOf('#');
+    const queryIndex = lastSegment.indexOf('?');
+
+    if (hashIndex !== -1) {
+      hash = lastSegment.substring(hashIndex);
+    }
+
+    if (queryIndex !== -1) {
+      queryString = lastSegment.substring(queryIndex, hashIndex !== -1 ? hashIndex : undefined);
+    }
+
+    // Remove query/hash from last segment for path manipulation
+    segments[segments.length - 1] = lastSegment.substring(0, queryIndex !== -1 ? queryIndex : (hashIndex !== -1 ? hashIndex : undefined));
+  }
+
   const rest = routing.locales.includes(firstSegment as (typeof routing.locales)[number]) ? segments.slice(1) : segments;
-  return `/${[locale, ...rest].join('/')}`;
+  const basePath = `/${[locale, ...rest].join('/')}`;
+
+  // Preserve query string and hash
+  return basePath + queryString + hash;
 }
 
 export default function LanguageSwitcher() {

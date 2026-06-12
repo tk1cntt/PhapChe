@@ -20,7 +20,7 @@ export function getLocalized(
 
   // Try requested locale first
   if (localeKey !== 'vi' && field[localeKey]) {
-    return field[localeKey] || '';
+    return field[localeKey];
   }
 
   // Fallback to default (vi)

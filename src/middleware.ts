@@ -23,8 +23,9 @@ export default async function middleware(request: NextRequest) {
                           !pathname.startsWith('/intake');
   if (isProtectedRoute) {
     if (!sessionCookie?.value) {
-      // Redirect to locale-prefixed sign-in to maintain i18n context
-      return NextResponse.redirect(new URL('/vi/sign-in', request.url));
+      // Redirect to locale-prefixed sign-in with returnUrl to maintain i18n context and allow redirect back
+      const returnUrl = encodeURIComponent(pathname + request.nextUrl.search);
+      return NextResponse.redirect(new URL(`/vi/sign-in?returnUrl=${returnUrl}`, request.url));
     }
   }
 

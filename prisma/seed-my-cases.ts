@@ -21,9 +21,9 @@ async function main() {
   // Clean up existing test data
   await prisma.message.deleteMany({ where: { workspaceId: 'ws-an-phat' } });
   await prisma.legalRequest.deleteMany({ where: { workspaceId: 'ws-an-phat' } });
-  await prisma.membership.deleteMany({ where: { workspaceId: 'ws-an-phat' } });
+  await prisma.workspaceMembership.deleteMany({ where: { workspaceId: 'ws-an-phat' } });
   await prisma.workspace.deleteMany({ where: { slug: 'an-phat' } });
-  await prisma.user.deleteMany({ where: { email: { startsWith: 'seed-' } });
+  await prisma.user.deleteMany({ where: { email: { startsWith: 'seed-' } } });
 
   // Create workspace
   const workspace = await prisma.workspace.create({
@@ -82,7 +82,7 @@ async function main() {
   });
 
   // Create memberships
-  await prisma.membership.createMany({
+  await prisma.workspaceMembership.createMany({
     data: [
       { userId: customer.id, workspaceId: workspace.id, role: 'customer' },
       { userId: haLinh.id, workspaceId: workspace.id, role: 'specialist' },
@@ -225,6 +225,7 @@ async function main() {
       data: {
         ...req,
         workspaceId: workspace.id,
+        createdById: customer.id,
       },
     });
   }

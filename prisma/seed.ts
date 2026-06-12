@@ -43,7 +43,6 @@ async function ensureUser(email: string, name: string, password: string) {
 }
 
 async function createSession(userId: string) {
-  const { createSession } = auth.api;
   // Create session directly in database
   const token = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days

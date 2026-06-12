@@ -2,6 +2,8 @@
 
 Mọi trao đổi phải dùng tiếng Việt.
 
+Khi nào context gần tới giới hạn hãy tự chạy /compact rồi tiếp tục thực hiện công việc còn lại
+
 Cấm sử dụng lệnh taskkill //F //IM node.exe.
 
 Mỗi tính năng UI cần phải có whitebox testcase, blackbox testcase, abnormal testcase, error testcase kèm theo. Fix bất kỳ một lỗi nào đều phải có e2e testcase đi kèm. Coverage phải tối thiểu 90%.

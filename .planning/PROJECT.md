@@ -59,17 +59,35 @@ SME gửi yêu cầu pháp lý theo cách đơn giản như nhắn tin và nhậ
 - ✓ **Folder/Tag** — Internal file classification for vault organization — v1.0
 - ✓ **Ant Design UI** — Complete migration to antd across all route groups — v1.0
 
-### Active (v2.0 Candidates)
+### Active (v2.0 Architecture Refactor)
 
-- [ ] OCR tự động nhận dạng giấy tờ upload (business licenses, IDs, contracts)
-- [ ] AI đề xuất loại nghiệp vụ và trường intake từ file upload
-- [ ] AI tóm tắt hồ sơ cho specialist với citation
-- [ ] AI draft section từ template/clause library (low-risk sections)
-- [ ] AI flag rủi ro trước khi reviewer review
-- [ ] Tích hợp e-sign (ký số)
-- [ ] Compliance calendar với reminders
-- [ ] Billing automation
-- [ ] E2E test coverage cho toàn bộ workflow (hiện tại mới có Phase 1 tests)
+**Phase 1: Foundation Fixes**
+- [ ] **ARCH-01**: Fix Type Safety — Remove `as any`/`as unknown` casts, define proper TypeScript interfaces
+- [ ] **ARCH-02**: Fix i18n — Replace hardcoded Vietnamese strings with i18n keys
+- [ ] **ARCH-03**: Error Handling — Add error boundaries, standardize error responses
+
+**Phase 2: API Patterns**
+- [ ] **ARCH-04**: Rate Limiting — Add rate limiting middleware for auth-sensitive endpoints
+- [ ] **ARCH-05**: Input Validation — Standardize Zod schemas for all API inputs
+- [ ] **ARCH-06**: API Documentation — Add OpenAPI/Swagger for API routes
+
+**Phase 3: Service Layer Cleanup**
+- [ ] **ARCH-07**: Service Layer Reorganization — Dependency injection, consistent error handling
+- [ ] **ARCH-08**: RBAC Performance — Cache session roles, reduce DB queries per check
+- [ ] **ARCH-09**: Messages API — Implement message sending functionality
+
+**Phase 4: Observability**
+- [ ] **ARCH-10**: Logging — Replace console.log with structured logging
+- [ ] **ARCH-11**: Monitoring — Add APM/error tracking (Sentry)
+
+### Active (v2.0 AI Features)
+
+- [ ] **AI-01**: AI Intake Assistant — Chat-based intake with smart suggestions
+- [ ] **AI-02**: Document Analysis — OCR + extraction from uploaded documents
+- [ ] **AI-03**: Risk Flagging — AI highlight potential issues for reviewer
+- [ ] **AI-04**: Smart Routing — AI suggest specialist assignment based on request content
+
+### Out of Scope (v2.0)
 
 ### Out of Scope
 

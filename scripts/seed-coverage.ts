@@ -20,7 +20,7 @@ interface CoverageResult {
   percentage: number;
 }
 
-function calculateCoverage(seedData: Record<string, { label: Record<string, string | null | undefined> }>): CoverageResult[] {
+function calculateCoverage(seedData: Record<string, { label?: Record<string, string | null | undefined>; name?: Record<string, string | null | undefined> }>): CoverageResult[] {
   const results: CoverageResult[] = [];
 
   for (const locale of SUPPORTED_LOCALES) {
@@ -29,7 +29,8 @@ function calculateCoverage(seedData: Record<string, { label: Record<string, stri
 
     for (const key of Object.keys(seedData)) {
       const item = seedData[key];
-      if (item.label[locale]) {
+      const field = item.label ?? item.name;
+      if (field && field[locale]) {
         filled++;
       }
       total++;

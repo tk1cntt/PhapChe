@@ -1,13 +1,26 @@
-# Database Migration Scripts
+# Seed Scripts
 
-## Order of Operations
+## seed-coverage.ts
 
-1. Run `npx prisma db push` - Update schema
-2. Run `tsx scripts/migrate-existing-data.ts` - Copy existing data
-3. Verify with `npx prisma studio` - Check data
+Check translation coverage for seed data.
 
-## Rollback
+```bash
+npx ts-node scripts/seed-coverage.ts
+```
 
-If migration fails:
-1. Restore database from backup
-2. Re-run migrations
+This script reports the percentage of translations filled for each locale (VI, EN, ZH, JA) across MatterTypes, Folders, and Tags.
+
+## migrate-existing-data.ts
+
+Copy existing single-language data to multilingual columns.
+
+```bash
+# 1. Run schema migration first
+npx prisma db push
+
+# 2. Run migration script
+npx ts-node scripts/migrate-existing-data.ts
+
+# 3. Check coverage
+npx ts-node scripts/seed-coverage.ts
+```

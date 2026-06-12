@@ -21,6 +21,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 ### Data Rules
 
 **Strict DB-only data:**
+
 - ✅ Tất cả sample data phải insert vào SQLite qua Prisma seed scripts
 - ✅ Hiển thị từ database queries
 - ❌ Không hardcode bất kỳ giá trị nào trong UI components
@@ -29,6 +30,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 ### Database Seeding
 
 Mỗi phase cần có seed script tạo:
+
 - Sample workspaces (An Phát, Minh Khang, Internal)
 - Sample users với roles (128 users total)
 - Sample requests với statuses
@@ -63,10 +65,10 @@ Mỗi phase cần có seed script tạo:
 
 - [ ] **CUST-CREATE-01**: Display 4-step wizard (Service→Questions→Docs→Review) with step indicators
 - [ ] **CUST-CREATE-02**: Service options display with radio selection (5 service types)
-- [ ] **CUST-CREATE-03**: Service cards show tags (Khuyến nghị, Nhanh, IP, Cần tài liệu, Phân loại)
-- [ ] **CUST-CREATE-04**: Sidebar summary panel shows selected service and workspace info
+- [x] **CUST-CREATE-03**: Service cards show tags (Khuyến nghị, Nhanh, IP, Cần tài liệu, Phân loại)
+- [x] **CUST-CREATE-04**: Sidebar summary panel shows selected service and workspace info
 - [ ] **CUST-CREATE-05**: Checklist panel displays 4 preparation items with checkmarks
-- [ ] **CUST-CREATE-06**: Form fields for workspace, priority, contact info functional
+- [x] **CUST-CREATE-06**: Form fields for workspace, priority, contact info functional
 
 #### My Cases (user-cases.html)
 
@@ -208,6 +210,7 @@ Mỗi phase cần có seed script tạo:
 | ADMIN-WS-01..04 | Phase 38 | Pending |
 
 **Coverage:**
+
 - v1.4 requirements: 78 total
 - Mapped to phases: 78
 - Unmapped: 0 ✓

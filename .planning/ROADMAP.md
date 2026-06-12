@@ -21,18 +21,19 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
 ## Phases (v2.0)
 
 - 📋 **Phase 39: Customer Dashboard** — Connect mock data → real Prisma queries
-- 📋 **Phase 40: Create Request Wizard** — Connect Steps 3-4 → real API
-- 📋 **Phase 41: My Cases** — Connect filter/search → real data
-- 📋 **Phase 42: Messages** — Connect real-time messaging API
-- 📋 **Phase 43: Workspace** — Connect workspace management
-- 📋 **Phase 44: Settings** — Connect profile/security forms
-- 📋 **Phase 45: Admin Dashboard** — Connect stats → real queries
-- 📋 **Phase 46: User Management** — Connect CRUD → real API
-- 📋 **Phase 47: Admin Requests** — Connect table → real data
-- 📋 **Phase 48: Admin Operations** — Connect audit timeline
-- 📋 **Phase 49: Admin Audit** — Connect security logs
-- 📋 **Phase 50: Admin Vault** — Connect file management
-- 📋 **Phase 51: Admin Workspace** — Connect permissions
+- 📋 **Phase 40: Route Scaffold** — Create page.tsx for all v2 routes
+- 📋 **Phase 41: Create Request Wizard** — Connect Steps 3-4 → real API
+- 📋 **Phase 42: My Cases** — Connect filter/search → real data
+- 📋 **Phase 43: Messages** — Connect real-time messaging API
+- 📋 **Phase 44: Workspace** — Connect workspace management
+- 📋 **Phase 45: Settings** — Connect profile/security forms
+- 📋 **Phase 46: Admin Dashboard** — Connect stats → real queries
+- 📋 **Phase 47: User Management** — Connect CRUD → real API
+- 📋 **Phase 48: Admin Requests** — Connect table → real data
+- 📋 **Phase 49: Admin Operations** — Connect audit timeline
+- 📋 **Phase 50: Admin Audit** — Connect security logs
+- 📋 **Phase 51: Admin Vault** — Connect file management
+- 📋 **Phase 52: Admin Workspace** — Connect permissions
 
 ## Phase Details
 
@@ -304,10 +305,26 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
 - [x] 39-02-PLAN.md — Seed data with 4 languages
 - [x] 39-03-PLAN.md — i18n cleanup and verification
 
-### Phase 40: v2 Create Request Wizard
+### Phase 40: v2 Route Scaffold
+
+**Goal**: Create page.tsx skeletons for all 13 v2 routes (6 user + 7 admin)
+**Depends on**: Phase 39 (Multilingual Schema)
+**Requirements**: SCAFFOLD-01, SCAFFOLD-02
+**Success Criteria** (what must be TRUE):
+
+  1. All 13 routes have page.tsx with layout wrapper
+  2. User pages use UserLayout wrapper
+  3. Admin pages use AdminLayout wrapper
+  4. Pages are navigable without errors
+
+**Plans:** 1/1 plans
+
+- [ ] 40-01-PLAN.md — Route scaffolding (pending)
+
+### Phase 41: v2 Create Request Wizard
 
 **Goal**: Connect Create Request wizard Steps 3-4 to real API endpoints
-**Depends on**: Phase 39 (Multilingual Schema)
+**Depends on**: Phase 40 (Route Scaffold)
 **Requirements**: CUST-CREATE-03, CUST-CREATE-04, CUST-CREATE-06
 **Success Criteria** (what must be TRUE):
 
@@ -316,9 +333,9 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
   3. User can submit request via POST /api/v2/intake/submit
   4. Inline errors display below invalid fields
 
-**Plans:** 1/1 plans
+**Plans:** 1/1 plans complete
 
-- [ ] 40-01-PLAN.md — API endpoints and multilingual integration
+- [x] 41-01-PLAN.md — API endpoints and multilingual integration
 
 ## Progress
 
@@ -338,7 +355,8 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
 | 37. Admin Vault | admin-vault.html | 6 | 0/3 | Not started | - |
 | 38. Admin Workspace | admin-workspace.html | 4 | 0/3 | Not started | - |
 | 39. Multilingual Schema | v2.0 foundation | 5 | 4/4 | Complete | 2026-06-12 |
-| 40. Create Request Wizard | v2 API connection | 3 | 0/1 | In progress | - |
+| 40. v2 Route Scaffold | v2 page skeletons | 2 | 0/1 | Pending | - |
+| 41. Create Request Wizard | v2 API connection | 3 | 0/1 | Pending | - |
 
 ---
 

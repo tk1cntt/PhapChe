@@ -197,23 +197,34 @@ async function main() {
   console.log('Seeding Folders...');
 
   for (const [key, folder] of Object.entries(SEED_FOLDERS)) {
-    await prisma.folder.upsert({
+    // Use findFirst to check if folder exists, then create or update
+    const existing = await prisma.folder.findFirst({
       where: {
-        workspaceId_parentId_name_vi: {
-          workspaceId: workspace.id,
-          parentId: null,
-          name_vi: folder.name.vi,
-        },
-      },
-      update: {},
-      create: {
         workspaceId: workspace.id,
         name_vi: folder.name.vi,
-        name_en: folder.name.en ?? null,
-        name_zh: folder.name.zh ?? null,
-        name_ja: folder.name.ja ?? null,
       },
     });
+
+    if (existing) {
+      await prisma.folder.update({
+        where: { id: existing.id },
+        data: {
+          name_en: folder.name.en ?? null,
+          name_zh: folder.name.zh ?? null,
+          name_ja: folder.name.ja ?? null,
+        },
+      });
+    } else {
+      await prisma.folder.create({
+        data: {
+          workspaceId: workspace.id,
+          name_vi: folder.name.vi,
+          name_en: folder.name.en ?? null,
+          name_zh: folder.name.zh ?? null,
+          name_ja: folder.name.ja ?? null,
+        },
+      });
+    }
   }
   console.log(`  ✓ ${Object.keys(SEED_FOLDERS).length} Folders seeded`);
 

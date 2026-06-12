@@ -2,14 +2,8 @@
 
 import Link from 'next/link';
 import { Table, Tag } from 'antd';
+import { useTranslations } from 'next-intl';
 import type { ColumnsType } from 'antd/es/table';
-
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Nháp',
-  approved: 'Đã duyệt',
-  published: 'Đã xuất bản',
-  deprecated: 'Không còn sử dụng',
-};
 
 const STATUS_TONES: Record<string, string> = {
   draft: 'default',
@@ -31,28 +25,40 @@ interface AdminTemplatesTableProps {
 }
 
 export default function AdminTemplatesTable({ items }: AdminTemplatesTableProps) {
+  const t = useTranslations('AdminTemplates');
+
+  const getStatusLabel = (status: string) => {
+    const statusMap: Record<string, string> = {
+      draft: t('statusDraft'),
+      approved: t('statusApproved'),
+      published: t('statusPublished'),
+      deprecated: t('statusDeprecated'),
+    };
+    return statusMap[status] ?? status;
+  };
+
   const columns: ColumnsType<TemplateItem> = [
     {
-      title: 'Phiên bản',
+      title: t('colVersion'),
       key: 'version',
       render: (_: unknown, record: TemplateItem, index: number) => (
         <>
           v{record.version}
-          {index === 0 && <span style={{ marginLeft: 4, color: '#64748B' }}>(Mới nhất)</span>}
+          {index === 0 && <span style={{ marginLeft: 4, color: '#64748B' }}>({t('latestVersion')})</span>}
         </>
       ),
       width: 140,
     },
     {
-      title: 'Trạng thái',
+      title: t('colStatus'),
       key: 'status',
       render: (_: unknown, record: TemplateItem) => (
-        <Tag color={STATUS_TONES[record.status] ?? 'default'}>{STATUS_LABELS[record.status] ?? record.status}</Tag>
+        <Tag color={STATUS_TONES[record.status] ?? 'default'}>{getStatusLabel(record.status)}</Tag>
       ),
       width: 150,
     },
     {
-      title: 'Mô tả',
+      title: t('colDescription'),
       key: 'description',
       render: (_: unknown, record: TemplateItem) => {
         if (!record.description) return '-';
@@ -60,7 +66,7 @@ export default function AdminTemplatesTable({ items }: AdminTemplatesTableProps)
       },
     },
     {
-      title: 'Ngày tạo',
+      title: t('colCreatedAt'),
       key: 'createdAt',
       render: (_: unknown, record: TemplateItem) => {
         const date = record.createdAt instanceof Date
@@ -71,21 +77,21 @@ export default function AdminTemplatesTable({ items }: AdminTemplatesTableProps)
       width: 130,
     },
     {
-      title: 'Hành động',
+      title: t('colActions'),
       key: 'actions',
       render: (_: unknown, record: TemplateItem) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Link href={`/admin/templates/${record.id}`} style={{ color: '#0F766E', fontSize: 14, fontWeight: 500 }}>
-            Chi tiết
+            {t('actionDetail')}
           </Link>
           {record.status === 'draft' && (
             <Link href={`/admin/templates/${record.id}?action=edit`} style={{ color: '#0F766E', fontSize: 14, fontWeight: 500 }}>
-              Sửa
+              {t('actionEdit')}
             </Link>
           )}
           {(record.status === 'published' || record.status === 'approved') && (
             <Link href={`/admin/templates/${record.id}?action=new_version`} style={{ color: '#0F766E', fontSize: 14, fontWeight: 500 }}>
-              Tạo phiên bản mới
+              {t('actionNewVersion')}
             </Link>
           )}
         </div>

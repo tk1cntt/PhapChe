@@ -2,14 +2,8 @@
 
 import Link from 'next/link';
 import { Table, Tag, Flex } from 'antd';
+import { useTranslations } from 'next-intl';
 import type { TemplateStatus } from '@/lib/types';
-
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Nháp',
-  approved: 'Đã duyệt',
-  published: 'Đã xuất bản',
-  deprecated: 'Không còn sử dụng',
-};
 
 const toneToColor: Record<string, string> = {
   neutral: 'default',
@@ -38,30 +32,42 @@ type TemplatesTableProps = {
 };
 
 export function TemplatesTable({ items }: TemplatesTableProps) {
+  const t = useTranslations('AdminTemplates');
+
+  const getStatusLabel = (status: string) => {
+    const statusMap: Record<string, string> = {
+      draft: t('statusDraft'),
+      approved: t('statusApproved'),
+      published: t('statusPublished'),
+      deprecated: t('statusDeprecated'),
+    };
+    return statusMap[status] ?? status;
+  };
+
   const columns = [
     {
-      title: 'Phiên bản',
+      title: t('colVersion'),
       key: 'version',
       render: (_: unknown, record: TemplateRow, index: number) => (
         <>
           v{record.version}
-          {index === 0 && <span className="ml-1 text-[#64748B]">(Mới nhất)</span>}
+          {index === 0 && <span className="ml-1 text-[#64748B]">({t('latestVersion')})</span>}
         </>
       ),
       width: 140,
     },
     {
-      title: 'Trạng thái',
+      title: t('colStatus'),
       key: 'status',
       render: (_: unknown, record: TemplateRow) => (
         <Tag color={toneToColor[STATUS_TONES[record.status]] ?? 'default'}>
-          {STATUS_LABELS[record.status]}
+          {getStatusLabel(record.status)}
         </Tag>
       ),
       width: 150,
     },
     {
-      title: 'Mô tả',
+      title: t('colDescription'),
       key: 'description',
       render: (_: unknown, record: TemplateRow) => {
         if (!record.description) return '-';
@@ -69,7 +75,7 @@ export function TemplatesTable({ items }: TemplatesTableProps) {
       },
     },
     {
-      title: 'Ngày tạo',
+      title: t('colCreatedAt'),
       key: 'createdAt',
       render: (_: unknown, record: TemplateRow) =>
         new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
@@ -78,21 +84,21 @@ export function TemplatesTable({ items }: TemplatesTableProps) {
       width: 130,
     },
     {
-      title: 'Hành động',
+      title: t('colActions'),
       key: 'actions',
       render: (_: unknown, record: TemplateRow) => (
         <Flex align="center" gap={8}>
           <Link href={`/admin/templates/${record.id}`} className="text-[14px] font-medium text-[#0F766E] hover:underline">
-            Chi tiết
+            {t('actionDetail')}
           </Link>
           {record.status === 'draft' && (
             <Link href={`/admin/templates/${record.id}?action=edit`} className="text-[14px] font-medium text-[#0F766E] hover:underline">
-              Sửa
+              {t('actionEdit')}
             </Link>
           )}
           {(record.status === 'published' || record.status === 'approved') && (
             <Link href={`/admin/templates/${record.id}?action=new_version`} className="text-[14px] font-medium text-[#0F766E] hover:underline">
-              Tạo phiên bản mới
+              {t('actionNewVersion')}
             </Link>
           )}
         </Flex>

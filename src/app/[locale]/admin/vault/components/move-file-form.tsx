@@ -1,7 +1,8 @@
 'use client';
 
 import { useTransition, useState } from 'react';
-import { Tag, Button } from 'antd';
+import { useTranslations } from 'next-intl';
+import { Tag } from 'antd';
 import { moveFileToFolderAction, tagFileAction, untagFileAction } from '../actions';
 
 type FolderOption = { id: string; name: string };
@@ -19,6 +20,7 @@ export function MoveFileForm({
   tags: TagOption[];
   appliedTags: AppliedTag[];
 }) {
+  const t = useTranslations('Vault');
   const [pending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<{ tone: 'accent' | 'destructive'; message: string } | null>(null);
   const [selectedFolder, setSelectedFolder] = useState('');
@@ -31,11 +33,11 @@ export function MoveFileForm({
     startTransition(async () => {
       const result = await action(fd);
       if (result.error) setFeedback({ tone: 'destructive', message: result.error });
-      else setFeedback({ tone: 'accent', message: 'Đã lưu thay đổi phân loại.' });
+      else setFeedback({ tone: 'accent', message: 'Saved classification changes.' });
     });
   };
 
-  const availableTags = tags.filter((t) => !appliedTags.some((a) => a.id === t.id));
+  const availableTags = tags.filter((tag) => !appliedTags.some((a) => a.id === tag.id));
 
   return (
     <div className="space-y-2">
@@ -46,7 +48,7 @@ export function MoveFileForm({
           className="rounded-lg border border-[#CBD5E1] bg-white px-2 py-1 text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F766E]"
           disabled={pending || folders.length === 0}
         >
-          <option value="">— Chọn thư mục —</option>
+          <option value="">{t('selectFolder')}</option>
           {folders.map((f) => (
             <option key={f.id} value={f.id}>
               {f.name}
@@ -59,7 +61,7 @@ export function MoveFileForm({
           onClick={() => runAction(moveFileToFolderAction, { folderId: selectedFolder })}
           className="inline-flex min-h-10 items-center justify-center rounded-xl border border-transparent bg-[#0F766E] px-4 py-2 text-[14px] font-semibold leading-[1.4] text-white shadow-sm transition hover:bg-teal-800 hover:shadow focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Chuyển vào thư mục
+          {t('moveToFolder')}
         </button>
       </div>
 
@@ -70,10 +72,10 @@ export function MoveFileForm({
           className="rounded-lg border border-[#CBD5E1] bg-white px-2 py-1 text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F766E]"
           disabled={pending || availableTags.length === 0}
         >
-          <option value="">— Chọn thẻ —</option>
-          {availableTags.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.label} ({t.key})
+          <option value="">{t('selectTag')}</option>
+          {availableTags.map((tag) => (
+            <option key={tag.id} value={tag.id}>
+              {tag.label} ({tag.key})
             </option>
           ))}
         </select>
@@ -83,23 +85,23 @@ export function MoveFileForm({
           onClick={() => runAction(tagFileAction, { tagId: selectedTag })}
           className="inline-flex min-h-10 items-center justify-center rounded-xl border border-transparent bg-[#0F766E] px-4 py-2 text-[14px] font-semibold leading-[1.4] text-white shadow-sm transition hover:bg-teal-800 hover:shadow focus:outline-none focus:ring-2 focus:ring-[#0F766E] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Gắn thẻ
+          {t('addTag')}
         </button>
       </div>
 
       {appliedTags.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[12px] text-[#64748B]">Đã gắn:</span>
-          {appliedTags.map((t) => (
+          <span className="text-[12px] text-[#64748B]">{t('taggedWith')}</span>
+          {appliedTags.map((tag) => (
             <button
-              key={t.id}
+              key={tag.id}
               type="button"
-              onClick={() => runAction(untagFileAction, { tagId: t.id })}
+              onClick={() => runAction(untagFileAction, { tagId: tag.id })}
               disabled={pending}
               className="inline-flex items-center gap-1 rounded-full border border-[#CBD5E1] bg-white px-2 py-0.5 text-[12px] font-semibold text-[#475569] hover:bg-[#F1F5F9] disabled:opacity-50"
-              title="Bấm để gỡ thẻ"
+              title={t('removeTag')}
             >
-              {t.label} ×
+              {tag.label} ×
             </button>
           ))}
         </div>

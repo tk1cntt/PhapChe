@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export type TemplateVariable = {
   key: string;
@@ -9,15 +10,16 @@ export type TemplateVariable = {
   type: 'text' | 'number' | 'date' | 'select';
 };
 
-const TYPE_OPTIONS: { value: TemplateVariable['type']; label: string }[] = [
-  { value: 'text', label: 'Văn bản' },
-  { value: 'number', label: 'Số' },
-  { value: 'date', label: 'Ngày tháng' },
-  { value: 'select', label: 'Lựa chọn' },
-];
-
 export function VariableSchemaBuilder() {
+  const t = useTranslations('AdminTemplates');
   const [rows, setRows] = useState<TemplateVariable[]>([]);
+
+  const TYPE_OPTIONS: { value: TemplateVariable['type']; label: string }[] = [
+    { value: 'text', label: t('textType') },
+    { value: 'number', label: t('numberType') },
+    { value: 'date', label: t('dateType') },
+    { value: 'select', label: t('selectType') },
+  ];
 
   function addRow() {
     setRows((prev) => [...prev, { key: '', label: '', required: false, type: 'text' }]);
@@ -42,10 +44,10 @@ export function VariableSchemaBuilder() {
           <table className="w-full text-[14px]">
             <thead>
               <tr className="border-b border-[#E2E8F0] text-left">
-                <th className="pb-2 pr-3 font-semibold text-[#0F172A]">Key</th>
-                <th className="pb-2 pr-3 font-semibold text-[#0F172A]">Label</th>
-                <th className="pb-2 pr-3 font-semibold text-[#0F172A]">Bắt buộc</th>
-                <th className="pb-2 pr-3 font-semibold text-[#0F172A]">Loại</th>
+                <th className="pb-2 pr-3 font-semibold text-[#0F172A]">{t('key')}</th>
+                <th className="pb-2 pr-3 font-semibold text-[#0F172A]">{t('label')}</th>
+                <th className="pb-2 pr-3 font-semibold text-[#0F172A]">{t('required')}</th>
+                <th className="pb-2 pr-3 font-semibold text-[#0F172A]">{t('type')}</th>
                 <th className="pb-2"></th>
               </tr>
             </thead>
@@ -66,7 +68,7 @@ export function VariableSchemaBuilder() {
                       type="text"
                       value={row.label}
                       onChange={(e) => updateRow(i, 'label', e.target.value)}
-                      placeholder="Tên công ty"
+                      placeholder={t('companyName')}
                       className="w-full rounded-lg border border-[#CBD5E1] px-2 py-1.5 text-[13px] focus:border-[#0F766E] focus:outline-none"
                     />
                   </td>
@@ -112,7 +114,7 @@ export function VariableSchemaBuilder() {
         onClick={addRow}
         className="rounded-xl border border-dashed border-[#CBD5E1] px-4 py-2 text-[14px] font-medium text-[#475569] hover:border-[#0F766E] hover:text-[#0F766E]"
       >
-        + Thêm biến
+        {t('addVariable')}
       </button>
     </div>
   );

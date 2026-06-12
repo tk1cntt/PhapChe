@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { ToggleRow } from './ToggleRow';
 import { ProfileForm } from './ProfileForm';
 
-export function SettingsForm(): JSX.Element {
+export function SettingsForm(): React.ReactElement {
   // Notification toggles
   const [emailOnResponse, setEmailOnResponse] = useState(true);
   const [slaReminder, setSlaReminder] = useState(true);
@@ -18,56 +18,53 @@ export function SettingsForm(): JSX.Element {
     <div className="settings-form">
       {/* Section 1: Profile */}
       <section className="settings-section">
-        <h3 className="section-title">Ho so ca nhan</h3>
+        <h3 className="section-title">Hồ sơ cá nhân</h3>
         <ProfileForm />
       </section>
 
       {/* Section 2: Notifications */}
       <section className="settings-section">
-        <h3 className="section-title">Thong bao</h3>
+        <h3 className="section-title">Thông báo</h3>
         <div className="toggles-list">
           <ToggleRow
-            label="Email khi chuyen vien phan hoi"
-            description="Nhan email ngay khi chuyen vien phan hoi yeu cau cua ban"
-            checked={emailOnResponse}
-            onChange={setEmailOnResponse}
+            label="Email khi chuyên viên phản hồi"
+            description="Nhận email ngay khi chuyên viên phản hồi yêu cầu của bạn"
+            defaultChecked={emailOnResponse}
           />
           <ToggleRow
-            label="Nhac SLA truoc han"
-            description="Nhan thong bao truoc 24h khi co yeu cau sap het han"
-            checked={slaReminder}
-            onChange={setSlaReminder}
+            label="Nhắc SLA trước hạn"
+            description="Nhận thông báo trước 24h khi có yêu cầu sắp hết hạn"
+            defaultChecked={slaReminder}
           />
           <ToggleRow
-            label="Tom tat hang tuan"
-            description="Nhan email tom tat cac ho so va hoat dong trong tuan"
-            checked={weeklySummary}
-            onChange={setWeeklySummary}
+            label="Tóm tắt hàng tuần"
+            description="Nhận email tóm tắt các hồ sơ và hoạt động trong tuần"
+            defaultChecked={weeklySummary}
           />
         </div>
       </section>
 
       {/* Section 3: Security */}
       <section className="settings-section">
-        <h3 className="section-title">Bao mat</h3>
+        <h3 className="section-title">Bảo mật</h3>
         <div className="toggles-list">
           <ToggleRow
-            label="Xac thuc 2 buoc"
-            description="Yeu cau ma xac thuc khi dang nhap tu thiet bi moi"
-            checked={twoFactor}
-            onChange={setTwoFactor}
+            label="Xác thực 2 bước"
+            description="Yêu cầu mã xác thực khi đăng nhập từ thiết bị mới"
+            defaultChecked={twoFactor}
           />
           <ToggleRow
-            label="Thong bao dang nhap la"
-            description="Nhan thong bao khi co dang nhap tu dia chi IP moi"
-            checked={loginAlert}
-            onChange={setLoginAlert}
+            label="Thông báo đăng nhập lạ"
+            description="Nhận thông báo khi có đăng nhập từ địa chỉ IP mới"
+            defaultChecked={loginAlert}
           />
         </div>
         <button type="button" className="ghost-btn">
-          Doi mat khau
+          Đổi mật khẩu
         </button>
       </section>
     </div>
   );
 }
+
+export default SettingsForm;

@@ -1,22 +1,23 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 export type SettingsTab = 'profile' | 'security' | 'notifications' | 'workspace' | 'language' | 'audit';
 
 export interface SettingsTabConfig {
   id: SettingsTab;
-  label: string;
+  labelKey: string;
   icon: string;
 }
 
 const tabs: SettingsTabConfig[] = [
-  { id: 'profile', label: 'Ho so ca nhan', icon: '👤' },
-  { id: 'security', label: 'Bao mat dang nhap', icon: '🔐' },
-  { id: 'notifications', label: 'Thong bao', icon: '🔔' },
-  { id: 'workspace', label: 'Workspace', icon: '🏢' },
-  { id: 'language', label: 'Ngon ngu & giao dien', icon: '🌐' },
-  { id: 'audit', label: 'Audit ca nhan', icon: '🧾' },
+  { id: 'profile', labelKey: 'tabProfile', icon: '👤' },
+  { id: 'security', labelKey: 'tabSecurity', icon: '🔐' },
+  { id: 'notifications', labelKey: 'tabNotifications', icon: '🔔' },
+  { id: 'workspace', labelKey: 'tabWorkspace', icon: '🏢' },
+  { id: 'language', labelKey: 'tabLanguage', icon: '🌐' },
+  { id: 'audit', labelKey: 'tabAudit', icon: '🧾' },
 ];
 
 export interface SettingsMenuProps {
@@ -24,7 +25,8 @@ export interface SettingsMenuProps {
   onTabChange: (tab: SettingsTab) => void;
 }
 
-export function SettingsMenu({ activeTab, onTabChange }: SettingsMenuProps): JSX.Element {
+export function SettingsMenu({ activeTab, onTabChange }: SettingsMenuProps): React.ReactElement {
+  const t = useTranslations('UserSettings');
   return (
     <div className="settings-menu">
       {tabs.map((tab) => (
@@ -34,9 +36,11 @@ export function SettingsMenu({ activeTab, onTabChange }: SettingsMenuProps): JSX
           onClick={() => onTabChange(tab.id)}
         >
           <span className="tab-icon">{tab.icon}</span>
-          <span className="tab-label">{tab.label}</span>
+          <span className="tab-label">{t(tab.labelKey)}</span>
         </button>
       ))}
     </div>
   );
 }
+
+export default SettingsMenu;

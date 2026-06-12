@@ -2,17 +2,17 @@
 
 import React from 'react';
 
-export function ProfileForm(): JSX.Element {
+export function ProfileForm(): React.ReactElement {
   return (
     <div className="profile-form">
       <div className="field-grid">
         <div className="field">
-          <label htmlFor="fullName">Ho va ten</label>
+          <label htmlFor="fullName">Họ và tên</label>
           <input
             type="text"
             id="fullName"
             name="fullName"
-            defaultValue="Mai Phuong"
+            defaultValue="Mai Phương"
             placeholder="Nhập họ và tên"
           />
         </div>
@@ -29,7 +29,7 @@ export function ProfileForm(): JSX.Element {
         </div>
 
         <div className="field">
-          <label htmlFor="phone">So dien thoai</label>
+          <label htmlFor="phone">Số điện thoại</label>
           <input
             type="tel"
             id="phone"
@@ -40,7 +40,7 @@ export function ProfileForm(): JSX.Element {
         </div>
 
         <div className="field">
-          <label htmlFor="title">Chuc danh</label>
+          <label htmlFor="title">Chức danh</label>
           <input
             type="text"
             id="title"
@@ -51,14 +51,14 @@ export function ProfileForm(): JSX.Element {
         </div>
 
         <div className="field">
-          <label htmlFor="workspace">Workspace mac dinh</label>
+          <label htmlFor="workspace">Workspace mặc định</label>
           <select id="workspace" name="workspace" defaultValue="an-phat">
-            <option value="an-phat">Cong ty An Phat</option>
+            <option value="an-phat">Công ty An Phát</option>
           </select>
         </div>
 
         <div className="field">
-          <label htmlFor="timezone">Mui gio</label>
+          <label htmlFor="timezone">Múi giờ</label>
           <select id="timezone" name="timezone" defaultValue="Asia/Ho_Chi_Minh">
             <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh (ICT)</option>
           </select>
@@ -67,3 +67,5 @@ export function ProfileForm(): JSX.Element {
     </div>
   );
 }
+
+export default ProfileForm;

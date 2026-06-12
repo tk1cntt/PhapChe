@@ -2,59 +2,39 @@
 
 import React from 'react';
 import { CheckCircle, Shield, Bell, Building2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface StatItem {
-  title: string;
+  titleKey: string;
   value: string;
-  description: string;
+  descKey: string;
   icon: React.ReactNode;
   variant: 'green' | 'blue' | 'orange' | 'purple';
 }
 
 const statsData: StatItem[] = [
-  {
-    title: 'Tai khoan',
-    value: 'Active',
-    description: 'Email da xac thuc',
-    icon: <CheckCircle />,
-    variant: 'green',
-  },
-  {
-    title: 'Bao mat',
-    value: '2FA',
-    description: 'Dang bat OTP email',
-    icon: <Shield />,
-    variant: 'blue',
-  },
-  {
-    title: 'Thong bao',
-    value: '6',
-    description: 'Kenh dang bat',
-    icon: <Bell />,
-    variant: 'orange',
-  },
-  {
-    title: 'Workspace',
-    value: '1',
-    description: 'Cong ty An Phat',
-    icon: <Building2 />,
-    variant: 'purple',
-  },
+  { titleKey: 'statAccount', value: 'Active', descKey: 'statAccountDesc', icon: <CheckCircle />, variant: 'green' },
+  { titleKey: 'statSecurity', value: '2FA', descKey: 'statSecurityDesc', icon: <Shield />, variant: 'blue' },
+  { titleKey: 'statNotifications', value: '6', descKey: 'statNotificationsDesc', icon: <Bell />, variant: 'orange' },
+  { titleKey: 'statWorkspace', value: '1', descKey: 'statWorkspaceDesc', icon: <Building2 />, variant: 'purple' },
 ];
 
-export function SettingsStats(): JSX.Element {
+export function SettingsStats(): React.ReactElement {
+  const t = useTranslations('UserSettings');
   return (
     <div className="stats">
       {statsData.map((stat, index) => (
         <div key={index} className="stat-card">
           <div className={`stat-icon ${stat.variant}`}>{stat.icon}</div>
           <div className="stat-content">
-            <div className="stat-title">{stat.title}</div>
+            <div className="stat-title">{t(stat.titleKey)}</div>
             <div className="stat-value">{stat.value}</div>
-            <div className="stat-desc">{stat.description}</div>
+            <div className="stat-desc">{t(stat.descKey)}</div>
           </div>
         </div>
       ))}
     </div>
   );
 }
+
+export default SettingsStats;

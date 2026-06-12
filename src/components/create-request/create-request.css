@@ -489,6 +489,203 @@
   font-size: 14px;
 }
 
+/* Step 3 - Documents Upload */
+.documents-step {
+  padding: 0;
+}
+
+.upload-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  background-color: #f8fafc;
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+}
+
+.upload-zone:hover {
+  border-color: #0d9488;
+  background-color: #f0fdfa;
+}
+
+.upload-zone:active {
+  background-color: #ccfbf1;
+}
+
+.uploaded-files-list {
+  margin-top: 16px;
+}
+
+.uploaded-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.uploaded-file-item .file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.uploaded-file-item .file-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #d4f4ed, #eefbf8);
+  color: #087f78;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uploaded-file-item .file-details p {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+  margin: 0;
+}
+
+.uploaded-file-item .file-details span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.uploaded-file-item .remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.uploaded-file-item .remove-btn:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+/* Step 4 - Review */
+.review-step {
+  padding: 0;
+}
+
+.review-summary {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.review-summary .summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.review-summary .summary-row:not(:last-child) {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.review-summary .summary-label {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.review-summary .summary-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.review-summary .summary-value.success {
+  color: #0d9488;
+}
+
+/* Upload Progress */
+.upload-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #0d9488;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Success State */
+.success-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  background: #d1fae5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.success-icon svg {
+  color: #10b981;
+}
+
+/* Flex Utilities (used in inline styles) */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.w-full { width: 100%; }
+.text-center { text-align: center; }
+.py-2 { padding-top: 8px; padding-bottom: 8px; }
+.py-4 { padding-top: 16px; padding-bottom: 16px; }
+.py-8 { padding-top: 32px; padding-bottom: 32px; }
+.px-4 { padding-left: 16px; padding-right: 16px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-4 { margin-bottom: 16px; }
+.mt-4 { margin-top: 16px; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.bg-slate-50 { background-color: #f8fafc; }
+.bg-emerald-100 { background-color: #d1fae5; }
+.bg-teal-50 { background-color: #f0fdfa; }
+.text-slate-400 { color: #94a3b8; }
+.text-slate-600 { color: #475569; }
+.text-teal-600 { color: #0d9488; }
+.text-red-500 { color: #ef4444; }
+.rounded-lg { border-radius: 8px; }
+.rounded-full { border-radius: 9999px; }
+.transition-colors { transition: color 0.2s, background-color 0.2s; }
+.animate-spin { animation: spin 1s linear infinite; }
+
 /* Responsive */
 @media (max-width: 1400px) {
   .main-grid {

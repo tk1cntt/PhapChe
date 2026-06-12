@@ -95,7 +95,7 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
       formData.append('file', file);
       formData.append('requestId', requestId!);
 
-      const response = await fetch('/api/v2/intake/attach-file', {
+      const response = await fetch('/api/intake/attach-file', {
         method: 'POST',
         body: formData,
       });
@@ -147,7 +147,7 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/v2/intake/submit', {
+      const response = await fetch('/api/intake/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId }),

@@ -195,14 +195,9 @@ export async function submitIntake(input: SubmitInput) {
 
   const answers = submission.answers as IntakeAnswers;
 
-  // Skip answer validation for new wizard flow (CreateRequestForm doesn't collect answers yet)
-  // Legacy /intake flow properly validates before submit via save-answers API
-  // TODO: Add questions step to CreateRequestForm and re-enable validation
+  // Validate required answers before submit
   const validation = validateAnswers(submission.matterTypeKey, answers);
-  if (!validation.ok) {
-    // Log warning but allow submission - new wizard doesn't have questions step yet
-    console.warn(`Submitting with missing required answers for matterType=${submission.matterTypeKey}: ${validation.missingRequired.join(', ')}`);
-  }
+  if (!validation.ok) throw new Error(`INTAKE_REQUIRED_ANSWERS_MISSING:${validation.missingRequired.join(',')}`);
 
   let coordinator: { userId: string } | null = null;
   if (submission.matterTypeKey === 'unsupported') {

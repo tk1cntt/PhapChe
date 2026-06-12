@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import WizardSteps from './WizardSteps';
 import ServiceTypeSelector from './ServiceTypeSelector';
-import RequestForm from './RequestForm';
+import IntakeQuestionsForm from './IntakeQuestionsForm';
 import SummaryPanel from './SummaryPanel';
 import ChecklistPanel from './ChecklistPanel';
 
@@ -25,8 +25,11 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedService, setSelectedService] = useState('agency_contract');
 
-  // Step 3: Document upload state
+  // Draft state
   const [requestId, setRequestId] = useState<string | null>(null);
+  const [answersSaved, setAnswersSaved] = useState(false);
+
+  // Step 3: Document upload state
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -41,13 +44,28 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleNext = () => {
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
-      // Create draft on first step transition if needed
-      if (currentStep === 1 && !requestId) {
-        createDraft();
+  const handleNext = async () => {
+    if (currentStep === 1) {
+      // Only create draft if not exists
+      if (!requestId) {
+        await createDraft();
       }
+      setCurrentStep(2);
+      return;
+    }
+
+    if (currentStep === 2) {
+      if (!answersSaved) {
+        setErrors({ answers: 'Vui lòng lưu câu trả lời trước' });
+        return;
+      }
+      setErrors({});
+      setCurrentStep(3);
+      return;
+    }
+
+    if (currentStep === 3) {
+      setCurrentStep(4);
     }
   };
 
@@ -208,8 +226,16 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
                   locale={locale}
                 />
               )}
-              {currentStep === 2 && (
-                <RequestForm workspaces={workspaces} />
+              {currentStep === 2 && requestId && (
+                <IntakeQuestionsForm
+                  requestId={requestId}
+                  selectedService={selectedService}
+                  onAnswersSaved={() => setAnswersSaved(true)}
+                  locale={locale}
+                />
+              )}
+              {currentStep === 2 && !requestId && (
+                <p className="text-slate-500">Đang tải...</p>
               )}
               {currentStep === 3 && (
                 <div className="documents-step">

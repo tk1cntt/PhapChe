@@ -5,7 +5,7 @@ import { Button, Tag, Card, Flex, Modal, message } from 'antd';
 import { prisma } from '@/lib/prisma';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { requireAppSession } from '@/lib/security/session';
-import { deleteDraftIntakeAction } from '@/app/intake/actions';
+import { deleteDraftIntakeAction } from '@/legacy/intake/actions';
 
 const statusCopy: Record<RequestStatus, { label: string; body: string; tone: 'neutral' | 'info' | 'warning' | 'accent' | 'destructive' | 'outline' }> = {
   draft_intake: { label: 'Đang nhập thông tin', body: 'Hồ sơ đang ở bước nhập thông tin trước khi gửi.', tone: 'neutral' },

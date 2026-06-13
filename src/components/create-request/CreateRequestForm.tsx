@@ -114,9 +114,9 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
     setIsUploading(true);
 
     try {
-      // Create draft if needed
+      // Create draft if needed (user hasn't filled form yet, use empty answers)
       if (!requestId) {
-        const success = await createDraft(answers);
+        const success = await createDraft({});
         if (!success) return;
       }
 

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { SettingsMenu, SettingsTab } from '@/components/settings/SettingsMenu';
 import { SettingsStats } from '@/components/settings/SettingsStats';
-import { ProfileForm } from '@/components/settings/ProfileForm';
+import { ProfileForm, UserProfile } from '@/components/settings/ProfileForm';
 import { SecuritySettings } from '@/components/settings/SecuritySettings';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
 import { LanguageSettings } from '@/components/settings/LanguageSettings';
@@ -46,7 +46,7 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
   // Local state to track locale changes without mutating props
   const [currentLocale, setCurrentLocale] = useState(user.locale);
 
-  const handleSaveProfile = async (data: UserData) => {
+  const handleSaveProfile = async (data: UserProfile) => {
     try {
       const response = await fetch('/api/settings/profile', {
         method: 'PUT',

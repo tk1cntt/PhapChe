@@ -1,14 +1,14 @@
 'use client';
 
-import AdminStatCard from '@/app/components/admin/AdminStatCard';
-import AdminBanner from '@/app/components/admin/AdminBanner';
-import WorkloadPanel from '@/app/components/admin/WorkloadPanel';
-import AlertPanel from '@/app/components/admin/AlertPanel';
-import WorkspacePanel from '@/app/components/admin/WorkspacePanel';
-import ApprovalPanel from '@/app/components/admin/ApprovalPanel';
-import AuditTimeline from '@/app/components/admin/AuditTimeline';
-import AdminToolbar from '@/app/components/admin/AdminToolbar';
-import AdminRequestsTable from '@/app/components/admin/AdminRequestsTable';
+import AdminStatCard from '@/components/admin/AdminStatCard';
+import AdminBanner from '@/components/admin/AdminBanner';
+import WorkloadPanel from '@/components/admin/WorkloadPanel';
+import AlertPanel from '@/components/admin/AlertPanel';
+import WorkspacePanel from '@/components/admin/WorkspacePanel';
+import ApprovalPanel from '@/components/admin/ApprovalPanel';
+import AuditTimeline from '@/components/admin/AuditTimeline';
+import AdminToolbar from '@/components/admin/AdminToolbar';
+import AdminRequestsTable from '@/components/admin/AdminRequestsTable';
 import { Users, FolderKanban, Clock, AlertTriangle } from 'lucide-react';
 
 interface AdminDashboardClientProps {

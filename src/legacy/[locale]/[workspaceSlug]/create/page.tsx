@@ -1,6 +1,6 @@
 'use client';
 
-import UserLayout from '@/app/[locale]/customer/components/UserLayout';
+import { UserLayout } from '@/components/layout/UserLayout';
 import WizardSteps from '@/components/create-request/WizardSteps';
 import ServiceTypeSelector from '@/components/create-request/ServiceTypeSelector';
 import SummaryPanel from '@/components/create-request/SummaryPanel';

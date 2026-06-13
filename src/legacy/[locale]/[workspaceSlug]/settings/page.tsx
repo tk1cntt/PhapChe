@@ -1,9 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import { getTranslations } from 'next-intl/server';
-import '@/app/[locale]/customer/components/dashboard.css';
-import UserLayout from '../../customer/components/UserLayout';
-import { SettingsClient } from './SettingsClient';
+import { UserLayout } from '@/components/layout/UserLayout';
+import { SettingsClient, UserData, WorkspaceData } from '@/app/[locale]/settings/SettingsClient';
 
 export default async function SettingsPage({
   params,
@@ -15,22 +14,45 @@ export default async function SettingsPage({
   const { workspaceSlug } = params;
   const t = await getTranslations('UserSettings');
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      name: true,
-      email: true,
-      memberships: {
-        where: { workspaceId: activeWorkspaceId ?? undefined },
-        select: { workspace: { select: { name: true } } }
-      }
-    },
-  });
+  const [user, workspaces] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      include: { memberships: { include: { workspace: true } } }
+    }),
+    prisma.workspace.findMany({
+      where: { isActive: true },
+      select: { id: true, name: true, slug: true, isActive: true }
+    }),
+  ]);
 
-  const workspace = user?.memberships[0]?.workspace;
+  const currentWorkspace = user?.memberships[0]?.workspace;
   const userName = user?.name ?? 'User';
-  const workspaceName = workspace?.name ?? 'Workspace';
   const userEmail = user?.email ?? '';
+  const workspaceName = currentWorkspace?.name ?? 'Workspace';
+
+  const userData: UserData = {
+    id: userId,
+    name: user?.name ?? 'User',
+    email: user?.email ?? '',
+    phone: user?.phone ?? null,
+    title: user?.title ?? null,
+    timezone: user?.timezone ?? 'Asia/Ho_Chi_Minh',
+    locale: user?.locale ?? 'vi',
+  };
+
+  const workspaceData: WorkspaceData[] = workspaces.map(w => ({
+    id: w.id,
+    name: w.name,
+    slug: w.slug,
+    isActive: w.isActive,
+  }));
+
+  const statsData = {
+    accountStatus: 'active',
+    securityStatus: 'secure',
+    notificationCount: 0,
+    workspaceCount: workspaces.length,
+  };
 
   return (
     <UserLayout
@@ -48,9 +70,9 @@ export default async function SettingsPage({
         </div>
 
         <SettingsClient
-          userName={userName}
-          userEmail={userEmail}
-          workspaceName={workspaceName}
+          user={userData}
+          stats={statsData}
+          workspaces={workspaceData}
         />
       </div>
     </UserLayout>

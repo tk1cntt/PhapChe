@@ -89,6 +89,8 @@ export default function AdminToolbar({
 
           {/* Status Dropdown */}
           <button
+            type="button"
+            onClick={onFilter}
             className="h-11 border rounded-lg px-4 flex items-center gap-2.5 text-[#1e293b] text-sm font-bold bg-white cursor-pointer"
             style={{ borderColor: 'var(--border)' }}
           >
@@ -107,6 +109,8 @@ export default function AdminToolbar({
 
           {/* Workspace Dropdown */}
           <button
+            type="button"
+            onClick={onFilter}
             className="h-11 border rounded-lg px-4 flex items-center gap-2.5 text-[#1e293b] text-sm font-bold bg-white cursor-pointer"
             style={{ borderColor: 'var(--border)' }}
           >

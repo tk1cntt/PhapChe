@@ -239,12 +239,12 @@ export default function AdminRequestsTable({ rows = defaultRows }: AdminRequests
 
           {/* Column 7: Thao tác */}
           <div className="flex items-center px-4">
-            <a
-              href="#"
-              className="text-teal-600 font-extrabold no-underline inline-flex items-center gap-1.5 whitespace-nowrap text-sm"
+            <button
+              type="button"
+              className="text-teal-600 font-extrabold bg-transparent border-0 inline-flex items-center gap-1.5 whitespace-nowrap text-sm cursor-pointer"
             >
               {row.action} →
-            </a>
+            </button>
           </div>
         </div>
       ))}

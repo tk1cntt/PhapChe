@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import { getTranslations } from 'next-intl/server';
-import UserLayout from '@/app/[locale]/customer/components/UserLayout';
+import { UserLayout } from '@/components/layout/UserLayout';
 import { DashboardClient } from './DashboardClient';
 import '@/app/[locale]/customer/components/dashboard.css';
 

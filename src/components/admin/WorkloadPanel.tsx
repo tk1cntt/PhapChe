@@ -53,12 +53,12 @@ export function WorkloadPanel({ specialists = [] }: { specialists?: WorkloadItem
           <BarChart2 width={22} height={22} className="text-teal-600" />
           <span>Workload chuyên viên</span>
         </div>
-        <a
-          href="#"
-          className="text-sm font-semibold text-teal-600 hover:text-teal-700 no-underline"
+        <button
+          type="button"
+          className="text-sm font-semibold text-teal-600 hover:text-teal-700 bg-transparent border-0 cursor-pointer"
         >
           Xem chi tiết →
-        </a>
+        </button>
       </div>
       <div className="workload-list">
         {specialists.length === 0 ? (

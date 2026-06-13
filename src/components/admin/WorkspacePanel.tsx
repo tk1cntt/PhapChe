@@ -8,7 +8,7 @@ interface WorkspaceItemProps {
   name: string;
   description: string;
   badge: string;
-  badgeColor: "green" | "blue";
+  badgeColor: "green" | "blue" | "orange";
 }
 
 const iconColorStyles = {
@@ -20,6 +20,7 @@ const iconColorStyles = {
 const badgeColorStyles = {
   green: "bg-green-100 text-green-700",
   blue: "bg-blue-100 text-blue-700",
+  orange: "bg-orange-100 text-orange-700",
 };
 
 function WorkspaceItem({ initials, iconColor, name, description, badge, badgeColor }: WorkspaceItemProps) {

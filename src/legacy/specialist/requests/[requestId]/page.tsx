@@ -187,8 +187,8 @@ export default async function SpecialistRequestDetailPage({ params }: { params: 
                 matterTypeKey: t.matterTypeKey,
                 version: t.version,
                 status: t.status,
-                label: t.label,
-                description: t.description,
+                label: t.label_vi || t.matterTypeKey,
+                description: t.description_vi || t.description_en || '',
                 variableSchema: t.variableSchema as unknown as import('@/lib/documents/template-service').TemplateVariable[],
                 content: t.content,
               }))}

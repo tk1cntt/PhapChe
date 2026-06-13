@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import AntdProvider from "@/app/providers/antd-provider";
-import ReactQueryProvider from "@/app/providers/ReactQueryProvider";
+import AntdProvider from "./providers/antd-provider";
 
 export const metadata: Metadata = {
   title: "Nen tang phap ly SME",
@@ -17,7 +16,7 @@ export default function RootLayout({
     <html lang="vi">
       <body>
         <AntdProvider>
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+        {children}
       </AntdProvider>
       </body>
     </html>

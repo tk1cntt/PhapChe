@@ -1,3 +1,7 @@
-import { GET as getVaultData } from '@/app/api/vault/route';
+// Placeholder - vault API not yet implemented
+// Returns empty data until vault feature is built
+import { NextResponse } from 'next/server';
 
-export { getVaultData as GET };
+export async function GET() {
+  return NextResponse.json({ data: [], total: 0, page: 1, pageSize: 10 });
+}

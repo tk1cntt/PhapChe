@@ -33,7 +33,7 @@ const IntakeQuestionsForm = forwardRef<IntakeQuestionsFormHandle, IntakeQuestion
 
     // Get questions from catalog
     const matterType = SEED_MATTER_TYPES[matterTypeKey as keyof typeof SEED_MATTER_TYPES];
-    const questions: Question[] = matterType?.questions || [];
+    const questions: Question[] = matterType?.questions ? [...matterType.questions] : [];
 
     // Expose methods to parent
     useImperativeHandle(ref, () => ({

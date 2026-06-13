@@ -30,7 +30,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
     // User counts
     prisma.user.count(),
     prisma.user.count({ where: { isActive: true } }),
-    prisma.user.count({ where: { emailVerified: false } }),
+    prisma.user.count({ where: { emailVerified: false, createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } } }), // Pending users (unverified within last 7 days)
 
     // Workspace counts
     prisma.workspace.count(),
@@ -204,7 +204,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
     const initials = ws.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
     const iconColor: 'green' | 'blue' | 'orange' = ws.slug.includes('noi') || ws.slug.includes('internal') ? 'orange' : ws.slug.includes('minh') ? 'blue' : 'green';
     const badge = ws.isActive ? 'Active' : 'Inactive';
-    const badgeColor: 'green' | 'blue' = ws.isActive ? 'green' : 'blue';
+    const badgeColor: 'green' | 'blue' | 'orange' = ws.isActive ? 'green' : 'blue';
 
     return {
       initials,
@@ -268,9 +268,14 @@ export default async function AdminDashboardPage({ params }: PageProps) {
     let slaText = 'Closed';
     if (req.slaDeadline) {
       const hoursLeft = Math.floor((req.slaDeadline.getTime() - Date.now()) / (1000 * 60 * 60));
-      if (hoursLeft < 0) slaText = 'Quá hạn';
-      else if (hoursLeft === 0) slaText = 'Sắp hết hạn';
-      else slaText = `Còn ${hoursLeft}h`;
+      if (hoursLeft < 0) {
+        const daysOverdue = Math.abs(Math.floor(hoursLeft / 24));
+        slaText = daysOverdue > 0 ? `Quá ${daysOverdue} ngày` : 'Quá hạn';
+      } else if (hoursLeft === 0) {
+        slaText = 'Sắp hết hạn';
+      } else {
+        slaText = `Còn ${hoursLeft}h`;
+      }
     }
 
     return {
@@ -290,41 +295,71 @@ export default async function AdminDashboardPage({ params }: PageProps) {
     };
   });
 
-  // Alert data
-  const alertData = [
-    {
-      icon: '!',
-      iconColor: 'red' as const,
-      title: `${auditAlertsCount} Truy cập bị từ chối`,
-      description: 'Reviewer ngoài workspace scope',
-      badge: 'Audit',
-      badgeColor: 'red' as const,
+  // Alert data - query from audit events with high severity in last 24h
+  const highSeverityAlerts = await prisma.auditEvent.findMany({
+    where: {
+      severity: { in: ['high', 'critical'] },
+      createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     },
-    {
-      icon: 'S',
-      iconColor: 'orange' as const,
-      title: `${nearSlaRequests} hồ sơ sắp quá SLA`,
-      description: 'Cần điều phối trước 17:00',
-      badge: 'SLA',
-      badgeColor: 'orange' as const,
+    orderBy: { createdAt: 'desc' },
+    take: 4,
+    select: {
+      id: true,
+      action: true,
+      severity: true,
+      description: true,
+      createdAt: true,
     },
-    {
-      icon: 'R',
-      iconColor: 'blue' as const,
-      title: `${pendingApprovalsRaw.length} yêu cầu đổi role`,
-      description: 'Đang chờ Super Admin duyệt',
-      badge: 'Role',
-      badgeColor: 'blue' as const,
-    },
-    {
-      icon: 'V',
-      iconColor: 'green' as const,
-      title: 'Quét kho tài liệu hoàn tất',
-      description: '96% tệp có workspace scope',
-      badge: 'Vault',
-      badgeColor: 'green' as const,
-    },
-  ];
+  });
+
+  // Build alert data from real audit events
+  const alertData = highSeverityAlerts.length > 0
+    ? highSeverityAlerts.map((alert) => {
+        const severity = alert.severity as string | null;
+        const badgeColor = (severity === 'critical' ? 'red' : severity === 'high' ? 'orange' : 'blue') as 'red' | 'orange' | 'blue' | 'green';
+        return {
+          icon: (alert.action[0] || '!').toUpperCase(),
+          iconColor: badgeColor,
+          title: alert.action.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+          description: alert.description || 'Audit event cần rà soát',
+          badge: (severity || 'ALERT').toUpperCase(),
+          badgeColor,
+        };
+      })
+    : [
+        {
+          icon: '!',
+          iconColor: 'red' as const,
+          title: `${auditAlertsCount} Truy cập bị từ chối`,
+          description: 'Reviewer ngoài workspace scope',
+          badge: 'Audit',
+          badgeColor: 'red' as const,
+        },
+        {
+          icon: 'S',
+          iconColor: 'orange' as const,
+          title: `${nearSlaRequests} hồ sơ sắp quá SLA`,
+          description: 'Cần điều phối trước 17:00',
+          badge: 'SLA',
+          badgeColor: 'orange' as const,
+        },
+        {
+          icon: 'R',
+          iconColor: 'blue' as const,
+          title: `${pendingApprovalsRaw.length} yêu cầu đổi role`,
+          description: 'Đang chờ Super Admin duyệt',
+          badge: 'Role',
+          badgeColor: 'blue' as const,
+        },
+        {
+          icon: 'V',
+          iconColor: 'green' as const,
+          title: 'Không có cảnh báo cao',
+          description: 'Hệ thống hoạt động bình thường',
+          badge: 'OK',
+          badgeColor: 'green' as const,
+        },
+      ];
 
   return (
     <AdminLayout>

@@ -22,7 +22,7 @@ export async function listFolders(session: AppSession, workspaceId: string, pare
     include: {
       _count: { select: { children: true, vaultFileFolders: true } },
     },
-    orderBy: { name: 'asc' },
+    orderBy: [{ name_vi: 'asc' }],
   });
 }
 

@@ -19,7 +19,7 @@ export async function GET() {
           createdBy: { select: { name: true, email: true } },
           assignedSpecialist: { select: { name: true, email: true } },
           assignedReviewer: { select: { name: true, email: true } },
-          intakeSubmission: { select: { matterTypeKey: true, matterType: { select: { label: true } } } },
+          intakeSubmission: { select: { matterTypeKey: true } },
         },
         orderBy: [{ updatedAt: 'desc' }],
       }),

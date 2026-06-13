@@ -1,8 +1,9 @@
 import { UserLayout } from '@/components/layout/UserLayout';
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // TODO: Implement real dashboard with Prisma queries
   return (
-    <UserLayout>
+    <UserLayout userName="" userRole="" workspaceName="" workspaceSlug="">
       <div>Dashboard coming soon</div>
     </UserLayout>
   );

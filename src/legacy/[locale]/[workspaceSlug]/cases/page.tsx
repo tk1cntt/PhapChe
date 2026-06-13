@@ -1,9 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import { getTranslations } from 'next-intl/server';
-import UserLayout from '@/app/[locale]/customer/components/UserLayout';
+import { UserLayout } from '@/components/layout/UserLayout';
 import { MyCasesClient } from './MyCasesClient';
-import '@/app/[locale]/customer/components/dashboard.css';
 
 export default async function MyCasesPage({
   params,

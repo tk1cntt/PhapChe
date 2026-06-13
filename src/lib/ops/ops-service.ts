@@ -3,6 +3,34 @@ import type { RequestStatus, Role } from '@/lib/types';
 import { prisma } from '@/lib/prisma';
 import type { AppSession } from '@/lib/security/session';
 
+// --- OpsSlaDto: 4-level SLA model ---
+export type OpsSlaDto = {
+  level: 'ok' | 'warn' | 'danger' | 'info';
+  label: string;
+  percent: number;
+  source: 'deadline' | 'status_age' | 'request_age' | 'none';
+};
+
+export type OpsAggregateDto = {
+  stats: {
+    openRequests: number;
+    nearSla: number;
+    completedToday: number;
+    auditWarnings: number;
+  };
+  workload: OpsWorkloadRowDto[];
+  timeline: OpsTimelineItemDto[];
+  requests: OpsRequestRowDto[];
+  filters: {
+    workspaces: Array<{ id: string; name: string }>;
+    matterTypes: Array<{ key: string; label: string }>;
+    specialists: Array<{ id: string; name: string }>;
+    reviewers: Array<{ id: string; name: string }>;
+    statuses: string[];
+  };
+  pagination?: { page: number; pageSize: number; total: number };
+};
+
 export type OpsFilters = {
   workspaceId?: string;
   matterTypeKey?: string;
@@ -32,12 +60,19 @@ export type OpsRequestRowDto = {
   title: string;
   status: RequestStatus;
   workspaceId: string;
+  code?: string | null;
+  priority?: string | null;
   matterTypeKey: string | null;
   matterTypeLabel: string | null;
   customerName: string;
   customerEmail: string;
+  workspaceName?: string;
+  assignedSpecialistId?: string | null;
   assignedSpecialistName: string | null;
+  assignedReviewerId?: string | null;
   assignedReviewerName: string | null;
+  slaDeadline?: Date | null;
+  sla?: OpsSlaDto;
   createdAt: Date;
   updatedAt: Date;
   currentStatusSince: Date;
@@ -323,6 +358,298 @@ export async function getOpsDashboard(session: AppSession, filters: OpsFilters):
     },
     requests: requestRows,
     workload,
+  };
+}
+
+// --- SLA calculation: deadline-first, then status-age fallback, then info ---
+export function calcOpsSla(
+  slaDeadline: Date | null,
+  latestTransitionCreatedAt: Date | null,
+  requestCreatedAt: Date,
+): OpsSlaDto {
+  const now = new Date();
+
+  // Path 1: real deadline
+  if (slaDeadline) {
+    const msLeft = slaDeadline.getTime() - now.getTime();
+    const totalMs = slaDeadline.getTime() - requestCreatedAt.getTime();
+    if (totalMs <= 0) {
+      return { level: 'ok', label: 'Đúng hạn', percent: 100, source: 'deadline' };
+    }
+    const percent = Math.min(100, Math.max(0, Math.round((1 - msLeft / totalMs) * 100)));
+    if (msLeft < 0) {
+      return { level: 'danger', label: `Trễ ${formatHours(Math.abs(msLeft))}`, percent: 100, source: 'deadline' };
+    }
+    const hoursLeft = msLeft / 3_600_000;
+    if (hoursLeft < 24) {
+      return { level: 'danger', label: `Còn ${formatHours(msLeft)}`, percent, source: 'deadline' };
+    }
+    if (hoursLeft < 72) {
+      return { level: 'warn', label: `Còn ${formatHours(msLeft)}`, percent, source: 'deadline' };
+    }
+    return { level: 'ok', label: 'Đúng hạn', percent, source: 'deadline' };
+  }
+
+  // Path 2: status age from latest transition
+  if (latestTransitionCreatedAt) {
+    const daysElapsed = daysBetween(latestTransitionCreatedAt);
+    const maxDays = 7;
+    const percent = Math.min(100, Math.round((daysElapsed / maxDays) * 100));
+    if (daysElapsed >= maxDays) {
+      return { level: 'danger', label: `Trễ ${daysElapsed} ngày`, percent: 100, source: 'status_age' };
+    }
+    if (daysElapsed >= 3) {
+      return { level: 'warn', label: `${daysElapsed} ngày`, percent, source: 'status_age' };
+    }
+    return { level: 'ok', label: `${daysElapsed} ngày`, percent, source: 'status_age' };
+  }
+
+  // Path 3: request age fallback
+  const daysElapsed = daysBetween(requestCreatedAt);
+  const maxDays = 7;
+  const percent = Math.min(100, Math.round((daysElapsed / maxDays) * 100));
+  return { level: 'info', label: 'Chưa có SLA', percent, source: 'none' };
+}
+
+function formatHours(ms: number): string {
+  const hours = ms / 3_600_000;
+  if (hours < 1) return `${Math.round(ms / 60_000)} phút`;
+  if (hours < 24) return `${Math.round(hours)}h`;
+  return `${Math.round(hours / 24)} ngày`;
+}
+
+// --- Global recent timeline: AuditEvent + WorkflowTransition merged, ordered by createdAt desc ---
+async function getGlobalTimeline(workspaceId: string): Promise<OpsTimelineItemDto[]> {
+  const [auditEvents, workflowTransitions] = await Promise.all([
+    prisma.auditEvent.findMany({
+      where: { workspaceId },
+      select: {
+        id: true,
+        actorId: true,
+        action: true,
+        targetType: true,
+        targetId: true,
+        correlationId: true,
+        metadataSummary: true,
+        createdAt: true,
+        actor: { select: { name: true, email: true } },
+      },
+      orderBy: [{ createdAt: 'desc' }],
+      take: 20,
+    }),
+    prisma.workflowTransition.findMany({
+      where: { request: { workspaceId } },
+      select: {
+        id: true,
+        actorId: true,
+        fromStatus: true,
+        toStatus: true,
+        reason: true,
+        createdAt: true,
+        request: { select: { id: true, title: true, workspaceId: true } },
+        actor: { select: { name: true, email: true } },
+      },
+      orderBy: [{ createdAt: 'desc' }],
+      take: 20,
+    }),
+  ]);
+
+  const items: OpsTimelineItemDto[] = [
+    ...auditEvents.map((e) => ({
+      id: e.id,
+      kind: 'audit' as const,
+      at: e.createdAt,
+      actorId: e.actorId,
+      actorName: e.actor?.name ?? null,
+      actorEmail: e.actor?.email ?? null,
+      action: e.action,
+      targetType: e.targetType,
+      targetId: e.targetId,
+      fromStatus: null,
+      toStatus: null,
+      correlationId: e.correlationId,
+      reason: null,
+      metadataSummary: e.metadataSummary,
+    })),
+    ...workflowTransitions.map((t) => ({
+      id: t.id,
+      kind: 'workflow' as const,
+      at: t.createdAt,
+      actorId: t.actorId,
+      actorName: t.actor?.name ?? null,
+      actorEmail: t.actor?.email ?? null,
+      action: 'request.status_changed',
+      targetType: 'workflow_transition',
+      targetId: t.id,
+      fromStatus: t.fromStatus as RequestStatus | null,
+      toStatus: t.toStatus as RequestStatus,
+      correlationId: null,
+      reason: t.reason,
+      metadataSummary: `${t.fromStatus} → ${t.toStatus}`,
+    })),
+  ];
+
+  return items.sort((a, b) => b.at.getTime() - a.at.getTime()).slice(0, 20);
+}
+
+// --- Aggregate endpoint ---
+export async function getOpsAggregate(
+  session: AppSession,
+  filters: OpsFilters & { search?: string; page?: number; pageSize?: number },
+): Promise<OpsAggregateDto> {
+  const workspaceId = await requireSessionWorkspace(session, filters);
+  const page = Math.max(1, filters.page ?? 1);
+  const pageSize = Math.min(100, Math.max(1, filters.pageSize ?? 20));
+  const skip = (page - 1) * pageSize;
+
+  // Build where clause
+  const and: Prisma.LegalRequestWhereInput[] = [];
+  if (filters.workspaceId) and.push({ workspaceId: filters.workspaceId });
+  if (filters.matterTypeKey) and.push({ intakeSubmission: { is: { matterTypeKey: filters.matterTypeKey } } });
+  if (filters.status) and.push({ status: filters.status });
+  if (filters.assignedSpecialistId) and.push({ assignedSpecialistId: filters.assignedSpecialistId });
+  if (filters.assignedReviewerId) and.push({ assignedReviewerId: filters.assignedReviewerId });
+  if (filters.dateFrom || filters.dateTo) {
+    and.push({ createdAt: { ...(filters.dateFrom ? { gte: filters.dateFrom } : {}), ...(filters.dateTo ? { lte: filters.dateTo } : {}) } });
+  }
+  if (filters.search) {
+    and.push({
+      OR: [
+        { title: { contains: filters.search } },
+        { code: { contains: filters.search } },
+      ],
+    });
+  }
+  const where: Prisma.LegalRequestWhereInput = and.length ? { AND: and } : {};
+
+  const now = new Date();
+  const twentyFourHoursFromNow = new Date(now.getTime() + 24 * 3_600_000);
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  // Stats counts
+  const activeStatuses: RequestStatus[] = [
+    'intake_submitted', 'triage', 'assigned', 'in_progress', 'pending_review', 'revision_required', 'approved',
+  ];
+  const closedStatuses = ['closed', 'cancelled'];
+
+  const [totalCount, nearSlaCount, completedTodayCount, allActive] = await Promise.all([
+    prisma.legalRequest.count({ where: { AND: [where, { status: { in: activeStatuses } }] } }),
+    prisma.legalRequest.count({ where: { AND: [where, { slaDeadline: { lte: twentyFourHoursFromNow, gte: now }, status: { in: activeStatuses } }] } }),
+    prisma.legalRequest.count({ where: { AND: [where, { status: { in: closedStatuses }, closedAt: { gte: todayStart } }] } }),
+    prisma.legalRequest.count({ where: { AND: [where, { status: { in: activeStatuses } }] } }),
+  ]);
+
+  // Audit warnings: count of active requests with no assignee
+  const auditWarningsCount = await prisma.legalRequest.count({
+    where: { AND: [where, { status: { in: activeStatuses }, assignedSpecialistId: null, assignedReviewerId: null }] },
+  });
+
+  // Workload: reuse existing pattern
+  const dashboard = await getOpsDashboard(session, filters);
+
+  // Global timeline
+  const timeline = await getGlobalTimeline(workspaceId);
+
+  // Paginated requests
+  const [requests, total] = await Promise.all([
+    prisma.legalRequest.findMany({
+      where,
+      select: {
+        id: true,
+        code: true,
+        title: true,
+        status: true,
+        priority: true,
+        workspaceId: true,
+        slaDeadline: true,
+        createdAt: true,
+        updatedAt: true,
+        createdBy: { select: { name: true, email: true } },
+        assignedSpecialistId: true,
+        assignedSpecialist: { select: { id: true, name: true } },
+        assignedReviewerId: true,
+        assignedReviewer: { select: { id: true, name: true } },
+        workspace: { select: { name: true } },
+        intakeSubmission: { select: { matterTypeKey: true } },
+        workflowTransitions: {
+          select: { toStatus: true, createdAt: true },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+      },
+      orderBy: [{ updatedAt: 'desc' }],
+      skip,
+      take: pageSize,
+    }),
+    prisma.legalRequest.count({ where }),
+  ]);
+
+  // Map transitions for latest timestamps
+  const transitionMap = new Map<string, Date | null>();
+  for (const req of requests) {
+    const latest = req.workflowTransitions[0];
+    transitionMap.set(req.id, latest?.createdAt ?? null);
+  }
+
+  const requestRows: OpsRequestRowDto[] = requests.map((r) => {
+    const latestTransitionAt = transitionMap.get(r.id) ?? null;
+    const currentStatusSince = latestTransitionAt ?? r.createdAt;
+    const sla = calcOpsSla(r.slaDeadline, latestTransitionAt, r.createdAt);
+    return {
+      id: r.id,
+      title: r.title,
+      status: r.status as RequestStatus,
+      workspaceId: r.workspaceId,
+      code: r.code ?? null,
+      priority: r.priority ?? null,
+      matterTypeKey: r.intakeSubmission?.matterTypeKey ?? null,
+      matterTypeLabel: r.intakeSubmission?.matterTypeKey ?? null,
+      customerName: r.createdBy.name,
+      customerEmail: r.createdBy.email,
+      workspaceName: r.workspace.name,
+      assignedSpecialistId: r.assignedSpecialistId,
+      assignedSpecialistName: r.assignedSpecialist?.name ?? null,
+      assignedReviewerId: r.assignedReviewerId,
+      assignedReviewerName: r.assignedReviewer?.name ?? null,
+      slaDeadline: r.slaDeadline,
+      sla,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+      currentStatusSince,
+      currentStatusAgeDays: daysBetween(currentStatusSince),
+      pendingReviewSince: null,
+      deliveredAt: null,
+      closedAt: null,
+    };
+  });
+
+  // Filter options
+  const [workspaces, matterTypes, specialists, reviewers, statuses] = await Promise.all([
+    prisma.workspace.findMany({ where: { isActive: true }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
+    prisma.matterType.findMany({ where: { isActive: true }, select: { key: true, label_vi: true }, orderBy: { label_vi: 'asc' } }),
+    prisma.user.findMany({ where: { isActive: true, roles: { contains: 'specialist' } }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
+    prisma.user.findMany({ where: { isActive: true, roles: { contains: 'reviewer' } }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
+    Promise.resolve(requestStatuses),
+  ]);
+
+  return {
+    stats: {
+      openRequests: totalCount,
+      nearSla: nearSlaCount,
+      completedToday: completedTodayCount,
+      auditWarnings: auditWarningsCount,
+    },
+    workload: dashboard.workload,
+    timeline,
+    requests: requestRows,
+    filters: {
+      workspaces: workspaces.map((w) => ({ id: w.id, name: w.name })),
+      matterTypes: matterTypes.map((m) => ({ key: m.key, label: m.label_vi ?? m.key })),
+      specialists: specialists.map((s) => ({ id: s.id, name: s.name })),
+      reviewers: reviewers.map((r) => ({ id: r.id, name: r.name })),
+      statuses,
+    },
+    pagination: { page, pageSize, total },
   };
 }
 

@@ -76,8 +76,8 @@ export default async function SettingsPage({ params }: PageProps) {
           id: user?.id ?? '',
           name: user?.name ?? '',
           email: user?.email ?? '',
-          phone: user?.phone,
-          title: user?.title,
+          phone: user?.phone ?? null,
+          title: user?.title ?? null,
           timezone: user?.timezone ?? 'Asia/Ho_Chi_Minh',
           locale: user?.locale ?? 'vi',
         }}

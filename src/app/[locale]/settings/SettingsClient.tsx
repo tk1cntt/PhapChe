@@ -72,7 +72,13 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
       case 'profile':
         return (
           <ProfileForm
-            user={user}
+            user={{
+              name: user.name,
+              email: user.email,
+              phone: user.phone,
+              title: user.title,
+              timezone: user.timezone,
+            }}
             workspaces={workspaces}
             onSave={handleSaveProfile}
             savedMessage={profileSaved ? t('profileSaved') : undefined}

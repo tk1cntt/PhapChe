@@ -36,11 +36,26 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Sync pagination with URL params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pageParam = params.get('page');
+    const pageSizeParam = params.get('pageSize');
+    if (pageParam) setPage(parseInt(pageParam, 10) || 1);
+    if (pageSizeParam) setPageSize(parseInt(pageSizeParam, 10) || 20);
+  }, []);
+
   // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(filters.search ?? '');
       setPage(1);
+      // Update URL
+      const params = new URLSearchParams(window.location.search);
+      params.set('search', filters.search ?? '');
+      params.set('page', '1');
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState(null, '', newUrl);
     }, 300);
     return () => clearTimeout(timer);
   }, [filters.search]);
@@ -99,6 +114,19 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
   }, [filters, debouncedSearch, page, pageSize, router]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Pagination handlers - sync with URL
+  const handlePageChange = (newPage: number, newPageSize?: number) => {
+    if (newPage !== page) setPage(newPage);
+    if (newPageSize && newPageSize !== pageSize) setPageSize(newPageSize);
+
+    // Update URL
+    const params = new URLSearchParams(window.location.search);
+    params.set('page', newPage.toString());
+    if (newPageSize) params.set('pageSize', newPageSize.toString());
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState(null, '', newUrl);
+  };
 
   const handleSearch = (q: string) => { setFilters((f) => ({ ...f, search: q })); };
   const handleFilter = () => { /* placeholder for filter modal */ };
@@ -265,10 +293,7 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
               pageSize={pageSize}
               total={data.pagination.total}
               totalLabel={`${data.pagination.total} hồ sơ`}
-              onChange={(p, ps) => {
-                setPageSize(ps);
-                setPage(p);
-              }}
+              onChange={handlePageChange}
             />
           )}
         </>

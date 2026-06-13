@@ -21,20 +21,54 @@ export interface UserProfile {
 export interface ProfileFormProps {
   user: UserProfile;
   workspaces: WorkspaceOption[];
-  onSave?: (data: UserProfile) => void;
+  onSave?: (data: UserProfile) => Promise<void>;
+  savedMessage?: string;
 }
 
-export function ProfileForm({ user, workspaces, onSave }: ProfileFormProps): React.ReactElement {
+export function ProfileForm({ user, workspaces, onSave, savedMessage }: ProfileFormProps): React.ReactElement {
   const t = useTranslations('UserSettings');
   const [formData, setFormData] = React.useState<UserProfile>(user);
+  const [saving, setSaving] = React.useState(false);
+  const saveTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSave = async (data: UserProfile) => {
+    if (!onSave) return;
+    setSaving(true);
+    try {
+      await onSave(data);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleChange = (field: keyof UserProfile, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    onSave?.({ ...formData, [field]: value });
+    const newData = { ...formData, [field]: value };
+    setFormData(newData);
+
+    // Debounce save to avoid API spam
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      handleSave(newData);
+    }, 1000);
   };
+
+  React.useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="profile-form">
+      {(savedMessage || saving) && (
+        <div className={`save-status ${saving ? 'saving' : 'saved'}`}>
+          {saving ? t('saving') : savedMessage}
+        </div>
+      )}
       <div className="field-grid">
         <div className="field">
           <label htmlFor="fullName">{t('fieldFullName')}</label>

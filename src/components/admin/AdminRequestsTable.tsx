@@ -91,22 +91,22 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
   return (
     <div
       className="bg-white border rounded-[15px] overflow-hidden"
-      style={{ borderColor: 'var(--border)', boxShadow: 'var(--soft-shadow)' }}
+      style={{ borderColor: '#dfe7f1', boxShadow: '0 18px 42px rgba(15, 23, 42, 0.06)' }}
     >
       <div
-        className="grid border-b"
+        className="grid"
         style={{
           gridTemplateColumns: '0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr',
           background: 'linear-gradient(180deg, #f8fafc, #f5f7fb)',
-          borderColor: 'var(--border)',
+          borderBottom: '1px solid #dfe7f1',
         }}
       >
         {[t.code, t.workspace, t.customer, t.status, t.requestType, t.assignee, t.action].map(
           (header, i) => (
             <div
               key={i}
-              className="flex items-center px-[18px] text-[#59687e] text-sm font-bold border-r last:border-0 min-h-[54px]"
-              style={{ borderColor: 'var(--border)' }}
+              className="min-h-[54px] flex items-center px-[18px] text-[#59687e] text-sm font-bold border-r last:border-0"
+              style={{ borderColor: '#dfe7f1' }}
             >
               {header}
             </div>
@@ -117,14 +117,18 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
       {rows.map((row, rowIndex) => (
         <div
           key={rowIndex}
-          className="grid min-h-[68px] border-b last:border-0 bg-white transition-colors cursor-pointer hover:bg-[#fbfdff]"
+          className="grid cursor-pointer transition-all"
           style={{
             gridTemplateColumns: '0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr',
-            borderColor: 'var(--border)',
+            minHeight: 68,
+            borderBottom: '1px solid #dfe7f1',
+            background: '#fff',
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = '#fbfdff'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = '#fff'; }}
         >
           {/* Mã hồ sơ */}
-          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)', minWidth: 0 }}>
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: '#dfe7f1', minWidth: 0 }}>
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-[11px] flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #dbeafe, #eff6ff)', color: '#2563eb' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -132,49 +136,49 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
                   <path d="M14 2v6h6"/>
                 </svg>
               </div>
-              <strong className="text-sm font-bold text-[#0f172a]">{row.id}</strong>
+              <span className="font-mono text-sm font-bold text-[#0f172a]">{row.id}</span>
             </div>
           </div>
 
           {/* Workspace */}
-          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)', minWidth: 0 }}>
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: '#dfe7f1', minWidth: 0 }}>
             <div>
-              <strong className="block text-sm text-[#0f172a] mb-1">{row.workspace}</strong>
+              <span className="block text-sm font-semibold text-[#0f172a] mb-1">{row.workspace}</span>
               <span className="block text-[12px] text-[#64748b]">{row.workspaceSlug}</span>
             </div>
           </div>
 
           {/* Khách hàng */}
-          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)', minWidth: 0 }}>
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: '#dfe7f1', minWidth: 0 }}>
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-extrabold text-[13px]" style={{ background: '#eef2f7', color: '#334155' }}>
                 {row.customer.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
               </div>
               <div>
-                <strong className="block text-sm text-[#0f172a] mb-1">{row.customer}</strong>
+                <span className="block text-sm font-semibold text-[#0f172a] mb-1">{row.customer}</span>
                 <span className="block text-[12px] text-[#64748b]">{row.customerEmail}</span>
               </div>
             </div>
           </div>
 
           {/* Trạng thái */}
-          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: '#dfe7f1' }}>
             <Badge variant={row.status} text={row.statusText} />
           </div>
 
           {/* Loại yêu cầu */}
-          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)', minWidth: 0 }}>
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: '#dfe7f1', minWidth: 0 }}>
             <span className="text-sm text-[#0f172a] font-medium">{row.requestType || row.type}</span>
           </div>
 
           {/* Phụ trách */}
-          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)', minWidth: 0 }}>
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: '#dfe7f1', minWidth: 0 }}>
             <span className="text-sm text-[#0f172a] font-medium">{row.assignee || '—'}</span>
           </div>
 
           {/* Thao tác */}
           <div className="flex items-center px-[18px]">
-            <a href="#" className="text-[#087f78] font-extrabold no-underline inline-flex items-center gap-1.5">
+            <a href="#" className="text-[#087f78] font-extrabold no-underline inline-flex items-center gap-1.5 text-sm whitespace-nowrap">
               {row.action} →
             </a>
           </div>

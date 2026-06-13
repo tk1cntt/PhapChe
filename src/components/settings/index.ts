@@ -9,3 +9,8 @@ export type { ProfileFormProps, UserProfile, WorkspaceOption } from './ProfileFo
 
 export { ToggleRow } from './ToggleRow';
 export type { ToggleRowProps } from './ToggleRow';
+
+export { SecuritySettings } from './SecuritySettings';
+export type { SecuritySettingsProps } from './SecuritySettings';
+
+export { NotificationSettings } from './NotificationSettings';

@@ -76,7 +76,7 @@ export default function UserToolbar({
           {/* Workspace Dropdown */}
           <button
             className={toolBtnStyle}
-            onClick={() => onWorkspaceFilter(selectedWorkspace ? null : undefined)}
+            onClick={() => onWorkspaceFilter(selectedWorkspace ? null : null)}
             style={{
               borderColor: selectedWorkspace ? '#087f78' : '#dfe7f1',
               background: selectedWorkspace ? '#f0fdfa' : '#fff',

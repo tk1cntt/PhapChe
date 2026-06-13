@@ -47,12 +47,6 @@ interface UsersPageClientProps {
   workspaceOptions?: { id: string; name: string }[];
 }
 
-const statusColors: Record<string, { bg: string; color: string; dot: string }> = {
-  active: { bg: '#ccfbf1', color: '#0f766e', dot: '#10b981' },
-  invited: { bg: '#ffedd5', color: '#ea580c', dot: '#f97316' },
-  inactive: { bg: '#fee2e2', color: '#ef4444', dot: '#ef4444' },
-};
-
 const roleColors: Record<string, { bg: string; color: string }> = {
   customer: { bg: '#dbeafe', color: '#2563eb' },
   specialist: { bg: '#dbeafe', color: '#2563eb' },
@@ -67,8 +61,23 @@ const avatarColors: Record<string, { bg: string; color: string }> = {
   specialist: { bg: '#dbeafe', color: '#2563eb' },
   reviewer: { bg: '#ffedd5', color: '#ea580c' },
   coordinator_admin: { bg: '#ccfbf1', color: '#0f766e' },
-  super_admin: { bg: '#ffe4e6', color: '#ef4444' },
-  audit_admin: { bg: '#ede9fe', color: '#7c3aed' },
+  super_admin: { bg: '#ede9fe', color: '#7c3aed' },
+  audit_admin: { bg: '#ccfbf1', color: '#0f766e' },
+};
+
+const toolBtnStyle: React.CSSProperties = {
+  height: 44,
+  border: '1px solid #dfe7f1',
+  background: '#fff',
+  borderRadius: 8,
+  padding: '0 16px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  color: '#1e293b',
+  fontSize: 14,
+  fontWeight: 700,
+  cursor: 'pointer',
 };
 
 export default function UsersPageClient({
@@ -92,7 +101,9 @@ export default function UsersPageClient({
       if (filters.role) params.set('filter_role', filters.role);
       if (filters.workspace) params.set('filter_workspace', filters.workspace);
 
-      const res = await fetch(`/${locale}/api/admin/users?${params.toString()}`);
+      const res = await fetch(`/api/admin/users?${params.toString()}`, {
+        credentials: 'include',
+      });
       if (!res.ok) throw new Error('Failed to fetch');
       return res.json();
     },
@@ -104,7 +115,7 @@ export default function UsersPageClient({
 
   if (isLoading) {
     return (
-      <Flex justify="center" className="p-12">
+      <Flex justify="center" style={{ padding: 48 }}>
         <Spin />
       </Flex>
     );
@@ -112,62 +123,76 @@ export default function UsersPageClient({
 
   const statCards = [
     {
-      title: t('statTotalUsers') || 'Total Users',
+      title: t('statTotalUsers'),
       value: initialStats.total,
       description: `${initialStats.active} active`,
       variant: 'blue' as const,
     },
     {
-      title: t('statActiveUsers') || 'Active Users',
+      title: t('statActiveUsers'),
       value: initialStats.active,
-      description: t('statActiveUsersDesc') || 'Email verified',
+      description: t('statActiveUsersDesc'),
       variant: 'green' as const,
     },
     {
-      title: t('statWorkspaces') || 'Workspaces',
+      title: t('statWorkspaces'),
       value: initialStats.workspaces,
-      description: t('statWorkspacesDesc') || 'Active workspaces',
+      description: t('statWorkspacesDesc'),
       variant: 'purple' as const,
     },
     {
-      title: t('statPending') || 'Pending',
+      title: t('statPending'),
       value: initialStats.pending,
-      description: t('statPendingDesc') || 'Unverified users',
+      description: t('statPendingDesc'),
       variant: 'orange' as const,
     },
   ];
 
   const translations = {
-    role_customer: t('role_customer') || 'Customer',
-    role_specialist: t('role_specialist') || 'Specialist',
-    role_reviewer: t('role_reviewer') || 'Reviewer',
-    role_coordinator_admin: t('role_coordinator_admin') || 'Coordinator',
-    role_super_admin: t('role_super_admin') || 'Super Admin',
-    role_audit_admin: t('role_audit_admin') || 'Audit Admin',
-    pendingLabel: t('pendingLabel') || 'Pending',
+    role_customer: t('role_customer'),
+    role_specialist: t('role_specialist'),
+    role_reviewer: t('role_reviewer'),
+    role_coordinator_admin: t('role_coordinator_admin'),
+    role_super_admin: t('role_super_admin'),
+    role_audit_admin: t('role_audit_admin'),
+    pendingLabel: t('pendingLabel'),
   };
 
   return (
     <>
       {/* Page Header */}
-      <div className="flex justify-between items-start mb-[22px]">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 22 }}>
         <div>
-          <h1 className="text-[31px] font-extrabold tracking-tight text-[#020617] mb-3">
-            {t('pageTitle') || 'User Management'}
+          <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: '#020617', marginBottom: 12 }}>
+            {t('pageTitle')}
           </h1>
-          <p className="text-[15px] font-medium text-[#5f6e83] m-0">
-            {t('pageDescription') || 'Manage platform users and roles.'}
+          <p style={{ fontSize: 15, fontWeight: 500, color: '#5f6e83', margin: 0 }}>
+            {t('pageDescription')}
           </p>
         </div>
-        <button className="h-[45px] px-[18px] border-none rounded-lg bg-gradient-to-b from-[#0b8f86] to-[#087970] text-white flex items-center gap-[10px] font-bold shadow-md cursor-pointer text-[14px]">
+        <button style={{
+          height: 45,
+          padding: '0 18px',
+          border: 'none',
+          borderRadius: 8,
+          background: 'linear-gradient(180deg, #0b8f86, #087970)',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          fontWeight: 700,
+          boxShadow: '0 8px 18px rgba(8, 127, 120, 0.25)',
+          cursor: 'pointer',
+          fontSize: 14,
+        }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
             <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
             <circle cx="8.5" cy="7" r="4"/>
             <path d="M20 8v6"/>
             <path d="M23 11h-6"/>
           </svg>
-          {t('createUserButton') || 'Create User'}
-          <span className="h-[45px] w-[1px] bg-white/20 ml-1" />
+          {t('createUserButton')}
+          <span style={{ height: 45, width: 1, background: 'rgba(255,255,255,0.24)', marginLeft: 4 }} />
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
             <path d="m6 9 6 6 6-6"/>
           </svg>
@@ -182,6 +207,7 @@ export default function UsersPageClient({
         translations={translations}
       />
 
+      {/* Toolbar */}
       <UserToolbar
         searchValue={search}
         selectedRole={filters.role}
@@ -191,18 +217,17 @@ export default function UsersPageClient({
         onWorkspaceFilter={(workspace) => setFilter('workspace', workspace)}
         onRefresh={() => refetch()}
         onExport={() => {
-          // Export functionality - future enhancement
           console.log('Export clicked');
         }}
         translations={{
-          searchPlaceholder: t('searchPlaceholder') || 'Search users...',
-          filterRole: t('filterRole') || 'Role',
-          filterWorkspace: t('filterWorkspace') || 'Workspace',
-          refresh: t('refresh') || 'Refresh',
-          export: t('export') || 'Export',
-          columns: t('columns') || 'Columns',
-          allRoles: t('allRoles') || 'All Roles',
-          allWorkspaces: t('allWorkspaces') || 'All Workspaces',
+          searchPlaceholder: t('searchPlaceholder'),
+          filterRole: t('filterRole'),
+          filterWorkspace: t('filterWorkspace'),
+          refresh: t('refresh'),
+          export: t('export'),
+          columns: t('columns'),
+          allRoles: t('allRoles'),
+          allWorkspaces: t('allWorkspaces'),
         }}
         workspaceOptions={workspaceOptions}
       />

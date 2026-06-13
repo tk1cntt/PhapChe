@@ -110,7 +110,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Admin users list error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    // Return more details for debugging
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ error: 'Internal server error', detail: message }, { status: 500 });
   }
 }
 

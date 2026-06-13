@@ -54,39 +54,58 @@ export default function UserTable({
 
   if (dataSource.length === 0 && !pagination) {
     return (
-      <div className="p-12 text-center text-[#64748b]">
-        {t('noData') || 'No data available'}
+      <div style={{ padding: 48, textAlign: 'center', color: '#64748b' }}>
+        {t('noData')}
       </div>
     );
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-b-[15px] shadow-md overflow-hidden">
+    <div style={{
+      background: '#fff',
+      border: '1px solid #dfe7f1',
+      borderRadius: '0 0 15px 15px',
+      boxShadow: '0 18px 42px rgba(15, 23, 42, 0.06)',
+      overflow: 'hidden',
+    }}>
       {/* Table Header */}
       <div
-        className="grid gap-0"
         style={{
+          display: 'grid',
           gridTemplateColumns: '52px 1.1fr 1.3fr 0.9fr 1.05fr 0.85fr 1fr 0.8fr',
           background: 'linear-gradient(180deg, #f8fafc, #f5f7fb)',
           borderBottom: '1px solid #dfe7f1',
         }}
       >
-        <div className="h-[54px] px-4 flex items-center">
-          <span className="w-[18px] h-[18px] border-2 border-gray-300 rounded bg-white" />
+        <div style={{ minHeight: 54, display: 'flex', alignItems: 'center', padding: '0 16px' }}>
+          <span style={{
+            width: 18,
+            height: 18,
+            border: '2px solid #cbd5e1',
+            borderRadius: 4,
+            background: '#fff',
+            display: 'block',
+          }} />
         </div>
         {[
-          t('name') || 'Name',
-          t('email') || 'Email',
-          t('role') || 'Role',
-          t('workspace') || 'Workspace',
-          t('status') || 'Status',
-          t('lastActive') || 'Last Active',
-          t('action') || 'Action',
+          t('name'),
+          t('email'),
+          t('role'),
+          t('workspace'),
+          t('status'),
+          t('lastActive'),
+          t('action'),
         ].map((header, idx) => (
           <div
             key={header}
-            className="h-[54px] px-4 flex items-center text-[14px] font-bold text-[#59687e]"
             style={{
+              minHeight: 54,
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 16px',
+              color: '#59687e',
+              fontSize: 14,
+              fontWeight: 700,
               borderRight: idx < 6 ? '1px solid #dfe7f1' : 'none',
             }}
           >
@@ -102,115 +121,267 @@ export default function UserTable({
 
         let statusBadge: { label: string; color: string; bg: string; dot: string };
         if (row.status === 'active') {
-          statusBadge = { label: t('active') || 'Active', color: '#0f766e', bg: '#ccfbf1', dot: '#10b981' };
+          statusBadge = { label: t('active'), color: '#0f766e', bg: '#ccfbf1', dot: '#10b981' };
         } else if (row.status === 'invited') {
-          statusBadge = { label: t('invited') || 'Invited', color: '#ea580c', bg: '#ffedd5', dot: '#f97316' };
+          statusBadge = { label: t('invited'), color: '#ea580c', bg: '#ffedd5', dot: '#f97316' };
         } else {
-          statusBadge = { label: t('inactive') || 'Inactive', color: '#ef4444', bg: '#fee2e2', dot: '#ef4444' };
+          statusBadge = { label: t('inactive'), color: '#ef4444', bg: '#ffe4e6', dot: '#ef4444' };
         }
 
         const actionLabel = row.status === 'active'
-          ? t('editAction') || 'Edit'
+          ? `${t('editAction')} →`
           : row.status === 'invited'
-            ? t('resendAction') || 'Resend'
-            : t('activateAction') || 'Activate';
+            ? `${t('resendAction')} →`
+            : `${t('activateAction')} →`;
 
         return (
           <div
             key={row.key}
-            className="grid gap-0 min-h-[72px] border-b border-gray-200 bg-white hover:bg-[#fbfdff] transition-colors"
             style={{
+              display: 'grid',
               gridTemplateColumns: '52px 1.1fr 1.3fr 0.9fr 1.05fr 0.85fr 1fr 0.8fr',
+              minHeight: 72,
+              borderBottom: '1px solid #dfe7f1',
+              background: '#fff',
+              transition: '0.2s',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = '#fbfdff')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = '#fff')}
           >
             {/* Checkbox */}
-            <div className="px-4 flex items-center">
-              <span className="w-[18px] h-[18px] border-2 border-gray-300 rounded bg-white" />
+            <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px' }}>
+              <span style={{
+                width: 18,
+                height: 18,
+                border: '2px solid #cbd5e1',
+                borderRadius: 4,
+                background: '#fff',
+                display: 'block',
+              }} />
             </div>
 
             {/* Name */}
-            <div className="px-4 border-r border-gray-200 flex items-center min-w-0">
-              <div className="flex items-center gap-3 min-w-0">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 16px',
+              borderRight: '1px solid #dfe7f1',
+              minWidth: 0,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
                 <div
-                  className="w-[38px] h-[38px] rounded-full flex items-center justify-center font-extrabold text-[13px] flex-shrink-0"
-                  style={{ background: aColor.bg, color: aColor.color }}
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: '50%',
+                    background: aColor.bg,
+                    color: aColor.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800,
+                    fontSize: 13,
+                    flexShrink: 0,
+                  }}
                 >
                   {getInitials(row.name)}
                 </div>
-                <div className="min-w-0">
-                  <div className="text-[14px] font-bold mb-1 text-[#0f172a] truncate">{row.name}</div>
-                  <div className="text-[12px] text-[#64748b]">
-                    {t(`role_${row.role}`) || row.role}
+                <div style={{ minWidth: 0 }}>
+                  <div style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    marginBottom: 4,
+                    color: '#0f172a',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}>{row.name}</div>
+                  <div style={{
+                    fontSize: 12,
+                    color: '#64748b',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}>
+                    {t(`role_${row.role}`)}
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Email */}
-            <div className="px-4 border-r border-gray-200 flex items-center min-w-0">
-              <div className="min-w-0">
-                <div className="text-[14px] font-bold mb-1 text-[#0f172a] truncate">{row.email}</div>
-                <div className="text-[12px] text-[#64748b]">
-                  {row.role === 'super_admin' ? t('primaryAdmin') || 'Primary Admin' : `Team ${row.role}`}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 16px',
+              borderRight: '1px solid #dfe7f1',
+              minWidth: 0,
+            }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  marginBottom: 4,
+                  color: '#0f172a',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>{row.email}</div>
+                <div style={{
+                  fontSize: 12,
+                  color: '#64748b',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>
+                  {row.role === 'super_admin' ? t('primaryAdmin') : `Team ${row.role}`}
                 </div>
               </div>
             </div>
 
             {/* Role */}
-            <div className="px-4 border-r border-gray-200 flex items-center min-w-0">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 16px',
+              borderRight: '1px solid #dfe7f1',
+              minWidth: 0,
+            }}>
               <span
-                className="inline-flex items-center h-[28px] rounded-full px-[11px] text-[12px] font-extrabold whitespace-nowrap"
-                style={{ background: rColor.bg, color: rColor.color }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  height: 28,
+                  padding: '0 11px',
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  whiteSpace: 'nowrap',
+                  background: rColor.bg,
+                  color: rColor.color,
+                }}
               >
-                <span
-                  className="w-[7px] h-[7px] rounded-full mr-[7px]"
-                  style={{ background: rColor.color }}
-                />
+                <span style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  marginRight: 7,
+                  background: rColor.color,
+                }} />
                 {row.role}
               </span>
             </div>
 
             {/* Workspace */}
-            <div className="px-4 border-r border-gray-200 flex items-center min-w-0">
-              <div className="min-w-0">
-                <div className="text-[14px] font-bold mb-1 text-[#0f172a] truncate">{row.workspace}</div>
-                <div className="text-[12px] text-[#64748b]">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 16px',
+              borderRight: '1px solid #dfe7f1',
+              minWidth: 0,
+            }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  marginBottom: 4,
+                  color: '#0f172a',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>{row.workspace}</div>
+                <div style={{
+                  fontSize: 12,
+                  color: '#64748b',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>
                   {row.workspace === '—' ? '—' : 'workspace-scope'}
                 </div>
               </div>
             </div>
 
             {/* Status */}
-            <div className="px-4 border-r border-gray-200 flex items-center min-w-0">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 16px',
+              borderRight: '1px solid #dfe7f1',
+              minWidth: 0,
+            }}>
               <span
-                className="inline-flex items-center h-[28px] rounded-full px-[11px] text-[12px] font-extrabold whitespace-nowrap"
-                style={{ background: statusBadge.bg, color: statusBadge.color }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  height: 28,
+                  padding: '0 11px',
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  whiteSpace: 'nowrap',
+                  background: statusBadge.bg,
+                  color: statusBadge.color,
+                }}
               >
-                <span
-                  className="w-[7px] h-[7px] rounded-full mr-[7px]"
-                  style={{ background: statusBadge.dot }}
-                />
+                <span style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  marginRight: 7,
+                  background: statusBadge.dot,
+                }} />
                 {statusBadge.label}
               </span>
             </div>
 
             {/* Last Active */}
-            <div className="px-4 border-r border-gray-200 flex items-center min-w-0">
-              <div className="min-w-0">
-                <div className="text-[14px] font-bold mb-1 text-[#0f172a]">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 16px',
+              borderRight: '1px solid #dfe7f1',
+              minWidth: 0,
+            }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  marginBottom: 4,
+                  color: '#0f172a',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>
                   {formatDate(row.lastActive)}
                 </div>
-                <div className="text-[12px] text-[#64748b]">
+                <div style={{
+                  fontSize: 12,
+                  color: '#64748b',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>
                   {row.lastActive ? 'ICT' : '—'}
                 </div>
               </div>
             </div>
 
             {/* Action */}
-            <div className="px-4 flex items-center min-w-0">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 16px',
+              minWidth: 0,
+            }}>
               <Link
                 href="#"
-                className="text-[#087f78] font-extrabold no-underline whitespace-nowrap"
+                style={{
+                  color: '#087f78',
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                  whiteSpace: 'nowrap',
+                }}
               >
                 {actionLabel}
               </Link>
@@ -221,18 +392,33 @@ export default function UserTable({
 
       {/* Pagination Footer */}
       {pagination && (
-        <div className="px-4 py-3 bg-[#f8fafc] flex justify-end items-center gap-3">
+        <div style={{
+          padding: '12px 16px',
+          background: '#f8fafc',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          gap: 12,
+        }}>
           <select
             value={pagination.pageSize}
             onChange={(e) => pagination.onChange(pagination.current, parseInt(e.target.value))}
-            className="h-8 border border-gray-200 rounded-md px-2 text-[13px] bg-white cursor-pointer"
+            style={{
+              height: 32,
+              border: '1px solid #dfe7f1',
+              borderRadius: 6,
+              padding: '0 8px',
+              fontSize: 13,
+              background: '#fff',
+              cursor: 'pointer',
+            }}
           >
             <option value={10}>10</option>
             <option value={25}>25</option>
             <option value={50}>50</option>
           </select>
-          <span className="text-[13px] text-[#64748b] flex items-center">
-            {t('totalUsersCount', { total: pagination.total }) || `${pagination.total} users total`}
+          <span style={{ fontSize: 13, color: '#64748b', display: 'flex', alignItems: 'center' }}>
+            {pagination.total} users total
           </span>
         </div>
       )}

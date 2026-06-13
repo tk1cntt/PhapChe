@@ -26,8 +26,20 @@ interface UserToolbarProps {
 
 const ROLES = ['super_admin', 'audit_admin', 'coordinator_admin', 'reviewer', 'specialist', 'customer'] as const;
 
-const toolBtnStyle = 'h-11 border border-gray-200 bg-white rounded-lg px-4 flex items-center gap-[10px] text-[14px] font-bold text-[#1e293b] cursor-pointer';
-const activeStyle = 'border-[#087f78] bg-[#f0fdfa]';
+const toolBtnStyle: React.CSSProperties = {
+  height: 44,
+  border: '1px solid #dfe7f1',
+  background: '#fff',
+  borderRadius: 8,
+  padding: '0 16px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  color: '#1e293b',
+  fontSize: 14,
+  fontWeight: 700,
+  cursor: 'pointer',
+};
 
 export default function UserToolbar({
   searchValue,
@@ -45,11 +57,28 @@ export default function UserToolbar({
   const [showWorkspaceDropdown, setShowWorkspaceDropdown] = useState(false);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-t-[15px] shadow-sm p-5 border-b-0">
-      <div className="flex justify-between items-center gap-4">
-        <div className="flex items-center gap-3">
+    <div style={{
+      background: '#fff',
+      border: '1px solid #dfe7f1',
+      borderRadius: '15px 15px 0 0',
+      boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)',
+      padding: 20,
+      borderBottom: 'none',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Search Input */}
-          <div className="w-[330px] h-11 border border-gray-200 rounded-lg flex items-center gap-[11px] px-[14px] bg-white">
+          <div style={{
+            width: 330,
+            height: 44,
+            border: '1px solid #dfe7f1',
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 11,
+            padding: '0 14px',
+            background: '#fff',
+          }}>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#718096" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/>
               <path d="m21 21-4.35-4.35"/>
@@ -58,14 +87,18 @@ export default function UserToolbar({
               placeholder={translations.searchPlaceholder}
               value={searchValue}
               onChange={(e) => onSearch('search', e.target.value || null)}
-              className="border-none outline-none flex-1 text-[14px] bg-transparent"
+              style={{ border: 'none', outline: 'none', flex: 1, fontSize: 14, background: 'transparent' }}
             />
           </div>
 
           {/* Role Dropdown */}
           <div className="relative">
             <button
-              className={`${toolBtnStyle} ${selectedRole ? activeStyle : ''}`}
+              style={{
+                ...toolBtnStyle,
+                borderColor: selectedRole ? '#087f78' : '#dfe7f1',
+                background: selectedRole ? '#f0fdfa' : '#fff',
+              }}
               onClick={() => {
                 setShowRoleDropdown(!showRoleDropdown);
                 setShowWorkspaceDropdown(false);
@@ -77,9 +110,20 @@ export default function UserToolbar({
               </svg>
             </button>
             {showRoleDropdown && (
-              <div className="absolute mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                marginTop: 4,
+                width: 180,
+                background: '#fff',
+                border: '1px solid #dfe7f1',
+                borderRadius: 8,
+                boxShadow: '0 10px 25px rgba(15, 23, 42, 0.1)',
+                zIndex: 50,
+              }}>
                 <button
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50"
+                  style={{ width: '100%', padding: '10px 16px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer', fontSize: 14 }}
                   onClick={() => {
                     onRoleFilter(null);
                     setShowRoleDropdown(false);
@@ -90,7 +134,7 @@ export default function UserToolbar({
                 {ROLES.map((role) => (
                   <button
                     key={role}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50"
+                    style={{ width: '100%', padding: '10px 16px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer', fontSize: 14 }}
                     onClick={() => {
                       onRoleFilter(role);
                       setShowRoleDropdown(false);
@@ -106,7 +150,11 @@ export default function UserToolbar({
           {/* Workspace Dropdown */}
           <div className="relative">
             <button
-              className={`${toolBtnStyle} ${selectedWorkspace ? activeStyle : ''}`}
+              style={{
+                ...toolBtnStyle,
+                borderColor: selectedWorkspace ? '#087f78' : '#dfe7f1',
+                background: selectedWorkspace ? '#f0fdfa' : '#fff',
+              }}
               onClick={() => {
                 setShowWorkspaceDropdown(!showWorkspaceDropdown);
                 setShowRoleDropdown(false);
@@ -118,9 +166,20 @@ export default function UserToolbar({
               </svg>
             </button>
             {showWorkspaceDropdown && (
-              <div className="absolute mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                marginTop: 4,
+                width: 200,
+                background: '#fff',
+                border: '1px solid #dfe7f1',
+                borderRadius: 8,
+                boxShadow: '0 10px 25px rgba(15, 23, 42, 0.1)',
+                zIndex: 50,
+              }}>
                 <button
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50"
+                  style={{ width: '100%', padding: '10px 16px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer', fontSize: 14 }}
                   onClick={() => {
                     onWorkspaceFilter(null);
                     setShowWorkspaceDropdown(false);
@@ -131,7 +190,7 @@ export default function UserToolbar({
                 {workspaceOptions.map((ws) => (
                   <button
                     key={ws.id}
-                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50"
+                    style={{ width: '100%', padding: '10px 16px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer', fontSize: 14 }}
                     onClick={() => {
                       onWorkspaceFilter(ws.id);
                       setShowWorkspaceDropdown(false);
@@ -145,10 +204,21 @@ export default function UserToolbar({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Refresh Button */}
           <button
-            className="w-[52px] h-11 border border-gray-200 bg-white rounded-lg flex items-center justify-center cursor-pointer"
+            style={{
+              width: 52,
+              height: 44,
+              border: '1px solid #dfe7f1',
+              background: '#fff',
+              borderRadius: 8,
+              padding: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+            }}
             onClick={onRefresh}
             title={translations.refresh}
           >
@@ -161,7 +231,7 @@ export default function UserToolbar({
           </button>
 
           {/* Export Button */}
-          <button className={toolBtnStyle} onClick={onExport}>
+          <button style={toolBtnStyle} onClick={onExport}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <path d="M7 10l5 5 5-5"/>
@@ -171,7 +241,7 @@ export default function UserToolbar({
           </button>
 
           {/* Columns Button */}
-          <button className={toolBtnStyle}>
+          <button style={toolBtnStyle}>
             {translations.columns}
           </button>
         </div>

@@ -23,20 +23,35 @@ const roleColors: Record<string, { bg: string; color: string }> = {
   audit_admin: { bg: '#ede9fe', color: '#7c3aed' },
 };
 
-const ROLES = ['super_admin', 'audit_admin', 'coordinator_admin', 'reviewer', 'specialist', 'customer'];
+const ROLES = ['customer', 'specialist', 'reviewer', 'coordinator_admin', 'super_admin', 'audit_admin'];
 
 export default function RolePills({ roleStats, pendingCount, translations }: RolePillsProps) {
   return (
-    <div className="bg-white border border-gray-200 rounded-[15px] shadow-sm p-6 mb-6">
-      <div className="flex items-center gap-3 text-[20px] font-extrabold mb-[18px] text-[#0f172a]">
+    <div style={{
+      background: '#fff',
+      border: '1px solid #dfe7f1',
+      borderRadius: 15,
+      boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)',
+      padding: 24,
+      marginBottom: 24,
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        fontSize: 20,
+        fontWeight: 800,
+        marginBottom: 18,
+        color: '#0f172a',
+      }}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#087f78" strokeWidth="2">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           <path d="M9 12l2 2 4-4"/>
         </svg>
-        {translations.pendingLabel ? 'System Roles' : 'System Roles'}
+        System Roles
       </div>
 
-      <div className="flex flex-wrap gap-[14px] mb-[18px]">
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 18 }}>
         {ROLES.map((role) => {
           const c = roleColors[role] || roleColors.customer;
           const count = roleStats[role] || 0;
@@ -46,13 +61,32 @@ export default function RolePills({ roleStats, pendingCount, translations }: Rol
           return (
             <div
               key={role}
-              className="inline-flex items-center gap-3 h-[38px] rounded-full px-[15px] text-[13px] font-extrabold whitespace-nowrap"
-              style={{ background: c.bg, color: c.color }}
+              style={{
+                height: 38,
+                borderRadius: 999,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '0 15px',
+                fontSize: 13,
+                fontWeight: 800,
+                whiteSpace: 'nowrap',
+                background: c.bg,
+                color: c.color,
+              }}
             >
-              {label} ({count})
+              {label} ({role})
               <span
-                className="w-[26px] h-[26px] rounded-full flex items-center justify-center text-[12px]"
-                style={{ background: 'rgba(255,255,255,0.65)' }}
+                style={{
+                  width: 26,
+                  height: 26,
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.65)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 12,
+                }}
               >
                 {count}
               </span>
@@ -62,21 +96,41 @@ export default function RolePills({ roleStats, pendingCount, translations }: Rol
 
         {/* Pending pill */}
         <div
-          className="inline-flex items-center gap-3 h-[38px] rounded-full px-[15px] text-[13px] font-extrabold whitespace-nowrap"
-          style={{ background: '#ede9fe', color: '#7c3aed' }}
+          style={{
+            height: 38,
+            borderRadius: 999,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '0 15px',
+            fontSize: 13,
+            fontWeight: 800,
+            whiteSpace: 'nowrap',
+            background: '#ede9fe',
+            color: '#7c3aed',
+          }}
         >
-          {translations.pendingLabel || 'Pending'}
+          {translations.pendingLabel || 'Invited / Pending'}
           <span
-            className="w-[26px] h-[26px] rounded-full flex items-center justify-center text-[12px]"
-            style={{ background: 'rgba(255,255,255,0.65)' }}
+            style={{
+              width: 26,
+              height: 26,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.65)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 12,
+            }}
           >
             {pendingCount}
           </span>
         </div>
       </div>
 
-      <p className="text-[14px] font-medium text-[#59687e] leading-[1.7] m-0">
-        Role changes are audited with actor, correlationId and metadataSummary.
+      <p style={{ color: '#59687e', fontSize: 14, fontWeight: 500, lineHeight: 1.7, margin: 0 }}>
+        User/role/workspace changes call createAdminUser, updateAdminUserRole, deactivateAdminUser,
+        assignUserToWorkspace and are audited with actor, correlationId and metadataSummary.
       </p>
     </div>
   );

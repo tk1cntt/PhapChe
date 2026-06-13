@@ -40,20 +40,44 @@ async function ensureUser(email: string, name: string, password: string) {
       where: { userId: existing.id, providerId: 'credential' },
     });
     if (!existingAccount) {
-      try {
-        await auth.api.signUpEmail({
-          body: { email, name, password },
-        });
-      } catch (err) {
-        console.warn(`signUpEmail failed for ${email} (likely duplicate, skipping):`, err);
-      }
+      // Create Account directly with hashed password for better-auth
+      const bcrypt = await import('bcrypt');
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await prisma.account.create({
+        data: {
+          userId: existing.id,
+          accountId: email, // better-auth uses email as accountId for credential provider
+          providerId: 'credential',
+          password: hashedPassword,
+        },
+      });
+      console.log(`  Created Account for ${email}`);
     }
-    return prisma.user.findUniqueOrThrow({ where: { email } });
+    return existing;
   }
-  const { user } = await auth.api.signUpEmail({
-    body: { email, name, password },
+  // Create new user
+  const user = await prisma.user.create({
+    data: {
+      email,
+      name,
+      emailVerified: true, // Mark as verified for demo users
+    },
   });
-  return prisma.user.findUniqueOrThrow({ where: { id: user.id } });
+
+  // Create Account with hashed password
+  const bcrypt = await import('bcrypt');
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await prisma.account.create({
+    data: {
+      userId: user.id,
+      accountId: email,
+      providerId: 'credential',
+      password: hashedPassword,
+    },
+  });
+  console.log(`  Created user ${email} with Account`);
+
+  return user;
 }
 
 async function createSession(userId: string) {

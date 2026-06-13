@@ -5,7 +5,7 @@ type: execute
 wave: 1
 depends_on: []
 files_modified:
-  - src/components/admin/UserStatCard.tsx
+  - src/components/admin/AdminStatGrid.tsx
   - src/components/admin/RolePills.tsx
   - src/components/admin/UserTable.tsx
   - src/components/admin/UserToolbar.tsx
@@ -74,20 +74,34 @@ Clone admin User Management components from `src/legacy/` to `src/components/adm
 @.planning/phases/47-admin-user-mgmt/47-RESEARCH.md
 @src/legacy/[locale]/admin/users/UsersPageClient.tsx
 @src/legacy/[locale]/admin/users/AdminUsersTable.tsx
+@src/legacy/[locale]/admin/components/AdminStatGrid.tsx
 @src/components/admin/AdminStatCard.tsx
 @src/components/admin/AdminToolbar.tsx
 @src/app/[locale]/admin/page.tsx
 @src/lib/hooks/usePaginationParams.ts
+@src/lib/hooks/useDebounce.ts
 @src/app/api/workspace/invite/route.ts
 </context>
 
 <tasks>
 
 <task type="auto">
-  <name>Task 1: Create Admin Users API Routes (GET, POST, PUT, DELETE)</name>
-  <files>src/app/api/admin/users/route.ts, src/app/api/admin/users/[id]/route.ts</files>
+  <name>Task 1: Create AdminStatGrid Component and Users API Routes</name>
+  <files>src/components/admin/AdminStatGrid.tsx, src/app/api/admin/users/route.ts, src/app/api/admin/users/[id]/route.ts</files>
+  <read_first>
+    - src/legacy/[locale]/admin/components/AdminStatGrid.tsx (source for StatCard and AdminStatGrid components)
+    - src/components/admin/AdminStatCard.tsx (existing pattern for Tailwind conversion)
+    - src/app/api/workspace/invite/route.ts (pattern for API route structure)
+  </read_first>
   <action>
-Create two API route files for user CRUD operations.
+Migrate AdminStatGrid from legacy and create API routes.
+
+**src/components/admin/AdminStatGrid.tsx:**
+- Migrate from `src/legacy/[locale]/admin/components/AdminStatGrid.tsx`
+- Export `StatCard` component with props: `{ title, value, description, icon?, variant? }`
+- Export `AdminStatGrid` component with props: `{ cards: StatCardProps[] }`
+- Use Tailwind CSS classes (reference AdminStatCard pattern for conversion)
+- Variants: blue, green, orange, red, purple with matching gradient backgrounds
 
 **src/app/api/admin/users/route.ts:**
 - Export named `GET` handler for listing users with pagination, search, filters
@@ -116,27 +130,41 @@ Create two API route files for user CRUD operations.
 </action>
   <verify>
   <automated>
-    # Check route files exist
-    - test -f src/app/api/admin/users/route.ts && test -f src/app/api/admin/users/[id]/route.ts
-    # Verify exports exist
-    - grep -c "export async function GET" src/app/api/admin/users/route.ts
-    - grep -c "export async function POST" src/app/api/admin/users/route.ts
-    - grep -c "export async function PUT" src/app/api/admin/users/[id]/route.ts
-    - grep -c "export async function DELETE" src/app/api/admin/users/[id]/route.ts
+    # Check files exist
+    test -f src/components/admin/AdminStatGrid.tsx && \
+    test -f src/app/api/admin/users/route.ts && \
+    test -f src/app/api/admin/users/[id]/route.ts && \
+    # Verify exports
+    grep -c "export.*StatCard" src/components/admin/AdminStatGrid.tsx && \
+    grep -c "export.*AdminStatGrid" src/components/admin/AdminStatGrid.tsx && \
+    grep -c "export async function GET" src/app/api/admin/users/route.ts && \
+    grep -c "export async function POST" src/app/api/admin/users/route.ts && \
+    grep -c "export async function PUT" src/app/api/admin/users/[id]/route.ts && \
+    grep -c "export async function DELETE" src/app/api/admin/users/[id]/route.ts
   </automated>
   </verify>
+  <acceptance_criteria>
+    - AdminStatGrid.tsx exports StatCard and AdminStatGrid components
+    - GET /api/admin/users returns paginated list with { data, total, page, pageSize }
+    - POST /api/admin/users creates user and returns 201
+    - PUT /api/admin/users/[id] updates user and returns 200
+    - DELETE /api/admin/users/[id] sets isActive=false and returns 200
+    - All endpoints validate session with requireAppSession()
+  </acceptance_criteria>
   <done>
-  GET /api/admin/users returns paginated list with data, total, page, pageSize.
-  POST /api/admin/users creates user and returns 201.
-  PUT /api/admin/users/[id] updates user and returns 200.
-  DELETE /api/admin/users/[id] sets isActive=false and returns 200.
-  All endpoints validate session with requireAppSession().
+  AdminStatGrid migrated to src/components/admin/ with Tailwind CSS.
+  API routes handle GET, POST, PUT, DELETE operations on users.
+  Session validation protects all endpoints.
   </done>
 </task>
 
 <task type="auto">
   <name>Task 2: Create Server Component Page with Prisma Queries</name>
   <files>src/app/[locale]/admin/users/page.tsx</files>
+  <read_first>
+    - src/app/[locale]/admin/page.tsx (server component pattern with Prisma queries)
+    - src/legacy/[locale]/admin/users/UsersPageClient.tsx (legacy page structure)
+  </read_first>
   <action>
 Create server component page for User Management.
 
@@ -173,9 +201,18 @@ const ROLE_PRIORITY = {
   <automated>
     test -f src/app/[locale]/admin/users/page.tsx && \
     grep -c "Promise.all" src/app/[locale]/admin/users/page.tsx && \
-    grep -c "prisma.user.count" src/app/[locale]/admin/users/page.tsx
+    grep -c "prisma.user.count" src/app/[locale]/admin/users/page.tsx && \
+    grep -c "AdminLayout" src/app/[locale]/admin/users/page.tsx
   </automated>
   </verify>
+  <acceptance_criteria>
+    - Page fetches 5 Prisma queries in parallel via Promise.all
+    - Stats object has { total, active, pending, workspaces }
+    - roleStats is Record<string, number> from groupBy
+    - Props passed to UsersPageClient: initialStats, initialRoleStats, locale
+    - Wrapped in AdminLayout component
+    - Page accessible at /vi/admin/users and /en/admin/users
+  </acceptance_criteria>
   <done>
   Server component fetches 5 Prisma queries in parallel.
   Passes initialStats and initialRoleStats to UsersPageClient.
@@ -187,6 +224,12 @@ const ROLE_PRIORITY = {
 <task type="auto">
   <name>Task 3: Create User Management Client Components (UsersPageClient, RolePills)</name>
   <files>src/components/admin/UsersPageClient.tsx, src/components/admin/RolePills.tsx</files>
+  <read_first>
+    - src/legacy/[locale]/admin/users/UsersPageClient.tsx (source for client component)
+    - src/components/admin/AdminStatGrid.tsx (migrated in Task 1)
+    - src/lib/hooks/usePaginationParams.ts (pagination hook)
+    - src/lib/hooks/useDebounce.ts (debounce hook)
+  </read_first>
   <action>
 Create the main client component and RolePills sub-component.
 
@@ -213,7 +256,7 @@ Create the main client component and RolePills sub-component.
 - Initialize `useDebounce(search, 300)` for debounced search
 - Use `useQuery` from @tanstack/react-query:
   - Query key: `['users', { page, pageSize, search: debouncedSearch, filters }]`
-  - Fetch to `/${locale}/api/admin/users` with URL params
+  - Fetch to `/${locale}/api/admin/users` with URL params (CORRECT PATH per WARNING 2 fix)
   - Response type: `{ data: User[], total: number, page: number, pageSize: number }`
 - Compose stat cards using `AdminStatGrid` from `@/components/admin/AdminStatGrid`
 - Render `<RolePills>` with roleStats and translations
@@ -229,9 +272,18 @@ Per D-05: Convert inline styles to Tailwind CSS classes.
     test -f src/components/admin/UsersPageClient.tsx && \
     test -f src/components/admin/RolePills.tsx && \
     grep -c "useQuery" src/components/admin/UsersPageClient.tsx && \
-    grep -c "usePaginationParams" src/components/admin/UsersPageClient.tsx
+    grep -c "usePaginationParams" src/components/admin/UsersPageClient.tsx && \
+    grep -c "/api/admin/users" src/components/admin/UsersPageClient.tsx
   </automated>
   </verify>
+  <acceptance_criteria>
+    - UsersPageClient renders 4 stat cards with initialStats from server
+    - RolePills shows 6 roles + pending with counts
+    - useQuery fetches from /{locale}/api/admin/users (not /api/users)
+    - Debounced search triggers API call after 300ms
+    - URL stays in sync via usePaginationParams
+    - Loading state shows Spin component
+  </acceptance_criteria>
   <done>
   UsersPageClient renders 4 stat cards with initialStats from server.
   RolePills shows 6 roles + pending with counts.
@@ -244,6 +296,10 @@ Per D-05: Convert inline styles to Tailwind CSS classes.
 <task type="auto">
   <name>Task 4: Create UserTable and UserToolbar Components</name>
   <files>src/components/admin/UserTable.tsx, src/components/admin/UserToolbar.tsx, src/components/admin/UserPagination.tsx</files>
+  <read_first>
+    - src/legacy/[locale]/admin/users/AdminUsersTable.tsx (source for UserTable)
+    - src/components/admin/AdminToolbar.tsx (pattern for toolbar components)
+  </read_first>
   <action>
 Create UserTable, UserToolbar, and UserPagination components.
 
@@ -287,6 +343,13 @@ Create UserTable, UserToolbar, and UserPagination components.
     grep -c "grid-cols" src/components/admin/UserTable.tsx
   </automated>
   </verify>
+  <acceptance_criteria>
+    - UserTable renders 8-column grid with real user data
+    - Role badges show correct colors per role type
+    - Status badges show active/invited/inactive states
+    - UserToolbar has search, role filter, workspace filter, refresh, export buttons
+    - UserPagination controls page size and displays total count
+  </acceptance_criteria>
   <done>
   UserTable renders 8-column grid with real user data.
   Role badges show correct colors per role type.
@@ -299,6 +362,10 @@ Create UserTable, UserToolbar, and UserPagination components.
 <task type="checkpoint:human-verify" gate="blocking">
   <name>Task 5: Verify User Management Page End-to-End</name>
   <files>src/app/[locale]/admin/users/page.tsx</files>
+  <read_first>
+    - src/legacy/[locale]/admin/users/UsersPageClient.tsx (expected UI behavior)
+    - src/components/admin/AdminStatGrid.tsx (migrated component)
+  </read_first>
   <action>
 Verify the User Management page works end-to-end with real data.
 
@@ -334,6 +401,21 @@ Verify the User Management page works end-to-end with real data.
   <resume-signal>
 Type "approved" or describe issues found
   </resume-signal>
+  </verify>
+  <acceptance_criteria>
+    - Page loads without console errors at /vi/admin/users
+    - 4 stat cards display with real Prisma counts
+    - 6 role pills + pending pill display with counts
+    - User table shows 8 columns with data
+    - Search filters table after 300ms debounce
+    - Pagination updates URL and table
+    - URL params persist after page refresh
+  </acceptance_criteria>
+  <done>
+  User Management page verified end-to-end with real data.
+  All interactive features working: search, filters, pagination.
+  URL sync working correctly.
+  </done>
 </task>
 
 </tasks>

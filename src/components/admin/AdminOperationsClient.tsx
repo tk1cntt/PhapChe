@@ -34,28 +34,38 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [initialized, setInitialized] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Sync pagination with URL params
+  // Sync pagination from URL on mount - this MUST run before first fetch
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const pageParam = params.get('page');
     const pageSizeParam = params.get('pageSize');
-    if (pageParam) setPage(parseInt(pageParam, 10) || 1);
-    if (pageSizeParam) setPageSize(parseInt(pageSizeParam, 10) || 20);
-  }, []);
+
+    let hasChanges = false;
+    const newPage = pageParam ? parseInt(pageParam, 10) || 1 : 1;
+    const newPageSize = pageSizeParam ? parseInt(pageSizeParam, 10) || 20 : 20;
+
+    if (newPage !== page) { setPage(newPage); hasChanges = true; }
+    if (newPageSize !== pageSize) { setPageSize(newPageSize); hasChanges = true; }
+
+    // Mark as initialized after syncing URL
+    if (!hasChanges || newPage === page) {
+      setInitialized(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
+
+  // Update initialized when page/pageSize settle
+  useEffect(() => {
+    setInitialized(true);
+  }, [page, pageSize]);
 
   // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(filters.search ?? '');
-      setPage(1);
-      // Update URL
-      const params = new URLSearchParams(window.location.search);
-      params.set('search', filters.search ?? '');
-      params.set('page', '1');
-      const newUrl = `${window.location.pathname}?${params.toString()}`;
-      window.history.replaceState(null, '', newUrl);
     }, 300);
     return () => clearTimeout(timer);
   }, [filters.search]);
@@ -68,7 +78,10 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
   }, []);
 
   const fetchData = useCallback(async () => {
-    // Abort any in-flight request to prevent race conditions
+    // Skip if not initialized yet
+    if (!initialized) return;
+
+    // Abort any in-flight request
     abortControllerRef.current?.abort();
     abortControllerRef.current = new AbortController();
 
@@ -109,7 +122,6 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
       });
       setData(result);
     } catch (err) {
-      // Ignore abort errors as they are expected when component unmounts or new request starts
       if (err instanceof Error && err.name === 'AbortError') return;
       const errorMessage = err instanceof Error ? err.message : 'Lỗi không xác định';
       setError(errorMessage);
@@ -117,14 +129,19 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
     } finally {
       setLoading(false);
     }
-  }, [filters, debouncedSearch, page, pageSize, router]);
+  }, [filters, debouncedSearch, page, pageSize, router, initialized]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  // Fetch when page/pageSize/initialized changes
+  useEffect(() => {
+    if (initialized) {
+      fetchData();
+    }
+  }, [fetchData, initialized]);
 
-  // Pagination handlers - sync with URL
+  // Pagination handlers
   const handlePageChange = (newPage: number, newPageSize?: number) => {
-    if (newPage !== page) setPage(newPage);
-    if (newPageSize && newPageSize !== pageSize) setPageSize(newPageSize);
+    setPage(newPage);
+    if (newPageSize) setPageSize(newPageSize);
 
     // Update URL
     const params = new URLSearchParams(window.location.search);
@@ -134,9 +151,19 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
     window.history.replaceState(null, '', newUrl);
   };
 
-  const handleSearch = (q: string) => { setFilters((f) => ({ ...f, search: q })); };
-  const handleFilter = () => { /* placeholder for filter modal */ };
-  const handleExport = () => { /* placeholder for export */ };
+  const handleSearch = (q: string) => {
+    setFilters((f) => ({ ...f, search: q }));
+    setPage(1);
+    // Update URL
+    const params = new URLSearchParams(window.location.search);
+    params.set('search', q);
+    params.set('page', '1');
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState(null, '', newUrl);
+  };
+
+  const handleFilter = () => { /* placeholder */ };
+  const handleExport = () => { /* placeholder */ };
   const handleRefresh = () => fetchData();
 
   const toolbarTranslations = {

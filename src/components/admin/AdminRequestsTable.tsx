@@ -136,14 +136,14 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
                   <path d="M14 2v6h6"/>
                 </svg>
               </div>
-              <span className="font-mono text-sm font-bold text-[#0f172a]">{row.id}</span>
+              <strong className="text-sm font-bold text-[#0f172a]">{row.id}</strong>
             </div>
           </div>
 
           {/* Workspace */}
           <div className="flex items-center px-[18px] border-r" style={{ borderColor: '#dfe7f1', minWidth: 0 }}>
             <div>
-              <span className="block text-sm font-semibold text-[#0f172a] mb-1">{row.workspace}</span>
+              <strong className="block text-sm font-semibold text-[#0f172a] mb-1">{row.workspace}</strong>
               <span className="block text-[12px] text-[#64748b]">{row.workspaceSlug}</span>
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
                 {row.customer.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
               </div>
               <div>
-                <span className="block text-sm font-semibold text-[#0f172a] mb-1">{row.customer}</span>
+                <strong className="block text-sm font-semibold text-[#0f172a] mb-1">{row.customer}</strong>
                 <span className="block text-[12px] text-[#64748b]">{row.customerEmail}</span>
               </div>
             </div>
@@ -168,12 +168,12 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
 
           {/* Loại yêu cầu */}
           <div className="flex items-center px-[18px] border-r" style={{ borderColor: '#dfe7f1', minWidth: 0 }}>
-            <span className="text-sm text-[#0f172a] font-medium">{row.requestType || row.type}</span>
+            <span className="text-sm text-[#0f172a]">{row.requestType || row.type}</span>
           </div>
 
           {/* Phụ trách */}
           <div className="flex items-center px-[18px] border-r" style={{ borderColor: '#dfe7f1', minWidth: 0 }}>
-            <span className="text-sm text-[#0f172a] font-medium">{row.assignee || '—'}</span>
+            <span className="text-sm text-[#0f172a]">{row.assignee || '—'}</span>
           </div>
 
           {/* Thao tác */}

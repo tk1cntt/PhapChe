@@ -2,8 +2,11 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
+import { signOut } from '@/lib/auth-client';
 import {
   LayoutDashboard,
   FileText,
@@ -12,6 +15,7 @@ import {
   Settings,
   Search,
   HelpCircle,
+  LogOut,
 } from 'lucide-react';
 
 export interface UserLayoutProps {
@@ -35,12 +39,38 @@ export function UserLayout({
   workspaceSlug,
 }: UserLayoutProps): React.ReactElement {
   const pathname = usePathname();
+  const router = useRouter();
   const t = useTranslations('Nav');
   const tDashboard = useTranslations('UserDashboard');
   const tCommon = useTranslations('Common');
 
   const segments = pathname.split('/').filter(Boolean);
   const locale = segments[0] || 'vi';
+
+  const handleLogout = async () => {
+    try {
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push('/vi/sign-in');
+            router.refresh();
+          },
+        },
+      });
+    } catch (e) {
+      console.error('Logout error:', e);
+      router.push('/vi/sign-in');
+    }
+  };
+
+  const userMenuItems: MenuProps['items'] = [
+    {
+      key: 'logout',
+      label: 'Đăng xuất',
+      icon: <LogOut size={16} />,
+      onClick: handleLogout,
+    },
+  ];
 
   const navItems = [
     { href: `/${locale}/dashboard`, label: t('dashboard'), icon: LayoutDashboard, active: pathname === `/${locale}/dashboard` || pathname === `/${locale}/dashboard/` },
@@ -83,13 +113,15 @@ export function UserLayout({
             </div>
           </div>
 
-          <div className="profile">
-            <div className="avatar">{getInitials(userName)}</div>
-            <div className="profile-info">
-              <strong>{userName}</strong>
-              <span>{userRole}</span>
+          <Dropdown menu={{ items: userMenuItems }} trigger={['click']} placement="topRight">
+            <div className="profile">
+              <div className="avatar">{getInitials(userName)}</div>
+              <div className="profile-info">
+                <strong>{userName}</strong>
+                <span>{userRole}</span>
+              </div>
             </div>
-          </div>
+          </Dropdown>
         </div>
       </aside>
 

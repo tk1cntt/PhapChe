@@ -1,7 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
+import { signOut } from '@/lib/auth-client';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -19,6 +22,7 @@ interface NavItem {
 
 function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userInitial = 'A' }: { userName?: string; userRole?: string; userInitial?: string }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const navItems: NavItem[] = [
     {
@@ -100,6 +104,38 @@ function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userIniti
     return pathname === href || pathname.startsWith(href + '/');
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push('/vi/sign-in');
+            router.refresh();
+          },
+        },
+      });
+    } catch (e) {
+      console.error('Logout error:', e);
+      // Fallback: redirect anyway
+      router.push('/vi/sign-in');
+    }
+  };
+
+  const userMenuItems: MenuProps['items'] = [
+    {
+      key: 'logout',
+      label: 'Đăng xuất',
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      ),
+      onClick: handleLogout,
+    },
+  ];
+
   return (
     <aside className="sidebar">
       <div>
@@ -135,17 +171,19 @@ function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userIniti
           </div>
         </div>
 
-        {/* User Profile */}
-        <div className="profile">
-          <div className="avatar">{userInitial}</div>
-          <div className="profile-info">
-            <strong>{userName}</strong>
-            <span>{userRole}</span>
+        {/* User Profile with Dropdown */}
+        <Dropdown menu={{ items: userMenuItems }} trigger={['click']} placement="topRight">
+          <div className="profile">
+            <div className="avatar">{userInitial}</div>
+            <div className="profile-info">
+              <strong>{userName}</strong>
+              <span>{userRole}</span>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
           </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2">
-            <path d="m6 9 6 6 6-6"/>
-          </svg>
-        </div>
+        </Dropdown>
       </div>
     </aside>
   );

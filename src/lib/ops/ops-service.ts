@@ -512,7 +512,7 @@ export async function getOpsAggregate(
   if (filters.dateFrom || filters.dateTo) {
     and.push({ createdAt: { ...(filters.dateFrom ? { gte: filters.dateFrom } : {}), ...(filters.dateTo ? { lte: filters.dateTo } : {}) } });
   }
-  if (filters.search) {
+  if (filters.search && filters.search.length <= 200) {
     and.push({
       OR: [
         { title: { contains: filters.search } },

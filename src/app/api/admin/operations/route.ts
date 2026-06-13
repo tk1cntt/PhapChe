@@ -1,0 +1,42 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAppSession } from '@/lib/security/session';
+import { getOpsAggregate, OpsAggregateDto } from '@/lib/ops/ops-service';
+import type { RequestStatus } from '@/lib/types';
+
+const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
+const VALID_STATUSES: RequestStatus[] = [
+  'draft_intake', 'intake_submitted', 'triage', 'assigned', 'in_progress',
+  'pending_review', 'revision_required', 'approved', 'delivered', 'closed', 'cancelled',
+];
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await requireAppSession();
+
+    const hasAdminRole = session.roles?.some((role) => (ADMIN_ROLES as readonly string[]).includes(role));
+    if (!hasAdminRole) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const rawStatus = searchParams.get('status');
+    const filters = {
+      workspaceId: searchParams.get('workspaceId') || undefined,
+      matterTypeKey: searchParams.get('matterTypeKey') || undefined,
+      status: rawStatus && VALID_STATUSES.includes(rawStatus as RequestStatus) ? (rawStatus as RequestStatus) : undefined,
+      assignedSpecialistId: searchParams.get('assignedSpecialistId') || undefined,
+      assignedReviewerId: searchParams.get('assignedReviewerId') || undefined,
+      dateFrom: searchParams.get('dateFrom') ? new Date(searchParams.get('dateFrom')!) : undefined,
+      dateTo: searchParams.get('dateTo') ? new Date(searchParams.get('dateTo')!) : undefined,
+      search: searchParams.get('search') || undefined,
+      page: parseInt(searchParams.get('page') ?? '1', 10),
+      pageSize: parseInt(searchParams.get('pageSize') ?? '20', 10),
+    };
+
+    const data = await getOpsAggregate(session, filters);
+    return NextResponse.json(data as OpsAggregateDto);
+  } catch (error) {
+    console.error('[GET /api/admin/operations]', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

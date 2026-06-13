@@ -24,6 +24,7 @@ model User {
   phone              String?
   title              String?
   timezone           String?              @default("Asia/Ho_Chi_Minh")
+  locale             String?              @default("vi")
   avatarUrl          String?
   lastActiveAt       DateTime?
   isActive           Boolean              @default(true)

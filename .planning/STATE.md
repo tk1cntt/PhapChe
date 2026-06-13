@@ -1,31 +1,31 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: Template Parity** - Phases 26-33
+milestone: v2.0
+milestone_name: Admin Portal Real Data — Phases 46-52
 status: executing
-last_updated: "2026-06-13T05:30:04.734Z"
+last_updated: "2026-06-13T00:00:00.000Z"
 progress:
-  total_phases: 19
-  completed_phases: 13
-  total_plans: 35
-  completed_plans: 34
-  percent: 68
+  total_phases: 7
+  completed_phases: 3
+  total_plans: 7
+  completed_plans: 3
+  percent: 43
 ---
 
-# State: v1.4 Template Parity — Full Coverage
+# State: v2.0 Admin Portal Real Data — Full Coverage
 
 ## Project Reference
 
 **Project:** GitNexus Legal - Legal-as-a-Service Platform
 **Core Value:** SME gui yeu cau phap ly don gian nhu nhan tin va nhan tai lieu/tu van da qua kiem soat chat luong, co the truy vet toan bo qua trinh xu ly.
-**Current Milestone:** v1.4 Template Parity — Full Coverage
+**Current Milestone:** v2.0 Admin Portal Real Data — Full Coverage
 
 ## Current Position
 
-Phase: 48 — COMPLETE
+Phase: 49 — NEXT
 Plan: 01 of 01
-**Plan:** Completed
-**Status:** Ready for next phase
+**Plan:** Pending
+**Status:** Phase 47 and 48 completed; ready to plan/execute Operations real data integration.
 
 ### Phase 32: Admin Dashboard
 
@@ -37,6 +37,30 @@ Plan: 01 of 01
 ### Phase 46: Admin Dashboard Real Data
 
 - [x] 46-01-PLAN.md — Clone 8 admin components + Prisma page (6f50af4, 1551bae)
+
+### Phase 47: User Management Real Data
+
+- [x] 47-01-PLAN.md — Admin users API integration, table, toolbar, paging
+
+### Phase 48: Request Management Real Data
+
+- [x] 48-01-PLAN.md — Admin request management API integration and UI parity
+
+### Phase 49: Operations Real Data
+
+- [ ] 49-01-PLAN.md — Operations real data integration
+
+### Phase 50: Audit Real Data
+
+- [ ] 50-01-PLAN.md — Audit real data integration
+
+### Phase 51: Vault Real Data
+
+- [ ] 51-01-PLAN.md — Vault real data integration
+
+### Phase 52: Workspace Real Data
+
+- [ ] 52-01-PLAN.md — Admin workspace real data integration
 
 ### Phase 33: User Management
 
@@ -61,57 +85,42 @@ Plan: 01 of 01
 
 - [x] 30-CONTEXT.md — Context gathered (auto mode)</parameter>
 
-### v1.4 Progress
+### v2.0 Admin Real Data Progress
 
 ```
-[Phase 26-38]
-Phase 26: Customer Dashboard   |**                  | 10%
-Phase 27: Create Request       |***                 | 30%
-Phase 28: My Cases            |                    | 0%
-Phase 29: Messages            |***                 | 100%
-Phase 30: Workspace           |*                   | 10%
-Phase 31: Settings            |                    | 0%
-Phase 32: Admin Dashboard     |****               | 100%
-Phase 33: User Management     |***                | 100%
-Phase 34: Admin Requests      |                    | 0%
-Phase 35: Admin Operations     |                    | 0%
-Phase 36: Admin Audit         |                    | 0%
-Phase 37: Admin Vault         |                    | 0%
-Phase 38: Admin Workspace     |                    | 0%
+[Phase 46-52]
+Phase 46: Admin Dashboard      |****                | 100%
+Phase 47: User Management      |****                | 100%
+Phase 48: Request Management   |****                | 100%
+Phase 49: Operations           |                    | 0%
+Phase 50: Audit                |                    | 0%
+Phase 51: Vault                |                    | 0%
+Phase 52: Workspace            |                    | 0%
 ```
 
 ## Performance Metrics
 
 | Metric | Value | Target | Status |
 |--------|-------|--------|--------|
-| Phases | 13 | 13 | Ready |
-| Requirements | 78 | 78 | Mapped |
-| Plans | 0 | 13 | Pending |
-| Milestone commits | 0 | - | - |
-| Phase 31 P31-01 | fast | 3 tasks | 3 files |
-| Phase 31 P31-02 | 120 | 3 tasks | 3 files |
-| Phase 33 P02 | 480 | 6 tasks | 10 files |
-| Phase 33 P03 | 180 | 4 tasks | 4 files |
+| Phases | 7 | 7 | In progress |
+| Requirements | 28 | 28 | Mapped |
+| Plans | 3 | 7 | Phase 49 next |
+| Completed phases | 3 | 7 | 43% |
+| Admin template screens | 7 | 7 | Covered |
 
-## v1.4 Requirements Summary
+## v2.0 Admin Real Data Requirements Summary
 
-| Screen | Phase | Requirements |
-|--------|-------|--------------|
-| Customer Dashboard | 26 | CUST-DASH-01..10 (10) |
-| Create Request | 27 | CUST-CREATE-01..06 (6) |
-| My Cases | 28 | CUST-CASES-01..05 (5) |
-| Messages | 29 | CUST-MSG-01..04 (4) |
-| Workspace | 30 | CUST-WS-01..04 (4) |
-| Settings | 31 | CUST-SET-01..05 (5) |
-| Admin Dashboard | 32 | ADMIN-DASH-01..10 (10) |
-| User Management | 33 | ADMIN-USER-01..06 (6) |
-| Admin Requests | 34 | ADMIN-REQ-01..05 (5) |
-| Admin Operations | 35 | ADMIN-OPS-01..06 (6) |
-| Admin Audit | 36 | ADMIN-AUD-01..07 (7) |
-| Admin Vault | 37 | ADMIN-VAULT-01..06 (6) |
-| Admin Workspace | 38 | ADMIN-WS-01..04 (4) |
+| Screen | Phase | Requirements | Status |
+|--------|-------|--------------|--------|
+| Admin Dashboard | 46 | ADMIN-DASH-REAL-01..04 | Complete |
+| User Management | 47 | ADMIN-USER-REAL-01..04 | Complete |
+| Request Management | 48 | ADMIN-REQ-REAL-01..04 | Complete |
+| Operations | 49 | ADMIN-OPS-REAL-01..04 | Pending |
+| Audit | 50 | ADMIN-AUDIT-REAL-01..04 | Pending |
+| Vault | 51 | ADMIN-VAULT-REAL-01..04 | Pending |
+| Workspace | 52 | ADMIN-WS-REAL-01..04 | Pending |
 
-**Total: 78 requirements across 13 phases**
+**Total: 28 requirements across 7 admin real-data phases**
 
 ## Accumulated Context
 
@@ -158,12 +167,14 @@ Each phase must verify:
 
 ### Last Session
 
-Executed Plan 33-03: Created UserToolbar component, integrated all components into users page, added integration and e2e tests (336a6cc, 238b9a1, 0f3b190). Phase 33 User Management complete.
+Updated admin real-data roadmap/state coverage through Phase 52. Phase 47 User Management and Phase 48 Request Management are complete; Phase 49 Operations is next.
 
 ### Next Steps
 
-1. Phase 34: Admin Requests screen
-2. Phase 35: Admin Operations screen
+1. Phase 49: Operations real data integration
+2. Phase 50: Audit real data integration
+3. Phase 51: Vault real data integration
+4. Phase 52: Workspace real data integration
 
 ### Blockers
 

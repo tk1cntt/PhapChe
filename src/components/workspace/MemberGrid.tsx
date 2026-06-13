@@ -85,7 +85,7 @@ export function MemberGrid({ members }: MemberGridProps): React.ReactElement {
             <span>{t('membersTitle')}</span>
           </div>
           <Link href="#" className="small-link">
-            {t('manage')} →
+            {t('manage')}
           </Link>
         </div>
         <div className="item-list">

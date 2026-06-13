@@ -577,7 +577,7 @@
     "inactive": "Không hoạt động",
     "invited": "Đã mời",
     "membersTitle": "Thành viên workspace",
-    "manage": "Quản lý",
+    "manage": "Quản lý →",
     "permissionsTitle": "Quyền & bảo mật",
     "tenantIsolation": "Cách ly người thuê",
     "tenantIsolationDesc": "Dữ liệu hồ sơ và vault chỉ hiển thị trong workspace Công ty An Phát, không lẫn với tenant khác.",
@@ -616,7 +616,12 @@
     "inviteSuccess": "Đã gửi lời mời thành công!",
     "cancel": "Hủy",
     "sendInvite": "Gửi lời mời",
-    "sending": "Đang gửi..."
+    "sending": "Đang gửi...",
+    "statusHealthy": "Khỏe mạnh",
+    "statusEncrypted": "Đã mã hóa",
+    "statusPending": "Đang chờ",
+    "enabled": "Đã bật",
+    "disabled": "Chưa bật"
   },
   "UserSettings": {
     "pageTitle": "Cài đặt",

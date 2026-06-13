@@ -21,6 +21,7 @@ export interface ResourceTableProps {
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return '-';
   const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '-';
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear();
@@ -37,7 +38,7 @@ export function ResourceTable({ resources }: ResourceTableProps): React.ReactEle
       name: t('legalRequests'),
       description: t('legalRequestsDesc'),
       count: t('countRequests', { count: resources.requestCount }),
-      status: 'Healthy' as const,
+      status: t('statusHealthy'),
       statusVariant: 'green' as const,
       date: resources.lastRequestUpdate,
       action: t('open'),
@@ -47,7 +48,7 @@ export function ResourceTable({ resources }: ResourceTableProps): React.ReactEle
       name: t('vaultDocs'),
       description: t('vaultDocsDesc'),
       count: t('countFiles', { count: resources.vaultFileCount }),
-      status: 'Encrypted' as const,
+      status: t('statusEncrypted'),
       statusVariant: 'green' as const,
       date: resources.lastVaultUpdate,
       action: t('open'),
@@ -57,7 +58,7 @@ export function ResourceTable({ resources }: ResourceTableProps): React.ReactEle
       name: t('memberInvites'),
       description: t('memberInvitesDesc'),
       count: t('countInvites', { count: resources.invitedCount }),
-      status: 'Pending' as const,
+      status: t('statusPending'),
       statusVariant: 'orange' as const,
       date: resources.lastInviteUpdate,
       action: t('resend'),

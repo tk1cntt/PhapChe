@@ -51,7 +51,7 @@ export function StatsGrid({ stats }: StatsGridProps): React.ReactElement {
       icon: Lock,
       variant: 'purple' as const,
       title: t('statVaultScope'),
-      value: stats.vaultFileCount > 0 ? '96%' : '0%',
+      value: stats.vaultFileCount > 0 ? t('enabled') : t('disabled'),
       description: t('statVaultScopeDesc'),
     },
   ];

@@ -568,7 +568,7 @@
     "inactive": "Inactive",
     "invited": "Invited",
     "membersTitle": "Workspace Members",
-    "manage": "Manage",
+    "manage": "Manage →",
     "permissionsTitle": "Permissions & Security",
     "tenantIsolation": "Tenant Isolation",
     "tenantIsolationDesc": "Request and vault data only visible within An Phat Company workspace, isolated from other tenants.",
@@ -607,7 +607,12 @@
     "inviteSuccess": "Invitation sent successfully!",
     "cancel": "Cancel",
     "sendInvite": "Send Invitation",
-    "sending": "Sending..."
+    "sending": "Sending...",
+    "statusHealthy": "Healthy",
+    "statusEncrypted": "Encrypted",
+    "statusPending": "Pending",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
   },
   "UserSettings": {
     "pageTitle": "Settings",

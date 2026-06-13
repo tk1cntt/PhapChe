@@ -1,3 +1,5 @@
+import AdminWorkspaceClient from '@/components/admin/AdminWorkspaceClient';
+
 export default function AdminWorkspacePage() {
-  return <div>Admin Workspace coming soon</div>;
+  return <AdminWorkspaceClient />;
 }

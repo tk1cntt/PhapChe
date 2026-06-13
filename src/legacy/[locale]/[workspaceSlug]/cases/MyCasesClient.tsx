@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import SummaryBanner from '@/app/[locale]/customer/components/SummaryBanner';
 import StatCard from '@/app/[locale]/customer/components/StatCard';
 import MyCasesToolbar from '@/app/[locale]/customer/components/MyCasesToolbar';
@@ -36,12 +37,50 @@ interface MyCasesClientProps {
 
 export function MyCasesClient({ userName, workspaceName, workspaceSlug, stats, requests, notificationCount }: MyCasesClientProps) {
   const t = useTranslations('UserCases');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Initialize state from URL params
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') ?? '');
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(searchParams.get('status'));
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
-  const handleSearch = useCallback((query: string) => setSearchQuery(query), []);
-  const handleStatusFilter = useCallback((status: string | null) => setSelectedStatus(status), []);
+  // Debounced URL update function
+  const updateURL = useCallback((search: string, status: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (search) params.set('search', search);
+    else params.delete('search');
+    if (status) params.set('status', status);
+    else params.delete('status');
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [searchParams, router, pathname]);
+
+  // Debounced callback with 300ms delay
+  const debouncedUpdateURL = useCallback((search: string, status: string | null) => {
+    const timeoutId = setTimeout(() => {
+      updateURL(search, status);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [updateURL]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      // Cleanup handled by returning clearTimeout
+    };
+  }, []);
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    debouncedUpdateURL(query, selectedStatus);
+  }, [selectedStatus, debouncedUpdateURL]);
+
+  const handleStatusFilter = useCallback((status: string | null) => {
+    setSelectedStatus(status);
+    debouncedUpdateURL(searchQuery, status);
+  }, [searchQuery, debouncedUpdateURL]);
+
   const handleTypeFilter = useCallback((type: string | null) => setSelectedType(type), []);
 
   const filteredRequests = useMemo(() => {

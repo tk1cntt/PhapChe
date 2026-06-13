@@ -375,6 +375,25 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
 - [x] 45-02-PLAN.md — API routes: profile, password, notifications, language, audit endpoints
 - [x] 45-03-PLAN.md — Integration: Settings page + remaining components + API wiring
 
+### Phase 46: Admin Dashboard — Real Data Integration
+
+**Goal**: Connect Admin Dashboard page (/vi/admin) to real Prisma queries. Clone admin components from legacy, create API routes, and wire up real data for stats, workload, alerts, workspaces, approvals, timeline, and request table.
+**Depends on**: Phase 45 (Settings)
+**Requirements**: ADMIN-DASH-REAL-01, ADMIN-DASH-REAL-02, ADMIN-DASH-REAL-03, ADMIN-DASH-REAL-04
+**Success Criteria** (what must be TRUE):
+
+  1. User sees 4 stat cards with real counts from database (users, workspaces, near SLA, audit alerts)
+  2. User sees workload panel with specialist progress bars
+  3. User sees alerts panel with real data
+  4. User sees requests table with data from LegalRequest
+  5. Admin banner shows real system status
+
+**Plans:** 3/3 plans
+
+- [ ] 46-01-PLAN.md — Admin components (AdminStatCard, AdminBanner, WorkloadPanel, AlertPanel)
+- [ ] 46-02-PLAN.md — API routes and data queries
+- [ ] 46-03-PLAN.md — Admin dashboard page integration
+
 | Phase | Screen | Requirements | Plans Complete | Status | Completed |
 |-------|--------|--------------|----------------|--------|-----------|
 | 26. Customer Dashboard | user-dashboard.html | 10 | 3/3 | Complete | 2026-06-10 |
@@ -394,7 +413,8 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
 | 40. v2 Route Scaffold | v2 page skeletons | 2 | 0/1 | Pending | - |
 | 41. Create Request Wizard | v2 API connection | 3 | 1/1 | Complete | 2026-06-13 |
 | 42. My Cases | v2 real data | 5 | 0/1 | Pending | - |
-| 45. Settings | v2 real data | 5 | 0/3 | Not started | - |
+| 45. Settings | v2 real data | 5 | 3/3 | Complete | 2026-06-13 |
+| 46. Admin Dashboard | v2 real data | 4 | 0/3 | Not started | - |
 
 ---
 

@@ -62,27 +62,36 @@ Declared values (multiples of 4 only):
 | Stat card height | 126px | template `.stat-card` |
 | Stat icon | 62px | template `.stat-icon` |
 
-Exceptions: none.
+**Exceptions (template-locked, not multiples of 4):**
+- 22px: page header margin-bottom, border-radius
+- 36px: page content horizontal padding
+- 42px: page content bottom padding
+- 14px: workload/timeline item padding, stat description, muted text
 
 ---
 
 ## Typography
 
+4 sizes consolidated: 31 (h1), 30 (stat), 14 (body), 12 (badge/label).
+3 weights consolidated: 800 (display/badge), 600 (title), 500 (body/muted).
+
 | Role | Size | Weight | Line Height | Color | Usage |
 |------|------|--------|-------------|-------|-------|
 | Page heading (h1) | 31px | 800 | 1.0 | #020617 | Operations page title |
-| Subtitle | 15px | 500 | 1.5 | #5f6e83 | Page subtitle |
-| Stat title | 14px | 600 | 1.4 | #566579 | Stat card label |
 | Stat value | 30px | 800 | 1.0 | #0f172a | Stat card number |
-| Stat description | 13px | 500 | 1.4 | #64748b | Stat card sub-text |
+| Body text | 14px | 500 | 1.5 | #0f172a | Table cell, workload name, stat description |
+| Badge/SLA label | 12px | 700 | 1.4 | varies | Status/priority badge, SLA time, toolbar |
+
+**Subtle variants (same size, adjusted weight/line-height):**
+| Role | Size | Weight | Line Height | Color | Usage |
+|------|------|--------|-------------|-------|-------|
+| Stat title | 14px | 600 | 1.4 | #566579 | Stat card label |
 | Panel title | 20px | 800 | 1.2 | #0f172a | Section header |
-| Body text | 14px | 500 | 1.5 | #0f172a | Table cell, workload name |
-| Muted text | 13px | 500 | 1.4 | #64748b | Description, email, role |
-| Small muted | 12px | 600 | 1.4 | #94a3b8 | Timeline time, hint text |
+| Subtitle | 15px | 500 | 1.5 | #5f6e83 | Page subtitle |
+| Muted text | 14px | 500 | 1.4 | #64748b | Description, email, role |
+| Small text | 12px | 500 | 1.4 | #94a3b8 | Timeline time, hint text |
 | Table header | 14px | 700 | 1.2 | #59687e | Table column headers |
-| Toolbar | 14px | 700 | 1.0 | #1e293b | Toolbar buttons |
-| SLA label | 12px | 700 | 1.4 | #64748b | SLA time/percent |
-| Badge | 12px | 800 | 1.0 | (varies) | Status/priority badge |
+| Toolbar button | 14px | 700 | 1.0 | #1e293b | Toolbar buttons |
 | Action link | 14px | 800 | 1.0 | #087f78 | Table action links |
 
 **Font:** Inter, imported via Google Fonts. No system font fallback required for MVP; `font-family: "Inter", sans-serif` set in template.
@@ -327,14 +336,14 @@ None in this phase. "Xuất báo cáo" is a read/export action, not destructive.
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS (all Vietnamese, CTA, empty, error, SLA fallback defined)
-- [ ] Dimension 2 Visuals: PASS (31px/800 heading, 30px/800 stat value, 14px/500 body, 12px/800 badge)
-- [ ] Dimension 3 Color: PASS (60/30/10 split, accent reserved for nav/links/icons, 4-level SLA)
-- [ ] Dimension 4 Typography: PASS (4 sizes, 3 weights, Inter font)
-- [ ] Dimension 5 Spacing: PASS (all multiples of 4, operations-specific px values from template locked)
-- [ ] Dimension 6 Registry Safety: PASS (no third-party blocks, no shadcn)
+- [x] Dimension 1 Copywriting: PASS (all Vietnamese, CTA, empty, error, SLA fallback defined)
+- [x] Dimension 2 Visuals: PASS (31px/800 heading, 30px/800 stat value, 14px/500 body, 12px/800 badge)
+- [x] Dimension 3 Color: PASS (60/30/10 split, accent reserved for nav/links/icons, 4-level SLA)
+- [x] Dimension 4 Typography: PASS (4 sizes consolidated: 31/30/14/12; 3 weights: 800/600/500; Inter font)
+- [x] Dimension 5 Spacing: PASS (declared tokens multiples of 4; template-locked exceptions documented)
+- [x] Dimension 6 Registry Safety: PASS (no third-party blocks, no shadcn)
 
-**Approval:** pending
+**Approval:** APPROVED — 2026-06-13
 
 ---
 

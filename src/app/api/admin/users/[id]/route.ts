@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 
+const ADMIN_ROLES = ['super_admin', 'coordinator_admin', 'audit_admin'] as string[];
+
 interface RouteParams {
   params: Promise<{ id: string }>;
 }
@@ -9,7 +11,13 @@ interface RouteParams {
 // PUT /api/admin/users/[id] - Update user
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    await requireAppSession();
+    const session = await requireAppSession();
+
+    // Authorization check: require admin role
+    const hasAdminRole = session.roles?.some((role) => ADMIN_ROLES.includes(role));
+    if (!hasAdminRole) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const { id } = await params;
     const body = await request.json();
@@ -85,7 +93,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/admin/users/[id] - Deactivate user (soft delete)
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    await requireAppSession();
+    const session = await requireAppSession();
+
+    // Authorization check: require admin role
+    const hasAdminRole = session.roles?.some((role) => ADMIN_ROLES.includes(role));
+    if (!hasAdminRole) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const { id } = await params;
 

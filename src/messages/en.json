@@ -158,7 +158,8 @@
     "primaryAdmin": "Primary admin",
     "team": "Team",
     "noData": "No data",
-    "totalUsersCount": "Total {total} users"
+    "totalUsersCount": "Total {total} users",
+    "role_audit_admin": "Audit Admin"
   },
   "TableUsers": {
     "name": "Name",
@@ -380,7 +381,7 @@
     "greeting": "Hello, {name}",
     "greetingDesc": "Track legal requests, documents and processing progress in your workspace.",
     "createNewRequest": "Create New Request",
-    "welcomeTitle": "Your workspace is running smoothly",
+    "welcomeTitle": "Hello, {name}",
     "welcomeDesc": "{processing} requests being processed, {pendingDocs} documents pending confirmation and {newReplies} new specialist replies.",
     "viewDocuments": "View Documents",
     "sendReply": "Send Reply",
@@ -450,7 +451,6 @@
     "specialistInitials": "SP",
     "portalTitle": "Customer Portal",
     "welcomeSubtitle": "Track legal requests, documents and processing progress in your workspace.",
-    "welcomeTitle": "Hello, {name}",
     "welcomeCardTitle": "Your workspace is running smoothly",
     "welcomeCardDesc": "{processing} requests being processed, {pendingDocs} documents pending confirmation and {newFeedback} new specialist replies.",
     "viewDocs": "View Documents",

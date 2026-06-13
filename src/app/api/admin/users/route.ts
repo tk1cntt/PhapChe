@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 
+const ADMIN_ROLES = ['super_admin', 'coordinator_admin', 'audit_admin'] as string[];
+
 const ROLE_PRIORITY: Record<string, number> = {
   'super_admin': 1,
   'audit_admin': 2,
@@ -14,7 +16,13 @@ const ROLE_PRIORITY: Record<string, number> = {
 // GET /api/admin/users - List users with pagination, search, filters
 export async function GET(request: NextRequest) {
   try {
-    await requireAppSession();
+    const session = await requireAppSession();
+
+    // Authorization check: require admin role
+    const hasAdminRole = session.roles?.some((role) => ADMIN_ROLES.includes(role));
+    if (!hasAdminRole) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') ?? '1', 10);
@@ -110,6 +118,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await requireAppSession();
+
+    // Authorization check: require admin role
+    const hasAdminRole = session.roles?.some((role) => ADMIN_ROLES.includes(role));
+    if (!hasAdminRole) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const body = await request.json();
     const { email, name, phone, timezone, locale } = body;

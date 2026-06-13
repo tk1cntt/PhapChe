@@ -27,6 +27,7 @@ export default async function AdminUsersPage({ params }: PageProps) {
     pendingUsers,
     activeWorkspaces,
     roleCounts,
+    workspaces,
   ] = await Promise.all([
     // Total users count
     prisma.user.count(),
@@ -49,6 +50,13 @@ export default async function AdminUsersPage({ params }: PageProps) {
     prisma.workspaceMembership.groupBy({
       by: ['role'],
       _count: { role: true },
+    }),
+
+    // Workspace options for filter dropdown
+    prisma.workspace.findMany({
+      where: { isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
     }),
   ]);
 
@@ -82,6 +90,7 @@ export default async function AdminUsersPage({ params }: PageProps) {
         initialStats={stats}
         initialRoleStats={sortedRoleStats}
         locale={locale}
+        workspaceOptions={workspaces}
       />
     </AdminLayout>
   );

@@ -158,7 +158,8 @@
     "primaryAdmin": "Quản trị chính",
     "team": "Nhóm",
     "noData": "Không có dữ liệu",
-    "totalUsersCount": "Tổng {total} người dùng"
+    "totalUsersCount": "Tổng {total} người dùng",
+    "role_audit_admin": "Kiểm toán viên"
   },
   "TableUsers": {
     "name": "Tên",
@@ -398,7 +399,6 @@
     "greetingDesc": "Theo dõi yêu cầu pháp lý, tài liệu và tiến độ xử lý trong workspace của bạn.",
     "createNewRequest": "Tạo yêu cầu mới",
     "welcomeTitle": "Xin chào, {name}",
-    "welcomeSubtitle": "Theo dõi yêu cầu pháp lý, tài liệu và tiến độ xử lý trong workspace của bạn.",
     "welcomeCardTitle": "Workspace của bạn đang hoạt động ổn định",
     "welcomeDesc": "{processing} hồ sơ đang xử lý, {pendingDocs} tài liệu chờ xác nhận và {newReplies} phản hồi mới từ chuyên viên.",
     "viewDocuments": "Xem tài liệu",

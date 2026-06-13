@@ -44,6 +44,7 @@ interface UsersPageClientProps {
   initialStats: UserStats;
   initialRoleStats: Record<string, number>;
   locale: string;
+  workspaceOptions?: { id: string; name: string }[];
 }
 
 const statusColors: Record<string, { bg: string; color: string; dot: string }> = {
@@ -74,6 +75,7 @@ export default function UsersPageClient({
   initialStats,
   initialRoleStats,
   locale,
+  workspaceOptions = [],
 }: UsersPageClientProps) {
   const t = useTranslations('AdminUsers');
   const pathname = usePathname();
@@ -199,7 +201,10 @@ export default function UsersPageClient({
           refresh: t('refresh') || 'Refresh',
           export: t('export') || 'Export',
           columns: t('columns') || 'Columns',
+          allRoles: t('allRoles') || 'All Roles',
+          allWorkspaces: t('allWorkspaces') || 'All Workspaces',
         }}
+        workspaceOptions={workspaceOptions}
       />
 
       <UserTable

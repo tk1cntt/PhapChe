@@ -1,3 +1,6 @@
+import AdminVaultClient from '@/components/admin/AdminVaultClient';
+import './vault.css';
+
 export default function AdminVaultPage() {
-  return <div>Admin Vault coming soon</div>;
+  return <AdminVaultClient />;
 }

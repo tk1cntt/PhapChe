@@ -192,6 +192,7 @@ export function parseOpsFilters(searchParamsLike: Record<string, string | string
 function buildOpsRequestWhere(filters: OpsFilters): Prisma.LegalRequestWhereInput {
   const and: Prisma.LegalRequestWhereInput[] = [];
   if (filters.workspaceId) and.push({ workspaceId: filters.workspaceId });
+  // Note: intakeSubmission has @unique requestId, so { is: } is correct for one-to-one filtering
   if (filters.matterTypeKey) and.push({ intakeSubmission: { is: { matterTypeKey: filters.matterTypeKey } } });
   if (filters.status) and.push({ status: filters.status });
   if (filters.assignedSpecialistId) and.push({ assignedSpecialistId: filters.assignedSpecialistId });
@@ -505,6 +506,7 @@ export async function getOpsAggregate(
   // Build where clause
   const and: Prisma.LegalRequestWhereInput[] = [];
   if (filters.workspaceId) and.push({ workspaceId: filters.workspaceId });
+  // Note: intakeSubmission has @unique requestId, so { is: } is correct for one-to-one filtering
   if (filters.matterTypeKey) and.push({ intakeSubmission: { is: { matterTypeKey: filters.matterTypeKey } } });
   if (filters.status) and.push({ status: filters.status });
   if (filters.assignedSpecialistId) and.push({ assignedSpecialistId: filters.assignedSpecialistId });

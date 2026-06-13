@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { signOut } from '@/lib/auth-client';
@@ -11,6 +12,7 @@ interface AdminLayoutProps {
   userName?: string;
   userRole?: string;
   userInitial?: string;
+  locale?: string;
 }
 
 interface NavItem {
@@ -37,9 +39,9 @@ function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userIniti
       ),
     },
     {
-      key: 'workspaces',
+      key: 'workspace',
       label: 'Workspaces',
-      href: '/vi/admin/workspaces',
+      href: '/vi/admin/workspace',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -189,7 +191,16 @@ function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userIniti
   );
 }
 
-function Topbar() {
+function Topbar({ locale = 'vi' }: { locale?: string }) {
+  const t = useTranslations('Common');
+
+  const languageLabels: Record<string, string> = {
+    vi: 'VN Tiếng Việt',
+    en: 'us English',
+  };
+
+  const currentLang = languageLabels[locale] || 'VN Tiếng Việt';
+
   return (
     <header className="topbar">
       {/* Left: Placeholder for breadcrumbs */}
@@ -205,7 +216,7 @@ function Topbar() {
         <div className="search-top">
           <input
             type="text"
-            placeholder="Tìm kiếm..."
+            placeholder={t('search')}
           />
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
             <circle cx="11" cy="11" r="8"/>
@@ -223,14 +234,6 @@ function Topbar() {
           vi Tiếng Việt
         </div>
 
-        {/* Notifications */}
-        <div className="icon-btn" style={{ width: 45, border: 'none', background: 'transparent' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2">
-            <path d="M18 8A6 6 0 0 0-6 8c0 7-3 7-3 7h18s-3 0-3-7"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
-        </div>
-
         {/* Avatar */}
         <div className="circle">A</div>
       </div>
@@ -238,12 +241,12 @@ function Topbar() {
   );
 }
 
-export function AdminLayout({ children, userName, userRole, userInitial }: AdminLayoutProps) {
+export function AdminLayout({ children, userName, userRole, userInitial, locale }: AdminLayoutProps & { locale?: string }) {
   return (
     <div className="app">
       <Sidebar userName={userName} userRole={userRole} userInitial={userInitial} />
       <main className="main">
-        <Topbar />
+        <Topbar locale={locale} />
         <section className="content">
           {children}
         </section>

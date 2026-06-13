@@ -6,6 +6,9 @@ interface AdminOperationsWorkloadProps {
   workload: OpsWorkloadRowDto[];
 }
 
+/** Maximum active items for progress bar normalization (SLA warning threshold) */
+const MAX_ACTIVE_ITEMS_FOR_NORMALIZATION = 20;
+
 function getInitials(name: string): string {
   return name
     .split(' ')
@@ -16,8 +19,7 @@ function getInitials(name: string): string {
 }
 
 function WorkloadItem({ item }: { item: OpsWorkloadRowDto }) {
-  const maxActive = 20; // normalize progress bar to max 20 active items
-  const progress = Math.min(100, Math.round((item.activeCount / maxActive) * 100));
+  const progress = Math.min(100, Math.round((item.activeCount / MAX_ACTIVE_ITEMS_FOR_NORMALIZATION) * 100));
 
   return (
     <div

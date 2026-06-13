@@ -2,6 +2,7 @@
 
 export interface RequestRow {
   id: string;
+  fullId?: string;
   type: string;
   workspace: string;
   workspaceSlug: string;

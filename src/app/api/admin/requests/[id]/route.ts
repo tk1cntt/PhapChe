@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 
-const ADMIN_ROLES = ['super_admin', 'coordinator_admin', 'audit_admin'] as string[];
+// Valid admin roles per schema: coordinator_admin, super_admin (removed audit_admin - not in schema)
+const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
+type AdminRole = typeof ADMIN_ROLES[number];
 
 // GET /api/admin/requests/[id] - Get single request detail
 export async function GET(
@@ -13,7 +15,7 @@ export async function GET(
     const session = await requireAppSession();
 
     // Authorization check: require admin role
-    const hasAdminRole = session.roles?.some((role) => ADMIN_ROLES.includes(role));
+    const hasAdminRole = session.roles?.some((role) => (ADMIN_ROLES as readonly string[]).includes(role));
     if (!hasAdminRole) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

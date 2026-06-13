@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     const session = await requireAppSession();
 
     // Authorization check: require admin role
-    const hasAdminRole = session.roles?.some((role) => ADMIN_ROLES.includes(role));
+    const hasAdminRole = session.roles?.some((role) => (ADMIN_ROLES as readonly string[]).includes(role));
     if (!hasAdminRole) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

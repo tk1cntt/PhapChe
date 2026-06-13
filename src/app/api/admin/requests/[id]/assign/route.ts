@@ -13,7 +13,7 @@ export async function PATCH(
   try {
     const session = await requireAppSession();
 
-    const hasAdminRole = session.roles?.some((role) => ADMIN_ROLES.includes(role));
+    const hasAdminRole = session.roles?.some((role) => (ADMIN_ROLES as readonly string[]).includes(role));
     if (!hasAdminRole) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

@@ -127,10 +127,10 @@ export default function AdminRequestsClient() {
   const handleRefresh = () => { fetchData(); };
 
   const statCards = [
-    { title: 'Tổng số yêu cầu', value: stats.total, description: 'Tất cả yêu cầu pháp lý', variant: 'blue' },
-    { title: 'Chờ xử lý', value: stats.pending, description: 'Yêu cầu cần phân công', variant: 'orange' },
-    { title: 'Đã duyệt', value: stats.approved, description: 'Đã duyệt & đã giao', variant: 'green' },
-    { title: 'Ưu tiên cao', value: stats.highPriority, description: 'Yêu cầu ưu tiên HIGH', variant: 'red' },
+    { title: 'Tổng số yêu cầu', value: stats.total, description: 'Tất cả yêu cầu pháp lý', variant: 'blue' as const },
+    { title: 'Chờ xử lý', value: stats.pending, description: 'Yêu cầu cần phân công', variant: 'orange' as const },
+    { title: 'Đã duyệt', value: stats.approved, description: 'Đã duyệt & đã giao', variant: 'green' as const },
+    { title: 'Ưu tiên cao', value: stats.highPriority, description: 'Yêu cầu ưu tiên HIGH', variant: 'red' as const },
   ];
 
   const toolbarTranslations = {

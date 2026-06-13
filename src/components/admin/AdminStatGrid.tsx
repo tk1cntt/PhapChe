@@ -2,7 +2,7 @@
 
 import { Users, FolderKanban, Clock } from 'lucide-react';
 
-interface StatCardProps {
+export interface StatCardProps {
   title: string;
   value: number | string;
   description: string;

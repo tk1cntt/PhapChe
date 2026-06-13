@@ -6,7 +6,24 @@
 <domain>
 ## Phase Boundary
 
-Clone admin components từ `src/legacy/` sang `src/components/admin/`, kết nối Admin Dashboard page với Prisma queries thực tế. Thay thế mock data bằng data từ database cho stats, workload, alerts, workspaces, approvals, timeline, và request table.
+Clone admin components từ `src/legacy/` sang `src/components/admin/`, kết nối Admin Dashboard page với Prisma queries thực tế. Chỉ làm **dashboard view + layout** - các chức năng khác sẽ theo phase riêng.
+
+**Scope:**
+- Layout và page structure của Admin Dashboard
+- 4 Stat cards (users, workspaces, near SLA, audit alerts)
+- Admin banner với system status
+- Workload panel (specialist progress)
+- Alerts panel
+- Recent data panels (workspaces, approvals, timeline)
+- Request table preview (recent requests)
+
+**Out of scope (sẽ theo phase riêng):**
+- User Management CRUD → Phase 47
+- Request Management → Phase 48
+- Operations Management → Phase 49
+- Audit System → Phase 50
+- Vault Management → Phase 51
+- Workspace Management → Phase 52
 
 </domain>
 

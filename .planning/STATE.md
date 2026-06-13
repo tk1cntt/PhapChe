@@ -178,6 +178,7 @@ None.
 | 260613-4uv | Fix 404 error in CreateRequestForm - Intake submission not found | 2026-06-12 | d22ab11 | Verified | [260613-4uv](./quick/260613-4uv-fix-404-error-in-createrequestform-intak/) |
 | 260613-51w | Fix submit validation - required answers missing in CreateRequestForm | 2026-06-12 | 8bc5457 | Verified | [260613-51w](./quick/260613-51w-fix-submit-validation-required-answers-m/) |
 | 260613-nts | Fix pagination missing next/prev buttons on admin users page | 2026-06-13 | 3bb72db | Verified | [260613-nts](./quick/260613-nts-ph-n-trang-nh-ng-thi-u-next-sang-trang-m/) |
+| 260613-nxg | Fix admin requests page layout/style to match template | 2026-06-13 | c0d3aed | Verified | [260613-nxg](./quick/260613-nxg-fix-admin-requests-page-layout-style-to-/) |
 
 ---
 *Last updated: 2026-06-13*

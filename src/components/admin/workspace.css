@@ -1,0 +1,267 @@
+/* Admin Workspace Page Styles - Match Mock UI Pattern */
+
+.workspace-client {
+  padding: 31px 36px 42px;
+}
+
+.workspace-client .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+
+.workspace-client .page-header h1 {
+  font-size: 31px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  color: #020617;
+  margin-bottom: 12px;
+}
+
+.workspace-client .page-header .subtitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: #5f6e83;
+  margin: 0;
+  line-height: 1.6;
+  max-width: 700px;
+}
+
+.workspace-client .create-btn {
+  height: 45px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #0b8f86, #087970);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 8px 18px rgba(8, 127, 120, 0.25);
+  cursor: pointer;
+}
+
+.workspace-client .create-btn.blue {
+  background: linear-gradient(180deg, #3ba3e7, #2389d0);
+  box-shadow: 0 8px 18px rgba(35, 137, 208, 0.25);
+}
+
+/* Permission Card */
+.workspace-client .permission-card {
+  background: #fff;
+  border: 1px solid #dfe7f1;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+  padding: 26px 25px;
+  margin-bottom: 18px;
+}
+
+.workspace-client .permission-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  font-size: 21px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  color: #0f172a;
+}
+
+.workspace-client .permission-card p {
+  color: #59687e;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+/* Workspace Table */
+.workspace-client .workspace-table-card {
+  background: #fff;
+  border: 1px solid #dfe7f1;
+  border-radius: 15px;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.workspace-client .workspace-table-head {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1fr 0.75fr;
+  background: linear-gradient(180deg, #f8fafc, #f5f7fb);
+  border-bottom: 1px solid #dfe7f1;
+}
+
+.workspace-client .workspace-th {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  color: #59687e;
+  font-size: 14px;
+  font-weight: 700;
+  border-right: 1px solid #dfe7f1;
+}
+
+.workspace-client .workspace-th:last-child {
+  border-right: none;
+}
+
+.workspace-client .workspace-table-row {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1fr 0.75fr;
+  min-height: 72px;
+  border-bottom: 1px solid #dfe7f1;
+  background: #fff;
+  transition: background 0.2s;
+}
+
+.workspace-client .workspace-table-row:last-child {
+  border-bottom: none;
+}
+
+.workspace-client .workspace-table-row:hover {
+  background: #fbfdff;
+}
+
+.workspace-client .workspace-td {
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  font-size: 14px;
+  color: #0f172a;
+  font-weight: 500;
+  border-right: 1px solid #dfe7f1;
+  min-width: 0;
+}
+
+.workspace-client .workspace-td:last-child {
+  border-right: none;
+}
+
+.workspace-client .workspace-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+}
+
+.workspace-client .workspace-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #d4f4ed, #eefbf8);
+  color: #087f78;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.workspace-client .workspace-slug {
+  color: #334155;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workspace-client .workspace-members {
+  color: #334155;
+  font-weight: 600;
+}
+
+.workspace-client .status-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: #ccfbf1;
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.workspace-client .status-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: #10b981;
+  border-radius: 50%;
+  margin-right: 7px;
+}
+
+.workspace-client .status-badge.inactive {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.workspace-client .status-badge.inactive::before {
+  background: #94a3b8;
+}
+
+.workspace-client .workspace-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.workspace-client .workspace-loading,
+.workspace-client .workspace-empty {
+  padding: 48px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Error state */
+.workspace-client .workspace-error-card {
+  background: #fff;
+  border: 1px solid #fee2e2;
+  border-radius: 15px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.workspace-client .workspace-error-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #dc2626;
+  margin-bottom: 8px;
+}
+
+.workspace-client .workspace-error-card p {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.workspace-client .workspace-error-card button {
+  padding: 8px 16px;
+  background: #0b8f86;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .workspace-client {
+    padding: 20px;
+  }
+
+  .workspace-client .workspace-table-card {
+    overflow-x: auto;
+  }
+
+  .workspace-client .workspace-table-head,
+  .workspace-client .workspace-table-row {
+    min-width: 800px;
+  }
+}

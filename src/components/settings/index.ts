@@ -14,3 +14,7 @@ export { SecuritySettings } from './SecuritySettings';
 export type { SecuritySettingsProps } from './SecuritySettings';
 
 export { NotificationSettings } from './NotificationSettings';
+
+export { LanguageSettings } from './LanguageSettings';
+
+export { AuditSettings } from './AuditSettings';

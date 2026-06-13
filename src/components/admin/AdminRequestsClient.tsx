@@ -127,14 +127,14 @@ export default function AdminRequestsClient() {
   const handleRefresh = () => { fetchData(); };
 
   const statCards = [
-    { title: 'Tổng số yêu cầu', value: stats.total, description: 'Tất cả yêu cầu pháp lý', variant: 'blue' as const },
-    { title: 'Chờ xử lý', value: stats.pending, description: 'Yêu cầu cần phân công', variant: 'orange' as const },
-    { title: 'Đã duyệt', value: stats.approved, description: 'Đã duyệt & đã giao', variant: 'green' as const },
-    { title: 'Ưu tiên cao', value: stats.highPriority, description: 'Yêu cầu ưu tiên HIGH', variant: 'red' as const },
+    { title: 'Tổng hồ sơ', value: stats.total, description: 'Tất cả workspace', variant: 'blue' as const },
+    { title: 'Đang chờ', value: stats.pending, description: 'Cần chuyên viên xử lý', variant: 'orange' as const },
+    { title: 'Đã duyệt', value: stats.approved, description: 'Hoàn tất workflow', variant: 'green' as const },
+    { title: 'Ưu tiên cao', value: stats.highPriority, description: 'Sắp đến hạn xử lý', variant: 'red' as const },
   ];
 
   const toolbarTranslations = {
-    searchPlaceholder: 'Tìm hồ sơ, mã yêu cầu...',
+    searchPlaceholder: 'Tìm hồ sơ, khách hàng, workspace...',
     filter: 'Bộ lọc',
     status: 'Trạng thái',
     workspace: 'Workspace',
@@ -144,13 +144,43 @@ export default function AdminRequestsClient() {
     allWorkspaces: 'Tất cả workspaces',
   };
 
+  const tableTranslations = {
+    code: 'Mã hồ sơ',
+    workspace: 'Workspace',
+    customer: 'Khách hàng',
+    status: 'Trạng thái',
+    requestType: 'Loại yêu cầu',
+    assignee: 'Phụ trách',
+    action: 'Thao tác',
+  };
+
   const totalPages = Math.ceil(total / pageSize);
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#0f172a]">Yêu cầu pháp lý</h1>
-        <p className="text-sm text-[#64748b]">Quản lý và theo dõi các yêu cầu pháp lý</p>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: '#020617', marginBottom: 12 }}>
+            Hồ sơ yêu cầu
+          </h1>
+          <p style={{ fontSize: 15, fontWeight: 500, color: '#5f6e83', margin: 0 }}>
+            Trạng thái hồ sơ được hiển thị từ backend-owned workflow, không chỉnh sửa trực tiếp bằng raw dropdown.
+          </p>
+        </div>
+        <button
+          className="h-[45px] px-[18px] border-0 rounded-[8px] text-white flex items-center gap-[10px] font-bold text-sm"
+          style={{
+            background: 'linear-gradient(180deg, #3ba3e7, #2389d0)',
+            boxShadow: '0 8px 18px rgba(35, 137, 208, 0.25)',
+            cursor: 'pointer',
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+            <path d="M12 5v14"/>
+            <path d="M5 12h14"/>
+          </svg>
+          Tạo hồ sơ yêu cầu
+        </button>
       </div>
 
       <AdminStatGrid cards={statCards} />
@@ -175,7 +205,7 @@ export default function AdminRequestsClient() {
         </div>
       ) : !error ? (
         <>
-          <AdminRequestsTable rows={requests} />
+          <AdminRequestsTable rows={requests} translations={tableTranslations} />
 
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between">
@@ -188,6 +218,22 @@ export default function AdminRequestsClient() {
           )}
         </>
       ) : null}
+
+      {/* Floating SLA warning button */}
+      {stats.highPriority > 0 && (
+        <div className="fixed right-[22px] bottom-[20px] min-w-[118px] h-[48px] rounded-[999px] flex items-center justify-center gap-2 text-white font-bold px-[14px]"
+          style={{
+            background: 'linear-gradient(180deg, #ef4444, #dc2626)',
+            border: '3px solid #facc15',
+            boxShadow: '0 12px 26px rgba(15, 23, 42, 0.22)',
+          }}
+        >
+          <span className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.18)' }}>
+            N
+          </span>
+          <span>{stats.highPriority} Issue ×</span>
+        </div>
+      )}
     </div>
   );
 }

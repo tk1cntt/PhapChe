@@ -10,15 +10,25 @@ export interface RequestRow {
   customerEmail: string;
   status: 'orange' | 'blue' | 'green' | 'red' | 'purple';
   statusText: string;
+  requestType?: string;
   assignee: string;
   assigneeRole: string;
-  sla: 'red' | 'orange' | 'green' | 'blue';
-  slaText: string;
+  sla?: 'red' | 'orange' | 'green' | 'blue';
+  slaText?: string;
   action: string;
 }
 
 interface AdminRequestsTableProps {
   rows?: RequestRow[];
+  translations?: {
+    code: string;
+    workspace: string;
+    customer: string;
+    status: string;
+    requestType: string;
+    assignee: string;
+    action: string;
+  };
 }
 
 const badgeStyles: Record<string, { bg: string; color: string }> = {
@@ -48,7 +58,16 @@ function Badge({ variant, text }: { variant: string; text: string }) {
   );
 }
 
-export default function AdminRequestsTable({ rows = [] }: AdminRequestsTableProps) {
+export default function AdminRequestsTable({ rows = [], translations }: AdminRequestsTableProps) {
+  const t = translations || {
+    code: 'Mã hồ sơ',
+    workspace: 'Workspace',
+    customer: 'Khách hàng',
+    status: 'Trạng thái',
+    requestType: 'Loại yêu cầu',
+    assignee: 'Phụ trách',
+    action: 'Thao tác',
+  };
   // IN-01: Empty state when no data
   if (!rows || rows.length === 0) {
     return (
@@ -77,16 +96,16 @@ export default function AdminRequestsTable({ rows = [] }: AdminRequestsTableProp
       <div
         className="grid border-b"
         style={{
-          gridTemplateColumns: '1.05fr 1fr 1fr 1fr 1fr 0.9fr 0.9fr',
+          gridTemplateColumns: '0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr',
           background: 'linear-gradient(180deg, #f8fafc, #f5f7fb)',
           borderColor: 'var(--border)',
         }}
       >
-        {['Mã hồ sơ', 'Workspace', 'Khách hàng', 'Trạng thái', 'Người phụ trách', 'SLA', 'Thao tác'].map(
+        {[t.code, t.workspace, t.customer, t.status, t.requestType, t.assignee, t.action].map(
           (header, i) => (
             <div
               key={i}
-              className="flex items-center px-4 text-[#59687e] text-sm font-bold border-r last:border-0 min-h-[54px]"
+              className="flex items-center px-[18px] text-[#59687e] text-sm font-bold border-r last:border-0 min-h-[54px]"
               style={{ borderColor: 'var(--border)' }}
             >
               {header}
@@ -98,57 +117,66 @@ export default function AdminRequestsTable({ rows = [] }: AdminRequestsTableProp
       {rows.map((row, rowIndex) => (
         <div
           key={rowIndex}
-          className="grid min-h-[72px] border-b last:border-0 bg-white transition-colors cursor-pointer hover:bg-slate-50/50"
+          className="grid min-h-[68px] border-b last:border-0 bg-white transition-colors cursor-pointer hover:bg-[#fbfdff]"
           style={{
-            gridTemplateColumns: '1.05fr 1fr 1fr 1fr 1fr 0.9fr 0.9fr',
+            gridTemplateColumns: '0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr',
             borderColor: 'var(--border)',
           }}
         >
-          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
+          {/* Mã hồ sơ */}
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)', minWidth: 0 }}>
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-[11px] flex items-center justify-center shrink-0 text-lg" style={{ background: 'linear-gradient(135deg, #dbeafe, #eff6ff)', color: '#2563eb' }}>
-                📄
+              <div className="w-9 h-9 rounded-[11px] flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #dbeafe, #eff6ff)', color: '#2563eb' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <path d="M14 2v6h6"/>
+                </svg>
               </div>
-              <div>
-                <strong className="block text-sm text-[#0f172a] mb-1">{row.id}</strong>
-                <span className="block text-[12px] text-[#64748b]">{row.type}</span>
-              </div>
+              <strong className="text-sm font-bold text-[#0f172a]">{row.id}</strong>
             </div>
           </div>
 
-          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
+          {/* Workspace */}
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)', minWidth: 0 }}>
             <div>
               <strong className="block text-sm text-[#0f172a] mb-1">{row.workspace}</strong>
               <span className="block text-[12px] text-[#64748b]">{row.workspaceSlug}</span>
             </div>
           </div>
 
-          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
-            <div>
-              <strong className="block text-sm text-[#0f172a] mb-1">{row.customer}</strong>
-              <span className="block text-[12px] text-[#64748b]">{row.customerEmail}</span>
+          {/* Khách hàng */}
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)', minWidth: 0 }}>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-extrabold text-[13px]" style={{ background: '#eef2f7', color: '#334155' }}>
+                {row.customer.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
+              </div>
+              <div>
+                <strong className="block text-sm text-[#0f172a] mb-1">{row.customer}</strong>
+                <span className="block text-[12px] text-[#64748b]">{row.customerEmail}</span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
+          {/* Trạng thái */}
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)' }}>
             <Badge variant={row.status} text={row.statusText} />
           </div>
 
-          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
-            <div>
-              <strong className="block text-sm text-[#0f172a] mb-1">{row.assignee}</strong>
-              <span className="block text-[12px] text-[#64748b]">{row.assigneeRole}</span>
-            </div>
+          {/* Loại yêu cầu */}
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)', minWidth: 0 }}>
+            <span className="text-sm text-[#0f172a] font-medium">{row.requestType || row.type}</span>
           </div>
 
-          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
-            <Badge variant={row.sla} text={row.slaText} />
+          {/* Phụ trách */}
+          <div className="flex items-center px-[18px] border-r" style={{ borderColor: 'var(--border)', minWidth: 0 }}>
+            <span className="text-sm text-[#0f172a] font-medium">{row.assignee || '—'}</span>
           </div>
 
-          <div className="flex items-center px-4">
-            <button type="button" className="text-teal-600 font-extrabold bg-transparent border-0 inline-flex items-center gap-1.5 whitespace-nowrap text-sm cursor-pointer">
+          {/* Thao tác */}
+          <div className="flex items-center px-[18px]">
+            <a href="#" className="text-[#087f78] font-extrabold no-underline inline-flex items-center gap-1.5">
               {row.action} →
-            </button>
+            </a>
           </div>
         </div>
       ))}

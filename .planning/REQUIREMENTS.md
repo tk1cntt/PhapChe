@@ -72,11 +72,11 @@ Mỗi phase cần có seed script tạo:
 
 #### My Cases (user-cases.html)
 
-- [ ] **CUST-CASES-01**: Summary banner shows total cases message
-- [ ] **CUST-CASES-02**: 4 stats cards display (Tổng: 12, Đang xử lý: 3, Hoàn tất: 8, Quá hạn: 1)
-- [ ] **CUST-CASES-03**: Toolbar with search, filters, status/loại dropdowns functional
-- [ ] **CUST-CASES-04**: Requests table shows 7 columns matching template
-- [ ] **CUST-CASES-05**: Table rows display sample data (REQ-2026-021, 019, 018, 016, 012)
+- [x] **CUST-CASES-01**: Summary banner shows total cases message
+- [x] **CUST-CASES-02**: 4 stats cards display (Tổng: 12, Đang xử lý: 3, Hoàn tất: 8, Quá hạn: 1)
+- [x] **CUST-CASES-03**: Toolbar with search, filters, status/loại dropdowns functional
+- [x] **CUST-CASES-04**: Requests table shows 7 columns matching template
+- [x] **CUST-CASES-05**: Table rows display sample data (REQ-2026-021, 019, 018, 016, 012)
 
 #### Messages (user-messages.html)
 

@@ -350,9 +350,9 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
   4. Status filter shows only matching requests
   5. SLA calculation uses slaDeadline from LegalRequest
 
-**Plans:** 1/1 plans
+**Plans:** 1/1 plans complete
 
-- [ ] 42-01-PLAN.md — Prisma queries and client-side filtering (pending)
+- [x] 42-01-PLAN.md — Prisma queries and client-side filtering (pending)
 
 ## Progress
 

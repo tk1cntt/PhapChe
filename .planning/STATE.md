@@ -192,6 +192,7 @@ None.
 | 260613-nts | Fix pagination missing next/prev buttons on admin users page | 2026-06-13 | 3bb72db | Verified | [260613-nts](./quick/260613-nts-ph-n-trang-nh-ng-thi-u-next-sang-trang-m/) |
 | 260613-nxg | Fix admin requests page layout/style to match template | 2026-06-13 | c0d3aed | Verified | [260613-nxg](./quick/260613-nxg-fix-admin-requests-page-layout-style-to-/) |
 | 260613-ops-fix | Fix admin operations page bugs - menu link, timeline scroll | 2026-06-13 | b499c0d | Verified | [260613-ops-fix](./quick/260613-ops-fix/) |
+| 260613-lgc | Migrate src/legacy to src/components and delete legacy | 2026-06-13 | c12e290 | Verified | [260613-lgc](./quick/260613-lgc-migrate-src-legacy-to-src-components/) |
 
 ---
 *Last updated: 2026-06-13*

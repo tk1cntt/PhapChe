@@ -101,6 +101,12 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
       }
 
       const result = await response.json();
+      console.log('[Ops] Fetched:', {
+        requestCount: result.requests?.length,
+        pagination: result.pagination,
+        page: page,
+        pageSize: pageSize
+      });
       setData(result);
     } catch (err) {
       // Ignore abort errors as they are expected when component unmounts or new request starts

@@ -502,6 +502,7 @@ export async function getOpsAggregate(
   const page = Math.max(1, filters.page ?? 1);
   const pageSize = Math.min(100, Math.max(1, filters.pageSize ?? 20));
   const skip = (page - 1) * pageSize;
+  console.log('[getOpsAggregate] page:', page, 'pageSize:', pageSize, 'skip:', skip);
 
   // Build where clause
   const and: Prisma.LegalRequestWhereInput[] = [];

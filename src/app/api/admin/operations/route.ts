@@ -27,6 +27,10 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const rawStatus = searchParams.get('status');
+    const page = parseInt(searchParams.get('page') ?? '1', 10);
+    const pageSize = parseInt(searchParams.get('pageSize') ?? '20', 10);
+    console.log('[API /operations] page:', page, 'pageSize:', pageSize, 'params:', searchParams.toString());
+
     const filters = {
       workspaceId: searchParams.get('workspaceId') || undefined,
       matterTypeKey: searchParams.get('matterTypeKey') || undefined,
@@ -36,8 +40,8 @@ export async function GET(request: NextRequest) {
       dateFrom: parseDateParam(searchParams.get('dateFrom')),
       dateTo: parseDateParam(searchParams.get('dateTo')),
       search: searchParams.get('search') || undefined,
-      page: parseInt(searchParams.get('page') ?? '1', 10),
-      pageSize: parseInt(searchParams.get('pageSize') ?? '20', 10),
+      page,
+      pageSize,
     };
 
     const data = await getOpsAggregate(session, filters);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { OpsAggregateDto } from '@/lib/ops/ops-service';
 import { AdminOperationsStats } from '@/components/admin/AdminOperationsStats';
@@ -34,6 +34,7 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Debounced search
   useEffect(() => {
@@ -44,7 +45,18 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
     return () => clearTimeout(timer);
   }, [filters.search]);
 
+  // Cleanup abort controller on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
   const fetchData = useCallback(async () => {
+    // Abort any in-flight request to prevent race conditions
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = new AbortController();
+
     setLoading(true);
     setError(null);
     try {
@@ -60,7 +72,9 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
       params.set('page', page.toString());
       params.set('pageSize', pageSize.toString());
 
-      const response = await fetch(`/api/admin/operations?${params.toString()}`);
+      const response = await fetch(`/api/admin/operations?${params.toString()}`, {
+        signal: abortControllerRef.current.signal,
+      });
 
       if (!response.ok) {
         if (response.status === 403) {
@@ -74,6 +88,8 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
       const result = await response.json();
       setData(result);
     } catch (err) {
+      // Ignore abort errors as they are expected when component unmounts or new request starts
+      if (err instanceof Error && err.name === 'AbortError') return;
       const errorMessage = err instanceof Error ? err.message : 'Lỗi không xác định';
       setError(errorMessage);
       console.error('Error fetching operations:', err);

@@ -356,6 +356,26 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
 
 ## Progress
 
+### Phase 45: Settings — Real Data Integration
+
+**Goal**: Connect Settings page (/vi/settings) to real Prisma queries. Replace placeholder "Settings coming soon" with full settings functionality including profile form, security settings, notification preferences, workspace settings, language switch, and audit log viewer.
+**Depends on**: Phase 42 (My Cases)
+**Requirements**: CUST-SET-01, CUST-SET-02, CUST-SET-03, CUST-SET-04, CUST-SET-05
+**Success Criteria** (what must be TRUE):
+
+  1. User sees 6-tab settings menu with icons (Ho so ca nhan, Bao mat, Thong bao, Workspace, Ngon ngu, Audit)
+  2. User sees profile form with 6 fields pre-filled from database (name, email, phone, title, workspace, timezone)
+  3. User sees notification toggles with 3 items (emailOnReply, slaReminder, weeklySummary)
+  4. User sees security section with password change form and 2FA toggle
+  5. User can view audit log entries for their account
+
+**Plans:** 3/3 plans
+
+- [ ] 45-01-PLAN.md — Foundation: Prisma schema + Settings components (SettingsMenu, SettingsStats, ProfileForm, ToggleRow)
+- [ ] 45-02-PLAN.md — API routes: profile, password, notifications, language, audit endpoints
+- [ ] 45-03-PLAN.md — Integration: Settings page + remaining components + API wiring
+
+
 | Phase | Screen | Requirements | Plans Complete | Status | Completed |
 |-------|--------|--------------|----------------|--------|-----------|
 | 26. Customer Dashboard | user-dashboard.html | 10 | 3/3 | Complete | 2026-06-10 |
@@ -375,6 +395,7 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
 | 40. v2 Route Scaffold | v2 page skeletons | 2 | 0/1 | Pending | - |
 | 41. Create Request Wizard | v2 API connection | 3 | 1/1 | Complete | 2026-06-13 |
 | 42. My Cases | v2 real data | 5 | 0/1 | Pending | - |
+| 45. Settings | v2 real data | 5 | 0/3 | Not started | - |
 
 ---
 

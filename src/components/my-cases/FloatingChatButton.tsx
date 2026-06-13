@@ -5,6 +5,7 @@ import { MessageCircle } from 'lucide-react';
 interface FloatingChatButtonProps {
   notificationCount?: number;
   locale?: string;
+  notificationText?: string;
 }
 
 const TRANSLATIONS = {
@@ -14,8 +15,12 @@ const TRANSLATIONS = {
   ja: 'サポート',
 };
 
-export default function FloatingChatButton({ notificationCount = 0, locale = 'vi' }: FloatingChatButtonProps) {
-  const label = TRANSLATIONS[locale as keyof typeof TRANSLATIONS] || TRANSLATIONS.vi;
+export default function FloatingChatButton({
+  notificationCount = 0,
+  locale = 'vi',
+  notificationText
+}: FloatingChatButtonProps) {
+  const label = notificationText || TRANSLATIONS[locale as keyof typeof TRANSLATIONS] || TRANSLATIONS.vi;
 
   return (
     <button

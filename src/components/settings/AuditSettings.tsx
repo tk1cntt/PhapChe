@@ -29,7 +29,8 @@ export function AuditSettings({ userId }: AuditSettingsProps): React.ReactElemen
 
   useEffect(() => {
     fetchAuditEvents();
-  }, [userId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchAuditEvents = async () => {
     setLoading(true);

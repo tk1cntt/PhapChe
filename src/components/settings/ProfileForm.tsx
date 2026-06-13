@@ -51,7 +51,7 @@ export function ProfileForm({ user, workspaces, onSave, savedMessage }: ProfileF
     }
     saveTimeoutRef.current = setTimeout(() => {
       handleSave(newData);
-    }, 1000);
+    }, 500);
   };
 
   React.useEffect(() => {

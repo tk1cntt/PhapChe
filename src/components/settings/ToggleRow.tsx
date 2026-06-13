@@ -10,11 +10,16 @@ export interface ToggleRowProps {
 }
 
 export function ToggleRow({ label, description, checked = false, onChange }: ToggleRowProps): React.ReactElement {
-  const [isChecked, setIsChecked] = React.useState(checked);
+  // Support both controlled and uncontrolled modes
+  const [internalChecked, setInternalChecked] = React.useState(checked);
+  const isControlled = checked !== undefined && checked !== null;
+  const isChecked = isControlled ? checked : internalChecked;
 
   const handleToggle = () => {
     const newValue = !isChecked;
-    setIsChecked(newValue);
+    if (!isControlled) {
+      setInternalChecked(newValue);
+    }
     onChange?.(newValue);
   };
 

@@ -14,7 +14,7 @@ export async function GET() {
     const auditEvents = await prisma.auditEvent.findMany({
       where: {
         actorId: userId,
-        ...(workspaceId && { workspaceId }),
+        ...(workspaceId && workspaceId !== '' && { workspaceId }),
       },
       orderBy: {
         createdAt: 'desc'

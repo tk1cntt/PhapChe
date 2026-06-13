@@ -43,6 +43,8 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
   const t = useTranslations('UserSettings');
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [profileSaved, setProfileSaved] = useState(false);
+  // Local state to track locale changes without mutating props
+  const [currentLocale, setCurrentLocale] = useState(user.locale);
 
   const handleSaveProfile = async (data: UserData) => {
     try {
@@ -98,10 +100,9 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
       case 'language':
         return (
           <LanguageSettings
-            currentLocale={user.locale}
+            currentLocale={currentLocale}
             onLocaleChange={(newLocale) => {
-              // Update user locale in parent
-              user.locale = newLocale;
+              setCurrentLocale(newLocale);
             }}
           />
         );

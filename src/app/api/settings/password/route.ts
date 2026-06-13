@@ -26,10 +26,11 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Validate new password length
-    if (newPassword.length < 8) {
+    // Validate new password: min 8 chars with uppercase, lowercase, number, special char
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
       return NextResponse.json(
-        { error: 'VALIDATION_ERROR', message: 'New password must be at least 8 characters' },
+        { error: 'VALIDATION_ERROR', message: 'Password must contain uppercase, lowercase, number, and special character (@$!%*?&)' },
         { status: 400 }
       );
     }

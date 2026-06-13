@@ -4,7 +4,6 @@ import { getTranslations } from 'next-intl/server';
 import { UserLayout } from '@/components/layout/UserLayout';
 import { WorkspaceBanner, StatsGrid, MemberGrid, ResourceTable } from '@/components/workspace';
 import '@/components/workspace/workspace.css';
-import { FloatingChatButton } from '@/components/my-cases';
 
 export default async function WorkspacePage({
   params,
@@ -105,8 +104,6 @@ export default async function WorkspacePage({
         <StatsGrid stats={stats} />
         <MemberGrid members={members} />
         <ResourceTable resources={resourceData} />
-
-        <FloatingChatButton notificationCount={unreadMessages} notificationText="" />
       </div>
     </UserLayout>
   );

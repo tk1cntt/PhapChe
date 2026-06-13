@@ -2,7 +2,6 @@ import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import { getTranslations } from 'next-intl/server';
 import StatCard from '@/components/my-cases/StatCard';
-import FloatingChatButton from '@/components/my-cases/FloatingChatButton';
 import MessagesClient from '@/components/messages/MessagesClient';
 import '@/components/messages/messages.css';
 
@@ -183,9 +182,6 @@ export default async function MessagesPage({
         currentUserId={userId}
         pollInterval={10000}
       />
-
-      {/* Floating Chat Button */}
-      <FloatingChatButton notificationCount={unreadMessages} notificationText={t('pageTitle')} />
     </div>
   );
 }

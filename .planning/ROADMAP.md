@@ -369,12 +369,11 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
   4. User sees security section with password change form and 2FA toggle
   5. User can view audit log entries for their account
 
-**Plans:** 3/3 plans
+**Plans:** 3/3 plans complete
 
-- [ ] 45-01-PLAN.md — Foundation: Prisma schema + Settings components (SettingsMenu, SettingsStats, ProfileForm, ToggleRow)
-- [ ] 45-02-PLAN.md — API routes: profile, password, notifications, language, audit endpoints
-- [ ] 45-03-PLAN.md — Integration: Settings page + remaining components + API wiring
-
+- [x] 45-01-PLAN.md — Foundation: Prisma schema + Settings components (SettingsMenu, SettingsStats, ProfileForm, ToggleRow)
+- [x] 45-02-PLAN.md — API routes: profile, password, notifications, language, audit endpoints
+- [x] 45-03-PLAN.md — Integration: Settings page + remaining components + API wiring
 
 | Phase | Screen | Requirements | Plans Complete | Status | Completed |
 |-------|--------|--------------|----------------|--------|-----------|

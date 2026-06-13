@@ -31,83 +31,90 @@ async function migrate() {
   // 1. Migrate MatterType
   const matterTypes = await prisma.matterType.findMany({
     where: {
-      label: { not: null },
+      label_vi: { not: null },
       OR: [
-        { label_vi: null },
-        { label_vi: '' },
+        { label_en: null },
+        { label_en: '' },
       ],
     },
   });
 
   for (const mt of matterTypes) {
-    await prisma.matterType.update({
-      where: { id: mt.id },
-      data: {
-        label_vi: mt.label,
-        description_vi: mt.description,
-      },
-    });
-    stats.matterTypes++;
+    if (mt.label_vi) {
+      await prisma.matterType.update({
+        where: { id: mt.id },
+        data: {
+          label_en: mt.label_vi,
+        },
+      });
+      stats.matterTypes++;
+    }
   }
   console.log(`Migrated ${stats.matterTypes} MatterTypes`);
 
   // 2. Migrate DocumentTemplate
   const templates = await prisma.documentTemplate.findMany({
     where: {
-      label: { not: null },
+      label_vi: { not: null },
       OR: [
-        { label_vi: null },
-        { label_vi: '' },
+        { label_en: null },
+        { label_en: '' },
       ],
     },
   });
 
   for (const t of templates) {
-    await prisma.documentTemplate.update({
-      where: { id: t.id },
-      data: { label_vi: t.label },
-    });
-    stats.documentTemplates++;
+    if (t.label_vi) {
+      await prisma.documentTemplate.update({
+        where: { id: t.id },
+        data: { label_en: t.label_vi },
+      });
+      stats.documentTemplates++;
+    }
   }
   console.log(`Migrated ${stats.documentTemplates} DocumentTemplates`);
 
   // 3. Migrate Folder
   const folders = await prisma.folder.findMany({
     where: {
-      name: { not: null },
+      name_vi: { not: null },
       OR: [
-        { name_vi: null },
-        { name_vi: '' },
+        { name_en: null },
+        { name_en: '' },
       ],
     },
   });
 
   for (const f of folders) {
-    await prisma.folder.update({
-      where: { id: f.id },
-      data: { name_vi: f.name },
-    });
-    stats.folders++;
+    if (f.name_vi) {
+      await prisma.folder.update({
+        where: { id: f.id },
+        data: { name_en: f.name_vi },
+      });
+      stats.folders++;
+    }
   }
   console.log(`Migrated ${stats.folders} Folders`);
 
   // 4. Migrate Tag
   const tags = await prisma.tag.findMany({
     where: {
-      label: { not: null },
+      label_vi: { not: null },
       OR: [
-        { label_vi: null },
-        { label_vi: '' },
+        { label_en: null },
+        { label_en: '' },
       ],
     },
   });
 
   for (const tag of tags) {
-    await prisma.tag.update({
-      where: { id: tag.id },
-      data: { label_vi: tag.label },
-    });
-    stats.tags++;
+    if (tag.label_vi) {
+      await prisma.tag.update({
+        where: { id: tag.id },
+        data: { label_en: tag.label_vi },
+      });
+      stats.tags++;
+    }
   }
   console.log(`Migrated ${stats.tags} Tags`);
 

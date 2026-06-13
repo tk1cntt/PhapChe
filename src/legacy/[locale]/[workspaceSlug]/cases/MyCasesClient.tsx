@@ -3,11 +3,11 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import SummaryBanner from '@/app/[locale]/customer/components/SummaryBanner';
-import StatCard from '@/app/[locale]/customer/components/StatCard';
-import MyCasesToolbar from '@/app/[locale]/customer/components/MyCasesToolbar';
-import MyCasesTable from '@/app/[locale]/customer/components/MyCasesTable';
-import FloatingChatButton from '@/app/[locale]/customer/components/FloatingChatButton';
+import SummaryBanner from '@/legacy/[locale]/customer/components/SummaryBanner';
+import StatCard from '@/legacy/[locale]/customer/components/StatCard';
+import MyCasesToolbar from '@/legacy/[locale]/customer/components/MyCasesToolbar';
+import MyCasesTable from '@/legacy/[locale]/customer/components/MyCasesTable';
+import FloatingChatButton from '@/legacy/[locale]/customer/components/FloatingChatButton';
 
 interface CaseRow {
   id: string;

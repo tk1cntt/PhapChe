@@ -97,7 +97,8 @@ function main() {
 
     const status = coverage === 100 ? '✓' : '⚠️';
 
-    console.log(`${status} ${file.locale.padEnd(4)} | ${primary.keys.size - file.missing.length}/${primary.keys.size} keys (${coverage}%)`);
+    const primaryKeys = primary?.keys.size ?? 0;
+    console.log(`${status} ${file.locale.padEnd(4)} | ${primaryKeys - file.missing.length}/${primaryKeys} keys (${coverage}%)`);
 
     if (file.missing.length > 0 && file.missing.length <= 10) {
       console.log(`   Missing: ${file.missing.join(', ')}`);

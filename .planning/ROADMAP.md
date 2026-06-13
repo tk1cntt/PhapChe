@@ -380,7 +380,7 @@ v2.0 táº­p trung vĂ o viá»‡c káº¿t ná»‘i Mock UI (Ä‘Ă£ hoĂ
   3. User sees operations/audit timeline from real events
   4. User sees operations table with SLA bars from real deadlines
   5. UI matches `layout/admin-operations.html`
-**Plans:** 0/1 plans pending
+**Plans:** 1/1 plans
 
 - [ ] 49-01-PLAN.md — Operations real data integration
 
@@ -395,9 +395,9 @@ v2.0 táº­p trung vĂ o viá»‡c káº¿t ná»‘i Mock UI (Ä‘Ă£ hoĂ
   3. User sees activity timeline from audit events
   4. User sees audit table with correlation IDs and action badges
   5. UI matches `layout/admin-audit.html`
-**Plans:** 0/1 plans pending
+**Plans:** 1/1 plans
 
-- [ ] 50-01-PLAN.md — Audit real data integration
+- [x] 50-01-PLAN.md — Audit real data integration
 
 ### Phase 51: Vault — Real Data Integration
 
@@ -410,7 +410,7 @@ v2.0 táº­p trung vĂ o viá»‡c káº¿t ná»‘i Mock UI (Ä‘Ă£ hoĂ
   3. User sees tag panel from database
   4. User sees vault table with security badges and private file metadata
   5. UI matches `layout/admin-vault.html`
-**Plans:** 0/1 plans pending
+**Plans:** 1/1 plans
 
 - [ ] 51-01-PLAN.md — Vault real data integration
 
@@ -425,7 +425,7 @@ v2.0 táº­p trung vĂ o viá»‡c káº¿t ná»‘i Mock UI (Ä‘Ă£ hoĂ
   3. User sees permissions and member counts from real relations
   4. Toolbar search/filter operates on real workspace data
   5. UI matches `layout/admin-workspace.html`
-**Plans:** 0/1 plans pending
+**Plans:** 1/1 plans
 
 - [ ] 52-01-PLAN.md — Admin workspace real data integration
 

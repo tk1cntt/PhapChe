@@ -7,13 +7,21 @@ const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
 type AdminRole = typeof ADMIN_ROLES[number];
 
 // Status mapping per D-01
-const STATUS_MAP: Record<string, { variant: 'orange' | 'blue' | 'green' | 'red' | 'purple'; text: string }> = {
+const STATUS_MAP: Record<string, { variant: 'orange' | 'blue' | 'green' | 'red' | 'purple' | 'slate' | 'teal'; text: string }> = {
+  draft_intake: { variant: 'slate', text: 'Nháp' },
+  intake_submitted: { variant: 'blue', text: 'Đã gửi' },
+  submitted: { variant: 'blue', text: 'Đã gửi' },
+  triage: { variant: 'blue', text: 'Đang xem xét' },
+  assigned: { variant: 'orange', text: 'Chờ xử lý' },
+  in_progress: { variant: 'purple', text: 'Đang xử lý' },
   pending_review: { variant: 'orange', text: 'Chờ xử lý' },
   submitted_for_review: { variant: 'blue', text: 'Đang review' },
+  revision_required: { variant: 'red', text: 'Cần chỉnh sửa' },
   approved: { variant: 'green', text: 'Đã duyệt' },
-  delivered: { variant: 'green', text: 'Đã duyệt' },
-  rejected: { variant: 'red', text: 'Bị từ chối' },
-  in_progress: { variant: 'purple', text: 'Đang phân tích' },
+  delivered: { variant: 'teal', text: 'Đã giao' },
+  closed: { variant: 'green', text: 'Đã đóng' },
+  cancelled: { variant: 'red', text: 'Từ chối' },
+  rejected: { variant: 'red', text: 'Từ chối' },
 };
 
 // SLA calculation per D-07

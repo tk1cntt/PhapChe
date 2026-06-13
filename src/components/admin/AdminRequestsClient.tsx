@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { AdminStatGrid, StatCardProps } from '@/components/admin/AdminStatGrid';
 import AdminToolbar from '@/components/admin/AdminToolbar';
 import AdminRequestsTable, { RequestRow } from '@/components/admin/AdminRequestsTable';
+import Paging from '@/components/ui/Paging';
 
 interface Stats {
   total: number;
@@ -36,7 +37,7 @@ export default function AdminRequestsClient() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -88,7 +89,7 @@ export default function AdminRequestsClient() {
     } finally {
       setLoading(false);
     }
-  }, [page, debouncedSearch, statusFilter, priorityFilter, workspaceFilter, router]);
+  }, [page, pageSize, debouncedSearch, statusFilter, priorityFilter, workspaceFilter, router]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -156,20 +157,6 @@ export default function AdminRequestsClient() {
 
   const totalPages = Math.ceil(total / pageSize);
 
-  // Generate page numbers for pagination
-  const generatePageNumbers = (current: number, total: number): (number | '...')[] => {
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-    const pages: (number | '...')[] = [];
-    if (current <= 4) {
-      pages.push(1, 2, 3, 4, 5, '...', total);
-    } else if (current >= total - 3) {
-      pages.push(1, '...', total - 4, total - 3, total - 2, total - 1, total);
-    } else {
-      pages.push(1, '...', current - 1, current, current + 1, '...', total);
-    }
-    return pages;
-  };
-
   return (
     <div>
       <div className="mb-6 flex justify-between items-start">
@@ -182,6 +169,7 @@ export default function AdminRequestsClient() {
           </p>
         </div>
         <button
+          data-testid="admin-requests-create"
           className="h-[45px] px-[18px] border-0 rounded-[8px] text-white flex items-center gap-[10px] font-bold text-sm"
           style={{
             background: 'linear-gradient(180deg, #3ba3e7, #2389d0)',
@@ -222,87 +210,23 @@ export default function AdminRequestsClient() {
           <AdminRequestsTable rows={requests} translations={tableTranslations} />
 
           {totalPages > 1 && (
-            <div
-              className="mt-4 flex items-center justify-between px-4 py-3 rounded-b-[15px]"
-              style={{
-                background: '#f8fafc',
-                border: '1px solid #dfe7f1',
-                borderTop: 'none',
-                boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)',
+            <Paging
+              current={page}
+              pageSize={pageSize}
+              total={total}
+              totalLabel={`${total} hồ sơ total`}
+              onChange={(nextPage, nextPageSize) => {
+                setPageSize(nextPageSize);
+                setPage(nextPage);
               }}
-            >
-              {/* Left: Page size selector */}
-              <div className="flex items-center gap-3">
-                <select
-                  value={pageSize}
-                  onChange={(e) => {
-                    setPage(1);
-                  }}
-                  className="h-8 border rounded-md px-2 text-sm bg-white cursor-pointer"
-                  style={{ borderColor: '#dfe7f1' }}
-                >
-                  <option value={10}>10</option>
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                </select>
-                <span className="text-sm text-[#64748b]">{total} hồ sơ</span>
-              </div>
-
-              {/* Right: Page navigation */}
-              <div className="flex items-center gap-2">
-                {/* Previous */}
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="w-8 h-8 border rounded-md flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed bg-white"
-                  style={{ borderColor: '#dfe7f1', color: page === 1 ? '#94a3b8' : '#1e293b' }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="m15 18-6-6 6-6"/>
-                  </svg>
-                </button>
-
-                {/* Page numbers */}
-                {generatePageNumbers(page, totalPages).map((p, idx) => (
-                  p === '...' ? (
-                    <span key={`ellipsis-${idx}`} className="w-8 text-center text-sm text-[#64748b]">...</span>
-                  ) : (
-                    <button
-                      key={p}
-                      onClick={() => setPage(p)}
-                      className="min-w-[32px] h-8 border rounded-md flex items-center justify-center text-sm"
-                      style={{
-                        borderColor: p === page ? 'transparent' : '#dfe7f1',
-                        background: p === page ? 'linear-gradient(180deg, #0b8f86, #087970)' : '#fff',
-                        color: p === page ? '#fff' : '#1e293b',
-                        fontWeight: p === page ? 700 : 500,
-                      }}
-                    >
-                      {p}
-                    </button>
-                  )
-                ))}
-
-                {/* Next */}
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                  className="w-8 h-8 border rounded-md flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed bg-white"
-                  style={{ borderColor: '#dfe7f1', color: page === totalPages ? '#94a3b8' : '#1e293b' }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="m9 18 6-6-6-6"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
+            />
           )}
         </>
       ) : null}
 
       {/* Floating SLA warning button */}
       {stats.highPriority > 0 && (
-        <div className="fixed right-[22px] bottom-[20px] min-w-[118px] h-[48px] rounded-[999px] flex items-center justify-center gap-2 text-white font-bold px-[14px]"
+        <div data-testid="admin-requests-floating-issue" className="fixed right-[22px] bottom-[20px] min-w-[118px] h-[48px] rounded-[999px] flex items-center justify-center gap-2 text-white font-bold px-[14px]"
           style={{
             background: 'linear-gradient(180deg, #ef4444, #dc2626)',
             border: '3px solid #facc15',

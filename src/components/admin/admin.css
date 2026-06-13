@@ -1,0 +1,232 @@
+/* Admin Dashboard Shared Styles */
+
+/* Panel container base */
+.admin-panel {
+  @apply bg-white border border-gray-200 rounded-[15px] shadow-md p-6;
+}
+
+/* Panel title */
+.panel-title {
+  @apply flex justify-between items-center mb-4;
+}
+
+.panel-title-left {
+  @apply flex items-center gap-3 text-lg font-bold text-[#0f172a];
+}
+
+/* Workload list items */
+.workload-list {
+  @apply space-y-0;
+}
+
+.workload-item {
+  @apply flex items-center justify-between py-3 border-b border-gray-100 last:border-0;
+}
+
+.workload-item .person {
+  @apply flex items-center gap-3;
+}
+
+.workload-item .person-avatar {
+  @apply w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center text-sm font-bold;
+}
+
+.workload-item .progress {
+  @apply w-24 h-2 bg-gray-200 rounded-full overflow-hidden;
+}
+
+.workload-item .progress .ok {
+  @apply bg-teal-500;
+}
+
+.workload-item .progress .warn {
+  @apply bg-orange-500;
+}
+
+.workload-item .progress .danger {
+  @apply bg-red-500;
+}
+
+.workload-item .workload-count {
+  @apply text-sm font-semibold text-[#64748b] w-16 text-right;
+}
+
+/* Alert list items */
+.alert-list {
+  @apply space-y-0;
+}
+
+.alert-item {
+  @apply flex items-center justify-between py-3 border-b border-gray-100 last:border-0;
+}
+
+.alert-item .item-left {
+  @apply flex items-center gap-3;
+}
+
+.alert-item .item-icon {
+  @apply w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm;
+}
+
+.alert-item .item-icon.red {
+  @apply bg-red-100 text-red-600;
+}
+
+.alert-item .item-icon.orange {
+  @apply bg-orange-100 text-orange-600;
+}
+
+.alert-item .item-icon.blue {
+  @apply bg-blue-100 text-blue-600;
+}
+
+.alert-item .item-icon.green {
+  @apply bg-green-100 text-green-600;
+}
+
+.alert-item .item-info {
+  @apply min-w-0;
+}
+
+.alert-item .item-info strong {
+  @apply block text-sm font-semibold text-[#0f172a];
+}
+
+.alert-item .item-info span {
+  @apply block text-xs text-[#64748b];
+}
+
+.alert-item .badge {
+  @apply px-3 py-1 rounded-full text-xs font-bold;
+}
+
+.alert-item .badge.red {
+  @apply bg-red-100 text-red-700;
+}
+
+.alert-item .badge.orange {
+  @apply bg-orange-100 text-orange-700;
+}
+
+.alert-item .badge.blue {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.alert-item .badge.green {
+  @apply bg-green-100 text-green-700;
+}
+
+/* Workspace list items */
+.workspace-list {
+  @apply space-y-0;
+}
+
+.workspace-item {
+  @apply flex items-center justify-between py-3 border-b border-gray-100 last:border-0;
+}
+
+.workspace-item .item-left {
+  @apply flex items-center gap-3;
+}
+
+.workspace-item .item-icon {
+  @apply w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm;
+}
+
+.workspace-item .item-icon.green {
+  @apply bg-green-100 text-green-600;
+}
+
+.workspace-item .item-icon.blue {
+  @apply bg-blue-100 text-blue-600;
+}
+
+.workspace-item .item-icon.orange {
+  @apply bg-orange-100 text-orange-600;
+}
+
+.workspace-item .item-info {
+  @apply min-w-0;
+}
+
+.workspace-item .item-info strong {
+  @apply block text-sm font-semibold text-[#0f172a];
+}
+
+.workspace-item .item-info span {
+  @apply block text-xs text-[#64748b];
+}
+
+.workspace-item .badge {
+  @apply px-3 py-1 rounded-full text-xs font-bold;
+}
+
+.workspace-item .badge.green {
+  @apply bg-green-100 text-green-700;
+}
+
+.workspace-item .badge.blue {
+  @apply bg-blue-100 text-blue-700;
+}
+
+/* Approval list items */
+.approval-list {
+  @apply space-y-0;
+}
+
+.approval-item {
+  @apply flex items-center justify-between py-3 border-b border-gray-100 last:border-0;
+}
+
+.approval-item .item-left {
+  @apply flex items-center gap-3;
+}
+
+.approval-item .item-icon {
+  @apply w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm;
+}
+
+.approval-item .item-icon.orange {
+  @apply bg-orange-100 text-orange-600;
+}
+
+.approval-item .item-icon.blue {
+  @apply bg-blue-100 text-blue-600;
+}
+
+.approval-item .item-icon.red {
+  @apply bg-red-100 text-red-600;
+}
+
+.approval-item .item-info {
+  @apply min-w-0;
+}
+
+.approval-item .item-info strong {
+  @apply block text-sm font-semibold text-[#0f172a];
+}
+
+.approval-item .item-info span {
+  @apply block text-xs text-[#64748b];
+}
+
+.approval-item .badge {
+  @apply px-3 py-1 rounded-full text-xs font-bold;
+}
+
+.approval-item .badge.orange {
+  @apply bg-orange-100 text-orange-700;
+}
+
+.approval-item .badge.blue {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.approval-item .badge.red {
+  @apply bg-red-100 text-red-700;
+}
+
+/* Small links */
+.small-link {
+  @apply text-sm font-semibold text-teal-600 hover:text-teal-700 no-underline transition-colors;
+}

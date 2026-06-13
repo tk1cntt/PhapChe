@@ -1,5 +1,6 @@
 'use client';
 
+import { useParams } from 'next/navigation';
 import type { OpsRequestRowDto } from '@/lib/ops/ops-service';
 
 interface AdminOperationsTableProps {
@@ -33,26 +34,26 @@ const priorityBadge: Record<string, { bg: string; color: string; label: string }
   LOW: { bg: '#ccfbf1', color: '#0f766e', label: 'Thấp' },
 };
 
-function getActionLink(req: OpsRequestRowDto): { label: string; href: string } {
+function getActionLink(req: OpsRequestRowDto, locale: string): { label: string; href: string } {
   const closedStatuses = ['closed', 'cancelled', 'delivered'];
   if (closedStatuses.includes(req.status)) {
-    return { label: 'Xem audit →', href: `/vi/admin/audit?requestId=${req.id}` };
+    return { label: 'Xem audit →', href: `/${locale}/admin/audit?requestId=${req.id}` };
   }
   if (req.sla?.level === 'danger') {
-    return { label: 'Xử lý ngay →', href: `/vi/admin/requests/${req.id}` };
+    return { label: 'Xử lý ngay →', href: `/${locale}/admin/requests/${req.id}` };
   }
-  return { label: 'Điều phối →', href: `/vi/admin/requests/${req.id}` };
+  return { label: 'Điều phối →', href: `/${locale}/admin/requests/${req.id}` };
 }
 
 const TABLE_HEADERS = ['Mã hồ sơ', 'Workspace', 'Trạng thái', 'SLA', 'Ưu tiên', 'Phụ trách', 'Thao tác'];
 const GRID = '0.9fr 1.15fr 1fr 1.05fr 0.9fr 0.95fr 1fr';
 
-function TableRow({ req }: { req: OpsRequestRowDto }) {
+function TableRow({ req, locale }: { req: OpsRequestRowDto; locale: string }) {
   const st = statusBadge[req.status] ?? { bg: '#f1f5f9', color: '#64748b', label: req.status };
   const pr = priorityBadge[req.priority ?? ''] ?? { bg: '#f1f5f9', color: '#64748b', label: '—' };
   const sla = req.sla ?? { level: 'info' as const, label: 'Chưa có SLA', percent: 0 };
   const barColor = slaBarColor[sla.level] ?? '';
-  const action = getActionLink(req);
+  const action = getActionLink(req, locale);
   const assigneeName = req.assignedSpecialistName ?? req.assignedReviewerName ?? '—';
   const assigneeRole = req.assignedSpecialistName ? 'Specialist' : req.assignedReviewerName ? 'Reviewer' : '';
 
@@ -134,6 +135,9 @@ function TableRow({ req }: { req: OpsRequestRowDto }) {
 }
 
 export function AdminOperationsTable({ requests, loading }: AdminOperationsTableProps) {
+  const params = useParams();
+  const locale = params.locale as string ?? 'vi';
+
   if (loading) {
     return (
       <div style={{ background: '#fff', border: '1px solid #dfe7f1', borderRadius: 15, padding: 48, textAlign: 'center', color: '#64748b', boxShadow: '0 18px 42px rgba(15, 23, 42, 0.06)' }}>
@@ -181,7 +185,7 @@ export function AdminOperationsTable({ requests, loading }: AdminOperationsTable
           <div>Hiện tại chưa có hồ sơ phù hợp với bộ lọc. Thử thay đổi điều kiện lọc hoặc tạo hồ sơ mới.</div>
         </div>
       ) : (
-        requests.map((req) => <TableRow key={req.id} req={req} />)
+        requests.map((req) => <TableRow key={req.id} req={req} locale={locale} />)
       )}
     </div>
   );

@@ -21,19 +21,93 @@ interface AdminAuditTableProps {
 
 function getActionBadgeClass(action: string): string {
   const actionLower = action.toLowerCase();
-  if (actionLower.includes('access_denied') || actionLower.includes('unauthorized')) {
+
+  // Security/Danger - Red
+  if (
+    actionLower.includes('access_denied') ||
+    actionLower.includes('unauthorized') ||
+    actionLower.includes('blocked') ||
+    actionLower.includes('forbidden') ||
+    actionLower.includes('security_') ||
+    actionLower.includes('delete_') ||
+    actionLower.includes('_delete') ||
+    actionLower.includes('remove_')
+  ) {
     return 'badge red';
   }
-  if (actionLower.includes('role_change') || actionLower.includes('role') || actionLower.includes('updateuserrole')) {
+
+  // Role/Permission changes - Purple
+  if (
+    actionLower.includes('role_change') ||
+    actionLower.includes('role') ||
+    actionLower.includes('updateuserrole') ||
+    actionLower.includes('permission') ||
+    actionLower.includes('grant') ||
+    actionLower.includes('revoke') ||
+    actionLower.includes('access_') ||
+    actionLower.includes('_access')
+  ) {
     return 'badge purple';
   }
-  if (actionLower.includes('create') || actionLower.includes('assign') || actionLower.includes('add')) {
+
+  // Create/Add/Assign - Green
+  if (
+    actionLower.includes('create') ||
+    actionLower.includes('assign') ||
+    actionLower.includes('add') ||
+    actionLower.includes('approve') ||
+    actionLower.includes('accept') ||
+    actionLower.includes('submit') ||
+    actionLower.includes('upload') ||
+    actionLower.includes('insert') ||
+    actionLower.includes('register')
+  ) {
     return 'badge green';
   }
-  if (actionLower.includes('export')) {
+
+  // Export/Download - Orange
+  if (
+    actionLower.includes('export') ||
+    actionLower.includes('download') ||
+    actionLower.includes('print') ||
+    actionLower.includes('share') ||
+    actionLower.includes('send')
+  ) {
     return 'badge orange';
   }
-  return 'badge blue';
+
+  // View/Read - Blue (default for read operations)
+  if (
+    actionLower.includes('view') ||
+    actionLower.includes('read') ||
+    actionLower.includes('get') ||
+    actionLower.includes('list') ||
+    actionLower.includes('search') ||
+    actionLower.includes('filter') ||
+    actionLower.includes('login') ||
+    actionLower.includes('logout') ||
+    actionLower.includes('sign_in') ||
+    actionLower.includes('sign_out')
+  ) {
+    return 'badge blue';
+  }
+
+  // Update/Edit - Cyan (for modifications)
+  if (
+    actionLower.includes('update') ||
+    actionLower.includes('edit') ||
+    actionLower.includes('modify') ||
+    actionLower.includes('change') ||
+    actionLower.includes('set_') ||
+    actionLower.includes('_set') ||
+    actionLower.includes('move') ||
+    actionLower.includes('transfer')
+  ) {
+    return 'badge cyan';
+  }
+
+  // Default - Gray for unknown actions
+  return 'badge gray';
 }
 
 function formatDateTime(dateStr: string): { date: string; time: string } {

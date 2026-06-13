@@ -396,6 +396,24 @@
   background: #7c3aed;
 }
 
+.badge.cyan {
+  background: #cffafe;
+  color: #0891b2;
+}
+
+.badge.cyan::before {
+  background: #06b6d4;
+}
+
+.badge.gray {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.badge.gray::before {
+  background: #64748b;
+}
+
 /* Correlation ID - Monospace */
 .correlation {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;

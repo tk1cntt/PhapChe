@@ -6,11 +6,25 @@ import { seedMessages } from './seed-messages';
 const prisma = new PrismaClient();
 
 const seedUsers: { email: string; name: string; password: string; role: 'customer' | 'specialist' | 'reviewer' | 'coordinator_admin' | 'super_admin' }[] = [
-  { email: 'customer.demo@example.test', name: 'Khach hang Demo', password: 'Demo@123456', role: 'customer' },
-  { email: 'specialist.demo@example.test', name: 'Chuyen vien Lao dong Demo', password: 'Demo@123456', role: 'specialist' },
-  { email: 'reviewer.demo@example.test', name: 'Reviewer Lao dong Demo', password: 'Demo@123456', role: 'reviewer' },
-  { email: 'admin.demo@example.test', name: 'Dieu phoi Demo', password: 'Demo@123456', role: 'coordinator_admin' },
+  // Admin roles
   { email: 'superadmin.demo@example.test', name: 'Quan tri vien Demo', password: 'Demo@123456', role: 'super_admin' },
+  { email: 'admin.demo@example.test', name: 'Dieu phoi Demo', password: 'Demo@123456', role: 'coordinator_admin' },
+  { email: 'audit.demo@example.test', name: 'Kiem toan Demo', password: 'Demo@123456', role: 'coordinator_admin' },
+  // Reviewer roles
+  { email: 'reviewer.demo@example.test', name: 'Reviewer Lao dong Demo', password: 'Demo@123456', role: 'reviewer' },
+  { email: 'reviewer2.demo@example.test', name: 'Reviewer Thuong mai Demo', password: 'Demo@123456', role: 'reviewer' },
+  { email: 'reviewer3.demo@example.test', name: 'Reviewer Bat dong san Demo', password: 'Demo@123456', role: 'reviewer' },
+  // Specialist roles
+  { email: 'specialist.demo@example.test', name: 'Chuyen vien Lao dong Demo', password: 'Demo@123456', role: 'specialist' },
+  { email: 'specialist2.demo@example.test', name: 'Chuyen vien Thuong mai Demo', password: 'Demo@123456', role: 'specialist' },
+  { email: 'specialist3.demo@example.test', name: 'Chuyen vien Bat dong san Demo', password: 'Demo@123456', role: 'specialist' },
+  { email: 'specialist4.demo@example.test', name: 'Chuyen vien So huu tri tue Demo', password: 'Demo@123456', role: 'specialist' },
+  // Customer roles
+  { email: 'customer.demo@example.test', name: 'Khach hang Demo', password: 'Demo@123456', role: 'customer' },
+  { email: 'customer2.demo@example.test', name: 'Khach hang A Demo', password: 'Demo@123456', role: 'customer' },
+  { email: 'customer3.demo@example.test', name: 'Khach hang B Demo', password: 'Demo@123456', role: 'customer' },
+  { email: 'customer4.demo@example.test', name: 'Khach hang C Demo', password: 'Demo@123456', role: 'customer' },
+  { email: 'customer5.demo@example.test', name: 'Khach hang D Demo', password: 'Demo@123456', role: 'customer' },
 ];
 
 const routingCapability = {

@@ -9,6 +9,13 @@ const VALID_STATUSES: RequestStatus[] = [
   'pending_review', 'revision_required', 'approved', 'delivered', 'closed', 'cancelled',
 ];
 
+/** Safely parse date string, returning undefined for invalid dates */
+function parseDateParam(s: string | null): Date | undefined {
+  if (!s) return undefined;
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? undefined : d;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await requireAppSession();
@@ -26,8 +33,8 @@ export async function GET(request: NextRequest) {
       status: rawStatus && VALID_STATUSES.includes(rawStatus as RequestStatus) ? (rawStatus as RequestStatus) : undefined,
       assignedSpecialistId: searchParams.get('assignedSpecialistId') || undefined,
       assignedReviewerId: searchParams.get('assignedReviewerId') || undefined,
-      dateFrom: searchParams.get('dateFrom') ? new Date(searchParams.get('dateFrom')!) : undefined,
-      dateTo: searchParams.get('dateTo') ? new Date(searchParams.get('dateTo')!) : undefined,
+      dateFrom: parseDateParam(searchParams.get('dateFrom')),
+      dateTo: parseDateParam(searchParams.get('dateTo')),
       search: searchParams.get('search') || undefined,
       page: parseInt(searchParams.get('page') ?? '1', 10),
       pageSize: parseInt(searchParams.get('pageSize') ?? '20', 10),

@@ -529,9 +529,6 @@ export async function getOpsAggregate(
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   // Stats counts
-  const activeStatuses: RequestStatus[] = [
-    'intake_submitted', 'triage', 'assigned', 'in_progress', 'pending_review', 'revision_required', 'approved',
-  ];
   const closedStatuses = ['closed', 'cancelled'];
 
   const [totalCount, nearSlaCount, completedTodayCount, allActive] = await Promise.all([

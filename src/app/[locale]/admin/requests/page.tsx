@@ -1,9 +1,10 @@
 import { AdminLayout } from '@/components/layout/AdminLayout';
+import AdminRequestsClient from '@/components/admin/AdminRequestsClient';
 
 export default function AdminRequestsPage() {
   return (
     <AdminLayout>
-      <div>Admin Requests coming soon</div>
+      <AdminRequestsClient />
     </AdminLayout>
   );
 }

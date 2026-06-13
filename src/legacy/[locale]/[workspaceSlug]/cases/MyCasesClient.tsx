@@ -64,13 +64,6 @@ export function MyCasesClient({ userName, workspaceName, workspaceSlug, stats, r
     return () => clearTimeout(timeoutId);
   }, [updateURL]);
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      // Cleanup handled by returning clearTimeout
-    };
-  }, []);
-
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
     debouncedUpdateURL(query, selectedStatus);
@@ -98,7 +91,12 @@ export function MyCasesClient({ userName, workspaceName, workspaceSlug, stats, r
           submitted: 'submitted',
           overdue: 'overdue',
         };
-        if (req.statusBadge !== statusMap[selectedStatus]) return false;
+        const mappedStatus = statusMap[selectedStatus];
+        if (mappedStatus === undefined) {
+          console.warn(`Unknown status filter: ${selectedStatus}`);
+          return true;
+        }
+        if (req.statusBadge !== mappedStatus) return false;
       }
       return true;
     });

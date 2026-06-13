@@ -88,7 +88,7 @@ export default async function MyCasesPage({
     const remainingMs = deadline.getTime() - now.getTime();
     const remainingHours = Math.round(remainingMs / (1000 * 60 * 60));
     const slaText = remainingHours <= 0 ? `Trễ ${Math.abs(Math.round(remainingHours / 24))} ngày` : remainingHours < 24 ? `Còn ${remainingHours}h` : `Còn ${Math.round(remainingHours / 24)} ngày`;
-    const slaVariant = remainingHours <= 0 ? 'red' : remainingHours < 24 ? 'orange' : remainingHours < 72 ? 'orange' : 'green';
+    const slaVariant = remainingHours <= 0 ? 'red' : remainingHours < 72 ? 'orange' : 'green';
 
     // Status badge mapping - isOverdue check first
     const statusBadge = isOverdue ? 'overdue' :
@@ -108,11 +108,14 @@ export default async function MyCasesPage({
       : req.status === 'revision_required' ? tActions('supplement')
       : tActions('view');
 
+    // Fallback: matterTypeLabel > req.matterType > title words
+    const typeFallback = req.matterType ?? req.title.split(' ').slice(0, 3).join(' ');
+
     return {
       id: req.id,
       code: req.code ?? `REQ-${req.createdAt.getFullYear()}-${String(req.id.slice(-3)).toUpperCase()}`,
       statusText,
-      type: matterTypeLabel ?? req.matterType ?? req.title.split(' ').slice(0, 3).join(' '),
+      type: matterTypeLabel ?? typeFallback,
       typeEn: req.intakeSubmission?.matterType?.label_en ?? 'Contract Review',
       statusBadge,
       specialistName: req.assignedSpecialist?.name ?? req.assignedReviewer?.name ?? 'Chưa phân công',

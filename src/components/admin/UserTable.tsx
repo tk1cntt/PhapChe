@@ -44,6 +44,25 @@ function formatDate(dateStr: string | null | undefined): string {
   });
 }
 
+function generatePageNumbers(current: number, total: number, pageSize: number): (number | '...')[] {
+  const totalPages = Math.ceil(total / pageSize);
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const pages: (number | '...')[] = [];
+
+  if (current <= 4) {
+    pages.push(1, 2, 3, 4, 5, '...', totalPages);
+  } else if (current >= totalPages - 3) {
+    pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+  } else {
+    pages.push(1, '...', current - 1, current, current + 1, '...', totalPages);
+  }
+
+  return pages;
+}
+
 export default function UserTable({
   dataSource,
   roleColors,
@@ -396,30 +415,111 @@ export default function UserTable({
           padding: '12px 16px',
           background: '#f8fafc',
           display: 'flex',
-          justifyContent: 'flex-end',
+          justifyContent: 'space-between',
           alignItems: 'center',
           gap: 12,
         }}>
-          <select
-            value={pagination.pageSize}
-            onChange={(e) => pagination.onChange(pagination.current, parseInt(e.target.value))}
-            style={{
-              height: 32,
-              border: '1px solid #dfe7f1',
-              borderRadius: 6,
-              padding: '0 8px',
-              fontSize: 13,
-              background: '#fff',
-              cursor: 'pointer',
-            }}
-          >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-          </select>
-          <span style={{ fontSize: 13, color: '#64748b', display: 'flex', alignItems: 'center' }}>
-            {pagination.total} users total
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <select
+              value={pagination.pageSize}
+              onChange={(e) => pagination.onChange(1, parseInt(e.target.value))}
+              style={{
+                height: 32,
+                border: '1px solid #dfe7f1',
+                borderRadius: 6,
+                padding: '0 8px',
+                fontSize: 13,
+                background: '#fff',
+                cursor: 'pointer',
+              }}
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+            <span style={{ fontSize: 13, color: '#64748b', display: 'flex', alignItems: 'center' }}>
+              {pagination.total} users total
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {/* Previous Button */}
+            <button
+              onClick={() => pagination.onChange(pagination.current - 1, pagination.pageSize)}
+              disabled={pagination.current === 1}
+              style={{
+                height: 32,
+                width: 32,
+                border: '1px solid #dfe7f1',
+                borderRadius: 6,
+                background: pagination.current === 1 ? '#f1f5f9' : '#fff',
+                color: pagination.current === 1 ? '#94a3b8' : '#1e293b',
+                cursor: pagination.current === 1 ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 14,
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+            </button>
+
+            {/* Page Numbers */}
+            {generatePageNumbers(pagination.current, pagination.total, pagination.pageSize).map((page, idx) => {
+              if (page === '...') {
+                return (
+                  <span key={`ellipsis-${idx}`} style={{ width: 32, textAlign: 'center', color: '#64748b', fontSize: 14 }}>
+                    ...
+                  </span>
+                );
+              }
+              return (
+                <button
+                  key={page}
+                  onClick={() => pagination.onChange(page as number, pagination.pageSize)}
+                  style={{
+                    height: 32,
+                    minWidth: 32,
+                    padding: '0 8px',
+                    border: page === pagination.current ? 'none' : '1px solid #dfe7f1',
+                    borderRadius: 6,
+                    background: page === pagination.current ? 'linear-gradient(180deg, #0b8f86, #087970)' : '#fff',
+                    color: page === pagination.current ? '#fff' : '#1e293b',
+                    cursor: 'pointer',
+                    fontSize: 13,
+                    fontWeight: page === pagination.current ? 700 : 500,
+                  }}
+                >
+                  {page}
+                </button>
+              );
+            })}
+
+            {/* Next Button */}
+            <button
+              onClick={() => pagination.onChange(pagination.current + 1, pagination.pageSize)}
+              disabled={pagination.current >= Math.ceil(pagination.total / pagination.pageSize)}
+              style={{
+                height: 32,
+                width: 32,
+                border: '1px solid #dfe7f1',
+                borderRadius: 6,
+                background: pagination.current >= Math.ceil(pagination.total / pagination.pageSize) ? '#f1f5f9' : '#fff',
+                color: pagination.current >= Math.ceil(pagination.total / pagination.pageSize) ? '#94a3b8' : '#1e293b',
+                cursor: pagination.current >= Math.ceil(pagination.total / pagination.pageSize) ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 14,
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+            </button>
+          </div>
         </div>
       )}
     </div>

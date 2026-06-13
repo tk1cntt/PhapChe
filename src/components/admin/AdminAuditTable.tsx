@@ -11,7 +11,7 @@ export interface AuditEventRow {
   metadataSummary: string | null;
   createdAt: string;
   actor?: { email: string | null; name: string | null } | null;
-  workspace: { name: string };
+  workspace: { name: string; slug?: string };
 }
 
 interface AdminAuditTableProps {
@@ -44,13 +44,51 @@ function formatDateTime(dateStr: string): { date: string; time: string } {
   };
 }
 
-function getInitials(email: string | null | undefined): string {
-  if (!email) return '?';
-  const parts = email.split('@')[0].split(/[._-]/);
+function getInitials(name: string | null | undefined): string {
+  if (!name) return '?';
+  const parts = name.split(/[\s._-]+/).filter(Boolean);
   if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
-  return email.substring(0, 2).toUpperCase();
+  return name.substring(0, 2).toUpperCase();
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
+    .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
+    .replace(/[ìíịỉĩ]/g, 'i')
+    .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
+    .replace(/[ùúụủũưừứựửữ]/g, 'u')
+    .replace(/[ỳýỵỷỹ]/g, 'y')
+    .replace(/[đ]/g, 'd')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function parseMetadata(metadata: string | null): { title: string; details?: string } {
+  if (!metadata) return { title: '-' };
+  // Try to parse JSON-like metadata
+  try {
+    const parsed = JSON.parse(metadata);
+    if (typeof parsed === 'object') {
+      const keys = Object.keys(parsed).filter(k => !['id', 'requestId', 'workspaceId'].includes(k));
+      if (keys.length > 0) {
+        const title = keys.slice(0, 2).map(k => `${k}: ${parsed[k]}`).join(', ');
+        return { title, details: undefined };
+      }
+    }
+  } catch {
+    // Not JSON, treat as plain text
+  }
+  // Plain text - split by common delimiters
+  const parts = metadata.split(/[,;|]/).map(s => s.trim()).filter(Boolean);
+  if (parts.length > 1) {
+    return { title: parts[0], details: parts.slice(1).join(', ') };
+  }
+  return { title: metadata, details: undefined };
 }
 
 export function AdminAuditTable({ events, loading }: AdminAuditTableProps) {
@@ -104,37 +142,58 @@ export function AdminAuditTable({ events, loading }: AdminAuditTableProps) {
 
       {events.map((event) => {
         const { date, time } = formatDateTime(event.createdAt);
-        const actorEmail = event.actor?.email ?? 'system';
-        const initials = getInitials(actorEmail);
+
+        // Actor: show name if available, otherwise email, otherwise system
+        const actorName = event.actor?.name ?? event.actor?.email ?? 'system';
+        const initials = getInitials(actorName);
+        const isSystem = actorName === 'system';
+
+        // Workspace: show name with slug below
+        const workspaceSlug = event.workspace.slug || slugify(event.workspace.name);
+
+        // Parse metadata for structured display
+        const { title: metaTitle, details: metaDetails } = parseMetadata(event.metadataSummary);
 
         return (
           <div key={event.id} className="audit-table-row">
+            {/* Thời gian */}
             <div className="audit-td">
               <div className="time-stack">
                 <strong>{date}</strong>
                 <span>{time}</span>
               </div>
             </div>
+
+            {/* Actor */}
             <div className="audit-td">
               <div className="actor-cell">
                 <div className="mini-avatar">{initials}</div>
                 <div>
-                  <strong>{actorEmail}</strong>
-                  <span>{actorEmail === 'system' ? 'system' : 'user'}</span>
+                  <strong>{actorName}</strong>
+                  <span>{isSystem ? 'system' : 'user'}</span>
                 </div>
               </div>
             </div>
+
+            {/* Workspace */}
             <div className="audit-td">
               <div className="workspace-cell">
                 <strong>{event.workspace.name}</strong>
+                <span>{workspaceSlug}</span>
               </div>
             </div>
+
+            {/* Hành động */}
             <div className="audit-td">
               <span className={getActionBadgeClass(event.action)}>{event.action}</span>
             </div>
+
+            {/* Đối tượng */}
             <div className="audit-td">
               {event.targetType}:{event.targetId}
             </div>
+
+            {/* Mã tương quan */}
             <div className="audit-td">
               {event.correlationId ? (
                 <span className="correlation">{event.correlationId}</span>
@@ -142,9 +201,12 @@ export function AdminAuditTable({ events, loading }: AdminAuditTableProps) {
                 '-'
               )}
             </div>
+
+            {/* Tóm tắt metadata */}
             <div className="audit-td">
               <div className="metadata-cell">
-                {event.metadataSummary ?? '-'}
+                <strong>{metaTitle}</strong>
+                {metaDetails && <span>{metaDetails}</span>}
               </div>
             </div>
           </div>

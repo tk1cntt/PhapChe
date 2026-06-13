@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 
-const ADMIN_ROLES = ['super_admin', 'coordinator_admin', 'audit_admin'] as string[];
+// Valid admin roles per schema: coordinator_admin, super_admin (removed audit_admin - not in schema)
+const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
 
 // PATCH /api/admin/requests/[id]/assign - Reassign specialist/reviewer
 export async function PATCH(
@@ -12,7 +13,6 @@ export async function PATCH(
   try {
     const session = await requireAppSession();
 
-    // Authorization check: require admin role
     const hasAdminRole = session.roles?.some((role) => ADMIN_ROLES.includes(role));
     if (!hasAdminRole) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -22,42 +22,31 @@ export async function PATCH(
     const body = await request.json();
     const { specialistId, reviewerId } = body;
 
-    // Check if request exists
     const existingRequest = await prisma.legalRequest.findFirst({
-      where: {
-        OR: [
-          { id: id },
-          { code: id },
-        ],
-      },
+      where: { OR: [{ id: id }, { code: id }] },
     });
 
     if (!existingRequest) {
-      return NextResponse.json(
-        { error: 'Request not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Request not found' }, { status: 404 });
     }
 
-    // Build update data
+    // WR-02: Workspace membership validation for non-super_admin
+    const isSuperAdmin = session.roles?.includes('super_admin');
+    const userWorkspaceId = session.activeWorkspaceId;
+    if (!isSuperAdmin && userWorkspaceId && existingRequest.workspaceId !== userWorkspaceId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const updateData: Record<string, string | null> = {};
 
     if (specialistId !== undefined) {
-      // Validate specialist exists and has specialist role
       if (specialistId) {
         const specialist = await prisma.user.findUnique({
           where: { id: specialistId },
-          include: {
-            memberships: {
-              where: { role: 'specialist', isActive: true },
-            },
-          },
+          include: { memberships: { where: { workspaceId: existingRequest.workspaceId, role: 'specialist', isActive: true } } },
         });
-        if (!specialist) {
-          return NextResponse.json(
-            { error: 'Specialist not found' },
-            { status: 400 }
-          );
+        if (!specialist || specialist.memberships.length === 0) {
+          return NextResponse.json({ error: 'Specialist not found or not a specialist in this workspace' }, { status: 400 });
         }
         updateData.assignedSpecialistId = specialistId;
       } else {
@@ -66,21 +55,13 @@ export async function PATCH(
     }
 
     if (reviewerId !== undefined) {
-      // Validate reviewer exists and has reviewer role
       if (reviewerId) {
         const reviewer = await prisma.user.findUnique({
           where: { id: reviewerId },
-          include: {
-            memberships: {
-              where: { role: 'reviewer', isActive: true },
-            },
-          },
+          include: { memberships: { where: { workspaceId: existingRequest.workspaceId, role: 'reviewer', isActive: true } } },
         });
-        if (!reviewer) {
-          return NextResponse.json(
-            { error: 'Reviewer not found' },
-            { status: 400 }
-          );
+        if (!reviewer || reviewer.memberships.length === 0) {
+          return NextResponse.json({ error: 'Reviewer not found or not a reviewer in this workspace' }, { status: 400 });
         }
         updateData.assignedReviewerId = reviewerId;
       } else {
@@ -88,43 +69,25 @@ export async function PATCH(
       }
     }
 
-    // Update the request
     const updatedRequest = await prisma.legalRequest.update({
       where: { id: existingRequest.id },
       data: updateData,
       include: {
-        workspace: {
-          select: { id: true, name: true, slug: true },
-        },
-        assignedSpecialist: {
-          select: { id: true, name: true },
-        },
-        assignedReviewer: {
-          select: { id: true, name: true },
-        },
+        workspace: { select: { id: true, name: true, slug: true } },
+        assignedSpecialist: { select: { id: true, name: true } },
+        assignedReviewer: { select: { id: true, name: true } },
       },
     });
 
-    // Create assignment records for audit trail
     if (specialistId && !existingRequest.assignedSpecialistId) {
       await prisma.requestAssignment.create({
-        data: {
-          requestId: existingRequest.id,
-          userId: specialistId,
-          kind: 'specialist',
-          createdById: session.userId,
-        },
+        data: { requestId: existingRequest.id, userId: specialistId, kind: 'specialist', createdById: session.userId },
       });
     }
 
     if (reviewerId && !existingRequest.assignedReviewerId) {
       await prisma.requestAssignment.create({
-        data: {
-          requestId: existingRequest.id,
-          userId: reviewerId,
-          kind: 'reviewer',
-          createdById: session.userId,
-        },
+        data: { requestId: existingRequest.id, userId: reviewerId, kind: 'reviewer', createdById: session.userId },
       });
     }
 

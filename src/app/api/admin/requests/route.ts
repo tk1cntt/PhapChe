@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 
-const ADMIN_ROLES = ['super_admin', 'coordinator_admin', 'audit_admin'] as string[];
+// Valid admin roles per schema: coordinator_admin, super_admin (removed audit_admin - not in schema)
+const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
+type AdminRole = typeof ADMIN_ROLES[number];
 
 // Status mapping per D-01
 const STATUS_MAP: Record<string, { variant: 'orange' | 'blue' | 'green' | 'red' | 'purple'; text: string }> = {

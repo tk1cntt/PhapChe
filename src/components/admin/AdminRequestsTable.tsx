@@ -20,84 +20,6 @@ interface AdminRequestsTableProps {
   rows?: RequestRow[];
 }
 
-const defaultRows: RequestRow[] = [
-  {
-    id: 'REQ-2026-042',
-    type: 'Contract Review',
-    workspace: 'Công ty An Phát',
-    workspaceSlug: 'an-phat',
-    customer: 'Mai Phương',
-    customerEmail: 'mai.phuong@anphat.vn',
-    status: 'orange',
-    statusText: 'Chờ xử lý',
-    assignee: 'Hà Linh',
-    assigneeRole: 'Specialist',
-    sla: 'red',
-    slaText: 'Còn 4h',
-    action: 'Điều phối',
-  },
-  {
-    id: 'REQ-2026-041',
-    type: 'NDA Advisory',
-    workspace: 'Công ty Minh Khang',
-    workspaceSlug: 'minh-khang',
-    customer: 'Trần Nam',
-    customerEmail: 'nam.tran@minhkhang.vn',
-    status: 'blue',
-    statusText: 'Đang review',
-    assignee: 'Quang Dũng',
-    assigneeRole: 'Reviewer',
-    sla: 'orange',
-    slaText: 'Còn 12h',
-    action: 'Xem',
-  },
-  {
-    id: 'REQ-2026-040',
-    type: 'Compliance Check',
-    workspace: 'Workspace nội bộ',
-    workspaceSlug: 'internal',
-    customer: 'Hoàng Nam',
-    customerEmail: 'nam.hoang@gitnexus.vn',
-    status: 'green',
-    statusText: 'Đã duyệt',
-    assignee: 'Minh Trang',
-    assigneeRole: 'Coordinator',
-    sla: 'green',
-    slaText: 'Đúng hạn',
-    action: 'Audit',
-  },
-  {
-    id: 'REQ-2026-039',
-    type: 'Access Request',
-    workspace: 'Công ty An Phát',
-    workspaceSlug: 'an-phat',
-    customer: 'Linh Anh',
-    customerEmail: 'linh.anh@anphat.vn',
-    status: 'red',
-    statusText: 'Bị từ chối',
-    assignee: 'Khánh An',
-    assigneeRole: 'Audit Admin',
-    sla: 'blue',
-    slaText: 'Closed',
-    action: 'Xem log',
-  },
-  {
-    id: 'REQ-2026-038',
-    type: 'Legal Amendment',
-    workspace: 'Công ty Minh Khang',
-    workspaceSlug: 'minh-khang',
-    customer: 'Quang Dũng',
-    customerEmail: 'dung.quang@minhkhang.vn',
-    status: 'purple',
-    statusText: 'Đang phân tích',
-    assignee: 'Hà Linh',
-    assigneeRole: 'Specialist',
-    sla: 'orange',
-    slaText: 'Còn 20h',
-    action: 'Điều phối',
-  },
-];
-
 const badgeStyles: Record<string, { bg: string; color: string }> = {
   green: { bg: '#ccfbf1', color: '#0f766e' },
   orange: { bg: '#ffedd5', color: '#ea580c' },
@@ -125,16 +47,32 @@ function Badge({ variant, text }: { variant: string; text: string }) {
   );
 }
 
-export default function AdminRequestsTable({ rows = defaultRows }: AdminRequestsTableProps) {
+export default function AdminRequestsTable({ rows = [] }: AdminRequestsTableProps) {
+  // IN-01: Empty state when no data
+  if (!rows || rows.length === 0) {
+    return (
+      <div
+        className="bg-white border rounded-[15px] overflow-hidden"
+        style={{ borderColor: 'var(--border)', boxShadow: 'var(--soft-shadow)' }}
+      >
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-slate-700 mb-1">Không có yêu cầu nào</h3>
+          <p className="text-sm text-slate-500">Danh sách yêu cầu pháp lý đang trống.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="bg-white border rounded-[15px] overflow-hidden"
-      style={{
-        borderColor: 'var(--border)',
-        boxShadow: 'var(--soft-shadow)',
-      }}
+      style={{ borderColor: 'var(--border)', boxShadow: 'var(--soft-shadow)' }}
     >
-      {/* Table Header */}
       <div
         className="grid border-b"
         style={{
@@ -156,7 +94,6 @@ export default function AdminRequestsTable({ rows = defaultRows }: AdminRequests
         )}
       </div>
 
-      {/* Table Rows */}
       {rows.map((row, rowIndex) => (
         <div
           key={rowIndex}
@@ -166,19 +103,9 @@ export default function AdminRequestsTable({ rows = defaultRows }: AdminRequests
             borderColor: 'var(--border)',
           }}
         >
-          {/* Column 1: Mã hồ sơ */}
-          <div
-            className="flex items-center px-4 border-r"
-            style={{ borderColor: 'var(--border)' }}
-          >
+          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
             <div className="flex items-center gap-3">
-              <div
-                className="w-9 h-9 rounded-[11px] flex items-center justify-center shrink-0 text-lg"
-                style={{
-                  background: 'linear-gradient(135deg, #dbeafe, #eff6ff)',
-                  color: '#2563eb',
-                }}
-              >
+              <div className="w-9 h-9 rounded-[11px] flex items-center justify-center shrink-0 text-lg" style={{ background: 'linear-gradient(135deg, #dbeafe, #eff6ff)', color: '#2563eb' }}>
                 📄
               </div>
               <div>
@@ -188,61 +115,37 @@ export default function AdminRequestsTable({ rows = defaultRows }: AdminRequests
             </div>
           </div>
 
-          {/* Column 2: Workspace */}
-          <div
-            className="flex items-center px-4 border-r"
-            style={{ borderColor: 'var(--border)' }}
-          >
+          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
             <div>
               <strong className="block text-sm text-[#0f172a] mb-1">{row.workspace}</strong>
               <span className="block text-[12px] text-[#64748b]">{row.workspaceSlug}</span>
             </div>
           </div>
 
-          {/* Column 3: Khách hàng */}
-          <div
-            className="flex items-center px-4 border-r"
-            style={{ borderColor: 'var(--border)' }}
-          >
+          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
             <div>
               <strong className="block text-sm text-[#0f172a] mb-1">{row.customer}</strong>
               <span className="block text-[12px] text-[#64748b]">{row.customerEmail}</span>
             </div>
           </div>
 
-          {/* Column 4: Trạng thái */}
-          <div
-            className="flex items-center px-4 border-r"
-            style={{ borderColor: 'var(--border)' }}
-          >
+          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
             <Badge variant={row.status} text={row.statusText} />
           </div>
 
-          {/* Column 5: Người phụ trách */}
-          <div
-            className="flex items-center px-4 border-r"
-            style={{ borderColor: 'var(--border)' }}
-          >
+          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
             <div>
               <strong className="block text-sm text-[#0f172a] mb-1">{row.assignee}</strong>
               <span className="block text-[12px] text-[#64748b]">{row.assigneeRole}</span>
             </div>
           </div>
 
-          {/* Column 6: SLA */}
-          <div
-            className="flex items-center px-4 border-r"
-            style={{ borderColor: 'var(--border)' }}
-          >
+          <div className="flex items-center px-4 border-r" style={{ borderColor: 'var(--border)' }}>
             <Badge variant={row.sla} text={row.slaText} />
           </div>
 
-          {/* Column 7: Thao tác */}
           <div className="flex items-center px-4">
-            <button
-              type="button"
-              className="text-teal-600 font-extrabold bg-transparent border-0 inline-flex items-center gap-1.5 whitespace-nowrap text-sm cursor-pointer"
-            >
+            <button type="button" className="text-teal-600 font-extrabold bg-transparent border-0 inline-flex items-center gap-1.5 whitespace-nowrap text-sm cursor-pointer">
               {row.action} →
             </button>
           </div>

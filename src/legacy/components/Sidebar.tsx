@@ -61,7 +61,7 @@ export default function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Ad
     {
       key: 'ops',
       label: 'Operations',
-      href: '/vi/admin/ops',
+      href: '/vi/admin/operations',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="9"/>

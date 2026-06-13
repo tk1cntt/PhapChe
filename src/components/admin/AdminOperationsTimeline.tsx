@@ -41,7 +41,7 @@ function getTimelineTitle(item: OpsTimelineItemDto): string {
 
 export function AdminOperationsTimeline({ timeline }: AdminOperationsTimelineProps) {
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', maxHeight: 420, overflowY: 'auto' }}>
       {timeline.length === 0 ? (
         <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
           Chưa có sự kiện nào

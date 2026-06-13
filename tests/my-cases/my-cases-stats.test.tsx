@@ -178,12 +178,11 @@ describe('MyCases Stats Calculation', () => {
       const status = req!.status;
       const isOverdue = false;
 
-      const statusBadge = (
-        status === 'in_progress' || status === 'pending_review' ? 'review' :
-        status === 'approved' ? 'approved' :
-        status === 'submitted' ? 'submitted' :
-        isOverdue ? 'overdue' : 'pending'
-      );
+      // isOverdue check must come FIRST per the plan requirements
+      const statusBadge = isOverdue ? 'overdue' :
+        (status === 'in_progress' || status === 'pending_review' ? 'review' :
+        status === 'approved' || status === 'delivered' || status === 'closed' ? 'approved' :
+        status === 'submitted' ? 'submitted' : 'pending');
       expect(statusBadge).toBe('review');
     });
 
@@ -192,12 +191,11 @@ describe('MyCases Stats Calculation', () => {
       const status = req!.status;
       const isOverdue = false;
 
-      const statusBadge = (
-        status === 'in_progress' || status === 'pending_review' ? 'review' :
-        status === 'approved' ? 'approved' :
-        status === 'submitted' ? 'submitted' :
-        isOverdue ? 'overdue' : 'pending'
-      );
+      // isOverdue check must come FIRST per the plan requirements
+      const statusBadge = isOverdue ? 'overdue' :
+        (status === 'in_progress' || status === 'pending_review' ? 'review' :
+        status === 'approved' || status === 'delivered' || status === 'closed' ? 'approved' :
+        status === 'submitted' ? 'submitted' : 'pending');
       expect(statusBadge).toBe('approved');
     });
 
@@ -206,12 +204,11 @@ describe('MyCases Stats Calculation', () => {
       const status = req!.status;
       const isOverdue = false;
 
-      const statusBadge = (
-        status === 'in_progress' || status === 'pending_review' ? 'review' :
-        status === 'approved' ? 'approved' :
-        status === 'submitted' ? 'submitted' :
-        isOverdue ? 'overdue' : 'pending'
-      );
+      // isOverdue check must come FIRST per the plan requirements
+      const statusBadge = isOverdue ? 'overdue' :
+        (status === 'in_progress' || status === 'pending_review' ? 'review' :
+        status === 'approved' || status === 'delivered' || status === 'closed' ? 'approved' :
+        status === 'submitted' ? 'submitted' : 'pending');
       expect(statusBadge).toBe('approved');
     });
 
@@ -220,12 +217,11 @@ describe('MyCases Stats Calculation', () => {
       const status = req!.status;
       const isOverdue = req!.slaDeadline! < new Date();
 
-      const statusBadge = (
-        status === 'in_progress' || status === 'pending_review' ? 'review' :
-        status === 'approved' ? 'approved' :
-        status === 'submitted' ? 'submitted' :
-        isOverdue ? 'overdue' : 'pending'
-      );
+      // isOverdue check must come FIRST per the plan requirements
+      const statusBadge = isOverdue ? 'overdue' :
+        (status === 'in_progress' || status === 'pending_review' ? 'review' :
+        status === 'approved' || status === 'delivered' || status === 'closed' ? 'approved' :
+        status === 'submitted' ? 'submitted' : 'pending');
       expect(statusBadge).toBe('overdue');
     });
   });

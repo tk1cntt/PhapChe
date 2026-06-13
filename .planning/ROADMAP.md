@@ -23,7 +23,7 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
 - 📋 **Phase 39: Customer Dashboard** — Connect mock data → real Prisma queries
 - 📋 **Phase 40: Route Scaffold** — Create page.tsx for all v2 routes
 - 📋 **Phase 41: Create Request Wizard** — Connect Steps 3-4 → real API
-- 📋 **Phase 42: My Cases** — Connect filter/search → real data
+- 🚧 **Phase 42: My Cases** — Connect filter/search → real data
 - 📋 **Phase 43: Messages** — Connect real-time messaging API
 - 📋 **Phase 44: Workspace** — Connect workspace management
 - 📋 **Phase 45: Settings** — Connect profile/security forms
@@ -337,6 +337,23 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
 
 - [x] 41-01-PLAN.md — API endpoints and multilingual integration
 
+### Phase 42: My Cases — Connect filter/search to real data
+
+**Goal**: Connect My Cases page to real Prisma queries instead of mock data
+**Depends on**: Phase 41 (Create Request Wizard)
+**Requirements**: CUST-CASES-01, CUST-CASES-02, CUST-CASES-03, CUST-CASES-04, CUST-CASES-05
+**Success Criteria** (what must be TRUE):
+
+  1. User sees 4 stat cards with real counts from database (Total, Processing, Completed, Overdue)
+  2. User sees requests table with data from LegalRequest + MatterType labels
+  3. Search filters requests by code/type across real data
+  4. Status filter shows only matching requests
+  5. SLA calculation uses slaDeadline from LegalRequest
+
+**Plans:** 1/1 plans
+
+- [ ] 42-01-PLAN.md — Prisma queries and client-side filtering (pending)
+
 ## Progress
 
 | Phase | Screen | Requirements | Plans Complete | Status | Completed |
@@ -356,7 +373,8 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
 | 38. Admin Workspace | admin-workspace.html | 4 | 0/3 | Not started | - |
 | 39. Multilingual Schema | v2.0 foundation | 5 | 4/4 | Complete | 2026-06-12 |
 | 40. v2 Route Scaffold | v2 page skeletons | 2 | 0/1 | Pending | - |
-| 41. Create Request Wizard | v2 API connection | 3 | 0/1 | Pending | - |
+| 41. Create Request Wizard | v2 API connection | 3 | 1/1 | Complete | 2026-06-13 |
+| 42. My Cases | v2 real data | 5 | 0/1 | Pending | - |
 
 ---
 
@@ -366,4 +384,4 @@ v2.0 tập trung vào việc kết nối Mock UI (đã hoàn chỉnh trong v1.4)
 - Mapped to phases: 78
 - Unmapped: 0
 
-*Last updated: 2026-06-12*
+*Last updated: 2026-06-13*

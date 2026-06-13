@@ -1,0 +1,194 @@
+/* Audit Page Styles - Match Mock UI Pattern */
+
+.audit-client {
+  padding: 31px 36px 42px;
+}
+
+.audit-client .page-header {
+  margin-bottom: 16px;
+}
+
+.audit-client .page-header h1 {
+  font-size: 31px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  color: #020617;
+  margin-bottom: 12px;
+}
+
+.audit-client .page-header .subtitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: #5f6e83;
+  margin: 0;
+}
+
+.audit-client .panels-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.audit-client .panel {
+  background: #fff;
+  border: 1px solid #dfe7f1;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+  padding: 24px;
+}
+
+.audit-client .panel-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.audit-client .alert-list {
+  display: grid;
+  gap: 14px;
+}
+
+.audit-client .alert-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px;
+  border: 1px solid #edf2f7;
+  border-radius: 12px;
+  background: #fbfdff;
+}
+
+.audit-client .alert-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.audit-client .alert-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.audit-client .alert-icon.danger {
+  background: #ffe4e6;
+  color: #ef4444;
+}
+
+.audit-client .alert-icon.warning {
+  background: #ffedd5;
+  color: #f97316;
+}
+
+.audit-client .alert-icon.success {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.audit-client .alert-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.audit-client .alert-desc {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.audit-client .alert-count {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Timeline */
+.audit-client .timeline {
+  position: relative;
+  display: grid;
+  gap: 18px;
+}
+
+.audit-client .timeline-line {
+  position: absolute;
+  left: 13px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.audit-client .timeline-item {
+  position: relative;
+  padding-left: 38px;
+}
+
+.audit-client .timeline-dot {
+  position: absolute;
+  left: 5px;
+  top: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #087f78;
+  border: 4px solid #d9f8f4;
+  z-index: 2;
+}
+
+.audit-client .timeline-action {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.audit-client .timeline-desc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.audit-client .timeline-time {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 5px;
+  font-weight: 600;
+}
+
+.audit-client .table-wrapper {
+  margin-left: 24px;
+  margin-right: 24px;
+}
+
+.audit-client .security-note {
+  margin-bottom: 16px;
+}
+
+.audit-client .security-note p {
+  color: #475569;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .audit-client {
+    padding: 20px;
+  }
+
+  .audit-client .panels-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .audit-client .table-wrapper {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

@@ -211,7 +211,7 @@ function countByStatus(rows: Array<{ status: RequestStatus; count: number }>, st
   return rows.find((row) => row.status === status)?.count ?? 0;
 }
 
-async function requireSessionWorkspace(session: AppSession, filters: OpsFilters) {
+async function requireSessionWorkspace(session: AppSession, filters: OpsFilters): Promise<string> {
   const workspaceId = requireText(filters.workspaceId || session.activeWorkspaceId || '', 'WORKSPACE_REQUIRED');
   await requireOpsAdmin(workspaceId, session.userId);
   return workspaceId;
@@ -534,7 +534,7 @@ export async function getOpsAggregate(
   const [totalCount, nearSlaCount, completedTodayCount, allActive] = await Promise.all([
     prisma.legalRequest.count({ where: { AND: [where, { status: { in: activeStatuses } }] } }),
     prisma.legalRequest.count({ where: { AND: [where, { slaDeadline: { lte: twentyFourHoursFromNow, gte: now }, status: { in: activeStatuses } }] } }),
-    prisma.legalRequest.count({ where: { AND: [where, { status: { in: closedStatuses }, closedAt: { gte: todayStart } }] } }),
+    prisma.legalRequest.count({ where: { AND: [where, { status: { in: closedStatuses }, updatedAt: { gte: todayStart } }] } }),
     prisma.legalRequest.count({ where: { AND: [where, { status: { in: activeStatuses } }] } }),
   ]);
 
@@ -626,8 +626,16 @@ export async function getOpsAggregate(
   const [workspaces, matterTypes, specialists, reviewers, statuses] = await Promise.all([
     prisma.workspace.findMany({ where: { isActive: true }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
     prisma.matterType.findMany({ where: { isActive: true }, select: { key: true, label_vi: true }, orderBy: { label_vi: 'asc' } }),
-    prisma.user.findMany({ where: { isActive: true, roles: { contains: 'specialist' } }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
-    prisma.user.findMany({ where: { isActive: true, roles: { contains: 'reviewer' } }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
+    prisma.user.findMany({
+      where: { isActive: true, memberships: { some: { role: 'specialist', isActive: true } } },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.user.findMany({
+      where: { isActive: true, memberships: { some: { role: 'reviewer', isActive: true } } },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    }),
     Promise.resolve(requestStatuses),
   ]);
 

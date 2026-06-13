@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import AdminDashboardClient from '@/components/admin/AdminDashboardClient';
-import { AdminLayout } from '@/components/layout/AdminLayout';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -362,54 +361,52 @@ export default async function AdminDashboardPage({ params }: PageProps) {
       ];
 
   return (
-    <AdminLayout>
-      <AdminDashboardClient
-        stats={stats}
-        workloadData={workloadData}
-        alertData={alertData}
-        workspaceData={workspaceData}
-        approvalData={approvalData}
-        timelineData={timelineData}
-        requestTableData={requestTableData}
-        translations={{
-          pageTitle: 'Tổng quan hệ thống',
-          pageDesc: 'Tổng quan hoạt động hệ thống, workspaces và SLA.',
-          bannerTitle: 'Hệ thống đang hoạt động ổn định',
-          bannerDesc: `${stats.openRequests} hồ sơ đang mở, ${stats.nearSla} hồ sơ sắp quá SLA, ${stats.auditAlerts} cảnh báo audit cần rà soát và ${stats.workspaces.active} workspace đang hoạt động. Các thay đổi quyền, role và workspace đều được ghi nhận trong audit log.`,
-          viewAudit: 'Xem nhật ký',
-          dispatchWorkload: 'Điều phối workload',
-          exportReport: 'Xuất báo cáo',
-          createRequest: 'Tạo hồ sơ mới',
-          statUsers: 'Tổng người dùng',
-          statUsersDesc: `${stats.users.active} active, ${stats.users.invited} invited`,
-          statWorkspaces: 'Không gian làm việc',
-          statWorkspacesDesc: `${stats.workspaces.active} đang hoạt động`,
-          statNearSla: 'Sắp quá SLA',
-          statNearSlaDesc: 'cần ưu tiên xử lý',
-          statAuditAlerts: 'Cảnh báo audit',
-          statAuditAlertsDesc: 'cần rà soát',
-          workloadPanel: 'Khối lượng công việc chuyên viên',
-          alertsPanel: 'Cảnh báo cần xử lý',
-          workspacesPanel: 'Không gian nổi bật',
-          approvalsPanel: 'Chờ phê duyệt',
-          timelinePanel: 'Nhật ký kiểm toán gần đây',
-          viewDetail: 'Xem chi tiết',
-          viewAll: 'Xem tất cả',
-          colCode: 'Mã hồ sơ',
-          colWorkspace: 'Không gian',
-          colCustomer: 'Khách hàng',
-          colStatus: 'Trạng thái',
-          colAssignee: 'Người phụ trách',
-          colSla: 'SLA',
-          colAction: 'Thao tác',
-          searchPlaceholder: 'Tìm hồ sơ, workspace, người phụ trách...',
-          filter: 'Bộ lọc',
-          status: 'Trạng thái',
-          workspace: 'Không gian',
-          export: 'Xuất',
-          columns: 'Cột hiển thị',
-        }}
-      />
-    </AdminLayout>
+    <AdminDashboardClient
+      stats={stats}
+      workloadData={workloadData}
+      alertData={alertData}
+      workspaceData={workspaceData}
+      approvalData={approvalData}
+      timelineData={timelineData}
+      requestTableData={requestTableData}
+      translations={{
+        pageTitle: 'Tổng quan hệ thống',
+        pageDesc: 'Tổng quan hoạt động hệ thống, workspaces và SLA.',
+        bannerTitle: 'Hệ thống đang hoạt động ổn định',
+        bannerDesc: `${stats.openRequests} hồ sơ đang mở, ${stats.nearSla} hồ sơ sắp quá SLA, ${stats.auditAlerts} cảnh báo audit cần rà soát và ${stats.workspaces.active} workspace đang hoạt động. Các thay đổi quyền, role và workspace đều được ghi nhận trong audit log.`,
+        viewAudit: 'Xem nhật ký',
+        dispatchWorkload: 'Điều phối workload',
+        exportReport: 'Xuất báo cáo',
+        createRequest: 'Tạo hồ sơ mới',
+        statUsers: 'Tổng người dùng',
+        statUsersDesc: `${stats.users.active} active, ${stats.users.invited} invited`,
+        statWorkspaces: 'Không gian làm việc',
+        statWorkspacesDesc: `${stats.workspaces.active} đang hoạt động`,
+        statNearSla: 'Sắp quá SLA',
+        statNearSlaDesc: 'cần ưu tiên xử lý',
+        statAuditAlerts: 'Cảnh báo audit',
+        statAuditAlertsDesc: 'cần rà soát',
+        workloadPanel: 'Khối lượng công việc chuyên viên',
+        alertsPanel: 'Cảnh báo cần xử lý',
+        workspacesPanel: 'Không gian nổi bật',
+        approvalsPanel: 'Chờ phê duyệt',
+        timelinePanel: 'Nhật ký kiểm toán gần đây',
+        viewDetail: 'Xem chi tiết',
+        viewAll: 'Xem tất cả',
+        colCode: 'Mã hồ sơ',
+        colWorkspace: 'Không gian',
+        colCustomer: 'Khách hàng',
+        colStatus: 'Trạng thái',
+        colAssignee: 'Người phụ trách',
+        colSla: 'SLA',
+        colAction: 'Thao tác',
+        searchPlaceholder: 'Tìm hồ sơ, workspace, người phụ trách...',
+        filter: 'Bộ lọc',
+        status: 'Trạng thái',
+        workspace: 'Không gian',
+        export: 'Xuất',
+        columns: 'Cột hiển thị',
+      }}
+    />
   );
 }

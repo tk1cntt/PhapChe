@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
-import { AdminLayout } from '@/components/layout/AdminLayout';
 import UsersPageClient from '@/components/admin/UsersPageClient';
 
 interface PageProps {
@@ -85,13 +84,11 @@ export default async function AdminUsersPage({ params }: PageProps) {
     });
 
   return (
-    <AdminLayout>
-      <UsersPageClient
-        initialStats={stats}
-        initialRoleStats={sortedRoleStats}
-        locale={locale}
-        workspaceOptions={workspaces}
-      />
-    </AdminLayout>
+    <UsersPageClient
+      initialStats={stats}
+      initialRoleStats={sortedRoleStats}
+      locale={locale}
+      workspaceOptions={workspaces}
+    />
   );
 }

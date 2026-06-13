@@ -32,17 +32,34 @@ export default async function MyCasesPage({
   const userName = user?.name ?? 'User';
   const workspaceName = workspace?.name ?? 'Workspace';
 
-  // Fetch data from database
+  // Fetch data from database with correct stats aggregation
   const [totalRequests, processingRequests, completedRequests, overdueRequests, requests, unreadMessages] = await Promise.all([
+    // Total = all workspace requests
     prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '' } }),
-    prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '', status: { in: ['in_progress', 'pending_review', 'revision_required'] } } }),
-    prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '', status: { in: ['delivered', 'closed'] } } }),
-    prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '', status: 'cancelled' } }),
+    // Processing = in_progress + pending_review + triage + assigned
+    prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '', status: { in: ['in_progress', 'pending_review', 'triage', 'assigned'] } } }),
+    // Completed = approved + delivered + closed
+    prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '', status: { in: ['approved', 'delivered', 'closed'] } } }),
+    // Overdue = slaDeadline < now AND status NOT IN (approved, delivered, closed, cancelled)
+    prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*) as count FROM LegalRequest
+      WHERE workspaceId = ${activeWorkspaceId ?? ''}
+      AND slaDeadline IS NOT NULL
+      AND slaDeadline < datetime('now')
+      AND status NOT IN ('approved', 'delivered', 'closed', 'cancelled')
+    `,
+    // Requests with MatterType from intakeSubmission
     prisma.legalRequest.findMany({
       where: { workspaceId: activeWorkspaceId ?? '' },
       include: {
         assignedSpecialist: { select: { name: true } },
         assignedReviewer: { select: { name: true } },
+        intakeSubmission: {
+          select: {
+            matterTypeKey: true,
+            matterType: { select: { label_vi: true, label_en: true } }
+          }
+        },
       },
       orderBy: { updatedAt: 'desc' },
     }),
@@ -51,30 +68,36 @@ export default async function MyCasesPage({
     }),
   ]);
 
+  // Extract overdue count from raw query result
+  const overdueCount = Number(overdueRequests[0]?.count ?? 0);
+
   const stats = {
     total: totalRequests,
     processing: processingRequests,
     completed: completedRequests,
-    overdue: overdueRequests,
+    overdue: overdueCount,
   };
 
   const now = new Date();
-  const mappedRequests = requests.map(req => {
-    const isOverdue = req.status === 'cancelled';
-    const slaDays = 7;
-    const deadline = new Date(req.createdAt);
-    deadline.setDate(deadline.getDate() + slaDays);
+  const mappedRequests = await Promise.all(requests.map(async req => {
+    // Calculate isOverdue from slaDeadline
+    const deadline = req.slaDeadline ?? new Date(req.createdAt.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const isOverdue = deadline < now && !['approved', 'delivered', 'closed', 'cancelled'].includes(req.status);
+
+    // SLA calculation from slaDeadline
     const remainingMs = deadline.getTime() - now.getTime();
     const remainingHours = Math.round(remainingMs / (1000 * 60 * 60));
     const slaText = remainingHours <= 0 ? `Trễ ${Math.abs(Math.round(remainingHours / 24))} ngày` : remainingHours < 24 ? `Còn ${remainingHours}h` : `Còn ${Math.round(remainingHours / 24)} ngày`;
     const slaVariant = remainingHours <= 0 ? 'red' : remainingHours < 24 ? 'orange' : remainingHours < 72 ? 'orange' : 'green';
 
-    const statusBadge = (
-      req.status === 'in_progress' ? 'review' :
-      req.status === 'pending_review' ? 'pending' :
-      req.status === 'delivered' || req.status === 'closed' ? 'approved' :
-      isOverdue ? 'overdue' : 'submitted'
-    ) as 'review' | 'pending' | 'approved' | 'overdue' | 'submitted';
+    // Status badge mapping - isOverdue check first
+    const statusBadge = isOverdue ? 'overdue' :
+      (req.status === 'in_progress' || req.status === 'pending_review' ? 'review' :
+      req.status === 'approved' || req.status === 'delivered' || req.status === 'closed' ? 'approved' :
+      req.status === 'submitted' ? 'submitted' : 'pending') as 'review' | 'pending' | 'approved' | 'overdue' | 'submitted';
+
+    // Get MatterType labels from intakeSubmission
+    const matterTypeLabel = req.intakeSubmission?.matterType?.label_vi ?? req.intakeSubmission?.matterType?.label_en ?? null;
 
     const statusText = tStatus(
       req.status as 'in_progress' | 'pending_review' | 'delivered' | 'closed' | 'revision_required' | 'intake_submitted' | 'draft_intake' | 'triage' | 'assigned' | 'approved' | 'cancelled'
@@ -89,8 +112,8 @@ export default async function MyCasesPage({
       id: req.id,
       code: req.code ?? `REQ-${req.createdAt.getFullYear()}-${String(req.id.slice(-3)).toUpperCase()}`,
       statusText,
-      type: req.matterType ?? req.title.split(' ').slice(0, 3).join(' '),
-      typeEn: req.matterType ?? 'Contract Review',
+      type: matterTypeLabel ?? req.matterType ?? req.title.split(' ').slice(0, 3).join(' '),
+      typeEn: req.intakeSubmission?.matterType?.label_en ?? 'Contract Review',
       statusBadge,
       specialistName: req.assignedSpecialist?.name ?? req.assignedReviewer?.name ?? 'Chưa phân công',
       specialistRole: req.assignedSpecialist ? 'Specialist' : req.assignedReviewer ? 'Reviewer' : 'Coordinator',
@@ -101,7 +124,7 @@ export default async function MyCasesPage({
       actionText,
       actionHref: `/customer/cases/${req.id}`,
     };
-  });
+  }));
 
   return (
     <UserLayout

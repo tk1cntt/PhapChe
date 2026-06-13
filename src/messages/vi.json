@@ -548,7 +548,17 @@
     "specialist": "Chuyên viên",
     "specialistInitials": "CV",
     "clickToViewMessages": "Nhấn để xem tin nhắn liên quan",
-    "justNow": "vừa xong"
+    "justNow": "vừa xong",
+    "noSla": "Không có SLA",
+    "noSlaSet": "Chưa thiết lập SLA",
+    "noDocuments": "Không có tài liệu",
+    "notAssigned": "Chưa phân công",
+    "slaDeadline": "Hạn SLA",
+    "searchPlaceholder": "Tìm kiếm cuộc hội thoại...",
+    "threads": "Tin nhắn",
+    "noThreads": "Chưa có cuộc hội thoại nào",
+    "startConversation": "Bắt đầu cuộc trò chuyện với chuyên viên pháp lý",
+    "selectThread": "Chọn một cuộc hội thoại để xem tin nhắn"
   },
   "UserWorkspace": {
     "pageTitle": "Workspace",
@@ -597,7 +607,16 @@
     "roleFinance": "Finance",
     "roleViewer": "Legal Contact",
     "roleCustomer": "Khách hàng",
-    "roleInvited": "Đã mời"
+    "roleInvited": "Đã mời",
+    "inviteMemberDesc": "Gửi lời mời đến email để tham gia workspace",
+    "emailAddress": "Địa chỉ email",
+    "emailPlaceholder": "VD: nguyen@example.com",
+    "invalidEmailError": "Vui lòng nhập địa chỉ email hợp lệ",
+    "inviteFailed": "Gửi lời mời thất bại. Vui lòng thử lại.",
+    "inviteSuccess": "Đã gửi lời mời thành công!",
+    "cancel": "Hủy",
+    "sendInvite": "Gửi lời mời",
+    "sending": "Đang gửi..."
   },
   "UserSettings": {
     "pageTitle": "Cài đặt",

@@ -539,7 +539,17 @@
     "specialist": "Specialist",
     "specialistInitials": "SP",
     "clickToViewMessages": "Click to view messages",
-    "justNow": "just now"
+    "justNow": "just now",
+    "noSla": "No SLA",
+    "noSlaSet": "SLA not set",
+    "noDocuments": "No documents",
+    "notAssigned": "Not assigned",
+    "slaDeadline": "SLA Deadline",
+    "searchPlaceholder": "Search conversations...",
+    "threads": "Messages",
+    "noThreads": "No conversations yet",
+    "startConversation": "Start a conversation with the legal specialist",
+    "selectThread": "Select a conversation to view messages"
   },
   "UserWorkspace": {
     "pageTitle": "Workspace",
@@ -588,7 +598,16 @@
     "roleFinance": "Finance",
     "roleViewer": "Legal Contact",
     "roleCustomer": "Customer",
-    "roleInvited": "Invited"
+    "roleInvited": "Invited",
+    "inviteMemberDesc": "Send an invitation to join this workspace",
+    "emailAddress": "Email Address",
+    "emailPlaceholder": "e.g., john@example.com",
+    "invalidEmailError": "Please enter a valid email address",
+    "inviteFailed": "Failed to send invitation. Please try again.",
+    "inviteSuccess": "Invitation sent successfully!",
+    "cancel": "Cancel",
+    "sendInvite": "Send Invitation",
+    "sending": "Sending..."
   },
   "UserSettings": {
     "pageTitle": "Settings",

@@ -32,7 +32,7 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<OpsClientFilters>({});
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(10);
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [initialized, setInitialized] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -45,7 +45,7 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
 
     let hasChanges = false;
     const newPage = pageParam ? parseInt(pageParam, 10) || 1 : 1;
-    const newPageSize = pageSizeParam ? parseInt(pageSizeParam, 10) || 20 : 20;
+    const newPageSize = pageSizeParam ? parseInt(pageSizeParam, 10) || 10 : 10;
 
     if (newPage !== page) { setPage(newPage); hasChanges = true; }
     if (newPageSize !== pageSize) { setPageSize(newPageSize); hasChanges = true; }

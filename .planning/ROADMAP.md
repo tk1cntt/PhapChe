@@ -42,8 +42,8 @@
 - [ ] **Phase 70: User Management v2** — Enhanced with organization context
 
 **User Features:**
-- [ ] **Phase 71: Create Request v2** — With engagement & partner assignment
-- [ ] **Phase 72: My Cases v2** — With partner-view filtering
+- [ ] **Phase 71: Create Request** — New UI for request wizard
+- [ ] **Phase 72: Workspace Management** — New UI for workspace CRUD
 
 ### Phase 57: Shared Tenant Architecture (COMPLETED)
 
@@ -355,20 +355,22 @@ For original requirements, see `.planning/REQUIREMENTS.md`.
 
 ### Legacy Phases (Superseded by Shared Tenant)
 
-| Phase | Name | Original Requirements | New Phase |
+| Phase | Name | Original Requirements | UI Status |
 |-------|------|---------------------|-----------|
-| 73 | Settings (User) | SET-01 to SET-06 | Pending |
-| 74 | User Management (Admin) | ADM-USER-01 to 09 | Pending |
-| 75 | Create Request (User) | CREQ-01 to 10 | Pending |
-| 76 | Workspace Management (Admin) | ADM-WS-01 to 08 | Pending |
-| 77 | My Cases (User) | MYCASE-01 to 09 | Pending |
-| 78 | Dashboard (User) | U-DASH-01 to 08 | Pending |
-| 79 | Request Management (Admin) | ADM-REQ-01 to 09 | Pending |
-| 80 | Admin Dashboard | ADM-DASH-01 to 08 | Pending |
-| 81 | Operations (Admin) | ADM-OPS-01 to 07 | Pending |
-| 82 | Messages (User) | MSG-01 to 08 | Pending |
-| 83 | Audit (Admin) | ADM-AUD-01 to 10 | Pending |
-| 84 | Vault (Admin) | VAULT-01 to 12 | Pending |
+| 73 | Settings (User) | SET-01 to SET-06 | ✅ Implemented |
+| 74 | User Management (Admin) | ADM-USER-01 to 09 | ✅ Implemented |
+| 75 | Create Request (User) | CREQ-01 to 10 | ❌ Not implemented |
+| 76 | Workspace Management (Admin) | ADM-WS-01 to 08 | ❌ Not implemented |
+| 77 | My Cases (User) | MYCASE-01 to 09 | ✅ Implemented |
+| 78 | Dashboard (User) | U-DASH-01 to 08 | ✅ Implemented |
+| 79 | Request Management (Admin) | ADM-REQ-01 to 09 | ✅ Implemented |
+| 80 | Admin Dashboard | ADM-DASH-01 to 08 | ✅ Implemented |
+| 81 | Operations (Admin) | ADM-OPS-01 to 07 | ✅ Implemented |
+| 82 | Messages (User) | MSG-01 to 08 | ✅ Implemented |
+| 83 | Audit (Admin) | ADM-AUD-01 to 10 | ✅ Implemented |
+| 84 | Vault (Admin) | VAULT-01 to 12 | ✅ Implemented |
+
+**Note:** 10 phases đã implement UI. Cần enhance với organization/partner context khi Shared Tenant hoàn thành.
 
 ---
 

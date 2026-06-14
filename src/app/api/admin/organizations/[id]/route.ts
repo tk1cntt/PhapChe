@@ -5,9 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 // GET - Get organization detail
 export async function GET(
@@ -18,11 +16,11 @@ export async function GET(
 
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
   }
 
   if (session.user.role !== 'platform_admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: 'FORBIDDEN', detail: 'Platform admin access required' }, { status: 403 });
   }
 
   const organization = await prisma.organization.findUnique({
@@ -39,7 +37,7 @@ export async function GET(
   });
 
   if (!organization) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ error: 'NOT_FOUND', detail: 'Organization not found' }, { status: 404 });
   }
 
   return NextResponse.json({ data: organization });
@@ -54,21 +52,21 @@ export async function PATCH(
 
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
   }
 
   if (session.user.role !== 'platform_admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: 'FORBIDDEN', detail: 'Platform admin access required' }, { status: 403 });
   }
 
   const organization = await prisma.organization.findUnique({ where: { id } });
   if (!organization) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ error: 'NOT_FOUND', detail: 'Organization not found' }, { status: 404 });
   }
 
   // Cannot modify default organization
   if (organization.isDefault) {
-    return NextResponse.json({ error: 'Cannot modify default organization' }, { status: 400 });
+    return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Cannot modify default organization' }, { status: 400 });
   }
 
   const body = await req.json();
@@ -96,20 +94,20 @@ export async function DELETE(
 
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
   }
 
   if (session.user.role !== 'platform_admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: 'FORBIDDEN', detail: 'Platform admin access required' }, { status: 403 });
   }
 
   const organization = await prisma.organization.findUnique({ where: { id } });
   if (!organization) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ error: 'NOT_FOUND', detail: 'Organization not found' }, { status: 404 });
   }
 
   if (organization.isDefault) {
-    return NextResponse.json({ error: 'Cannot delete default organization' }, { status: 400 });
+    return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Cannot delete default organization' }, { status: 400 });
   }
 
   // Soft delete - set inactive

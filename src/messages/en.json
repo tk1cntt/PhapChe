@@ -1330,12 +1330,6 @@
       "pending": "Pending"
     }
   },
-  "AdminNav": {
-    "helpCard": {
-      "needHelp": "Need help?",
-      "viewGuide": "View docs & guides →"
-    }
-  },
   "RequestDetail": {
     "pageTitle": "Legal Request",
     "pageDescription": "Final documents after quality control will be displayed here.",

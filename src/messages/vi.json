@@ -1299,12 +1299,6 @@
       "pending": "Đang chờ"
     }
   },
-  "AdminNav": {
-    "helpCard": {
-      "needHelp": "Need help?",
-      "viewGuide": "View docs & guides →"
-    }
-  },
   "RequestDetail": {
     "pageTitle": "Yêu cầu pháp lý",
     "pageDescription": "Tài liệu cuối cùng đã qua kiểm soát chất lượng sẽ hiển thị tại đây.",

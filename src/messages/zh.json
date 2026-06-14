@@ -1263,12 +1263,6 @@
       "pending": "待处理"
     }
   },
-  "AdminNav": {
-    "helpCard": {
-      "needHelp": "需要帮助？",
-      "viewGuide": "查看文档和指南 →"
-    }
-  },
   "RequestDetail": {
     "pageTitle": "法律请求",
     "pageDescription": "经过质量控制的最终文件将在此处显示。",

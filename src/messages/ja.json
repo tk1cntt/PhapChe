@@ -1263,12 +1263,6 @@
       "pending": "保留中"
     }
   },
-  "AdminNavPlaceholder": {
-    "helpCard": {
-      "needHelp": "ヘルプが必要ですか？",
-      "viewGuide": "ドキュメントとガイドを見る →"
-    }
-  },
   "RequestDetail": {
     "pageTitle": "法的リクエスト",
     "pageDescription": "品質管理を通過した最終ドキュメントがここに表示されます。",

@@ -21,8 +21,8 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <ReactQueryProvider>
-      <LocaleSync />
       <NextIntlClientProvider messages={messages}>
+        <LocaleSync />
         {children}
       </NextIntlClientProvider>
     </ReactQueryProvider>

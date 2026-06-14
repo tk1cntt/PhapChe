@@ -59,7 +59,7 @@ export function MyCasesToolbar({
   return (
     <div className="toolbar-card">
       <div className="toolbar">
-        <div className="toolbar_left">
+        <div className="toolbar-left">
           <div className="request-search">
             <Search size={18} />
             <input

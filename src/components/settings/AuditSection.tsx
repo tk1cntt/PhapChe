@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Shield, Clock, ExternalLink } from 'lucide-react';
+import Paging from '@/components/ui/Paging';
 
 export interface AuditSectionProps {
   userId: string;
@@ -19,25 +20,35 @@ export function AuditSection({ userId }: AuditSectionProps): React.ReactElement 
   const t = useTranslations('UserSettings');
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [current, setCurrent] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    fetchAuditEvents();
-  }, [userId]);
-
-  const fetchAuditEvents = async () => {
+  const fetchAuditEvents = useCallback(async (page: number, size: number) => {
+    setLoading(true);
     try {
-      const response = await fetch('/api/settings/audit');
+      const response = await fetch(`/api/settings/audit?page=${page}&pageSize=${size}`);
       if (!response.ok) throw new Error('Failed to fetch audit events');
 
       const data = await response.json();
       if (data.data) {
-        setEvents(data.data.slice(0, 10)); // Limit to 10 recent events
+        setEvents(data.data);
+        setTotal(data.total || 0);
       }
     } catch (err) {
       console.error('Failed to fetch audit events:', err);
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchAuditEvents(current, pageSize);
+  }, [userId, current, pageSize, fetchAuditEvents]);
+
+  const handlePageChange = (page: number, size: number) => {
+    setCurrent(page);
+    setPageSize(size);
   };
 
   const formatDate = (dateString: string) => {
@@ -79,25 +90,35 @@ export function AuditSection({ userId }: AuditSectionProps): React.ReactElement 
           <span>{t('noAuditEvents')}</span>
         </div>
       ) : (
-        <div className="audit-list">
-          {events.map((event) => (
-            <div key={event.id} className="audit-item">
-              <div className="audit-icon">
-                <Shield size={16} />
+        <>
+          <div className="audit-list">
+            {events.map((event) => (
+              <div key={event.id} className="audit-item">
+                <div className="audit-icon">
+                  <Shield size={16} />
+                </div>
+                <div className="audit-content">
+                  <span className="audit-action">{getActionLabel(event.action)}</span>
+                  {event.metadataSummary && (
+                    <span className="audit-meta">{event.metadataSummary}</span>
+                  )}
+                </div>
+                <div className="audit-time">
+                  <Clock size={14} />
+                  {formatDate(event.createdAt)}
+                </div>
               </div>
-              <div className="audit-content">
-                <span className="audit-action">{getActionLabel(event.action)}</span>
-                {event.metadataSummary && (
-                  <span className="audit-meta">{event.metadataSummary}</span>
-                )}
-              </div>
-              <div className="audit-time">
-                <Clock size={14} />
-                {formatDate(event.createdAt)}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          <Paging
+            current={current}
+            pageSize={pageSize}
+            total={total}
+            onChange={handlePageChange}
+            totalLabel={`${total} sự kiện`}
+          />
+        </>
       )}
 
       <button className="view-all-btn">

@@ -1,4 +1,15 @@
 /* Workspace page styles */
+:root {
+  --border: #dfe7f1;
+  --teal: #087f78;
+  --blue: #2563eb;
+  --green: #10b981;
+  --orange: #f97316;
+  --purple: #7c3aed;
+  --shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+  --soft-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+}
+
 .workspace_page {
   display: flex;
   flex-direction: column;

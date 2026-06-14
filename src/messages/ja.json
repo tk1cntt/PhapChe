@@ -98,7 +98,7 @@
     "stepDocuments": "書類",
     "stepReview": "確認"
   },
-  "DashboardClient": {
+  "Common": {
     "noItems": "項目がありません。",
     "loading": "読み込み中...",
     "error": "エラーが発生しました。",
@@ -132,6 +132,72 @@
     "previousPage": "前のページ",
     "nextPage": "次のページ",
     "signOut": "サインアウト"
+  },
+  "DashboardClient": {
+    "greeting": "こんにちは、{name}",
+    "subtitle": "ワークスペースの法務案件、ドキュメント、スペシャリストからの返信、重要な期限を追跡します。",
+    "createRequest": "新規リクエスト作成",
+    "searchPlaceholder": "案件を検索...",
+    "filter": "フィルター",
+    "statusFilter": "ステータス",
+    "export": "エクスポート",
+    "columns": "表示列",
+    "caseCode": "案件番号",
+    "requestType": "リクエスト種別",
+    "assignee": "担当者",
+    "lastUpdated": "最終更新",
+    "viewDetails": "詳細を見る",
+    "noCases": "案件がありません",
+    "pagingInfo": "{start}-{end} を表示、全 {total} 件",
+    "newMessages": "新着メッセージ"
+  },
+  "StatCard": {
+    "totalRequests": "総案件数",
+    "totalRequestsDesc": "現在のワークスペース",
+    "inProgress": "処理中",
+    "inProgressDesc": "スペシャリストの返信待ち",
+    "completed": "完了",
+    "completedDesc": "SLA期限内処理",
+    "vaultDocs": "ボールト文書",
+    "vaultDocsDesc": "セキュアな権限管理"
+  },
+  "WelcomeBanner": {
+    "title": "ワークスペースは正常に稼働しています",
+    "workspaceScope": "データは{workspace}ワークスペース内でのみ表示されます。",
+    "statusOk": "ワークスペースは正常に稼働しています",
+    "requestsProcessing": "{count}件のリクエストが処理中",
+    "docsPending": "{count}件のドキュメントが確認待ち",
+    "repliesNew": "{count}件の新しいスペシャリスト返信",
+    "statusNormal": "ワークスペースは正常に稼働しています",
+    "viewDocuments": "ドキュメントを表示",
+    "sendFeedback": "フィードバックを送信"
+  },
+  "RecentCases": {
+    "title": "処理中のケース",
+    "seeAll": "すべて表示 →",
+    "empty": "アクティブなケースがありません",
+    "open": "開く →"
+  },
+  "RecentDocuments": {
+    "title": "最近のドキュメント",
+    "openVault": "ボールトを開く →",
+    "empty": "ドキュメントがありません",
+    "updatedAt": "更新",
+    "statusActive": "アクティブ",
+    "statusPending": "保留中",
+    "statusArchived": "アーカイブ済み",
+    "statusEncrypted": "暗号化済み"
+  },
+  "DeadlineSLA": {
+    "title": "期限＆SLA",
+    "empty": "今週の期限はありません",
+    "urgent": "即時対応が必要",
+    "warning": "期限接近中",
+    "safe": "時間あり"
+  },
+  "ActivityTimeline": {
+    "title": "最近のアクティビティ",
+    "empty": "最近のアクティビティがありません"
   },
   "Language": {
     "switch": "言語切替",

@@ -23,7 +23,7 @@ const progressClass: Record<string, string> = {
 };
 
 export default function DeadlineSLA({ deadlines }: DeadlineSLAProps) {
-  const t = useTranslations('Dashboard');
+  const t = useTranslations('DeadlineSLA');
 
   return (
     <div className="panel">
@@ -33,13 +33,13 @@ export default function DeadlineSLA({ deadlines }: DeadlineSLAProps) {
             <circle cx="12" cy="12" r="10" />
             <path d="M12 6v6l4 2" />
           </svg>
-          <span>{t('deadline.title')}</span>
+          <span>{t('title')}</span>
         </div>
       </div>
 
       <div className="deadline-list">
         {deadlines.length === 0 ? (
-          <div className="empty-state">{t('deadline.empty')}</div>
+          <div className="empty-state">{t('empty')}</div>
         ) : (
           deadlines.map((d) => (
             <div key={d.id} className="deadline-item">
@@ -54,9 +54,9 @@ export default function DeadlineSLA({ deadlines }: DeadlineSLAProps) {
                 />
               </div>
               <p className="deadline-note">
-                {d.status === 'danger' && t('deadline.urgent')}
-                {d.status === 'warn' && t('deadline.warning')}
-                {d.status === 'ok' && t('deadline.safe')}
+                {d.status === 'danger' && t('urgent')}
+                {d.status === 'warn' && t('warning')}
+                {d.status === 'ok' && t('safe')}
               </p>
             </div>
           ))

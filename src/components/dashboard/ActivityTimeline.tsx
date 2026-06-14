@@ -16,7 +16,7 @@ interface ActivityTimelineProps {
 }
 
 export default function ActivityTimeline({ activities }: ActivityTimelineProps) {
-  const t = useTranslations('Dashboard');
+  const t = useTranslations('ActivityTimeline');
 
   return (
     <div className="panel">
@@ -26,13 +26,13 @@ export default function ActivityTimeline({ activities }: ActivityTimelineProps) 
             <circle cx="12" cy="12" r="10" />
             <path d="M12 6v6l4 2" />
           </svg>
-          <span>{t('activity.title')}</span>
+          <span>{t('title')}</span>
         </div>
       </div>
 
       <div className="timeline">
         {activities.length === 0 ? (
-          <div className="empty-state">{t('activity.empty')}</div>
+          <div className="empty-state">{t('empty')}</div>
         ) : (
           activities.map((a) => (
             <div key={a.id} className="timeline-item">

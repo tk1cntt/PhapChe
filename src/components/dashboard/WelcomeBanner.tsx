@@ -15,22 +15,22 @@ export default function WelcomeBanner({
   pendingDocs,
   newReplies,
 }: WelcomeBannerProps) {
-  const t = useTranslations('Dashboard');
+  const t = useTranslations('WelcomeBanner');
 
   const statusParts: string[] = [];
   if (activeRequests > 0) {
-    statusParts.push(t('welcome.requestsProcessing', { count: activeRequests }));
+    statusParts.push(t('requestsProcessing', { count: activeRequests }));
   }
   if (pendingDocs > 0) {
-    statusParts.push(t('welcome.docsPending', { count: pendingDocs }));
+    statusParts.push(t('docsPending', { count: pendingDocs }));
   }
   if (newReplies > 0) {
-    statusParts.push(t('welcome.repliesNew', { count: newReplies }));
+    statusParts.push(t('repliesNew', { count: newReplies }));
   }
 
   const statusText = statusParts.length > 0
     ? statusParts.join(', ')
-    : t('welcome.statusNormal');
+    : t('statusNormal');
 
   return (
     <div className="welcome-card">
@@ -42,16 +42,16 @@ export default function WelcomeBanner({
           </svg>
         </div>
         <div>
-          <h2>{t('welcome.title')}</h2>
+          <h2>{t('title')}</h2>
           <p>
             {statusText}.
-            {t('welcome.workspaceScope', { workspace: workspaceName })}
+            {t('workspaceScope', { workspace: workspaceName })}
           </p>
         </div>
       </div>
       <div className="quick-actions">
-        <button className="ghost-btn">{t('welcome.viewDocuments')}</button>
-        <button className="create-btn">{t('welcome.sendFeedback')}</button>
+        <button className="ghost-btn">{t('viewDocuments')}</button>
+        <button className="create-btn">{t('sendFeedback')}</button>
       </div>
     </div>
   );

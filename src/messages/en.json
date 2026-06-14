@@ -98,7 +98,7 @@
     "stepDocuments": "Documents",
     "stepReview": "Review"
   },
-  "DashboardClient": {
+  "Common": {
     "noItems": "No items.",
     "loading": "Loading...",
     "error": "An error occurred.",
@@ -132,6 +132,72 @@
     "previousPage": "Previous page",
     "nextPage": "Next page",
     "signOut": "Sign Out"
+  },
+  "DashboardClient": {
+    "greeting": "Hello, {name}",
+    "subtitle": "Track legal cases, documents, specialist responses, and important deadlines in your workspace.",
+    "createRequest": "Create New Request",
+    "searchPlaceholder": "Search your cases...",
+    "filter": "Filter",
+    "statusFilter": "Status",
+    "export": "Export",
+    "columns": "Columns",
+    "caseCode": "Case Code",
+    "requestType": "Request Type",
+    "assignee": "Assignee",
+    "lastUpdated": "Last Updated",
+    "viewDetails": "View Details",
+    "noCases": "No cases found",
+    "pagingInfo": "Showing {start}-{end} of {total} cases",
+    "newMessages": "New Messages"
+  },
+  "StatCard": {
+    "totalRequests": "Total Cases",
+    "totalRequestsDesc": "In current workspace",
+    "inProgress": "In Progress",
+    "inProgressDesc": "Awaiting specialist response",
+    "completed": "Completed",
+    "completedDesc": "On-time SLA processing",
+    "vaultDocs": "Vault Documents",
+    "vaultDocsDesc": "Securely permissioned"
+  },
+  "WelcomeBanner": {
+    "title": "Your workspace is running smoothly",
+    "workspaceScope": "Data only visible within {workspace} workspace.",
+    "statusOk": "Workspace is running normally",
+    "requestsProcessing": "{count} requests being processed",
+    "docsPending": "{count} documents need confirmation",
+    "repliesNew": "{count} new specialist replies",
+    "statusNormal": "Workspace is running normally",
+    "viewDocuments": "View Documents",
+    "sendFeedback": "Send Feedback"
+  },
+  "RecentCases": {
+    "title": "Processing Cases",
+    "seeAll": "View All →",
+    "empty": "No active cases",
+    "open": "Open →"
+  },
+  "RecentDocuments": {
+    "title": "Recent Documents",
+    "openVault": "Open Vault →",
+    "empty": "No documents available",
+    "updatedAt": "updated",
+    "statusActive": "Active",
+    "statusPending": "Pending",
+    "statusArchived": "Archived",
+    "statusEncrypted": "Encrypted"
+  },
+  "DeadlineSLA": {
+    "title": "Deadline & SLA",
+    "empty": "No deadlines this week",
+    "urgent": "Needs immediate action",
+    "warning": "Approaching deadline",
+    "safe": "On track"
+  },
+  "ActivityTimeline": {
+    "title": "Recent Activity",
+    "empty": "No recent activity"
   },
   "Language": {
     "switch": "Switch Language",

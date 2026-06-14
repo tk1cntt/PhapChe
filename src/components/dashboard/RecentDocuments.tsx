@@ -44,7 +44,7 @@ const statusBadgeClass: Record<string, string> = {
 };
 
 export default function RecentDocuments({ documents }: RecentDocumentsProps) {
-  const t = useTranslations('Dashboard');
+  const t = useTranslations('RecentDocuments');
 
   return (
     <div className="panel">
@@ -54,14 +54,14 @@ export default function RecentDocuments({ documents }: RecentDocumentsProps) {
             <path d="M3 7h18v13H3z" />
             <path d="M3 7l3-4h12l3 4" />
           </svg>
-          <span>{t('recentDocuments.title')}</span>
+          <span>{t('title')}</span>
         </div>
-        <a className="small-link" href="#">{t('recentDocuments.openVault')}</a>
+        <a className="small-link" href="#">{t('openVault')}</a>
       </div>
 
       <div className="document-list">
         {documents.length === 0 ? (
-          <div className="empty-state">{t('recentDocuments.empty')}</div>
+          <div className="empty-state">{t('empty')}</div>
         ) : (
           documents.map((doc) => (
             <div key={doc.id} className="document-item">
@@ -69,11 +69,14 @@ export default function RecentDocuments({ documents }: RecentDocumentsProps) {
                 <div className="file-icon">{getFileExtension(doc.mimeType)}</div>
                 <div className="file-info">
                   <strong>{doc.filename}</strong>
-                  <span>{formatFileSize(doc.size)} · {t('recentDocuments.updatedAt')} {doc.relativeTime}</span>
+                  <span>{formatFileSize(doc.size)} · {t('updatedAt')} {doc.relativeTime}</span>
                 </div>
               </div>
               <span className={statusBadgeClass[doc.status] || 'badge blue'}>
-                {t(`status.${doc.status.toLowerCase()}` as any) || doc.status}
+                {doc.status === 'ACTIVE' && t('statusActive')}
+                {doc.status === 'PENDING' && t('statusPending')}
+                {doc.status === 'ARCHIVED' && t('statusArchived')}
+                {doc.status === 'ENCRYPTED' && t('statusEncrypted')}
               </span>
             </div>
           ))

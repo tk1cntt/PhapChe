@@ -28,7 +28,7 @@ const statusBadgeClass: Record<string, string> = {
 };
 
 export default function RecentCases({ cases }: RecentCasesProps) {
-  const t = useTranslations('Dashboard');
+  const t = useTranslations('RecentCases');
   const tActions = useTranslations('Actions');
 
   return (
@@ -39,14 +39,14 @@ export default function RecentCases({ cases }: RecentCasesProps) {
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <path d="M14 2v6h6" />
           </svg>
-          <span>{t('recentCases.title')}</span>
+          <span>{t('title')}</span>
         </div>
-        <a className="small-link" href="#">{t('recentCases.seeAll')}</a>
+        <a className="small-link" href="#">{t('seeAll')}</a>
       </div>
 
       <div className="case-list">
         {cases.length === 0 ? (
-          <div className="empty-state">{t('recentCases.empty')}</div>
+          <div className="empty-state">{t('empty')}</div>
         ) : (
           cases.map((c) => (
             <div key={c.id} className="case-item">
@@ -67,7 +67,7 @@ export default function RecentCases({ cases }: RecentCasesProps) {
                 </span>
               </div>
               <div>
-                <a className="action-link" href="#">{t('recentCases.open')}</a>
+                <a className="action-link" href="#">{t('open')}</a>
               </div>
             </div>
           ))

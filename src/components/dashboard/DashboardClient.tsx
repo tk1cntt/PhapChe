@@ -128,6 +128,7 @@ function formatDate(dateStr: string): string {
 
 export default function DashboardClient() {
   const t = useTranslations('DashboardClient');
+  const tStat = useTranslations('StatCard');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -204,9 +205,9 @@ export default function DashboardClient() {
       <div className="stats-grid">
         <StatCard
           variant="blue"
-          title={t('totalRequests')}
+          title={tStat('totalRequests')}
           value={data.stats.totalRequests}
-          description={t('totalRequestsDesc')}
+          description={tStat('totalRequestsDesc')}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -216,9 +217,9 @@ export default function DashboardClient() {
         />
         <StatCard
           variant="orange"
-          title={t('inProgress')}
+          title={tStat('inProgress')}
           value={data.stats.inProgress}
-          description={t('inProgressDesc')}
+          description={tStat('inProgressDesc')}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
@@ -228,9 +229,9 @@ export default function DashboardClient() {
         />
         <StatCard
           variant="green"
-          title={t('completed')}
+          title={tStat('completed')}
           value={data.stats.completed}
-          description={t('completedDesc')}
+          description={tStat('completedDesc')}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M20 6 9 17l-5-5" />
@@ -239,9 +240,9 @@ export default function DashboardClient() {
         />
         <StatCard
           variant="purple"
-          title={t('vaultDocs')}
+          title={tStat('vaultDocs')}
           value={data.stats.vaultDocs}
-          description={t('vaultDocsDesc')}
+          description={tStat('vaultDocsDesc')}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 7h18v13H3z" />

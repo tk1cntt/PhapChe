@@ -98,7 +98,7 @@
     "stepDocuments": "文档",
     "stepReview": "审核"
   },
-  "DashboardClient": {
+  "Common": {
     "noItems": "暂无数据。",
     "loading": "加载中...",
     "error": "发生错误。",
@@ -132,6 +132,72 @@
     "previousPage": "上一页",
     "nextPage": "下一页",
     "signOut": "登出"
+  },
+  "DashboardClient": {
+    "greeting": "您好，{name}",
+    "subtitle": "跟踪您工作区中的法律案件、文档、专员回复和重要处理期限。",
+    "createRequest": "创建新请求",
+    "searchPlaceholder": "搜索您的案件...",
+    "filter": "筛选",
+    "statusFilter": "状态",
+    "export": "导出",
+    "columns": "显示列",
+    "caseCode": "案件编号",
+    "requestType": "请求类型",
+    "assignee": "负责人",
+    "lastUpdated": "最近更新",
+    "viewDetails": "查看详情",
+    "noCases": "暂无案件",
+    "pagingInfo": "显示 {start}-{end}，共 {total} 件",
+    "newMessages": "新消息"
+  },
+  "StatCard": {
+    "totalRequests": "总案件数",
+    "totalRequestsDesc": "当前工作区",
+    "inProgress": "处理中",
+    "inProgressDesc": "等待专员回复",
+    "completed": "已完成",
+    "completedDesc": "按时SLA处理",
+    "vaultDocs": "文档库",
+    "vaultDocsDesc": "安全权限管理"
+  },
+  "WelcomeBanner": {
+    "title": "您的工作区运行正常",
+    "workspaceScope": "数据仅在{workspace}工作区内可见。",
+    "statusOk": "工作区正常运行",
+    "requestsProcessing": "{count}个请求正在处理",
+    "docsPending": "{count}个文档待确认",
+    "repliesNew": "{count}条新的专员回复",
+    "statusNormal": "工作区正常运行",
+    "viewDocuments": "查看文档",
+    "sendFeedback": "发送反馈"
+  },
+  "RecentCases": {
+    "title": "处理中的案件",
+    "seeAll": "查看全部 →",
+    "empty": "暂无活跃案件",
+    "open": "打开 →"
+  },
+  "RecentDocuments": {
+    "title": "最近文档",
+    "openVault": "打开保险库 →",
+    "empty": "暂无文档",
+    "updatedAt": "更新",
+    "statusActive": "活跃",
+    "statusPending": "待处理",
+    "statusArchived": "已归档",
+    "statusEncrypted": "已加密"
+  },
+  "DeadlineSLA": {
+    "title": "截止日期与 SLA",
+    "empty": "本周暂无截止日期",
+    "urgent": "需要立即处理",
+    "warning": "接近截止日期",
+    "safe": "时间充裕"
+  },
+  "ActivityTimeline": {
+    "title": "最近活动",
+    "empty": "暂无最近活动"
   },
   "Language": {
     "switch": "切换语言",

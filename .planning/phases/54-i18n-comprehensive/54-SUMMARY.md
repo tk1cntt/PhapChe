@@ -190,9 +190,28 @@ Replace all hardcoded Vietnamese/English strings in src/components with i18n tra
 - `08080cb` - Phase 54: Comprehensive i18n migration - all hardcoded strings replaced with translation keys
 
 ## Metrics
-- **Duration**: ~40 minutes total
+- **Duration**: ~50 minutes total
 - **Tasks Completed**: 43/43 (100%)
 - **Files Modified**: 30 files
 - **Translation Keys Added**: ~200+ keys across 4 languages
 - **Components Migrated**: 43 components
 - **Namespaces Updated**: 12 namespaces (AdminDashboard, AdminOps, AuditEvents, Vault, UserMessages, UserCases, Intake, Auth, UserWorkspace, UserSettings, Common, Language)
+
+## Additional Fixes in Current Session
+
+### Language Persistence (Quick Task)
+- Added cookie-based locale persistence via middleware
+- LanguageSwitcher sets `preferred-locale` cookie on switch
+- Middleware redirects to preferred locale before page render
+- No flash of default locale on navigation
+
+### Duplicate Namespace Fixes
+- Removed duplicate `AuditEvents` entry in vi.json
+- Removed duplicate `Vault` entry in en.json
+- Added missing keys: `securityDisplayTitle`, `refresh`, `totalEvents`, `filter`, `columns`, `loading`
+
+## Commit History (Updated)
+- `77f67ee` - feat(i18n): add Dashboard namespace and update dashboard/layout/admin components
+- `08080cb` - Phase 54: Comprehensive i18n migration - all hardcoded strings replaced with translation keys
+- `9dbcb7d` - fix(i18n): use cookie-based locale persistence via middleware
+- `ea7682a` - docs(state): add language persistence quick task to completed list

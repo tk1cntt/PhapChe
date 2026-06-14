@@ -8,15 +8,30 @@ interface StatusUpdateFormProps {
   requestId: string;
   currentStatus: string;
   onSuccess?: () => void;
+  /** If true, uses admin endpoint (allows all statuses) */
+  isAdmin?: boolean;
+  /** For admin: use full status list instead of partner-limited list */
+  allowAllStatuses?: boolean;
 }
 
-export function StatusUpdateForm({ requestId, currentStatus, onSuccess }: StatusUpdateFormProps) {
+export function StatusUpdateForm({
+  requestId,
+  currentStatus,
+  onSuccess,
+  isAdmin = false,
+  allowAllStatuses = false,
+}: StatusUpdateFormProps) {
   const t = useTranslations();
   const [status, setStatus] = useState(currentStatus);
   const [note, setNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Status list: admin sees all statuses, partner sees limited list
+  const statusList = allowAllStatuses || isAdmin
+    ? Object.keys(PARTNER_STATUS_LABELS)
+    : PARTNER_ALLOWED_STATUSES;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +42,12 @@ export function StatusUpdateForm({ requestId, currentStatus, onSuccess }: Status
     setSuccess('');
 
     try {
-      const res = await fetch(`/api/partner/requests/${requestId}/status`, {
+      // Use admin endpoint if isAdmin, otherwise partner endpoint
+      const endpoint = isAdmin
+        ? `/api/admin/partner/requests/${requestId}/status`
+        : `/api/partner/requests/${requestId}/status`;
+
+      const res = await fetch(endpoint, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, note }),
@@ -48,8 +68,8 @@ export function StatusUpdateForm({ requestId, currentStatus, onSuccess }: Status
     }
   };
 
-  // Check if status transition is allowed
-  const isAllowedStatus = PARTNER_ALLOWED_STATUSES.includes(status as PartnerAllowedStatus);
+  // Check if status transition is allowed (partners only, admins can set any status)
+  const isAllowedStatus = isAdmin || PARTNER_ALLOWED_STATUSES.includes(status as PartnerAllowedStatus);
   const canSubmit = !isSubmitting && (status !== currentStatus || note.length > 0) && isAllowedStatus;
 
   return (
@@ -66,7 +86,7 @@ export function StatusUpdateForm({ requestId, currentStatus, onSuccess }: Status
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
           disabled={isSubmitting}
         >
-          {PARTNER_ALLOWED_STATUSES.map((s) => (
+          {statusList.map((s) => (
             <option key={s} value={s}>
               {PARTNER_STATUS_LABELS[s]?.vi || s}
             </option>

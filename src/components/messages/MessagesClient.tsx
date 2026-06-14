@@ -57,7 +57,15 @@ function MessagesClient({
         if (response.ok) {
           const data = await response.json();
           if (data.threads && data.messages) {
-            setThreads(data.threads);
+            // MERGE threads: thêm threads mới, không xóa threads cũ
+            setThreads((prevThreads) => {
+              const existingIds = new Set(prevThreads.map((t) => t.id));
+              const newThreads = data.threads.filter(
+                (t: ThreadData) => !existingIds.has(t.id)
+              );
+              return [...newThreads, ...prevThreads];
+            });
+            // MERGE messages: thêm messages mới cho từng thread
             setMessages((prev) => {
               const updated = { ...prev };
               for (const [threadId, newMsgs] of Object.entries(data.messages)) {
@@ -80,10 +88,26 @@ function MessagesClient({
     return () => clearInterval(intervalId);
   }, [pollInterval, lastPoll, workspaceSlug]);
 
-  // Handle thread selection
-  const handleSelectThread = useCallback((threadId: string) => {
+  // Handle thread selection - fetch messages when clicking a thread
+  const handleSelectThread = useCallback(async (threadId: string) => {
     setActiveThreadId(threadId);
-  }, []);
+
+    // Fetch messages for this thread if not already loaded
+    if (!messages[threadId] || messages[threadId].length === 0) {
+      try {
+        const response = await fetch(`/api/messages/${threadId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setMessages((prev) => ({
+            ...prev,
+            [threadId]: data.messages || [],
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching thread messages:', error);
+      }
+    }
+  }, [messages]);
 
   // Handle sending message
   const handleSendMessage = useCallback(

@@ -59,6 +59,15 @@ async function seedMessages() {
     return;
   }
 
+  // Get legal requests to link messages
+  const legalRequests = await prisma.legalRequest.findMany({
+    where: { workspaceId: workspace.id },
+    orderBy: { createdAt: 'desc' },
+    take: 4,
+  });
+
+  console.log(`Found ${legalRequests.length} legal requests in workspace`);
+
   // Get or create customer user
   let customerUser = await prisma.user.findUnique({
     where: { email: customer.email },
@@ -121,6 +130,9 @@ async function seedMessages() {
       console.log(`Created specialist user: ${spec.name}`);
     }
 
+    // Get legalRequestId for this thread (if exists)
+    const legalRequestId = legalRequests[i]?.id || null;
+
     // Seed messages for this thread
     const threadMessages = threads[i];
     for (let j = 0; j < threadMessages.length; j++) {
@@ -150,12 +162,13 @@ async function seedMessages() {
             content: msg.content,
             isRead: j < threadMessages.length - 1, // All except last message are read
             createdAt,
+            legalRequestId, // LINK MESSAGE TO LEGAL REQUEST
           },
         });
       }
     }
 
-    console.log(`Seeded messages for thread with ${spec.name}`);
+    console.log(`Seeded messages for thread with ${spec.name}${legalRequestId ? ' (linked to request)' : ''}`);
   }
 
   console.log('Message seeding complete!');

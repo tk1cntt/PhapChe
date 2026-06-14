@@ -1,0 +1,389 @@
+Với sản phẩm bạn mô tả, câu hỏi đầu tiên không phải là **Frontend + Backend tách riêng hay Monolithic**, mà là:
+
+> **Mô hình dữ liệu có thay đổi liên tục theo nghiệp vụ pháp lý hay không?**
+
+Từ mô tả của bạn, câu trả lời là **Có**.
+
+Ví dụ hôm nay:
+
+* Hợp đồng lao động cần 15 field
+* Hợp đồng đại lý cần 23 field
+* Đăng ký nhãn hiệu cần 12 field
+* Sau 3 tháng bổ sung thêm 8 field
+* Sau 6 tháng thay đổi workflow phê duyệt
+
+=> Đây là dạng hệ thống **metadata-driven platform**, không phải CRUD app thông thường.
+
+---
+
+# Kiến trúc tôi khuyến nghị
+
+## Không làm Frontend + Backend Monolithic kiểu Laravel/Admin Template
+
+Tôi sẽ tránh:
+
+```txt
+NextJS
+ ├── Pages
+ ├── API Routes
+ ├── Prisma
+ └── SQLite
+```
+
+hoặc
+
+```txt
+NestJS
+ + React
+ nhưng tất cả logic hardcode
+```
+
+Vì sau này bạn sẽ chết ở phần:
+
+* Form thay đổi liên tục
+* Workflow thay đổi liên tục
+* SOP thay đổi liên tục
+* Template hợp đồng thay đổi liên tục
+
+---
+
+# Giai đoạn MVP
+
+Tôi sẽ chọn
+
+```txt
+Frontend
+  NextJS
+
+Backend
+  NestJS
+
+Database
+  PostgreSQL
+
+Storage
+  S3 / Minio
+
+Queue
+  Redis
+
+AI
+  OpenAI / Claude
+
+OCR
+  Vision API
+```
+
+Tách FE/BE ngay từ đầu.
+
+Lý do:
+
+### 1. Legal Admin Dashboard
+
+sẽ khác hoàn toàn
+
+```txt
+Customer Portal
+```
+
+### 2. Sau này có thể thêm
+
+```txt
+Mobile App
+```
+
+### 3. Có thể thêm
+
+```txt
+Partner Portal
+```
+
+### 4. Có thể public API
+
+cho các công ty khác sử dụng dịch vụ pháp lý.
+
+---
+
+# Nhưng KHÔNG làm Microservice
+
+Nhiều người sai ở đây.
+
+Sản phẩm này chưa cần:
+
+```txt
+Auth Service
+Chat Service
+OCR Service
+Document Service
+Legal Service
+Workflow Service
+```
+
+=> quá sớm.
+
+Tôi sẽ làm:
+
+```txt
+Modular Monolith
+```
+
+Backend vẫn là 1 application.
+
+Ví dụ:
+
+```txt
+backend
+
+modules
+ ├── auth
+ ├── users
+ ├── organizations
+ ├── legal-requests
+ ├── legal-templates
+ ├── document-generator
+ ├── workflows
+ ├── vault
+ ├── compliance
+ ├── ai
+ └── audit
+```
+
+Deploy 1 container.
+
+1 database.
+
+1 codebase.
+
+---
+
+# Thứ quan trọng nhất: Dynamic Schema
+
+Đây mới là thứ quyết định thành bại.
+
+Nếu hardcode:
+
+```ts
+Contract {
+  companyName
+  taxCode
+  representative
+}
+```
+
+thì sau 6 tháng sẽ phải sửa code liên tục.
+
+---
+
+# Tôi sẽ thiết kế theo Form Definition
+
+Thay vì:
+
+```txt
+Contract Form
+```
+
+ta lưu:
+
+```txt
+Form Definition
+```
+
+Ví dụ:
+
+```json
+{
+  "id": "employment_contract",
+  "fields": [
+    {
+      "key": "employee_name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "salary",
+      "type": "number"
+    }
+  ]
+}
+```
+
+Admin có thể thêm field mới.
+
+Không cần sửa code.
+
+---
+
+# Workflow Definition
+
+Tương tự.
+
+Không hardcode:
+
+```txt
+Draft
+Review
+Approved
+```
+
+Mà lưu:
+
+```json
+{
+  "workflow": [
+    "draft",
+    "legal_review",
+    "customer_review",
+    "approved"
+  ]
+}
+```
+
+Sau này thêm:
+
+```txt
+CEO Approval
+```
+
+không phải deploy code.
+
+---
+
+# Template Engine
+
+Hợp đồng nên được xem như:
+
+```txt
+Template
++
+Variables
+```
+
+Ví dụ:
+
+```txt
+Tên công ty: {{company_name}}
+
+Mã số thuế: {{tax_code}}
+```
+
+Engine tự merge.
+
+---
+
+# Database
+
+Tôi sẽ KHÔNG dùng SQLite.
+
+Ngay từ ngày đầu.
+
+Dùng:
+
+PostgreSQL
+
+Vì cần:
+
+* JSONB
+* Full Text Search
+* Audit Log
+* Workflow
+* Permission
+
+---
+
+# Data Model tôi đề xuất
+
+```txt
+Organization
+
+User
+
+Request
+
+RequestType
+
+WorkflowDefinition
+
+WorkflowInstance
+
+FormDefinition
+
+FormSubmission
+
+DocumentTemplate
+
+GeneratedDocument
+
+ComplianceTask
+
+VaultFile
+
+AuditLog
+```
+
+---
+
+# Frontend Architecture
+
+```txt
+apps/web
+
+modules
+ ├── auth
+ ├── requests
+ ├── contracts
+ ├── vault
+ ├── compliance
+ ├── admin
+ └── ai-chat
+
+shared
+ ├── ui
+ ├── forms
+ ├── hooks
+ ├── services
+ ├── types
+ └── utils
+```
+
+Theo domain.
+
+Không theo:
+
+```txt
+components
+pages
+hooks
+utils
+```
+
+vì vài tháng sau sẽ thành bãi rác.
+
+---
+
+# Nếu là tôi
+
+Cho sản phẩm Legal-as-a-Service này:
+
+| Thành phần   | Lựa chọn                   |
+| ------------ | -------------------------- |
+| Frontend     | NextJS                     |
+| Backend      | NestJS                     |
+| DB           | PostgreSQL                 |
+| Architecture | Modular Monolith           |
+| Form         | Metadata Driven            |
+| Workflow     | Config Driven              |
+| Documents    | Template Driven            |
+| Storage      | S3/MinIO                   |
+| Queue        | Redis                      |
+| Search       | PostgreSQL Full Text trước |
+| i18n         | vi/en/ja/zh ngay từ đầu    |
+| Auth         | RBAC + Organization-based  |
+| Audit        | Có từ MVP                  |
+
+Thứ tôi sẽ ưu tiên số 1 không phải chat AI hay OCR.
+
+Mà là:
+
+**Form Definition + Workflow Definition + Document Template Engine.**
+
+Nếu 3 thứ này thiết kế đúng, bạn có thể mở rộng từ 10 nghiệp vụ pháp lý lên 100+ nghiệp vụ mà gần như không phải thay đổi core system. Nếu thiết kế sai, mỗi lần thêm dịch vụ pháp lý mới sẽ phải sửa database, API, UI và deploy lại toàn hệ thống.

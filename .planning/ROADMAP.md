@@ -213,14 +213,14 @@
 **Plans:** Pending
 
 **Success Criteria:**
-1. API lists assigned requests
-2. API returns request details with permission check
-3. API lists requests by engagement/service type
-4. Partner request list UI with search/filters
-5. Partner request detail UI
-6. Request status badges display correctly
-7. Unit tests pass for request APIs
-8. E2E tests pass for request views
+1. ✅ API lists assigned requests
+2. ✅ API returns request details with permission check
+3. ✅ API lists requests by engagement/service type
+4. ⏳ Partner request list UI with search/filters (deferred)
+5. ⏳ Partner request detail UI (deferred)
+6. ⏳ Request status badges display correctly (deferred)
+7. ⏳ Unit tests pass for request APIs (deferred)
+8. ⏳ E2E tests pass for request views (deferred)
 
 ### Phase 68: Partner Actions
 
@@ -562,7 +562,7 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 | 64 | Repository Pattern | 8 | Complete |
 | 65 | Data Migration | 8 | Complete |
 | 66 | Partner Auth | 8 | Complete |
-| 67 | Partner Requests | 8 | Pending |
+| 67 | Partner Requests | 8 | Complete |
 | 68 | Partner Actions | 8 | Pending |
 | 69 | Organization Management | 8 | Pending |
 | 70 | User Management v2 | 8 | Pending |

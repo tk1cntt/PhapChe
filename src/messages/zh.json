@@ -176,7 +176,8 @@
     "title": "处理中的案件",
     "seeAll": "查看全部 →",
     "empty": "暂无活跃案件",
-    "open": "打开 →"
+    "open": "打开 →",
+    "loading": "加载中..."
   },
   "RecentDocuments": {
     "title": "最近文档",
@@ -186,18 +187,21 @@
     "statusActive": "活跃",
     "statusPending": "待处理",
     "statusArchived": "已归档",
-    "statusEncrypted": "已加密"
+    "statusEncrypted": "已加密",
+    "loading": "加载中..."
   },
   "DeadlineSLA": {
     "title": "截止日期与 SLA",
     "empty": "本周暂无截止日期",
     "urgent": "需要立即处理",
     "warning": "接近截止日期",
-    "safe": "时间充裕"
+    "safe": "时间充裕",
+    "loading": "加载中..."
   },
   "ActivityTimeline": {
     "title": "最近活动",
-    "empty": "暂无最近活动"
+    "empty": "暂无最近活动",
+    "loading": "加载中..."
   },
   "ToolbarCard": {
     "searchPlaceholder": "搜索您的案件...",

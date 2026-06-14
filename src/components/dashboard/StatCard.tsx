@@ -1,11 +1,20 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 interface StatCardProps {
   variant: 'blue' | 'green' | 'orange' | 'purple';
   title: string;
   value: string | number;
   description: string;
   icon: React.ReactNode;
+}
+
+interface StatsData {
+  totalRequests: number;
+  inProgress: number;
+  completed: number;
+  vaultDocs: number;
 }
 
 const variantStyles = {
@@ -52,6 +61,90 @@ export default function StatCard({
         <div className="stat-value">{value}</div>
         <div className="stat-desc">{description}</div>
       </div>
+    </div>
+  );
+}
+
+// StatsCardGrid - fetches and displays all stats
+export function StatsCardGrid() {
+  const [stats, setStats] = useState<StatsData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/dashboard/stats')
+      .then((res) => res.json())
+      .then((data) => {
+        setStats(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading || !stats) {
+    return (
+      <div className="stats-grid">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="stat-card" style={{ opacity: 0.5 }}>
+            <div className="stat-icon" />
+            <div className="stat-info">
+              <div className="stat-title">Loading...</div>
+              <div className="stat-value">-</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="stats-grid">
+      <StatCard
+        variant="blue"
+        title="Tổng hồ sơ"
+        value={stats.totalRequests}
+        description="Trong workspace hiện tại"
+        icon={
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <path d="M14 2v6h6" />
+          </svg>
+        }
+      />
+      <StatCard
+        variant="orange"
+        title="Đang xử lý"
+        value={stats.inProgress}
+        description="Chờ phản hồi chuyên viên"
+        icon={
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg>
+        }
+      />
+      <StatCard
+        variant="green"
+        title="Đã hoàn tất"
+        value={stats.completed}
+        description="Đúng SLA xử lý"
+        icon={
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        }
+      />
+      <StatCard
+        variant="purple"
+        title="Tài liệu vault"
+        value={stats.vaultDocs}
+        description="Được phân quyền an toàn"
+        icon={
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 7h18v13H3z" />
+            <path d="M3 7l3-4h12l3 4" />
+          </svg>
+        }
+      />
     </div>
   );
 }

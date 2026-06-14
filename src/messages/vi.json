@@ -176,7 +176,8 @@
     "title": "Hồ sơ đang xử lý",
     "seeAll": "Xem tất cả →",
     "empty": "Không có hồ sơ nào đang xử lý",
-    "open": "Mở →"
+    "open": "Mở →",
+    "loading": "Đang tải..."
   },
   "RecentDocuments": {
     "title": "Tài liệu gần đây",
@@ -186,18 +187,21 @@
     "statusActive": "Hoạt động",
     "statusPending": "Chờ xử lý",
     "statusArchived": "Đã lưu trữ",
-    "statusEncrypted": "Đã mã hóa"
+    "statusEncrypted": "Đã mã hóa",
+    "loading": "Đang tải..."
   },
   "DeadlineSLA": {
     "title": "Deadline & SLA",
     "empty": "Không có deadline nào trong tuần này",
     "urgent": "Cần xử lý ngay",
     "warning": "Sắp đến hạn",
-    "safe": "Còn thời gian"
+    "safe": "Còn thời gian",
+    "loading": "Đang tải..."
   },
   "ActivityTimeline": {
     "title": "Hoạt động gần đây",
-    "empty": "Không có hoạt động nào"
+    "empty": "Không có hoạt động nào",
+    "loading": "Đang tải..."
   },
   "ToolbarCard": {
     "searchPlaceholder": "Tìm kiếm hồ sơ của bạn...",

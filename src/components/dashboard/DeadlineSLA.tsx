@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 interface Deadline {
@@ -13,7 +14,7 @@ interface Deadline {
 }
 
 interface DeadlineSLAProps {
-  deadlines: Deadline[];
+  deadlines?: Deadline[]; // Optional - will fetch if not provided
 }
 
 const progressClass: Record<string, string> = {
@@ -22,8 +23,22 @@ const progressClass: Record<string, string> = {
   danger: 'danger',
 };
 
-export default function DeadlineSLA({ deadlines }: DeadlineSLAProps) {
+export default function DeadlineSLA({ deadlines: propDeadlines }: DeadlineSLAProps) {
   const t = useTranslations('DeadlineSLA');
+  const [deadlines, setDeadlines] = useState<Deadline[]>(propDeadlines || []);
+  const [loading, setLoading] = useState(!propDeadlines);
+
+  useEffect(() => {
+    if (!propDeadlines) {
+      fetch('/api/dashboard/deadlines')
+        .then((res) => res.json())
+        .then((data) => {
+          setDeadlines(data);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    }
+  }, [propDeadlines]);
 
   return (
     <div className="panel">
@@ -38,7 +53,9 @@ export default function DeadlineSLA({ deadlines }: DeadlineSLAProps) {
       </div>
 
       <div className="deadline-list">
-        {deadlines.length === 0 ? (
+        {loading ? (
+          <div className="empty-state">{t('loading') || 'Loading...'}</div>
+        ) : deadlines.length === 0 ? (
           <div className="empty-state">{t('empty')}</div>
         ) : (
           deadlines.map((d) => (

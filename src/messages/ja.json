@@ -176,7 +176,8 @@
     "title": "処理中のケース",
     "seeAll": "すべて表示 →",
     "empty": "アクティブなケースがありません",
-    "open": "開く →"
+    "open": "開く →",
+    "loading": "読み込み中..."
   },
   "RecentDocuments": {
     "title": "最近のドキュメント",
@@ -186,18 +187,21 @@
     "statusActive": "アクティブ",
     "statusPending": "保留中",
     "statusArchived": "アーカイブ済み",
-    "statusEncrypted": "暗号化済み"
+    "statusEncrypted": "暗号化済み",
+    "loading": "読み込み中..."
   },
   "DeadlineSLA": {
     "title": "期限＆SLA",
     "empty": "今週の期限はありません",
     "urgent": "即時対応が必要",
     "warning": "期限接近中",
-    "safe": "時間あり"
+    "safe": "時間あり",
+    "loading": "読み込み中..."
   },
   "ActivityTimeline": {
     "title": "最近のアクティビティ",
-    "empty": "最近のアクティビティがありません"
+    "empty": "最近のアクティビティがありません",
+    "loading": "読み込み中..."
   },
   "ToolbarCard": {
     "searchPlaceholder": "案件を検索...",

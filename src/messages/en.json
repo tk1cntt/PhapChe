@@ -176,7 +176,8 @@
     "title": "Processing Cases",
     "seeAll": "View All →",
     "empty": "No active cases",
-    "open": "Open →"
+    "open": "Open →",
+    "loading": "Loading..."
   },
   "RecentDocuments": {
     "title": "Recent Documents",
@@ -186,18 +187,21 @@
     "statusActive": "Active",
     "statusPending": "Pending",
     "statusArchived": "Archived",
-    "statusEncrypted": "Encrypted"
+    "statusEncrypted": "Encrypted",
+    "loading": "Loading..."
   },
   "DeadlineSLA": {
     "title": "Deadline & SLA",
     "empty": "No deadlines this week",
     "urgent": "Needs immediate action",
     "warning": "Approaching deadline",
-    "safe": "On track"
+    "safe": "On track",
+    "loading": "Loading..."
   },
   "ActivityTimeline": {
     "title": "Recent Activity",
-    "empty": "No recent activity"
+    "empty": "No recent activity",
+    "loading": "Loading..."
   },
   "ToolbarCard": {
     "searchPlaceholder": "Search your cases...",

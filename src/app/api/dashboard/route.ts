@@ -155,6 +155,10 @@ export async function GET(request: NextRequest) {
         where: { workspaceId: activeWorkspaceId },
         take: 10,
         orderBy: { createdAt: 'desc' },
+        include: {
+          actor: { select: { name: true } },
+          request: { select: { code: true } },
+        },
       }),
     ]);
 
@@ -199,35 +203,50 @@ export async function GET(request: NextRequest) {
     }));
 
     // Transform activity log - create meaningful descriptions based on action type
-    const transformedActivity = activityLog.map((a) => {
-      // Create human-readable descriptions based on action type
-      let description = a.action;
+    // Create requests lookup map for faster access
+    const requestsMap = new Map(allCases.map((r) => [r.id, r]));
 
-      if (a.action.includes('response') || a.action.includes('phản hồi')) {
-        description = `${a.actorId || 'Chuyên viên'} đã phản hồi yêu cầu.`;
-      } else if (a.action.includes('document') || a.action.includes('tài liệu')) {
-        description = `${a.actorId || 'Hệ thống'} đã cập nhật tài liệu trong vault.`;
-      } else if (a.action.includes('review') || a.action.includes('duyệt')) {
-        description = `${a.actorId || 'Coordinator'} đã xác nhận hoàn tất yêu cầu.`;
-      } else if (a.action.includes('create') || a.action.includes('tạo')) {
-        description = `${a.actorId || 'Khách hàng'} đã tạo yêu cầu mới.`;
-      } else if (a.action.includes('workspace') || a.action.includes('scope')) {
-        description = `Hệ thống xác nhận quyền truy cập chỉ trong phạm vi workspace.`;
+    const transformedActivity = activityLog.map((a) => {
+      // Get request code from the relation
+      const requestCode = a.request?.code || (a.requestId ? a.requestId.slice(-10) : null);
+
+      // Create readable action title with request code
+      let actionTitle = a.action;
+      if (a.action.includes('phản hồi') || a.action.includes('response')) {
+        actionTitle = `Chuyên viên đã phản hồi hồ sơ${requestCode ? ` ${requestCode}` : ''}`;
+      } else if (a.action.includes('tài liệu') || a.action.includes('document')) {
+        actionTitle = `Tài liệu được cập nhật${requestCode ? ` - ${requestCode}` : ''}`;
+      } else if (a.action.includes('review') || a.action.includes('duyệt') || a.action.includes('xác nhận')) {
+        actionTitle = `Hồ sơ được xác nhận${requestCode ? ` - ${requestCode}` : ''}`;
+      } else if (a.action.includes('tạo') || a.action.includes('create') || a.action.includes('tiếp nhận')) {
+        actionTitle = `Yêu cầu mới được tiếp nhận${requestCode ? ` - ${requestCode}` : ''}`;
+      } else if (a.action.includes('gửi')) {
+        actionTitle = `Hồ sơ được gửi review${requestCode ? ` - ${requestCode}` : ''}`;
       }
 
-      // Create readable action title
-      let actionTitle = a.action;
-      if (a.action.includes('response')) actionTitle = 'Chuyên viên đã phản hồi hồ sơ';
-      else if (a.action.includes('document')) actionTitle = 'Tài liệu mới được thêm vào vault';
-      else if (a.action.includes('review_')) actionTitle = 'Hồ sơ được duyệt';
-      else if (a.action.includes('workspace')) actionTitle = 'Workspace scope được kiểm tra';
-      else if (a.action.includes('create')) actionTitle = 'Yêu cầu mới được tạo';
+      // Use metadataSummary as description, fallback to actor-based description
+      let description = a.metadataSummary || '';
+      if (!description) {
+        if (a.action.includes('phản hồi') || a.action.includes('response')) {
+          description = `${a.actor?.name || 'Chuyên viên'} đã phản hồi yêu cầu.`;
+        } else if (a.action.includes('tài liệu') || a.action.includes('document')) {
+          description = `${a.actor?.name || 'Hệ thống'} đã cập nhật tài liệu trong vault.`;
+        } else if (a.action.includes('review') || a.action.includes('duyệt')) {
+          description = `${a.actor?.name || 'Coordinator'} đã xác nhận hoàn tất yêu cầu.`;
+        } else if (a.action.includes('tạo') || a.action.includes('create')) {
+          description = `${a.actor?.name || 'Khách hàng'} đã tạo yêu cầu mới.`;
+        } else if (a.action.includes('workspace') || a.action.includes('scope')) {
+          description = `Hệ thống xác nhận quyền truy cập chỉ trong phạm vi workspace.`;
+        } else {
+          description = a.action;
+        }
+      }
 
       return {
         id: a.id,
         action: actionTitle,
         description: description,
-        actor: a.actorId || 'Hệ thống',
+        actor: a.actor?.name || a.actorId || 'Hệ thống',
         timestamp: a.createdAt.toISOString(),
         relativeTime: getRelativeTime(a.createdAt),
       };

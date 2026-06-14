@@ -1,16 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { DocumentItem } from './DashboardClient';
 
-interface Document {
-  id: string;
-  filename: string;
-  size: number;
-  mimeType: string;
-  status: string;
-  uploadedBy: string;
-  updatedAt: string;
-  relativeTime: string;
+interface RecentDocumentsProps {
+  documents: DocumentItem[];
 }
 
 function formatFileSize(bytes: number): string {
@@ -39,11 +33,8 @@ const statusBadgeClass: Record<string, string> = {
   ENCRYPTED: 'badge green',
 };
 
-export default function RecentDocuments() {
+export default function RecentDocuments({ documents }: RecentDocumentsProps) {
   const t = useTranslations('RecentDocuments');
-
-  // TODO: Pass documents as props from parent when vault is integrated
-  const documents: Document[] = [];
 
   return (
     <div className="panel">

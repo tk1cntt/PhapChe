@@ -1,21 +1,14 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { ActivityItem } from './DashboardClient';
 
-interface Activity {
-  id: string;
-  action: string;
-  description: string;
-  actor: string;
-  timestamp: string;
-  relativeTime: string;
+interface ActivityTimelineProps {
+  activities: ActivityItem[];
 }
 
-export default function ActivityTimeline() {
+export default function ActivityTimeline({ activities }: ActivityTimelineProps) {
   const t = useTranslations('ActivityTimeline');
-
-  // TODO: Pass activities as props from parent
-  const activities: Activity[] = [];
 
   return (
     <div className="panel">

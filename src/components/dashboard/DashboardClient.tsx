@@ -38,13 +38,41 @@ export interface WelcomeData {
   userName: string;
 }
 
+export interface DocumentItem {
+  id: string;
+  filename: string;
+  size: number;
+  mimeType: string;
+  status: string;
+  uploadedBy: string;
+  updatedAt: string;
+  relativeTime: string;
+}
+
+export interface ActivityItem {
+  id: string;
+  action: string;
+  description: string;
+  actor: string;
+  timestamp: string;
+  relativeTime: string;
+}
+
 interface DashboardClientProps {
   welcomeData: WelcomeData;
   stats: StatsData;
   allCases: CaseItem[];
+  recentDocuments?: DocumentItem[];
+  recentActivities?: ActivityItem[];
 }
 
-export default function DashboardClient({ welcomeData, stats, allCases }: DashboardClientProps) {
+export default function DashboardClient({
+  welcomeData,
+  stats,
+  allCases,
+  recentDocuments = [],
+  recentActivities = [],
+}: DashboardClientProps) {
   const t = useTranslations('DashboardClient');
 
   return (
@@ -78,8 +106,8 @@ export default function DashboardClient({ welcomeData, stats, allCases }: Dashbo
 
       {/* Grid: Recent Docs + Activity */}
       <div className="dashboard-grid">
-        <RecentDocuments />
-        <ActivityTimeline />
+        <RecentDocuments documents={recentDocuments} />
+        <ActivityTimeline activities={recentActivities} />
       </div>
 
       {/* Table Card - All Cases with Paging */}

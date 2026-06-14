@@ -1,8 +1,17 @@
 import { UserLayout } from '@/components/layout/UserLayout';
 import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
-import { getTranslations } from 'next-intl/server';
 import DashboardClient from '@/components/dashboard/DashboardClient';
+
+function formatRelativeTime(date: Date): string {
+  const now = Date.now();
+  const diff = now - date.getTime();
+
+  if (diff < 60000) return 'vừa xong';
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}p trước`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h trước`;
+  return `${Math.floor(diff / 86400000)}d trước`;
+}
 
 export default async function DashboardPage() {
   const session = await requireAppSession();
@@ -16,6 +25,8 @@ export default async function DashboardPage() {
     processingRequests,
     completedRequests,
     requests,
+    recentDocuments,
+    recentActivities,
   ] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
@@ -46,13 +57,31 @@ export default async function DashboardPage() {
       },
       orderBy: { updatedAt: 'desc' },
     }),
+    // Recent vault documents
+    prisma.vaultFile.findMany({
+      where: { workspaceId: activeWorkspaceId ?? '' },
+      include: {
+        actor: { select: { name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    }),
+    // Recent audit events
+    prisma.auditEvent.findMany({
+      where: { workspaceId: activeWorkspaceId ?? '' },
+      include: {
+        actor: { select: { name: true } },
+        request: { select: { code: true, title: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    }),
   ]);
 
   const userName = user?.name ?? user?.email ?? 'User';
   const workspaceName = activeWorkspace?.name ?? 'Workspace';
 
   // Transform requests for CasesTable
-  const now = new Date();
   const transformedRequests = requests.map((req) => {
     const statusVariant = getStatusVariant(req.status);
     const statusText = getStatusText(req.status);
@@ -71,12 +100,34 @@ export default async function DashboardPage() {
     };
   });
 
+  // Transform recent documents
+  const transformedDocuments = recentDocuments.map((doc) => ({
+    id: doc.id,
+    filename: doc.filename || 'Untitled',
+    size: doc.size || 0,
+    mimeType: doc.contentType || 'application/octet-stream',
+    status: doc.fileKind || 'ACTIVE',
+    uploadedBy: doc.actor?.name || 'Unknown',
+    updatedAt: doc.createdAt.toISOString(),
+    relativeTime: formatRelativeTime(doc.createdAt),
+  }));
+
+  // Transform recent activities
+  const transformedActivities = recentActivities.map((activity) => ({
+    id: activity.id,
+    action: formatActivityAction(activity.action),
+    description: activity.metadataSummary || `${activity.targetType} ${activity.action}`,
+    actor: activity.actor?.name || 'System',
+    timestamp: activity.createdAt.toISOString(),
+    relativeTime: formatRelativeTime(activity.createdAt),
+  }));
+
   // Stats data
   const stats = {
     totalRequests: Number(totalRequests),
     inProgress: Number(processingRequests),
     completed: Number(completedRequests),
-    vaultDocs: 0, // TODO: count from vault
+    vaultDocs: Number(recentDocuments.length),
   };
 
   // Welcome banner data
@@ -99,6 +150,8 @@ export default async function DashboardPage() {
         welcomeData={welcomeData}
         stats={stats}
         allCases={transformedRequests}
+        recentDocuments={transformedDocuments}
+        recentActivities={transformedActivities}
       />
     </UserLayout>
   );
@@ -146,4 +199,21 @@ function getStatusText(status: string): string {
     default:
       return status;
   }
+}
+
+function formatActivityAction(action: string): string {
+  const actionMap: Record<string, string> = {
+    'CREATE': 'Tạo mới',
+    'UPDATE': 'Cập nhật',
+    'DELETE': 'Xóa',
+    'VIEW': 'Xem',
+    'DOWNLOAD': 'Tải xuống',
+    'UPLOAD': 'Tải lên',
+    'ASSIGN': 'Phân công',
+    'APPROVE': 'Phê duyệt',
+    'REJECT': 'Từ chối',
+    'SUBMIT': 'Gửi',
+    'REPLY': 'Phản hồi',
+  };
+  return actionMap[action] || action;
 }

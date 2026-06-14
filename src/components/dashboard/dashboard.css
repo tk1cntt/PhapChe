@@ -32,6 +32,12 @@
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-bottom: 24px;
+  width: 100%;
+}
+
+.dashboard-grid > .panel {
+  width: 100%;
+  min-width: 0;
 }
 
 /* Grid 2 - Cases 2/3, Deadline 1/3 */

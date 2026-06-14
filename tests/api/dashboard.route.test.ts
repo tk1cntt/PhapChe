@@ -25,13 +25,13 @@ vi.mock('@/lib/prisma', () => ({
 }));
 
 // Mock session
-vi.mock('@/lib/auth/session', () => ({
+vi.mock('@/lib/security/session', () => ({
   requireAppSession: vi.fn(),
 }));
 
 import { GET } from '@/app/api/dashboard/route';
 import { prisma } from '@/lib/prisma';
-import { requireAppSession } from '@/lib/auth/session';
+import { requireAppSession } from '@/lib/security/session';
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const mockRequireAppSession = requireAppSession as jest.MockedFunction<typeof requireAppSession>;

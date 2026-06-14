@@ -1,5 +1,5 @@
 import { UserLayout } from '@/components/layout/UserLayout';
-import { requireAppSession } from '@/lib/auth/session';
+import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 import DashboardClient from '@/components/dashboard/DashboardClient';
 

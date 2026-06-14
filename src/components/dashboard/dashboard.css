@@ -173,6 +173,91 @@
 }
 
 /* Welcome Banner */
+.welcome-card {
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.welcome-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.welcome-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.welcome-left h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: white;
+}
+
+.welcome-left p {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 0;
+  color: white;
+  max-width: 500px;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.ghost-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.ghost-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.create-btn-small {
+  background: white;
+  border: none;
+  color: #3b82f6;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.create-btn-small:hover {
+  background: #f0f9ff;
+  transform: translateY(-1px);
+}
+
+/* Welcome Banner (legacy class) */
 .welcome-banner {
   background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
   border-radius: 16px;

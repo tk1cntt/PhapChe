@@ -1,135 +1,124 @@
+/**
+ * User Detail/Update API
+ * GET/PATCH/DELETE /api/admin/users/[id]
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAppSession } from '@/lib/security/session';
+import { auth } from '@/auth';
+import { PrismaClient } from '@prisma/client';
 
-const ADMIN_ROLES = ['super_admin', 'coordinator_admin', 'audit_admin'] as string[];
+const prisma = new PrismaClient();
 
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
 
-// PUT /api/admin/users/[id] - Update user
-export async function PUT(request: NextRequest, { params }: RouteParams) {
-  try {
-    const session = await requireAppSession();
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
-    // Authorization check: require admin role
-    const hasAdminRole = session.roles?.some((role) => ADMIN_ROLES.includes(role));
-    if (!hasAdminRole) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+  if (session.user.role !== 'platform_admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
-    const { id } = await params;
-    const body = await request.json();
-    const { name, email, phone, timezone, locale } = body;
-
-    // Check if user exists
-    const existingUser = await prisma.user.findUnique({
-      where: { id },
-    });
-
-    if (!existingUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
-    }
-
-    // Validate email format if provided
-    if (email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return NextResponse.json(
-          { error: 'Invalid email format' },
-          { status: 400 }
-        );
-      }
-
-      // Check if new email already exists for another user
-      const emailExists = await prisma.user.findFirst({
-        where: {
-          email: email.toLowerCase(),
-          id: { not: id },
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      isActive: true,
+      createdAt: true,
+      memberships: {
+        include: {
+          organization: { select: { id: true, name: true, slug: true } },
         },
-      });
-
-      if (emailExists) {
-        return NextResponse.json(
-          { error: 'Email already in use by another user' },
-          { status: 409 }
-        );
-      }
-    }
-
-    // Update user
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: {
-        ...(name && { name }),
-        ...(email && { email: email.toLowerCase() }),
-        ...(phone !== undefined && { phone }),
-        ...(timezone && { timezone }),
-        ...(locale && { locale }),
       },
-    });
+      _count: { select: { requests: true, comments: true } },
+    },
+  });
 
-    return NextResponse.json({
-      id: updatedUser.id,
-      email: updatedUser.email,
-      name: updatedUser.name,
-      phone: updatedUser.phone,
-      timezone: updatedUser.timezone,
-      locale: updatedUser.locale,
-      isActive: updatedUser.isActive,
-      emailVerified: updatedUser.emailVerified,
-      updatedAt: updatedUser.updatedAt.toISOString(),
-    });
-  } catch (error) {
-    console.error('Admin user update error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  if (!user) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
+
+  return NextResponse.json({ data: user });
 }
 
-// DELETE /api/admin/users/[id] - Deactivate user (soft delete)
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  try {
-    const session = await requireAppSession();
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
 
-    // Authorization check: require admin role
-    const hasAdminRole = session.roles?.some((role) => ADMIN_ROLES.includes(role));
-    if (!hasAdminRole) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    const { id } = await params;
-
-    // Check if user exists
-    const existingUser = await prisma.user.findUnique({
-      where: { id },
-    });
-
-    if (!existingUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
-    }
-
-    // Soft delete by setting isActive to false
-    const deactivatedUser = await prisma.user.update({
-      where: { id },
-      data: { isActive: false },
-    });
-
-    return NextResponse.json({
-      id: deactivatedUser.id,
-      email: deactivatedUser.email,
-      name: deactivatedUser.name,
-      isActive: deactivatedUser.isActive,
-      message: 'User deactivated successfully',
-    });
-  } catch (error) {
-    console.error('Admin user deactivate error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  if (session.user.role !== 'platform_admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  const body = await req.json();
+  const { name, role, isActive } = body;
+
+  const updated = await prisma.user.update({
+    where: { id },
+    data: {
+      ...(name && { name }),
+      ...(role && { role }),
+      ...(isActive !== undefined && { isActive }),
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      isActive: true,
+    },
+  });
+
+  return NextResponse.json({ data: updated });
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (session.user.role !== 'platform_admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  if (session.user.id === id) {
+    return NextResponse.json({ error: 'Cannot delete yourself' }, { status: 400 });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  await prisma.user.update({
+    where: { id },
+    data: { isActive: false },
+  });
+
+  return NextResponse.json({ success: true });
 }

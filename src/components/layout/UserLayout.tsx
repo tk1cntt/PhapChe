@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { signOut } from '@/lib/auth-client';
+import '@/components/layout/UserLayout.css';
 import {
   LayoutDashboard,
   FileText,
@@ -84,23 +85,25 @@ export function UserLayout({
   return (
     <div className="app">
       <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark" />
-          <span className="brand-text">GitNexus Legal</span>
-        </div>
+        <div className="sidebar-nav-container">
+          <div className="brand">
+            <div className="brand-mark" />
+            <span className="brand-text">GitNexus Legal</span>
+          </div>
 
-        <nav className="nav">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`nav-item ${item.active ? 'active' : ''}`}
-            >
-              <item.icon />
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
+          <nav className="nav">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`nav-item ${item.active ? 'active' : ''}`}
+              >
+                <item.icon />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </nav>
+        </div>
 
         <div className="sidebar-bottom">
           <div className="help-card">

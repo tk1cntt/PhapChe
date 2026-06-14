@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import { getTranslations } from 'next-intl/server';
+import UserLayout from '@/components/layout/UserLayout';
 import StatCard from '@/components/my-cases/StatCard';
 import MessagesClient from '@/components/messages/MessagesClient';
 import '@/components/messages/messages.css';
@@ -27,11 +28,11 @@ function formatRelativeTime(date: Date): string {
 export default async function MessagesPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const workspaceSlug = params.workspaceSlug;
+  const { locale } = await params;
   const session = await requireAppSession();
-  const { userId, activeWorkspaceId } = session;
+  const { userId, activeWorkspaceId, roles } = session;
   const t = await getTranslations('UserMessages');
 
   // Fetch user info
@@ -49,6 +50,7 @@ export default async function MessagesPage({
   const workspace = user?.memberships[0]?.workspace;
   const userName = user?.name ?? 'User';
   const workspaceName = workspace?.name ?? 'Workspace';
+  const workspaceSlug = workspace?.slug ?? 'workspace';
 
   // Fetch message stats
   const [totalConversations, unreadMessages, recentThreads] = await Promise.all([
@@ -140,48 +142,50 @@ export default async function MessagesPage({
   const openThreads = Math.min(3, Math.max(1, Math.floor(totalConversations / 2)));
 
   return (
-    <div className="page-wrapper">
-      <div className="page-header">
-        <div>
-          <h1>{t('pageTitle')}</h1>
-          <p className="subtitle">{t('pageDesc')}</p>
+    <UserLayout userName={userName} userRole={roles[0] ?? 'customer'} workspaceName={workspaceName} workspaceSlug={workspaceSlug}>
+      <div className="page-wrapper">
+        <div className="page-header">
+          <div>
+            <h1>{t('pageTitle')}</h1>
+            <p className="subtitle">{t('pageDesc')}</p>
+          </div>
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="stats">
-        <StatCard
-          titleKey="statConversations"
-          value={totalConversations}
-          description={t('statThreadsOpen', { count: openThreads })}
-          icon="file"
-          variant="blue"
-        />
-        <StatCard
-          titleKey="statUnread"
-          value={unreadMessages}
-          descriptionKey="statUnreadDesc"
-          icon="clock"
-          variant="orange"
-        />
-        <StatCard
-          titleKey="statReplied"
-          value={recentThreads.length}
-          descriptionKey="statRepliedDesc"
-          icon="check"
-          variant="green"
+        {/* Stats Cards */}
+        <div className="stats">
+          <StatCard
+            titleKey="statConversations"
+            value={Number(totalConversations)}
+            description={t('statThreadsOpen', { count: openThreads })}
+            icon="file"
+            variant="blue"
+          />
+          <StatCard
+            titleKey="statUnread"
+            value={Number(unreadMessages)}
+            descriptionKey="statUnreadDesc"
+            icon="clock"
+            variant="orange"
+          />
+          <StatCard
+            titleKey="statReplied"
+            value={Number(recentThreads.length)}
+            descriptionKey="statRepliedDesc"
+            icon="check"
+            variant="green"
+          />
+        </div>
+
+        {/* Messages Container */}
+        <MessagesClient
+          initialThreads={dbThreads}
+          initialMessages={dbMessages}
+          initialCaseInfo={dbCaseInfo}
+          workspaceSlug={workspaceSlug}
+          currentUserId={userId}
+          pollInterval={10000}
         />
       </div>
-
-      {/* Messages Container */}
-      <MessagesClient
-        initialThreads={dbThreads}
-        initialMessages={dbMessages}
-        initialCaseInfo={dbCaseInfo}
-        workspaceSlug={workspaceSlug}
-        currentUserId={userId}
-        pollInterval={10000}
-      />
-    </div>
+    </UserLayout>
   );
 }

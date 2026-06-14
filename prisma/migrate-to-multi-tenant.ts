@@ -9,9 +9,7 @@
  * Usage: npx tsx prisma/migrate-to-multi-tenant.ts
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../src/lib/prisma';
 
 const PLATFORM_TENANT_ID = 'platform-tenant';
 const DEFAULT_ORG_ID = 'platform-default-org';

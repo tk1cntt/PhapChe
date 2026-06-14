@@ -3,7 +3,7 @@
  * Common CRUD operations with permission context
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import type { RequestContext } from '@/lib/types/request-context';
 import { PermissionService } from '@/lib/services/permission-service';
 
@@ -16,19 +16,19 @@ export interface FindManyOptions<T> {
 }
 
 export abstract class BaseRepository<T, CreateInput, UpdateInput, WhereInput> {
-  protected prisma: PrismaClient;
+  protected db: typeof prisma;
   protected permissionService: PermissionService;
 
-  constructor(prisma?: PrismaClient) {
-    this.prisma = prisma || new PrismaClient();
-    this.permissionService = new PermissionService(this.prisma);
+  constructor(customDb?: typeof prisma) {
+    this.db = customDb || prisma;
+    this.permissionService = new PermissionService(this.db);
   }
 
   /**
    * Find by ID with permission check
    */
   async findById(ctx: RequestContext, id: string): Promise<T | null> {
-    const result = await this.prismaFindById(id);
+    const result = await this.dbFindById(id);
     if (!result) return null;
 
     if (await this.canAccess(ctx, result)) {
@@ -41,7 +41,7 @@ export abstract class BaseRepository<T, CreateInput, UpdateInput, WhereInput> {
    * Find many with permission filter
    */
   async findMany(ctx: RequestContext, options: FindManyOptions<WhereInput>): Promise<T[]> {
-    const results = await this.prismaFindMany(options);
+    const results = await this.dbFindMany(options);
     const accessible: T[] = [];
 
     for (const result of results) {
@@ -60,14 +60,14 @@ export abstract class BaseRepository<T, CreateInput, UpdateInput, WhereInput> {
     if (!await this.canCreate(ctx, data)) {
       throw new Error('Permission denied');
     }
-    return this.prismaCreate(data) as Promise<T>;
+    return this.dbCreate(data) as Promise<T>;
   }
 
   /**
    * Update with permission check
    */
   async update(ctx: RequestContext, id: string, data: UpdateInput): Promise<T> {
-    const existing = await this.prismaFindById(id);
+    const existing = await this.dbFindById(id);
     if (!existing) throw new Error('Not found');
 
     if (!await this.canAccess(ctx, existing)) {
@@ -78,14 +78,14 @@ export abstract class BaseRepository<T, CreateInput, UpdateInput, WhereInput> {
       throw new Error('Permission denied');
     }
 
-    return this.prismaUpdate(id, data) as Promise<T>;
+    return this.dbUpdate(id, data) as Promise<T>;
   }
 
   /**
    * Delete with permission check
    */
   async delete(ctx: RequestContext, id: string): Promise<void> {
-    const existing = await this.prismaFindById(id);
+    const existing = await this.dbFindById(id);
     if (!existing) throw new Error('Not found');
 
     if (!await this.canAccess(ctx, existing)) {
@@ -96,7 +96,7 @@ export abstract class BaseRepository<T, CreateInput, UpdateInput, WhereInput> {
       throw new Error('Permission denied');
     }
 
-    await this.prismaDelete(id);
+    await this.dbDelete(id);
   }
 
   // Abstract methods for Prisma operations

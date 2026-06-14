@@ -20,7 +20,7 @@ export function authMiddleware(options: AuthMiddlewareOptions = {}) {
     if (!session) {
       if (options.required !== false) {
         return NextResponse.json(
-          { error: 'Unauthorized' },
+          { error: 'UNAUTHORIZED', detail: 'Authentication required' },
           { status: 401 }
         );
       }

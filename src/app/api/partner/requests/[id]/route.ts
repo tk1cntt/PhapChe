@@ -5,16 +5,14 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
   }
 
   const member = await prisma.partnerMember.findFirst({
@@ -23,7 +21,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   });
 
   if (!member) {
-    return NextResponse.json({ error: 'Not a partner' }, { status: 403 });
+    return NextResponse.json({ error: 'FORBIDDEN', detail: 'Not a partner' }, { status: 403 });
   }
 
   const request = await prisma.legalRequest.findUnique({
@@ -38,7 +36,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   });
 
   if (!request) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ error: 'NOT_FOUND', detail: 'Request not found' }, { status: 404 });
   }
 
   // Check permission - partner can access if assigned directly or via engagement
@@ -46,7 +44,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     request.engagement?.partnerId === member.partnerId;
 
   if (!hasAccess) {
-    return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    return NextResponse.json({ error: 'FORBIDDEN', detail: 'Access denied' }, { status: 403 });
   }
 
   return NextResponse.json({ data: request });

@@ -7,9 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
   // 1. Get session
@@ -19,7 +17,7 @@ export async function GET(req: NextRequest) {
 
   if (!session?.user?.id) {
     return NextResponse.json(
-      { error: 'Unauthorized' },
+      { error: 'UNAUTHORIZED', detail: 'Authentication required' },
       { status: 401 }
     );
   }
@@ -34,7 +32,7 @@ export async function GET(req: NextRequest) {
 
   if (!member) {
     return NextResponse.json(
-      { error: 'Not a partner member' },
+      { error: 'FORBIDDEN', detail: 'Not a partner member' },
       { status: 403 }
     );
   }

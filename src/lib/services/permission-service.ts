@@ -3,15 +3,16 @@
  * Permission checking functions for multi-tenant access control
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import type { RequestContext } from '@/lib/types/request-context';
 import type { PermissionLevel } from '@/lib/types/engagement-service-scope';
 
 export class PermissionService {
-  private prisma: PrismaClient;
+  private prismaClient = prisma;
 
-  constructor(prisma?: PrismaClient) {
-    this.prisma = prisma || new PrismaClient();
+  constructor(customPrisma?: typeof prisma) {
+    // Allow custom prisma instance for testing
+    this.prismaClient = customPrisma || prisma;
   }
 
   /**
@@ -29,7 +30,7 @@ export class PermissionService {
     if (this.isPlatformAdmin(ctx)) return true;
 
     // Get request details
-    const request = await this.prisma.legalRequest.findUnique({
+    const request = await this.prismaClient.legalRequest.findUnique({
       where: { id: requestId },
       include: {
         workspace: {
@@ -64,7 +65,7 @@ export class PermissionService {
     if (this.isPlatformAdmin(ctx)) return true;
 
     // Get request details
-    const request = await this.prisma.legalRequest.findUnique({
+    const request = await this.prismaClient.legalRequest.findUnique({
       where: { id: requestId },
       include: {
         workspace: {
@@ -100,7 +101,7 @@ export class PermissionService {
     if (this.isPlatformAdmin(ctx)) return true;
 
     // Check workspace membership
-    const workspace = await this.prisma.workspace.findUnique({
+    const workspace = await this.prismaClient.workspace.findUnique({
       where: { slug: workspaceSlug },
       include: {
         memberships: {
@@ -121,7 +122,7 @@ export class PermissionService {
     if (this.isPlatformAdmin(ctx)) return true;
 
     // Get organization and check if user has admin role in any workspace
-    const workspaces = await this.prisma.workspace.findMany({
+    const workspaces = await this.prismaClient.workspace.findMany({
       where: { organizationId },
       include: {
         memberships: {
@@ -140,7 +141,7 @@ export class PermissionService {
     // Platform admins can manage all workspaces
     if (this.isPlatformAdmin(ctx)) return true;
 
-    const workspace = await this.prisma.workspace.findUnique({
+    const workspace = await this.prismaClient.workspace.findUnique({
       where: { slug: workspaceSlug },
       include: {
         memberships: {
@@ -177,7 +178,7 @@ export class PermissionService {
   private async checkPartnerFullAccess(partnerId: string, request: { engagementId?: string | null }): Promise<boolean> {
     if (!request.engagementId) return false;
 
-    const scope = await this.prisma.engagementServiceScope.findFirst({
+    const scope = await this.prismaClient.engagementServiceScope.findFirst({
       where: {
         engagementId: request.engagementId,
         permissionLevel: 'full_access',
@@ -191,7 +192,7 @@ export class PermissionService {
    * Get permission level for partner on engagement
    */
   async getPartnerPermissionLevel(engagementId: string): Promise<PermissionLevel[]> {
-    const scopes = await this.prisma.engagementServiceScope.findMany({
+    const scopes = await this.prismaClient.engagementServiceScope.findMany({
       where: { engagementId },
       select: { permissionLevel: true },
     });

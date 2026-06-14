@@ -3,7 +3,7 @@
  * Tenant-aware data access for organizations
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { BaseRepository, FindManyOptions } from './base-repository';
 import type { RequestContext } from '@/lib/types/request-context';
 import type { Organization } from '@/lib/types/organization';
@@ -14,20 +14,20 @@ export class OrganizationRepository extends BaseRepository<
   { name?: string; businessType?: string; status?: string },
   { id?: string; tenantId?: string; status?: string }
 > {
-  constructor(prisma?: PrismaClient) {
-    super(prisma);
+  constructor(customDb?: typeof prisma) {
+    super(customDb);
   }
 
   protected async prismaFindById(id: string) {
-    return this.prisma.organization.findUnique({ where: { id } });
+    return this.db.organization.findUnique({ where: { id } });
   }
 
   protected async prismaFindMany(options: FindManyOptions<{ id?: string; tenantId?: string; status?: string }>) {
-    return this.prisma.organization.findMany(options as Parameters<typeof this.prisma.organization.findMany>[0]);
+    return this.db.organization.findMany(options as Parameters<typeof this.db.organization.findMany>[0]);
   }
 
   protected async prismaCreate(data: { name: string; tenantId: string; businessType?: string }) {
-    return this.prisma.organization.create({ data });
+    return this.db.organization.create({ data });
   }
 
   protected async prismaUpdate(id: string, data: { name?: string; businessType?: string; status?: string }) {

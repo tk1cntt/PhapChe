@@ -3,7 +3,7 @@
  * Tenant-aware data access for legal requests
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { BaseRepository, FindManyOptions } from './base-repository';
 import type { RequestContext } from '@/lib/types/request-context';
 import type { LegalRequest } from '@/lib/types/request';
@@ -14,12 +14,12 @@ export class LegalRequestRepository extends BaseRepository<
   { title?: string; status?: string; priority?: string },
   { id?: string; workspaceId?: string; status?: string }
 > {
-  constructor(prisma?: PrismaClient) {
-    super(prisma);
+  constructor(customDb?: typeof prisma) {
+    super(customDb);
   }
 
   protected async prismaFindById(id: string) {
-    return this.prisma.legalRequest.findUnique({
+    return this.db.legalRequest.findUnique({
       where: { id },
       include: {
         workspace: true,
@@ -30,19 +30,19 @@ export class LegalRequestRepository extends BaseRepository<
   }
 
   protected async prismaFindMany(options: FindManyOptions<{ id?: string; workspaceId?: string; status?: string }>) {
-    return this.prisma.legalRequest.findMany(options as Parameters<typeof this.prisma.legalRequest.findMany>[0]);
+    return this.db.legalRequest.findMany(options as Parameters<typeof this.db.legalRequest.findMany>[0]);
   }
 
   protected async prismaCreate(data: { workspaceId: string; title: string }) {
-    return this.prisma.legalRequest.create({ data });
+    return this.db.legalRequest.create({ data });
   }
 
   protected async prismaUpdate(id: string, data: { title?: string; status?: string; priority?: string }) {
-    return this.prisma.legalRequest.update({ where: { id }, data });
+    return this.db.legalRequest.update({ where: { id }, data });
   }
 
   protected async prismaDelete(id: string) {
-    return this.prisma.legalRequest.delete({ where: { id } });
+    return this.db.legalRequest.delete({ where: { id } });
   }
 
   protected async canAccess(ctx: RequestContext, entity: unknown): Promise<boolean> {
@@ -75,7 +75,7 @@ export class LegalRequestRepository extends BaseRepository<
       throw new Error('Permission denied');
     }
 
-    return this.prisma.legalRequest.findMany({
+    return this.db.legalRequest.findMany({
       where: {
         workspace: { slug: workspaceSlug },
         ...(options?.status ? { status: options.status } : {}),

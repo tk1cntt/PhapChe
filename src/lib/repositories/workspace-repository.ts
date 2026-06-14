@@ -3,7 +3,7 @@
  * Tenant-aware data access for workspaces
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { BaseRepository, FindManyOptions } from './base-repository';
 import type { RequestContext } from '@/lib/types/request-context';
 import type { Workspace } from '@/lib/types/workspace';
@@ -14,28 +14,28 @@ export class WorkspaceRepository extends BaseRepository<
   { name?: string; isActive?: boolean },
   { id?: string; organizationId?: string; isActive?: boolean }
 > {
-  constructor(prisma?: PrismaClient) {
-    super(prisma);
+  constructor(customDb?: typeof prisma) {
+    super(customDb);
   }
 
   protected async prismaFindById(id: string) {
-    return this.prisma.workspace.findUnique({ where: { id } });
+    return this.db.workspace.findUnique({ where: { id } });
   }
 
   protected async prismaFindMany(options: FindManyOptions<{ id?: string; organizationId?: string; isActive?: boolean }>) {
-    return this.prisma.workspace.findMany(options as Parameters<typeof this.prisma.workspace.findMany>[0]);
+    return this.db.workspace.findMany(options as Parameters<typeof this.db.workspace.findMany>[0]);
   }
 
   protected async prismaCreate(data: { name: string; slug: string; organizationId?: string }) {
-    return this.prisma.workspace.create({ data });
+    return this.db.workspace.create({ data });
   }
 
   protected async prismaUpdate(id: string, data: { name?: string; isActive?: boolean }) {
-    return this.prisma.workspace.update({ where: { id }, data });
+    return this.db.workspace.update({ where: { id }, data });
   }
 
   protected async prismaDelete(id: string) {
-    return this.prisma.workspace.delete({ where: { id } });
+    return this.db.workspace.delete({ where: { id } });
   }
 
   protected async canAccess(ctx: RequestContext, entity: unknown): Promise<boolean> {
@@ -64,7 +64,7 @@ export class WorkspaceRepository extends BaseRepository<
    * List workspaces for current user
    */
   async listForUser(ctx: RequestContext, options?: { skip?: number; take?: number }) {
-    return this.prisma.workspace.findMany({
+    return this.db.workspace.findMany({
       where: {
         memberships: {
           some: { userId: ctx.user.id, isActive: true },

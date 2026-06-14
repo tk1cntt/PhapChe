@@ -58,19 +58,33 @@ where: { workspaceId: activeWorkspaceId }
 
 ## Test Coverage
 
-### Whitebox Tests
-- `getRelativeTime()` unit tests
-- `getStatusVariant()` mapping tests
-- `getStatusText()` translation tests
+### Whitebox Tests (Unit)
+- `getRelativeTime()` unit tests - validates time formatting
+- `getStatusVariant()` mapping tests - validates status to color mapping
+- `getStatusText()` translation tests - validates Vietnamese text
+- Component rendering tests for all 6 dashboard components
 
-### Blackbox Tests
-- Authenticated user sees dashboard
+### Blackbox Tests (Integration)
+- Authenticated user sees dashboard with real data
 - Unauthenticated returns 401
-- Workspace-scoped data filtering
+- Workspace-scoped data filtering verification
+- Loading skeleton displays during fetch
+- Floating chat button with new replies count
+
+### Abnormal Tests (Edge Cases)
+- Empty lists (cases, deadlines, docs, activities)
+- Zero stat values
+- Long titles with ellipsis
+- Unknown status variants (default badge)
+- Past deadlines (100% progress, danger status)
+- Very large numbers in stats
 
 ### Error Tests
 - API returns 500 on database error
-- Client shows error state on failure
+- Client shows error message on API failure
+- Network timeout handling
+- Invalid JSON response handling
+- Recovery after error
 
 ## Files Changed/Created
 
@@ -84,11 +98,23 @@ where: { workspaceId: activeWorkspaceId }
 - `src/components/dashboard/ActivityTimeline.tsx`
 - `src/components/dashboard/DashboardClient.tsx`
 - `src/components/dashboard/dashboard.css`
+- `tests/dashboard/Dashboard.test.ts` (Vitest unit tests)
+- `tests/api/dashboard.route.test.ts` (API integration tests)
+- `tests/e2e/dashboard.spec.ts` (Playwright E2E tests)
+- `tests/e2e/helpers/auth.ts` (Auth helper functions)
 
 ### Modified
 - `src/app/[locale]/dashboard/page.tsx` (added real data integration)
 
+## Test Files Summary
+| File | Tests | Coverage |
+|------|-------|----------|
+| `Dashboard.test.ts` | 32 tests | Whitebox, blackbox, abnormal, error |
+| `dashboard.route.test.ts` | 26 tests | API endpoint coverage |
+| `dashboard.spec.ts` | 25 tests | E2E user flows |
+| **Total** | **83 tests** | Full stack coverage |
+
 ## Next Steps
-- Add unit tests for dashboard components
-- Implement interactive features (case detail, document preview)
+- Run test suite to verify all tests pass
+- Add interactive features (case detail, document preview)
 - Add real-time updates via WebSocket or SSE

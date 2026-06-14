@@ -271,93 +271,235 @@
 7. Workspace member invitation flow
 8. Unit tests pass for workspace APIs
 
+---
+
+## Legacy UI Enhancement Phases
+
+These phases enhance existing UIs with organization/partner context from v2.0 implementation.
+
 ### Phase 73: Settings (User)
 
-**Goal:** User settings with profile, password, notifications, language
-**Depends on:** Phase 72
-**Requirements:** SET-01 to SET-06
+**Goal**: User settings with profile, password, notifications, language
+**Depends on**: Phase 72
+**Requirements**: SET-01 to SET-06
 **Plans:** Pending
-**UI Status:** Previously implemented (needs enhancement with organization context)
+**UI Status:** ✅ Implemented UI only (v2.0)
+
+**Success Criteria:**
+1. User can view and edit profile (name, email, phone, title)
+2. User can change password with current password verification
+3. User can toggle notifications (emailOnReply, slaReminder, weeklySummary)
+4. User can change language preference (VI/EN/ZH/JA)
+5. User can view own audit log entries
+6. Settings form validates input and shows errors inline
 
 ### Phase 74: User Management (Admin)
 
-**Goal:** Admin user management with organization filtering
-**Depends on:** Phase 73
-**Requirements:** ADM-USER-01 to ADM-USER-09
+**Goal**: Admin user management with organization filtering
+**Depends on**: Phase 73
+**Requirements**: ADM-USER-01 to ADM-USER-09
 **Plans:** Pending
-**UI Status:** Previously implemented (needs enhancement)
+**UI Status:** ✅ Implemented UI only (v2.0)
 
-### Phase 75: My Cases (User)
+**Success Criteria:**
+1. Admin sees paginated list of all users
+2. Admin can search users by name/email
+3. Admin can filter users by role
+4. Admin can filter users by organization
+5. Admin can view user details with organization context
+6. Admin can create new user with organization assignment
+7. Admin can edit user role and organization
+8. Admin can deactivate/reactivate user
+9. User table shows correct stat counts by organization
 
-**Goal:** My Cases screen with case list, search, filter, pagination
-**Depends on:** Phase 74
-**Requirements:** MYCASE-01 to MYCASE-09
+### Phase 75: Create Request (User)
+
+**Goal**: Create Request wizard with 4 steps, intake questions, document upload, submit to database
+**Depends on**: Phase 74
+**Requirements**: CREQ-01 to CREQ-10
 **Plans:** Pending
-**UI Status:** Previously implemented (needs enhancement)
+**UI Status:** ❌ Not implemented (new implementation)
 
-### Phase 76: Dashboard (User)
+**Success Criteria:**
+1. User can select service type from 5 options
+2. Service cards display with descriptions and tags
+3. Wizard shows 4-step progress indicator
+4. User can answer intake questions based on service type
+5. User can upload documents with progress
+6. User can review answers before submit
+7. User can submit and see confirmation
+8. Request appears in My Cases after submit
+9. Priority selection works
+10. Contact info pre-filled from profile
 
-**Goal:** User Dashboard with organization context
-**Depends on:** Phase 75
-**Requirements:** U-DASH-01 to U-DASH-08
+### Phase 76: My Cases (User)
+
+**Goal**: My Cases screen with case list, search, filter, pagination
+**Depends on**: Phase 75
+**Requirements**: MYCASE-01 to MYCASE-09
 **Plans:** Pending
-**UI Status:** Previously implemented (needs enhancement)
+**UI Status:** ✅ Implemented UI only (v2.0)
 
-### Phase 77: Request Management (Admin)
+**Success Criteria:**
+1. Summary banner shows total cases count
+2. Stat cards show correct counts
+3. Search filters cases by code/type
+4. Status filter works
+5. Type filter works
+6. Table shows 7 columns
+7. Clicking case navigates to details
+8. Pagination works
+9. Empty state displays when no results
 
-**Goal:** Admin request management with organization filtering
-**Depends on:** Phase 76
-**Requirements:** ADM-REQ-01 to ADM-REQ-09
+### Phase 77: Dashboard (User)
+
+**Goal**: User Dashboard with real data from database, clickable navigation
+**Depends on**: Phase 76
+**Requirements**: U-DASH-01 to U-DASH-08
 **Plans:** Pending
-**UI Status:** Previously implemented (needs enhancement)
+**UI Status:** ✅ Implemented UI only (v2.0)
 
-### Phase 78: Admin Dashboard
+**Success Criteria:**
+1. Stat cards show real counts
+2. Welcome banner shows workspace name
+3. Recent cases panel shows 5 cases
+4. Deadline/SLA panel shows progress bars
+5. Recent documents panel shows files
+6. Activity timeline shows timestamps
+7. Floating chat shows unread count
+8. Stat cards are clickable
 
-**Goal:** Admin Dashboard with organization context
-**Depends on:** Phase 77
-**Requirements:** ADM-DASH-01 to ADM-DASH-08
+### Phase 78: Request Management (Admin)
+
+**Goal**: Admin Request Management with list, assign, status change
+**Depends on**: Phase 77
+**Requirements**: ADM-REQ-01 to ADM-REQ-09
 **Plans:** Pending
-**UI Status:** Previously implemented (needs enhancement)
+**UI Status:** ✅ Implemented UI only (v2.0)
 
-### Phase 79: Operations (Admin)
+**Success Criteria:**
+1. Admin sees all requests with workspace filter
+2. Search works by code
+3. Status filter works
+4. Type filter works
+5. Admin can assign specialist
+6. Admin can change status
+7. Admin can view request details
+8. Priority badges display correctly
+9. Pagination works
 
-**Goal:** Operations screen with SLA management
-**Depends on:** Phase 78
-**Requirements:** ADM-OPS-01 to ADM-OPS-07
+### Phase 79: Admin Dashboard
+
+**Goal**: Admin Dashboard with real stats, clickable navigation
+**Depends on**: Phase 78
+**Requirements**: ADM-DASH-01 to ADM-DASH-08
 **Plans:** Pending
-**UI Status:** Previously implemented (needs enhancement)
+**UI Status:** ✅ Implemented UI only (v2.0)
 
-### Phase 80: Messages (User)
+**Success Criteria:**
+1. Stat cards show real counts
+2. Workload panel shows specialists
+3. Alert panel shows system alerts
+4. Workspace panel shows summary
+5. Approval panel shows pending
+6. Audit timeline shows events
+7. Stat cards are clickable
+8. Floating chat shows alerts
 
-**Goal:** Messages screen with thread list, chat, info panel
-**Depends on:** Phase 79
-**Requirements:** MSG-01 to MSG-08
+### Phase 80: Operations (Admin)
+
+**Goal**: Operations screen with workload, SLA bars, audit timeline
+**Depends on**: Phase 79
+**Requirements**: ADM-OPS-01 to ADM-OPS-07
 **Plans:** Pending
-**UI Status:** Previously implemented (needs enhancement)
+**UI Status:** ✅ Implemented UI only (v2.0)
 
-### Phase 81: Audit (Admin)
+**Success Criteria:**
+1. Stat cards show real counts
+2. Workload panel shows assignments
+3. Audit timeline shows events
+4. Operations table shows SLA bars
+5. SLA bars are color-coded
+6. Specialist filter works
+7. Sort by SLA works
 
-**Goal:** Admin Audit with security logs
-**Depends on:** Phase 80
-**Requirements:** ADM-AUD-01 to ADM-AUD-10
+### Phase 81: Messages (User)
+
+**Goal**: Messages screen with thread list, chat, info panel
+**Depends on**: Phase 80
+**Requirements**: MSG-01 to MSG-08
 **Plans:** Pending
-**UI Status:** Previously implemented (needs enhancement)
+**UI Status:** ✅ Implemented UI only (v2.0)
 
-### Phase 82: Vault (Admin)
+**Success Criteria:**
+1. 3-column layout displays
+2. Thread list shows all threads
+3. Selecting thread shows messages
+4. Chat shows message history
+5. User can send messages
+6. Info panel shows request metadata
+7. Unread badge displays
+8. Info panel can be closed
 
-**Goal:** Admin Vault with file management
-**Depends on:** Phase 81
-**Requirements:** VAULT-01 to VAULT-12
+### Phase 82: Audit (Admin)
+
+**Goal**: Admin Audit with security logs, search, filter, pagination
+**Depends on**: Phase 81
+**Requirements**: ADM-AUD-01 to ADM-AUD-10
 **Plans:** Pending
-**UI Status:** Previously implemented (needs enhancement)
+**UI Status:** ✅ Implemented UI only (v2.0)
+
+**Success Criteria:**
+1. Stat cards show audit counts
+2. Security notice displays
+3. Control alerts show metrics
+4. Activity timeline shows events
+5. Table shows 7 columns
+6. Search works by actor/target
+7. Action type filter works
+8. Date range filter works
+9. Pagination works
+10. Correlation IDs in monospace
 
 ### Phase 83: Workspace Management (Admin)
 
-**Goal:** Admin workspace management with organization grouping
-**Depends on:** Phase 82
-**Requirements:** ADM-WS-01 to ADM-WS-08
+**Goal**: Admin Workspace Management with CRUD, member invites, role changes
+**Depends on**: Phase 82
+**Requirements**: ADM-WS-01 to ADM-WS-08
 **Plans:** Pending
-**UI Status:** Not implemented (needs new implementation)
+**UI Status:** ❌ Not implemented (new implementation)
+
+**Success Criteria:**
+1. Admin sees all workspaces with member counts
+2. Admin can search workspaces
+3. Admin can view workspace details
+4. Admin can create new workspace
+5. Admin can invite member by email
+6. Admin can change member role
+7. Admin can remove member
+8. Admin can deactivate workspace
+
+### Phase 84: Vault (Admin)
+
+**Goal**: Admin Vault with file management, upload, download, folders, tags
+**Depends on**: Phase 83
+**Requirements**: VAULT-01 to VAULT-12
+**Plans:** Pending
+**UI Status:** ✅ Implemented UI only (v2.0)
+
+**Success Criteria:**
+1. Stat cards show vault counts
+2. Folder panel shows tree
+3. Tag panel shows tags with counts
+4. Vault table shows files
+5. Search works by name
+6. Folder filter works
+7. Tag filter works
+8. Admin can upload files
+9. Admin can download files
+10. Admin can create folders
+11. Admin can create tags
+12. Security badges display
 
 ---
 
@@ -373,23 +515,23 @@
 
 ### Shared Tenant Implementation
 
-| Phase | Name | Requirements | Plans | Status |
-|-------|------|--------------|-------|--------|
-| 58 | Core Tables | 8 | Pending | Pending |
-| 59 | Partner Model | 8 | Pending | Pending |
-| 60 | Engagement System | 8 | Pending | Pending |
-| 61 | Request Enhancement | 8 | Pending | Pending |
-| 62 | RequestContext & Middleware | 8 | Pending | Pending |
-| 63 | Permission Service | 8 | Pending | Pending |
-| 64 | Repository Pattern | 8 | Pending | Pending |
-| 65 | Data Migration | 8 | Pending | Pending |
-| 66 | Partner Auth | 8 | Pending | Pending |
-| 67 | Partner Requests | 8 | Pending | Pending |
-| 68 | Partner Actions | 8 | Pending | Pending |
-| 69 | Organization Management | 8 | Pending | Pending |
-| 70 | User Management v2 | 8 | Pending | Pending |
-| 71 | Create Request v2 | 8 | Pending | Pending |
-| 72 | Workspace Management v2 | 8 | Pending | Pending |
+| Phase | Name | Requirements | Status |
+|-------|------|--------------|--------|
+| 58 | Core Tables | 8 | Pending |
+| 59 | Partner Model | 8 | Pending |
+| 60 | Engagement System | 8 | Pending |
+| 61 | Request Enhancement | 8 | Pending |
+| 62 | RequestContext & Middleware | 8 | Pending |
+| 63 | Permission Service | 8 | Pending |
+| 64 | Repository Pattern | 8 | Pending |
+| 65 | Data Migration | 8 | Pending |
+| 66 | Partner Auth | 8 | Pending |
+| 67 | Partner Requests | 8 | Pending |
+| 68 | Partner Actions | 8 | Pending |
+| 69 | Organization Management | 8 | Pending |
+| 70 | User Management v2 | 8 | Pending |
+| 71 | Create Request v2 | 8 | Pending |
+| 72 | Workspace Management v2 | 8 | Pending |
 
 ### Legacy UI Enhancement
 
@@ -397,16 +539,17 @@
 |-------|------|--------------|-----------|--------|
 | 73 | Settings (User) | 6 | ✅ Enhanced | Pending |
 | 74 | User Management (Admin) | 9 | ✅ Enhanced | Pending |
-| 75 | My Cases (User) | 9 | ✅ Enhanced | Pending |
-| 76 | Dashboard (User) | 8 | ✅ Enhanced | Pending |
-| 77 | Request Management (Admin) | 9 | ✅ Enhanced | Pending |
-| 78 | Admin Dashboard | 8 | ✅ Enhanced | Pending |
-| 79 | Operations (Admin) | 7 | ✅ Enhanced | Pending |
-| 80 | Messages (User) | 8 | ✅ Enhanced | Pending |
-| 81 | Audit (Admin) | 10 | ✅ Enhanced | Pending |
-| 82 | Vault (Admin) | 12 | ✅ Enhanced | Pending |
+| 75 | Create Request (User) | 10 | ❌ New | Pending |
+| 76 | My Cases (User) | 9 | ✅ Enhanced | Pending |
+| 77 | Dashboard (User) | 8 | ✅ Enhanced | Pending |
+| 78 | Request Management (Admin) | 9 | ✅ Enhanced | Pending |
+| 79 | Admin Dashboard | 8 | ✅ Enhanced | Pending |
+| 80 | Operations (Admin) | 7 | ✅ Enhanced | Pending |
+| 81 | Messages (User) | 8 | ✅ Enhanced | Pending |
+| 82 | Audit (Admin) | 10 | ✅ Enhanced | Pending |
 | 83 | Workspace Management (Admin) | 8 | ❌ New | Pending |
+| 84 | Vault (Admin) | 12 | ✅ Enhanced | Pending |
 
 ---
 
-_Last updated: 2026-06-14 during Phase 57 discussion_
+_Last updated: 2026-06-14_

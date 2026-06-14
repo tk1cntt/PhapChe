@@ -45,6 +45,8 @@ model User {
   accounts           Account[]
   sessions           Session[]
   preferences        UserPreferences?
+  createdFiles       File[]             @relation("FileCreator")
+  fileVersions       FileVersion[]      @relation("FileVersionCreator")
 }
 
 model UserPreferences {
@@ -69,6 +71,7 @@ model Workspace {
   updatedAt   DateTime              @updatedAt
   memberships WorkspaceMembership[]
   requests    LegalRequest[]
+  files       File[]
   matterTypes          MatterType[]
   routingCapabilities  RoutingCapability[]
   documents            Document[]
@@ -119,6 +122,7 @@ model LegalRequest {
   documents            Document[]
   reviews              Review[]
   vaultFiles            VaultFile[]
+  files                File[]
   intakeSubmission     IntakeSubmission?
   workflowTransitions  WorkflowTransition[]
   auditEvents          AuditEvent[]
@@ -483,6 +487,80 @@ model Verification {
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+// File storage models
+// Note: SQLite doesn't support enums, using String fields instead
+// FileCategory values: request_upload, generated_document, vault_file, template, ocr_output, audit_export
+// FileVisibility values: private, customer_visible, restricted
+// FileStatus values: pending, uploaded, processing, ready, failed, deleted
+// FileAccessAction values: upload, download, view, delete, share
+
+model File {
+  id             String    @id @default(cuid())
+  workspaceId    String
+  requestId      String?
+  storageDriver  String    @default("local")  // "local" or "s3"
+  bucket         String?
+  objectKey      String
+  originalName   String
+  mimeType       String
+  size           Int
+  checksum       String?
+  category       String    @default("request_upload")  // FileCategory
+  visibility     String    @default("private")  // FileVisibility
+  status         String    @default("pending")  // FileStatus
+  createdById    String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  workspace       Workspace       @relation(fields: [workspaceId], references: [id])
+  request         LegalRequest?   @relation(fields: [requestId], references: [id])
+  creator         User            @relation("FileCreator", fields: [createdById], references: [id])
+  versions        FileVersion[]
+  accessLogs      FileAccessLog[]
+
+  @@index([workspaceId])
+  @@index([requestId])
+  @@index([category])
+  @@index([status])
+  @@index([createdById])
+}
+
+model FileVersion {
+  id             String   @id @default(cuid())
+  fileId         String
+  versionNumber  Int
+  storageDriver  String   @default("local")
+  bucket         String?
+  objectKey      String
+  size           Int
+  checksum       String?
+  createdById    String
+  createdAt      DateTime @default(now())
+
+  file           File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  creator        User     @relation("FileVersionCreator", fields: [createdById], references: [id])
+
+  @@index([fileId])
+  @@index([createdById])
+}
+
+model FileAccessLog {
+  id         String   @id @default(cuid())
+  fileId     String
+  userId     String?
+  action     String   // upload, download, view, delete, share
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  file       File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@index([fileId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
 }
 
 model Message {

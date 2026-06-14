@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import StatCard from './StatCard';
 import WelcomeBanner from './WelcomeBanner';
 import RecentCases from './RecentCases';
@@ -126,6 +127,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function DashboardClient() {
+  const t = useTranslations('Dashboard');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -170,22 +172,23 @@ export default function DashboardClient() {
     currentPage * pageSize
   );
 
+  const pagingStart = (currentPage - 1) * pageSize + 1;
+  const pagingEnd = Math.min(currentPage * pageSize, searchedCases.length);
+
   return (
     <div className="dashboard-page">
       {/* Page Header - Greeting */}
       <div className="page-header">
         <div>
-          <h1>Xin chào, {data.welcome.userName || 'User'}</h1>
-          <p className="subtitle">
-            Theo dõi hồ sơ pháp lý, tài liệu, phản hồi từ chuyên viên và các mốc xử lý quan trọng của workspace.
-          </p>
+          <h1>{t('greeting', { name: data.welcome.userName || 'User' })}</h1>
+          <p className="subtitle">{t('subtitle')}</p>
         </div>
         <button className="create-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
             <path d="M12 5v14" />
             <path d="M5 12h14" />
           </svg>
-          Tạo yêu cầu mới
+          {t('createRequest')}
         </button>
       </div>
 
@@ -201,9 +204,9 @@ export default function DashboardClient() {
       <div className="stats-grid">
         <StatCard
           variant="blue"
-          title="Tổng hồ sơ"
+          title={t('totalRequests')}
           value={data.stats.totalRequests}
-          description="Trong workspace hiện tại"
+          description={t('totalRequestsDesc')}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -213,9 +216,9 @@ export default function DashboardClient() {
         />
         <StatCard
           variant="orange"
-          title="Đang xử lý"
+          title={t('inProgress')}
           value={data.stats.inProgress}
-          description="Chờ phản hồi chuyên viên"
+          description={t('inProgressDesc')}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
@@ -225,9 +228,9 @@ export default function DashboardClient() {
         />
         <StatCard
           variant="green"
-          title="Đã hoàn tất"
+          title={t('completed')}
           value={data.stats.completed}
-          description="Đúng SLA xử lý"
+          description={t('completedDesc')}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M20 6 9 17l-5-5" />
@@ -236,9 +239,9 @@ export default function DashboardClient() {
         />
         <StatCard
           variant="purple"
-          title="Tài liệu vault"
+          title={t('vaultDocs')}
           value={data.stats.vaultDocs}
-          description="Được phân quyền an toàn"
+          description={t('vaultDocsDesc')}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 7h18v13H3z" />
@@ -271,7 +274,7 @@ export default function DashboardClient() {
               </svg>
               <input
                 type="text"
-                placeholder="Tìm kiếm hồ sơ của bạn..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -283,10 +286,10 @@ export default function DashboardClient() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
                 <path d="M22 3H2l8 9.46V19l4 2v-8.54z" />
               </svg>
-              Bộ lọc
+              {t('filter')}
             </button>
             <button className="tool-btn">
-              Trạng thái
+              {t('status')}
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
                 <path d="m6 9 6 6 6-6" />
               </svg>
@@ -301,8 +304,8 @@ export default function DashboardClient() {
                 <path d="M21 8V3h-5" />
               </svg>
             </button>
-            <button className="tool-btn">Export</button>
-            <button className="tool-btn">Cột hiển thị</button>
+            <button className="tool-btn">{t('export')}</button>
+            <button className="tool-btn">{t('columns')}</button>
           </div>
         </div>
       </div>
@@ -310,16 +313,16 @@ export default function DashboardClient() {
       {/* Table Card - All Cases with Paging */}
       <div className="table-card">
         <div className="table-head">
-          <div className="th">Mã hồ sơ</div>
-          <div className="th">Loại yêu cầu</div>
-          <div className="th">Trạng thái</div>
-          <div className="th">Người phụ trách</div>
-          <div className="th">Cập nhật gần nhất</div>
-          <div className="th">Thao tác</div>
+          <div className="th">{t('caseCode')}</div>
+          <div className="th">{t('requestType')}</div>
+          <div className="th">{t('status')}</div>
+          <div className="th">{t('assignee')}</div>
+          <div className="th">{t('lastUpdated')}</div>
+          <div className="th">{t('actions')}</div>
         </div>
 
         {paginatedCases.length === 0 ? (
-          <div className="empty-state">Không có hồ sơ nào</div>
+          <div className="empty-state">{t('noCases')}</div>
         ) : (
           paginatedCases.map((c) => (
             <div key={c.id} className="table-row">
@@ -354,7 +357,7 @@ export default function DashboardClient() {
               </div>
               <div className="td">
                 <a className="action-link" href="#">
-                  Xem chi tiết →
+                  {t('viewDetails')} →
                 </a>
               </div>
             </div>
@@ -366,9 +369,7 @@ export default function DashboardClient() {
       {totalPages > 1 && (
         <div className="paging-bar">
           <span className="paging-info">
-            Hiển thị {(currentPage - 1) * pageSize + 1}-
-            {Math.min(currentPage * pageSize, searchedCases.length)} của{' '}
-            {searchedCases.length} hồ sơ
+            {t('pagingInfo', { start: pagingStart, end: pagingEnd, total: searchedCases.length })}
           </span>
           <div className="paging-controls">
             <button
@@ -405,7 +406,7 @@ export default function DashboardClient() {
       {/* Floating Chat Button */}
       <a href="/messages" className="floating-chat">
         <span className="chat-icon-wrapper">N</span>
-        {data.welcome.newReplies > 0 && <span>{data.welcome.newReplies} Tin mới</span>}
+        {data.welcome.newReplies > 0 && <span>{data.welcome.newReplies} {t('newMessages')}</span>}
       </a>
     </div>
   );

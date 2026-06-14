@@ -5,15 +5,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 // GET - List user's requests
 export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
   }
 
   const { searchParams } = new URL(req.url);
@@ -65,7 +63,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
   }
 
   const body = await req.json();
@@ -85,7 +83,7 @@ export async function POST(req: NextRequest) {
   // Validate required fields
   if (!workspaceId || !serviceTypeId || !title) {
     return NextResponse.json(
-      { error: 'workspaceId, serviceTypeId, and title are required' },
+      { error: 'VALIDATION_ERROR', detail: 'workspaceId, serviceTypeId, and title are required', field: 'workspaceId' },
       { status: 400 }
     );
   }
@@ -96,7 +94,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (!membership) {
-    return NextResponse.json({ error: 'Not a member of this workspace' }, { status: 403 });
+    return NextResponse.json({ error: 'FORBIDDEN', detail: 'Not a member of this workspace' }, { status: 403 });
   }
 
   // Verify service type exists
@@ -105,7 +103,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (!serviceType || !serviceType.isActive) {
-    return NextResponse.json({ error: 'Invalid service type' }, { status: 400 });
+    return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Invalid service type', field: 'serviceTypeId' }, { status: 400 });
   }
 
   // Generate request code

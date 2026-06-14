@@ -5,9 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
   req: NextRequest,
@@ -17,11 +15,11 @@ export async function GET(
 
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
   }
 
   if (session.user.role !== 'platform_admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: 'FORBIDDEN', detail: 'Platform admin access required' }, { status: 403 });
   }
 
   const user = await prisma.user.findUnique({
@@ -43,7 +41,7 @@ export async function GET(
   });
 
   if (!user) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ error: 'NOT_FOUND', detail: 'User not found' }, { status: 404 });
   }
 
   return NextResponse.json({ data: user });
@@ -57,16 +55,16 @@ export async function PATCH(
 
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
   }
 
   if (session.user.role !== 'platform_admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: 'FORBIDDEN', detail: 'Platform admin access required' }, { status: 403 });
   }
 
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ error: 'NOT_FOUND', detail: 'User not found' }, { status: 404 });
   }
 
   const body = await req.json();
@@ -99,20 +97,20 @@ export async function DELETE(
 
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
   }
 
   if (session.user.role !== 'platform_admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: 'FORBIDDEN', detail: 'Platform admin access required' }, { status: 403 });
   }
 
   if (session.user.id === id) {
-    return NextResponse.json({ error: 'Cannot delete yourself' }, { status: 400 });
+    return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Cannot delete yourself' }, { status: 400 });
   }
 
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ error: 'NOT_FOUND', detail: 'User not found' }, { status: 404 });
   }
 
   await prisma.user.update({

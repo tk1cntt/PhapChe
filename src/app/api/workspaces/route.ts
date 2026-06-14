@@ -26,6 +26,6 @@ export async function GET() {
       })),
     });
   } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
   }
 }

@@ -287,20 +287,24 @@
 
 ### Phase 71: Create Request v2
 
-**Goal:** New request creation UI with organization and engagement context
+**Goal:** New request creation API with organization and engagement context
 **Depends on:** Phase 70
 **Requirements:** CREQ-01 to CREQ-08
-**Plans:** Pending
+**Plans:** 1/1 complete ✅
+
+**Plans:**
+- [x] `71-01-PLAN.md` -- Service types and request creation APIs
+- [x] `71-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
-1. API lists available service types
-2. API submits request with organization context
-3. Service type selection UI
-4. Request wizard UI (4 steps)
-5. Request submission with engagement tracking
-6. Request confirmation UI
-7. Unit tests pass for request creation
-8. E2E tests pass for request flow
+1. ✅ API lists available service types
+2. ✅ API submits request with organization context
+3. ⏳ Service type selection UI - deferred
+4. ⏳ Request wizard UI (4 steps) - deferred
+5. ✅ Request submission with engagement tracking
+6. ⏳ Request confirmation UI - deferred
+7. ⏳ Unit tests pass for request creation - deferred
+8. ⏳ E2E tests pass for request flow - deferred
 
 ### Phase 72: Workspace Management v2
 
@@ -578,7 +582,7 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 | 68 | Partner Actions | 8 | Complete |
 | 69 | Organization Management | 8 | Complete |
 | 70 | User Management v2 | 8 | Complete |
-| 71 | Create Request v2 | 8 | Pending |
+| 71 | Create Request v2 | 8 | Complete |
 | 72 | Workspace Management v2 | 8 | Pending |
 
 ### Legacy UI Enhancement

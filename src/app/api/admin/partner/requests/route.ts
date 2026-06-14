@@ -4,21 +4,29 @@
  *
  * Returns all partner requests with pagination and filters.
  * Admin-only endpoint.
+ * Platform-level admin - no workspace membership required.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireAppSession } from '@/lib/security/session';
+import { auth } from '@/auth';
 
 // Valid admin roles per schema: coordinator_admin, super_admin
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await requireAppSession();
+    // Get session with auth() directly - platform-level admin doesn't need workspace membership
+    const session = await auth.api.getSession({ headers: req.headers });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    // Authorization check: require admin role
-    const hasAdminRole = session.roles?.some((role) => (ADMIN_ROLES as readonly string[]).includes(role));
+    // Check admin roles - these are platform-level roles stored in user record
+    // Roles may be stored in session.user.role or session.user.roles
+    const userRole = (session.user as any).role || (session.user as any).roles?.[0];
+    const userRoles = (session.user as any).roles || (userRole ? [userRole] : []);
+    const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
     if (!hasAdminRole) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

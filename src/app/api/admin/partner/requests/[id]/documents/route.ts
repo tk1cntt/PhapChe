@@ -4,11 +4,13 @@
  *
  * Admin can view and upload documents for partner requests.
  * All actions are logged to audit.
+ * Platform-level admin - no workspace membership required.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
-import { requireAppSession } from '@/lib/security/session';
+import { auth } from '@/auth';
 
 // Valid admin roles
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -25,17 +27,29 @@ const ALLOWED_MIME_TYPES = [
 // Max file size: 10MB
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
+/**
+ * Helper to check platform-level admin session
+ */
+async function requireAdminSession() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    throw { status: 401, error: 'Unauthorized' };
+  }
+  const userRole = (session.user as any).role || (session.user as any).roles?.[0];
+  const userRoles = (session.user as any).roles || (userRole ? [userRole] : []);
+  const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
+  if (!hasAdminRole) {
+    throw { status: 403, error: 'Forbidden' };
+  }
+  return { session, userId: session.user.id, roles: userRoles };
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await requireAppSession();
-
-    const hasAdminRole = session.roles?.some((role) => (ADMIN_ROLES as readonly string[]).includes(role));
-    if (!hasAdminRole) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const { userId } = await requireAdminSession();
 
     const { id } = await params;
 
@@ -68,7 +82,10 @@ export async function GET(
     });
 
     return NextResponse.json({ data: documents });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.status) {
+      return NextResponse.json({ error: error.error }, { status: error.status });
+    }
     console.error('Error fetching documents:', error);
     return NextResponse.json(
       { error: 'Internal Server Error' },
@@ -82,12 +99,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await requireAppSession();
-
-    const hasAdminRole = session.roles?.some((role) => (ADMIN_ROLES as readonly string[]).includes(role));
-    if (!hasAdminRole) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const { session, userId } = await requireAdminSession();
 
     const { id } = await params;
 
@@ -143,7 +155,7 @@ export async function POST(
         storageKey,
         mimeType: file.type,
         size: file.size,
-        uploadedBy: session.user.id,
+        uploadedBy: userId,
         uploadedByType: 'admin',
         description: description || null,
       },
@@ -155,7 +167,7 @@ export async function POST(
         action: 'admin.partner.document_upload',
         entityType: 'legal_request',
         entityId: id,
-        actorId: session.user.id,
+        actorId: userId,
         actorType: 'admin',
         actorName: session.user.name || 'Admin',
         metadata: {
@@ -167,7 +179,10 @@ export async function POST(
     });
 
     return NextResponse.json({ data: document }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.status) {
+      return NextResponse.json({ error: error.error }, { status: error.status });
+    }
     console.error('Error uploading document:', error);
     return NextResponse.json(
       { error: 'Internal Server Error' },

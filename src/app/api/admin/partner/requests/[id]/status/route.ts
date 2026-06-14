@@ -4,27 +4,41 @@
  *
  * Admin can set any status for partner requests (no restrictions).
  * All status changes are logged to audit.
+ * Platform-level admin - no workspace membership required.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
-import { requireAppSession } from '@/lib/security/session';
+import { auth } from '@/auth';
 import { REQUEST_STATUS } from '@/lib/types';
 
 // Valid admin roles
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
+
+/**
+ * Helper to check platform-level admin session
+ */
+async function requireAdminSession() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    throw { status: 401, error: 'Unauthorized' };
+  }
+  const userRole = (session.user as any).role || (session.user as any).roles?.[0];
+  const userRoles = (session.user as any).roles || (userRole ? [userRole] : []);
+  const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
+  if (!hasAdminRole) {
+    throw { status: 403, error: 'Forbidden' };
+  }
+  return { session, userId: session.user.id, roles: userRoles };
+}
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await requireAppSession();
-
-    const hasAdminRole = session.roles?.some((role) => (ADMIN_ROLES as readonly string[]).includes(role));
-    if (!hasAdminRole) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const { session, userId } = await requireAdminSession();
 
     const { id } = await params;
     const body = await req.json();
@@ -73,7 +87,7 @@ export async function PATCH(
         action: 'admin.partner.status_override',
         entityType: 'legal_request',
         entityId: id,
-        actorId: session.user.id,
+        actorId: userId,
         actorType: 'admin',
         actorName: session.user.name || 'Admin',
         metadata: {
@@ -85,7 +99,10 @@ export async function PATCH(
     });
 
     return NextResponse.json({ data: updated });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.status) {
+      return NextResponse.json({ error: error.error }, { status: error.status });
+    }
     console.error('Error updating partner request status:', error);
     return NextResponse.json(
       { error: 'Internal Server Error' },

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Paging from '@/components/ui/Paging';
 
@@ -14,14 +15,6 @@ export interface CaseItem {
   assignee: string;
   assigneeRole: string;
   updatedAt: string;
-}
-
-interface CasesTableProps {
-  cases: CaseItem[];
-  currentPage: number;
-  pageSize: number;
-  totalCount: number;
-  onPageChange: (page: number, pageSize: number) => void;
 }
 
 function getStatusBadgeClass(variant: string): string {
@@ -44,14 +37,42 @@ function formatDate(dateStr: string): string {
   });
 }
 
-export default function CasesTable({
-  cases,
-  currentPage,
-  pageSize,
-  totalCount,
-  onPageChange,
-}: CasesTableProps) {
+export default function CasesTable() {
   const t = useTranslations('CasesTable');
+  const [cases, setCases] = useState<CaseItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  useEffect(() => {
+    fetch('/api/dashboard/all-cases')
+      .then((res) => res.json())
+      .then((data) => {
+        setCases(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="table-card">
+        <div className="table-head">
+          <div className="th">{t('caseCode')}</div>
+          <div className="th">{t('requestType')}</div>
+          <div className="th">{t('status')}</div>
+          <div className="th">{t('assignee')}</div>
+          <div className="th">{t('lastUpdated')}</div>
+          <div className="th">{t('actions')}</div>
+        </div>
+        <div className="loading-state">{t('loading')}</div>
+      </div>
+    );
+  }
+
+  const totalCount = cases.length;
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedCases = cases.slice(startIndex, startIndex + pageSize);
 
   return (
     <>
@@ -66,10 +87,10 @@ export default function CasesTable({
           <div className="th">{t('actions')}</div>
         </div>
 
-        {cases.length === 0 ? (
+        {paginatedCases.length === 0 ? (
           <div className="empty-state">{t('noCases')}</div>
         ) : (
-          cases.map((c) => (
+          paginatedCases.map((c) => (
             <div key={c.id} className="table-row">
               <div className="td">
                 <div className="case-main">
@@ -110,13 +131,13 @@ export default function CasesTable({
         )}
       </div>
 
-      {/* Paging - always show when there are cases */}
+      {/* Paging */}
       {totalCount > 0 && (
         <Paging
           current={currentPage}
           pageSize={pageSize}
           total={totalCount}
-          onChange={(page) => onPageChange(page, pageSize)}
+          onChange={(page) => setCurrentPage(page)}
         />
       )}
     </>

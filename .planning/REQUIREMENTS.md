@@ -1,7 +1,7 @@
-# Requirements: GitNexus Legal — v1.4 Template Parity
+# Requirements: GitNexus Legal — v2.1 Feature Implementation
 
-**Defined:** 2026-06-10
-**Milestone:** v1.4 Template Parity — Full Coverage
+**Defined:** 2026-06-14
+**Milestone:** v2.1 Feature Implementation — Complete User & Admin Portals
 **Core Value:** SME gửi yêu cầu pháp lý đơn giản như nhắn tin và nhận tài liệu/tư vấn đã qua kiểm soát chất lượng, có thể truy vết toàn bộ quá trình xử lý.
 
 ## Testing Requirements
@@ -27,161 +27,151 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - ❌ Không hardcode bất kỳ giá trị nào trong UI components
 - ❌ Không mock data trong components (chỉ mock trong unit tests nếu cần)
 
-### Database Seeding
+---
 
-Mỗi phase cần có seed script tạo:
+## v2.1 Requirements
 
-- Sample workspaces (An Phát, Minh Khang, Internal)
-- Sample users với roles (128 users total)
-- Sample requests với statuses
-- Sample vault files với folders/tags
-- Sample audit events
+### Phase 55: Settings (User)
 
-### E2E Test Requirements
+- [ ] **SET-01**: User can view and edit profile (name, email, phone, title)
+- [ ] **SET-02**: User can change password with current password verification
+- [ ] **SET-03**: User can toggle notifications (emailOnReply, slaReminder, weeklySummary)
+- [ ] **SET-04**: User can change language preference (VI/EN/ZH/JA)
+- [ ] **SET-05**: User can view own audit log entries
+- [ ] **SET-06**: Settings form validates input and shows errors inline
 
-- Playwright tests cho every user flow
-- Coverage minimum 90% lines/statement
-- Tests phải chạy trên CI
-- Data reset giữa các tests
+### Phase 56: User Management (Admin)
 
-## v1.4 Requirements
+- [ ] **ADM-USER-01**: Admin can view list of all users with pagination
+- [ ] **ADM-USER-02**: Admin can search users by name/email
+- [ ] **ADM-USER-03**: Admin can filter users by role (customer, specialist, reviewer, coordinator, admin)
+- [ ] **ADM-USER-04**: Admin can filter users by workspace
+- [ ] **ADM-USER-05**: Admin can view user details (name, email, role, workspace, status, last active)
+- [ ] **ADM-USER-06**: Admin can create new user with email and role
+- [ ] **ADM-USER-07**: Admin can edit user role
+- [ ] **ADM-USER-08**: Admin can deactivate/reactivate user account
+- [ ] **ADM-USER-09**: User table shows correct stat counts
 
-### User Portal
+### Phase 57: Create Request (User)
 
-#### Customer Dashboard (user-dashboard.html)
+- [ ] **CREQ-01**: User can select service type (5 types: Khuyen nghi, Nhanh, So huu tri tue, Tu van phap luat, Dangkynhanh)
+- [ ] **CREQ-02**: User sees service cards with descriptions and tags
+- [ ] **CREQ-03**: Wizard shows step progress (Step 1: Service → Step 2: Questions → Step 3: Documents → Step 4: Review)
+- [ ] **CREQ-04**: User can answer intake questions based on service type
+- [ ] **CREQ-05**: User can upload documents with progress indicator
+- [ ] **CREQ-06**: User can review answers before submit
+- [ ] **CREQ-07**: User can submit request and see confirmation
+- [ ] **CREQ-08**: After submit, request appears in My Cases with status "Dang cho xu ly"
+- [ ] **CREQ-09**: Priority selection works (thap, trung binh, cao)
+- [ ] **CREQ-10**: Contact info pre-filled from user profile
 
-- [ ] **CUST-DASH-01**: Display 4 stat cards (Tổng hồ sơ: 12, Đang xử lý: 3, Đã hoàn tất: 8, Tài liệu vault: 36) with matching icons and colors
-- [ ] **CUST-DASH-02**: Display welcome banner with workspace status message
-- [ ] **CUST-DASH-03**: Display case list with status badges (Đang review, Cần phản hồi, Đã duyệt)
-- [ ] **CUST-DASH-04**: Display deadline/SLA panel with progress bars
-- [ ] **CUST-DASH-05**: Display recent documents panel with file type badges (PDF, DOC)
-- [ ] **CUST-DASH-06**: Display activity timeline with relative timestamps (12 phút, 38 phút, 2 giờ)
-- [x] **CUST-DASH-07**: Display full requests table with 7 columns (mã, loại, trạng thái, phụ trách, cập nhật, SLA, thao tác)
-- [ ] **CUST-DASH-08**: Table shows 4 sample rows matching template data (REQ-2026-021, 019, 018, 016)
-- [ ] **CUST-DASH-09**: Toolbar with search and filter buttons functional
-- [ ] **CUST-DASH-10**: Floating chat button visible with "2 Tin mới" notification badge
+### Phase 58: Workspace Management (Admin)
 
-#### Create Request (user-create-request.html)
+- [ ] **ADM-WS-01**: Admin can view all workspaces with member counts
+- [ ] **ADM-WS-02**: Admin can search workspaces by name
+- [ ] **ADM-WS-03**: Admin can view workspace details (name, members, requests, vault files)
+- [ ] **ADM-WS-04**: Admin can create new workspace
+- [ ] **ADM-WS-05**: Admin can invite member to workspace by email
+- [ ] **ADM-WS-06**: Admin can change member role within workspace
+- [ ] **ADM-WS-07**: Admin can remove member from workspace
+- [ ] **ADM-WS-08**: Admin can deactivate workspace
 
-- [ ] **CUST-CREATE-01**: Display 4-step wizard (Service→Questions→Docs→Review) with step indicators
-- [ ] **CUST-CREATE-02**: Service options display with radio selection (5 service types)
-- [x] **CUST-CREATE-03**: Service cards show tags (Khuyến nghị, Nhanh, IP, Cần tài liệu, Phân loại)
-- [x] **CUST-CREATE-04**: Sidebar summary panel shows selected service and workspace info
-- [ ] **CUST-CREATE-05**: Checklist panel displays 4 preparation items with checkmarks
-- [x] **CUST-CREATE-06**: Form fields for workspace, priority, contact info functional
+### Phase 59: My Cases (User)
 
-#### My Cases (user-cases.html)
+- [ ] **MYCASE-01**: User sees summary banner with total cases count
+- [ ] **MYCASE-02**: User sees stat cards (Tong, Dang xu ly, Hoan tat, Qua han)
+- [ ] **MYCASE-03**: User can search cases by code or type
+- [ ] **MYCASE-04**: User can filter cases by status (Dang cho, Dang xu ly, Da hoan tat, Tu choi)
+- [ ] **MYCASE-05**: User can filter cases by type
+- [ ] **MYCASE-06**: Cases table shows 7 columns (Ma, Loai, Trang thai, Nguoi phu trach, Cap nhat, SLA, Thao tac)
+- [ ] **MYCASE-07**: User can click case to view details
+- [ ] **MYCASE-08**: Pagination works with page size of 10
+- [ ] **MYCASE-09**: Empty state shows when no cases match filter
 
-- [x] **CUST-CASES-01**: Summary banner shows total cases message
-- [x] **CUST-CASES-02**: 4 stats cards display (Tổng: 12, Đang xử lý: 3, Hoàn tất: 8, Quá hạn: 1)
-- [x] **CUST-CASES-03**: Toolbar with search, filters, status/loại dropdowns functional
-- [x] **CUST-CASES-04**: Requests table shows 7 columns matching template
-- [x] **CUST-CASES-05**: Table rows display sample data (REQ-2026-021, 019, 018, 016, 012)
+### Phase 60: Dashboard (User)
 
-#### Messages (user-messages.html)
+- [ ] **U-DASH-01**: Dashboard shows 4 stat cards with real counts
+- [ ] **U-DASH-02**: Welcome banner shows workspace name and stats
+- [ ] **U-DASH-03**: Recent cases panel shows 5 most recent cases with status badges
+- [ ] **U-DASH-04**: Deadline/SLA panel shows upcoming deadlines with progress bars
+- [ ] **U-DASH-05**: Recent documents panel shows latest vault files
+- [ ] **U-DASH-06**: Activity timeline shows recent actions with relative timestamps
+- [ ] **U-DASH-07**: Floating chat button shows unread message count
+- [ ] **U-DASH-08**: Clicking stat cards navigates to relevant page
 
-- [ ] **CUST-MSG-01**: 3-column layout renders (thread list, chat panel, info panel)
-- [ ] **CUST-MSG-02**: Thread list shows 4 sample threads with avatars (HL, QD, MT, KA) and timestamps
-- [ ] **CUST-MSG-03**: Chat panel shows message history with in/out styling
-- [ ] **CUST-MSG-04**: Info panel shows request metadata (mã, SLA, tài liệu, người tham gia)
+### Phase 61: Request Management (Admin)
 
-#### Workspace (user-workspace.html)
+- [ ] **ADM-REQ-01**: Admin sees all requests with workspace filtering
+- [ ] **ADM-REQ-02**: Admin can search requests by code
+- [ ] **ADM-REQ-03**: Admin can filter requests by status
+- [ ] **ADM-REQ-04**: Admin can filter requests by type
+- [ ] **ADM-REQ-05**: Admin can assign specialist to request
+- [ ] **ADM-REQ-06**: Admin can change request status
+- [ ] **ADM-REQ-07**: Admin can view request details
+- [ ] **ADM-REQ-08**: Request table shows priority badges (Cao, Trung binh, Thap)
+- [ ] **ADM-REQ-09**: Pagination works with page size of 20
 
-- [ ] **CUST-WS-01**: 4 stats cards display (Workspace: Active, Thành viên: 6, Hồ sơ: 12, Vault scope: 96%)
-- [ ] **CUST-WS-02**: Workspace banner shows company name (Công ty An Phát) and description
-- [ ] **CUST-WS-03**: Member grid displays 4 sample members with role badges (Owner, Finance, Legal Contact, Viewer)
-- [ ] **CUST-WS-04**: Permission/security panel shows tenant isolation info
+### Phase 62: Admin Dashboard
 
-#### Settings (user-settings.html)
+- [ ] **ADM-DASH-01**: Admin sees 4 stat cards (Tong users, Tong workspaces, Canh bao SLA, Alert)
+- [ ] **ADM-DASH-02**: Workload panel shows specialist workloads with progress bars
+- [ ] **ADM-DASH-03**: Alert panel shows system alerts
+- [ ] **ADM-DASH-04**: Workspace panel shows workspace summary
+- [ ] **ADM-DASH-05**: Approval panel shows pending approvals
+- [ ] **ADM-DASH-06**: Audit timeline shows recent audit events
+- [ ] **ADM-DASH-07**: Clicking stat cards navigates to relevant admin pages
+- [ ] **ADM-DASH-08**: Floating chat shows alert count
 
-- [x] **CUST-SET-01**: Settings menu shows 6 tabs (Hồ sơ cá nhân, Bảo mật đăng nhập, Thông báo, Workspace, Ngôn ngữ & giao diện, Audit cá nhân)
-- [x] **CUST-SET-02**: Profile form shows 6 fields matching template (name, email, phone, title, workspace, timezone)
-- [x] **CUST-SET-03**: Notification toggles display 3 items with on/off states
-- [x] **CUST-SET-04**: Security toggles show 2FA and login alerts options
-- [x] **CUST-SET-05**: 4 stats cards show account status (Account: Active, Security: 2FA, Notifications: 6, Workspace: 1)
+### Phase 63: Operations (Admin)
 
-### Admin Portal
+- [ ] **ADM-OPS-01**: Operations page shows stat cards (Ho so dang mo, Sap qua SLA, Hoan tat hom nay, Canh bao)
+- [ ] **ADM-OPS-02**: Workload panel shows specialist assignments
+- [ ] **ADM-OPS-03**: Audit timeline shows recent operations
+- [ ] **ADM-OPS-04**: Operations table shows requests with SLA bars
+- [ ] **ADM-OPS-05**: SLA bars are color-coded (xanh: ok, cam: warning, do: danger)
+- [ ] **ADM-OPS-06**: Admin can filter by specialist
+- [ ] **ADM-OPS-07**: Admin can sort by SLA deadline
 
-#### Admin Dashboard (admin-dashboard.html)
+### Phase 64: Messages (User)
 
-- [ ] **ADMIN-DASH-01**: Display 4 stat cards (128 users, 12 workspaces, 6 SLA warnings, 3 alerts) — exact values
-- [ ] **ADMIN-DASH-02**: Admin banner shows system status message
-- [ ] **ADMIN-DASH-03**: Workload list displays 4 specialists with progress bars and case counts
-- [ ] **ADMIN-DASH-04**: Alerts panel shows 4 alert items with badge types (Audit, SLA, Role, Vault)
-- [ ] **ADMIN-DASH-05**: Workspace panel shows 3 sample workspaces
-- [ ] **ADMIN-DASH-06**: Approvals panel shows 3 pending items
-- [ ] **ADMIN-DASH-07**: Audit timeline shows 3 recent entries
-- [ ] **ADMIN-DASH-08**: Requests table shows 7 columns and 5 sample rows
-- [ ] **ADMIN-DASH-09**: Toolbar filters functional (Status, Workspace dropdowns)
-- [ ] **ADMIN-DASH-10**: Floating chat shows "3 Alerts" notification
+- [ ] **MSG-01**: Messages page shows 3-column layout (thread list, chat, info)
+- [ ] **MSG-02**: Thread list shows all message threads with preview
+- [ ] **MSG-03**: User can select thread to view messages
+- [ ] **MSG-04**: Chat panel shows message history with timestamps
+- [ ] **MSG-05**: User can send new message in chat
+- [ ] **MSG-06**: Info panel shows request metadata
+- [ ] **MSG-07**: Unread message count badge shows on thread
+- [ ] **MSG-08**: User can close info panel
 
-#### User Management (admin-user-management.html)
+### Phase 65: Audit (Admin)
 
-- [x] **ADMIN-USER-01**: Stats show 4 cards (Total Users: 128, Active: 112, Workspaces: 12, Pending: 9)
-- [x] **ADMIN-USER-02**: Role pills display 6 roles with counts (72 customer, 18 specialist, 14 reviewer, 10 coordinator, 4 super_admin, 9 pending)
-- [ ] **ADMIN-USER-03**: User table shows 8 columns (checkbox, name, email, role, workspace, status, last active, action)
-- [ ] **ADMIN-USER-04**: Table displays 8 sample users matching template (Alex Nguyen, Hà Linh, Quang Dũng, Minh Trang, Mai Phương, Trần Nam, Khánh An, Linh Anh)
-- [ ] **ADMIN-USER-05**: Role badges color-coded (red=super_admin, blue=specialist/customer, orange=reviewer, green=coordinator_admin, purple=audit_admin)
-- [ ] **ADMIN-USER-06**: Toolbar search and filter dropdowns functional
+- [ ] **ADM-AUD-01**: Audit page shows 4 stat cards (Tong su kien, Hop le, Can ra soat, Canh bao)
+- [ ] **ADM-AUD-02**: Security notice explains safe display
+- [ ] **ADM-AUD-03**: Control alerts show security metrics
+- [ ] **ADM-AUD-04**: Activity timeline shows recent events
+- [ ] **ADM-AUD-05**: Audit table shows 7 columns (Time, Actor, Workspace, Action, Target, Correlation ID, Metadata)
+- [ ] **ADM-AUD-06**: Admin can search by actor or target
+- [ ] **ADM-AUD-07**: Admin can filter by action type
+- [ ] **ADM-AUD-08**: Admin can filter by date range
+- [ ] **ADM-AUD-09**: Pagination works with page size of 50
+- [ ] **ADM-AUD-10**: Correlation IDs shown in monospace font
 
-#### Admin Requests (admin-request.html)
+### Phase 66: Vault (Admin)
 
-- [ ] **ADMIN-REQ-01**: Stats show 4 cards (Tổng: 18, Đang chờ: 5, Đã duyệt: 9, Ưu tiên cao: 3)
-- [ ] **ADMIN-REQ-02**: Requests table shows 6 columns (mã, workspace, khách hàng, trạng thái, loại, phụ trách)
-- [ ] **ADMIN-REQ-03**: Table displays 6 sample rows with status badges
-- [ ] **ADMIN-REQ-04**: Priority badges show High/Medium/Low styling
-- [ ] **ADMIN-REQ-05**: Toolbar search and filter functional
+- [ ] **VAULT-01**: Vault page shows stat cards (Tong thu muc, Tep phap ly, The phan loai, Bao mat)
+- [ ] **VAULT-02**: Folder panel shows folder tree
+- [ ] **VAULT-03**: Tag panel shows classification tags with counts
+- [ ] **VAULT-04**: Vault table shows files with 7 columns
+- [ ] **VAULT-05**: Admin can search files by name
+- [ ] **VAULT-06**: Admin can filter by folder
+- [ ] **VAULT-07**: Admin can filter by tag
+- [ ] **VAULT-08**: Admin can upload new file to vault
+- [ ] **VAULT-09**: Admin can download file (signed URL)
+- [ ] **VAULT-10**: Admin can create folder
+- [ ] **VAULT-11**: Admin can create tag
+- [ ] **VAULT-12**: Security badges show encryption/permission status
 
-#### Admin Operations (admin-operations.html)
-
-- [ ] **ADMIN-OPS-01**: Stats show 4 cards (Hồ sơ đang mở: 24, Sắp quá SLA: 6, Hoàn tất hôm nay: 11, Cảnh báo: 3)
-- [ ] **ADMIN-OPS-02**: Workload panel displays 4 specialists with progress bars
-- [ ] **ADMIN-OPS-03**: Audit timeline shows 4 recent operations
-- [ ] **ADMIN-OPS-04**: Operations table shows 7 columns including SLA bars
-- [ ] **ADMIN-OPS-05**: SLA bars color-coded (green=ok, orange=warn, red=danger)
-- [ ] **ADMIN-OPS-06**: Toolbar filters functional
-
-#### Admin Audit (admin-audit.html)
-
-- [ ] **ADMIN-AUD-01**: Stats show 4 cards (Tổng sự kiện: 1,284, Thao tác hợp lệ: 1,239, Cần rà soát: 32, Cảnh báo: 7)
-- [ ] **ADMIN-AUD-02**: Security notice explains safe display principles
-- [ ] **ADMIN-AUD-03**: Security list shows 3 items (Truy cập bị từ chối: 7, Thay đổi role: 12, Audit hoàn chỉnh: 98%)
-- [ ] **ADMIN-AUD-04**: Activity timeline shows 4 recent entries
-- [ ] **ADMIN-AUD-05**: Audit table shows 7 columns including correlation ID and metadata
-- [ ] **ADMIN-AUD-06**: Correlation IDs displayed in monospace font
-- [ ] **ADMIN-AUD-07**: Action badges color-coded by type
-
-#### Admin Vault (admin-vault.html)
-
-- [ ] **ADMIN-VAULT-01**: Stats show 4 cards (Tổng thư mục: 12, Tệp pháp lý: 248, Thẻ phân loại: 18, Bảo mật: 96%)
-- [ ] **ADMIN-VAULT-02**: Folder panel shows 4 sample folders with file counts
-- [ ] **ADMIN-VAULT-03**: Tag panel shows 4 sample tags with file counts
-- [ ] **ADMIN-VAULT-04**: Vault table shows 7 columns (tên, thư mục, thẻ, workspace, chủ sở hữu, bảo mật, thao tác)
-- [ ] **ADMIN-VAULT-05**: Table displays 6 sample files
-- [ ] **ADMIN-VAULT-06**: Security badges show encryption/permission status
-
-#### Admin Workspace (admin-workspace.html)
-
-- [ ] **ADMIN-WS-01**: Permission card shows workspace scope and security info
-- [ ] **ADMIN-WS-02**: Workspace table shows permissions and member counts
-- [ ] **ADMIN-WS-03**: Sample workspaces include An Phát, Minh Khang, Internal
-- [ ] **ADMIN-WS-04**: Toolbar search and filter functional
-
-## v2 Requirements
-
-### AI Features
-
-- **AI-01**: OCR tự động nhận dạng giấy tờ upload
-- **AI-02**: AI đề xuất loại nghiệp vụ và trường intake từ file upload
-- **AI-03**: AI tóm tắt hồ sơ cho specialist với citation
-- **AI-04**: AI draft section từ template/clause library
-- **AI-05**: AI flag rủi ro trước khi reviewer review
-
-### Integration
-
-- **INT-01**: Tích hợp e-sign (ký số)
-- **INT-02**: Compliance calendar với reminders
-- **INT-03**: Billing automation
+---
 
 ## Out of Scope
 
@@ -195,26 +185,25 @@ Mỗi phase cần có seed script tạo:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CUST-DASH-01..10 | Phase 26 | Pending |
-| CUST-CREATE-01..06 | Phase 27 | Pending |
-| CUST-CASES-01..05 | Phase 28 | Pending |
-| CUST-MSG-01..04 | Phase 29 | Pending |
-| CUST-WS-01..04 | Phase 30 | Pending |
-| CUST-SET-01..05 | Phase 31 | Pending |
-| ADMIN-DASH-01..10 | Phase 32 | Pending |
-| ADMIN-USER-01..06 | Phase 33 | Pending |
-| ADMIN-REQ-01..05 | Phase 34 | Pending |
-| ADMIN-OPS-01..06 | Phase 35 | Pending |
-| ADMIN-AUD-01..07 | Phase 36 | Pending |
-| ADMIN-VAULT-01..06 | Phase 37 | Pending |
-| ADMIN-WS-01..04 | Phase 38 | Pending |
+| SET-01..06 | Phase 55 | Pending |
+| ADM-USER-01..09 | Phase 56 | Pending |
+| CREQ-01..10 | Phase 57 | Pending |
+| ADM-WS-01..08 | Phase 58 | Pending |
+| MYCASE-01..09 | Phase 59 | Pending |
+| U-DASH-01..08 | Phase 60 | Pending |
+| ADM-REQ-01..09 | Phase 61 | Pending |
+| ADM-DASH-01..08 | Phase 62 | Pending |
+| ADM-OPS-01..07 | Phase 63 | Pending |
+| MSG-01..08 | Phase 64 | Pending |
+| ADM-AUD-01..10 | Phase 65 | Pending |
+| VAULT-01..12 | Phase 66 | Pending |
 
 **Coverage:**
 
-- v1.4 requirements: 78 total
-- Mapped to phases: 78
+- v2.1 requirements: 96 total
+- Mapped to phases: 13
 - Unmapped: 0 ✓
 
 ---
-*Requirements defined: 2026-06-10*
-*Last updated: 2026-06-10 after v1.4 milestone initialized*
+*Requirements defined: 2026-06-14*
+*Last updated: 2026-06-14 after v2.1 milestone initialization*

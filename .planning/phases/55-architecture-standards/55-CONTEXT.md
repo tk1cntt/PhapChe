@@ -185,6 +185,35 @@ interface WorkflowTransition {
 { error: string, detail?: string }
 ```
 
+### 6.1. API Registry
+
+**Storage:** `src/docs/API_REGISTRY.md`
+
+**Purpose:** Central documentation to prevent API duplication.
+
+**Structure:**
+```markdown
+| Method | Endpoint | Description | Params |
+|--------|----------|-------------|--------|
+| GET | /api/requests | List all | ?page, ?status, ?type |
+```
+
+### 6.2. Swagger/OpenAPI
+
+**Endpoint:** `/api/docs`
+
+**Setup:** `npm install swagger-ui-react next-swagger-doc`
+
+### 6.3. Central API Client
+
+**Location:** `src/lib/api/index.ts`
+
+**Usage:**
+```typescript
+import { requestsApi } from '@/lib/api';
+const { data } = await requestsApi.list({ status: 'draft' });
+```
+
 ### 7. Service Layer
 
 | What | Where |
@@ -201,8 +230,30 @@ interface WorkflowTransition {
 
 ### 9. i18n Rules
 
-- UI text: ✓ i18n (`t('ComponentName.action')`)
-- Internal logs: ✗ hardcoded
+**Principle:** Component-first — define at component level, extend at page level.
+
+**Directory Structure:**
+```
+src/i18n/
+├── components/                    # BASE
+│   ├── ui/                       # UI primitives
+│   ├── table/                    # Table components
+│   └── forms/                    # Form components
+├── features/                     # EXTEND
+│   ├── requests/
+│   └── admin/
+└── index.json                   # Common only
+```
+
+**Key Format:** `Component.element.action`
+
+**Decision Matrix:**
+| What | i18n? |
+|------|-------|
+| UI text (components) | ✓ |
+| UI text (pages) | ✓ |
+| Internal logs | ✗ |
+| Error codes | ✗ |
 
 ---
 

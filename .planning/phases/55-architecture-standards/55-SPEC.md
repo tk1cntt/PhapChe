@@ -3,7 +3,7 @@
 **Created:** 2026-06-14
 **Updated:** 2026-06-14
 **Ambiguity score:** 0.06 (gate: ≤ 0.20)
-**Requirements:** 13 locked
+**Requirements:** 16 locked
 
 ## Goal
 
@@ -284,10 +284,62 @@ lib/types/
 
 **Output:** `src/docs/I18N_RULES.md`
 
-| What | i18n? |
-|------|--------|
-| UI text | ✓ |
-| Internal logs | ✗ |
+**Principle:** Component-first — define i18n keys at component level first, then extend at page level.
+
+**Directory Structure:**
+```
+src/i18n/
+├── locales/
+│   ├── vi.json
+│   └── en.json
+├── components/                    # BASE - Component i18n
+│   ├── ui/
+│   │   ├── Button.json
+│   │   ├── Input.json
+│   │   ├── Select.json
+│   │   ├── StatusBadge.json
+│   │   ├── DataTable.json
+│   │   └── Pagination.json
+│   ├── table/
+│   └── forms/
+├── features/                     # EXTEND - Feature/Page i18n
+│   ├── requests/
+│   └── admin/
+└── index.json                   # Common keys only
+```
+
+**Key Naming Convention:** `Component.element.action`
+
+```json
+{
+  "Button.save": "Lưu",
+  "Button.cancel": "Hủy",
+  "StatusBadge.draft": "Bản nháp",
+  "StatusBadge.submitted": "Đã gửi",
+  "DataTable.empty": "Không có dữ liệu",
+  "DataTable.loading": "Đang tải..."
+}
+```
+
+**Rules:**
+| What | i18n? | Reason |
+|------|-------|--------|
+| UI text (components) | ✓ | Reusable across pages |
+| UI text (pages) | ✓ | Page-specific context |
+| Internal logs | ✗ | Debug only |
+| Error codes | ✗ | Technical identifiers |
+| Database values | ✗ | Stored as-is |
+
+**Usage:**
+```tsx
+// Component - use component namespace
+const { t } = useTranslation('components:ui');
+<span>{t('Button.save')}</span>
+
+// Page - extend with feature namespace
+const { t } = useTranslation(['components:ui', 'features:requests']);
+<span>{t('RequestList.title')}</span>
+```
 
 ---
 
@@ -411,6 +463,95 @@ module.exports = {
 
 ---
 
+### 15. API Registry (ARCH-15)
+
+**Output:** `src/docs/API_REGISTRY.md`
+
+**Purpose:** Central documentation of all API endpoints to prevent duplication.
+
+**Structure:**
+```markdown
+# API Registry
+
+## Core APIs
+
+| Method | Endpoint | Description | Params |
+|--------|----------|-------------|--------|
+| GET | /api/requests | List all requests | ?page, ?status, ?type |
+| GET | /api/requests/:id | Get request detail | - |
+| POST | /api/requests | Create new request | body |
+| PUT | /api/requests/:id | Update request | body |
+| DELETE | /api/requests/:id | Soft delete | - |
+
+## Reusable Patterns
+
+### Pagination
+GET /api/[resource]?page=1&pageSize=20
+
+### Filtering
+?status=draft_intake&type=employment_contract
+
+### Sorting
+?sort=createdAt&order=desc
+```
+
+**Naming Conventions:**
+- Plural nouns: `/api/requests` not `/api/request`
+- REST methods: GET, POST, PUT, DELETE
+- Versioning: `/api/v1/[resource]`
+
+---
+
+### 16. Swagger/OpenAPI Documentation (ARCH-16)
+
+**Output:** Auto-generated API documentation via `/api/docs`
+
+**Dependencies:**
+```bash
+npm install swagger-ui-react next-swagger-doc
+```
+
+**Configuration:** `src/app/api/swagger/route.ts`
+
+**Benefits:**
+- Auto-generated docs from code
+- Interactive API explorer (Swagger UI)
+- Standard OpenAPI 3.0 format
+- Easy to find existing APIs
+
+---
+
+### 17. Central API Client (ARCH-17)
+
+**Output:** `src/lib/api/index.ts`
+
+**Purpose:** Single API client for all API calls - reuse instead of duplicate.
+
+```typescript
+// Central API client
+import { apiClient } from '@/lib/api/client';
+
+export const requestsApi = {
+  list: (params) => apiClient.get('/api/requests', { params }),
+  get: (id) => apiClient.get(`/api/requests/${id}`),
+  create: (data) => apiClient.post('/api/requests', data),
+  update: (id, data) => apiClient.put(`/api/requests/${id}`, data),
+  delete: (id) => apiClient.delete(`/api/requests/${id}`),
+};
+```
+
+**Usage:**
+```tsx
+// ✅ Good - reuse existing API client
+import { requestsApi } from '@/lib/api';
+const { data } = await requestsApi.list({ status: 'draft' });
+
+// ❌ Bad - creating duplicate API call
+fetch('/api/requests').then(...)
+```
+
+---
+
 ## Boundaries
 
 **In scope:**
@@ -435,6 +576,7 @@ module.exports = {
 - [ ] `src/docs/WORKFLOW_DEFINITION.md` with schema
 - [ ] `src/docs/TEMPLATE_ENGINE.md` with patterns
 - [ ] `src/docs/API_STANDARDS.md` with envelope pattern
+- [ ] `src/docs/API_REGISTRY.md` with endpoint documentation
 - [ ] `src/docs/SERVICE_LAYER.md` with boundaries
 - [ ] `src/docs/CODE_STANDARDS.md` with conventions
 - [ ] `src/docs/I18N_RULES.md` with decision matrix
@@ -444,6 +586,8 @@ module.exports = {
 - [ ] Storybook configured with shared component stories
 - [ ] `scripts/generate-component-registry.mjs` auto-generates registry
 - [ ] ESLint rule warns on duplicate component names
+- [ ] Swagger/OpenAPI configured at `/api/docs`
+- [ ] `src/lib/api/` central API client
 
 ---
 

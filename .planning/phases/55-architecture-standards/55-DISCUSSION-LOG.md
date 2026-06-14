@@ -215,15 +215,37 @@ src/lib/types/
 
 ### 8. i18n Rules
 
-**Confirmed - Decision Matrix:**
+**Confirmed - Component-first approach:**
 
-| What | i18n? |
-|------|--------|
-| UI text | ✓ Yes |
-| Internal logs | ✗ No |
-| Error codes | ✗ No |
+**Principle:** Define i18n keys at component level first, then extend at page level.
 
-**Key Structure:** `ComponentName.action`
+**Directory Structure:**
+```
+src/i18n/
+├── components/                    # BASE - All shared components
+│   ├── ui/
+│   │   ├── Button.json
+│   │   ├── StatusBadge.json
+│   │   ├── DataTable.json
+│   │   └── Pagination.json
+│   ├── table/
+│   └── forms/
+├── features/                     # EXTEND - Page-specific
+│   ├── requests/
+│   └── admin/
+└── index.json                   # Common keys only
+```
+
+**Key Format:** `Component.element.action`
+
+**Decision Matrix:**
+| What | i18n? | Reason |
+|------|-------|--------|
+| UI text (components) | ✓ Yes | Reusable across pages |
+| UI text (pages) | ✓ Yes | Page-specific context |
+| Internal logs | ✗ No | Debug only |
+| Error codes | ✗ No | Technical identifiers |
+| Database values | ✗ No | Stored as-is |
 
 ---
 
@@ -307,6 +329,30 @@ The following were suggested but deferred to future phases:
 - PostgreSQL migration
 - Full dynamic form/workflow implementation
 - Mobile app support
+
+---
+
+## 9. API Registry & Documentation
+
+**Confirmed - Add 3 requirements:**
+
+| Requirement | Output | Purpose |
+|-------------|--------|---------|
+| API_REGISTRY.md | `src/docs/API_REGISTRY.md` | Central endpoint documentation |
+| Swagger/OpenAPI | `/api/docs` | Auto-generated interactive docs |
+| Central API Client | `src/lib/api/` | Reuse API calls, prevent duplication |
+
+**Problem Solved:**
+- APIs being duplicated instead of shared
+- No central API documentation
+- Developers can't find existing APIs
+
+**Solution: Envelope + Swagger**
+```typescript
+// API Registry documents all endpoints
+// Swagger auto-generates from code
+// Central client ensures reuse
+```
 
 ---
 

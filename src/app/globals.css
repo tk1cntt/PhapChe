@@ -1148,70 +1148,136 @@ a {
   text-overflow: ellipsis;
 }
 
-/* Badge */
+/* Status Badge - riêng cho cột Trạng thái */
+.status-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 28px !important;
+  padding: 0 11px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+.status-badge::before {
+  content: "" !important;
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  margin-right: 7px !important;
+}
+
+.status-badge-green {
+  background: #ccfbf1 !important;
+  color: #0f766e !important;
+}
+.status-badge-green::before { background: #10b981 !important; }
+
+.status-badge-orange {
+  background: #ffedd5 !important;
+  color: #ea580c !important;
+}
+.status-badge-orange::before { background: #f97316 !important; }
+
+.status-badge-blue {
+  background: #dbeafe !important;
+  color: #2563eb !important;
+}
+.status-badge-blue::before { background: #2563eb !important; }
+
+.status-badge-red {
+  background: #ffe4e6 !important;
+  color: #ef4444 !important;
+}
+.status-badge-red::before { background: #ef4444 !important; }
+
+.status-badge-purple {
+  background: #ede9fe !important;
+  color: #7c3aed !important;
+}
+.status-badge-purple::before { background: #7c3aed !important; }
+
+/* SLA Badge - riêng cho cột SLA */
+.sla-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 28px !important;
+  padding: 0 11px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+.sla-badge::before {
+  content: "" !important;
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  margin-right: 7px !important;
+}
+
+.sla-badge-green {
+  background: #ccfbf1 !important;
+  color: #0f766e !important;
+}
+.sla-badge-green::before { background: #10b981 !important; }
+
+.sla-badge-orange {
+  background: #ffedd5 !important;
+  color: #ea580c !important;
+}
+.sla-badge-orange::before { background: #f97316 !important; }
+
+.sla-badge-blue {
+  background: #dbeafe !important;
+  color: #2563eb !important;
+}
+.sla-badge-blue::before { background: #2563eb !important; }
+
+.sla-badge-red {
+  background: #ffe4e6 !important;
+  color: #ef4444 !important;
+}
+.sla-badge-red::before { background: #ef4444 !important; }
+
+.sla-badge-purple {
+  background: #ede9fe !important;
+  color: #7c3aed !important;
+}
+.sla-badge-purple::before { background: #7c3aed !important; }
+
+/* Legacy Badge class for backward compatibility */
 .badge {
-  display: inline-flex;
-  align-items: center;
-  height: 28px;
-  padding: 0 11px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  white-space: nowrap;
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 28px !important;
+  padding: 0 11px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
 }
 
 .badge::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  margin-right: 7px;
+  content: "" !important;
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  margin-right: 7px !important;
 }
 
-.badge.green {
-  background: #ccfbf1;
-  color: #0f766e;
-}
-
-.badge.green::before {
-  background: #10b981;
-}
-
-.badge.orange {
-  background: #ffedd5;
-  color: #ea580c;
-}
-
-.badge.orange::before {
-  background: #f97316;
-}
-
-.badge.blue {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
-.badge.blue::before {
-  background: #2563eb;
-}
-
-.badge.red {
-  background: #ffe4e6;
-  color: #ef4444;
-}
-
-.badge.red::before {
-  background: #ef4444;
-}
-
-.badge.purple {
-  background: #ede9fe;
-  color: #7c3aed;
-}
-
-.badge.purple::before {
-  background: #7c3aed;
-}
+.badge-green { background: #ccfbf1 !important; color: #0f766e !important; }
+.badge-green::before { background: #10b981 !important; }
+.badge-orange { background: #ffedd5 !important; color: #ea580c !important; }
+.badge-orange::before { background: #f97316 !important; }
+.badge-blue { background: #dbeafe !important; color: #2563eb !important; }
+.badge-blue::before { background: #2563eb !important; }
+.badge-red { background: #ffe4e6 !important; color: #ef4444 !important; }
+.badge-red::before { background: #ef4444 !important; }
+.badge-purple { background: #ede9fe !important; color: #7c3aed !important; }
+.badge-purple::before { background: #7c3aed !important; }
 
 /* Role Pill */
 .role-pill {

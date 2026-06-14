@@ -124,7 +124,6 @@ export async function GET(request: NextRequest) {
         take: 5,
         orderBy: { updatedAt: 'desc' },
         include: {
-          matterType: { select: { name: true } },
           assignedSpecialist: { select: { name: true } },
           assignedReviewer: { select: { name: true } },
         },
@@ -153,7 +152,7 @@ export async function GET(request: NextRequest) {
       statusVariant: getStatusVariant(c.status),
       statusText: getStatusText(c.status),
       assignee: c.assignedSpecialist?.name || c.assignedReviewer?.name || '—',
-      assigneeRole: c.assignedSpecialist ? 'Specialist' : c.assignedReviewer ? 'Reviewer' : '—',
+      assigneeRole: c.assignedSpecialist ? 'Chuyên viên' : c.assignedReviewer ? 'Reviewer' : '—',
       updatedAt: c.updatedAt.toISOString(),
     }));
 
@@ -204,38 +203,40 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const transformedDeadlines = deadlines.map((d) => {
-      const deadline = d.slaDeadline!;
-      const hoursRemaining = (deadline.getTime() - now.getTime()) / (1000 * 60 * 60);
-      const totalHours = (deadline.getTime() - d.createdAt.getTime()) / (1000 * 60 * 60);
-      const elapsedHours = totalHours - hoursRemaining;
-      const progressPercent = Math.min(100, Math.max(0, (elapsedHours / totalHours) * 100));
+    const transformedDeadlines = deadlines
+      .filter((d) => d.slaDeadline) // Filter out null deadlines
+      .map((d) => {
+        const deadline = d.slaDeadline!;
+        const hoursRemaining = (deadline.getTime() - now.getTime()) / (1000 * 60 * 60);
+        const totalHours = (deadline.getTime() - d.createdAt.getTime()) / (1000 * 60 * 60);
+        const elapsedHours = totalHours - hoursRemaining;
+        const progressPercent = Math.min(100, Math.max(0, (elapsedHours / totalHours) * 100));
 
-      let status: 'ok' | 'warn' | 'danger' = 'ok';
-      if (hoursRemaining < 0) status = 'danger';
-      else if (hoursRemaining < 24) status = 'danger';
-      else if (hoursRemaining < 72) status = 'warn';
+        let status: 'ok' | 'warn' | 'danger' = 'ok';
+        if (hoursRemaining < 0) status = 'danger';
+        else if (hoursRemaining < 24) status = 'danger';
+        else if (hoursRemaining < 72) status = 'warn';
 
-      let timeText = '';
-      if (hoursRemaining < 0) {
-        const overdueDays = Math.abs(Math.floor(hoursRemaining / 24));
-        timeText = `Quá hạn ${overdueDays} ngày`;
-      } else if (hoursRemaining < 24) {
-        timeText = `Còn ${Math.ceil(hoursRemaining)} giờ`;
-      } else {
-        timeText = `Còn ${Math.ceil(hoursRemaining / 24)} ngày`;
-      }
+        let timeText = '';
+        if (hoursRemaining < 0) {
+          const overdueDays = Math.abs(Math.floor(hoursRemaining / 24));
+          timeText = `Quá hạn ${overdueDays} ngày`;
+        } else if (hoursRemaining < 24) {
+          timeText = `Còn ${Math.ceil(hoursRemaining)} giờ`;
+        } else {
+          timeText = `Còn ${Math.ceil(hoursRemaining / 24)} ngày`;
+        }
 
-      return {
-        id: d.id,
-        title: d.title || d.code || 'Legal Request',
-        code: d.code || d.id.slice(-10),
-        slaDeadline: deadline.toISOString(),
-        progress: Math.round(progressPercent),
-        status,
-        timeText,
-      };
-    });
+        return {
+          id: d.id,
+          title: d.title || d.code || 'Legal Request',
+          code: d.code || d.id.slice(-10),
+          slaDeadline: deadline.toISOString(),
+          progress: Math.round(progressPercent),
+          status,
+          timeText,
+        };
+      });
 
     // Calculate new replies count (messages in last 24h)
     const newReplies = await prisma.message.count({
@@ -272,6 +273,10 @@ export async function GET(request: NextRequest) {
     if (error instanceof Error && error.message === 'UNAUTHENTICATED') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    // Return a proper error response instead of throwing
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

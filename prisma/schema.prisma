@@ -92,6 +92,7 @@ model Organization {
 
   tenant     Tenant      @relation(fields: [tenantId], references: [id])
   workspaces Workspace[]
+  engagements Engagement[]
 
   @@index([tenantId])
   @@index([status])
@@ -113,6 +114,7 @@ model Partner {
   updatedAt    DateTime @updatedAt
 
   members      PartnerMember[]
+  engagements  Engagement[]
 
   @@map("partners")
 }
@@ -133,6 +135,59 @@ model PartnerMember {
   @@index([partnerId])
   @@index([userId])
   @@map("partner_members")
+}
+
+// ===== ENGAGEMENT MODELS =====
+
+model ServiceType {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  engagements EngagementServiceScope[]
+
+  @@map("service_types")
+}
+
+model Engagement {
+  id             String   @id @default(cuid())
+  partnerId     String
+  organizationId String
+  status        String   @default("active")  // active, inactive, pending
+  startDate     DateTime?
+  endDate       DateTime?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  partner       Partner         @relation(fields: [partnerId], references: [id])
+  organization  Organization    @relation(fields: [organizationId], references: [id])
+  serviceScopes EngagementServiceScope[]
+
+  @@unique([partnerId, organizationId])
+  @@index([partnerId])
+  @@index([organizationId])
+  @@map("engagements")
+}
+
+model EngagementServiceScope {
+  id               String   @id @default(cuid())
+  engagementId    String
+  serviceTypeId   String
+  permissionLevel String   @default("case_assigned")  // case_assigned, service_wide, full_access
+  createdAt       DateTime @default(now())
+
+  engagement   Engagement   @relation(fields: [engagementId], references: [id])
+  serviceType  ServiceType @relation(fields: [serviceTypeId], references: [id])
+
+  @@unique([engagementId, serviceTypeId])
+  @@index([engagementId])
+  @@index([serviceTypeId])
+  @@map("engagement_service_scopes")
 }
 
 model Workspace {

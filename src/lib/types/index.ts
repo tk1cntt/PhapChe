@@ -14,6 +14,9 @@ export * from './tenant';
 export * from './organization';
 export * from './partner';
 export * from './partner-member';
+export * from './service-type';
+export * from './engagement';
+export * from './engagement-service-scope';
 
 // Re-export constants from existing types.ts
 export {

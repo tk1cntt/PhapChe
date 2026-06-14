@@ -63,17 +63,21 @@
 **Goal:** Create engagements, service_types, service_scopes for partner-organization relationships
 **Depends on:** Phase 59
 **Requirements:** ENGAGE-01 to ENGAGE-08
-**Plans:** Pending
+**Plans:** 1/1 complete ✅
+
+**Plans:**
+- [x] `60-01-PLAN.md` -- ServiceType, Engagement, EngagementServiceScope models; TypeScript types; seed data
+- [x] `60-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
-1. service_types table created
-2. partner_organization_engagements table created
-3. engagement_service_scopes table created
-4. ServiceTypeService implemented
-5. EngagementService implemented
-6. Default service types seeded
-7. Unit tests pass for EngagementService
-8. Unit tests pass for ServiceTypeService
+1. ✅ service_types table created
+2. ✅ engagements table created
+3. ✅ engagement_service_scopes table created
+4. ⏳ ServiceTypeService implemented (deferred)
+5. ⏳ EngagementService implemented (deferred)
+6. ✅ Default service types seeded
+7. ⏳ Unit tests pass for EngagementService (deferred)
+8. ⏳ Unit tests pass for ServiceTypeService (deferred)
 
 ### Phase 61: Request Enhancement
 
@@ -527,7 +531,7 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 |-------|------|--------------|--------|
 | 58 | Core Tables | 8 | Complete |
 | 59 | Partner Model | 8 | Complete |
-| 60 | Engagement System | 8 | Pending |
+| 60 | Engagement System | 8 | Complete |
 | 61 | Request Enhancement | 8 | Pending |
 | 62 | RequestContext & Middleware | 8 | Pending |
 | 63 | Permission Service | 8 | Pending |

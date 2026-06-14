@@ -151,6 +151,35 @@ async function seedPartnerData() {
   return { samplePartner };
 }
 
+async function seedEngagementData() {
+  console.log('Seeding engagement data...');
+
+  // Create sample service types
+  const serviceTypes = [
+    { key: 'labor_contract', name: 'Labor Contract Review', description: 'Review and draft labor contracts' },
+    { key: 'trademark_registration', name: 'Trademark Registration', description: 'Assist with trademark registration process' },
+    { key: 'company_formation', name: 'Company Formation', description: 'Legal support for company establishment' },
+    { key: 'compliance_review', name: 'Compliance Review', description: 'Review business compliance requirements' },
+    { key: 'contract_negotiation', name: 'Contract Negotiation', description: 'Negotiate and finalize contracts' },
+  ];
+
+  for (const st of serviceTypes) {
+    await prisma.serviceType.upsert({
+      where: { key: st.key },
+      update: {},
+      create: {
+        key: st.key,
+        name: st.name,
+        description: st.description,
+        isActive: true,
+      },
+    });
+  }
+  console.log('  ✓ Sample service types:', serviceTypes.length);
+
+  return { serviceTypes };
+}
+
 async function seedAnPhatWorkspace() {
   // Phase 30: Workspace page seed data - "Cong ty An Phat" workspace
   const anPhatWorkspace = await prisma.workspace.upsert({
@@ -248,6 +277,9 @@ async function main() {
 
   // Seed partner data (Phase 59)
   await seedPartnerData();
+
+  // Seed engagement data (Phase 60)
+  await seedEngagementData();
 
   // Seed Phase 30: An Phat workspace
   await seedAnPhatWorkspace();

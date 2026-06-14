@@ -8,7 +8,7 @@ import { CommentList } from '@/components/partners/ui/CommentList';
 import { CommentForm } from '@/components/partners/ui/CommentForm';
 import { DocumentList } from '@/components/partners/ui/DocumentList';
 import { DocumentUpload } from '@/components/partners/ui/DocumentUpload';
-import { REQUEST_STATUS_LABELS } from '@/lib/constants';
+import { REQUEST_STATUS_LABELS } from '@/lib/constants/partner-statuses';
 
 interface PartnerRequest {
   id: string;

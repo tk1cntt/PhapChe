@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { PARTNER_ALLOWED_STATUSES, PARTNER_STATUS_LABELS, type PartnerAllowedStatus } from '@/lib/constants/partner-statuses';
+import { PARTNER_ALLOWED_STATUSES, PARTNER_STATUS_LABELS, REQUEST_STATUS_LABELS, type PartnerAllowedStatus } from '@/lib/constants/partner-statuses';
 
 interface StatusUpdateFormProps {
   requestId: string;
@@ -30,7 +30,7 @@ export function StatusUpdateForm({
 
   // Status list: admin sees all statuses, partner sees limited list
   const statusList = allowAllStatuses || isAdmin
-    ? Object.keys(PARTNER_STATUS_LABELS)
+    ? Object.keys(REQUEST_STATUS_LABELS)
     : PARTNER_ALLOWED_STATUSES;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,7 +88,7 @@ export function StatusUpdateForm({
         >
           {statusList.map((s) => (
             <option key={s} value={s}>
-              {PARTNER_STATUS_LABELS[s]?.vi || s}
+              {REQUEST_STATUS_LABELS[s] || s}
             </option>
           ))}
         </select>

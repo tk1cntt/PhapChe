@@ -23,3 +23,18 @@ export const PARTNER_STATUS_LABELS: Record<PartnerAllowedStatus, { vi: string; e
   [REQUEST_STATUS.APPROVED]: { vi: 'Đã duyệt', en: 'Approved' },
   [REQUEST_STATUS.DELIVERED]: { vi: 'Đã giao', en: 'Delivered' },
 };
+
+// All request status labels for admin (all statuses, not just partner-allowed)
+export const REQUEST_STATUS_LABELS: Record<string, string> = {
+  [REQUEST_STATUS.DRAFT_INTAKE]: 'Bản nháp',
+  [REQUEST_STATUS.INTAKE_SUBMITTED]: 'Đã nộp',
+  [REQUEST_STATUS.TRIAGE]: 'Phân loại',
+  [REQUEST_STATUS.ASSIGNED]: 'Đã giao',
+  [REQUEST_STATUS.IN_PROGRESS]: 'Đang xử lý',
+  [REQUEST_STATUS.PENDING_REVIEW]: 'Chờ duyệt',
+  [REQUEST_STATUS.REVISION_REQUIRED]: 'Cần sửa',
+  [REQUEST_STATUS.APPROVED]: 'Đã duyệt',
+  [REQUEST_STATUS.DELIVERED]: 'Đã giao',
+  [REQUEST_STATUS.CLOSED]: 'Đã đóng',
+  [REQUEST_STATUS.CANCELLED]: 'Đã hủy',
+};

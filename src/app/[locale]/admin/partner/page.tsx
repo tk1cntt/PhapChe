@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { REQUEST_STATUS_LABELS } from '@/lib/constants';
+import { REQUEST_STATUS_LABELS } from '@/lib/constants/partner-statuses';
 import type { LegalRequest } from '@/lib/types';
 
 interface PartnerRequest extends LegalRequest {

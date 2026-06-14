@@ -12,6 +12,7 @@ export interface Workspace {
   name: string;
   slug: string;
   ownerId: string;
+  organizationId?: string;  // FK to Organization
   settings?: WorkspaceSettings;
   memberCount: number;
   requestCount: number;

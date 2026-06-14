@@ -62,25 +62,64 @@ model UserPreferences {
   @@index([userId])
 }
 
+// ===== MULTI-TENANT MODELS =====
+
+model Tenant {
+  id        String         @id @default(cuid())
+  name      String
+  type      String         @default("platform")  // "platform" or "customer"
+  settings  String         @default("{}")       // JSON settings
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  organizations Organization[]
+
+  @@map("tenants")
+}
+
+model Organization {
+  id                 String   @id @default(cuid())
+  tenantId           String
+  name               String
+  businessType       String?
+  registrationNumber String?
+  address            String?
+  contactEmail       String?
+  status             String   @default("active")  // active, inactive, pending
+  isDefault          Boolean  @default(false)    // First org per tenant
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  workspaces Workspace[]
+
+  @@index([tenantId])
+  @@index([status])
+  @@map("organizations")
+}
+
 model Workspace {
-  id          String                @id @default(cuid())
-  name        String
-  slug        String                @unique
-  isActive    Boolean               @default(true)
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
-  memberships WorkspaceMembership[]
-  requests    LegalRequest[]
-  files       File[]
-  matterTypes          MatterType[]
-  routingCapabilities  RoutingCapability[]
-  documents            Document[]
-  reviews              Review[]
-  vaultFiles           VaultFile[]
-  auditEvents          AuditEvent[]
-  documentTemplates     DocumentTemplate[]
-  folders              Folder[]
-  tags                 Tag[]
+  id               String                @id @default(cuid())
+  name             String
+  slug             String                @unique
+  isActive         Boolean               @default(true)
+  organizationId   String?              // FK to Organization
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  memberships      WorkspaceMembership[]
+  requests         LegalRequest[]
+  files            File[]
+  matterTypes      MatterType[]
+  routingCapabilities RoutingCapability[]
+  documents        Document[]
+  reviews          Review[]
+  vaultFiles       VaultFile[]
+  auditEvents      AuditEvent[]
+  documentTemplates DocumentTemplate[]
+  folders          Folder[]
+  tags             Tag[]
+  organization     Organization?        @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
 }
 
 model WorkspaceMembership {

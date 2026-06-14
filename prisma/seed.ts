@@ -90,6 +90,44 @@ async function createSession(userId: string) {
   return token;
 }
 
+async function seedMultiTenantData() {
+  console.log('Seeding multi-tenant data...');
+
+  // Create platform tenant
+  const platformTenant = await prisma.tenant.upsert({
+    where: { id: 'platform-tenant' },
+    update: {},
+    create: {
+      id: 'platform-tenant',
+      name: 'GitNexus Platform',
+      type: 'platform',
+      settings: JSON.stringify({
+        requireMfa: false,
+        defaultLanguage: 'vi',
+        timezone: 'Asia/Ho_Chi_Minh',
+      }),
+    },
+  });
+  console.log('  ✓ Platform tenant:', platformTenant.id);
+
+  // Create default organization for platform
+  const defaultOrg = await prisma.organization.upsert({
+    where: { id: 'platform-default-org' },
+    update: {},
+    create: {
+      id: 'platform-default-org',
+      tenantId: platformTenant.id,
+      name: 'Default Organization',
+      businessType: 'platform_internal',
+      status: 'active',
+      isDefault: true,
+    },
+  });
+  console.log('  ✓ Default organization:', defaultOrg.id);
+
+  return { platformTenant, defaultOrg };
+}
+
 async function seedAnPhatWorkspace() {
   // Phase 30: Workspace page seed data - "Cong ty An Phat" workspace
   const anPhatWorkspace = await prisma.workspace.upsert({
@@ -182,6 +220,9 @@ async function seedAnPhatWorkspace() {
 }
 
 async function main() {
+  // Seed multi-tenant data (Phase 58)
+  await seedMultiTenantData();
+
   // Seed Phase 30: An Phat workspace
   await seedAnPhatWorkspace();
 

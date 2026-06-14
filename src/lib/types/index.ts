@@ -10,6 +10,8 @@ export * from './audit';
 export * from './workflow';
 export * from './vault';
 export * from './review';
+export * from './tenant';
+export * from './organization';
 
 // Re-export constants from existing types.ts
 export {

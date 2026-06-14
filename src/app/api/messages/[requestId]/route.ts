@@ -24,12 +24,22 @@ export async function GET(
       orderBy: { createdAt: 'asc' },
     });
 
+    // Get unique sender IDs
+    const senderIds = [...new Set(messages.map((m) => m.senderId))];
+
+    // Fetch sender names
+    const users = await prisma.user.findMany({
+      where: { id: { in: senderIds } },
+      select: { id: true, name: true },
+    });
+    const userMap = new Map(users.map((u) => [u.id, u.name]));
+
     // Transform to MessageData format
     const messageData = messages.map((msg) => ({
       id: msg.id,
       content: msg.content,
       senderId: msg.senderId,
-      senderName: msg.senderId,
+      senderName: userMap.get(msg.senderId) || msg.senderId,
       isOutgoing: msg.senderId === userId,
       createdAt: msg.createdAt,
     }));

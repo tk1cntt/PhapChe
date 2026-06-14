@@ -13,19 +13,67 @@ export interface MessageData {
 
 export interface MessageBubbleProps {
   message: MessageData;
+  currentUserId?: string;
+}
+
+// Color palette for different senderId prefixes (non-outgoing messages)
+const SENDER_COLORS = [
+  { bg: '#dbeafe', text: '#1e40af', border: '#93c5fd' }, // blue
+  { bg: '#fce7f3', text: '#9d174d', border: '#f9a8d4' }, // pink
+  { bg: '#fef3c7', text: '#92400e', border: '#fcd34d' }, // amber
+  { bg: '#dcfce7', text: '#166534', border: '#86efac' }, // green
+  { bg: '#e0e7ff', text: '#3730a3', border: '#a5b4fc' }, // indigo
+  { bg: '#f3e8ff', text: '#6b21a8', border: '#d8b4fe' }, // purple
+  { bg: '#ffedd5', text: '#9a3412', border: '#fdba74' }, // orange
+  { bg: '#ccfbf1', text: '#115e59', border: '#5eead4' }, // teal
+];
+
+/**
+ * Get color for a sender based on their ID
+ * Uses the first character of senderId to deterministically pick a color
+ */
+function getSenderColor(senderId: string): { bg: string; text: string; border: string } {
+  const charCode = senderId.charCodeAt(0);
+  const index = charCode % SENDER_COLORS.length;
+  return SENDER_COLORS[index];
 }
 
 /**
  * MessageBubble component - renders individual message bubble
  * Styling matches template (D-21, D-22, D-23):
  * - .msg: max-width 72%, padding 14px 16px, border-radius 14px, font-size 14px, line-height 1.55
- * - .msg.in: background #f1f5f9, color #0f172a
- * - .msg.out: background #087f78, color #fff, margin-left auto
+ * - .msg.out: background #087f78, color #fff, margin-left auto (current user)
+ * - .msg.in: background based on sender color, color based on sender color, align-self flex-start (others)
  */
-function MessageBubble({ message }: MessageBubbleProps): React.ReactElement {
+function MessageBubble({ message, currentUserId }: MessageBubbleProps): React.ReactElement {
+  const isOutgoing = message.senderId === currentUserId;
+  const senderColor = getSenderColor(message.senderId);
+  const displayName = message.senderName || 'Unknown';
+
+  if (isOutgoing) {
+    // Current user's message - teal/green, right side
+    return (
+      <div className="msg out">
+        <div className="msg-sender-name">Bạn</div>
+        <div className="msg-content">{message.content}</div>
+      </div>
+    );
+  }
+
+  // Other sender's message - colored based on senderId, left side
   return (
-    <div className={`msg ${message.isOutgoing ? 'out' : 'in'}`}>
-      {message.content}
+    <div
+      className="msg in"
+      style={{
+        backgroundColor: senderColor.bg,
+        color: senderColor.text,
+        borderLeft: `3px solid ${senderColor.border}`,
+      }}
+    >
+      <div className="msg-sender-name" style={{ color: senderColor.text }}>
+        {displayName}
+      </div>
+      <div className="msg-content">{message.content}</div>
     </div>
   );
 }

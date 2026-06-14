@@ -12,6 +12,7 @@ export interface ChatPanelProps {
   messages: MessageData[];
   onSendMessage: (message: string) => void;
   disabled?: boolean;
+  currentUserId?: string;
 }
 
 /**
@@ -30,6 +31,7 @@ function ChatPanel({
   messages,
   onSendMessage,
   disabled = false,
+  currentUserId,
 }: ChatPanelProps): React.ReactElement {
   const t = useTranslations('UserMessages');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -60,7 +62,7 @@ function ChatPanel({
           </div>
         ) : (
           messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
+            <MessageBubble key={message.id} message={message} currentUserId={currentUserId} />
           ))
         )}
         <div ref={messagesEndRef} />

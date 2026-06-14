@@ -236,6 +236,17 @@
   margin-left: auto;
 }
 
+.msg-sender-name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  opacity: 0.9;
+}
+
+.msg-content {
+  word-wrap: break-word;
+}
+
 .composer {
   border-top: 1px solid var(--border);
   padding: 16px;

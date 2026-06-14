@@ -93,21 +93,21 @@ function MessagesClient({
     setActiveThreadId(threadId);
 
     // Fetch messages for this thread if not already loaded
-    if (!messages[threadId] || messages[threadId].length === 0) {
-      try {
-        const response = await fetch(`/api/messages/${threadId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setMessages((prev) => ({
-            ...prev,
-            [threadId]: data.messages || [],
-          }));
-        }
-      } catch (error) {
-        console.error('Error fetching thread messages:', error);
+    console.log('[Client] handleSelectThread:', threadId, 'messages count:', messages[threadId]?.length ?? 'undefined');
+    try {
+      const response = await fetch(`/api/messages/${threadId}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[Client] Received', data.messages?.length, 'messages:', data.messages?.map(m => ({ id: m.id.substring(0,8), isOut: m.isOutgoing })));
+        setMessages((prev) => ({
+          ...prev,
+          [threadId]: data.messages || [],
+        }));
       }
+    } catch (error) {
+      console.error('Error fetching thread messages:', error);
     }
-  }, [messages]);
+  }, []); // Remove messages dependency to avoid stale closure
 
   // Handle sending message
   const handleSendMessage = useCallback(
@@ -186,6 +186,7 @@ function MessagesClient({
           specialistStatus={activeThread.specialistStatus}
           messages={activeMessages}
           onSendMessage={handleSendMessage}
+          currentUserId={currentUserId}
         />
       ) : (
         <div className="chat-panel empty">

@@ -21,7 +21,10 @@
 **Goal:** Create tenants, organizations tables and update workspaces with organization_id
 **Depends on:** Phase 57
 **Requirements:** CORE-01 to CORE-08
-**Plans:** Pending
+**Plans:** 1/1 planned
+
+**Plans:**
+- [x] `58-01-PLAN.md` -- Tenant, Organization models; Workspace FK; TypeScript types; seed data
 
 **Success Criteria:**
 1. tenants table created with all required fields

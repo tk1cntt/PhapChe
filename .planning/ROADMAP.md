@@ -91,20 +91,28 @@
 7. Audit logging for file operations
 8. Migration command ready for S3 transition
 
-### Phase 57: Settings (User)
+### Phase 57: Shared Tenant Architecture
 
-**Goal**: User Settings screen with profile editing, password change, notifications toggle, language selection, audit log viewing
+**Goal**: Multi-tenant architecture with Organization data ownership, Partner access via Engagements, and Platform as orchestrator
 **Depends on**: Phase 55, Phase 56
-**Requirements**: SET-01, SET-02, SET-03, SET-04, SET-05, SET-06
+**Reference**: `docs/shared_customer_partner_collaboration.md`
+**Status**: Discussion in progress
+
+**Key Concepts:**
+
+1. **Organization owns all data** — requests, files, documents belong to organization
+2. **Partner access via engagement** — Partner sees data only via active engagement + service scope
+3. **Tenant-aware repositories** — All queries include tenant context
+4. **RequestContext** — Unified permission context for all API operations
 
 **Success Criteria:**
 
-1. User can view and edit profile (name, email, phone, title)
-2. User can change password with current password verification
-3. User can toggle notifications (emailOnReply, slaReminder, weeklySummary)
-4. User can change language preference
-5. User can view own audit log entries
-6. Form validates input and shows errors inline
+1. Tenant/Partner/Engagement domain models defined
+2. Organization data ownership established
+3. Partner access via engagement + service scope implemented
+4. RequestContext pattern implemented
+5. Repository pattern with tenant awareness
+6. Permission rules defined (who can see what)
 
 ### Phase 58: User Management (Admin)
 

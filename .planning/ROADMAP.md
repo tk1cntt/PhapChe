@@ -28,6 +28,7 @@ v2.0 táº­p trung vĂ o viá»‡c káº¿t ná»‘i Mock UI (Ä‘Ă£ hoĂ
 - ❌ **Phase 51: Vault** — Connect file management
 - ❌ **Phase 52: Workspace** — Connect permissions
 - ❌ **Phase 53: User Dashboard Real Data** — Connect stats → real queries
+- 📋 **Phase 54: i18n Comprehensive Migration** — Replace hardcoded strings with i18n keys
 
 ## Phase Details
 

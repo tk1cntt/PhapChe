@@ -1,5 +1,36 @@
 import { prisma } from '@/lib/prisma';
 
+export interface FileAccessLogInput {
+  fileId: string;
+  action: 'upload' | 'download' | 'view' | 'delete' | 'share';
+  actorId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
+/**
+ * Record file access log
+ *
+ * Fire-and-forget function that logs file access for audit purposes.
+ * Errors are logged but do not throw to prevent blocking the main operation.
+ */
+export async function recordFileAccessLog(input: FileAccessLogInput): Promise<void> {
+  try {
+    await prisma.fileAccessLog.create({
+      data: {
+        fileId: input.fileId,
+        action: input.action,
+        userId: input.actorId || null,
+        ipAddress: input.ipAddress || null,
+        userAgent: input.userAgent || null,
+      },
+    });
+  } catch (error) {
+    // Log error but don't throw - audit logging should not block operations
+    console.error('Failed to record file access log:', error);
+  }
+}
+
 export interface AuditEventFilters {
   page?: number;
   pageSize?: number;

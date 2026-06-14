@@ -227,10 +227,11 @@
 **Goal:** Implement partner actions on requests (status update, document upload)
 **Depends on:** Phase 67
 **Requirements:** P-ACT-01 to P-ACT-08
-**Plans:** 1/1 complete ✅
+**Plans:** 2/2 complete ✅
 
 **Plans:**
 - [x] `68-01-PLAN.md` -- Status update, comments, document upload APIs
+- [x] `68-02-UI-PLAN.md` -- Partner UI components (StatusUpdateForm, CommentList, CommentForm, DocumentList, DocumentUpload)
 - [x] `68-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
@@ -238,10 +239,10 @@
 2. ✅ API for partner comments working
 3. ✅ API for partner document upload working
 4. ✅ Permission validation for partner actions
-5. ⏳ Partner action UI (status change, comment) - deferred
-6. ⏳ Partner document upload UI - deferred
-7. ⏳ Unit tests pass for action APIs - deferred
-8. ⏳ E2E tests pass for document upload - deferred
+5. ✅ Partner action UI (StatusUpdateForm, CommentList, CommentForm)
+6. ✅ Partner document upload UI (DocumentUpload, DocumentList)
+7. ⏳ Unit tests pass for action APIs - in progress
+8. ⏳ E2E tests pass for document upload - in progress
 
 ### Phase 69: Organization Management
 

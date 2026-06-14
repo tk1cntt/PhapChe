@@ -4,7 +4,7 @@
  *
  * Returns all partner requests with pagination and filters.
  * Admin-only endpoint.
- * Platform-level admin - no workspace membership required.
+ * Platform-level admin - queries all memberships to find admin roles.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,22 +14,41 @@ import { auth } from '@/auth';
 // Valid admin roles per schema: coordinator_admin, super_admin
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
 
+/**
+ * Get session with admin role check from database memberships
+ */
+async function requireAdminSession() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    throw { status: 401, error: 'Unauthorized' };
+  }
+
+  // Query all workspace memberships to find admin roles
+  const memberships = await prisma.workspaceMembership.findMany({
+    where: { userId: session.user.id, isActive: true },
+    select: { role: true, workspaceId: true },
+  });
+
+  const userRoles = memberships.map((m) => m.role);
+  const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
+
+  if (!hasAdminRole) {
+    throw { status: 403, error: 'Forbidden' };
+  }
+
+  return {
+    session,
+    userId: session.user.id,
+    roles: userRoles,
+    activeWorkspaceId: memberships[0]?.workspaceId,
+  };
+}
+
+import { headers } from 'next/headers';
+
 export async function GET(req: NextRequest) {
   try {
-    // Get session with auth() directly - platform-level admin doesn't need workspace membership
-    const session = await auth.api.getSession({ headers: req.headers });
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin roles - these are platform-level roles stored in user record
-    // Roles may be stored in session.user.role or session.user.roles
-    const userRole = (session.user as any).role || (session.user as any).roles?.[0];
-    const userRoles = (session.user as any).roles || (userRole ? [userRole] : []);
-    const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
-    if (!hasAdminRole) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    await requireAdminSession();
 
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') ?? '1', 10);

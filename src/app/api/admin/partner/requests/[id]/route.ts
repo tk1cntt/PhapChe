@@ -4,34 +4,53 @@
  *
  * Returns single partner request details.
  * Admin-only endpoint.
- * Platform-level admin - no workspace membership required.
+ * Platform-level admin - queries all memberships to find admin roles.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 
 // Valid admin roles per schema
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
 
+/**
+ * Get session with admin role check from database memberships
+ */
+async function requireAdminSession() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    throw { status: 401, error: 'Unauthorized' };
+  }
+
+  // Query all workspace memberships to find admin roles
+  const memberships = await prisma.workspaceMembership.findMany({
+    where: { userId: session.user.id, isActive: true },
+    select: { role: true, workspaceId: true },
+  });
+
+  const userRoles = memberships.map((m) => m.role);
+  const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
+
+  if (!hasAdminRole) {
+    throw { status: 403, error: 'Forbidden' };
+  }
+
+  return {
+    session,
+    userId: session.user.id,
+    roles: userRoles,
+    activeWorkspaceId: memberships[0]?.workspaceId,
+  };
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Platform-level admin - get session directly without workspace membership check
-    const session = await auth.api.getSession({ headers: req.headers });
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin roles
-    const userRole = (session.user as any).role || (session.user as any).roles?.[0];
-    const userRoles = (session.user as any).roles || (userRole ? [userRole] : []);
-    const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
-    if (!hasAdminRole) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    await requireAdminSession();
 
     const { id } = await params;
 
@@ -57,7 +76,10 @@ export async function GET(
     }
 
     return NextResponse.json({ data: request });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.status) {
+      return NextResponse.json({ error: error.error }, { status: error.status });
+    }
     console.error('Error fetching partner request detail:', error);
     return NextResponse.json(
       { error: 'Internal Server Error' },

@@ -4,7 +4,7 @@
  *
  * Admin can set any status for partner requests (no restrictions).
  * All status changes are logged to audit.
- * Platform-level admin - no workspace membership required.
+ * Platform-level admin - queries all memberships to find admin roles.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -17,20 +17,33 @@ import { REQUEST_STATUS } from '@/lib/types';
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
 
 /**
- * Helper to check platform-level admin session
+ * Get session with admin role check from database memberships
  */
 async function requireAdminSession() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) {
     throw { status: 401, error: 'Unauthorized' };
   }
-  const userRole = (session.user as any).role || (session.user as any).roles?.[0];
-  const userRoles = (session.user as any).roles || (userRole ? [userRole] : []);
+
+  // Query all workspace memberships to find admin roles
+  const memberships = await prisma.workspaceMembership.findMany({
+    where: { userId: session.user.id, isActive: true },
+    select: { role: true, workspaceId: true },
+  });
+
+  const userRoles = memberships.map((m) => m.role);
   const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
+
   if (!hasAdminRole) {
     throw { status: 403, error: 'Forbidden' };
   }
-  return { session, userId: session.user.id, roles: userRoles };
+
+  return {
+    session,
+    userId: session.user.id,
+    roles: userRoles,
+    activeWorkspaceId: memberships[0]?.workspaceId,
+  };
 }
 
 export async function PATCH(

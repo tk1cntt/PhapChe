@@ -1,11 +1,11 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 
-const LOCALE_STORAGE_KEY = 'preferred-locale';
+const LOCALE_COOKIE = 'preferred-locale';
 
 const languages = [
   { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
@@ -18,13 +18,12 @@ export default function LanguageSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale();
-  const t = useTranslations('Language');
 
   const currentLang = languages.find((l) => l.code === locale) || languages[0];
 
   const handleSwitch = ({ key }: { key: string }) => {
-    // Save new locale to localStorage for persistence
-    localStorage.setItem(LOCALE_STORAGE_KEY, key);
+    // Save new locale to cookie for middleware to read on next request
+    document.cookie = `${LOCALE_COOKIE}=${key}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
 
     // Replace current locale in pathname with new locale
     const segments = pathname.split('/').filter(Boolean);

@@ -3,7 +3,6 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/routing';
 import ReactQueryProvider from '@/components/providers/ReactQueryProvider';
-import { LocaleSync } from '@/components/providers/LocaleSync';
 
 type LocaleLayoutProps = {
   children: React.ReactNode;
@@ -22,7 +21,6 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   return (
     <ReactQueryProvider>
       <NextIntlClientProvider messages={messages}>
-        <LocaleSync />
         {children}
       </NextIntlClientProvider>
     </ReactQueryProvider>

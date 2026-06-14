@@ -129,7 +129,8 @@
     "goHome": "返回首页",
     "totalItems": "{count} 项",
     "previousPage": "上一页",
-    "nextPage": "下一页"
+    "nextPage": "下一页",
+    "signOut": "登出"
   },
   "Language": {
     "switch": "切换语言",
@@ -698,7 +699,21 @@
     "roleFinance": "财务",
     "roleViewer": "法务联系人",
     "roleCustomer": "客户",
-    "roleInvited": "已邀请"
+    "roleInvited": "已邀请",
+    "statusHealthy": "健康",
+    "statusEncrypted": "已加密",
+    "statusPending": "待处理",
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "inviteMemberDesc": "发送邀请邮件以加入工作区",
+    "emailAddress": "邮箱地址",
+    "emailPlaceholder": "例如：nguyen@example.com",
+    "invalidEmailError": "请输入有效的邮箱地址",
+    "inviteFailed": "发送邀请失败，请重试。",
+    "inviteSuccess": "邀请发送成功！",
+    "cancel": "取消",
+    "sendInvite": "发送邀请",
+    "sending": "发送中..."
   },
   "UserSettings": {
     "pageTitle": "设置",

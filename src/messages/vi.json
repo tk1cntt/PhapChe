@@ -129,7 +129,8 @@
     "goHome": "Về trang chủ",
     "totalItems": "{count} mục",
     "previousPage": "Trang trước",
-    "nextPage": "Trang sau"
+    "nextPage": "Trang sau",
+    "signOut": "Đăng xuất"
   },
   "Language": {
     "switch": "Đổi ngôn ngữ",

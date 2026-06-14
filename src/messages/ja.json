@@ -129,7 +129,8 @@
     "goHome": "ホームに戻る",
     "totalItems": "{count} 件",
     "previousPage": "前のページ",
-    "nextPage": "次のページ"
+    "nextPage": "次のページ",
+    "signOut": "サインアウト"
   },
   "Language": {
     "switch": "言語切替",
@@ -698,7 +699,21 @@
     "roleFinance": "財務",
     "roleViewer": "法務連絡先",
     "roleCustomer": "顧客",
-    "roleInvited": "招待済み"
+    "roleInvited": "招待済み",
+    "statusHealthy": "正常",
+    "statusEncrypted": "暗号化済み",
+    "statusPending": "保留中",
+    "enabled": "有効",
+    "disabled": "無効",
+    "inviteMemberDesc": "ワークスペースに参加するための招待メールを送信",
+    "emailAddress": "メールアドレス",
+    "emailPlaceholder": "例：nguyen@example.com",
+    "invalidEmailError": "有効なメールアドレスを入力してください",
+    "inviteFailed": "招待の送信に失敗しました。もう一度お試しください。",
+    "inviteSuccess": "招待が正常に送信されました！",
+    "cancel": "キャンセル",
+    "sendInvite": "招待を送信",
+    "sending": "送信中..."
   },
   "UserSettings": {
     "pageTitle": "設定",

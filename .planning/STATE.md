@@ -203,6 +203,7 @@ None.
 | 260613-nts | Fix pagination missing next/prev buttons on admin users page | 2026-06-13 | 3bb72db | Verified | [260613-nts](./quick/260613-nts-ph-n-trang-nh-ng-thi-u-next-sang-trang-m/) |
 | 260613-nxg | Fix admin requests page layout/style to match template | 2026-06-13 | c0d3aed | Verified | [260613-nxg](./quick/260613-nxg-fix-admin-requests-page-layout-style-to-/) |
 | 260613-ops-fix | Fix admin operations page bugs - menu link, timeline scroll | 2026-06-13 | b499c0d | Verified | [260613-ops-fix](./quick/260613-ops-fix/) |
+| 20250614-lang-persist | Persist language preference when user changes locale | 2026-06-14 | 73ee74c | Verified | [20250614-lang-persist](./quick/20250614-lang-persist/) |
 | 260613-lgc | Migrate src/legacy to src/components and delete legacy | 2026-06-13 | c12e290 | Verified | [260613-lgc](./quick/260613-lgc-migrate-src-legacy-to-src-components/) |
 | 260614-fix | Fix messages poll - merge threads instead of replace | 2026-06-14 | 8d0d2ca | Verified | [260614-fix](./quick/260614-fix-messages-poll/) |
 | 260614-msg | Enhance msg-list display with sender colors and names | 2026-06-14 | 8750354 | - | - |

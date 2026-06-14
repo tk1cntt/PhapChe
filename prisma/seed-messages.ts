@@ -12,7 +12,8 @@ const specialists = [
 
 const customer = {
   name: 'Mai Phương',
-  email: 'mai.Phuong@example.test',
+  // Use the actual customer email that has active workspace membership
+  email: 'mai.phuong@anphat.vn',
 };
 
 // Sample message content per specialist

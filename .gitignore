@@ -5,10 +5,6 @@ tsconfig.tsbuildinfo
 .env
 .env*.local
 
-# Database files
-prisma/prisma/data/*.db
-prisma/prisma/data/*.db-wal
-prisma/prisma/data/*.db-shm
-data/*.db
-data/*.db-wal
-data/*.db-shm
+# Database WAL and SHM files (temporary, can be regenerated)
+*.db-wal
+*.db-shm

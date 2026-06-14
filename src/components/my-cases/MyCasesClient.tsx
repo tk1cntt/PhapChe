@@ -8,6 +8,7 @@ import StatCard from './StatCard';
 import MyCasesToolbar from './MyCasesToolbar';
 import MyCasesTable from './MyCasesTable';
 import FloatingChatButton from './FloatingChatButton';
+import '@/components/my-cases/my-cases.css';
 
 export interface CaseRow {
   id: string;
@@ -32,10 +33,11 @@ export interface MyCasesClientProps {
   workspaceSlug: string;
   stats: { total: number; processing: number; completed: number; overdue: number };
   requests: CaseRow[];
+  totalRequests: number;
   notificationCount: number;
 }
 
-export function MyCasesClient({ userName, workspaceName, workspaceSlug, stats, requests, notificationCount }: MyCasesClientProps) {
+export function MyCasesClient({ userName, workspaceName, workspaceSlug, stats, requests, totalRequests, notificationCount }: MyCasesClientProps) {
   const t = useTranslations('UserCases');
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -134,7 +136,7 @@ export function MyCasesClient({ userName, workspaceName, workspaceSlug, stats, r
         selectedType={selectedType}
       />
 
-      <MyCasesTable requests={filteredRequests} />
+      <MyCasesTable requests={filteredRequests} totalRequests={totalRequests} />
 
       <FloatingChatButton notificationCount={notificationCount} />
     </>

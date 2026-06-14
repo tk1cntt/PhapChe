@@ -20,7 +20,7 @@ export interface MessagesClientProps {
 
 /**
  * MessagesClient component - Client-side messaging with polling
- * Extends MessagesContainer with real-time polling for updates
+ * Initial data fetched server-side, polls for new messages
  */
 function MessagesClient({
   initialThreads,
@@ -47,7 +47,7 @@ function MessagesClient({
   const activeMessages = activeThreadId ? messages[activeThreadId] ?? [] : [];
   const activeCaseInfo = activeThreadId ? initialCaseInfo[activeThreadId] ?? {} : {};
 
-  // Polling for new messages
+  // Polling for new messages (only for real-time updates, not for initial load)
   useEffect(() => {
     const pollMessages = async () => {
       try {
@@ -88,26 +88,10 @@ function MessagesClient({
     return () => clearInterval(intervalId);
   }, [pollInterval, lastPoll, workspaceSlug]);
 
-  // Handle thread selection - fetch messages when clicking a thread
-  const handleSelectThread = useCallback(async (threadId: string) => {
+  // Handle thread selection - just update activeThreadId (messages already loaded)
+  const handleSelectThread = useCallback((threadId: string) => {
     setActiveThreadId(threadId);
-
-    // Fetch messages for this thread if not already loaded
-    console.log('[Client] handleSelectThread:', threadId, 'messages count:', messages[threadId]?.length ?? 'undefined');
-    try {
-      const response = await fetch(`/api/messages/${threadId}`);
-      if (response.ok) {
-        const data = await response.json();
-        console.log('[Client] Received', data.messages?.length, 'messages:', data.messages?.map(m => ({ id: m.id.substring(0,8), isOut: m.isOutgoing })));
-        setMessages((prev) => ({
-          ...prev,
-          [threadId]: data.messages || [],
-        }));
-      }
-    } catch (error) {
-      console.error('Error fetching thread messages:', error);
-    }
-  }, []); // Remove messages dependency to avoid stale closure
+  }, []);
 
   // Handle sending message
   const handleSendMessage = useCallback(

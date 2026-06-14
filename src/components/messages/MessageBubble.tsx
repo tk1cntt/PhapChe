@@ -9,7 +9,7 @@ export interface MessageData {
   senderId: string;
   senderName: string;
   isOutgoing: boolean; // true if senderId === currentUserId
-  createdAt: Date;
+  createdAt: Date | string;
 }
 
 export interface MessageBubbleProps {

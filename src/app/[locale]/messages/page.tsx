@@ -79,6 +79,46 @@ export default async function MessagesPage({
     }),
   ]);
 
+  // Fetch messages for all threads from DB
+  const threadIds = recentThreads.map((req) => req.id);
+
+  const allMessages = await prisma.message.findMany({
+    where: {
+      legalRequestId: { in: threadIds },
+      workspaceId: activeWorkspaceId ?? '',
+    },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  // Fetch sender names for all unique sender IDs
+  const senderIds = [...new Set(allMessages.map((m) => m.senderId))];
+  const senders = await prisma.user.findMany({
+    where: { id: { in: senderIds } },
+    select: { id: true, name: true },
+  });
+  const senderMap = new Map(senders.map((u) => [u.id, u.name]));
+
+  // Group messages by thread
+  const dbMessages: Record<string, any[]> = {};
+  threadIds.forEach((id) => {
+    dbMessages[id] = [];
+  });
+
+  allMessages.forEach((msg) => {
+    const messageData = {
+      id: msg.id,
+      content: msg.content,
+      senderId: msg.senderId,
+      senderName: senderMap.get(msg.senderId) || msg.senderId,
+      isOutgoing: msg.senderId === userId,
+      createdAt: msg.createdAt.toISOString(),
+    };
+    if (!dbMessages[msg.legalRequestId]) {
+      dbMessages[msg.legalRequestId] = [];
+    }
+    dbMessages[msg.legalRequestId].push(messageData);
+  });
+
   // Avatar colors
   const colors = ['blue', 'green', 'orange', 'purple', 'red'] as const;
 
@@ -133,12 +173,6 @@ export default async function MessagesPage({
     };
   });
 
-  // Initial empty messages map
-  const dbMessages: Record<string, any[]> = {};
-  recentThreads.forEach((req) => {
-    dbMessages[req.id] = [];
-  });
-
   const openThreads = Math.min(3, Math.max(1, Math.floor(totalConversations / 2)));
 
   return (
@@ -176,7 +210,7 @@ export default async function MessagesPage({
           />
         </div>
 
-        {/* Messages Container */}
+        {/* Messages Container - now with initial messages from server */}
         <MessagesClient
           initialThreads={dbThreads}
           initialMessages={dbMessages}

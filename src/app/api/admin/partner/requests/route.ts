@@ -24,10 +24,9 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get('limit') || '20');
   const status = searchParams.get('status');
   const partnerId = searchParams.get('partnerId');
+  const search = searchParams.get('search');
 
   const where: Record<string, unknown> = {};
-  if (status) where.status = status;
-  if (partnerId) where.assignedPartnerId = partnerId;
 
   // Filter to only partner-related requests
   const partnerFilter = {
@@ -36,6 +35,19 @@ export async function GET(req: NextRequest) {
       { engagement: { partnerId: { not: null } } },
     ],
   };
+
+  if (status) where.status = status;
+  if (partnerId) where.assignedPartnerId = partnerId;
+
+  // Search by title, description, or customer name
+  if (search) {
+    where.OR = [
+      { title: { contains: search, mode: 'insensitive' } },
+      { description: { contains: search, mode: 'insensitive' } },
+      { customer: { name: { contains: search, mode: 'insensitive' } } },
+      { assignedPartner: { name: { contains: search, mode: 'insensitive' } } },
+    ];
+  }
 
   const [requests, total] = await Promise.all([
     prisma.legalRequest.findMany({

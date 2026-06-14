@@ -51,6 +51,10 @@
 **Goal**: Refactor source code structure, define conventions, establish reusable patterns
 **Depends on**: None (Foundation)
 **Requirements**: ARCH-01, ARCH-02, ARCH-03, ARCH-04, ARCH-05, ARCH-06, ARCH-07
+**Plans:** 1 plan
+
+**Plans:**
+- [ ] 55-01-PLAN.md — Standards documentation, component registry, StatCard unification, type unification
 
 **Success Criteria:**
 1. Component audit complete — all components documented
@@ -265,7 +269,7 @@
 
 | Phase | Screen | Milestone | Status | Requirements |
 |-------|--------|-----------|--------|--------------|
-| 55 | Architecture & Standards | v2.1 | Not started | 7 |
+| 55 | Architecture & Standards | v2.1 | Planned | 7 |
 | 56 | Settings (User) | v2.1 | Not started | 6 |
 | 57 | User Management (Admin) | v2.1 | Not started | 9 |
 | 58 | Create Request (User) | v2.1 | Not started | 10 |
@@ -281,4 +285,4 @@
 
 ---
 
-_Last updated: 2026-06-14 during v2.1 initialization_
+_Last updated: 2026-06-14 during Phase 55 planning_

@@ -139,8 +139,8 @@ export default function DashboardClient() {
   if (error) return <div className="dashboard-error">{error}</div>;
   if (!data) return null;
 
-  // Filter cases by search
-  const filteredCases = data.allCases || data.recentCases;
+  // Use recentCases for table display
+  const filteredCases = data.recentCases;
   const searchedCases = searchTerm
     ? filteredCases.filter(
         (c) =>

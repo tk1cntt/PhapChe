@@ -1,25 +1,38 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 
-const MAX_EVENTS = 50;
-
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await requireAppSession();
     const userId = session.userId;
     const workspaceId = session.activeWorkspaceId;
 
-    // Fetch audit events for this user
+    // Parse query params
+    const searchParams = request.nextUrl.searchParams;
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '10', 10)));
+    const skip = (page - 1) * pageSize;
+
+    // Build where clause
+    const where: Record<string, unknown> = {
+      actorId: userId,
+    };
+    if (workspaceId && workspaceId !== '') {
+      where.workspaceId = workspaceId;
+    }
+
+    // Fetch total count
+    const total = await prisma.auditEvent.count({ where });
+
+    // Fetch audit events with pagination
     const auditEvents = await prisma.auditEvent.findMany({
-      where: {
-        actorId: userId,
-        ...(workspaceId && workspaceId !== '' && { workspaceId }),
-      },
+      where,
       orderBy: {
         createdAt: 'desc'
       },
-      take: MAX_EVENTS,
+      skip,
+      take: pageSize,
       include: {
         workspace: {
           select: {
@@ -55,7 +68,10 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data,
-      count: data.length
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
     });
 
   } catch (error) {

@@ -110,8 +110,8 @@ export default function CasesTable({
         )}
       </div>
 
-      {/* Paging - Use shared Paging component */}
-      {totalCount > 0 && (
+      {/* Paging - fixed pageSize of 10 */}
+      {totalCount > pageSize && (
         <Paging
           current={currentPage}
           pageSize={pageSize}

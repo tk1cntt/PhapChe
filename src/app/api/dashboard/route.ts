@@ -83,6 +83,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Workspace not found' }, { status: 404 });
     }
 
+    // Get user info for greeting
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    });
+
     // Execute parallel queries for dashboard data
     const [
       totalRequests,
@@ -90,6 +96,7 @@ export async function GET(request: NextRequest) {
       completedRequests,
       vaultDocs,
       recentCases,
+      allCases,
       recentDocs,
       activityLog,
     ] = await Promise.all([
@@ -115,13 +122,22 @@ export async function GET(request: NextRequest) {
       prisma.vaultFile.count({
         where: { workspaceId: activeWorkspaceId },
       }),
-      // Recent cases (active requests)
+      // Recent cases (active requests) - for top panel
       prisma.legalRequest.findMany({
         where: {
           workspaceId: activeWorkspaceId,
           status: { in: ['in_progress', 'pending_review', 'revision_required', 'submitted_for_review'] },
         },
         take: 5,
+        orderBy: { updatedAt: 'desc' },
+        include: {
+          assignedSpecialist: { select: { name: true } },
+          assignedReviewer: { select: { name: true } },
+        },
+      }),
+      // All cases for table - sorted by updatedAt desc
+      prisma.legalRequest.findMany({
+        where: { workspaceId: activeWorkspaceId },
         orderBy: { updatedAt: 'desc' },
         include: {
           assignedSpecialist: { select: { name: true } },
@@ -144,6 +160,20 @@ export async function GET(request: NextRequest) {
 
     // Transform recent cases
     const transformedCases = recentCases.map((c) => ({
+      id: c.id,
+      code: c.code || c.id.slice(-10),
+      title: c.title,
+      matterType: c.matterType || 'Legal Request',
+      status: c.status,
+      statusVariant: getStatusVariant(c.status),
+      statusText: getStatusText(c.status),
+      assignee: c.assignedSpecialist?.name || c.assignedReviewer?.name || '—',
+      assigneeRole: c.assignedSpecialist ? 'Chuyên viên' : c.assignedReviewer ? 'Reviewer' : '—',
+      updatedAt: c.updatedAt.toISOString(),
+    }));
+
+    // Transform all cases for table
+    const transformedAllCases = allCases.map((c) => ({
       id: c.id,
       code: c.code || c.id.slice(-10),
       title: c.title,
@@ -262,8 +292,11 @@ export async function GET(request: NextRequest) {
         activeRequests: inProgressRequests,
         pendingDocs: 0,
         newReplies,
+        userName: user?.name || 'User',
       },
       recentCases: transformedCases,
+      allCases: transformedAllCases,
+      totalCases: totalRequests,
       deadlines: transformedDeadlines,
       recentDocs: transformedDocs,
       activity: transformedActivity,

@@ -390,7 +390,13 @@
     "of": "of",
     "requests": "requests",
     "prev": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "defaultTitle": "Partner Request",
+    "statusOverride": "Status Override",
+    "comments": "Comments",
+    "documents": "Documents",
+    "colWorkspace": "Workspace",
+    "colCreated": "Created"
   },
   "AdminOps": {
     "pageTitle": "Operations",

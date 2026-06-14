@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { StatusUpdateForm } from '@/components/partners/ui/StatusUpdateForm';
 import { CommentList } from '@/components/partners/ui/CommentList';
 import { CommentForm } from '@/components/partners/ui/CommentForm';
@@ -28,13 +28,16 @@ interface PartnerRequest {
 }
 
 export default function AdminPartnerDetailPage() {
-  const t = useTranslations();
+  const t = useTranslations('AdminPartner');
+  const tCommon = useTranslations('Common');
+  const tStatus = useTranslations('RequestStatus');
   const params = useParams();
+  const router = useRouter();
   const requestId = params.id as string;
 
   const [request, setRequest] = useState<PartnerRequest | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -43,19 +46,24 @@ export default function AdminPartnerDetailPage() {
 
   const fetchRequest = async () => {
     setLoading(true);
-    setError('');
+    setError(null);
 
     try {
       const res = await fetch(`/api/admin/partner/requests/${requestId}`);
-      const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.detail || 'Failed to fetch request');
+        if (res.status === 401 || res.status === 403) {
+          router.push('/sign-in');
+          return;
+        }
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || data.error || 'Failed to fetch request');
       }
 
+      const data = await res.json();
       setRequest(data.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : 'Failed to fetch request');
     } finally {
       setLoading(false);
     }
@@ -72,18 +80,43 @@ export default function AdminPartnerDetailPage() {
     return '-';
   };
 
+  const getStatusColor = (status: string): string => {
+    const colors: Record<string, string> = {
+      completed: 'bg-green-100 text-green-800',
+      delivered: 'bg-green-100 text-green-800',
+      in_progress: 'bg-blue-100 text-blue-800',
+      pending_review: 'bg-yellow-100 text-yellow-800',
+      cancelled: 'bg-red-100 text-red-800',
+    };
+    return colors[status] ?? 'bg-gray-100 text-gray-800';
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">Loading...</div>
+      <div className="bg-white border rounded-[15px] p-8 flex items-center justify-center">
+        <div className="text-[#64748b]">{tCommon('loading')}</div>
       </div>
     );
   }
 
   if (error || !request) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-        {error || 'Request not found'}
+      <div className="bg-white border rounded-[15px] p-8">
+        <div className="flex items-center gap-3 text-red-600">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <strong className="block">{tCommon('error')}</strong>
+            <span className="text-sm text-red-500">{error || 'Request not found'}</span>
+          </div>
+        </div>
+        <button
+          onClick={() => fetchRequest()}
+          className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
+        >
+          {t('retry')}
+        </button>
       </div>
     );
   }
@@ -91,22 +124,17 @@ export default function AdminPartnerDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white border rounded-[15px] p-6" style={{ borderColor: '#dfe7f1', boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)' }}>
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              {request.title || 'Partner Request'}
+              {request.title || t('defaultTitle') || 'Partner Request'}
             </h1>
             <p className="mt-1 text-sm text-gray-500">
               ID: {request.id} • Partner: {getPartnerName()}
             </p>
           </div>
-          <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
-            request.status === 'completed' ? 'bg-green-100 text-green-800' :
-            request.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-            request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-            'bg-gray-100 text-gray-800'
-          }`}>
+          <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(request.status)}`}>
             {REQUEST_STATUS_LABELS[request.status] || request.status}
           </span>
         </div>
@@ -117,28 +145,28 @@ export default function AdminPartnerDetailPage() {
 
         <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <span className="text-gray-500">Customer:</span>
+            <span className="text-gray-500">{t('colCustomer')}:</span>
             <span className="ml-2 text-gray-900">{request.customer?.name || '-'}</span>
           </div>
           <div>
-            <span className="text-gray-500">Workspace:</span>
+            <span className="text-gray-500">{t('colWorkspace') || 'Workspace'}:</span>
             <span className="ml-2 text-gray-900">{request.workspace?.name || '-'}</span>
           </div>
           <div>
-            <span className="text-gray-500">Created:</span>
+            <span className="text-gray-500">{t('colCreated') || 'Created'}:</span>
             <span className="ml-2 text-gray-900">{new Date(request.createdAt).toLocaleDateString()}</span>
           </div>
           <div>
-            <span className="text-gray-500">Updated:</span>
+            <span className="text-gray-500">{t('colUpdated')}:</span>
             <span className="ml-2 text-gray-900">{new Date(request.updatedAt).toLocaleDateString()}</span>
           </div>
         </div>
       </div>
 
       {/* Status Override Section */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white border rounded-[15px] p-6" style={{ borderColor: '#dfe7f1', boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)' }}>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          {t('admin.partner.statusOverride') || 'Status Override'}
+          {t('statusOverride')}
         </h2>
         <StatusUpdateForm
           requestId={requestId}
@@ -150,9 +178,9 @@ export default function AdminPartnerDetailPage() {
       </div>
 
       {/* Comments Section */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white border rounded-[15px] p-6" style={{ borderColor: '#dfe7f1', boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)' }}>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          {t('admin.partner.comments') || 'Comments'}
+          {t('comments')}
         </h2>
         <CommentList requestId={requestId} />
         <div className="mt-4 pt-4 border-t">
@@ -164,9 +192,9 @@ export default function AdminPartnerDetailPage() {
       </div>
 
       {/* Documents Section */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white border rounded-[15px] p-6" style={{ borderColor: '#dfe7f1', boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)' }}>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          {t('admin.partner.documents') || 'Documents'}
+          {t('documents')}
         </h2>
         <DocumentList requestId={requestId} />
         <div className="mt-4 pt-4 border-t">

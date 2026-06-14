@@ -390,7 +390,13 @@
     "of": "của",
     "requests": "yêu cầu",
     "prev": "Trước",
-    "next": "Tiếp"
+    "next": "Tiếp",
+    "defaultTitle": "Yêu cầu Partner",
+    "statusOverride": "Ghi đè trạng thái",
+    "comments": "Bình luận",
+    "documents": "Tài liệu",
+    "colWorkspace": "Workspace",
+    "colCreated": "Tạo lúc"
   },
   "AdminOps": {
     "pageTitle": "Vận hành",

@@ -214,8 +214,7 @@
     "lastUpdated": "最近更新",
     "actions": "操作",
     "viewDetails": "查看详情",
-    "noCases": "暂无案件",
-    "pagingInfo": "显示 {start}-{end}，共 {total} 件"
+    "noCases": "暂无案件"
   },
   "Language": {
     "switch": "切换语言",

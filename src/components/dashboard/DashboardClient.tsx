@@ -116,7 +116,7 @@ export default function DashboardClient() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetch('/api/dashboard')
@@ -252,7 +252,7 @@ export default function DashboardClient() {
         currentPage={currentPage}
         pageSize={pageSize}
         totalCount={searchedCases.length}
-        onPageChange={setCurrentPage}
+        onPageChange={(page) => setCurrentPage(page)}
       />
 
       {/* Floating Chat Button */}

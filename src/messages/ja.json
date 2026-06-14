@@ -214,8 +214,7 @@
     "lastUpdated": "最終更新",
     "actions": "操作",
     "viewDetails": "詳細を見る",
-    "noCases": "案件がありません",
-    "pagingInfo": "{start}-{end} を表示、全 {total} 件"
+    "noCases": "案件がありません"
   },
   "Language": {
     "switch": "言語切替",

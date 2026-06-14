@@ -214,8 +214,7 @@
     "lastUpdated": "Last Updated",
     "actions": "Actions",
     "viewDetails": "View Details",
-    "noCases": "No cases found",
-    "pagingInfo": "Showing {start}-{end} of {total} cases"
+    "noCases": "No cases found"
   },
   "Language": {
     "switch": "Switch Language",

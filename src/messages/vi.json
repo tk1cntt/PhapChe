@@ -214,8 +214,7 @@
     "lastUpdated": "Cập nhật gần nhất",
     "actions": "Thao tác",
     "viewDetails": "Xem chi tiết",
-    "noCases": "Không có hồ sơ nào",
-    "pagingInfo": "Hiển thị {start}-{end} của {total} hồ sơ"
+    "noCases": "Không có hồ sơ nào"
   },
   "Language": {
     "switch": "Đổi ngôn ngữ",

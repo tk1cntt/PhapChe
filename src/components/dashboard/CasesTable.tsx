@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import Paging from '@/components/ui/Paging';
 
 export interface CaseItem {
   id: string;
@@ -20,7 +21,7 @@ interface CasesTableProps {
   currentPage: number;
   pageSize: number;
   totalCount: number;
-  onPageChange: (page: number) => void;
+  onPageChange: (page: number, pageSize: number) => void;
 }
 
 function getStatusBadgeClass(variant: string): string {
@@ -51,10 +52,6 @@ export default function CasesTable({
   onPageChange,
 }: CasesTableProps) {
   const t = useTranslations('CasesTable');
-
-  const totalPages = Math.ceil(totalCount / pageSize);
-  const pagingStart = (currentPage - 1) * pageSize + 1;
-  const pagingEnd = Math.min(currentPage * pageSize, totalCount);
 
   return (
     <>
@@ -113,42 +110,14 @@ export default function CasesTable({
         )}
       </div>
 
-      {/* Paging */}
-      {totalPages > 1 && (
-        <div className="paging-bar">
-          <span className="paging-info">
-            {t('pagingInfo', { start: pagingStart, end: pagingEnd, total: totalCount })}
-          </span>
-          <div className="paging-controls">
-            <button
-              className="paging-btn"
-              disabled={currentPage === 1}
-              onClick={() => onPageChange(currentPage - 1)}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                className={`paging-btn ${page === currentPage ? 'active' : ''}`}
-                onClick={() => onPageChange(page)}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              className="paging-btn"
-              disabled={currentPage === totalPages}
-              onClick={() => onPageChange(currentPage + 1)}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            </button>
-          </div>
-        </div>
+      {/* Paging - Use shared Paging component */}
+      {totalCount > 0 && (
+        <Paging
+          current={currentPage}
+          pageSize={pageSize}
+          total={totalCount}
+          onChange={(page) => onPageChange(page, pageSize)}
+        />
       )}
     </>
   );

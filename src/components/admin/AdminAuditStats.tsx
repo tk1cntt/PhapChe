@@ -23,7 +23,7 @@ export function AdminAuditStats({ stats }: AdminAuditStatsProps) {
     {
       title: t('statTotalEvents'),
       value: stats.totalEvents,
-      description: 'Trong 30 ngày gần nhất',
+      description: t('statTotalEventsDesc'),
       variant: 'blue' as const,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -34,9 +34,9 @@ export function AdminAuditStats({ stats }: AdminAuditStatsProps) {
       ),
     },
     {
-      title: 'Thao tac hop le',
+      title: t('statValidActions'),
       value: validActions,
-      description: 'Da ghi nhan day du',
+      description: t('statValidActionsDesc'),
       variant: 'green' as const,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -45,9 +45,9 @@ export function AdminAuditStats({ stats }: AdminAuditStatsProps) {
       ),
     },
     {
-      title: 'Can ra soat',
+      title: t('statNeedsReview'),
       value: stats.criticalCount,
-      description: 'Lien quan quyen truy cap',
+      description: t('statNeedsReviewDesc'),
       variant: 'orange' as const,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -57,9 +57,9 @@ export function AdminAuditStats({ stats }: AdminAuditStatsProps) {
       ),
     },
     {
-      title: 'Canh bao',
+      title: t('statWarnings'),
       value: warnings,
-      description: 'Bat thuong hoac bi tu choi',
+      description: t('statWarningsDesc'),
       variant: 'red' as const,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

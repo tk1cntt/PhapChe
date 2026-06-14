@@ -90,19 +90,27 @@ function slugify(text: string): string {
 }
 
 export function AdminVaultFilesTable({ classifications, loading }: AdminVaultFilesTableProps) {
+  const t = useTranslations('Vault');
+
+  const TABLE_HEADERS = [
+    t('fileName'),
+    t('folderColumn'),
+    t('tags'),
+    t('workspaceColumn'),
+    t('owner'),
+    t('security'),
+    t('actions'),
+  ];
+
   if (loading) {
     return (
       <div className="vault-table-card">
         <div className="vault-table-head">
-          <div className="vault-th">Tên tệp</div>
-          <div className="vault-th">Thư mục</div>
-          <div className="vault-th">Thẻ</div>
-          <div className="vault-th">Workspace</div>
-          <div className="vault-th">Chủ sở hữu</div>
-          <div className="vault-th">Bảo mật</div>
-          <div className="vault-th">Thao tác</div>
+          {TABLE_HEADERS.map((header, i) => (
+            <div key={i} className="vault-th">{header}</div>
+          ))}
         </div>
-        <div className="vault-loading">Đang tải...</div>
+        <div className="vault-loading">{t('loading')}</div>
       </div>
     );
   }
@@ -111,18 +119,14 @@ export function AdminVaultFilesTable({ classifications, loading }: AdminVaultFil
     <div className="vault-table-card">
       {/* Table Header */}
       <div className="vault-table-head">
-        <div className="vault-th">Tên tệp</div>
-        <div className="vault-th">Thư mục</div>
-        <div className="vault-th">Thẻ</div>
-        <div className="vault-th">Workspace</div>
-        <div className="vault-th">Chủ sở hữu</div>
-        <div className="vault-th">Bảo mật</div>
-        <div className="vault-th">Thao tác</div>
+        {TABLE_HEADERS.map((header, i) => (
+          <div key={i} className="vault-th">{header}</div>
+        ))}
       </div>
 
       {/* Table Rows */}
       {classifications.length === 0 ? (
-        <div className="vault-empty">Chưa có tệp nào.</div>
+        <div className="vault-empty">{t('noFiles')}</div>
       ) : (
         classifications.map((record) => {
           const ext = getFileExt(record.vaultFile.filename);
@@ -150,8 +154,8 @@ export function AdminVaultFilesTable({ classifications, loading }: AdminVaultFil
                     {ext}
                   </div>
                   <div className="vault-file-info">
-                    <strong>{record.vaultFile.filename ?? '(không tên)'}</strong>
-                    <span>{sizeStr}{sizeStr && ' · '}cập nhật {dateStr}</span>
+                    <strong>{record.vaultFile.filename ?? t('untitled')}</strong>
+                    <span>{sizeStr}{sizeStr && ' · '}{t('updated')} {dateStr}</span>
                   </div>
                 </div>
               </div>
@@ -161,7 +165,7 @@ export function AdminVaultFilesTable({ classifications, loading }: AdminVaultFil
                 {folderName ? (
                   <div className="vault-stack">
                     <strong>{folderName}</strong>
-                    <span>folder/{folderSlug}</span>
+                    <span>{t('folderPath')}/{folderSlug}</span>
                   </div>
                 ) : (
                   <span className="vault-empty-cell">—</span>
@@ -219,7 +223,7 @@ export function AdminVaultFilesTable({ classifications, loading }: AdminVaultFil
               <div className="vault-td">
                 <span className="vault-badge vault-badge-green">
                   <span className="vault-badge-dot" />
-                  Đã mã hóa
+                  {t('encrypted')}
                 </span>
               </div>
 
@@ -229,7 +233,7 @@ export function AdminVaultFilesTable({ classifications, loading }: AdminVaultFil
                   href={`/api/vault/${record.vaultFile.id}/download`}
                   className="vault-action-link"
                 >
-                  Mở tệp →
+                  {t('openFile')} →
                 </a>
               </div>
             </div>

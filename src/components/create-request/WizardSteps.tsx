@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Check } from 'lucide-react';
 
 interface WizardStepsProps {
@@ -8,15 +9,17 @@ interface WizardStepsProps {
   locale?: string;
 }
 
-const translations = {
-  vi: ['Dịch vụ', 'Câu hỏi', 'Tài liệu', 'Kiểm tra'],
-  en: ['Service', 'Questions', 'Documents', 'Review'],
-  zh: ['服务', '问题', '文件', '审核'],
-  ja: ['サービス', '質問', '書類', '確認'],
-};
-
 export default function WizardSteps({ currentStep, steps, locale = 'vi' }: WizardStepsProps) {
-  const stepLabels = steps || translations[locale as keyof typeof translations] || translations.vi;
+  const t = useTranslations('Intake');
+
+  const defaultSteps = [
+    t('stepService'),
+    t('stepQuestions'),
+    t('stepDocuments'),
+    t('stepReview'),
+  ];
+
+  const stepLabels = steps || defaultSteps;
 
   return (
     <div className="steps">

@@ -168,19 +168,25 @@ function parseMetadata(metadata: string | null): { title: string; details?: stri
 export function AdminAuditTable({ events, loading }: AdminAuditTableProps) {
   const t = useTranslations('AuditEvents');
 
+  const TABLE_HEADERS = [
+    t('timeColumn'),
+    t('actorColumn'),
+    t('workspaceColumn'),
+    t('actionColumn'),
+    t('targetColumn'),
+    t('correlationColumn'),
+    t('metadataColumn'),
+  ];
+
   if (loading) {
     return (
       <div className="audit-table-card">
         <div className="audit-table-head">
-          <div className="audit-th">Thời gian</div>
-          <div className="audit-th">Actor</div>
-          <div className="audit-th">Workspace</div>
-          <div className="audit-th">Hành động</div>
-          <div className="audit-th">Đối tượng</div>
-          <div className="audit-th">Mã tương quan</div>
-          <div className="audit-th">Tóm tắt metadata</div>
+          {TABLE_HEADERS.map((header, i) => (
+            <div key={i} className="audit-th">{header}</div>
+          ))}
         </div>
-        <div className="audit-loading">Đang tải...</div>
+        <div className="audit-loading">{t('loading')}</div>
       </div>
     );
   }
@@ -189,15 +195,11 @@ export function AdminAuditTable({ events, loading }: AdminAuditTableProps) {
     return (
       <div className="audit-table-card">
         <div className="audit-table-head">
-          <div className="audit-th">Thời gian</div>
-          <div className="audit-th">Actor</div>
-          <div className="audit-th">Workspace</div>
-          <div className="audit-th">Hành động</div>
-          <div className="audit-th">Đối tượng</div>
-          <div className="audit-th">Mã tương quan</div>
-          <div className="audit-th">Tóm tắt metadata</div>
+          {TABLE_HEADERS.map((header, i) => (
+            <div key={i} className="audit-th">{header}</div>
+          ))}
         </div>
-        <div className="audit-empty">{t('noData') || 'Không có dữ liệu'}</div>
+        <div className="audit-empty">{t('noData')}</div>
       </div>
     );
   }
@@ -205,13 +207,9 @@ export function AdminAuditTable({ events, loading }: AdminAuditTableProps) {
   return (
     <div className="audit-table-card">
       <div className="audit-table-head">
-        <div className="audit-th">Thời gian</div>
-        <div className="audit-th">Actor</div>
-        <div className="audit-th">Workspace</div>
-        <div className="audit-th">Hành động</div>
-        <div className="audit-th">Đối tượng</div>
-        <div className="audit-th">Mã tương quan</div>
-        <div className="audit-th">Tóm tắt metadata</div>
+        {TABLE_HEADERS.map((header, i) => (
+          <div key={i} className="audit-th">{header}</div>
+        ))}
       </div>
 
       {events.map((event) => {
@@ -244,7 +242,7 @@ export function AdminAuditTable({ events, loading }: AdminAuditTableProps) {
                 <div className="mini-avatar">{initials}</div>
                 <div>
                   <strong>{actorName}</strong>
-                  <span>{isSystem ? 'system' : 'user'}</span>
+                  <span>{isSystem ? t('system') : t('user')}</span>
                 </div>
               </div>
             </div>

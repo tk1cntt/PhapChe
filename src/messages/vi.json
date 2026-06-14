@@ -1,4 +1,15 @@
 {
+  "Auth": {
+    "appName": "GitNexus Legal",
+    "signIn": "Đăng nhập",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "emailRequired": "Email là bắt buộc",
+    "emailInvalid": "Email không hợp lệ",
+    "passwordRequired": "Mật khẩu là bắt buộc",
+    "invalidCredentials": "Email hoặc mật khẩu không đúng",
+    "genericError": "Có lỗi xảy ra, vui lòng thử lại"
+  },
   "Nav": {
     "dashboard": "Dashboard",
     "requests": "Hồ sơ yêu cầu",
@@ -76,10 +87,15 @@
   },
   "Intake": {
     "serviceSelection": "Chọn dịch vụ",
+    "serviceSelectionDesc": "Chọn loại dịch vụ pháp lý bạn cần hỗ trợ",
     "questions": "Câu hỏi",
     "upload": "Tải lên tài liệu",
     "review": "Kiểm tra trước khi gửi",
-    "success": "Yêu cầu đã được gửi thành công!"
+    "success": "Yêu cầu đã được gửi thành công!",
+    "stepService": "Dịch vụ",
+    "stepQuestions": "Câu hỏi",
+    "stepDocuments": "Tài liệu",
+    "stepReview": "Kiểm tra"
   },
   "Common": {
     "noItems": "Chưa có dữ liệu.",
@@ -106,7 +122,14 @@
     "workspace": "Workspace",
     "audit": "Audit",
     "export": "Xuất",
-    "offline": "Offline"
+    "offline": "Offline",
+    "errorTitle": "Đã xảy ra lỗi",
+    "errorMessage": "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.",
+    "retry": "Thử lại",
+    "goHome": "Về trang chủ",
+    "totalItems": "{count} mục",
+    "previousPage": "Trang trước",
+    "nextPage": "Trang sau"
   },
   "Language": {
     "switch": "Đổi ngôn ngữ",
@@ -293,7 +316,24 @@
     "metadataSummary": "Tóm tắt metadata",
     "noData": "Chưa có sự kiện kiểm toan nào.",
     "loading": "Đang tải...",
+    "noEvents": "Chưa có sự kiện nào.",
+    "system": "system",
+    "user": "user",
     "statTotalEvents": "Tổng số sự kiện",
+    "statTotalEventsDesc": "Trong 30 ngày gần nhất",
+    "statValidActions": "Thao tác hợp lệ",
+    "statValidActionsDesc": "Đã ghi nhận đầy đủ",
+    "statNeedsReview": "Cần rà soát",
+    "statNeedsReviewDesc": "Liên quan quyền truy cập",
+    "statWarnings": "Cảnh báo",
+    "statWarningsDesc": "Bất thường hoặc bị từ chối",
+    "timeColumn": "Thời gian",
+    "actorColumn": "Actor",
+    "workspaceColumn": "Workspace",
+    "actionColumn": "Hành động",
+    "targetColumn": "Đối tượng",
+    "correlationColumn": "Mã tương quan",
+    "metadataColumn": "Tóm tắt metadata",
     "statCriticalTitle": "Nghiêm trọng",
     "statCritical": "Sự kiện nghiêm trọng",
     "statUserActionsTitle": "Thao tác người dùng",
@@ -374,7 +414,20 @@
     "folderDropdown": "Thư mục",
     "tagDropdown": "Thẻ",
     "columnsBtn": "Cột hiển thị",
-    "retry": "Thử lại"
+    "retry": "Thử lại",
+    "statTotalFolders": "Tổng thư mục",
+    "statTotalFoldersDesc": "Theo workspace",
+    "statTotalFiles": "Tệp pháp lý",
+    "statTotalFilesDesc": "Đã phân loại",
+    "statTotalTags": "Thẻ phân loại",
+    "statTotalTagsDesc": "Contract, NDA, Compliance...",
+    "folderColumn": "Thư mục",
+    "folderPath": "folder",
+    "workspaceColumn": "Workspace",
+    "owner": "Chủ sở hữu",
+    "security": "Bảo mật",
+    "actions": "Thao tác",
+    "untitled": "(không tên)"
   },
   "AuditEvents": {
     "pageTitle": "Audit",
@@ -582,7 +635,8 @@
     "typeLegalAmendment": "Soạn phụ lục SLA",
     "typeNdaAdvisory": "Tư vấn NDA",
     "typeDocumentRequest": "Bổ sung giấy phép",
-    "typeIpFiling": "Đăng ký nhãn hiệu"
+    "typeIpFiling": "Đăng ký nhãn hiệu",
+    "export": "Xuất"
   },
   "UserMessages": {
     "pageTitle": "Tin nhắn",
@@ -625,7 +679,12 @@
     "threads": "Tin nhắn",
     "noThreads": "Chưa có cuộc hội thoại nào",
     "startConversation": "Bắt đầu cuộc trò chuyện với chuyên viên pháp lý",
-    "selectThread": "Chọn một cuộc hội thoại để xem tin nhắn"
+    "selectThread": "Chọn một cuộc hội thoại để xem tin nhắn",
+    "close": "Đóng",
+    "attachedDocuments": "Tài liệu đính kèm",
+    "requestType": "Loại yêu cầu",
+    "createdAt": "Ngày tạo",
+    "unknownSender": "Người gửi không xác định"
   },
   "UserWorkspace": {
     "pageTitle": "Workspace",
@@ -893,7 +952,13 @@
     "statRequests": "Yêu cầu",
     "statRequestsDesc": "Tổng số yêu cầu",
     "statSla": "SLA",
-    "statSlaDesc": "Đúng hạn"
+    "statSlaDesc": "Đúng hạn",
+    "bannerDescDefault": "Các thay đổi quyền, role và workspace đều được ghi nhận trong audit log.",
+    "noWorkloadData": "Chưa có dữ liệu workload",
+    "noAlerts": "Không có cảnh báo",
+    "noApprovals": "Không có yêu cầu chờ duyệt",
+    "noWorkspaces": "Chưa có workspace nào",
+    "noTimeline": "Không có hoạt động nào gần đây"
   },
   "AdminUserManagement": {
     "pageTitle": "Quản lý người dùng",
@@ -944,7 +1009,33 @@
     "filterStatus": "Trạng thái",
     "filterSla": "SLA",
     "clearFilters": "Xóa bộ lọc",
-    "title": "Tiêu đề"
+    "title": "Tiêu đề",
+    "statOpenFiles": "Hồ sơ đang mở",
+    "statOpenFilesDesc": "Đang trong quy trình xử lý",
+    "statNearSla": "Sắp quá SLA",
+    "statNearSlaDesc": "Cần xử lý trong 24h",
+    "statCompletedToday": "Hoàn tất hôm nay",
+    "statCompletedTodayDesc": "Workflow đã đóng",
+    "statAuditAlerts": "Cảnh báo audit",
+    "statAuditAlertsDesc": "Yêu cầu rà soát quyền",
+    "slaColumn": "SLA",
+    "priorityColumn": "Ưu tiên",
+    "priorityHigh": "Cao",
+    "priorityMedium": "Vừa",
+    "priorityLow": "Thấp",
+    "processNow": "Xử lý ngay",
+    "viewAudit": "Xem audit →",
+    "dispatch": "Điều phối →",
+    "noSla": "Chưa có SLA",
+    "noRequests": "Chưa có hồ sơ nào",
+    "noRequestsHint": "Hiện tại chưa có hồ sơ phù hợp với bộ lọc. Thử thay đổi điều kiện lọc hoặc tạo hồ sơ mới.",
+    "loading": "Đang tải...",
+    "justNow": "Vừa xong",
+    "minutesAgo": "{count} phút trước",
+    "hoursAgo": "{count} giờ trước",
+    "daysAgo": "{count} ngày trước",
+    "noTimelineEvents": "Chưa có sự kiện nào",
+    "statusChanged": "Hồ sơ chuyển sang \"{status}\""
   },
   "AdminAudit": {
     "pageTitle": "Nhật ký kiểm toán",

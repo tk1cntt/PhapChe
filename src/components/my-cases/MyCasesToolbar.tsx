@@ -137,7 +137,7 @@ export function MyCasesToolbar({
 
         <div className="toolbar-right">
           <button className="tool-btn">
-            Export
+            {t('export')}
           </button>
           <button className="tool-btn">
             {t('columns')}

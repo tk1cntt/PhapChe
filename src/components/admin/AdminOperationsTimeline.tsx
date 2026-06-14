@@ -1,56 +1,45 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { OpsTimelineItemDto } from '@/lib/ops/ops-service';
 
 interface AdminOperationsTimelineProps {
   timeline: OpsTimelineItemDto[];
 }
 
-function formatRelativeTime(date: Date): string {
+function formatRelativeTime(date: Date, t: ReturnType<typeof useTranslations>): string {
   const now = new Date();
   const diffMs = now.getTime() - new Date(date).getTime();
   const diffMinutes = Math.floor(diffMs / 60_000);
   const diffHours = Math.floor(diffMinutes / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffMinutes < 1) return 'Vừa xong';
-  if (diffMinutes < 60) return `${diffMinutes} phút trước`;
-  if (diffHours < 24) return `${diffHours} giờ trước`;
-  return `${diffDays} ngày trước`;
+  if (diffMinutes < 1) return t('justNow');
+  if (diffMinutes < 60) return t('minutesAgo', { count: diffMinutes });
+  if (diffHours < 24) return t('hoursAgo', { count: diffHours });
+  return t('daysAgo', { count: diffDays });
 }
 
-function getTimelineTitle(item: OpsTimelineItemDto): string {
+function getTimelineTitle(item: OpsTimelineItemDto, t: ReturnType<typeof useTranslations>): string {
   if (item.kind === 'workflow' && item.toStatus) {
-    const statusLabels: Record<string, string> = {
-      draft_intake: 'Nháp',
-      intake_submitted: 'Yêu cầu mới',
-      triage: 'Đang xem xét',
-      assigned: 'Đã phân công',
-      in_progress: 'Đang xử lý',
-      pending_review: 'Chờ review',
-      revision_required: 'Cần chỉnh sửa',
-      approved: 'Đã duyệt',
-      delivered: 'Đã giao',
-      closed: 'Đã đóng',
-      cancelled: 'Đã hủy',
-    };
-    return `Hồ sơ chuyển sang "${statusLabels[item.toStatus] ?? item.toStatus}"`;
+    return t('statusChanged', { status: item.toStatus });
   }
   return item.action;
 }
 
 export function AdminOperationsTimeline({ timeline }: AdminOperationsTimelineProps) {
+  const t = useTranslations('AdminOps');
+
   return (
     <div style={{ position: 'relative', maxHeight: 420, overflowY: 'auto' }}>
       {timeline.length === 0 ? (
         <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
-          Chưa có sự kiện nào
+          {t('noTimelineEvents')}
         </div>
       ) : (
         <div style={{ display: 'grid', gap: 18 }}>
           {timeline.map((item) => (
             <div key={item.id} style={{ position: 'relative', paddingLeft: 38 }}>
-              {/* Vertical line */}
               <div
                 style={{
                   position: 'absolute',
@@ -61,8 +50,6 @@ export function AdminOperationsTimeline({ timeline }: AdminOperationsTimelinePro
                   background: '#e2e8f0',
                 }}
               />
-
-              {/* Dot */}
               <div
                 style={{
                   position: 'absolute',
@@ -76,11 +63,9 @@ export function AdminOperationsTimeline({ timeline }: AdminOperationsTimelinePro
                   zIndex: 2,
                 }}
               />
-
-              {/* Content */}
               <div>
                 <strong style={{ display: 'block', fontSize: 14, marginBottom: 5, color: '#0f172a' }}>
-                  {getTimelineTitle(item)}
+                  {getTimelineTitle(item, t)}
                 </strong>
                 {item.metadataSummary && (
                   <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, margin: '0 0 5px' }}>
@@ -93,7 +78,7 @@ export function AdminOperationsTimeline({ timeline }: AdminOperationsTimelinePro
                   </p>
                 )}
                 <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>
-                  {formatRelativeTime(item.at)}
+                  {formatRelativeTime(item.at, t)}
                 </div>
               </div>
             </div>

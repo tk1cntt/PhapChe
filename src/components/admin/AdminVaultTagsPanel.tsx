@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Tag as TagIcon, Search, Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export interface VaultTag {
   id: string;
@@ -35,6 +36,7 @@ function getTagChipStyle(keyOrColor?: string): { bg: string; color: string } {
 }
 
 export function AdminVaultTagsPanel({ tags }: AdminVaultTagsPanelProps) {
+  const t = useTranslations('Vault');
   const [search, setSearch] = useState('');
 
   const filteredTags = tags.filter((tg) => {
@@ -48,11 +50,11 @@ export function AdminVaultTagsPanel({ tags }: AdminVaultTagsPanelProps) {
       <div className="vault-panel-header">
         <div className="vault-panel-title-left">
           <TagIcon size={22} color="#087f78" />
-          <span>Thẻ phân loại</span>
+          <span>{t('tags')}</span>
         </div>
         <button className="vault-create-btn">
           <Plus size={14} />
-          Tạo thẻ
+          {t('createTag')}
         </button>
       </div>
 
@@ -61,13 +63,13 @@ export function AdminVaultTagsPanel({ tags }: AdminVaultTagsPanelProps) {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm thẻ..."
+          placeholder={t('searchPlaceholder')}
         />
       </div>
 
       <div className="vault-item-list">
         {filteredTags.length === 0 ? (
-          <p className="vault-empty-state">Chưa có thẻ nào.</p>
+          <p className="vault-empty-state">{t('noTags')}</p>
         ) : (
           filteredTags.map((tag) => {
             const chipStyle = getTagChipStyle(tag.color ?? tag.key);
@@ -87,7 +89,7 @@ export function AdminVaultTagsPanel({ tags }: AdminVaultTagsPanelProps) {
                     color: chipStyle.color,
                   }}
                 >
-                  {tag._count?.vaultFileTags ?? 0} tệp
+                  {tag._count?.vaultFileTags ?? 0} {t('files')}
                 </div>
               </div>
             );

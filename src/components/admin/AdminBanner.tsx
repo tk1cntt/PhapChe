@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface AdminBannerProps {
   title?: string;
   description?: string;
@@ -8,11 +10,13 @@ interface AdminBannerProps {
 }
 
 export default function AdminBanner({
-  title = 'Hệ thống đang hoạt động ổn định',
-  description = 'Các thay đổi quyền, role và workspace đều được ghi nhận trong audit log.',
+  title,
+  description,
   onViewAudit,
   onDispatchWorkload,
 }: AdminBannerProps) {
+  const t = useTranslations('AdminDashboard');
+
   return (
     <div
       className="border rounded-[15px] p-6 mb-6 flex items-center justify-between gap-6"
@@ -44,9 +48,9 @@ export default function AdminBanner({
         </div>
 
         <div>
-          <h2 className="text-[22px] mb-2 text-[#0f172a] font-bold">{title}</h2>
+          <h2 className="text-[22px] mb-2 text-[#0f172a] font-bold">{title || t('bannerTitle')}</h2>
           <p className="text-[14px] text-[#64748b] leading-relaxed font-medium m-0">
-            {description}
+            {description || t('bannerDescDefault')}
           </p>
         </div>
       </div>
@@ -57,7 +61,7 @@ export default function AdminBanner({
           className="h-[45px] px-4 border bg-white rounded-lg text-[#1e293b] font-extrabold cursor-pointer"
           style={{ borderColor: 'var(--border)' }}
         >
-          Xem audit
+          {t('viewAudit')}
         </button>
         <button
           onClick={onDispatchWorkload}
@@ -67,7 +71,7 @@ export default function AdminBanner({
             boxShadow: '0 8px 18px rgba(8, 127, 120, 0.25)',
           }}
         >
-          Điều phối workload
+          {t('dispatchWorkload')}
         </button>
       </div>
     </div>

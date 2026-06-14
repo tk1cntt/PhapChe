@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 export interface MessageData {
   id: string;
@@ -46,9 +47,10 @@ function getSenderColor(senderId: string): { bg: string; text: string; border: s
  * - .msg.in: background based on sender color, color based on sender color, align-self flex-start, with sender name
  */
 function MessageBubble({ message, currentUserId }: MessageBubbleProps): React.ReactElement {
+  const t = useTranslations('UserMessages');
   const isOutgoing = message.senderId === currentUserId;
   const senderColor = getSenderColor(message.senderId);
-  const displayName = message.senderName || 'Unknown';
+  const displayName = message.senderName || t('unknownSender');
 
   if (isOutgoing) {
     // Current user's message - gray, right side, no name, text left-aligned

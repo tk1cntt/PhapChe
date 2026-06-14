@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 export interface CaseInfo {
   caseCode?: string;
@@ -30,6 +31,8 @@ export interface InfoPanelProps {
  * - .sla: font-size 15px, font-weight 600, color #0f172a
  */
 function InfoPanel({ caseInfo, isOpen = true, onClose }: InfoPanelProps): React.ReactElement {
+  const t = useTranslations('UserMessages');
+
   if (!isOpen) return <></>;
 
   return (
@@ -37,7 +40,7 @@ function InfoPanel({ caseInfo, isOpen = true, onClose }: InfoPanelProps): React.
       <div className="info-header">
         <h3>{caseInfo.caseCode}</h3>
         {onClose && (
-          <button className="info-close" onClick={onClose} aria-label="Close">
+          <button className="info-close" onClick={onClose} aria-label={t('close')}>
             ×
           </button>
         )}
@@ -46,7 +49,7 @@ function InfoPanel({ caseInfo, isOpen = true, onClose }: InfoPanelProps): React.
       <div className="case-info">
         {/* SLA Status */}
         <div className="sla-section">
-          <p className="case-code">Thời hạn SLA</p>
+          <p className="case-code">{t('slaDeadline')}</p>
           <p className="sla">{caseInfo.slaRemaining}</p>
           <p className="sla-detail">{caseInfo.slaDetail}</p>
         </div>
@@ -54,7 +57,7 @@ function InfoPanel({ caseInfo, isOpen = true, onClose }: InfoPanelProps): React.
         {/* Participants */}
         {caseInfo.participants && (
           <div className="participants-section">
-            <p className="case-code">Người tham gia</p>
+            <p className="case-code">{t('participants')}</p>
             <div className="participant">
               <span className="participant-avatar">👤</span>
               <span>{caseInfo.participants}</span>
@@ -65,7 +68,7 @@ function InfoPanel({ caseInfo, isOpen = true, onClose }: InfoPanelProps): React.
         {/* Documents */}
         {caseInfo.documents && (
           <div className="documents-section">
-            <p className="case-code">Tài liệu đính kèm</p>
+            <p className="case-code">{t('attachedDocuments')}</p>
             <div className="documents-list">
               {caseInfo.documents.split(',').map((doc, idx) => (
                 <div key={idx} className="document-item">
@@ -79,14 +82,14 @@ function InfoPanel({ caseInfo, isOpen = true, onClose }: InfoPanelProps): React.
         {/* Additional Info */}
         {caseInfo.matterType && (
           <div className="matter-section">
-            <p className="case-code">Loại yêu cầu</p>
+            <p className="case-code">{t('requestType')}</p>
             <p className="matter-type">{caseInfo.matterType}</p>
           </div>
         )}
 
         {caseInfo.createdAt && (
           <div className="created-section">
-            <p className="case-code">Ngày tạo</p>
+            <p className="case-code">{t('createdAt')}</p>
             <p className="created-date">{caseInfo.createdAt}</p>
           </div>
         )}

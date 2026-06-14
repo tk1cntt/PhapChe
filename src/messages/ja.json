@@ -1,4 +1,15 @@
 {
+  "Auth": {
+    "appName": "GitNexus Legal",
+    "signIn": "サインイン",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "emailRequired": "メールアドレスは必須です",
+    "emailInvalid": "メールアドレスの形式が無効です",
+    "passwordRequired": "パスワードは必須です",
+    "invalidCredentials": "メールアドレスまたはパスワードが正しくありません",
+    "genericError": "エラーが発生しました。もう一度お試しください"
+  },
   "Nav": {
     "dashboard": "ダッシュボード",
     "requests": "リクエスト",
@@ -76,10 +87,15 @@
   },
   "Intake": {
     "serviceSelection": "サービス選択",
+    "serviceSelectionDesc": "サポートが必要な法務サービスの種類を選択してください",
     "questions": "質問",
     "upload": "ドキュメントアップロード",
     "review": "送信前確認",
-    "success": "リクエストが正常に送信されました！"
+    "success": "リクエストが正常に送信されました！",
+    "stepService": "サービス",
+    "stepQuestions": "質問",
+    "stepDocuments": "書類",
+    "stepReview": "確認"
   },
   "Common": {
     "noItems": "項目がありません。",
@@ -106,7 +122,14 @@
     "workspace": "ワークスペース",
     "audit": "監査",
     "export": "エクスポート",
-    "offline": "オフライン"
+    "offline": "オフライン",
+    "errorTitle": "エラーが発生しました",
+    "errorMessage": "予期しないエラーが発生しました。もう一度お試しください。",
+    "retry": "再試行",
+    "goHome": "ホームに戻る",
+    "totalItems": "{count} 件",
+    "previousPage": "前のページ",
+    "nextPage": "次のページ"
   },
   "Language": {
     "switch": "言語切替",
@@ -315,7 +338,24 @@
     "errorLoading": "サーバーからのデータの読み込みに失敗しました。再試行してください。",
     "retry": "再試行",
     "warnings": "アラート",
-    "totalEvents": "件のイベント"
+    "totalEvents": "件のイベント",
+    "noEvents": "イベントがまだありません。",
+    "system": "system",
+    "user": "user",
+    "statTotalEventsDesc": "過去30日間",
+    "statValidActions": "有効なアクション",
+    "statValidActionsDesc": "完全に記録済み",
+    "statNeedsReview": "確認が必要",
+    "statNeedsReviewDesc": "アクセス権限に関連",
+    "statWarnings": "アラート",
+    "statWarningsDesc": "異常または拒否",
+    "timeColumn": "日時",
+    "actorColumn": "実行者",
+    "workspaceColumn": "ワークスペース",
+    "actionColumn": "アクション",
+    "targetColumn": "対象",
+    "correlationColumn": "相関ID",
+    "metadataColumn": "メタデータ要約"
   },
   "Vault": {
     "pageTitle": "ボールト",
@@ -378,7 +418,20 @@
     "filterBtn": "フィルター",
     "folderDropdown": "フォルダ",
     "tagDropdown": "タグ",
-    "columnsBtn": "表示列"
+    "columnsBtn": "表示列",
+    "statTotalFolders": "フォルダ総数",
+    "statTotalFoldersDesc": "ワークスペース別",
+    "statTotalFiles": "法務ファイル",
+    "statTotalFilesDesc": "分類済み",
+    "statTotalTags": "タグ",
+    "statTotalTagsDesc": "契約、NDA、コンプライアンス...",
+    "folderColumn": "フォルダ",
+    "folderPath": "folder",
+    "workspaceColumn": "ワークスペース",
+    "owner": "所有者",
+    "security": "セキュリティ",
+    "actions": "アクション",
+    "untitled": "（無題）"
   },
   "AdminTemplates": {
     "pageTitle": "ドキュメントテンプレート管理",
@@ -547,7 +600,8 @@
     "typeLegalAmendment": "SLA 修正",
     "typeNdaAdvisory": "NDA 相談",
     "typeDocumentRequest": "ライセンス補充",
-    "typeIpFiling": "商標登録"
+    "typeIpFiling": "商标登録",
+    "export": "エクスポート"
   },
   "UserMessages": {
     "pageTitle": "メッセージ",
@@ -580,7 +634,22 @@
     "specialist": "専門家",
     "specialistInitials": "専門",
     "clickToViewMessages": "メッセージを表示",
-    "justNow": "たった今"
+    "justNow": "たった今",
+    "noSla": "SLA なし",
+    "noSlaSet": "SLA 未設定",
+    "noDocuments": "ドキュメントなし",
+    "notAssigned": "未割り当て",
+    "slaDeadline": "SLA 期限",
+    "searchPlaceholder": "会話を検索...",
+    "threads": "メッセージ",
+    "noThreads": "会話がまだありません",
+    "startConversation": "法務スペシャリストとの会話を開始",
+    "selectThread": "スレッドを選択してメッセージを表示",
+    "close": "閉じる",
+    "attachedDocuments": "添付ドキュメント",
+    "requestType": "リクエストタイプ",
+    "createdAt": "作成日",
+    "unknownSender": "不明な送信者"
   },
   "UserWorkspace": {
     "pageTitle": "ワークスペース",
@@ -729,6 +798,12 @@
     "statRequestsDesc": "総リクエスト数",
     "statSla": "SLA",
     "statSlaDesc": "期限内",
+    "bannerDescDefault": "すべての権限、ロール、ワークスペースの変更は監査ログに記録されます。",
+    "noWorkloadData": "ワークロードデータなし",
+    "noAlerts": "アラートなし",
+    "noApprovals": "承認待ちリクエストなし",
+    "noWorkspaces": "ワークスペースなし",
+    "noTimeline": "最近のアクティビティなし",
     "recentActivity": "最近のアクティビティ",
     "quickActions": "クイックアクション",
     "createWorkspace": "ワークスペース作成",
@@ -829,7 +904,33 @@
     "filterStatus": "ステータス",
     "filterSla": "SLA",
     "clearFilters": "フィルタークリア",
-    "title": "タイトル"
+    "title": "タイトル",
+    "statOpenFiles": "未処理ファイル",
+    "statOpenFilesDesc": "処理中",
+    "statNearSla": "SLA接近",
+    "statNearSlaDesc": "24時間以内に処理が必要",
+    "statCompletedToday": "本日完了",
+    "statCompletedTodayDesc": "クローズ済みワークフロー",
+    "statAuditAlerts": "監査アラート",
+    "statAuditAlertsDesc": "レビュー必要",
+    "slaColumn": "SLA",
+    "priorityColumn": "優先度",
+    "priorityHigh": "高",
+    "priorityMedium": "中",
+    "priorityLow": "低",
+    "processNow": "今すぐ処理",
+    "viewAudit": "監査を表示 →",
+    "dispatch": "Dispatch →",
+    "noSla": "SLAなし",
+    "noRequests": "リクエストなし",
+    "noRequestsHint": "現在のフィルターに一致するリクエストはありません。フィルターを調整するか、新しいリクエストを作成してください。",
+    "loading": "読み込み中...",
+    "justNow": "たった今",
+    "minutesAgo": "{count}分前",
+    "hoursAgo": "{count}時間前",
+    "daysAgo": "{count}日前",
+    "noTimelineEvents": "イベントなし",
+    "statusChanged": "リクエストが\"{status}\"に変更されました"
   },
   "AdminAudit": {
     "pageTitle": "監査ログ",

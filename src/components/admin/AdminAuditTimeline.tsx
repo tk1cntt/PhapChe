@@ -41,7 +41,7 @@ export function AdminAuditTimeline({ events }: AdminAuditTimelineProps) {
   if (displayEvents.length === 0) {
     return (
       <div style={{ color: '#64748b', fontSize: 14, textAlign: 'center', padding: '20px 0' }}>
-        Chua co su kien nao.
+        {t('noEvents')}
       </div>
     );
   }
@@ -53,7 +53,7 @@ export function AdminAuditTimeline({ events }: AdminAuditTimelineProps) {
           <div className="timeline-dot" />
           <div className="timeline-action">{event.action}</div>
           <div className="timeline-desc">
-            {event.actor?.email || 'system'} - {event.workspace.name}
+            {event.actor?.email || t('system')} - {event.workspace.name}
           </div>
           <div className="timeline-time">{formatRelativeTime(event.createdAt)}</div>
         </div>

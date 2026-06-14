@@ -1,4 +1,15 @@
 {
+  "Auth": {
+    "appName": "GitNexus Legal",
+    "signIn": "登录",
+    "email": "邮箱",
+    "password": "密码",
+    "emailRequired": "邮箱为必填项",
+    "emailInvalid": "邮箱格式无效",
+    "passwordRequired": "密码为必填项",
+    "invalidCredentials": "邮箱或密码错误",
+    "genericError": "发生错误，请重试"
+  },
   "Nav": {
     "dashboard": "仪表盘",
     "requests": "请求",
@@ -76,10 +87,15 @@
   },
   "Intake": {
     "serviceSelection": "服务选择",
+    "serviceSelectionDesc": "选择您需要支持的法律服务类型",
     "questions": "问题",
     "upload": "上传文档",
     "review": "提交前预览",
-    "success": "请求提交成功！"
+    "success": "请求提交成功！",
+    "stepService": "服务",
+    "stepQuestions": "问题",
+    "stepDocuments": "文档",
+    "stepReview": "审核"
   },
   "Common": {
     "noItems": "暂无数据。",
@@ -106,7 +122,14 @@
     "workspace": "工作区",
     "audit": "审计",
     "export": "导出",
-    "offline": "离线"
+    "offline": "离线",
+    "errorTitle": "发生错误",
+    "errorMessage": "发生了意外错误，请重试。",
+    "retry": "重试",
+    "goHome": "返回首页",
+    "totalItems": "{count} 项",
+    "previousPage": "上一页",
+    "nextPage": "下一页"
   },
   "Language": {
     "switch": "切换语言",
@@ -315,7 +338,24 @@
     "errorLoading": "从服务器加载数据失败。请重试。",
     "retry": "重试",
     "warnings": "警告",
-    "totalEvents": "个事件"
+    "totalEvents": "个事件",
+    "noEvents": "暂无事件。",
+    "system": "system",
+    "user": "user",
+    "statTotalEventsDesc": "最近30天",
+    "statValidActions": "有效操作",
+    "statValidActionsDesc": "已完整记录",
+    "statNeedsReview": "需审核",
+    "statNeedsReviewDesc": "涉及访问权限",
+    "statWarnings": "警告",
+    "statWarningsDesc": "异常或被拒绝",
+    "timeColumn": "时间",
+    "actorColumn": "操作者",
+    "workspaceColumn": "工作区",
+    "actionColumn": "操作",
+    "targetColumn": "目标",
+    "correlationColumn": "关联ID",
+    "metadataColumn": "元数据摘要"
   },
   "Vault": {
     "pageTitle": "保险库",
@@ -378,7 +418,20 @@
     "filterBtn": "筛选",
     "folderDropdown": "文件夹",
     "tagDropdown": "标签",
-    "columnsBtn": "显示列"
+    "columnsBtn": "显示列",
+    "statTotalFolders": "文件夹总数",
+    "statTotalFoldersDesc": "按工作区",
+    "statTotalFiles": "法律文件",
+    "statTotalFilesDesc": "已分类",
+    "statTotalTags": "标签",
+    "statTotalTagsDesc": "合同、NDA、合规...",
+    "folderColumn": "文件夹",
+    "folderPath": "folder",
+    "workspaceColumn": "工作区",
+    "owner": "所有者",
+    "security": "安全",
+    "actions": "操作",
+    "untitled": "（无标题）"
   },
   "AdminTemplates": {
     "pageTitle": "文档模板管理",
@@ -547,7 +600,8 @@
     "typeLegalAmendment": "SLA 补充协议",
     "typeNdaAdvisory": "NDA 咨询",
     "typeDocumentRequest": "许可证补充",
-    "typeIpFiling": "商标注册"
+    "typeIpFiling": "商标注册",
+    "export": "导出"
   },
   "UserMessages": {
     "pageTitle": "消息",
@@ -580,7 +634,22 @@
     "specialist": "专员",
     "specialistInitials": "专员",
     "clickToViewMessages": "点击查看消息",
-    "justNow": "刚刚"
+    "justNow": "刚刚",
+    "noSla": "无 SLA",
+    "noSlaSet": "未设置 SLA",
+    "noDocuments": "无文档",
+    "notAssigned": "未分配",
+    "slaDeadline": "SLA 截止日期",
+    "searchPlaceholder": "搜索对话...",
+    "threads": "消息",
+    "noThreads": "暂无对话",
+    "startConversation": "开始与法律专员对话",
+    "selectThread": "选择一个对话查看消息",
+    "close": "关闭",
+    "attachedDocuments": "附件文档",
+    "requestType": "请求类型",
+    "createdAt": "创建时间",
+    "unknownSender": "未知发送者"
   },
   "UserWorkspace": {
     "pageTitle": "工作区",
@@ -729,6 +798,12 @@
     "statRequestsDesc": "总请求数",
     "statSla": "SLA",
     "statSlaDesc": "按时",
+    "bannerDescDefault": "所有权限、角色和工作区变更均已记录在审计日志中。",
+    "noWorkloadData": "暂无工作负载数据",
+    "noAlerts": "暂无警报",
+    "noApprovals": "暂无待审批请求",
+    "noWorkspaces": "暂无工作区",
+    "noTimeline": "暂无最近活动",
     "recentActivity": "最近活动",
     "quickActions": "快捷操作",
     "createWorkspace": "创建工作区",
@@ -829,7 +904,33 @@
     "filterStatus": "状态",
     "filterSla": "SLA",
     "clearFilters": "清除筛选",
-    "title": "标题"
+    "title": "标题",
+    "statOpenFiles": "待处理文件",
+    "statOpenFilesDesc": "处理中",
+    "statNearSla": "接近 SLA",
+    "statNearSlaDesc": "24小时内需处理",
+    "statCompletedToday": "今日完成",
+    "statCompletedTodayDesc": "已关闭工作流",
+    "statAuditAlerts": "审计警报",
+    "statAuditAlertsDesc": "需要审查",
+    "slaColumn": "SLA",
+    "priorityColumn": "优先级",
+    "priorityHigh": "高",
+    "priorityMedium": "中",
+    "priorityLow": "低",
+    "processNow": "立即处理",
+    "viewAudit": "查看审计 →",
+    "dispatch": "调度 →",
+    "noSla": "无 SLA",
+    "noRequests": "暂无请求",
+    "noRequestsHint": "没有符合当前筛选条件的请求。尝试调整筛选条件或创建新请求。",
+    "loading": "加载中...",
+    "justNow": "刚刚",
+    "minutesAgo": "{count}分钟前",
+    "hoursAgo": "{count}小时前",
+    "daysAgo": "{count}天前",
+    "noTimelineEvents": "暂无事件",
+    "statusChanged": "请求已更改为\"{status}\""
   },
   "AdminAudit": {
     "pageTitle": "审计日志",

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { FolderOpen, Search, Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export interface VaultFolder {
   id: string;
@@ -18,6 +19,7 @@ interface AdminVaultFoldersPanelProps {
 }
 
 export function AdminVaultFoldersPanel({ folders }: AdminVaultFoldersPanelProps) {
+  const t = useTranslations('Vault');
   const [search, setSearch] = useState('');
 
   const filteredFolders = folders.filter((f) => {
@@ -30,11 +32,11 @@ export function AdminVaultFoldersPanel({ folders }: AdminVaultFoldersPanelProps)
       <div className="vault-panel-header">
         <div className="vault-panel-title-left">
           <FolderOpen size={22} color="#087f78" />
-          <span>Thư mục</span>
+          <span>{t('folders')}</span>
         </div>
         <button className="vault-create-btn">
           <Plus size={14} />
-          Tạo thư mục
+          {t('createFolder')}
         </button>
       </div>
 
@@ -43,13 +45,13 @@ export function AdminVaultFoldersPanel({ folders }: AdminVaultFoldersPanelProps)
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm thư mục..."
+          placeholder={t('searchPlaceholder')}
         />
       </div>
 
       <div className="vault-item-list">
         {filteredFolders.length === 0 ? (
-          <p className="vault-empty-state">Chưa có thư mục nào.</p>
+          <p className="vault-empty-state">{t('noFolders')}</p>
         ) : (
           filteredFolders.map((folder) => (
             <div key={folder.id} className="vault-item">
@@ -61,7 +63,7 @@ export function AdminVaultFoldersPanel({ folders }: AdminVaultFoldersPanelProps)
                 </div>
               </div>
               <div className="vault-item-badge">
-                {folder._count?.vaultFileFolders ?? 0} tệp
+                {folder._count?.vaultFileFolders ?? 0} {t('files')}
               </div>
             </div>
           ))

@@ -1,6 +1,7 @@
 'use client';
 
 import { Search, Filter, RefreshCw, Download, SlidersHorizontal } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface AdminVaultToolbarProps {
   search: string;
@@ -10,6 +11,8 @@ interface AdminVaultToolbarProps {
 }
 
 export function AdminVaultToolbar({ search, onSearchChange, onRefresh, loading }: AdminVaultToolbarProps) {
+  const t = useTranslations('Vault');
+
   return (
     <div className="vault-toolbar">
       <div className="vault-toolbar-content">
@@ -18,7 +21,7 @@ export function AdminVaultToolbar({ search, onSearchChange, onRefresh, loading }
             <Search size={19} color="#718096" />
             <input
               type="text"
-              placeholder="Tìm tệp, thư mục, thẻ, workspace..."
+              placeholder={t('searchPlaceholder')}
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
             />
@@ -26,18 +29,18 @@ export function AdminVaultToolbar({ search, onSearchChange, onRefresh, loading }
 
           <button className="vault-toolbar-btn">
             <Filter size={18} />
-            Bộ lọc
+            {t('filter')}
           </button>
 
           <button className="vault-toolbar-btn">
-            Thư mục
+            {t('folders')}
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
               <path d="m6 9 6 6 6-6" />
             </svg>
           </button>
 
           <button className="vault-toolbar-btn">
-            Thẻ
+            {t('tags')}
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
               <path d="m6 9 6 6 6-6" />
             </svg>
@@ -51,12 +54,12 @@ export function AdminVaultToolbar({ search, onSearchChange, onRefresh, loading }
 
           <button className="vault-toolbar-btn">
             <Download size={18} />
-            Export
+            {t('export')}
           </button>
 
           <button className="vault-toolbar-btn">
             <SlidersHorizontal size={18} />
-            Cột hiển thị
+            {t('columns')}
           </button>
         </div>
       </div>

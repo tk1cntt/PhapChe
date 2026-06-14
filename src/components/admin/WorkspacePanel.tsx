@@ -1,6 +1,7 @@
 "use client";
 
 import { Building } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface WorkspaceItemProps {
   initials: string;
@@ -43,6 +44,8 @@ function WorkspaceItem({ initials, iconColor, name, description, badge, badgeCol
 }
 
 export function WorkspacePanel({ workspaces = [] }: { workspaces?: WorkspaceItemProps[] }) {
+  const t = useTranslations('AdminDashboard');
+
   return (
     <div
       className="bg-white border border-gray-200 rounded-[15px] shadow-md p-6"
@@ -50,12 +53,12 @@ export function WorkspacePanel({ workspaces = [] }: { workspaces?: WorkspaceItem
     >
       <div className="flex items-center gap-3 text-lg font-bold text-[#0f172a] mb-4">
         <Building width={22} height={22} className="text-teal-600" />
-        <span>Workspace nổi bật</span>
+        <span>{t('workspacesPanel')}</span>
       </div>
       <div className="workspace-list">
         {workspaces.length === 0 ? (
           <div className="py-6 text-center text-[#94a3b8]">
-            Chưa có workspace nào
+            {t('noWorkspaces')}
           </div>
         ) : (
           workspaces.map((ws, index) => (

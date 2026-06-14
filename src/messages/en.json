@@ -1,4 +1,15 @@
 {
+  "Auth": {
+    "appName": "GitNexus Legal",
+    "signIn": "Sign In",
+    "email": "Email",
+    "password": "Password",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email format",
+    "passwordRequired": "Password is required",
+    "invalidCredentials": "Incorrect email or password",
+    "genericError": "An error occurred, please try again"
+  },
   "Nav": {
     "dashboard": "Dashboard",
     "requests": "Requests",
@@ -76,10 +87,15 @@
   },
   "Intake": {
     "serviceSelection": "Service Selection",
+    "serviceSelectionDesc": "Choose the type of legal service you need support with",
     "questions": "Questions",
     "upload": "Upload Documents",
     "review": "Review Before Submit",
-    "success": "Request submitted successfully!"
+    "success": "Request submitted successfully!",
+    "stepService": "Service",
+    "stepQuestions": "Questions",
+    "stepDocuments": "Documents",
+    "stepReview": "Review"
   },
   "Common": {
     "noItems": "No items.",
@@ -106,7 +122,14 @@
     "workspace": "Workspace",
     "audit": "Audit",
     "export": "Export",
-    "offline": "Offline"
+    "offline": "Offline",
+    "errorTitle": "Something went wrong",
+    "errorMessage": "An unexpected error occurred. Please try again.",
+    "retry": "Try Again",
+    "goHome": "Go to Home",
+    "totalItems": "{count} items",
+    "previousPage": "Previous page",
+    "nextPage": "Next page"
   },
   "Language": {
     "switch": "Switch Language",
@@ -316,7 +339,24 @@
     "errorLoading": "Failed to load data from server. Please try again.",
     "retry": "Retry",
     "warnings": "Warnings",
-    "totalEvents": "events"
+    "totalEvents": "events",
+    "noEvents": "No events yet.",
+    "system": "system",
+    "user": "user",
+    "statTotalEventsDesc": "In the last 30 days",
+    "statValidActions": "Valid Actions",
+    "statValidActionsDesc": "Fully recorded",
+    "statNeedsReview": "Needs Review",
+    "statNeedsReviewDesc": "Related to access permissions",
+    "statWarnings": "Warnings",
+    "statWarningsDesc": "Anomalies or denials",
+    "timeColumn": "Time",
+    "actorColumn": "Actor",
+    "workspaceColumn": "Workspace",
+    "actionColumn": "Action",
+    "targetColumn": "Target",
+    "correlationColumn": "Correlation ID",
+    "metadataColumn": "Metadata Summary"
   },
   "Vault": {
     "pageTitle": "Vault",
@@ -380,7 +420,20 @@
     "folderDropdown": "Folder",
     "tagDropdown": "Tag",
     "columnsBtn": "Display columns",
-    "retry": "Retry"
+    "retry": "Retry",
+    "statTotalFolders": "Total Folders",
+    "statTotalFoldersDesc": "By workspace",
+    "statTotalFiles": "Legal Files",
+    "statTotalFilesDesc": "Classified",
+    "statTotalTags": "Tags",
+    "statTotalTagsDesc": "Contract, NDA, Compliance...",
+    "folderColumn": "Folder",
+    "folderPath": "folder",
+    "workspaceColumn": "Workspace",
+    "owner": "Owner",
+    "security": "Security",
+    "actions": "Actions",
+    "untitled": "(untitled)"
   },
   "Vault": {
     "pageTitle": "Vault",
@@ -612,7 +665,8 @@
     "typeLegalAmendment": "SLA Amendment",
     "typeNdaAdvisory": "NDA Advisory",
     "typeDocumentRequest": "License Supplement",
-    "typeIpFiling": "Trademark Registration"
+    "typeIpFiling": "Trademark Registration",
+    "export": "Export"
   },
   "UserMessages": {
     "pageTitle": "Messages",
@@ -655,7 +709,12 @@
     "threads": "Messages",
     "noThreads": "No conversations yet",
     "startConversation": "Start a conversation with the legal specialist",
-    "selectThread": "Select a conversation to view messages"
+    "selectThread": "Select a conversation to view messages",
+    "close": "Close",
+    "attachedDocuments": "Attached Documents",
+    "requestType": "Request Type",
+    "createdAt": "Created At",
+    "unknownSender": "Unknown Sender"
   },
   "UserWorkspace": {
     "pageTitle": "Workspace",
@@ -924,7 +983,13 @@
     "statRequests": "Requests",
     "statRequestsDesc": "Total requests",
     "statSla": "SLA",
-    "statSlaDesc": "On time"
+    "statSlaDesc": "On time",
+    "bannerDescDefault": "Changes to permissions, roles and workspaces are recorded in the audit log.",
+    "noWorkloadData": "No workload data yet",
+    "noAlerts": "No alerts",
+    "noApprovals": "No pending approvals",
+    "noWorkspaces": "No workspaces yet",
+    "noTimeline": "No recent activity"
   },
   "AdminUserManagement": {
     "pageTitle": "User Management",
@@ -975,7 +1040,33 @@
     "filterStatus": "Status",
     "filterSla": "SLA",
     "clearFilters": "Clear Filters",
-    "title": "Title"
+    "title": "Title",
+    "statOpenFiles": "Open Files",
+    "statOpenFilesDesc": "In processing workflow",
+    "statNearSla": "Near SLA",
+    "statNearSlaDesc": "Need action in 24h",
+    "statCompletedToday": "Completed Today",
+    "statCompletedTodayDesc": "Closed workflows",
+    "statAuditAlerts": "Audit Alerts",
+    "statAuditAlertsDesc": "Needs review",
+    "slaColumn": "SLA",
+    "priorityColumn": "Priority",
+    "priorityHigh": "High",
+    "priorityMedium": "Medium",
+    "priorityLow": "Low",
+    "processNow": "Process Now",
+    "viewAudit": "View Audit →",
+    "dispatch": "Dispatch →",
+    "noSla": "No SLA",
+    "noRequests": "No requests yet",
+    "noRequestsHint": "No requests match the current filters. Try adjusting or create a new request.",
+    "loading": "Loading...",
+    "justNow": "Just now",
+    "minutesAgo": "{count} minutes ago",
+    "hoursAgo": "{count} hours ago",
+    "daysAgo": "{count} days ago",
+    "noTimelineEvents": "No events yet",
+    "statusChanged": "Request changed to \"{status}\""
   },
   "AdminAudit": {
     "pageTitle": "Audit Log",

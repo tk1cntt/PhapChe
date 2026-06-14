@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface AlertItemProps {
   icon: string;
@@ -45,6 +46,8 @@ function AlertItem({ icon, iconColor, title, description, badge, badgeColor }: A
 }
 
 export function AlertPanel({ alerts = [] }: { alerts?: AlertItemProps[] }) {
+  const t = useTranslations('AdminDashboard');
+
   return (
     <div
       className="bg-white border border-gray-200 rounded-[15px] shadow-md p-6"
@@ -52,12 +55,12 @@ export function AlertPanel({ alerts = [] }: { alerts?: AlertItemProps[] }) {
     >
       <div className="flex items-center gap-3 text-lg font-bold text-[#0f172a] mb-4">
         <AlertTriangle width={22} height={22} className="text-orange-500" />
-        <span>Cảnh báo cần xử lý</span>
+        <span>{t('alertsPanel')}</span>
       </div>
       <div className="alert-list">
         {alerts.length === 0 ? (
           <div className="py-6 text-center text-[#94a3b8]">
-            Không có cảnh báo
+            {t('noAlerts')}
           </div>
         ) : (
           alerts.map((alert, index) => (

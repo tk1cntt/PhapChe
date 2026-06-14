@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ApprovalItemProps {
   icon: string;
@@ -43,6 +44,8 @@ function ApprovalItem({ icon, iconColor, title, description, badge, badgeColor }
 }
 
 export function ApprovalPanel({ approvals = [] }: { approvals?: ApprovalItemProps[] }) {
+  const t = useTranslations('AdminDashboard');
+
   return (
     <div
       className="bg-white border border-gray-200 rounded-[15px] shadow-md p-6"
@@ -50,12 +53,12 @@ export function ApprovalPanel({ approvals = [] }: { approvals?: ApprovalItemProp
     >
       <div className="flex items-center gap-3 text-lg font-bold text-[#0f172a] mb-4">
         <CheckCircle width={22} height={22} className="text-teal-600" />
-        <span>Chờ phê duyệt</span>
+        <span>{t('approvalsPanel')}</span>
       </div>
       <div className="approval-list">
         {approvals.length === 0 ? (
           <div className="py-6 text-center text-[#94a3b8]">
-            Không có yêu cầu chờ duyệt
+            {t('noApprovals')}
           </div>
         ) : (
           approvals.map((item, index) => (

@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface PagingProps {
   current: number;
   pageSize: number;
@@ -24,6 +26,7 @@ export default function Paging({
   pageSizeOptions = [10, 25, 50],
   totalLabel,
 }: PagingProps) {
+  const t = useTranslations('Common');
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const isFirst = current <= 1;
   const isLast = current >= totalPages;
@@ -59,7 +62,7 @@ export default function Paging({
           ))}
         </select>
         <span style={{ fontSize: 13, color: '#64748b', display: 'flex', alignItems: 'center' }}>
-          {totalLabel ?? `${total} total`}
+          {totalLabel ?? t('totalItems', { count: total })}
         </span>
       </div>
 
@@ -80,7 +83,7 @@ export default function Paging({
             justifyContent: 'center',
             fontSize: 14,
           }}
-          aria-label="Previous page"
+          aria-label={t('previousPage')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="m15 18-6-6 6-6"/>
@@ -129,7 +132,7 @@ export default function Paging({
             justifyContent: 'center',
             fontSize: 14,
           }}
-          aria-label="Next page"
+          aria-label={t('nextPage')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="m9 18 6-6-6-6"/>

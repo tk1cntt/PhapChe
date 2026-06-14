@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { Button, Result } from 'antd';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 interface ErrorFallbackProps {
   error: Error & { digest?: string };
@@ -14,6 +15,7 @@ interface ErrorFallbackProps {
  * Displays error message, logs to console, and provides retry/go-home actions.
  */
 export function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
+  const t = useTranslations('Common');
   const router = useRouter();
 
   useEffect(() => {
@@ -38,14 +40,14 @@ export function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
   return (
     <Result
       status="error"
-      title="Something went wrong"
-      subTitle={error.message || 'An unexpected error occurred. Please try again.'}
+      title={t('errorTitle')}
+      subTitle={error.message || t('errorMessage')}
       extra={[
         <Button key="retry" type="primary" onClick={handleRetry}>
-          Try Again
+          {t('retry')}
         </Button>,
         <Button key="home" onClick={handleGoHome}>
-          Go to Home
+          {t('goHome')}
         </Button>,
       ]}
     />

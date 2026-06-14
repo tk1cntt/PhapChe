@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import ServiceCard, { ServiceOption } from './ServiceCard';
 import { SEED_MATTER_TYPES } from '@/lib/i18n/seed-multilingual';
 
@@ -40,6 +41,8 @@ function mapMatterTypeToServiceOption(key: string, matterType: typeof SEED_MATTE
 }
 
 export default function ServiceTypeSelector({ selectedId, onSelect, locale = 'vi' }: ServiceTypeSelectorProps) {
+  const t = useTranslations('Intake');
+
   // Build service options from SEED_MATTER_TYPES
   const SERVICE_OPTIONS: ServiceOption[] = Object.entries(SEED_MATTER_TYPES).map(([key, matterType]) =>
     mapMatterTypeToServiceOption(key, matterType, locale)
@@ -48,7 +51,7 @@ export default function ServiceTypeSelector({ selectedId, onSelect, locale = 'vi
   return (
     <div className="space-y-4">
       <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '18px' }}>
-        Chọn loại dịch vụ pháp lý bạn cần hỗ trợ
+        {t('serviceSelectionDesc')}
       </p>
       {SERVICE_OPTIONS.map((service) => (
         <ServiceCard

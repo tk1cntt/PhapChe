@@ -1,6 +1,7 @@
 'use client';
 
 import { FolderOpen, FileText, Tag as TagIcon, ShieldCheck } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export interface VaultStats {
   totalFolders: number;
@@ -14,6 +15,8 @@ interface AdminVaultStatsProps {
 }
 
 export function AdminVaultStats({ stats }: AdminVaultStatsProps) {
+  const t = useTranslations('Vault');
+
   return (
     <div className="vault-stats">
       <div className="vault-stat-card">
@@ -21,9 +24,9 @@ export function AdminVaultStats({ stats }: AdminVaultStatsProps) {
           <FolderOpen size={30} />
         </div>
         <div>
-          <div className="vault-stat-title">Tổng thư mục</div>
+          <div className="vault-stat-title">{t('statTotalFolders')}</div>
           <div className="vault-stat-value">{stats.totalFolders}</div>
-          <div className="vault-stat-desc">Theo workspace</div>
+          <div className="vault-stat-desc">{t('statTotalFoldersDesc')}</div>
         </div>
       </div>
 
@@ -32,9 +35,9 @@ export function AdminVaultStats({ stats }: AdminVaultStatsProps) {
           <FileText size={30} />
         </div>
         <div>
-          <div className="vault-stat-title">Tệp pháp lý</div>
+          <div className="vault-stat-title">{t('statTotalFiles')}</div>
           <div className="vault-stat-value">{stats.totalFiles}</div>
-          <div className="vault-stat-desc">Đã phân loại</div>
+          <div className="vault-stat-desc">{t('statTotalFilesDesc')}</div>
         </div>
       </div>
 
@@ -43,9 +46,9 @@ export function AdminVaultStats({ stats }: AdminVaultStatsProps) {
           <TagIcon size={30} />
         </div>
         <div>
-          <div className="vault-stat-title">Thẻ phân loại</div>
+          <div className="vault-stat-title">{t('statTotalTags')}</div>
           <div className="vault-stat-value">{stats.totalTags}</div>
-          <div className="vault-stat-desc">Contract, NDA, Compliance...</div>
+          <div className="vault-stat-desc">{t('statTotalTagsDesc')}</div>
         </div>
       </div>
 
@@ -54,9 +57,9 @@ export function AdminVaultStats({ stats }: AdminVaultStatsProps) {
           <ShieldCheck size={30} />
         </div>
         <div>
-          <div className="vault-stat-title">Bảo mật</div>
+          <div className="vault-stat-title">{t('statSecurity')}</div>
           <div className="vault-stat-value">{stats.securityPercent}%</div>
-          <div className="vault-stat-desc">Có workspace scope</div>
+          <div className="vault-stat-desc">{t('statSecurityDesc')}</div>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { BarChart2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface WorkloadItemProps {
   initials: string;
@@ -43,6 +44,8 @@ function WorkloadItem({ initials, name, role, progress, status, count }: Workloa
 }
 
 export function WorkloadPanel({ specialists = [] }: { specialists?: WorkloadItemProps[] }) {
+  const t = useTranslations('AdminDashboard');
+
   return (
     <div
       className="bg-white border border-gray-200 rounded-[15px] shadow-md p-6"
@@ -51,19 +54,19 @@ export function WorkloadPanel({ specialists = [] }: { specialists?: WorkloadItem
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-3 text-lg font-bold text-[#0f172a]">
           <BarChart2 width={22} height={22} className="text-teal-600" />
-          <span>Workload chuyên viên</span>
+          <span>{t('workloadPanel')}</span>
         </div>
         <button
           type="button"
           className="text-sm font-semibold text-teal-600 hover:text-teal-700 bg-transparent border-0 cursor-pointer"
         >
-          Xem chi tiết →
+          {t('viewDetail')} →
         </button>
       </div>
       <div className="workload-list">
         {specialists.length === 0 ? (
           <div className="py-6 text-center text-[#94a3b8]">
-            Chưa có dữ liệu workload
+            {t('noWorkloadData')}
           </div>
         ) : (
           specialists.map((spec, index) => (

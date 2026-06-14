@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { AdminStatGrid, StatCardProps } from '@/components/admin/AdminStatGrid';
 
 interface OpsStats {
@@ -13,33 +14,35 @@ interface AdminOperationsStatsProps {
   stats: OpsStats;
 }
 
-const statCards = (stats: OpsStats): StatCardProps[] => [
-  {
-    title: 'Hồ sơ đang mở',
-    value: stats.openRequests,
-    description: 'Đang trong quy trình xử lý',
-    variant: 'blue',
-  },
-  {
-    title: 'Sắp quá SLA',
-    value: stats.nearSla,
-    description: 'Cần xử lý trong 24h',
-    variant: 'orange',
-  },
-  {
-    title: 'Hoàn tất hôm nay',
-    value: stats.completedToday,
-    description: 'Workflow đã đóng',
-    variant: 'green',
-  },
-  {
-    title: 'Cảnh báo audit',
-    value: stats.auditWarnings,
-    description: 'Yêu cầu rà soát quyền',
-    variant: 'red',
-  },
-];
-
 export function AdminOperationsStats({ stats }: AdminOperationsStatsProps) {
-  return <AdminStatGrid cards={statCards(stats)} />;
+  const t = useTranslations('AdminOps');
+
+  const statCardsData: StatCardProps[] = [
+    {
+      title: t('statOpenFiles'),
+      value: stats.openRequests,
+      description: t('statOpenFilesDesc'),
+      variant: 'blue',
+    },
+    {
+      title: t('statNearSla'),
+      value: stats.nearSla,
+      description: t('statNearSlaDesc'),
+      variant: 'orange',
+    },
+    {
+      title: t('statCompletedToday'),
+      value: stats.completedToday,
+      description: t('statCompletedTodayDesc'),
+      variant: 'green',
+    },
+    {
+      title: t('statAuditAlerts'),
+      value: stats.auditWarnings,
+      description: t('statAuditAlertsDesc'),
+      variant: 'red',
+    },
+  ];
+
+  return <AdminStatGrid cards={statCardsData} />;
 }

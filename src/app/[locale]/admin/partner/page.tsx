@@ -44,7 +44,6 @@ export default function AdminPartnerPage() {
   const router = useRouter();
   const t = useTranslations('AdminPartner');
   const tCommon = useTranslations('Common');
-  const tStatus = useTranslations('RequestStatus');
 
   const [requests, setRequests] = useState<PartnerRequest[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, inProgress: 0, pendingReview: 0, completed: 0 });
@@ -122,35 +121,30 @@ export default function AdminPartnerPage() {
     return '-';
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-      case 'delivered':
-        return 'bg-green-100 text-green-800';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
-      case 'pending_review':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const getStatusColor = (status: string): string => {
+    const colors: Record<string, string> = {
+      completed: 'bg-green-100 text-green-800',
+      delivered: 'bg-green-100 text-green-800',
+      in_progress: 'bg-blue-100 text-blue-800',
+      pending_review: 'bg-yellow-100 text-yellow-800',
+      cancelled: 'bg-red-100 text-red-800',
+    };
+    return colors[status] ?? 'bg-gray-100 text-gray-800';
   };
 
   const statCards = [
-    { title: t('statTotal') || 'Total Requests', value: stats.total, description: t('statTotalDesc') || 'All partner requests', variant: 'blue' as const },
-    { title: t('statInProgress') || 'In Progress', value: stats.inProgress, description: t('statInProgressDesc') || 'Being processed', variant: 'orange' as const },
-    { title: t('statPendingReview') || 'Pending Review', value: stats.pendingReview, description: t('statPendingReviewDesc') || 'Awaiting review', variant: 'purple' as const },
-    { title: t('statCompleted') || 'Completed', value: stats.completed, description: t('statCompletedDesc') || 'Successfully delivered', variant: 'green' as const },
+    { title: t('statTotal'), value: stats.total, description: t('statTotalDesc'), variant: 'blue' as const },
+    { title: t('statInProgress'), value: stats.inProgress, description: t('statInProgressDesc'), variant: 'orange' as const },
+    { title: t('statPendingReview'), value: stats.pendingReview, description: t('statPendingReviewDesc'), variant: 'purple' as const },
+    { title: t('statCompleted'), value: stats.completed, description: t('statCompletedDesc'), variant: 'green' as const },
   ];
 
   const toolbarTranslations = {
-    searchPlaceholder: t('searchPlaceholder') || 'Search requests...',
-    filter: tCommon('filter') || 'Filter',
-    status: tCommon('status') || 'Status',
-    export: tCommon('export') || 'Export',
-    refresh: t('refresh') || 'Refresh',
+    searchPlaceholder: t('searchPlaceholder'),
+    filter: tCommon('filter'),
+    status: tCommon('status'),
+    export: tCommon('export'),
+    refresh: t('refresh'),
   };
 
   const totalPages = Math.ceil(total / pageSize);
@@ -161,10 +155,10 @@ export default function AdminPartnerPage() {
       <div className="mb-6 flex justify-between items-start">
         <div>
           <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: '#020617', marginBottom: 12 }}>
-            {t('pageTitle') || 'Partner Requests'}
+            {t('pageTitle')}
           </h1>
           <p style={{ fontSize: 15, fontWeight: 500, color: '#5f6e83', margin: 0 }}>
-            {t('pageDescription') || 'Manage partner requests and actions'}
+            {t('pageDescription')}
           </p>
         </div>
       </div>
@@ -197,7 +191,7 @@ export default function AdminPartnerPage() {
             onClick={() => fetchData()}
             className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
           >
-            {t('retry') || 'Thử lại'}
+            {t('retry')}
           </button>
         </div>
       )}
@@ -214,22 +208,22 @@ export default function AdminPartnerPage() {
               <thead className="bg-slate-50">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colId') || 'ID'}
+                    {t('colId')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colPartner') || 'Partner'}
+                    {t('colPartner')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colCustomer') || 'Customer'}
+                    {t('colCustomer')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colStatus') || 'Status'}
+                    {t('colStatus')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colUpdated') || 'Updated'}
+                    {t('colUpdated')}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colActions') || 'Actions'}
+                    {t('colActions')}
                   </th>
                 </tr>
               </thead>
@@ -237,7 +231,7 @@ export default function AdminPartnerPage() {
                 {requests.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                      {t('emptyTitle') || 'No partner requests found'}
+                      {t('emptyTitle')}
                     </td>
                   </tr>
                 ) : (
@@ -261,7 +255,7 @@ export default function AdminPartnerPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(req.updatedAt).toLocaleDateString('vi-VN')}
+                        {new Date(req.updatedAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <button
@@ -271,7 +265,7 @@ export default function AdminPartnerPage() {
                           }}
                           className="text-blue-600 hover:text-blue-800 font-medium"
                         >
-                          {t('view') || 'View'}
+                          {t('view')}
                         </button>
                       </td>
                     </tr>
@@ -285,7 +279,7 @@ export default function AdminPartnerPage() {
           {totalPages > 1 && (
             <div className="mt-6 flex items-center justify-between">
               <div className="text-sm text-gray-500">
-                {t('showing') || 'Showing'} {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, total)} {t('of') || 'of'} {total} {t('requests') || 'requests'}
+                {t('showing')} {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, total)} {t('of')} {total} {t('requests')}
               </div>
               <div className="flex gap-2">
                 <button
@@ -293,7 +287,7 @@ export default function AdminPartnerPage() {
                   disabled={page === 1}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {t('prev') || 'Previous'}
+                  {t('prev')}
                 </button>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -318,7 +312,7 @@ export default function AdminPartnerPage() {
                   disabled={page === totalPages}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {t('next') || 'Next'}
+                  {t('next')}
                 </button>
               </div>
             </div>

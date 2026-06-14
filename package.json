@@ -28,8 +28,10 @@
     "lucide-react": "latest",
     "next": "latest",
     "next-intl": "^4.13.0",
+    "next-swagger-doc": "^0.4.1",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "swagger-ui-react": "^5.32.6"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",

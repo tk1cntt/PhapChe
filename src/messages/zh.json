@@ -541,7 +541,10 @@
     "owner": "所有者",
     "security": "安全",
     "actions": "操作",
-    "untitled": "（无标题）"
+    "untitled": "（无标题）",
+    "filter": "筛选",
+    "columns": "列",
+    "loading": "加载中..."
   },
   "AdminTemplates": {
     "pageTitle": "文档模板管理",

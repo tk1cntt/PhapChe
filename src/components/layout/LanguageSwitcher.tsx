@@ -5,6 +5,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 
+const LOCALE_STORAGE_KEY = 'preferred-locale';
+
 const languages = [
   { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
   { code: 'en', label: 'English', flag: '🇺🇸' },
@@ -21,6 +23,9 @@ export default function LanguageSwitcher() {
   const currentLang = languages.find((l) => l.code === locale) || languages[0];
 
   const handleSwitch = ({ key }: { key: string }) => {
+    // Save new locale to localStorage for persistence
+    localStorage.setItem(LOCALE_STORAGE_KEY, key);
+
     // Replace current locale in pathname with new locale
     const segments = pathname.split('/').filter(Boolean);
     if (segments.length > 0 && languages.some((l) => l.code === segments[0])) {

@@ -606,7 +606,10 @@
     "filterBtn": "Filter",
     "folderDropdown": "Folder",
     "tagDropdown": "Tag",
-    "columnsBtn": "Display columns"
+    "columnsBtn": "Display columns",
+    "filter": "Filter",
+    "columns": "Columns",
+    "loading": "Loading..."
   },
   "AdminTemplates": {
     "pageTitle": "Document Template Management",

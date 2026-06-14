@@ -29,7 +29,7 @@
 /* Dashboard Grid (2 columns) */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-bottom: 24px;
 }

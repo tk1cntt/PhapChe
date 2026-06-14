@@ -41,6 +41,13 @@ const statusBadgeClass: Record<string, string> = {
   ENCRYPTED: 'badge green',
 };
 
+const statusText: Record<string, string> = {
+  ACTIVE: 'Đã mã hóa',
+  PENDING: 'Cần xem',
+  ARCHIVED: 'Đã lưu trữ',
+  ENCRYPTED: 'Đã mã hóa',
+};
+
 export default function RecentDocuments({ documents }: RecentDocumentsProps) {
   return (
     <div className="panel">
@@ -69,10 +76,7 @@ export default function RecentDocuments({ documents }: RecentDocumentsProps) {
                 </div>
               </div>
               <span className={statusBadgeClass[doc.status] || 'badge blue'}>
-                {doc.status === 'PENDING' && 'Cần xem'}
-                {doc.status === 'ACTIVE' && 'Đã mã hóa'}
-                {doc.status === 'ARCHIVED' && 'Đã lưu trữ'}
-                {doc.status === 'ENCRYPTED' && 'Đã mã hóa'}
+                {statusText[doc.status] || doc.status}
               </span>
             </div>
           ))

@@ -35,7 +35,7 @@ export default function ActivityTimeline({ activities }: ActivityTimelineProps) 
               <div className="timeline-dot" />
               <strong>{a.action}</strong>
               <p>{a.description}</p>
-              <div className="timeline-time">{a.relativeTime}</div>
+              <span className="timeline-time">{a.relativeTime}</span>
             </div>
           ))
         )}

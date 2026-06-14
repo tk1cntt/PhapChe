@@ -89,23 +89,107 @@ Sản phẩm không phải “AI lawyer” tự tư vấn luật thay con ngư�
 
 ---
 
-## Architecture Documentation (src/docs/)
+## Architecture Standards Summary
 
-Các file trong `src/docs/` giải quyết các vấn đề sau:
+**Comprehensive architecture foundation with 9 documentation files, 8 TypeScript type modules, Component Registry, Central API Client, Swagger, ESLint rules, and Storybook**
 
-| File | Vấn đề giải quyết |
-|------|-------------------|
-| **DOMAIN_STRUCTURE.md** | Tổ chức folder theo domain (requests, vault, messages, admin), phân chia components theo 4 levels (Atoms, Molecules, Organisms, Templates) |
-| **CODE_STANDARDS.md** | Naming conventions (PascalCase cho components, camelCase cho functions, UPPER_SNAKE_CASE cho constants), import order, file structure |
-| **API_STANDARDS.md** | Response envelope pattern `{ data, meta }` / `{ error }`, HTTP status codes, naming conventions cho endpoints |
-| **API_REGISTRY.md** | Central documentation của tất cả API endpoints — tránh duplicate API calls |
-| **SERVICE_LAYER.md** | Phân chia responsibility giữa API routes, services, components, TanStack Query |
-| **I18N_RULES.md** | Component-first i18n approach: `src/i18n/components/` (BASE) và `src/i18n/features/` (EXTEND) |
-| **FORM_DEFINITION.md** | Dynamic form schema từ database — FormDefinition interface với fields, validation, dependsOn |
-| **WORKFLOW_DEFINITION.md** | Workflow state machine với states, transitions, role-based access control |
-| **TEMPLATE_ENGINE.md** | Document template với `{{variable}}` syntax — engine merge data khi render |
+## Accomplishments
 
-**Pattern quan trọng:**
-- **StatCard**: 5 variants (blue, green, orange, purple, red), dùng thay vì tạo component mới
-- **Central API Client**: `src/lib/api/` — import từ đây thay vì viết fetch trực tiếp
-- **Type Unification**: `src/lib/types/` — dùng interfaces đã định nghĩa, tránh `as any`
+- Created comprehensive architecture documentation suite covering domain structure, form/workflow/template patterns, API standards, service layer, code standards, and i18n rules
+- Established TypeScript type unification with 8 type modules (user, workspace, request, audit, workflow, vault, review) with barrel exports
+- Built Component Registry documenting 30+ shared components across atoms, molecules, organisms, and templates
+- Implemented unified StatCard with 5 color variants (blue, green, orange, purple, red) and 10 icon types
+- Created Central API Client with modular exports for all domains (requests, users, workspaces, messages, vault, settings, admin, intake, workflows, templates)
+- Configured Swagger/OpenAPI documentation at /api/swagger
+- Added custom ESLint rule for component naming enforcement
+- Setup Storybook with component stories for visual documentation
+
+## Task Commits
+
+Each task was committed atomically:
+
+1. **Task 1: Architecture Documentation Suite** - `931de21` (docs)
+2. **Task 2: TypeScript Type Unification** - `13e21bc` (feat)
+3. **Task 3: Component Registry and Generator** - `0b5674a` (feat)
+4. **Task 4: StatCard and Central API Client** - `d15a42a` (feat)
+5. **Task 5: Swagger/OpenAPI Documentation** - `980d537` (feat)
+6. **Task 6: ESLint Component Naming Rule** - `9c96307` (feat)
+7. **Task 7: Storybook Setup** - `d183a33` (feat)
+
+## Files Created/Modified
+
+Phải đọc các tài liệu liên quan trước khi tạo mới.
+
+### Documentation (src/docs/)
+- `DOMAIN_STRUCTURE.md` - Folder organization and component granularity levels
+- `FORM_DEFINITION.md` - Dynamic form schema pattern with database storage
+- `WORKFLOW_DEFINITION.md` - Workflow state machine with role-based transitions
+- `TEMPLATE_ENGINE.md` - Template rendering with {{variable}} syntax
+- `API_STANDARDS.md` - API conventions and response envelope patterns
+- `API_REGISTRY.md` - Centralized API endpoint documentation
+- `SERVICE_LAYER.md` - Service layer boundaries and responsibilities
+- `CODE_STANDARDS.md` - Naming conventions and coding patterns
+- `I18N_RULES.md` - Internationalization patterns and decision matrix
+
+### TypeScript Types (src/lib/types/)
+- `index.ts` - Barrel export with constants re-export
+- `user.ts` - User, UserProfile, Session, NotificationSettings
+- `workspace.ts` - Workspace, Membership, WorkspaceSettings
+- `request.ts` - LegalRequest, IntakeSubmission, filters, stats
+- `audit.ts` - AuditLog, filters, summary, common actions
+- `workflow.ts` - WorkflowDefinition, states, transitions
+- `vault.ts` - VaultFile, VaultFolder, VaultTag, upload/download
+- `review.ts` - Review, ReviewComment, Document, DocumentVersion
+
+### Components
+- `src/components/COMPONENT_REGISTRY.md` - 30+ component catalog
+- `src/components/shared/ui/StatCard.tsx` - Unified metrics display
+
+### API Layer
+- `src/lib/api/index.ts` - Modular API exports
+- `src/lib/api/client.ts` - Central API client
+- `src/app/api/swagger/route.ts` - OpenAPI spec
+
+### Code Quality
+- `src/lib/rules/no-duplicate-component.js` - ESLint naming rule
+- `.eslintrc.js` - ESLint configuration
+
+### Scripts
+- `scripts/generate-component-registry.mjs` - Auto-generate registry
+
+### Storybook
+- `.storybook/main.ts` - Storybook configuration
+- `.storybook/preview.ts` - Preview configuration
+- `src/stories/Button.stories.tsx` - Button stories
+- `src/stories/Input.stories.tsx` - Input stories
+- `src/stories/StatCard.stories.tsx` - StatCard stories
+
+## Decisions Made
+
+1. **Component Granularity**: Established 4-level component hierarchy (Atoms, Molecules, Organisms, Templates) for maximum reusability
+2. **Type Unification**: Centralized type exports from src/lib/types/ with barrel index file
+3. **API Client Pattern**: Singleton ApiClient with domain-specific export modules
+4. **Documentation First**: Created comprehensive architecture docs before implementation
+5. **Storybook for Visual Docs**: Component stories provide live documentation and visual testing
+
+## Deviations from Plan
+
+**None - plan executed exactly as written.**
+
+All 7 tasks completed as specified:
+- 9 architecture docs created
+- 8 TypeScript type modules created
+- Component Registry with generator script created
+- StatCard with 5 variants implemented
+- Central API Client with modular exports created
+- Swagger/OpenAPI configured
+- ESLint naming rule created
+- Storybook with 3 component stories setup
+
+## User Setup Required
+
+**External services require manual configuration:**
+
+1. **Storybook Dependencies**: Run `npm install` after creating .storybook files (packages are already in package.json)
+2. **Verify Storybook**: Run `npm run storybook` to start Storybook at http://localhost:6006
+3. **ESLint Rule**: The `no-duplicate-component` rule requires ESLint to be configured in your IDE

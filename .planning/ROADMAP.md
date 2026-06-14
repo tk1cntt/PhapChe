@@ -5,7 +5,7 @@
 - ✅ **v1.0 MVP** — Phases 01-14 (shipped 2026-05-15)
 - ✅ **v1.1 Auth & i18n** — Phases 15-25 (shipped 2026-06-09)
 - ✅ **v2.0 Admin Portal + User Dashboard** — Phases 50-54 (shipped 2026-06-14)
-- 🚧 **v2.1 Feature Implementation** — Phases 55-68 (in progress)
+- 🚧 **v2.1 Shared Tenant Architecture** — Phases 55-84 (in progress)
 - 📋 **v2.2 AI Features** — Phases TBD
 
 ## v2.1 Vertical Slices (Feature Implementation)
@@ -109,30 +109,24 @@
 7. Audit logging for file operations
 8. Migration command ready for S3 transition
 
-### Phase 57: Shared Tenant Architecture
+### Legacy Phase Details (v2.0 Screens)
 
-**Goal**: Multi-tenant architecture with Organization data ownership, Partner access via Engagements, and Platform as orchestrator
-**Depends on**: Phase 55, Phase 56
-**Reference**: `docs/shared_customer_partner_collaboration.md`
-**Status**: Discussion in progress
+The following phases are superseded by the Shared Tenant Architecture. They will be re-implemented with organization/partner context in the new phase numbers (73-84).
 
-**Key Concepts:**
+- **Phase 73:** Settings (User) — [superseded by Shared Tenant]
+- **Phase 74:** User Management (Admin) — [superseded by Shared Tenant]
+- **Phase 75:** Create Request (User) — [superseded by Shared Tenant]
+- **Phase 76:** Workspace Management (Admin) — [superseded by Shared Tenant]
+- **Phase 77:** My Cases (User) — [superseded by Shared Tenant]
+- **Phase 78:** Dashboard (User) — [superseded by Shared Tenant]
+- **Phase 79:** Request Management (Admin) — [superseded by Shared Tenant]
+- **Phase 80:** Admin Dashboard — [superseded by Shared Tenant]
+- **Phase 81:** Operations (Admin) — [superseded by Shared Tenant]
+- **Phase 82:** Messages (User) — [superseded by Shared Tenant]
+- **Phase 83:** Audit (Admin) — [superseded by Shared Tenant]
+- **Phase 84:** Vault (Admin) — [superseded by Shared Tenant]
 
-1. **Organization owns all data** — requests, files, documents belong to organization
-2. **Partner access via engagement** — Partner sees data only via active engagement + service scope
-3. **Tenant-aware repositories** — All queries include tenant context
-4. **RequestContext** — Unified permission context for all API operations
-
-**Success Criteria:**
-
-1. Tenant/Partner/Engagement domain models defined
-2. Organization data ownership established
-3. Partner access via engagement + service scope implemented
-4. RequestContext pattern implemented
-5. Repository pattern with tenant awareness
-6. Permission rules defined (who can see what)
-
-### Phase 58: User Management (Admin)
+For original requirements, see `.planning/REQUIREMENTS.md`.
 
 **Goal**: Admin User Management with full CRUD, role assignment, search, filter, pagination
 **Depends on**: Phase 55, Phase 56
@@ -331,23 +325,51 @@
 
 ## Progress
 
-| Phase | Screen | Milestone | Status | Requirements |
-|-------|--------|-----------|--------|--------------|
-| 55 | Architecture & Standards | 1/1 | Complete    | 2026-06-14 |
-| 56 | Storage Infrastructure | 1/1 | Complete    | 2026-06-14 |
-| 57 | Settings (User) | v2.1 | Not started | 6 |
-| 58 | User Management (Admin) | v2.1 | Not started | 9 |
-| 59 | Create Request (User) | v2.1 | Not started | 10 |
-| 60 | Workspace (Admin) | v2.1 | Not started | 8 |
-| 61 | My Cases (User) | v2.1 | Not started | 9 |
-| 62 | Dashboard (User) | v2.1 | Not started | 8 |
-| 63 | Request Management (Admin) | v2.1 | Not started | 9 |
-| 64 | Admin Dashboard | v2.1 | Not started | 8 |
-| 65 | Operations (Admin) | v2.1 | Not started | 7 |
-| 66 | Messages (User) | v2.1 | Not started | 8 |
-| 67 | Audit (Admin) | v2.1 | Not started | 10 |
-| 68 | Vault (Admin) | v2.1 | Not started | 12 |
+### Foundation (Completed)
+
+| Phase | Name | Plans | Status | Date |
+|-------|------|-------|--------|------|
+| 55 | Architecture & Standards | 1/1 | ✅ Complete | 2026-06-14 |
+| 56 | Storage Infrastructure | 1/1 | ✅ Complete | 2026-06-14 |
+| 57 | Shared Tenant Architecture | 1/1 | ✅ Complete | 2026-06-14 |
+
+### Shared Tenant Implementation
+
+| Phase | Name | Requirements | Status |
+|-------|------|--------------|--------|
+| 58 | Core Tables | - | Pending |
+| 59 | Partner Model | - | Pending |
+| 60 | Engagement System | - | Pending |
+| 61 | Request Enhancement | - | Pending |
+| 62 | RequestContext & Middleware | - | Pending |
+| 63 | Permission Service | - | Pending |
+| 64 | Repository Pattern | - | Pending |
+| 65 | Data Migration | - | Pending |
+| 66 | Partner Auth | - | Pending |
+| 67 | Partner Requests | - | Pending |
+| 68 | Partner Actions | - | Pending |
+| 69 | Organization Management | - | Pending |
+| 70 | User Management v2 | - | Pending |
+| 71 | Create Request v2 | - | Pending |
+| 72 | My Cases v2 | - | Pending |
+
+### Legacy Phases (Superseded by Shared Tenant)
+
+| Phase | Name | Original Requirements | New Phase |
+|-------|------|---------------------|-----------|
+| 73 | Settings (User) | SET-01 to SET-06 | Pending |
+| 74 | User Management (Admin) | ADM-USER-01 to 09 | Pending |
+| 75 | Create Request (User) | CREQ-01 to 10 | Pending |
+| 76 | Workspace Management (Admin) | ADM-WS-01 to 08 | Pending |
+| 77 | My Cases (User) | MYCASE-01 to 09 | Pending |
+| 78 | Dashboard (User) | U-DASH-01 to 08 | Pending |
+| 79 | Request Management (Admin) | ADM-REQ-01 to 09 | Pending |
+| 80 | Admin Dashboard | ADM-DASH-01 to 08 | Pending |
+| 81 | Operations (Admin) | ADM-OPS-01 to 07 | Pending |
+| 82 | Messages (User) | MSG-01 to 08 | Pending |
+| 83 | Audit (Admin) | ADM-AUD-01 to 10 | Pending |
+| 84 | Vault (Admin) | VAULT-01 to 12 | Pending |
 
 ---
 
-_Last updated: 2026-06-14 during Phase 56 planning_
+_Last updated: 2026-06-14 during Phase 57 discussion_

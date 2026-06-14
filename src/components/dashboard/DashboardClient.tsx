@@ -127,7 +127,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function DashboardClient() {
-  const t = useTranslations('Dashboard');
+  const t = useTranslations('DashboardClient');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

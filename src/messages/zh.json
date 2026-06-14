@@ -98,7 +98,7 @@
     "stepDocuments": "文档",
     "stepReview": "审核"
   },
-  "Common": {
+  "DashboardClient": {
     "noItems": "暂无数据。",
     "loading": "加载中...",
     "error": "发生错误。",

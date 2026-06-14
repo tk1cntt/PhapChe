@@ -98,7 +98,7 @@
     "stepDocuments": "Tài liệu",
     "stepReview": "Kiểm tra"
   },
-  "Common": {
+  "DashboardClient": {
     "noItems": "Chưa có dữ liệu.",
     "loading": "Đang tải...",
     "error": "Đã xảy ra lỗi.",

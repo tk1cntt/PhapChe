@@ -98,7 +98,7 @@
     "stepDocuments": "Documents",
     "stepReview": "Review"
   },
-  "Common": {
+  "DashboardClient": {
     "noItems": "No items.",
     "loading": "Loading...",
     "error": "An error occurred.",

@@ -3,7 +3,7 @@
 **Created:** 2026-06-14
 **Updated:** 2026-06-14
 **Ambiguity score:** 0.06 (gate: ≤ 0.20)
-**Requirements:** 16 locked
+**Requirements:** 17 locked
 
 ## Goal
 

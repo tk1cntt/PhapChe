@@ -47,7 +47,7 @@ export default function WelcomeBanner({
       </div>
       <div className="quick-actions">
         <button className="ghost-btn">Xem tài liệu</button>
-        <button className="create-btn-small">Gửi phản hồi</button>
+        <button className="create-btn">Gửi phản hồi</button>
       </div>
     </div>
   );

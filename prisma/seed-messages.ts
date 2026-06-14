@@ -158,8 +158,8 @@ async function seedMessages() {
       const senderId = msg.from === 'specialist' ? specialistId : customerUser.id;
       const recipientId = msg.from === 'specialist' ? customerUser.id : specialistId;
 
-      // Calculate timestamp - more recent messages have smaller minutesAgo
-      const baseMinutes = (i * 30) + (j * 5);
+      // Calculate timestamp: j=0 is oldest (baseMinutes = max), j=n-1 is newest (baseMinutes = 0)
+      const baseMinutes = ((messages.length - 1 - j) * 5) + (i * 30);
       const createdAt = new Date(Date.now() - baseMinutes * 60 * 1000);
 
       await prisma.message.create({

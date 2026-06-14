@@ -24,6 +24,8 @@ export interface LegalRequest {
   deadline?: Date;
   slaDueAt?: Date;
   currentStateEnteredAt?: Date;
+  engagementId?: string;
+  assignedPartnerId?: string;
   createdAt: Date;
   updatedAt: Date;
 }

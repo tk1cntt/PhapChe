@@ -115,6 +115,8 @@ model Partner {
 
   members      PartnerMember[]
   engagements  Engagement[]
+  assignedRequests LegalRequest[] @relation("AssignedPartnerRelation")
+  requestAssignments RequestAssignment[] @relation("AssignmentPartnerRelation")
 
   @@map("partners")
 }
@@ -167,6 +169,8 @@ model Engagement {
   partner       Partner         @relation(fields: [partnerId], references: [id])
   organization  Organization    @relation(fields: [organizationId], references: [id])
   serviceScopes EngagementServiceScope[]
+  requests      LegalRequest[]
+  requestAssignments RequestAssignment[]
 
   @@unique([partnerId, organizationId])
   @@index([partnerId])
@@ -244,12 +248,16 @@ model LegalRequest {
   createdById          String
   assignedSpecialistId String?
   assignedReviewerId   String?
+  engagementId         String?              // FK to Engagement
+  assignedPartnerId    String?              // FK to Partner (direct assignment)
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   workspace            Workspace            @relation(fields: [workspaceId], references: [id])
   createdBy            User                 @relation("RequestCreator", fields: [createdById], references: [id])
   assignedSpecialist   User?                @relation("AssignedSpecialist", fields: [assignedSpecialistId], references: [id])
   assignedReviewer     User?                @relation("AssignedReviewer", fields: [assignedReviewerId], references: [id])
+  engagement           Engagement?          @relation(fields: [engagementId], references: [id])
+  assignedPartner      Partner?              @relation(fields: [assignedPartnerId], references: [id], name: "AssignedPartnerRelation")
   assignments          RequestAssignment[]
   documents            Document[]
   reviews              Review[]
@@ -265,6 +273,8 @@ model LegalRequest {
   @@index([assignedSpecialistId])
   @@index([assignedReviewerId])
   @@index([status])
+  @@index([engagementId])
+  @@index([assignedPartnerId])
 }
 
 model MatterType {
@@ -319,15 +329,21 @@ model RequestAssignment {
   userId      String
   kind        String       @default("specialist")
   reason      String?
+  partnerId   String?      // FK to Partner
+  engagementId String?     // FK to Engagement
   createdAt   DateTime     @default(now())
   createdById String
   request     LegalRequest @relation(fields: [requestId], references: [id])
   user        User         @relation("AssignmentUser", fields: [userId], references: [id])
   createdBy   User         @relation("AssignmentCreator", fields: [createdById], references: [id])
+  partner     Partner?      @relation(fields: [partnerId], references: [id], name: "AssignmentPartnerRelation")
+  engagement  Engagement?  @relation(fields: [engagementId], references: [id])
 
   @@index([requestId])
   @@index([userId])
   @@index([kind])
+  @@index([partnerId])
+  @@index([engagementId])
 }
 
 model RoutingCapability {

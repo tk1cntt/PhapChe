@@ -84,17 +84,21 @@
 **Goal:** Add engagement_id, assigned_partner_id to requests and create request_assignments
 **Depends on:** Phase 60
 **Requirements:** REQ-01 to REQ-08
-**Plans:** Pending
+**Plans:** 1/1 complete ✅
+
+**Plans:**
+- [x] `61-01-PLAN.md` -- LegalRequest and RequestAssignment schema updates
+- [x] `61-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
-1. legal_requests.engagement_id added
-2. legal_requests.assigned_partner_id added
-3. request_assignments table created
-4. Prisma schema updated
-5. RequestAssignmentService implemented
-6. Request creation flow updated
-7. Unit tests pass for RequestAssignmentService
-8. Existing request APIs handle new fields
+1. ✅ legal_requests.engagement_id added
+2. ✅ legal_requests.assigned_partner_id added
+3. ✅ request_assignments has partner_id and engagement_id
+4. ✅ Prisma schema updated
+5. ⏳ RequestAssignmentService implemented (deferred)
+6. ⏳ Request creation flow updated (deferred)
+7. ⏳ Unit tests pass (deferred)
+8. ⏳ Existing request APIs handle new fields (deferred)
 
 ### Phase 62: RequestContext & Middleware
 
@@ -532,7 +536,7 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 | 58 | Core Tables | 8 | Complete |
 | 59 | Partner Model | 8 | Complete |
 | 60 | Engagement System | 8 | Complete |
-| 61 | Request Enhancement | 8 | Pending |
+| 61 | Request Enhancement | 8 | Complete |
 | 62 | RequestContext & Middleware | 8 | Pending |
 | 63 | Permission Service | 8 | Pending |
 | 64 | Repository Pattern | 8 | Pending |

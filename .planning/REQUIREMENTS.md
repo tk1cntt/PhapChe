@@ -31,7 +31,17 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 
 ## v2.1 Requirements
 
-### Phase 55: Settings (User)
+### Phase 55: Architecture & Standards
+
+- [ ] **ARCH-01**: Component audit complete — all components documented with purpose, props, usage
+- [ ] **ARCH-02**: API patterns standardized — consistent request/response format, error handling
+- [ ] **ARCH-03**: Shared components registry — StatCard, Badge, Button, Input, Select, Modal, etc.
+- [ ] **ARCH-04**: Service layer established — business logic separated from UI components
+- [ ] **ARCH-05**: Type definitions unified — TypeScript interfaces for all entities, no `as any`
+- [ ] **ARCH-06**: Code standards documented — naming conventions, file structure, import order
+- [ ] **ARCH-07**: i18n rules established — when to use translations vs hardcoded strings
+
+### Phase 56: Settings (User)
 
 - [ ] **SET-01**: User can view and edit profile (name, email, phone, title)
 - [ ] **SET-02**: User can change password with current password verification
@@ -40,7 +50,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - [ ] **SET-05**: User can view own audit log entries
 - [ ] **SET-06**: Settings form validates input and shows errors inline
 
-### Phase 56: User Management (Admin)
+### Phase 57: User Management (Admin)
 
 - [ ] **ADM-USER-01**: Admin can view list of all users with pagination
 - [ ] **ADM-USER-02**: Admin can search users by name/email
@@ -52,7 +62,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - [ ] **ADM-USER-08**: Admin can deactivate/reactivate user account
 - [ ] **ADM-USER-09**: User table shows correct stat counts
 
-### Phase 57: Create Request (User)
+### Phase 58: Create Request (User)
 
 - [ ] **CREQ-01**: User can select service type (5 types: Khuyen nghi, Nhanh, So huu tri tue, Tu van phap luat, Dangkynhanh)
 - [ ] **CREQ-02**: User sees service cards with descriptions and tags
@@ -65,7 +75,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - [ ] **CREQ-09**: Priority selection works (thap, trung binh, cao)
 - [ ] **CREQ-10**: Contact info pre-filled from user profile
 
-### Phase 58: Workspace Management (Admin)
+### Phase 59: Workspace Management (Admin)
 
 - [ ] **ADM-WS-01**: Admin can view all workspaces with member counts
 - [ ] **ADM-WS-02**: Admin can search workspaces by name
@@ -76,7 +86,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - [ ] **ADM-WS-07**: Admin can remove member from workspace
 - [ ] **ADM-WS-08**: Admin can deactivate workspace
 
-### Phase 59: My Cases (User)
+### Phase 60: My Cases (User)
 
 - [ ] **MYCASE-01**: User sees summary banner with total cases count
 - [ ] **MYCASE-02**: User sees stat cards (Tong, Dang xu ly, Hoan tat, Qua han)
@@ -88,7 +98,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - [ ] **MYCASE-08**: Pagination works with page size of 10
 - [ ] **MYCASE-09**: Empty state shows when no cases match filter
 
-### Phase 60: Dashboard (User)
+### Phase 61: Dashboard (User)
 
 - [ ] **U-DASH-01**: Dashboard shows 4 stat cards with real counts
 - [ ] **U-DASH-02**: Welcome banner shows workspace name and stats
@@ -99,7 +109,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - [ ] **U-DASH-07**: Floating chat button shows unread message count
 - [ ] **U-DASH-08**: Clicking stat cards navigates to relevant page
 
-### Phase 61: Request Management (Admin)
+### Phase 62: Request Management (Admin)
 
 - [ ] **ADM-REQ-01**: Admin sees all requests with workspace filtering
 - [ ] **ADM-REQ-02**: Admin can search requests by code
@@ -111,7 +121,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - [ ] **ADM-REQ-08**: Request table shows priority badges (Cao, Trung binh, Thap)
 - [ ] **ADM-REQ-09**: Pagination works with page size of 20
 
-### Phase 62: Admin Dashboard
+### Phase 63: Admin Dashboard
 
 - [ ] **ADM-DASH-01**: Admin sees 4 stat cards (Tong users, Tong workspaces, Canh bao SLA, Alert)
 - [ ] **ADM-DASH-02**: Workload panel shows specialist workloads with progress bars
@@ -122,7 +132,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - [ ] **ADM-DASH-07**: Clicking stat cards navigates to relevant admin pages
 - [ ] **ADM-DASH-08**: Floating chat shows alert count
 
-### Phase 63: Operations (Admin)
+### Phase 64: Operations (Admin)
 
 - [ ] **ADM-OPS-01**: Operations page shows stat cards (Ho so dang mo, Sap qua SLA, Hoan tat hom nay, Canh bao)
 - [ ] **ADM-OPS-02**: Workload panel shows specialist assignments
@@ -132,7 +142,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - [ ] **ADM-OPS-06**: Admin can filter by specialist
 - [ ] **ADM-OPS-07**: Admin can sort by SLA deadline
 
-### Phase 64: Messages (User)
+### Phase 65: Messages (User)
 
 - [ ] **MSG-01**: Messages page shows 3-column layout (thread list, chat, info)
 - [ ] **MSG-02**: Thread list shows all message threads with preview
@@ -143,7 +153,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - [ ] **MSG-07**: Unread message count badge shows on thread
 - [ ] **MSG-08**: User can close info panel
 
-### Phase 65: Audit (Admin)
+### Phase 66: Audit (Admin)
 
 - [ ] **ADM-AUD-01**: Audit page shows 4 stat cards (Tong su kien, Hop le, Can ra soat, Canh bao)
 - [ ] **ADM-AUD-02**: Security notice explains safe display
@@ -156,7 +166,7 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 - [ ] **ADM-AUD-09**: Pagination works with page size of 50
 - [ ] **ADM-AUD-10**: Correlation IDs shown in monospace font
 
-### Phase 66: Vault (Admin)
+### Phase 67: Vault (Admin)
 
 - [ ] **VAULT-01**: Vault page shows stat cards (Tong thu muc, Tep phap ly, The phan loai, Bao mat)
 - [ ] **VAULT-02**: Folder panel shows folder tree

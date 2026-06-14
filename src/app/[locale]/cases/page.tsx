@@ -3,7 +3,6 @@ import { requireAppSession } from '@/lib/security/session';
 import { getTranslations } from 'next-intl/server';
 import UserLayout from '@/components/layout/UserLayout';
 import { MyCasesClient } from '@/components/my-cases/MyCasesClient';
-import '@/components/my-cases/my-cases.css';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -74,9 +73,9 @@ export default async function CasesPage({ params }: PageProps) {
   const overdueCount = Number(overdueRequests[0]?.count ?? 0);
 
   const stats = {
-    total: totalRequests,
-    processing: processingRequests,
-    completed: completedRequests,
+    total: Number(totalRequests),
+    processing: Number(processingRequests),
+    completed: Number(completedRequests),
     overdue: overdueCount,
   };
 
@@ -90,13 +89,28 @@ export default async function CasesPage({ params }: PageProps) {
       // SLA calculation from slaDeadline
       const remainingMs = deadline.getTime() - now.getTime();
       const remainingHours = Math.round(remainingMs / (1000 * 60 * 60));
-      const slaText =
-        remainingHours <= 0
-          ? `Trễ ${Math.abs(Math.round(remainingHours / 24))} ngày`
-          : remainingHours < 24
-            ? `Còn ${remainingHours}h`
-            : `Còn ${Math.round(remainingHours / 24)} ngày`;
-      const slaVariant = remainingHours <= 0 ? 'red' : remainingHours < 24 ? 'orange' : remainingHours < 72 ? 'orange' : 'green';
+
+      // Check if case is completed (approved/delivered/closed)
+      const isCompleted = ['approved', 'delivered', 'closed'].includes(req.status);
+
+      // SLA text and variant
+      let slaText: string;
+      let slaVariant: 'green' | 'orange' | 'red' | 'blue';
+      if (isCompleted) {
+        // Completed cases show "Theo dõi" (monitoring)
+        slaText = 'Theo dõi';
+        slaVariant = 'blue';
+      } else if (remainingHours <= 0) {
+        slaText = `Trễ ${Math.abs(Math.round(remainingHours / 24))} ngày`;
+        slaVariant = 'red';
+      } else if (remainingHours < 24) {
+        slaText = `Còn ${remainingHours}h`;
+        slaVariant = 'orange';
+      } else {
+        const days = Math.round(remainingHours / 24);
+        slaText = `Còn ${days} ngày`;
+        slaVariant = days < 3 ? 'orange' : 'green';
+      }
 
       // Status badge mapping - isOverdue check first
       const statusBadge = isOverdue
@@ -154,6 +168,7 @@ export default async function CasesPage({ params }: PageProps) {
         updatedTime: req.updatedAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ICT',
         slaText,
         slaVariant: slaVariant as 'green' | 'orange' | 'red' | 'blue',
+        remainingHours,
         actionText,
         actionHref: `/cases/${req.id}`,
       };
@@ -175,6 +190,7 @@ export default async function CasesPage({ params }: PageProps) {
         workspaceSlug={workspaceSlug}
         stats={stats}
         requests={mappedRequests}
+        totalRequests={totalRequests}
         notificationCount={unreadMessages}
       />
     </UserLayout>

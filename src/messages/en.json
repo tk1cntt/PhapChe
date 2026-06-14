@@ -707,7 +707,12 @@
     "languageChangeSuccess": "Language changed! Page will reload.",
     "noAuditEvents": "No events yet",
     "auditTitle": "Activity Log",
-    "auditDesc": "Your activity history in the system"
+    "auditDesc": "Your activity history in the system",
+    "notificationTitle": "Notifications",
+    "workspaceTitle": "Your Workspace",
+    "workspaceDesc": "Workspaces you are a member of",
+    "loading": "Loading...",
+    "viewAllAudit": "View all"
   },
   "UserCreateRequest": {
     "pageTitle": "Create Legal Request",

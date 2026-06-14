@@ -648,7 +648,12 @@
     "workspaceHint": "默认工作区无法更改。如需变更请联系管理员。",
     "language": "语言",
     "auditHint": "您在系统中的个人活动历史。",
-    "noAuditData": "暂无审计数据。"
+    "noAuditData": "暂无审计数据。",
+    "notificationTitle": "通知",
+    "workspaceTitle": "您的工作区",
+    "workspaceDesc": "您所属的工作区",
+    "loading": "加载中...",
+    "viewAllAudit": "查看全部"
   },
   "UserCreateRequest": {
     "pageTitle": "创建法律请求",

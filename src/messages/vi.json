@@ -716,7 +716,12 @@
     "languageChangeSuccess": "Đã thay đổi ngôn ngữ! Trang sẽ tải lại.",
     "noAuditEvents": "Chưa có sự kiện nào",
     "auditTitle": "Nhật ký hoạt động",
-    "auditDesc": "Lịch sử các thao tác của bạn trong hệ thống"
+    "auditDesc": "Lịch sử các thao tác của bạn trong hệ thống",
+    "notificationTitle": "Thông báo",
+    "workspaceTitle": "Workspace của bạn",
+    "workspaceDesc": "Các workspace mà bạn là thành viên",
+    "loading": "Đang tải...",
+    "viewAllAudit": "Xem tất cả"
   },
   "UserCreateRequest": {
     "pageTitle": "Gửi yêu cầu pháp lý",

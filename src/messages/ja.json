@@ -648,7 +648,12 @@
     "workspaceHint": "デフォルトワークスペースは変更できません。変更は管理者にお問い合わせください。",
     "language": "言語",
     "auditHint": "システム内の個人アクティビティ履歴。",
-    "noAuditData": "監査データがありません。"
+    "noAuditData": "監査データがありません。",
+    "notificationTitle": "通知",
+    "workspaceTitle": "あなたのワークスペース",
+    "workspaceDesc": "あなたがメンバーとなっているワークスペース",
+    "loading": "読み込み中...",
+    "viewAllAudit": "すべて表示"
   },
   "UserCreateRequest": {
     "pageTitle": "法務リクエスト作成",

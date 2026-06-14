@@ -2,8 +2,8 @@
 
 **Created:** 2026-06-14
 **Updated:** 2026-06-14
-**Ambiguity score:** 0.08 (gate: ≤ 0.20)
-**Requirements:** 11 locked
+**Ambiguity score:** 0.06 (gate: ≤ 0.20)
+**Requirements:** 13 locked
 
 ## Goal
 
@@ -299,6 +299,118 @@ lib/types/
 
 ---
 
+### 12. Storybook Setup (ARCH-12)
+
+**Output:** Storybook configuration for visual documentation
+
+**Purpose:** Live demo documentation for all shared components
+
+**Setup:**
+```bash
+npm install -D storybook @storybook/react @storybook/addon-essentials
+```
+
+**Stories location:** `src/components/shared/**/*.stories.tsx`
+
+**Example story:**
+```tsx
+// src/components/shared/ui/StatCard.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react';
+import { StatCard } from './StatCard';
+
+const meta: Meta<typeof StatCard> = {
+  title: 'Shared/UI/StatCard',
+  component: StatCard,
+};
+export default meta;
+
+export const Blue: StoryObj = {
+  args: {
+    title: 'Tổng yêu cầu',
+    value: 42,
+    icon: 'file',
+    variant: 'blue',
+  },
+};
+```
+
+**Benefits:**
+- Visual testing without running app
+- Component playground for designers
+- Auto-generated documentation
+
+---
+
+### 13. Automated Component Registry Generator (ARCH-13)
+
+**Output:** `scripts/generate-component-registry.mjs`
+
+**Purpose:** Scan codebase, auto-generate COMPONENT_REGISTRY.md
+
+**Features:**
+- Scan `src/components/` recursively
+- Extract props interfaces
+- Detect usage locations
+- Generate markdown table
+
+**Usage:**
+```bash
+node scripts/generate-component-registry.mjs
+```
+
+**Output:** Updated `src/components/COMPONENT_REGISTRY.md`
+
+**Example output:**
+```markdown
+# Component Registry
+
+Generated: 2024-01-15
+
+## Shared Components
+
+| Component | File | Props | Used By |
+|----------|------|-------|---------|
+| StatCard | shared/ui/StatCard.tsx | title, value, icon, variant | AdminDashboard, UserDashboard |
+| StatusBadge | shared/ui/StatusBadge.tsx | status, size | RequestTable, MyCases |
+
+## Page-Specific Components
+
+| Component | File | Used By |
+|----------|------|---------|
+| CreateWizard | requests/CreateWizard.tsx | Create Request page |
+```
+
+---
+
+### 14. ESLint Component Naming Rule (ARCH-14)
+
+**Output:** Custom ESLint rule to detect duplicate/unnamed components
+
+**Rule:** Warn when creating component with similar name to existing shared component
+
+```javascript
+// .eslintrc.js
+module.exports = {
+  rules: {
+    'no-duplicate-component': {
+      // Warn if creating component with similar name to shared
+      // Suggest using existing shared component instead
+    }
+  }
+};
+```
+
+**Example warnings:**
+```
+⚠️ Creating 'Card' component - similar to existing 'StatCard' in shared/ui/
+   Consider using shared component or choose a more specific name.
+
+⚠️ Component 'AdminTable' used only in 1 place
+   Consider if this should be in shared/table/ instead.
+```
+
+---
+
 ## Boundaries
 
 **In scope:**
@@ -329,6 +441,9 @@ lib/types/
 - [ ] `src/components/COMPONENT_REGISTRY.md` with 30+ components
 - [ ] `src/lib/types/` with unified interfaces
 - [ ] `src/components/shared/ui/StatCard.tsx` unified
+- [ ] Storybook configured with shared component stories
+- [ ] `scripts/generate-component-registry.mjs` auto-generates registry
+- [ ] ESLint rule warns on duplicate component names
 
 ---
 
@@ -336,11 +451,11 @@ lib/types/
 
 | Dimension | Score | Min | Status |
 |-----------|-------|------|--------|
-| Goal Clarity | 0.95 | 0.75 | ✓ |
-| Boundary Clarity | 0.90 | 0.70 | ✓ |
-| Constraint Clarity | 0.90 | 0.65 | ✓ |
-| Acceptance Criteria | 0.95 | 0.70 | ✓ |
-| **Ambiguity** | **0.08** | ≤0.20 | ✓ |
+| Goal Clarity | 0.98 | 0.75 | ✓ |
+| Boundary Clarity | 0.95 | 0.70 | ✓ |
+| Constraint Clarity | 0.92 | 0.65 | ✓ |
+| Acceptance Criteria | 0.96 | 0.70 | ✓ |
+| **Ambiguity** | **0.06** | ≤0.20 | ✓ |
 
 ---
 

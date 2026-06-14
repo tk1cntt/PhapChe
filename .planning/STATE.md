@@ -193,6 +193,7 @@ None.
 | 260613-nxg | Fix admin requests page layout/style to match template | 2026-06-13 | c0d3aed | Verified | [260613-nxg](./quick/260613-nxg-fix-admin-requests-page-layout-style-to-/) |
 | 260613-ops-fix | Fix admin operations page bugs - menu link, timeline scroll | 2026-06-13 | b499c0d | Verified | [260613-ops-fix](./quick/260613-ops-fix/) |
 | 260613-lgc | Migrate src/legacy to src/components and delete legacy | 2026-06-13 | c12e290 | Verified | [260613-lgc](./quick/260613-lgc-migrate-src-legacy-to-src-components/) |
+| 260614-fix | Fix messages poll - merge threads instead of replace | 2026-06-14 | 8d0d2ca | Verified | [260614-fix](./quick/260614-fix-messages-poll/) |
 
 ---
-*Last updated: 2026-06-13*
+*Last updated: 2026-06-14*

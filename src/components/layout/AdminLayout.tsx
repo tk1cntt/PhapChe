@@ -23,14 +23,16 @@ interface NavItem {
   icon: React.ReactNode;
 }
 
-function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userInitial = 'A' }: { userName?: string; userRole?: string; userInitial?: string }) {
+function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string; userRole?: string; userInitial?: string }) {
   const pathname = usePathname();
   const router = useRouter();
+  const t = useTranslations('AdminNav');
+  const tCommon = useTranslations('Common');
 
   const navItems: NavItem[] = [
     {
       key: 'users',
-      label: 'Users',
+      label: t('users'),
       href: '/vi/admin/users',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -41,7 +43,7 @@ function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userIniti
     },
     {
       key: 'workspace',
-      label: 'Workspaces',
+      label: t('workspaces'),
       href: '/vi/admin/workspace',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -54,7 +56,7 @@ function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userIniti
     },
     {
       key: 'requests',
-      label: 'Requests',
+      label: t('requests'),
       href: '/vi/admin/requests',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -68,7 +70,7 @@ function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userIniti
     },
     {
       key: 'ops',
-      label: 'Operations',
+      label: t('ops'),
       href: '/vi/admin/operations',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -81,7 +83,7 @@ function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userIniti
     },
     {
       key: 'audit',
-      label: 'Audit',
+      label: t('audit'),
       href: '/vi/admin/audit',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -92,7 +94,7 @@ function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userIniti
     },
     {
       key: 'vault',
-      label: 'Vault',
+      label: t('vault'),
       href: '/vi/admin/vault',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

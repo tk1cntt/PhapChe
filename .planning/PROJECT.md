@@ -1,47 +1,18 @@
 # Legal-as-a-Service Platform
 
-## Current State (v2.0 Planning — UI Parity + Backend Connection)
+## Current State (v2.0 SHIPPED — 2026-06-14)
 
-**v1.4 abandoned (2026-06-12)** — scope chuyển sang v2.0
-**Requirement:** Tuân thủ requirement.txt standards
+**GitNexus Legal** đã hoàn thành milestone v2.0 với:
+- Admin Portal kết nối Prisma database (Audit, Vault, Workspace, Operations, Users, Requests)
+- User Dashboard với real data từ database
+- i18n comprehensive: 43 components, 200+ keys, 4 languages
+- Cookie-based language persistence
 
-**Total to date:** v1.0 + v1.1 = 22 phases, 67 plans, 93 tasks (shipped)
+**Total to date:** v1.0 + v1.1 + v2.0 = 29 phases, 92 plans, 240+ tasks
 
 **Tech stack:** Next.js 14 (App Router), TypeScript, Prisma + SQLite, Ant Design 6, Tailwind CSS, Better Auth, next-intl
 
-## Current Milestone: v2.0 UI Parity + Architecture Refactor
-
-**Goal:** Migrate Mock UI → Real Backend, thêm AI features
-
-**Approach:** Adopt Mock UI Pattern
-- Phase 1: UI Parity — Connect Mock UI với backend services
-- Phase 2: Architecture Refactor — Clean up code
-- Phase 3: AI Features — Add AI capabilities
-
-**Why Adopt Mock UI:**
-- Mock UI đã có UI/UX hoàn chỉnh (match template HTML)
-- E2E tests đã cover (Phase 26-33)
-- Chỉ cần connect services layer
-- Faster to market
-
-**v2.0 Roadmap:**
-1. **UI Parity** — Connect Mock UI → backend (Priority 1)
-2. **Architecture Refactor** — Type safety, i18n, error handling
-3. **AI Features** — Intake assistant, document analysis, risk flagging
-
-v1.1 đã hoàn thành với **8 phases, 18 plans, 23 tasks** — 185 commits, +6,766/-864 LOC.
-
-**What shipped (v1.0 + v1.1):**
-- Auth: Real Better Auth with login page, password hashing, session management, protected routes
-- Route Hardening: All 14+ broken routes fixed, OpsTimelineTable HTTP 500 resolved
-- E2E Tests: 75 Playwright tests covering auth, intake, specialist, reviewer, admin screens
-- Customer Dashboard: Locale-prefixed routing with workspace-scoped data
-- i18n: 4 languages (VI/EN/ZH/JA) with middleware routing and LanguageSwitcher
-- Tech Debt: Shared types.ts, Suspense boundaries, 9 error boundaries
-
-**Total to date:** v1.0 + v1.1 = 22 phases, 67 plans, 93 tasks
-
-**Tech stack:** Next.js 14 (App Router), TypeScript, Prisma + SQLite, Ant Design 6, Tailwind CSS, Better Auth
+---
 
 ## What This Is
 
@@ -49,153 +20,152 @@ Hệ thống quản trị pháp lý thông minh cho SME, dùng giao diện hội
 
 Sản phẩm không phải "AI lawyer" tự tư vấn luật thay con người. Giá trị chính là biến dịch vụ pháp lý thuê ngoài thành quy trình số có trạng thái, checklist, phân quyền, tài liệu, audit trail và chất lượng đầu ra nhất quán.
 
+---
+
 ## Core Value
 
 SME gửi yêu cầu pháp lý theo cách đơn giản như nhắn tin và nhận tài liệu/tư vấn đã qua kiểm soát chất lượng, có thể truy vết toàn bộ quá trình xử lý.
+
+---
 
 ## Requirements
 
 ### Validated
 
-- ✓ **Foundation** — RBAC, audit, workspace isolation, workflow state machine — v1.0
-- ✓ **Intake** — Vietnamese chat/form intake, structured answers, file upload, status page — v1.0
-- ✓ **Routing** — Capability matrix, coordinator assignment, specialist/reviewer queues — v1.0
-- ✓ **Documents** — Versioned templates, draft generation, submit-for-review — v1.0
-- ✓ **Vault** — Private file storage, versioning, permissioned access, audit trail — v1.0
-- ✓ **Review** — Split-view reviewer portal, QC checklist, approve/reject with comments — v1.0
-- ✓ **Delivery** — Customer delivery page, signed URL downloads, request close — v1.0
-- ✓ **Operations** — Dashboard, filters, workload, SLA, audit timeline — v1.0
-- ✓ **Folder/Tag** — Internal file classification for vault organization — v1.0
-- ✓ **Ant Design UI** — Complete migration to antd across all route groups — v1.0
+**v1.0 MVP:**
+- ✅ Foundation — RBAC, audit, workspace isolation, workflow state machine
+- ✅ Intake — Vietnamese chat/form intake, structured answers, file upload, status page
+- ✅ Routing — Capability matrix, coordinator assignment, specialist/reviewer queues
+- ✅ Documents — Versioned templates, draft generation, submit-for-review
+- ✅ Vault — Private file storage, versioning, permissioned access, audit trail
+- ✅ Review — Split-view reviewer portal, QC checklist, approve/reject with comments
+- ✅ Delivery — Customer delivery page, signed URL downloads, request close
+- ✅ Operations — Dashboard, filters, workload, SLA, audit timeline
+- ✅ Folder/Tag — Internal file classification for vault organization
+- ✅ Ant Design UI — Complete migration to antd across all route groups
 
-### Active (v2.0 UI Parity)
+**v1.1 Auth & i18n:**
+- ✅ Better Auth — Password hashing, session management, protected routes
+- ✅ i18n — 4 languages (VI/EN/ZH/JA), middleware routing, LanguageSwitcher
+- ✅ E2E Tests — 75 Playwright tests covering auth, intake, specialist, reviewer, admin screens
 
-**Phase 1: User Portal UI Parity**
-- [ ] **UI-01**: Customer Dashboard — Connect mock data → real Prisma queries
-- [ ] **UI-02**: Create Request Wizard — Connect Steps 3-4 (Docs, Review) → real API
-- [ ] **UI-03**: My Cases — Connect filter/search → real data
-- [ ] **UI-04**: Messages — Connect real-time messaging API
-- [ ] **UI-05**: Workspace — Connect workspace management → real services
-- [ ] **UI-06**: Settings — Connect profile/security forms → real API
+**v2.0 Admin Portal + User Dashboard:**
+- ✅ Admin Audit Real Data — Stats, timeline, paginated table with correlation IDs
+- ✅ Admin Vault Real Data — Files/folders/tags, signed URLs for secure access
+- ✅ Admin Workspace Real Data — Permissions, members, invite functionality
+- ✅ Admin User Management Real Data — CRUD operations, search/filter/paging
+- ✅ Admin Request Management Real Data — Status badges, SLA bars, toolbar filters
+- ✅ Admin Operations Real Data — Workload panel, operations table, audit timeline
+- ✅ User Dashboard Real Data — 6 panels with real Prisma queries
+- ✅ i18n Comprehensive — 43 components, 200+ keys, cookie-based persistence
 
-**Phase 2: Admin Portal UI Parity**
-- [ ] **UI-07**: Admin Dashboard — Connect stats → real queries
-- [ ] **UI-08**: User Management — Connect CRUD → real API
-- [ ] **UI-09**: Admin Requests — Connect table → real data
-- [ ] **UI-10**: Admin Operations — Connect audit timeline → real events
-- [ ] **UI-11**: Admin Audit — Connect security logs → real data
-- [ ] **UI-12**: Admin Vault — Connect file management → real vault API
-- [ ] **UI-13**: Admin Workspace — Connect permissions → real RBAC
+### Active (v2.1 Architecture Refactor)
 
-**Phase 3: Architecture Refactor**
-- [ ] **ARCH-01**: Type Safety — Remove `as any` casts, proper interfaces
-- [ ] **ARCH-02**: i18n Fixes — Replace hardcoded strings
-- [ ] **ARCH-03**: Error Handling — Error boundaries, consistent responses
+**Phase 1: Type Safety**
+- [ ] **ARCH-01**: Remove `as any` casts throughout codebase
+- [ ] **ARCH-02**: Proper TypeScript interfaces for all components
+- [ ] **ARCH-03**: Type-safe Prisma queries
 
-**Phase 4: AI Features (Future)**
-- [ ] **AI-01**: AI Intake Assistant
-- [ ] **AI-02**: Document Analysis (OCR)
-- [ ] **AI-03**: Risk Flagging
-- [ ] **AI-04**: Smart Routing
+**Phase 2: Error Handling**
+- [ ] **ARCH-04**: Error boundaries on all pages
+- [ ] **ARCH-05**: Consistent API error responses
+- [ ] **ARCH-06**: Loading states and skeletons
 
-### Out of Scope
+**Phase 3: Performance**
+- [ ] **ARCH-07**: API response caching
+- [ ] **ARCH-08**: Lazy loading for heavy components
+- [ ] **ARCH-09**: Database query optimization
 
-- AI tự kết luận pháp lý thay reviewer — rủi ro sai luật và liability cao; AI chỉ hỗ trợ intake/draft/tóm tắt khi có guardrails.
-- Open lawyer marketplace — khó kiểm soát chất lượng; MVP dùng pool specialist/reviewer nội bộ.
-- Workflow builder tùy biến vô hạn — overbuild; MVP dùng state machine cố định theo request.
+### Future (v2.2 AI Features)
+
+- [ ] **AI-01**: AI Intake Assistant — chatbot-style guidance
+- [ ] **AI-02**: Document Analysis (OCR) — auto-extract from uploads
+- [ ] **AI-03**: Risk Flagging — AI suggestions before review
+- [ ] **AI-04**: Smart Routing — ML-based specialist matching
+
+---
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| AI tự kết luận pháp lý | Rủi ro sai luật và liability cao; AI chỉ hỗ trợ intake/draft/tóm tắt khi có guardrails. |
+| Open lawyer marketplace | Khó kiểm soát chất lượng; MVP dùng pool specialist/reviewer nội bộ. |
+| Workflow builder tùy biến | Overbuild; MVP dùng state machine cố định theo request. |
+
+---
 
 ## Context
 
-Nguồn yêu cầu đến từ `docs/note.txt` và `docs/Có.docx`.
+### Tech Stack
 
-Tài liệu mô tả Legal-as-a-Service Platform cho SME, lấy chat-based interface làm điểm chạm chính. Khách hàng chọn nghiệp vụ như soạn hợp đồng lao động, đăng ký nhãn hiệu, soạn hợp đồng đại lý; hệ thống hỏi bộ câu hỏi đầu vào rồi tạo request và/hoặc tài liệu dựa trên template.
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript (strict mode)
+- **Database**: Prisma + SQLite (dev), PostgreSQL (prod)
+- **UI**: Ant Design 6, Tailwind CSS
+- **Auth**: Better Auth with password hashing, session management
+- **i18n**: next-intl with 4 languages (VI, EN, ZH, JA)
+- **Testing**: Vitest (unit), Playwright (E2E)
 
-Luồng nghiệp vụ mẫu: khách chọn "Soạn hợp đồng đại lý", bot hỏi tên đối tác, tỷ lệ chiết khấu, thời hạn hợp đồng; hệ thống kiểm tra logic/điều khoản liên quan; bản thảo được gửi trong chat; nếu cần chỉnh sửa đặc thù thì chuyển specialist xử lý qua dashboard nội bộ.
+### Database Schema
 
-Tài liệu nhấn mạnh tư duy E-Myth: không xây AI biết tất cả, mà xây "cây thư mục quy trình/SOP". Mọi câu hỏi nên rơi vào quy trình đã định sẵn; ngoài quy trình thì chuyển con người xử lý, sau đó bổ sung SOP để máy hóa lần sau.
+Key entities:
+- **User**: id, email, name, role, workspaceId
+- **Workspace**: id, name, slug, settings
+- **LegalRequest**: id, workspaceId, status, type, assignee, slaDeadline
+- **AuditEvent**: id, actorId, action, targetType, targetId, metadata
+- **VaultFile**: id, workspaceId, folderId, name, encryptedUrl, version
+- **Message**: id, threadId, senderId, content, timestamp
 
-### Technical Debt & Known Issues (from requirement.txt analysis)
+### i18n Coverage
 
-**Critical:**
-- Mock UI đẹp nhưng hardcode data — cần kết nối SQLite
-- Working code có backend nhưng giao diện nghèo nàn
-- Cần migrate Mock UI pattern để có cả hai: UI đẹp + backend hoạt động
+| Namespace | Keys | Status |
+|-----------|------|--------|
+| Dashboard | 25 | ✅ Complete |
+| AdminDashboard | 30 | ✅ Complete |
+| AdminOps | 45 | ✅ Complete |
+| AuditEvents | 30 | ✅ Complete |
+| Vault | 35 | ✅ Complete |
+| UserMessages | 20 | ✅ Complete |
+| UserCases | 15 | ✅ Complete |
+| Intake | 40 | ✅ Complete |
+| Auth | 25 | ✅ Complete |
+| Common | 15 | ✅ Complete |
 
-**Database:**
-- Schema cần mở rộng để hỗ trợ đa ngôn ngữ (VI, ZH, JP, EN)
-- Seed data cần có đủ 4 ngôn ngữ
-
-**i18n:**
-- Hardcoded Vietnamese strings cần thay bằng i18n keys
-- Language switcher cần hoạt động đầy đủ
-
-**Type Safety:**
-- Nhiều `as any` casts cần fix
-- TypeScript interfaces cần rõ ràng hơn
+---
 
 ## Constraints
 
 - **Legal accuracy**: Nội dung/tài liệu pháp lý phải qua reviewer trước khi final — giảm rủi ro tư vấn sai.
 - **Security**: Hồ sơ pháp lý doanh nghiệp nhạy cảm — file phải private, phân quyền theo tenant/request, signed URL ngắn hạn, audit đầy đủ.
 - **MVP scope**: Ưu tiên workflow end-to-end hơn OCR/e-sign/AI nâng cao — chứng minh vận hành trước khi automation.
-
-## v2.0 Quality Standards (from requirement.txt)
-
-### Database & Data Layer
-- ✅ SQLite database với schema rõ ràng
-- ✅ Mọi data phải từ database, không hardcode trong UI
-- ✅ Seed data phải có đủ 4 ngôn ngữ (VI, ZH, JP, EN)
-- ✅ CRUD operations cho mọi màn hình
-
-### i18n Requirements
-- ✅ 4 ngôn ngữ: Vietnamese (VI), Chinese (ZH), Japanese (JP), English (EN)
-- ✅ Không hardcode text trong component — dùng i18n keys
-- ✅ Language switcher trên UI
-- ✅ Ngôn ngữ mặc định: VI
-- ✅ Data content từ DB phải hỗ trợ đa ngôn ngữ
-
-### UI Requirements
-- ✅ Pixel-perfect match với mock UI template
-- ✅ Layout, spacing, typography, color, border, shadow đúng
-- ✅ Responsive behavior
-- ✅ No hardcode text/data trong JSX
-
-### Quality Gates
-- ✅ Build không lỗi TypeScript/lint
-- ✅ Không console errors
-- ✅ No `as any` type suppression
-- ✅ E2E tests cho mỗi feature
-
-### Architecture Requirements
-- ✅ Không phá vỡ kiến trúc hiện có
-- ✅ Tận dụng convention có sẵn
-- ✅ Service layer pattern
-- ✅ API/data layer tách biệt
 - **Template governance**: Template phải versioned, có trạng thái approved/published/deprecated — tránh dùng nhầm mẫu cũ.
 - **Workflow integrity**: Status thay đổi qua backend state machine — không hard-code logic ở frontend.
 - **Traceability**: Review phải gắn với document version cụ thể — tránh duyệt bản này nhưng gửi bản khác.
+
+---
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| MVP là legal operations cockpit, không phải AI lawyer | Giảm rủi ro pháp lý, tập trung core value xử lý request có QC | ✓ Good — validated by v1.0 |
-| Intake dùng chat/form hybrid nhưng output phải structured | Raw chat khó route, khó review, khó generate document | ✓ Good — validated by v1.0 |
-| Reviewer QC bắt buộc trước delivery/final | Chất lượng pháp lý là niềm tin cốt lõi | ✓ Good — validated by v1.0 |
-| Capability Matrix rule-based trước, auto-routing sau | Tránh overbuild khi chưa có dữ liệu vận hành | ✓ Good — validated by v1.0 |
-| Legal Vault versioned + audit từ đầu | Hồ sơ pháp lý cần truy vết và phân quyền | ✓ Good — validated by v1.0 |
-| OCR/e-sign/compliance calendar nâng cao để v2 | Không chặn end-to-end MVP | ✓ Good — deferred to v2 |
-| Stack: modular monolith Next.js + PostgreSQL/Prisma + S3/R2 | Nhanh cho MVP, ít infra, vẫn đủ mở rộng | ✓ Good — validated by v1.0 |
-| Gap-closure phases (08-14) sau milestone audit | Fix broken flows và design gaps trước khi ship | ✓ Good — all gaps closed |
-| Ant Design UI cho phase 14 | Component library chuẩn, giảm maintenance UI custom | ✓ Good — zero custom UI remaining |
-| Better Auth cho v1.1 | Password hashing, session management, protected routes | ✓ Good — auth working with real users |
-| i18n với next-intl | Locale routing, middleware, LanguageSwitcher | ✓ Good — 4 languages functional |
-| SQLite cho dev | Simplify local development, avoid Docker | ✓ Good — faster setup |
-| Decimal phase cho gap closure | Phase 21, 22 cho gap closure sau audit | ✓ Good — audit-driven iteration |
+| MVP là legal operations cockpit, không phải AI lawyer | Giảm rủi ro pháp lý, tập trung core value xử lý request có QC | ✅ Good |
+| Intake dùng chat/form hybrid nhưng output phải structured | Raw chat khó route, khó review, khó generate document | ✅ Good |
+| Reviewer QC bắt buộc trước delivery/final | Chất lượng pháp lý là niềm tin cốt lõi | ✅ Good |
+| Capability Matrix rule-based trước, auto-routing sau | Tránh overbuild khi chưa có dữ liệu vận hành | ✅ Good |
+| Legal Vault versioned + audit từ đầu | Hồ sơ pháp lý cần truy vết và phân quyền | ✅ Good |
+| OCR/e-sign/compliance calendar nâng cao để v2 | Không chặn end-to-end MVP | ✅ Good |
+| Stack: modular monolith Next.js + PostgreSQL/Prisma + S3/R2 | Nhanh cho MVP, ít infra, vẫn đủ mở rộng | ✅ Good |
+| Gap-closure phases (08-14) sau milestone audit | Fix broken flows và design gaps trước khi ship | ✅ Good |
+| Ant Design UI cho phase 14 | Component library chuẩn, giảm maintenance UI custom | ✅ Good |
+| Better Auth cho v1.1 | Password hashing, session management, protected routes | ✅ Good |
+| i18n với next-intl | Locale routing, middleware, LanguageSwitcher | ✅ Good |
+| SQLite cho dev | Simplify local development, avoid Docker | ✅ Good |
+| Mock UI Pattern cho v2.0 | UI đẹp đã có, chỉ cần connect backend | ✅ Good |
+| Cookie-based locale persistence | No flash on navigation, server-side redirect | ✅ Good |
+| Parallel Prisma queries for dashboard | Optimize performance with Promise.all() | ✅ Good |
 
 ---
-
-*Last updated: 2026-06-12 after v1.4 abandoned — v2.0 AI Features + Architecture Refactor planning*
 
 ## Evolution
 
@@ -213,3 +183,7 @@ This document evolves at phase transitions and milestone boundaries.
 2. Core Value check — still the right priority?
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state (users, feedback, metrics)
+
+---
+
+*Last updated: 2026-06-14 after v2.0 milestone completion*

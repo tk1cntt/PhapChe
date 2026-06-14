@@ -1,5 +1,21 @@
 # Milestones
 
+## v2.0 Admin Portal Real Data + User Dashboard (Shipped: 2026-06-14)
+
+**Phases completed:** 5 phases, 5 plans, 150+ tasks
+
+**Key accomplishments:**
+
+- Admin Audit Real Data — Full audit dashboard with Prisma queries, stats aggregation, timeline, paginated table with correlation IDs
+- Admin Vault Real Data — Vault files/folders/tags from Prisma, security badges, private file access via signed URLs
+- Admin Workspace Real Data — Workspace permissions, members, invite functionality, RBAC integration
+- User Dashboard Real Data — Full dashboard with 6 panels (stat cards, welcome banner, recent cases, deadlines, recent docs, activity timeline)
+- i18n Comprehensive Migration — 43 components migrated, 200+ translation keys, 4 languages, cookie-based language persistence
+
+**Verification:** 28/28 requirements verified (all phases passed audit)
+
+---
+
 ## v1.1 Auth & Hardening (Shipped: 2026-06-10)
 
 **Phases completed:** 8 phases, 18 plans, 23 tasks

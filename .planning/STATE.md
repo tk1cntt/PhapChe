@@ -1,9 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.1
-milestone_name: Feature Implementation - Complete User & Admin Portals
-status: planning
-last_updated: "2026-06-14T13:00:00Z"
+milestone_name: Vertical Slices
+status: Defining requirements
+last_updated: "2026-06-14T11:36:43.509Z"
+last_activity: 2026-06-14 — Milestone v2.1 started
+progress:
+  total_phases: 13
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # State: v2.1 Feature Implementation
@@ -26,27 +33,33 @@ Last activity: 2026-06-14 — Milestone v2.1 started
 v2.1 = 13 vertical slices cho 13 màn hình:
 
 **Level 1 (Independent):**
+
 - Phase 55: Settings (User)
 - Phase 56: User Management (Admin)
 
 **Level 2 (Depends on L1):**
+
 - Phase 57: Create Request (User)
 - Phase 58: Workspace (Admin)
 
 **Level 3 (Depends on L2):**
+
 - Phase 59: My Cases (User)
 - Phase 60: Dashboard (User)
 - Phase 61: Request Management (Admin)
 
 **Level 4 (Depends on L3):**
+
 - Phase 62: Admin Dashboard
 - Phase 63: Operations (Admin)
 
 **Level 5 (Depends on L4):**
+
 - Phase 64: Messages (User)
 - Phase 65: Audit (Admin)
 
 **Level 6 (Depends on L5):**
+
 - Phase 66: Vault (Admin)
 
 ## Requirements Summary

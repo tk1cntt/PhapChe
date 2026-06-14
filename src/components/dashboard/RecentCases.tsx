@@ -1,23 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-
-interface Case {
-  id: string;
-  code: string;
-  title: string;
-  matterType: string;
-  status: string;
-  statusVariant: string;
-  statusText: string;
-  assignee: string;
-  assigneeRole: string;
-  updatedAt: string;
-}
+import { CaseItem } from './DashboardClient';
 
 interface RecentCasesProps {
-  cases?: Case[]; // Optional - will fetch if not provided
+  cases: CaseItem[];
 }
 
 const statusBadgeClass: Record<string, string> = {
@@ -28,22 +15,8 @@ const statusBadgeClass: Record<string, string> = {
   purple: 'badge purple',
 };
 
-export default function RecentCases({ cases: propCases }: RecentCasesProps) {
+export default function RecentCases({ cases }: RecentCasesProps) {
   const t = useTranslations('RecentCases');
-  const [cases, setCases] = useState<Case[]>(propCases || []);
-  const [loading, setLoading] = useState(!propCases);
-
-  useEffect(() => {
-    if (!propCases) {
-      fetch('/api/dashboard/recent-cases')
-        .then((res) => res.json())
-        .then((data) => {
-          setCases(data);
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    }
-  }, [propCases]);
 
   return (
     <div className="panel">
@@ -59,9 +32,7 @@ export default function RecentCases({ cases: propCases }: RecentCasesProps) {
       </div>
 
       <div className="case-list">
-        {loading ? (
-          <div className="empty-state">{t('loading') || 'Loading...'}</div>
-        ) : cases.length === 0 ? (
+        {cases.length === 0 ? (
           <div className="empty-state">{t('empty')}</div>
         ) : (
           cases.map((c) => (

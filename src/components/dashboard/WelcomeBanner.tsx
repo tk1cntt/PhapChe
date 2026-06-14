@@ -1,47 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { WelcomeData } from './DashboardClient';
 
-interface WelcomeData {
-  workspace: { id: string; name: string; slug: string };
-  activeRequests: number;
-  pendingDocs: number;
-  newReplies: number;
-  userName: string;
+interface WelcomeBannerProps {
+  data: WelcomeData;
 }
 
-export default function WelcomeBanner() {
+export default function WelcomeBanner({ data }: WelcomeBannerProps) {
   const t = useTranslations('WelcomeBanner');
-  const [data, setData] = useState<WelcomeData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('/api/dashboard/welcome')
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  if (loading || !data) {
-    return (
-      <div className="welcome-card" style={{ opacity: 0.5 }}>
-        <div className="welcome-left">
-          <div className="welcome-icon">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          </div>
-          <div>
-            <h2>Loading...</h2>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const statusParts: string[] = [];
   if (data.activeRequests > 0) {

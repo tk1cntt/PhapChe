@@ -1,7 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { CaseItem } from './DashboardClient';
+
+interface DeadlineSLAProps {
+  cases: CaseItem[];
+}
 
 interface Deadline {
   id: string;
@@ -13,8 +17,21 @@ interface Deadline {
   timeText: string;
 }
 
-interface DeadlineSLAProps {
-  deadlines?: Deadline[]; // Optional - will fetch if not provided
+function getDeadlineStatus(deadline: Date): { status: 'ok' | 'warn' | 'danger'; progress: number; timeText: string } {
+  const now = new Date();
+  const diffMs = deadline.getTime() - now.getTime();
+  const diffHours = diffMs / (1000 * 60 * 60);
+  const diffDays = diffHours / 24;
+
+  if (diffMs < 0) {
+    return { status: 'danger', progress: 100, timeText: `Trễ ${Math.abs(Math.round(diffDays))} ngày` };
+  } else if (diffHours < 24) {
+    return { status: 'warn', progress: 75, timeText: `Còn ${Math.round(diffHours)}h` };
+  } else if (diffDays < 3) {
+    return { status: 'warn', progress: 50, timeText: `Còn ${Math.round(diffDays)} ngày` };
+  } else {
+    return { status: 'ok', progress: 25, timeText: `Còn ${Math.round(diffDays)} ngày` };
+  }
 }
 
 const progressClass: Record<string, string> = {
@@ -23,22 +40,28 @@ const progressClass: Record<string, string> = {
   danger: 'danger',
 };
 
-export default function DeadlineSLA({ deadlines: propDeadlines }: DeadlineSLAProps) {
+export default function DeadlineSLA({ cases }: DeadlineSLAProps) {
   const t = useTranslations('DeadlineSLA');
-  const [deadlines, setDeadlines] = useState<Deadline[]>(propDeadlines || []);
-  const [loading, setLoading] = useState(!propDeadlines);
 
-  useEffect(() => {
-    if (!propDeadlines) {
-      fetch('/api/dashboard/deadlines')
-        .then((res) => res.json())
-        .then((data) => {
-          setDeadlines(data);
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    }
-  }, [propDeadlines]);
+  // Get active cases with deadlines (excluding completed/closed/cancelled)
+  const activeCases = cases.filter(c =>
+    !['approved', 'delivered', 'closed', 'cancelled'].includes(c.status)
+  );
+
+  // Map to deadlines - for now using createdAt as deadline (in real app would use slaDeadline)
+  const deadlines: Deadline[] = activeCases.slice(0, 5).map(c => {
+    const deadlineDate = new Date(c.updatedAt);
+    deadlineDate.setDate(deadlineDate.getDate() + 7); // Simulate 7-day SLA
+    const deadlineInfo = getDeadlineStatus(deadlineDate);
+
+    return {
+      id: c.id,
+      title: c.title,
+      code: c.code,
+      slaDeadline: deadlineDate.toISOString(),
+      ...deadlineInfo,
+    };
+  });
 
   return (
     <div className="panel">
@@ -53,9 +76,7 @@ export default function DeadlineSLA({ deadlines: propDeadlines }: DeadlineSLAPro
       </div>
 
       <div className="deadline-list">
-        {loading ? (
-          <div className="empty-state">{t('loading') || 'Loading...'}</div>
-        ) : deadlines.length === 0 ? (
+        {deadlines.length === 0 ? (
           <div className="empty-state">{t('empty')}</div>
         ) : (
           deadlines.map((d) => (

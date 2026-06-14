@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 interface Activity {
@@ -12,26 +11,11 @@ interface Activity {
   relativeTime: string;
 }
 
-interface ActivityTimelineProps {
-  activities?: Activity[]; // Optional - will fetch if not provided
-}
-
-export default function ActivityTimeline({ activities: propActivities }: ActivityTimelineProps) {
+export default function ActivityTimeline() {
   const t = useTranslations('ActivityTimeline');
-  const [activities, setActivities] = useState<Activity[]>(propActivities || []);
-  const [loading, setLoading] = useState(!propActivities);
 
-  useEffect(() => {
-    if (!propActivities) {
-      fetch('/api/dashboard/activities')
-        .then((res) => res.json())
-        .then((data) => {
-          setActivities(data);
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    }
-  }, [propActivities]);
+  // TODO: Pass activities as props from parent
+  const activities: Activity[] = [];
 
   return (
     <div className="panel">
@@ -46,9 +30,7 @@ export default function ActivityTimeline({ activities: propActivities }: Activit
       </div>
 
       <div className="timeline">
-        {loading ? (
-          <div className="empty-state">{t('loading') || 'Loading...'}</div>
-        ) : activities.length === 0 ? (
+        {activities.length === 0 ? (
           <div className="empty-state">{t('empty')}</div>
         ) : (
           activities.map((a) => (

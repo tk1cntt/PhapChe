@@ -1,20 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Paging from '@/components/ui/Paging';
+import { CaseItem } from './DashboardClient';
 
-export interface CaseItem {
-  id: string;
-  code: string;
-  title: string;
-  matterType: string;
-  status: string;
-  statusVariant: string;
-  statusText: string;
-  assignee: string;
-  assigneeRole: string;
-  updatedAt: string;
+interface CasesTableProps {
+  cases: CaseItem[];
 }
 
 function getStatusBadgeClass(variant: string): string {
@@ -37,38 +29,10 @@ function formatDate(dateStr: string): string {
   });
 }
 
-export default function CasesTable() {
+export default function CasesTable({ cases }: CasesTableProps) {
   const t = useTranslations('CasesTable');
-  const [cases, setCases] = useState<CaseItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
-
-  useEffect(() => {
-    fetch('/api/dashboard/all-cases')
-      .then((res) => res.json())
-      .then((data) => {
-        setCases(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="table-card">
-        <div className="table-head">
-          <div className="th">{t('caseCode')}</div>
-          <div className="th">{t('requestType')}</div>
-          <div className="th">{t('status')}</div>
-          <div className="th">{t('assignee')}</div>
-          <div className="th">{t('lastUpdated')}</div>
-          <div className="th">{t('actions')}</div>
-        </div>
-        <div className="loading-state">{t('loading')}</div>
-      </div>
-    );
-  }
 
   const totalCount = cases.length;
   const startIndex = (currentPage - 1) * pageSize;
@@ -122,7 +86,7 @@ export default function CasesTable() {
                 </div>
               </div>
               <div className="td">
-                <a className="action-link" href="#">
+                <a className="action-link" href={`/cases/${c.id}`}>
                   {t('viewDetails')} →
                 </a>
               </div>

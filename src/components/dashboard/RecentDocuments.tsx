@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 interface Document {
@@ -12,10 +11,6 @@ interface Document {
   uploadedBy: string;
   updatedAt: string;
   relativeTime: string;
-}
-
-interface RecentDocumentsProps {
-  documents?: Document[]; // Optional - will fetch if not provided
 }
 
 function formatFileSize(bytes: number): string {
@@ -44,22 +39,11 @@ const statusBadgeClass: Record<string, string> = {
   ENCRYPTED: 'badge green',
 };
 
-export default function RecentDocuments({ documents: propDocuments }: RecentDocumentsProps) {
+export default function RecentDocuments() {
   const t = useTranslations('RecentDocuments');
-  const [documents, setDocuments] = useState<Document[]>(propDocuments || []);
-  const [loading, setLoading] = useState(!propDocuments);
 
-  useEffect(() => {
-    if (!propDocuments) {
-      fetch('/api/dashboard/recent-documents')
-        .then((res) => res.json())
-        .then((data) => {
-          setDocuments(data);
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    }
-  }, [propDocuments]);
+  // TODO: Pass documents as props from parent when vault is integrated
+  const documents: Document[] = [];
 
   return (
     <div className="panel">
@@ -75,9 +59,7 @@ export default function RecentDocuments({ documents: propDocuments }: RecentDocu
       </div>
 
       <div className="document-list">
-        {loading ? (
-          <div className="empty-state">{t('loading') || 'Loading...'}</div>
-        ) : documents.length === 0 ? (
+        {documents.length === 0 ? (
           <div className="empty-state">{t('empty')}</div>
         ) : (
           documents.map((doc) => (

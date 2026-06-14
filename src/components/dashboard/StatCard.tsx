@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { StatsData } from './DashboardClient';
 
 interface StatCardProps {
   variant: 'blue' | 'green' | 'orange' | 'purple';
@@ -8,13 +8,6 @@ interface StatCardProps {
   value: string | number;
   description: string;
   icon: React.ReactNode;
-}
-
-interface StatsData {
-  totalRequests: number;
-  inProgress: number;
-  completed: number;
-  vaultDocs: number;
 }
 
 const variantStyles = {
@@ -65,43 +58,14 @@ export default function StatCard({
   );
 }
 
-// StatsCardGrid - fetches and displays all stats
-export function StatsCardGrid() {
-  const [stats, setStats] = useState<StatsData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('/api/dashboard/stats')
-      .then((res) => res.json())
-      .then((data) => {
-        setStats(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  if (loading || !stats) {
-    return (
-      <div className="stats-grid">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="stat-card" style={{ opacity: 0.5 }}>
-            <div className="stat-icon" />
-            <div className="stat-info">
-              <div className="stat-title">Loading...</div>
-              <div className="stat-value">-</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
+// StatsCardGrid - receives stats data from parent
+export function StatsCardGrid({ data }: { data: StatsData }) {
   return (
     <div className="stats-grid">
       <StatCard
         variant="blue"
         title="Tổng hồ sơ"
-        value={stats.totalRequests}
+        value={data.totalRequests}
         description="Trong workspace hiện tại"
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -113,7 +77,7 @@ export function StatsCardGrid() {
       <StatCard
         variant="orange"
         title="Đang xử lý"
-        value={stats.inProgress}
+        value={data.inProgress}
         description="Chờ phản hồi chuyên viên"
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -125,7 +89,7 @@ export function StatsCardGrid() {
       <StatCard
         variant="green"
         title="Đã hoàn tất"
-        value={stats.completed}
+        value={data.completed}
         description="Đúng SLA xử lý"
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -136,7 +100,7 @@ export function StatsCardGrid() {
       <StatCard
         variant="purple"
         title="Tài liệu vault"
-        value={stats.vaultDocs}
+        value={data.vaultDocs}
         description="Được phân quyền an toàn"
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

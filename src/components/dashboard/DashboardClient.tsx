@@ -10,7 +10,41 @@ import ActivityTimeline from './ActivityTimeline';
 import CasesTable from './CasesTable';
 import './dashboard.css';
 
-export default function DashboardClient() {
+export interface CaseItem {
+  id: string;
+  code: string;
+  title: string;
+  matterType: string;
+  status: string;
+  statusVariant: string;
+  statusText: string;
+  assignee: string;
+  assigneeRole: string;
+  updatedAt: string;
+}
+
+export interface StatsData {
+  totalRequests: number;
+  inProgress: number;
+  completed: number;
+  vaultDocs: number;
+}
+
+export interface WelcomeData {
+  workspace: { id: string; name: string; slug: string };
+  activeRequests: number;
+  pendingDocs: number;
+  newReplies: number;
+  userName: string;
+}
+
+interface DashboardClientProps {
+  welcomeData: WelcomeData;
+  stats: StatsData;
+  allCases: CaseItem[];
+}
+
+export default function DashboardClient({ welcomeData, stats, allCases }: DashboardClientProps) {
   const t = useTranslations('DashboardClient');
 
   return (
@@ -30,26 +64,26 @@ export default function DashboardClient() {
         </button>
       </div>
 
-      {/* Welcome Banner - self-fetching */}
-      <WelcomeBanner />
+      {/* Welcome Banner */}
+      <WelcomeBanner data={welcomeData} />
 
-      {/* Stats Grid - self-fetching */}
-      <StatsCardGrid />
+      {/* Stats Grid */}
+      <StatsCardGrid data={stats} />
 
-      {/* Grid 2: Recent Cases + Deadline - self-fetching */}
+      {/* Grid 2: Recent Cases + Deadline */}
       <div className="grid-2">
-        <RecentCases />
-        <DeadlineSLA />
+        <RecentCases cases={allCases.slice(0, 5)} />
+        <DeadlineSLA cases={allCases} />
       </div>
 
-      {/* Grid: Recent Docs + Activity - self-fetching */}
+      {/* Grid: Recent Docs + Activity */}
       <div className="dashboard-grid">
         <RecentDocuments />
         <ActivityTimeline />
       </div>
 
-      {/* Table Card - All Cases with Paging - self-fetching */}
-      <CasesTable />
+      {/* Table Card - All Cases with Paging */}
+      <CasesTable cases={allCases} />
 
       {/* Floating Chat Button */}
       <a href="/messages" className="floating-chat">

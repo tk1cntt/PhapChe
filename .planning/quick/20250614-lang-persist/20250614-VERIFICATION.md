@@ -11,26 +11,43 @@ Khi tôi thay đổi ngôn ngữ ở trên header hãy lưu lại để dùng. H
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| Locale preference saved to localStorage when changed | ✅ PASS | LanguageSwitcher.tsx:27 - `localStorage.setItem(LOCALE_STORAGE_KEY, key)` |
-| Locale preference restored from localStorage on page load | ✅ PASS | LocaleSync.tsx - reads from localStorage on mount, redirects if different |
-| Works across all pages and navigation | ✅ PASS | LocaleSync added to [locale]/layout.tsx which wraps all locale pages |
-| No visible delay when restoring preference | ✅ PASS | Component returns null, only does client-side redirect on mount |
+| Locale preference saved when changed | ✅ PASS | LanguageSwitcher.tsx - `document.cookie = preferred-locale=...` |
+| Locale preference restored on navigation | ✅ PASS | middleware.ts - reads cookie, redirects before render |
+| No flash of default locale | ✅ PASS | Server-side redirect happens before React hydration |
+| Works across all pages and navigation | ✅ PASS | Cookie is path=/, applies to all routes |
 
 ## Files Changed
 
-- `src/components/providers/LocaleSync.tsx` - NEW: Client component to restore locale from localStorage
-- `src/components/layout/LanguageSwitcher.tsx` - MODIFIED: Save locale to localStorage on switch
-- `src/app/[locale]/layout.tsx` - MODIFIED: Added LocaleSync to all locale pages
-- `src/messages/*.json` - FIXED: Remove duplicate entries, add missing keys
+- `src/middleware.ts` - MODIFIED: Check preferred-locale cookie, redirect before render
+- `src/components/layout/LanguageSwitcher.tsx` - MODIFIED: Set cookie via document.cookie
+- `src/app/[locale]/layout.tsx` - MODIFIED: Removed LocaleSync
+- `src/components/providers/LocaleSync.tsx` - DELETED: Replaced by server-side middleware approach
+
+## Architecture
+
+```
+User clicks English
+    ↓
+LanguageSwitcher sets cookie "preferred-locale=en"
+    ↓
+router.push('/en/dashboard')
+    ↓
+Middleware reads cookie, sees /vi/ → /en/ mismatch
+    ↓
+Server-side redirect to /en/dashboard
+    ↓
+Page renders with English from the start (no flash)
+```
 
 ## Verification Steps (Manual)
 
-1. Open any page with locale prefix (e.g., /vi/cases)
-2. Click language switcher in header
-3. Select a different language (e.g., English)
-4. Navigate to another page (e.g., /vi/dashboard)
-5. Verify language is still English, not reverted to Vietnamese
+1. Open any page (e.g., /vi/cases)
+2. Click language switcher, select English
+3. URL should change to /en/... immediately
+4. Navigate to any other page (/vi/dashboard, /vi/admin/users, etc.)
+5. Verify language stays English throughout
+6. Refresh page - should still be English
 
 ## Summary
 
-✅ All requirements met. Language preference now persists across navigation and page reloads.
+✅ All requirements met. Cookie-based persistence with server-side redirect ensures no flash of default locale.

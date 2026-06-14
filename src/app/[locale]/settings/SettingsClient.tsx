@@ -4,11 +4,12 @@ import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { SettingsMenu, SettingsTab } from '@/components/settings/SettingsMenu';
 import { SettingsStats } from '@/components/settings/SettingsStats';
-import { ProfileForm, UserProfile } from '@/components/settings/ProfileForm';
+import { ProfileSection } from '@/components/settings/ProfileSection';
 import { SecuritySettings } from '@/components/settings/SecuritySettings';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
-import { LanguageSettings } from '@/components/settings/LanguageSettings';
-import { AuditSettings } from '@/components/settings/AuditSettings';
+import { LanguageSection } from '@/components/settings/LanguageSection';
+import { AuditSection } from '@/components/settings/AuditSection';
+import { WorkspaceSection } from '@/components/settings/WorkspaceSection';
 
 export interface UserData {
   id: string;
@@ -43,10 +44,15 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
   const t = useTranslations('UserSettings');
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [profileSaved, setProfileSaved] = useState(false);
-  // Local state to track locale changes without mutating props
   const [currentLocale, setCurrentLocale] = useState(user.locale);
 
-  const handleSaveProfile = async (data: UserProfile) => {
+  const handleSaveProfile = async (data: {
+    name: string;
+    email: string;
+    phone: string | null;
+    title: string | null;
+    timezone: string;
+  }) => {
     try {
       const response = await fetch('/api/settings/profile', {
         method: 'PUT',
@@ -71,7 +77,7 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
     switch (activeTab) {
       case 'profile':
         return (
-          <ProfileForm
+          <ProfileSection
             user={{
               name: user.name,
               email: user.email,
@@ -89,23 +95,10 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
       case 'notifications':
         return <NotificationSettings />;
       case 'workspace':
-        return (
-          <div className="tab-panel">
-            <h3>{t('tabWorkspace')}</h3>
-            <p className="text-muted">{t('workspaceInfo')}</p>
-            <div className="workspace-list">
-              {workspaces.map((ws) => (
-                <div key={ws.id} className="workspace-item">
-                  <span className="workspace-name">{ws.name}</span>
-                  <span className="workspace-slug">{ws.slug}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
+        return <WorkspaceSection workspaces={workspaces} />;
       case 'language':
         return (
-          <LanguageSettings
+          <LanguageSection
             currentLocale={currentLocale}
             onLocaleChange={(newLocale) => {
               setCurrentLocale(newLocale);
@@ -113,7 +106,7 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
           />
         );
       case 'audit':
-        return <AuditSettings userId={user.id} />;
+        return <AuditSection userId={user.id} />;
       default:
         return null;
     }

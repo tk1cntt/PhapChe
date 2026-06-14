@@ -7,6 +7,18 @@ export type { SettingsStatsProps } from './SettingsStats';
 export { ProfileForm } from './ProfileForm';
 export type { ProfileFormProps, UserProfile, WorkspaceOption } from './ProfileForm';
 
+export { ProfileSection } from './ProfileSection';
+export type { ProfileSectionProps } from './ProfileSection';
+
+export { WorkspaceSection } from './WorkspaceSection';
+export type { WorkspaceSectionProps } from './WorkspaceSection';
+
+export { LanguageSection } from './LanguageSection';
+export type { LanguageSectionProps } from './LanguageSection';
+
+export { AuditSection } from './AuditSection';
+export type { AuditSectionProps } from './AuditSection';
+
 export { ToggleRow } from './ToggleRow';
 export type { ToggleRowProps } from './ToggleRow';
 

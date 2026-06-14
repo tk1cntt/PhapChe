@@ -27,6 +27,24 @@ v2.0 táº­p trung vĂ o viá»‡c káº¿t ná»‘i Mock UI (Ä‘Ă£ hoĂ
 - ❌ **Phase 50: Audit** — Connect security logs
 - ❌ **Phase 51: Vault** — Connect file management
 - ❌ **Phase 52: Workspace** — Connect permissions
+- ❌ **Phase 53: User Dashboard Real Data** — Connect stats → real queries
+
+## Phase Details
+
+### Phase 53: User Dashboard Real Data
+
+**Goal**: Implement user dashboard with real data from Prisma queries, matching template layout/user-dashboard.html exactly
+**Depends on**: Phase 29 (Messages page integration)
+**Requirements**: USER-DASH-REAL-01, USER-DASH-REAL-02, USER-DASH-REAL-03, USER-DASH-REAL-04
+**Success Criteria** (what must be TRUE):
+  1. User sees 4 stat cards with real counts (total requests, in_progress, completed, vault docs)
+  2. User sees welcome banner with workspace status message from DB
+  3. User sees recent cases panel with status badges from real data
+  4. User sees deadline/SLA panel with progress bars from real deadlines
+  5. User sees recent documents panel from vault
+  6. User sees activity timeline with relative timestamps from audit logs
+  7. User sees requests table with real data
+  8. User sees floating chat button
 
 ## Phase Details
 

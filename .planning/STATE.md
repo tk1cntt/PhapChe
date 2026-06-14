@@ -71,7 +71,8 @@ Plan: 1 of 1
 ### Phase 54: i18n Comprehensive Migration
 
 - [x] 54-CONTEXT.md — Context gathered
-- [x] 54-PLAN.md — i18n migration (Wave 1 + partial Wave 2) — Partial: 18/41 components, 77f67ee, f594ac7
+- [x] 54-PLAN.md — i18n migration (Wave 1-4) — 43/43 components, 77f67ee, 08080cb, 10911eb
+- [x] 54-VERIFICATION.md — All must-haves verified (10911eb)
 
 ### Phase 33: User Management
 

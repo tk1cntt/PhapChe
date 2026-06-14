@@ -198,15 +198,40 @@ export async function GET(request: NextRequest) {
       relativeTime: getRelativeTime(d.createdAt),
     }));
 
-    // Transform activity log
-    const transformedActivity = activityLog.map((a) => ({
-      id: a.id,
-      action: a.action,
-      description: a.action,
-      actor: a.actorId || 'System',
-      timestamp: a.createdAt.toISOString(),
-      relativeTime: getRelativeTime(a.createdAt),
-    }));
+    // Transform activity log - create meaningful descriptions based on action type
+    const transformedActivity = activityLog.map((a) => {
+      // Create human-readable descriptions based on action type
+      let description = a.action;
+
+      if (a.action.includes('response') || a.action.includes('phản hồi')) {
+        description = `${a.actorId || 'Chuyên viên'} đã phản hồi yêu cầu.`;
+      } else if (a.action.includes('document') || a.action.includes('tài liệu')) {
+        description = `${a.actorId || 'Hệ thống'} đã cập nhật tài liệu trong vault.`;
+      } else if (a.action.includes('review') || a.action.includes('duyệt')) {
+        description = `${a.actorId || 'Coordinator'} đã xác nhận hoàn tất yêu cầu.`;
+      } else if (a.action.includes('create') || a.action.includes('tạo')) {
+        description = `${a.actorId || 'Khách hàng'} đã tạo yêu cầu mới.`;
+      } else if (a.action.includes('workspace') || a.action.includes('scope')) {
+        description = `Hệ thống xác nhận quyền truy cập chỉ trong phạm vi workspace.`;
+      }
+
+      // Create readable action title
+      let actionTitle = a.action;
+      if (a.action.includes('response')) actionTitle = 'Chuyên viên đã phản hồi hồ sơ';
+      else if (a.action.includes('document')) actionTitle = 'Tài liệu mới được thêm vào vault';
+      else if (a.action.includes('review_')) actionTitle = 'Hồ sơ được duyệt';
+      else if (a.action.includes('workspace')) actionTitle = 'Workspace scope được kiểm tra';
+      else if (a.action.includes('create')) actionTitle = 'Yêu cầu mới được tạo';
+
+      return {
+        id: a.id,
+        action: actionTitle,
+        description: description,
+        actor: a.actorId || 'Hệ thống',
+        timestamp: a.createdAt.toISOString(),
+        relativeTime: getRelativeTime(a.createdAt),
+      };
+    });
 
     // Calculate SLA deadlines
     const now = new Date();

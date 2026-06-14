@@ -394,6 +394,8 @@
     "totalRecords": "个请求",
     "errorLoading": "从服务器加载数据失败。请重试。",
     "retry": "重试",
+    "loading": "加载中...",
+    "noTimelineEvents": "暂无事件",
     "hoursAgo": "{count}小时前",
     "daysAgo": "{count}天前",
     "statusChanged": "请求已更改为\"{status}\"",

@@ -395,6 +395,8 @@
     "totalRecords": "requests",
     "errorLoading": "Failed to load data from server. Please try again.",
     "retry": "Retry",
+    "loading": "Loading...",
+    "noTimelineEvents": "No events yet",
     "hoursAgo": "{count} hours ago",
     "daysAgo": "{count} days ago",
     "statusChanged": "Request changed to \"{status}\"",

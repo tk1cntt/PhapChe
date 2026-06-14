@@ -395,6 +395,8 @@
     "totalRecords": "hồ sơ",
     "errorLoading": "Đã xảy ra lỗi khi lấy dữ liệu từ máy chủ. Vui lòng thử lại.",
     "retry": "Thử lại",
+    "loading": "Đang tải...",
+    "noTimelineEvents": "Chưa có sự kiện nào",
     "hoursAgo": "{count} giờ trước",
     "daysAgo": "{count} ngày trước",
     "statusChanged": "Hồ sơ chuyển sang \"{status}\"",

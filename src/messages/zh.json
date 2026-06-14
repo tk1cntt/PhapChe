@@ -199,6 +199,24 @@
     "title": "最近活动",
     "empty": "暂无最近活动"
   },
+  "ToolbarCard": {
+    "searchPlaceholder": "搜索您的案件...",
+    "filter": "筛选",
+    "status": "状态",
+    "export": "导出",
+    "columns": "显示列"
+  },
+  "CasesTable": {
+    "caseCode": "案件编号",
+    "requestType": "请求类型",
+    "status": "状态",
+    "assignee": "负责人",
+    "lastUpdated": "最近更新",
+    "actions": "操作",
+    "viewDetails": "查看详情",
+    "noCases": "暂无案件",
+    "pagingInfo": "显示 {start}-{end}，共 {total} 件"
+  },
   "Language": {
     "switch": "切换语言",
     "vi": "Tiếng Việt",

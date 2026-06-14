@@ -199,6 +199,24 @@
     "title": "Recent Activity",
     "empty": "No recent activity"
   },
+  "ToolbarCard": {
+    "searchPlaceholder": "Search your cases...",
+    "filter": "Filter",
+    "status": "Status",
+    "export": "Export",
+    "columns": "Columns"
+  },
+  "CasesTable": {
+    "caseCode": "Case Code",
+    "requestType": "Request Type",
+    "status": "Status",
+    "assignee": "Assignee",
+    "lastUpdated": "Last Updated",
+    "actions": "Actions",
+    "viewDetails": "View Details",
+    "noCases": "No cases found",
+    "pagingInfo": "Showing {start}-{end} of {total} cases"
+  },
   "Language": {
     "switch": "Switch Language",
     "vi": "Tiếng Việt",

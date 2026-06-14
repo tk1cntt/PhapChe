@@ -199,6 +199,24 @@
     "title": "Hoạt động gần đây",
     "empty": "Không có hoạt động nào"
   },
+  "ToolbarCard": {
+    "searchPlaceholder": "Tìm kiếm hồ sơ của bạn...",
+    "filter": "Bộ lọc",
+    "status": "Trạng thái",
+    "export": "Xuất",
+    "columns": "Cột hiển thị"
+  },
+  "CasesTable": {
+    "caseCode": "Mã hồ sơ",
+    "requestType": "Loại yêu cầu",
+    "status": "Trạng thái",
+    "assignee": "Người phụ trách",
+    "lastUpdated": "Cập nhật gần nhất",
+    "actions": "Thao tác",
+    "viewDetails": "Xem chi tiết",
+    "noCases": "Không có hồ sơ nào",
+    "pagingInfo": "Hiển thị {start}-{end} của {total} hồ sơ"
+  },
   "Language": {
     "switch": "Đổi ngôn ngữ",
     "vi": "Tiếng Việt",

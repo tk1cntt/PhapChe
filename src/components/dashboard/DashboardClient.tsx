@@ -8,6 +8,8 @@ import RecentCases from './RecentCases';
 import DeadlineSLA from './DeadlineSLA';
 import RecentDocuments from './RecentDocuments';
 import ActivityTimeline from './ActivityTimeline';
+import ToolbarCard from './ToolbarCard';
+import CasesTable from './CasesTable';
 import './dashboard.css';
 
 interface DashboardData {
@@ -106,26 +108,6 @@ function LoadingSkeleton() {
   );
 }
 
-function getStatusBadgeClass(variant: string): string {
-  const map: Record<string, string> = {
-    green: 'badge green',
-    blue: 'badge blue',
-    orange: 'badge orange',
-    red: 'badge red',
-    purple: 'badge purple',
-  };
-  return map[variant] || 'badge blue';
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
-
 export default function DashboardClient() {
   const t = useTranslations('DashboardClient');
   const tStat = useTranslations('StatCard');
@@ -157,7 +139,7 @@ export default function DashboardClient() {
   if (error) return <div className="dashboard-error">{error}</div>;
   if (!data) return null;
 
-  // Filter and paginate cases
+  // Filter cases by search
   const filteredCases = data.allCases || data.recentCases;
   const searchedCases = searchTerm
     ? filteredCases.filter(
@@ -166,15 +148,6 @@ export default function DashboardClient() {
           c.title.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : filteredCases;
-
-  const totalPages = Math.ceil(searchedCases.length / pageSize);
-  const paginatedCases = searchedCases.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
-
-  const pagingStart = (currentPage - 1) * pageSize + 1;
-  const pagingEnd = Math.min(currentPage * pageSize, searchedCases.length);
 
   return (
     <div className="dashboard-page">
@@ -265,144 +238,22 @@ export default function DashboardClient() {
       </div>
 
       {/* Toolbar Card - Search and Filter */}
-      <div className="toolbar-card">
-        <div className="toolbar">
-          <div className="left-tools">
-            <div className="request-search">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#718096" strokeWidth="2">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-              </svg>
-              <input
-                type="text"
-                placeholder={t('searchPlaceholder')}
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-              />
-            </div>
-            <button className="tool-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
-                <path d="M22 3H2l8 9.46V19l4 2v-8.54z" />
-              </svg>
-              {t('filter')}
-            </button>
-            <button className="tool-btn">
-              {t('status')}
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </button>
-          </div>
-          <div className="right-tools">
-            <button className="tool-btn square">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
-                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-                <path d="M3 16v5h5" />
-                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-                <path d="M21 8V3h-5" />
-              </svg>
-            </button>
-            <button className="tool-btn">{t('export')}</button>
-            <button className="tool-btn">{t('columns')}</button>
-          </div>
-        </div>
-      </div>
+      <ToolbarCard
+        searchTerm={searchTerm}
+        onSearchChange={(term) => {
+          setSearchTerm(term);
+          setCurrentPage(1);
+        }}
+      />
 
       {/* Table Card - All Cases with Paging */}
-      <div className="table-card">
-        <div className="table-head">
-          <div className="th">{t('caseCode')}</div>
-          <div className="th">{t('requestType')}</div>
-          <div className="th">{t('status')}</div>
-          <div className="th">{t('assignee')}</div>
-          <div className="th">{t('lastUpdated')}</div>
-          <div className="th">{t('actions')}</div>
-        </div>
-
-        {paginatedCases.length === 0 ? (
-          <div className="empty-state">{t('noCases')}</div>
-        ) : (
-          paginatedCases.map((c) => (
-            <div key={c.id} className="table-row">
-              <div className="td">
-                <div className="case-main">
-                  <div className="case-icon">📄</div>
-                  <div className="case-info">
-                    <strong>{c.code}</strong>
-                    <span>{c.statusText}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>{c.title}</strong>
-                  <span>{c.matterType}</span>
-                </div>
-              </div>
-              <div className="td">
-                <span className={getStatusBadgeClass(c.statusVariant)}>{c.statusText}</span>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>{c.assignee}</strong>
-                  <span>{c.assigneeRole}</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>{formatDate(c.updatedAt)}</strong>
-                </div>
-              </div>
-              <div className="td">
-                <a className="action-link" href="#">
-                  {t('viewDetails')} →
-                </a>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Paging */}
-      {totalPages > 1 && (
-        <div className="paging-bar">
-          <span className="paging-info">
-            {t('pagingInfo', { start: pagingStart, end: pagingEnd, total: searchedCases.length })}
-          </span>
-          <div className="paging-controls">
-            <button
-              className="paging-btn"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => p - 1)}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                className={`paging-btn ${page === currentPage ? 'active' : ''}`}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              className="paging-btn"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((p) => p + 1)}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
+      <CasesTable
+        cases={searchedCases}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        totalCount={searchedCases.length}
+        onPageChange={setCurrentPage}
+      />
 
       {/* Floating Chat Button */}
       <a href="/messages" className="floating-chat">

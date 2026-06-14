@@ -199,6 +199,24 @@
     "title": "最近のアクティビティ",
     "empty": "最近のアクティビティがありません"
   },
+  "ToolbarCard": {
+    "searchPlaceholder": "案件を検索...",
+    "filter": "フィルター",
+    "status": "ステータス",
+    "export": "エクスポート",
+    "columns": "表示列"
+  },
+  "CasesTable": {
+    "caseCode": "案件番号",
+    "requestType": "リクエスト種別",
+    "status": "ステータス",
+    "assignee": "担当者",
+    "lastUpdated": "最終更新",
+    "actions": "操作",
+    "viewDetails": "詳細を見る",
+    "noCases": "案件がありません",
+    "pagingInfo": "{start}-{end} を表示、全 {total} 件"
+  },
   "Language": {
     "switch": "言語切替",
     "vi": "Tiếng Việt",

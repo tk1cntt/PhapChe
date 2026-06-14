@@ -90,7 +90,6 @@ export async function GET(request: NextRequest) {
       completedRequests,
       vaultDocs,
       recentCases,
-      pendingDocs,
       recentDocs,
       activityLog,
     ] = await Promise.all([
@@ -130,30 +129,17 @@ export async function GET(request: NextRequest) {
           assignedReviewer: { select: { name: true } },
         },
       }),
-      // Pending docs count
-      prisma.vaultFile.count({
-        where: {
-          workspaceId: activeWorkspaceId,
-          status: 'PENDING',
-        },
-      }),
       // Recent documents
       prisma.vaultFile.findMany({
         where: { workspaceId: activeWorkspaceId },
         take: 5,
-        orderBy: { updatedAt: 'desc' },
-        include: {
-          uploadedBy: { select: { name: true } },
-        },
+        orderBy: { createdAt: 'desc' },
       }),
-      // Activity log
-      prisma.auditLog.findMany({
+      // Activity log (AuditEvent)
+      prisma.auditEvent.findMany({
         where: { workspaceId: activeWorkspaceId },
         take: 10,
         orderBy: { createdAt: 'desc' },
-        include: {
-          user: { select: { name: true } },
-        },
       }),
     ]);
 
@@ -161,8 +147,8 @@ export async function GET(request: NextRequest) {
     const transformedCases = recentCases.map((c) => ({
       id: c.id,
       code: c.code || c.id.slice(-10),
-      title: c.title || c.matterType?.name || 'Legal Request',
-      matterType: c.matterType?.name || 'Legal Request',
+      title: c.title,
+      matterType: c.matterType || 'Legal Request',
       status: c.status,
       statusVariant: getStatusVariant(c.status),
       statusText: getStatusText(c.status),
@@ -174,21 +160,21 @@ export async function GET(request: NextRequest) {
     // Transform recent documents
     const transformedDocs = recentDocs.map((d) => ({
       id: d.id,
-      filename: d.filename,
-      size: d.fileSize || 0,
-      mimeType: d.mimeType || 'application/octet-stream',
-      status: d.status || 'ACTIVE',
-      uploadedBy: d.uploadedBy?.name || '—',
-      updatedAt: d.updatedAt.toISOString(),
-      relativeTime: getRelativeTime(d.updatedAt),
+      filename: d.filename || 'Untitled',
+      size: d.size || 0,
+      mimeType: d.contentType || 'application/octet-stream',
+      status: 'ACTIVE',
+      uploadedBy: '—',
+      updatedAt: d.createdAt.toISOString(),
+      relativeTime: getRelativeTime(d.createdAt),
     }));
 
     // Transform activity log
     const transformedActivity = activityLog.map((a) => ({
       id: a.id,
       action: a.action,
-      description: a.details || a.action,
-      actor: a.user?.name || 'System',
+      description: a.action,
+      actor: a.actorId || 'System',
       timestamp: a.createdAt.toISOString(),
       relativeTime: getRelativeTime(a.createdAt),
     }));
@@ -254,7 +240,7 @@ export async function GET(request: NextRequest) {
     // Calculate new replies count (messages in last 24h)
     const newReplies = await prisma.message.count({
       where: {
-        legalRequest: { workspaceId: activeWorkspaceId },
+        workspaceId: activeWorkspaceId,
         createdAt: { gte: oneDayAgo },
       },
     });
@@ -273,7 +259,7 @@ export async function GET(request: NextRequest) {
       },
       welcome: {
         activeRequests: inProgressRequests,
-        pendingDocs,
+        pendingDocs: 0,
         newReplies,
       },
       recentCases: transformedCases,

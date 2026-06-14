@@ -42,6 +42,7 @@
 
 ### Level 6: Depends on Level 5
 
+- [ ] **Phase 68: Storage Infrastructure** — Local-first storage, S3-ready, StorageService abstraction, file metadata schema
 - [ ] **Phase 67: Vault (Admin)** — File management, upload, download, folders, tags
 
 ## Phase Details
@@ -245,10 +246,26 @@
 9. Pagination works
 10. Correlation IDs in monospace
 
+### Phase 68: Storage Infrastructure
+
+**Goal**: Implement Local-first Storage Architecture, S3-ready by configuration, StorageService abstraction, file metadata schema
+**Depends on**: Phase 55 (Architecture standards)
+**Requirements**: STORAGE-01, STORAGE-02, STORAGE-03, STORAGE-04, STORAGE-05, STORAGE-06, STORAGE-07, STORAGE-08
+
+**Success Criteria:**
+1. StorageProvider interface defined
+2. LocalStorageAdapter implemented
+3. StorageService abstracts all file operations
+4. File metadata stored in database
+5. ObjectKey convention established
+6. Upload/Download/Delete APIs working
+7. Audit logging for file operations
+8. Migration command ready for S3 transition
+
 ### Phase 67: Vault (Admin)
 
 **Goal**: Admin Vault with file management, upload, download, folders, tags
-**Depends on**: Phase 59, Phase 64
+**Depends on**: Phase 59, Phase 64, Phase 68 (Storage Infrastructure)
 **Requirements**: VAULT-01, VAULT-02, VAULT-03, VAULT-04, VAULT-05, VAULT-06, VAULT-07, VAULT-08, VAULT-09, VAULT-10, VAULT-11, VAULT-12
 
 **Success Criteria:**
@@ -281,6 +298,7 @@
 | 64 | Operations (Admin) | v2.1 | Not started | 7 |
 | 65 | Messages (User) | v2.1 | Not started | 8 |
 | 66 | Audit (Admin) | v2.1 | Not started | 10 |
+| 68 | Storage Infrastructure | v2.1 | Not started | 8 |
 | 67 | Vault (Admin) | v2.1 | Not started | 12 |
 
 ---

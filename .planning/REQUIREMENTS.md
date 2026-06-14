@@ -33,13 +33,23 @@ Mỗi màn hình phase phải có đầy đủ test coverage:
 
 ### Phase 55: Architecture & Standards
 
-- [ ] **ARCH-01**: Component audit complete — all components documented with purpose, props, usage
+- [x] **ARCH-01**: Component audit complete — all components documented with purpose, props, usage
 - [ ] **ARCH-02**: API patterns standardized — consistent request/response format, error handling
 - [ ] **ARCH-03**: Shared components registry — StatCard, Badge, Button, Input, Select, Modal, etc.
 - [ ] **ARCH-04**: Service layer established — business logic separated from UI components
 - [ ] **ARCH-05**: Type definitions unified — TypeScript interfaces for all entities, no `as any`
 - [ ] **ARCH-06**: Code standards documented — naming conventions, file structure, import order
 - [ ] **ARCH-07**: i18n rules established — when to use translations vs hardcoded strings
+- [ ] **ARCH-08**: Form Definition pattern documented — dynamic forms from database
+- [ ] **ARCH-09**: Workflow Definition pattern documented — state machine with transitions
+- [ ] **ARCH-10**: Template Engine pattern documented — {{variable}} syntax for documents
+- [ ] **ARCH-11**: Shared Component Extraction — StatCard unified with 5 variants
+- [ ] **ARCH-12**: Storybook setup — visual documentation for components
+- [ ] **ARCH-13**: Automated Component Registry Generator — scripts/generate-component-registry.mjs
+- [ ] **ARCH-14**: ESLint Component Naming Rule — no-duplicate-component enforcement
+- [ ] **ARCH-15**: API Registry — central documentation of all endpoints
+- [ ] **ARCH-16**: Swagger/OpenAPI Documentation — auto-generated API docs at /api/docs
+- [x] **ARCH-17**: Central API Client — single client for all API calls
 
 ### Phase 56: Settings (User)
 

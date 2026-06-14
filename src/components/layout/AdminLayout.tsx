@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { signOut } from '@/lib/auth-client';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -191,15 +192,8 @@ function Sidebar({ userName = 'Alex Nguyen', userRole = 'Super Admin', userIniti
   );
 }
 
-function Topbar({ locale = 'vi' }: { locale?: string }) {
+function Topbar() {
   const t = useTranslations('Common');
-
-  const languageLabels: Record<string, string> = {
-    vi: 'VN Tiếng Việt',
-    en: 'us English',
-  };
-
-  const currentLang = languageLabels[locale] || 'VN Tiếng Việt';
 
   return (
     <header className="topbar">
@@ -224,15 +218,8 @@ function Topbar({ locale = 'vi' }: { locale?: string }) {
           </svg>
         </div>
 
-        {/* Language */}
-        <div className="lang">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M2 12h20"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
-          vi Tiếng Việt
-        </div>
+        {/* Language Switcher */}
+        <LanguageSwitcher />
 
         {/* Avatar */}
         <div className="circle">A</div>
@@ -241,12 +228,12 @@ function Topbar({ locale = 'vi' }: { locale?: string }) {
   );
 }
 
-export function AdminLayout({ children, userName, userRole, userInitial, locale }: AdminLayoutProps & { locale?: string }) {
+export function AdminLayout({ children, userName, userRole, userInitial }: AdminLayoutProps) {
   return (
     <div className="app">
       <Sidebar userName={userName} userRole={userRole} userInitial={userInitial} />
       <main className="main">
-        <Topbar locale={locale} />
+        <Topbar />
         <section className="content">
           {children}
         </section>

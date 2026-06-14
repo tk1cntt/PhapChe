@@ -8,6 +8,7 @@ import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { signOut } from '@/lib/auth-client';
 import '@/components/layout/UserLayout.css';
+import LanguageSwitcher from './LanguageSwitcher';
 import {
   LayoutDashboard,
   FileText,
@@ -141,15 +142,8 @@ export function UserLayout({
               <input type="text" placeholder={tCommon('search')} />
             </div>
 
-            {/* Language */}
-          <div className="lang">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M2 12h20"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-            vi Tiếng Việt
-          </div>
+            {/* Language Switcher */}
+            <LanguageSwitcher />
 
             <div className="circle">{getInitials(userName)}</div>
           </div>

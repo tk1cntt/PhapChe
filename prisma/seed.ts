@@ -1,9 +1,11 @@
-import { PrismaClient } from '@prisma/client';
 import { SEED_MATTER_TYPES, SEED_FOLDERS, SEED_TAGS, SEED_VERSION, SEED_METADATA } from '../src/lib/i18n/seed-multilingual';
 import { auth } from '../src/auth';
 import { seedMessages } from './seed-messages';
+import { prisma } from '../src/lib/prisma';
 
-const prisma = new PrismaClient();
+// NOTE: For seed scripts, using the singleton prisma is acceptable.
+// Seed scripts are short-lived processes that run standalone.
+// For production, this is fine as the singleton manages connection pooling.
 
 const seedUsers: { email: string; name: string; password: string; role: 'customer' | 'specialist' | 'reviewer' | 'coordinator_admin' | 'super_admin' }[] = [
   // Admin roles

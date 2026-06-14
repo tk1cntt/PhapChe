@@ -9,7 +9,7 @@ vi.mock('@/lib/prisma', () => ({
       findUnique: vi.fn(),
       update: vi.fn()
     },
-    engagement: { findUnique: vi.fn() },
+    workflowTransition: { create: vi.fn() },
     auditLog: { create: vi.fn() },
   },
 }));
@@ -30,6 +30,10 @@ import { auth } from '@/auth';
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const mockAuth = auth as jest.Mocked<typeof auth>;
 
+// Mock prisma transaction
+const mockTransaction = vi.fn();
+(mockPrisma.$transaction as ReturnType<typeof vi.fn>).mockImplementation(mockTransaction);
+
 describe('Partner Status Update API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -41,7 +45,7 @@ describe('Partner Status Update API', () => {
 
   // WHITEBOX TESTS (Unit Tests)
   describe('Whitebox Tests - Unit', () => {
-    it('should update request status successfully', async () => {
+    it('should update request status to pending_review from in_progress', async () => {
       const mockSession = { user: { id: 'user-1', name: 'Partner User' } };
       mockAuth.api.getSession.mockResolvedValue(mockSession as any);
 
@@ -56,29 +60,27 @@ describe('Partner Status Update API', () => {
       mockPrisma.legalRequest.findUnique.mockResolvedValue({
         id: 'req-1',
         assignedPartnerId: 'partner-1',
-        status: 'submitted',
-      } as any);
-
-      mockPrisma.legalRequest.update.mockResolvedValue({
-        id: 'req-1',
         status: 'in_progress',
-        statusNote: 'Started working',
-        updatedAt: new Date(),
       } as any);
 
-      mockPrisma.auditLog.create.mockResolvedValue({} as any);
+      mockTransaction.mockResolvedValueOnce([{
+        id: 'req-1',
+        status: 'pending_review',
+        statusNote: 'Submitted for review',
+        updatedAt: new Date(),
+      }]);
 
       const request = new NextRequest('http://localhost:3000/api/partner/requests/req-1/status', {
         method: 'PATCH',
-        body: JSON.stringify({ status: 'in_progress', note: 'Started working' }),
+        body: JSON.stringify({ status: 'pending_review', note: 'Submitted for review' }),
       });
 
       const response = await PATCH(request, { params: Promise.resolve({ id: 'req-1' }) });
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.data.status).toBe('in_progress');
-      expect(mockPrisma.legalRequest.update).toHaveBeenCalled();
+      expect(data.data.status).toBe('pending_review');
+      expect(mockTransaction).toHaveBeenCalled();
     });
 
     it('should reject invalid status values', async () => {
@@ -96,7 +98,7 @@ describe('Partner Status Update API', () => {
       mockPrisma.legalRequest.findUnique.mockResolvedValue({
         id: 'req-1',
         assignedPartnerId: 'partner-1',
-        status: 'submitted',
+        status: 'in_progress',
       } as any);
 
       const request = new NextRequest('http://localhost:3000/api/partner/requests/req-1/status', {
@@ -108,7 +110,7 @@ describe('Partner Status Update API', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error).toContain('Invalid status');
+      expect(data.error).toBe('VALIDATION_ERROR');
     });
 
     it('should reject unauthorized users', async () => {
@@ -116,12 +118,13 @@ describe('Partner Status Update API', () => {
 
       const request = new NextRequest('http://localhost:3000/api/partner/requests/req-1/status', {
         method: 'PATCH',
-        body: JSON.stringify({ status: 'in_progress' }),
+        body: JSON.stringify({ status: 'pending_review' }),
       });
 
       const response = await PATCH(request, { params: Promise.resolve({ id: 'req-1' }) });
 
       expect(response.status).toBe(401);
+      expect(mockPrisma.partnerMember.findFirst).not.toHaveBeenCalled();
     });
 
     it('should reject non-partner users', async () => {
@@ -132,12 +135,43 @@ describe('Partner Status Update API', () => {
 
       const request = new NextRequest('http://localhost:3000/api/partner/requests/req-1/status', {
         method: 'PATCH',
-        body: JSON.stringify({ status: 'in_progress' }),
+        body: JSON.stringify({ status: 'pending_review' }),
       });
 
       const response = await PATCH(request, { params: Promise.resolve({ id: 'req-1' }) });
 
       expect(response.status).toBe(403);
+    });
+
+    it('should reject invalid workflow transitions', async () => {
+      const mockSession = { user: { id: 'user-1', name: 'Partner User' } };
+      mockAuth.api.getSession.mockResolvedValue(mockSession as any);
+
+      mockPrisma.partnerMember.findFirst.mockResolvedValue({
+        id: 'pm-1',
+        partnerId: 'partner-1',
+        userId: 'user-1',
+        isActive: true,
+        createdAt: new Date(),
+      });
+
+      // Cannot transition from 'submitted' to 'pending_review' - only 'in_progress' can transition
+      mockPrisma.legalRequest.findUnique.mockResolvedValue({
+        id: 'req-1',
+        assignedPartnerId: 'partner-1',
+        status: 'submitted',
+      } as any);
+
+      const request = new NextRequest('http://localhost:3000/api/partner/requests/req-1/status', {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'pending_review' }),
+      });
+
+      const response = await PATCH(request, { params: Promise.resolve({ id: 'req-1' }) });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe('INVALID_TRANSITION');
     });
   });
 
@@ -159,7 +193,7 @@ describe('Partner Status Update API', () => {
 
       const request = new NextRequest('http://localhost:3000/api/partner/requests/non-existent/status', {
         method: 'PATCH',
-        body: JSON.stringify({ status: 'in_progress' }),
+        body: JSON.stringify({ status: 'pending_review' }),
       });
 
       const response = await PATCH(request, { params: Promise.resolve({ id: 'non-existent' }) });
@@ -182,17 +216,53 @@ describe('Partner Status Update API', () => {
       mockPrisma.legalRequest.findUnique.mockResolvedValue({
         id: 'req-1',
         assignedPartnerId: 'different-partner',
-        status: 'submitted',
+        status: 'in_progress',
       } as any);
 
       const request = new NextRequest('http://localhost:3000/api/partner/requests/req-1/status', {
         method: 'PATCH',
-        body: JSON.stringify({ status: 'in_progress' }),
+        body: JSON.stringify({ status: 'pending_review' }),
       });
 
       const response = await PATCH(request, { params: Promise.resolve({ id: 'req-1' }) });
 
       expect(response.status).toBe(403);
+    });
+
+    it('should allow access via engagement partnerId', async () => {
+      const mockSession = { user: { id: 'user-1', name: 'Partner User' } };
+      mockAuth.api.getSession.mockResolvedValue(mockSession as any);
+
+      mockPrisma.partnerMember.findFirst.mockResolvedValue({
+        id: 'pm-1',
+        partnerId: 'partner-1',
+        userId: 'user-1',
+        isActive: true,
+        createdAt: new Date(),
+      });
+
+      mockPrisma.legalRequest.findUnique.mockResolvedValue({
+        id: 'req-1',
+        assignedPartnerId: null,
+        engagement: { partnerId: 'partner-1' },
+        status: 'in_progress',
+      } as any);
+
+      mockTransaction.mockResolvedValueOnce([{
+        id: 'req-1',
+        status: 'pending_review',
+        statusNote: null,
+        updatedAt: new Date(),
+      }]);
+
+      const request = new NextRequest('http://localhost:3000/api/partner/requests/req-1/status', {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'pending_review' }),
+      });
+
+      const response = await PATCH(request, { params: Promise.resolve({ id: 'req-1' }) });
+
+      expect(response.status).toBe(200);
     });
   });
 
@@ -213,7 +283,7 @@ describe('Partner Status Update API', () => {
       mockPrisma.legalRequest.findUnique.mockResolvedValue({
         id: 'req-1',
         assignedPartnerId: 'partner-1',
-        status: 'submitted',
+        status: 'in_progress',
       } as any);
 
       const request = new NextRequest('http://localhost:3000/api/partner/requests/req-1/status', {
@@ -225,7 +295,44 @@ describe('Partner Status Update API', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error).toContain('Invalid status');
+      expect(data.error).toBe('VALIDATION_ERROR');
+      expect(data.field).toBe('status');
+    });
+
+    it('should allow same status with note update', async () => {
+      const mockSession = { user: { id: 'user-1', name: 'Partner User' } };
+      mockAuth.api.getSession.mockResolvedValue(mockSession as any);
+
+      mockPrisma.partnerMember.findFirst.mockResolvedValue({
+        id: 'pm-1',
+        partnerId: 'partner-1',
+        userId: 'user-1',
+        isActive: true,
+        createdAt: new Date(),
+      });
+
+      mockPrisma.legalRequest.findUnique.mockResolvedValue({
+        id: 'req-1',
+        assignedPartnerId: 'partner-1',
+        status: 'pending_review',
+      } as any);
+
+      // When staying in same status, no transition validation needed
+      mockTransaction.mockResolvedValueOnce([{
+        id: 'req-1',
+        status: 'pending_review',
+        statusNote: 'Updated note',
+        updatedAt: new Date(),
+      }]);
+
+      const request = new NextRequest('http://localhost:3000/api/partner/requests/req-1/status', {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'pending_review', note: 'Updated note' }),
+      });
+
+      const response = await PATCH(request, { params: Promise.resolve({ id: 'req-1' }) });
+
+      expect(response.status).toBe(200);
     });
   });
 });

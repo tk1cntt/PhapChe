@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 interface Document {
   id: string;
   filename: string;
+  storageKey: string;
   mimeType: string;
   size: number;
   description?: string | null;
@@ -14,9 +15,10 @@ interface Document {
 interface DocumentListProps {
   documents: Document[];
   onDelete?: (id: string) => void;
+  onDownload?: (storageKey: string, filename: string) => void;
 }
 
-export function DocumentList({ documents, onDelete }: DocumentListProps) {
+export function DocumentList({ documents, onDelete, onDownload }: DocumentListProps) {
   const t = useTranslations();
 
   const formatSize = (bytes: number) => {
@@ -47,10 +49,19 @@ export function DocumentList({ documents, onDelete }: DocumentListProps) {
     );
   };
 
+  const handleDownload = (doc: Document) => {
+    if (onDownload) {
+      onDownload(doc.storageKey, doc.filename);
+    } else {
+      // Default download behavior using storageKey
+      window.open(`/api/storage/download?key=${encodeURIComponent(doc.storageKey)}`, '_blank');
+    }
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="font-medium text-lg">{t('partner.documents.title')}</h3>
-      
+
       {documents.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -75,7 +86,10 @@ export function DocumentList({ documents, onDelete }: DocumentListProps) {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button className="text-primary text-sm hover:underline">
+                <button
+                  onClick={() => handleDownload(doc)}
+                  className="text-primary text-sm hover:underline"
+                >
                   {t('partner.documents.download')}
                 </button>
                 {onDelete && (

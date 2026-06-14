@@ -2,19 +2,13 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { PARTNER_ALLOWED_STATUSES, PARTNER_STATUS_LABELS, type PartnerAllowedStatus } from '@/lib/constants/partner-statuses';
 
 interface StatusUpdateFormProps {
   requestId: string;
   currentStatus: string;
   onSuccess?: () => void;
 }
-
-const ALLOWED_STATUSES = [
-  { value: 'in_progress', labelKey: 'partner.status.inProgress' },
-  { value: 'waiting_customer', labelKey: 'partner.status.waitingCustomer' },
-  { value: 'review_pending', labelKey: 'partner.status.reviewPending' },
-  { value: 'completed', labelKey: 'partner.status.completed' },
-];
 
 export function StatusUpdateForm({ requestId, currentStatus, onSuccess }: StatusUpdateFormProps) {
   const t = useTranslations();
@@ -27,7 +21,7 @@ export function StatusUpdateForm({ requestId, currentStatus, onSuccess }: Status
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (status === currentStatus && !note) return;
-    
+
     setIsSubmitting(true);
     setError('');
     setSuccess('');
@@ -39,9 +33,10 @@ export function StatusUpdateForm({ requestId, currentStatus, onSuccess }: Status
         body: JSON.stringify({ status, note }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to update status');
+        throw new Error(data.detail || data.error || 'Failed to update status');
       }
 
       setSuccess(t('partner.status.updateSuccess'));
@@ -53,10 +48,14 @@ export function StatusUpdateForm({ requestId, currentStatus, onSuccess }: Status
     }
   };
 
+  // Check if status transition is allowed
+  const isAllowedStatus = PARTNER_ALLOWED_STATUSES.includes(status as PartnerAllowedStatus);
+  const canSubmit = !isSubmitting && (status !== currentStatus || note.length > 0) && isAllowedStatus;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-lg border">
       <h3 className="font-medium text-lg">{t('partner.status.title')}</h3>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           {t('partner.status.label')}
@@ -67,8 +66,10 @@ export function StatusUpdateForm({ requestId, currentStatus, onSuccess }: Status
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
           disabled={isSubmitting}
         >
-          {ALLOWED_STATUSES.map((s) => (
-            <option key={s.value} value={s.value}>{t(s.labelKey)}</option>
+          {PARTNER_ALLOWED_STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {PARTNER_STATUS_LABELS[s]?.vi || s}
+            </option>
           ))}
         </select>
       </div>
@@ -87,16 +88,20 @@ export function StatusUpdateForm({ requestId, currentStatus, onSuccess }: Status
       </div>
 
       {error && (
-        <p className="text-red-600 text-sm bg-red-50 p-2 rounded">{error}</p>
+        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
       )}
-      
+
       {success && (
-        <p className="text-green-600 text-sm bg-green-50 p-2 rounded">{success}</p>
+        <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+          <p className="text-green-600 text-sm">{success}</p>
+        </div>
       )}
 
       <button
         type="submit"
-        disabled={isSubmitting || (status === currentStatus && !note)}
+        disabled={!canSubmit}
         className="w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {isSubmitting ? t('common.saving') : t('partner.status.update')}

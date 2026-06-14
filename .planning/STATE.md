@@ -194,6 +194,7 @@ None.
 | 260613-ops-fix | Fix admin operations page bugs - menu link, timeline scroll | 2026-06-13 | b499c0d | Verified | [260613-ops-fix](./quick/260613-ops-fix/) |
 | 260613-lgc | Migrate src/legacy to src/components and delete legacy | 2026-06-13 | c12e290 | Verified | [260613-lgc](./quick/260613-lgc-migrate-src-legacy-to-src-components/) |
 | 260614-fix | Fix messages poll - merge threads instead of replace | 2026-06-14 | 8d0d2ca | Verified | [260614-fix](./quick/260614-fix-messages-poll/) |
+| 260614-msg | Enhance msg-list display with sender colors and names | 2026-06-14 | 8750354 | - | - |
 
 ---
 *Last updated: 2026-06-14*

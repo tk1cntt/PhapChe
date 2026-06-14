@@ -6,215 +6,317 @@
 
 ## Discussion Summary
 
-Architecture discussion for Phase 55 - Component Audit (Tiêu chí 1). This document captures all architectural decisions made during the discussion phase.
+Architecture discussion for Phase 55 - Architecture Redesign (Hybrid Approach).
+
+## User Confirmation
+
+**"Chia nhỏ các component ra để có thể share đc nhiều nhất. Ok với các recommendations của bạn"**
 
 ---
 
-## Tiêu chí 1: Component Audit
+## Decisions Confirmed
 
-### Mục tiêu
-Lập danh sách toàn bộ components hiện có, phân loại reusable vs one-time, xác định duplicate và phát hiện violations.
+### 1. Shared Components - Granular Breakdown
 
-### Hiện trạng phát hiện được
+**Confirmed - All components below are SHARED:**
 
-| Category | Files | Status |
-|----------|-------|--------|
-| Layout | `AdminLayout.tsx`, `UserLayout.tsx`, `Sidebar.tsx` | ✓ Tách riêng |
-| UI Primitives | `src/components/ui/` (4 files) | Cần mở rộng |
-| StatCard variants | `AdminStatCard.tsx`, `my-cases/StatCard.tsx` | ⚠️ DUPLICATE |
-| Admin components | `AdminDashboardClient.tsx`, `AdminStatGrid.tsx`, `AdminOperationsStats.tsx`, `AdminRequestsClient.tsx` | Dashboard cluster |
-| User components | `DashboardClient.tsx`, `MyCasesClient.tsx` | Dashboard cluster |
-| Create Request | `CreateRequestWizard.tsx`, step components | Wizard pattern |
-| Messages | `MessagesClient.tsx`, `ThreadList.tsx`, `ChatPanel.tsx` | 3-column layout |
+#### UI Primitives (src/components/shared/ui/)
+| Component | Purpose | Variants |
+|-----------|---------|----------|
+| `StatCard.tsx` | Metrics display | blue, green, orange, purple, red |
+| `StatusBadge.tsx` | Status indicators | Multiple status types |
+| `SLABar.tsx` | SLA/Progress bars | color-coded by deadline |
+| `DataTable.tsx` | Generic table wrapper | sortable, filterable |
+| `Pagination.tsx` | Pagination controls | - |
+| `EmptyState.tsx` | Empty data UI | icon + message |
+| `LoadingSkeleton.tsx` | Loading states | card, table, page variants |
+| `ErrorFallback.tsx` | Error boundaries | - |
+| `Button.tsx` | Buttons | primary, secondary, ghost, danger |
+| `Modal.tsx` | Modals | confirm, alert, form |
+| `Input.tsx` | Form input | text, email, password, number |
+| `Select.tsx` | Dropdowns | single, multi-select |
+| `DatePicker.tsx` | Date selection | - |
+| `Checkbox.tsx` | Checkbox control | - |
+| `Radio.tsx` | Radio control | - |
+| `Textarea.tsx` | Text area | - |
+| `FileUpload.tsx` | File upload | drag-drop, click |
 
-### Issues phát hiện
+#### Timeline Components (src/components/shared/timeline/)
+| Component | Purpose |
+|-----------|---------|
+| `AuditTimeline.tsx` | Audit events display |
+| `ActivityTimeline.tsx` | Generic activity stream |
+| `TimelineItem.tsx` | Single timeline entry |
+
+#### Table Components (src/components/shared/table/)
+| Component | Purpose |
+|-----------|---------|
+| `RequestTable.tsx` | Request list with columns |
+| `UserTable.tsx` | User list with columns |
+| `VaultFileTable.tsx` | Vault file list |
+| `AuditLogTable.tsx` | Audit log entries |
+| `TableHeader.tsx` | Sortable header cell |
+| `TableRow.tsx` | Generic table row |
+| `TableCell.tsx` | Table cell variants |
+| `TableActions.tsx` | Row action buttons |
+
+#### Layout Components (src/components/shared/layout/)
+| Component | Purpose |
+|-----------|---------|
+| `AppLayout.tsx` | Root layout |
+| `AdminLayout.tsx` | Admin portal layout |
+| `UserLayout.tsx` | User portal layout |
+| `Sidebar.tsx` | Navigation sidebar |
+| `Header.tsx` | Page header |
+| `Breadcrumb.tsx` | Breadcrumb navigation |
+
+#### Form Components (src/components/shared/forms/)
+| Component | Purpose |
+|-----------|---------|
+| `FormRenderer.tsx` | Dynamic form from definition |
+| `FormField.tsx` | Single form field |
+| `FieldText.tsx` | Text field |
+| `FieldSelect.tsx` | Select field |
+| `FieldDate.tsx` | Date field |
+| `FieldFile.tsx` | File upload field |
+| `FieldCheckbox.tsx` | Checkbox field |
+
+### 2. Domain Structure
+
+**Confirmed - Organize by business domain:**
 
 ```
-□ Duplicate components (StatCard - 2 implementations)
-□ Components chứa business logic (cần verify)
-□ Hardcoded text trong JSX (cần audit chi tiết)
-□ Hardcoded data/metadata trong components (cần audit chi tiết)
-```
-
----
-
-## Decision 1.1: Component Directory Structure
-
-**Proposed:**
-```
-src/components/
-├── ui/                      # SHARED - Reusable across ALL pages
-│   ├── StatCard.tsx         # Metrics display
-│   ├── Badge.tsx            # Status badges
-│   ├── Button.tsx           # Primary/secondary/ghost
-│   ├── Modal.tsx            # Confirm/alert/form modals
-│   ├── Input.tsx            # Form inputs
-│   ├── Select.tsx           # Dropdowns
-│   ├── Table.tsx            # Data tables
-│   ├── Paging.tsx           # Pagination
-│   ├── Skeleton.tsx         # Loading states
-│   └── ErrorFallback.tsx    # Error boundaries
+src/
+├── app/
+│   ├── [locale]/
+│   │   ├── requests/           # User: My Cases, Create, Detail
+│   │   ├── vault/              # User: Vault Access
+│   │   ├── messages/          # User: Messages
+│   │   └── admin/
+│   │       ├── dashboard/       # Admin Dashboard
+│   │       ├── requests/       # Admin: Requests
+│   │       ├── users/          # Admin: Users
+│   │       ├── workspaces/     # Admin: Workspaces
+│   │       ├── operations/     # Admin: Operations
+│   │       ├── audit/          # Admin: Audit
+│   │       └── vault/          # Admin: Vault
+│   └── api/
+│       └── [domain]/           # API routes by domain
 │
-├── layout/                  # SHARED - Layout structures
-│   ├── AdminLayout.tsx
-│   ├── UserLayout.tsx
-│   └── Sidebar.tsx
+├── components/
+│   ├── shared/                 # SHARED COMPONENTS
+│   │   ├── ui/               # UI Primitives
+│   │   ├── timeline/         # Timeline components
+│   │   ├── table/           # Table components
+│   │   ├── layout/          # Layout components
+│   │   └── forms/           # Form components
+│   │
+│   ├── requests/              # Domain: Requests
+│   │   ├── CreateWizard/
+│   │   └── RequestDetail/
+│   │
+│   ├── vault/                # Domain: Vault
+│   │   ├── VaultBrowser/
+│   │   └── FolderTree/
+│   │
+│   ├── messages/              # Domain: Messages
+│   │   ├── ThreadList/
+│   │   └── ChatPanel/
+│   │
+│   └── admin/                # Domain: Admin
+│       ├── Dashboard/
+│       └── Operations/
 │
-├── admin/                   # PAGE-SPECIFIC - Admin portal
-│   ├── dashboard/
-│   ├── users/
-│   └── requests/
-│
-└── user/                    # PAGE-SPECIFIC - User portal
-    ├── dashboard/
-    ├── my-cases/
-    ├── create-request/
-    └── messages/
+└── lib/
+    ├── requests/             # Domain Services
+    │   ├── services/
+    │   ├── types/
+    │   └── forms/           # Form Definition engine
+    ├── vault/
+    ├── workflow/
+    │   └── definitions/      # Workflow Definition engine
+    ├── users/
+    ├── audit/
+    └── types/               # Shared types
 ```
 
-**Status:** PENDING CONFIRMATION
+### 3. Form Definition Storage
 
----
+**Confirmed - Database (Configurable)**
 
-## Decision 1.2: Duplicate StatCard Resolution
+Form schemas stored in DB, editable by admin.
 
-**Current State:**
-- `src/components/admin/AdminStatCard.tsx` - dùng `title/value/description`, 4 variants (blue/green/orange/red)
-- `src/components/my-cases/StatCard.tsx` - dùng `titleKey/value`, 5 icons
-
-**Options:**
-- Option A: Unify thành 1 component trong `ui/StatCard.tsx`
-- Option B: Giữ 2 riêng
-
-**Decision:** PENDING
-
----
-
-## Decision 1.3: When to Extract to Shared
-
-**Criteria:**
-```
-✓ Dùng từ 2 pages trở lên
-✓ Có props interface rõ ràng
-✓ Không chứa business logic
-✓ Không hardcode domain-specific data
-✓ Có thể test độc lập
+**Database Schema:**
+```prisma
+model FormDefinition {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  fields      Json     // Field definitions
+  version     Int      @default(1)
+  status      String   @default("draft")
+}
 ```
 
-**Threshold options:**
-- Dùng từ 2 pages
-- Dùng từ 3 pages
-- Team decision
+### 4. Workflow Definition
 
-**Decision:** PENDING
+**Confirmed - Configurable**
 
----
+Workflow states stored in DB, configurable by admin.
 
-## Decision 1.4: Component Naming Conventions
-
-| Type | Pattern | Example |
-|------|---------|---------|
-| Page components | `[PageName]Client.tsx` | `DashboardClient.tsx` |
-| Section components | `[SectionName].tsx` | `StatGrid.tsx` |
-| Shared UI | `PascalCase.tsx` | `StatCard.tsx` |
-| Layout | `[Type]Layout.tsx` | `AdminLayout.tsx` |
-
-**Status:** PENDING CONFIRMATION
-
----
-
-## Checklist cho Tiêu chí 1
-
-```
-□ Danh sách 87+ components đã được phân loại
-□ Duplicate StatCard đã xử lý
-□ Component Directory Structure đã áp dụng
-□ Naming Convention đã được document
-□ Shared vs Page-specific đã phân tách rõ ràng
-□ Business Logic violations đã được ghi nhận
-□ Hardcoded Text violations đã được ghi nhận
-□ SPEC.md đã update với specific deliverables
+**Database Schema:**
+```prisma
+model WorkflowDefinition {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  states      Json     // State definitions
+  transitions Json     // Transition rules
+}
 ```
 
----
+### 5. API Envelope Pattern
 
-## Earlier Decisions (Session 1)
+**Confirmed - Always use envelope**
 
-### 1. StatCard Extraction Strategy
+```typescript
+// All responses
+{ data: T, meta?: { page, pageSize, total, cursor } }
+// All errors
+{ error: string, detail?: string }
+```
 
-**Question:** Nên unify StatCard thành một component hay giữ riêng admin/user?
+### 6. Service Layer Boundaries
 
-**Options presented:**
-1. Unified component — Một StatCard duy nhất trong ui/, hỗ trợ 5 variants, prop i18n optional
-2. Giữ 2 riêng — AdminStatCard cho admin pages, StatCard cho user pages
+**Confirmed:**
 
-**Decision:** Unified component ✓
+| What | Where |
+|------|-------|
+| Business logic | `src/lib/[domain]/services/` |
+| Validation | Service functions |
+| UI state | Components |
+| Server state | TanStack Query hooks |
 
-**Rationale:** Single component reduces duplication, supports all variants, optional i18n prop.
+### 7. TypeScript Types
 
----
+**Confirmed - By entity in `src/lib/types/`:**
 
-### 2. Type Unification Structure
+```
+src/lib/types/
+├── index.ts
+├── user.ts
+├── workspace.ts
+├── request.ts
+├── audit.ts
+├── vault.ts
+├── review.ts
+└── workflow.ts
+```
 
-**Question:** Tổ chức types theo entity hay theo layer?
+### 8. i18n Rules
 
-**Options presented:**
-1. By Entity — user.ts, workspace.ts, request.ts, audit.ts
-2. By Layer — domain-types.ts, api-types.ts, ui-types.ts
+**Confirmed - Decision Matrix:**
 
-**Decision:** By Entity ✓
+| What | i18n? |
+|------|--------|
+| UI text | ✓ Yes |
+| Internal logs | ✗ No |
+| Error codes | ✗ No |
 
-**Rationale:** Aligns with Prisma schema structure, intuitive navigation.
-
----
-
-### 3. Component Registry Format
-
-**Question:** Markdown hay YAML/JSON format?
-
-**Options presented:**
-1. Markdown — Dễ đọc, tự động render trong GitHub
-2. YAML/JSON — Machine-readable, generate docs tự động
-
-**Decision:** Markdown ✓
-
-**Rationale:** Simple, no build step, auto-renders in GitHub/GitLab.
-
----
-
-### 4. API Response Format
-
-**Question:** Envelope pattern hay flat response?
-
-**Options presented:**
-1. Envelope — {data, meta} với pagination metadata
-2. Flat — Trả trực tiếp data, metadata qua headers
-
-**Decision:** Envelope pattern ✓
-
-**Rationale:** Consistent across endpoints, supports pagination, extensible for metadata.
+**Key Structure:** `ComponentName.action`
 
 ---
 
-## Deferred Ideas
+## Component Granularity Strategy
 
-- Tiêu chí 2: API Patterns - chưa discuss chi tiết
-- Tiêu chí 3: Shared Components - chưa discuss chi tiết
-- Tiêu chí 4: Service Layer - chưa discuss chi tiết
-- Tiêu chí 5: Type Definitions - chưa discuss chi tiết
-- Tiêu chí 6: Code Standards - chưa discuss chi tiết
-- Tiêu chí 7: i18n Rules - chưa discuss chi tiết
+**Principle:** Break down into smallest reusable units.
+
+### Before (Monolithic)
+```tsx
+<RequestTable
+  columns={[...]}
+  data={requests}
+  onSort={handleSort}
+  onFilter={handleFilter}
+  onRowClick={handleClick}
+/>
+```
+
+### After (Granular)
+```tsx
+// Reusable parts
+<Table>
+  <TableHeader columns={columns} onSort={handleSort} />
+  <TableBody>
+    {rows.map(row => (
+      <TableRow key={row.id} onClick={() => handleClick(row)}>
+        <TableCell>{row.code}</TableCell>
+        <TableCell>
+          <StatusBadge status={row.status} />
+        </TableCell>
+        <TableCell>
+          <SLABar deadline={row.slaDeadline} />
+        </TableCell>
+        <TableCell>
+          <TableActions actions={getActions(row)} />
+        </TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+  <Pagination />
+</Table>
+```
+
+**Benefits:**
+- `<StatusBadge>` can be used in tables, cards, detail views
+- `<SLABar>` can be used in tables, timelines, dashboards
+- `<TableActions>` can be customized per use case
+- Easy to compose different table layouts
 
 ---
 
-## Notes
+## Shared Components Inventory
 
-- Phase 55 là foundation phase - tạo standards trước khi implement features
-- SPEC.md đã được update với specific deliverables
-- Tiêu chí 1 (Component Audit) đang trong quá trình thảo luận
-- Cần confirm decisions trước khi tiếp tục sang tiêu chí tiếp theo
+### Level 1: Atoms (Basic UI)
+- `Button`, `Input`, `Select`, `Checkbox`, `Radio`
+- `Textarea`, `DatePicker`, `FileUpload`
+- `Icon`, `Avatar`, `Badge`
+
+### Level 2: Molecules (Composite UI)
+- `StatCard`, `StatusBadge`, `SLABar`
+- `EmptyState`, `LoadingSkeleton`
+- `TimelineItem`, `TableCell`
+- `FormField`, `FieldText`, `FieldSelect`
+
+### Level 3: Organisms (Complex UI)
+- `DataTable` (composed of TableHeader, TableRow, TableCell, Pagination)
+- `AuditTimeline` (composed of TimelineItem)
+- `RequestTable` (DataTable + StatusBadge + SLABar)
+- `FormRenderer` (composed of FormField variants)
+
+### Level 4: Templates (Page layouts)
+- `AdminLayout`, `UserLayout`
+- `PageHeader`, `PageFooter`
+
+---
+
+## Scope Creep Redirected
+
+The following were suggested but deferred to future phases:
+- NestJS backend migration
+- PostgreSQL migration
+- Full dynamic form/workflow implementation
+- Mobile app support
+
+---
+
+## Next Steps
+
+1. Execute Phase 55 - create all documentation and refactor components
+2. Phase 56+: Implement features using new architecture
 
 ---
 
 *Discussion log updated: 2026-06-14*
 *Phase: 55-architecture-standards*
+*All decisions confirmed by user*

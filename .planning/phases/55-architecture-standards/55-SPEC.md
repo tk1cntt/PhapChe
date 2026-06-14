@@ -2,28 +2,20 @@
 
 **Created:** 2026-06-14
 **Updated:** 2026-06-14
-**Ambiguity score:** 0.15 (gate: ≤ 0.20)
-**Requirements:** 9 locked
+**Ambiguity score:** 0.08 (gate: ≤ 0.20)
+**Requirements:** 11 locked
 
 ## Goal
 
-Establish consistent development patterns and architecture foundation for a metadata-driven Legal-as-a-Service platform. Create standards that enable dynamic forms, workflows, and templates without code changes.
+Establish architecture foundation for a metadata-driven Legal-as-a-Service platform with:
+1. Granular shared components for maximum reuse
+2. Domain-based folder structure
+3. Dynamic Form/Workflow/Template patterns
+4. Consistent coding standards
 
-## Background
+## Decisions Confirmed
 
-The codebase has grown organically during v1.0 and v2.0. Current architecture is a standard NextJS CRUD app. For the platform to scale to 100+ legal services without code changes, we need:
-
-1. **Domain-based structure** - organize by business domain, not by technical type
-2. **Dynamic Form Definition** - store form schemas in DB, not hardcoded
-3. **Dynamic Workflow Definition** - store workflow states in DB, not hardcoded
-4. **Template Engine** - variables in templates, not hardcoded values
-
-**Current state:**
-- NextJS App Router with API Routes (works fine, keep it)
-- SQLite with Prisma (keep for MVP, PostgreSQL later)
-- Hardcoded forms in components
-- Hardcoded workflow states in code
-- 87+ components across 10 directories
+All decisions below are locked and will be implemented.
 
 ---
 
@@ -33,350 +25,310 @@ The codebase has grown organically during v1.0 and v2.0. Current architecture is
 
 **Output:** `src/components/COMPONENT_REGISTRY.md`
 
-**Format:** Markdown table
-| Component | Props | Usage | Location | Type |
-|-----------|-------|-------|----------|------|
+**Granular Components - SHARED:**
 
-**Types:**
-- `shared` - reusable across pages
-- `page-specific` - single page only
-- `layout` - layout components
+#### Level 1: Atoms
+| Component | Purpose | File |
+|-----------|---------|------|
+| Button | Actions | `shared/ui/Button.tsx` |
+| Input | Text input | `shared/ui/Input.tsx` |
+| Select | Dropdown | `shared/ui/Select.tsx` |
+| Checkbox | Check control | `shared/ui/Checkbox.tsx` |
+| Radio | Radio control | `shared/ui/Radio.tsx` |
+| Textarea | Multi-line | `shared/ui/Textarea.tsx` |
+| DatePicker | Date selection | `shared/ui/DatePicker.tsx` |
+| FileUpload | File upload | `shared/ui/FileUpload.tsx` |
+| Badge | Generic badge | `shared/ui/Badge.tsx` |
+| Avatar | User avatar | `shared/ui/Avatar.tsx` |
+| Icon | Icon wrapper | `shared/ui/Icon.tsx` |
 
-**Minimum:** 20+ components documented
+#### Level 2: Molecules
+| Component | Purpose | File |
+|-----------|---------|------|
+| StatCard | Metrics display | `shared/ui/StatCard.tsx` |
+| StatusBadge | Status indicator | `shared/ui/StatusBadge.tsx` |
+| SLABar | SLA progress | `shared/ui/SLABar.tsx` |
+| EmptyState | Empty data | `shared/ui/EmptyState.tsx` |
+| LoadingSkeleton | Loading state | `shared/ui/LoadingSkeleton.tsx` |
+| Pagination | Pagination | `shared/ui/Pagination.tsx` |
+| TimelineItem | Timeline entry | `shared/timeline/TimelineItem.tsx` |
+| TableCell | Table cell | `shared/table/TableCell.tsx` |
+| FormField | Form field | `shared/forms/FormField.tsx` |
+
+#### Level 3: Organisms
+| Component | Purpose | File |
+|-----------|---------|------|
+| DataTable | Generic table | `shared/table/DataTable.tsx` |
+| AuditTimeline | Audit events | `shared/timeline/AuditTimeline.tsx` |
+| RequestTable | Request list | `shared/table/RequestTable.tsx` |
+| UserTable | User list | `shared/table/UserTable.tsx` |
+| VaultFileTable | Vault files | `shared/table/VaultFileTable.tsx` |
+| FormRenderer | Dynamic form | `shared/forms/FormRenderer.tsx` |
+| Modal | Modal dialog | `shared/ui/Modal.tsx` |
+
+#### Level 4: Templates
+| Component | Purpose | File |
+|-----------|---------|------|
+| AppLayout | Root layout | `shared/layout/AppLayout.tsx` |
+| AdminLayout | Admin layout | `shared/layout/AdminLayout.tsx` |
+| UserLayout | User layout | `shared/layout/UserLayout.tsx` |
+| Sidebar | Navigation | `shared/layout/Sidebar.tsx` |
+| Header | Page header | `shared/layout/Header.tsx` |
+| Breadcrumb | Navigation | `shared/layout/Breadcrumb.tsx` |
 
 ---
 
-### 2. API Standards Document (ARCH-02)
+### 2. Domain Structure (ARCH-02)
 
-**Output:** `src/docs/API_STANDARDS.md`
+**Output:** `src/docs/DOMAIN_STRUCTURE.md`
 
-#### Response Envelope Pattern
-```typescript
-// Success
-{ data: T, meta?: { page, pageSize, total, cursor } }
-// Error
-{ error: string, detail?: string }
 ```
-
-#### Naming Conventions
-```
-GET    /api/[resource]         // List
-GET    /api/[resource]/:id    // Get one
-POST   /api/[resource]         // Create
-PUT    /api/[resource]/:id    // Update
-DELETE /api/[resource]/:id    // Delete
+src/
+├── app/
+│   ├── [locale]/
+│   │   ├── requests/
+│   │   │   ├── my-cases/
+│   │   │   ├── create/
+│   │   │   └── [id]/
+│   │   ├── vault/
+│   │   ├── messages/
+│   │   └── admin/
+│   │       ├── dashboard/
+│   │       ├── requests/
+│   │       ├── users/
+│   │       ├── workspaces/
+│   │       ├── operations/
+│   │       ├── audit/
+│   │       └── vault/
+│   └── api/
+│       └── [domain]/
+│
+├── components/
+│   ├── shared/
+│   │   ├── ui/        # Level 1-2: Atoms & Molecules
+│   │   ├── table/    # Level 2-3: Table components
+│   │   ├── timeline/  # Level 2-3: Timeline components
+│   │   ├── layout/   # Level 4: Templates
+│   │   └── forms/    # Level 3: Form components
+│   │
+│   ├── requests/     # Domain: Requests
+│   ├── vault/        # Domain: Vault
+│   ├── messages/     # Domain: Messages
+│   └── admin/        # Domain: Admin
+│
+└── lib/
+    ├── requests/
+    │   ├── services/
+    │   ├── types/
+    │   └── forms/
+    ├── vault/
+    ├── workflow/
+    │   └── definitions/
+    ├── users/
+    ├── audit/
+    └── types/
 ```
 
 ---
 
-### 3. Shared Components Extraction (ARCH-03)
+### 3. Form Definition Pattern (ARCH-03)
 
-**Output:** `src/components/ui/StatCard.tsx` (unified)
+**Output:** `src/docs/FORM_DEFINITION.md`
 
-**Variants:** blue, green, orange, purple, red
+**Core:** Form schemas in DB, not hardcoded.
 
-**Props:**
+**Schema:**
 ```typescript
-interface StatCardProps {
-  title: string;
-  titleKey?: string;
-  value: number | string;
-  description?: string;
-  descriptionKey?: string;
-  icon: 'file' | 'clock' | 'check' | 'folder' | 'alert';
-  variant: 'blue' | 'green' | 'orange' | 'purple' | 'red';
+interface FormDefinition {
+  id: string;
+  code: string;           // "employment_contract"
+  name: string;            // "Hợp đồng lao động"
+  fields: FormField[];
+  version: number;
+  status: 'draft' | 'published' | 'deprecated';
+}
+
+interface FormField {
+  key: string;
+  type: 'text' | 'number' | 'date' | 'select' | 'textarea' | 'file' | 'checkbox';
+  label: string;
+  labelKey?: string;
+  placeholder?: string;
+  required?: boolean;
+  options?: { value: string; label: string }[];  // For select
+  validation?: ValidationRule[];
+  dependsOn?: string;  // Conditional field
 }
 ```
 
 ---
 
-### 4. Service Layer Separation (ARCH-04)
+### 4. Workflow Definition Pattern (ARCH-04)
 
-**Output:** `src/docs/SERVICE_LAYER.md`
+**Output:** `src/docs/WORKFLOW_DEFINITION.md`
 
-#### Service Boundaries
-| What | Where | Example |
-|------|-------|---------|
-| Business logic | `src/lib/[domain]/[service].ts` | `createDraftIntake()` |
-| Validation | Service functions | `assertAdmin()` |
-| UI state | Components/hooks | `useState` |
-| Server state | TanStack Query | `useRequests()` |
+**Core:** Workflow states in DB, configurable.
+
+**Schema:**
+```typescript
+interface WorkflowDefinition {
+  id: string;
+  code: string;           // "legal_request"
+  name: string;
+  states: WorkflowState[];
+  transitions: WorkflowTransition[];
+}
+
+interface WorkflowState {
+  code: string;          // "draft", "submitted"
+  name: string;
+  nameKey?: string;
+  order: number;
+  color?: string;
+  requiresAssignment: boolean;
+}
+
+interface WorkflowTransition {
+  from: string;
+  to: string;
+  allowedRoles: Role[];
+  actionLabel?: string;
+  actionLabelKey?: string;
+}
+```
 
 ---
 
-### 5. TypeScript Type Unification (ARCH-05)
+### 5. Template Engine Pattern (ARCH-05)
 
-**Output:** `src/lib/types/` directory
+**Output:** `src/docs/TEMPLATE_ENGINE.md`
+
+**Core:** Templates with `{{variables}}`, engine merges data.
+
+**Example:**
+```txt
+BÊN A: {{company_name}}
+Mã số thuế: {{tax_code}}
+Ngày ký: {{signing_date}}
+```
+
+---
+
+### 6. API Standards (ARCH-06)
+
+**Output:** `src/docs/API_STANDARDS.md`
+
+```typescript
+// Success
+{ data: T, meta?: { page, pageSize, total } }
+
+// Error
+{ error: string, detail?: string }
+
+// Naming
+GET    /api/[resource]
+GET    /api/[resource]/:id
+POST   /api/[resource]
+PUT    /api/[resource]/:id
+DELETE /api/[resource]/:id
+```
+
+---
+
+### 7. Service Layer (ARCH-07)
+
+**Output:** `src/docs/SERVICE_LAYER.md`
+
+| What | Where |
+|-------|-------|
+| Business logic | `lib/[domain]/services/` |
+| Validation | Service functions |
+| UI state | Components |
+| Server state | TanStack Query |
+
+---
+
+### 8. TypeScript Types (ARCH-08)
+
+**Output:** `src/lib/types/`
 
 ```
-src/lib/types/
+lib/types/
 ├── index.ts
 ├── user.ts
 ├── workspace.ts
 ├── request.ts
 ├── audit.ts
 ├── vault.ts
-└── review.ts
+├── review.ts
+└── workflow.ts
 ```
 
 ---
 
-### 6. Code Standards Document (ARCH-06)
+### 9. Code Standards (ARCH-09)
 
 **Output:** `src/docs/CODE_STANDARDS.md`
 
-#### Naming Conventions
-| Type | Convention | Example |
-|------|------------|---------|
-| React components | PascalCase | `AdminDashboard.tsx` |
-| Regular files | kebab-case | `intake-service.ts` |
-| Functions | camelCase | `createUser()` |
-| Constants | UPPER_SNAKE_CASE | `ADMIN_ROLES` |
-
-#### Import Order
-1. React & Next.js core
-2. Third-party libraries
-3. Internal (@/) aliases
-4. Relative imports
+| Type | Convention |
+|------|------------|
+| Components | PascalCase.tsx |
+| Files | kebab-case.ts |
+| Functions | camelCase |
+| Constants | UPPER_SNAKE_CASE |
+| Types | PascalCase |
 
 ---
 
-### 7. i18n Implementation Rules (ARCH-07)
+### 10. i18n Rules (ARCH-10)
 
 **Output:** `src/docs/I18N_RULES.md`
 
-#### Decision Matrix
-| What | i18n? | Example |
-|------|--------|---------|
-| UI text | ✓ | `t('Common.save')` |
-| Internal logs | ✗ | `console.error()` |
+| What | i18n? |
+|------|--------|
+| UI text | ✓ |
+| Internal logs | ✗ |
 
 ---
 
-### 8. Domain Structure [NEW] (ARCH-08)
+### 11. Shared Component Extraction (ARCH-11)
 
-**Output:** `src/docs/DOMAIN_STRUCTURE.md`
+**Output:** `src/components/shared/ui/StatCard.tsx`
 
-**Organize code by business domain, not technical type:**
-
-```
-src/
-├── app/
-│   ├── [locale]/           # Pages (grouped by domain)
-│   │   ├── requests/       # Request-related pages
-│   │   ├── vault/         # Vault-related pages
-│   │   └── admin/         # Admin pages
-│   └── api/               # API routes
-│       ├── requests/       # Request APIs
-│       ├── vault/          # Vault APIs
-│       └── admin/          # Admin APIs
-│
-├── components/
-│   ├── requests/           # Request components
-│   │   ├── StatCard.tsx
-│   │   └── RequestList.tsx
-│   ├── vault/              # Vault components
-│   └── admin/              # Admin components
-│
-└── lib/
-    ├── requests/           # Request services
-    │   ├── request-service.ts
-    │   ├── intake-service.ts
-    │   └── types.ts
-    ├── vault/              # Vault services
-    │   ├── vault-service.ts
-    │   └── types.ts
-    └── shared/             # Cross-domain utilities
-```
-
-**NOT by technical type:**
-```
-❌ src/components/buttons/
-❌ src/components/cards/
-❌ src/hooks/useSomething.ts
-```
-
----
-
-### 9. Form Definition Pattern [NEW - KEY] (ARCH-09)
-
-**Output:** `src/docs/FORM_DEFINITION.md`
-
-**Core Concept:** Form schemas stored in DB, not hardcoded in components.
-
-**Database Schema:**
-```prisma
-model FormDefinition {
-  id          String   @id @default(cuid())
-  code        String   @unique  // e.g., "employment_contract"
-  name        String            // Vietnamese: "Hợp đồng lao động"
-  description String?
-  fields      Json              // Field definitions array
-  version     Int      @default(1)
-  status      String   @default("draft")  // draft, published, deprecated
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-```
-
-**Field Definition Schema:**
-```typescript
-interface FormField {
-  key: string;           // "employee_name"
-  type: FieldType;       // "text" | "number" | "date" | "select" | "textarea" | "file"
-  label: string;         // "Tên nhân viên"
-  labelKey?: string;     // i18n key
-  placeholder?: string;
-  required?: boolean;
-  validation?: ValidationRule[];
-  options?: SelectOption[];  // For select type
-  dependsOn?: string;       // Conditional field
-}
-
-type FieldType = 'text' | 'number' | 'date' | 'select' | 'textarea' | 'file' | 'checkbox';
-```
-
-**Form Renderer Component:**
-```typescript
-// src/components/forms/FormRenderer.tsx
-interface FormRendererProps {
-  formCode: string;      // Load form definition from DB
-  initialValues?: Record<string, any>;
-  onSubmit: (values: Record<string, any>) => void;
-}
-```
-
-**Benefits:**
-- Add new form field = insert to DB, no code change
-- Change field order = update JSON array
-- Different forms for different request types = different FormDefinition records
-
----
-
-### 10. Workflow Definition Pattern [NEW - KEY] (ARCH-10)
-
-**Output:** `src/docs/WORKFLOW_DEFINITION.md`
-
-**Core Concept:** Workflow states stored in DB, not hardcoded in code.
-
-**Database Schema:**
-```prisma
-model WorkflowDefinition {
-  id          String   @id @default(cuid())
-  code        String   @unique  // e.g., "legal_request"
-  name        String            // "Quy trình yêu cầu pháp lý"
-  states      Json              // Array of state definitions
-  transitions Json              // Array of transition rules
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model WorkflowState {
-  id                 String  @id @default(cuid())
-  code               String  // "draft", "submitted", "review", "approved"
-  name               String  // "Bản nháp", "Đã gửi", "Phê duyệt"
-  nameKey           String? // i18n key
-  order              Int     // Display order
-  color              String? // For UI badges
-  requiresAssignment Boolean @default(false)
-}
-
-model WorkflowTransition {
-  id             String  @id @default(cuid())
-  fromState      String  // Source state code
-  toState        String  // Target state code
-  allowedRoles   String[] // Who can trigger this transition
-  actionLabel    String? // Button label
-  actionLabelKey String? // i18n key
-}
-```
-
-**Workflow Service:**
-```typescript
-// src/lib/workflow/workflow-service.ts
-interface WorkflowService {
-  getAvailableTransitions(workflowCode: string, currentState: string, actorRole: Role): Transition[];
-  canTransition(workflowCode: string, from: string, to: string, actorRole: Role): boolean;
-  executeTransition(requestId: string, toState: string, actor: AppSession): Promise<void>;
-}
-```
-
-**Benefits:**
-- Add new workflow step = insert to DB, no code change
-- Change approval flow = update transitions JSON
-- Different workflows = different WorkflowDefinition records
-
----
-
-### 11. Template Engine Pattern [NEW] (ARCH-11)
-
-**Output:** `src/docs/TEMPLATE_ENGINE.md`
-
-**Core Concept:** Templates with variables, not hardcoded values.
-
-**Template Example:**
-```txt
-CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
-Độc lập - Tự do - Hạnh phúc
-
-HỢP ĐỒNG LAO ĐỘNG
-
-Hôm nay, ngày {{signing_date}}, tại {{location}}
-
-BÊN A: {{company_name}}
-Mã số thuế: {{tax_code}}
-Địa chỉ: {{company_address}}
-Người đại diện: {{representative_name}}
-Chức vụ: {{representative_title}}
-
-BÊN B: {{employee_name}}
-Số CCCD: {{employee_id_number}}
-Địa chỉ: {{employee_address}}
-```
-
-**Template Processing:**
-```typescript
-// src/lib/documents/template-service.ts
-interface TemplateService {
-  render(templateId: string, variables: Record<string, string>): Promise<string>;
-  extractVariables(templateId: string): string[];  // For form field mapping
-}
-```
+**Variants:** blue, green, orange, purple, red
 
 ---
 
 ## Boundaries
 
 **In scope:**
-- Architecture standards documents
-- Component registry
-- Shared component extraction (StatCard)
-- Domain-based folder structure
-- Form/Workflow/Template definition patterns
+- Architecture documentation
+- Component registry with granular breakdown
+- Domain structure
+- Form/Workflow/Template patterns
 - Standards for new code
 
 **Out of scope:**
-- Migrate to NestJS backend
-- Migrate to PostgreSQL
-- Implement full dynamic forms/workflows (future phases)
-- Retroactively fix all existing code
-- Create new features
+- NestJS migration
+- PostgreSQL migration
+- Full implementation of dynamic patterns
+- Retroactive refactoring
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] `src/components/COMPONENT_REGISTRY.md` with 20+ components
-- [ ] `src/docs/API_STANDARDS.md` with envelope pattern
-- [ ] `src/docs/CODE_STANDARDS.md` with naming conventions
-- [ ] `src/docs/SERVICE_LAYER.md` with boundaries
-- [ ] `src/docs/I18N_RULES.md` with decision matrix
 - [ ] `src/docs/DOMAIN_STRUCTURE.md` with folder organization
-- [ ] `src/docs/FORM_DEFINITION.md` with schema and renderer design
-- [ ] `src/docs/WORKFLOW_DEFINITION.md` with state machine design
-- [ ] `src/docs/TEMPLATE_ENGINE.md` with variable system
-- [ ] Unified `StatCard` component in `ui/`
+- [ ] `src/docs/FORM_DEFINITION.md` with schema
+- [ ] `src/docs/WORKFLOW_DEFINITION.md` with schema
+- [ ] `src/docs/TEMPLATE_ENGINE.md` with patterns
+- [ ] `src/docs/API_STANDARDS.md` with envelope pattern
+- [ ] `src/docs/SERVICE_LAYER.md` with boundaries
+- [ ] `src/docs/CODE_STANDARDS.md` with conventions
+- [ ] `src/docs/I18N_RULES.md` with decision matrix
+- [ ] `src/components/COMPONENT_REGISTRY.md` with 30+ components
 - [ ] `src/lib/types/` with unified interfaces
+- [ ] `src/components/shared/ui/StatCard.tsx` unified
 
 ---
 
@@ -384,14 +336,14 @@ interface TemplateService {
 
 | Dimension | Score | Min | Status |
 |-----------|-------|------|--------|
-| Goal Clarity | 0.90 | 0.75 | ✓ |
-| Boundary Clarity | 0.85 | 0.70 | ✓ |
-| Constraint Clarity | 0.85 | 0.65 | ✓ |
-| Acceptance Criteria | 0.90 | 0.70 | ✓ |
-| **Ambiguity** | **0.15** | ≤0.20 | ✓ |
+| Goal Clarity | 0.95 | 0.75 | ✓ |
+| Boundary Clarity | 0.90 | 0.70 | ✓ |
+| Constraint Clarity | 0.90 | 0.65 | ✓ |
+| Acceptance Criteria | 0.95 | 0.70 | ✓ |
+| **Ambiguity** | **0.08** | ≤0.20 | ✓ |
 
 ---
 
 *Phase: 55-architecture-standards*
 *Spec updated: 2026-06-14 - Architecture Redesign (Hybrid Approach)*
-*Next step: Discuss architecture decisions*
+*All decisions confirmed by user*

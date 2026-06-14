@@ -12,6 +12,8 @@ export * from './vault';
 export * from './review';
 export * from './tenant';
 export * from './organization';
+export * from './partner';
+export * from './partner-member';
 
 // Re-export constants from existing types.ts
 export {

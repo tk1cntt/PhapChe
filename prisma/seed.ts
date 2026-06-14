@@ -128,6 +128,29 @@ async function seedMultiTenantData() {
   return { platformTenant, defaultOrg };
 }
 
+async function seedPartnerData() {
+  console.log('Seeding partner data...');
+
+  // Create a sample partner
+  const samplePartner = await prisma.partner.upsert({
+    where: { id: 'partner-demo' },
+    update: {},
+    create: {
+      id: 'partner-demo',
+      name: 'Demo Law Firm',
+      slug: 'demo-law-firm',
+      type: 'law_firm',
+      contactEmail: 'contact@demo-law.test',
+      phone: '+84-28-1234-5678',
+      address: '123 Nguyen Hue, District 1, HCMC',
+      status: 'active',
+    },
+  });
+  console.log('  ✓ Sample partner:', samplePartner.id);
+
+  return { samplePartner };
+}
+
 async function seedAnPhatWorkspace() {
   // Phase 30: Workspace page seed data - "Cong ty An Phat" workspace
   const anPhatWorkspace = await prisma.workspace.upsert({
@@ -222,6 +245,9 @@ async function seedAnPhatWorkspace() {
 async function main() {
   // Seed multi-tenant data (Phase 58)
   await seedMultiTenantData();
+
+  // Seed partner data (Phase 59)
+  await seedPartnerData();
 
   // Seed Phase 30: An Phat workspace
   await seedAnPhatWorkspace();

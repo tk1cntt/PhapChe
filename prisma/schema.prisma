@@ -47,6 +47,7 @@ model User {
   preferences        UserPreferences?
   createdFiles       File[]             @relation("FileCreator")
   fileVersions       FileVersion[]      @relation("FileVersionCreator")
+  partnerMembers     PartnerMember[]
 }
 
 model UserPreferences {
@@ -95,6 +96,43 @@ model Organization {
   @@index([tenantId])
   @@index([status])
   @@map("organizations")
+}
+
+// ===== PARTNER MODELS =====
+
+model Partner {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  type         String   @default("law_firm")  // law_firm, consultancy, individual
+  contactEmail String?
+  phone        String?
+  address      String?
+  status       String   @default("active")  // active, inactive, pending
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  members      PartnerMember[]
+
+  @@map("partners")
+}
+
+model PartnerMember {
+  id        String   @id @default(cuid())
+  partnerId String
+  userId    String
+  role      String   @default("member")  // admin, member
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  partner   Partner  @relation(fields: [partnerId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([partnerId, userId])
+  @@index([partnerId])
+  @@index([userId])
+  @@map("partner_members")
 }
 
 model Workspace {

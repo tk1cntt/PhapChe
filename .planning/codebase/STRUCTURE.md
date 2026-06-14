@@ -1,216 +1,152 @@
-<!-- refreshed: 2026-06-12 -->
 # Codebase Structure
 
-**Analysis Date:** 2026-06-12
+**Analysis Date:** 2026-06-14
 
 ## Directory Layout
 
 ```
 D:\PhapChe/
-├── src/
-│   ├── app/                    # Next.js App Router pages
-│   │   ├── [locale]/           # i18n routing segment
-│   │   │   ├── admin/          # Admin portal pages
-│   │   │   ├── customer/       # Customer portal pages
-│   │   │   ├── specialist/     # Specialist portal pages
-│   │   │   ├── reviewer/       # Reviewer portal pages
-│   │   │   └── intake/         # Public intake form
-│   │   ├── api/                # API routes (legacy)
-│   │   ├── intake/             # Intake Server Actions
-│   │   └── page.tsx            # Root page
-│   ├── lib/                    # Service layer
-│   │   ├── audit/              # Audit logging
-│   │   ├── delivery/           # Notifications
-│   │   ├── documents/          # Document & vault services
-│   │   ├── intake/             # Intake processing
-│   │   ├── reviews/            # Review service
-│   │   ├── routing/            # Routing service
-│   │   ├── security/           # RBAC & session
-│   │   ├── workflow/           # State machine
-│   │   ├── prisma.ts           # Prisma singleton
-│   │   └── types.ts            # Type constants
-│   ├── components/             # Shared React components
-│   ├── constants/              # App constants
-│   ├── messages/               # i18n translation files
-│   ├── auth.ts                 # Better Auth configuration
-│   ├── routing.ts              # Next-intl routing config
-│   └── i18n.ts                 # i18n configuration
-├── prisma/
-│   ├── schema.prisma            # Database schema
-│   ├── seed.ts                  # Database seed
-│   └── seed-unified.ts          # Unified seed
-├── public/                     # Static assets
-└── .claude/                    # GSD framework
+├── prisma/                    # Database schema and seeds
+│   ├── schema.prisma         # Prisma schema (SQLite)
+│   └── seed*.ts              # Database seed scripts
+├── src/                      # Main application source
+│   ├── app/                  # Next.js App Router
+│   ├── components/          # React components
+│   ├── hooks/                # Custom React hooks
+│   ├── lib/                  # Service layer and utilities
+│   ├── constants/            # Static constants
+│   ├── middleware.ts         # Request middleware
+│   ├── auth.ts               # Better-Auth configuration
+│   ├── routing.ts            # i18n routing config
+│   └── i18n.ts               # i18n configuration
+├── .planning/                # GSD planning documents
+└── package.json
 ```
 
 ## Directory Purposes
 
-**src/app/[locale]/:**
-- Purpose: Locale-specific pages with i18n support
-- Contains: `admin/`, `customer/`, `specialist/`, `reviewer/` subdirectories
-- Key files: `layout.tsx` - locale layout with NextIntlProvider
+**`src/app/`:**
+- Purpose: Next.js App Router pages and API routes
+- Contains: `[locale]/` pages, `api/` routes, layouts
+- Key files: `src/app/layout.tsx`, `src/app/middleware.ts`
 
-**src/app/[locale]/admin/:**
-- Purpose: Admin portal pages
-- Contains: Users, templates, routing, vault, ops pages
-- Key files: `users/page.tsx`, `templates/page.tsx`, `routing/page.tsx`, `vault/page.tsx`, `ops/page.tsx`
+**`src/components/`:**
+- Purpose: React UI components
+- Contains: Admin, auth, create-request, layout, messages, my-cases, settings, ui
+- Key files: Component subdirectories with `index.ts` barrel exports
 
-**src/app/[locale]/customer/:**
-- Purpose: Customer-facing pages
-- Contains: Request list, request detail, create request
-- Key files: `requests/page.tsx`, `requests/[requestId]/page.tsx`
+**`src/lib/`:**
+- Purpose: Business logic, services, utilities
+- Contains: audit, documents, intake, ops, reviews, security, workflow, hooks
+- Key files: `src/lib/prisma.ts`, `src/lib/types.ts`, `src/lib/security/session.ts`
 
-**src/app/[locale]/specialist/:**
-- Purpose: Specialist work portal
-- Contains: Request list, request detail with document management
-- Key files: `requests/page.tsx`, `requests/[requestId]/page.tsx`
+**`src/hooks/`:**
+- Purpose: Custom React hooks for data fetching
+- Contains: `useRequests.ts`, `useUsers.ts`, `useAuditEvents.ts`
+- Note: Lowercase directory, different from `src/lib/hooks/`
 
-**src/app/[locale]/reviewer/:**
-- Purpose: Reviewer quality control portal
-- Contains: Request list, review page with checklist
-- Key files: `requests/page.tsx`, `requests/[requestId]/review/[documentVersionId]/page.tsx`
+**`src/lib/hooks/`:**
+- Purpose: Utility hooks (not data fetching)
+- Contains: `usePaginationParams.ts`, `useDebounce.ts`
 
-**src/lib/:**
-- Purpose: Service layer with business logic
-- Contains: Service modules, Prisma client, type constants
-- Key files: `prisma.ts`, `types.ts`, `auth-client.ts`
-
-**src/lib/routing/:**
-- Purpose: Assignment and routing logic
-- Contains: `routing-service.ts`, `routing-service.test.ts`
-- Key functions: `assignRequest`, `getRoutingSuggestions`, `upsertRoutingCapability`
-
-**src/lib/intake/:**
-- Purpose: Intake form processing
-- Contains: `intake-service.ts`, `upload-service.ts`, `catalog.ts`
-- Key functions: `createIntakeDraft`, `saveIntakeAnswers`, `submitIntake`
-
-**src/lib/documents/:**
-- Purpose: Document generation, templates, vault storage
-- Contains: `vault-service.ts`, `draft-service.ts`, `template-service.ts`, `classification-service.ts`
-- Key functions: `listVaultFiles`, `storeVaultFile`, `generateDraft`, `submitForReview`
-
-**src/lib/reviews/:**
-- Purpose: Quality control reviews
-- Contains: `review-service.ts`, `review-service.test.ts`, `checklist.ts`
-- Key functions: `startReview`, `answerChecklistItem`, `approveReview`, `rejectReview`
-
-**src/lib/security/:**
-- Purpose: Authentication session and RBAC
-- Contains: `rbac.ts`, `session.ts`
-- Key functions: `canAccessRequest`, `canAccessWorkspace`, `canAccessDocument`
-
-**src/lib/audit/:**
-- Purpose: Immutable audit event logging
-- Contains: `audit.ts`, `audit.test.ts`
-- Key functions: `recordAuditEvent`
-
-**src/lib/workflow/:**
-- Purpose: Request state machine
-- Contains: `request-workflow.ts`, `request-workflow.test.ts`
-- Key functions: `transitionRequestStatus`, `canTransitionRequestStatus`, `getAllowedTransitions`
-
-**src/components/:**
-- Purpose: Shared React components
-- Contains: `LanguageSwitcher.tsx`, `CreateRequestForm.tsx`
-- Pattern: No barrel export file detected
-
-**src/constants/:**
-- Purpose: Hardcoded constants
-- Contains: `checklist-items.ts` - QC checklist definitions
-- Pattern: Plain JS objects exported as constants
-
-**src/messages/:**
-- Purpose: i18n translation files
-- Contains: `en.json`, `vi.json`, `zh.json`, `ja.json`
-- Pattern: Key-value translation objects
+**`prisma/`:**
+- Purpose: Database schema and seed data
+- Contains: `schema.prisma`, seed files for different datasets
 
 ## Key File Locations
 
 **Entry Points:**
-- `src/app/[locale]/page.tsx`: Root locale page
-- `src/app/[locale]/intake/page.tsx`: Customer intake form
-- `src/app/[locale]/admin/routing/page.tsx`: Admin routing dashboard
+- `src/app/layout.tsx`: Root layout with AntdRegistry
+- `src/middleware.ts`: Request middleware (i18n + auth)
+- `src/routing.ts`: Locale routing configuration
 
 **Configuration:**
-- `src/auth.ts`: Better Auth configuration
-- `src/routing.ts`: Next-intl routing configuration
+- `src/auth.ts`: Better-Auth setup with Prisma adapter
+- `src/lib/prisma.ts`: Prisma client singleton
+- `src/lib/types.ts`: Type constants and enums
 - `prisma/schema.prisma`: Database schema
 
 **Core Logic:**
-- `src/lib/workflow/request-workflow.ts`: Status state machine
-- `src/lib/routing/routing-service.ts`: Assignment logic
-- `src/lib/reviews/review-service.ts`: QC checklist flow
-- `src/lib/documents/vault-service.ts`: File storage abstraction
+- `src/lib/workflow/request-workflow.ts`: Request state machine
+- `src/lib/intake/intake-service.ts`: Intake form handling
+- `src/lib/documents/vault-service.ts`: File vault operations
+- `src/lib/security/rbac.ts`: Access control
+- `src/lib/security/session.ts`: Session management
+- `src/lib/audit/audit.ts`: Audit event recording
+
+**API Routes:**
+- `src/app/api/intake/create-draft/route.ts`
+- `src/app/api/intake/submit/route.ts`
+- `src/app/api/intake/attach-file/route.ts`
+- `src/app/api/vault/[vaultFileId]/download/route.ts`
+- `src/app/api/admin/requests/[id]/assign/route.ts`
 
 **Testing:**
-- `src/**/*.test.ts`: Unit tests (Vitest)
-- `tests/e2e/*.test.ts`: E2E tests (Playwright)
+- `src/**/*.test.ts`: Unit tests
+- `src/**/*.test.tsx`: Component tests
+- `src/**/*.e2e.test.ts`: E2E tests
+- `src/lib/foundation.e2e.test.ts`: Core functionality E2E
 
 ## Naming Conventions
 
 **Files:**
-- PascalCase for React components: `CustomerRequestsTable.tsx`
-- kebab-case for pages/directories: `create-request/page.tsx`
-- camelCase for service modules: `routing-service.ts`
-- kebab-case for CSS files: `audit.css`, `vault.css`
+- PascalCase for React components: `AdminDashboardClient.tsx`
+- kebab-case for utilities: `audit-service.ts`, `vault-service.ts`
+- snake_case for seed files: `seed-customers.ts`, `seed-messages.ts`
 
-**Functions:**
-- camelCase: `assignRequest`, `canAccessRequest`
-- PascalCase for React components only
+**Directories:**
+- kebab-case for feature directories: `src/lib/documents/`, `src/app/api/intake/`
+- kebab-case for component directories: `src/components/admin/`, `src/components/my-cases/`
+- lowercase for hooks directories: `src/hooks/`, `src/lib/hooks/`
 
-**Variables:**
-- camelCase: `workspaceId`, `requestId`
+**TypeScript/React:**
+- camelCase for functions and variables
+- PascalCase for types and components
 - UPPER_SNAKE_CASE for constants: `REQUEST_STATUS`, `ROLE`
-
-**Types:**
-- PascalCase: `RequestStatus`, `Role`, `AppSession`
-- Type constants in `types.ts` use UPPER_SNAKE_CASE
 
 ## Where to Add New Code
 
-**New Service Module:**
-- Primary code: `src/lib/{feature}/`
-- Example: `src/lib/notifications/notification-service.ts`
-
-**New Page:**
-- Pages: `src/app/[locale]/{role}/{page}/page.tsx`
-- Example: `src/app/[locale]/admin/settings/page.tsx`
-- Server Actions: `src/app/[locale]/admin/settings/actions.ts`
+**New Feature Service:**
+- Primary code: `src/lib/[feature]/[feature]-service.ts`
+- Tests: `src/lib/[feature]/[feature]-service.test.ts`
+- Example: `src/lib/delivery/delivery-service.ts`
 
 **New API Route:**
-- Location: `src/app/api/{resource}/route.ts`
-- Example: `src/app/api/notifications/route.ts`
+- Location: `src/app/api/[domain]/[action]/route.ts`
+- Example: `src/app/api/admin/users/route.ts` for GET/POST users
+
+**New Component:**
+- Primary: `src/components/[domain]/[ComponentName].tsx`
+- Tests: `src/components/[domain]/[ComponentName].test.tsx`
+- Index: `src/components/[domain]/index.ts` (barrel export)
 
 **New Database Model:**
-- Location: `prisma/schema.prisma`
-- Follow existing model patterns with `@id`, `@default`, `@@index`
+- Schema: `prisma/schema.prisma`
+- After edit: Run `npx prisma generate`
 
-**New Shared Component:**
-- Location: `src/components/`
-- Name: `PascalCase.tsx`
-
-**New Test:**
-- Unit: Co-located `*.test.ts` next to source file
-- E2E: `tests/e2e/*.test.ts`
+**Utilities/Helpers:**
+- Feature-specific: `src/lib/[feature]/[helper].ts`
+- Shared: `src/lib/utils/` (create if not exists)
 
 ## Special Directories
 
-**.claude/:**
-- Purpose: GSD framework configuration and commands
-- Generated: Partially
+**`src/app/[locale]/`:**
+- Purpose: Locale-prefixed pages
+- Generated: No (Next-intl routing)
 - Committed: Yes
 
-**prisma/:**
-- Purpose: Database schema and seeds
-- Generated: `node_modules/.prisma` (not committed)
-- Committed: `schema.prisma`, seed files
+**`src/lib/intake/`:**
+- Purpose: Intake form logic
+- Contains: `intake-service.ts`, `catalog.ts`, `actions.ts`, upload service
 
-**src/messages/:**
-- Purpose: Translation files
-- Generated: No
-- Committed: Yes (JSON files)
+**`src/lib/documents/`:**
+- Purpose: Document and vault management
+- Contains: `vault-service.ts`, `template-service.ts`, `draft-service.ts`, `classification-service.ts`
+
+**`src/components/layout/`:**
+- Purpose: Layout components
+- Contains: `AdminLayout.tsx`, `UserLayout.tsx`
 
 ---
 
-*Structure analysis: 2026-06-12*
+*Structure analysis: 2026-06-14*

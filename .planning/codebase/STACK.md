@@ -1,132 +1,97 @@
 # Technology Stack
 
-**Analysis Date:** 2026-06-12
+**Analysis Date:** 2026-06-14
 
 ## Languages
 
 **Primary:**
-- TypeScript latest - Core application development
-- JSON - Configuration and message files
+- TypeScript (latest) - Full-stack type safety
+- TSX/JSX - React components
 
 **Secondary:**
-- CSS - Styling with Tailwind CSS and CSS modules
+- CSS/Tailwind CSS (latest) - Styling
 
 ## Runtime
 
 **Environment:**
-- Node.js (via Next.js)
+- Node.js (latest) - Server-side rendering and API routes
+- Next.js (latest) - React framework with App Router
 
 **Package Manager:**
-- npm (implied by package.json)
+- npm (bundled with Node.js)
 - Lockfile: `package-lock.json` present
 
 ## Frameworks
 
 **Core:**
-- Next.js (latest) - Full-stack React framework with App Router
+- Next.js (latest) - Full-stack React framework with App Router and API routes
 - React (latest) - UI library
-- React DOM (latest) - DOM rendering
+- TanStack Query v5 (5.101.0) - Server state management and data fetching
 
-**UI Components:**
-- Ant Design v6.4.3 - Component library (`antd`)
-- @ant-design/cssinjs v2.1.2 - CSS-in-JS engine for Ant Design
-- @ant-design/icons v6.2.5 - Icon library
-- @ant-design/nextjs-registry v1.3.0 - Ant Design SSR support
-- Lucide React (latest) - Additional icon library
+**UI:**
+- Ant Design v6 (6.4.3) - Component library
+- Tailwind CSS v4 (latest) - Utility-first CSS with PostCSS plugin
+- Lucide React (latest) - Icon library
 
 **Internationalization:**
-- next-intl v4.13.0 - i18n routing and translations
-- Supported locales: vi, en, zh, ja
+- next-intl v4 (4.13.0) - Internationalization with locale routing
 
-**State Management:**
-- @tanstack/react-query v5.101.0 - Server state management
-- @tanstack/react-query-devtools v5.101.0 - Query debugging
+**Testing:**
+- Vitest v4 (4.1.8) - Unit testing with jsdom environment
+- Playwright v1.60 (1.60.0) - End-to-end testing
+- Testing Library v16 (16.3.2) - React component testing
 
-## Database
+**Build/Dev:**
+- TypeScript (latest) - Type checking
+- ESLint (latest) - Linting
+- PostCSS (latest) - CSS processing
+- Autoprefixer (latest) - CSS vendor prefixes
 
-**ORM:**
-- Prisma v6.19.0 - Database ORM
-- @prisma/client v6.19.0 - Prisma client runtime
+## Key Dependencies
 
 **Database:**
-- SQLite (development) - Default development database
-- PostgreSQL (production) - Production database via DATABASE_URL
+- Prisma v6 (6.19.0) - Type-safe database ORM
+- Prisma Client - Database adapter
 
-## Authentication
-
-**Framework:**
+**Authentication:**
 - better-auth v1.6.14 - Authentication framework
-- better-auth/adapters/prisma - Prisma adapter for better-auth
-- better-auth/next-js - Next.js integration
+- @noble/hashes v2.2.0 - Cryptographic hashing
+- bcryptjs v3.0.3 - Password hashing
 
-**Session:**
-- Cookie-based sessions via nextCookies() plugin
-- Session expires in 7 days (60 * 60 * 24 * 7 seconds)
-- Session refresh every 24 hours
-
-## Testing
-
-**Unit Testing:**
-- Vitest v4.1.8 - Unit test runner
-- @testing-library/react v16.3.2 - React testing utilities
-- @testing-library/dom v10.4.1 - DOM testing utilities
-- @testing-library/jest-dom v6.9.1 - Jest DOM matchers
-- jsdom v29.1.1 - DOM simulation for Node.js
-
-**E2E Testing:**
-- Playwright v1.60.0 - End-to-end testing
-- playwright.config.ts - Playwright configuration
-
-**Test Setup:**
-- tests/setup.ts - Global test setup file
-
-## Build & Development
-
-**Build:**
-- TypeScript (tsc) - Type checking
-- Next.js build system - Production builds
-
-**Linting:**
-- ESLint (latest) - Code linting
-- eslint-config-next (latest) - Next.js ESLint config
-
-**CSS:**
-- Tailwind CSS (latest) - Utility-first CSS framework
-- @tailwindcss/postcss v4.3.0 - Tailwind PostCSS integration
-- PostCSS (latest) - CSS transformation
-- Autoprefixer (latest) - Vendor prefix automation
-
-**Development:**
-- @vitejs/plugin-react v6.0.2 - Vite React plugin
-- tsx v4.22.3 - TypeScript execution for scripts
-- @types/node, @types/react, @types/react-dom - Type definitions
+**Validation/Utilities:**
+- (Implicit via Prisma/better-auth)
 
 ## Configuration
 
 **Environment:**
-- .env - Environment variables (local overrides)
-- .env.example - Template for required env vars
-- .env.local - Local overrides (gitignored)
-- .env.test - Test environment variables
+- SQLite (development) - Database via Prisma with file-based storage
+- PostgreSQL (production) - Database via Prisma with connection string
+- Environment files: `.env`, `.env.example`, `.env.local`, `.env.test`
 
-**Key env vars:**
-- `DATABASE_URL` - PostgreSQL connection string
-- `BETTER_AUTH_SECRET` - Authentication secret (64-char hex)
-- `BETTER_AUTH_URL` - Auth base URL (default: http://localhost:3000)
+**Key environment variables:**
+- `DATABASE_URL` - SQLite: `file:./prisma/data/legal_service_dev.db` or PostgreSQL connection string
+- `BETTER_AUTH_SECRET` - 64-character hex secret for authentication
+- `BETTER_AUTH_URL` - Base URL for auth endpoints (default: `http://localhost:3000`)
 
-**Build Config:**
+**Build:**
 - `next.config.ts` - Next.js configuration with next-intl plugin
-- `tsconfig.json` - TypeScript configuration
-- `tailwind.config.ts` - Tailwind CSS configuration
-- `vitest.config.ts` - Vitest configuration
-- `playwright.config.ts` - Playwright configuration
-- `postcss.config.mjs` - PostCSS configuration
+- `tsconfig.json` - TypeScript with path aliases (`@/*` → `./src/*`)
+- `tailwind.config.ts` - Tailwind CSS with CSS variable theming
+- `vitest.config.ts` - Vitest with jsdom environment and path aliases
+- `playwright.config.ts` - Playwright with Chromium, custom port 3000
 
-## Path Aliases
+## Platform Requirements
 
-**Configured in tsconfig.json and vitest.config.ts:**
-- `@/*` maps to `./src/*`
+**Development:**
+- Node.js (latest)
+- npm for package management
+- SQLite3 or PostgreSQL depending on setup
+
+**Production:**
+- Node.js runtime
+- PostgreSQL database (SQLite not recommended)
+- Environment variables configured
 
 ---
 
-*Stack analysis: 2026-06-12*
+*Stack analysis: 2026-06-14*

@@ -1,148 +1,111 @@
 # External Integrations
 
-**Analysis Date:** 2026-06-12
+**Analysis Date:** 2026-06-14
 
 ## APIs & External Services
 
-**Not detected** - No external API integrations (e.g., Stripe, OpenAI) found in codebase.
+**Email:**
+- Stub email provider (development) - `src/lib/delivery/notification-service.ts`
+  - Currently returns stub responses
+  - Ready for integration with SendGrid, Resend, or similar
+  - No production email service configured
+
+**AI/Claude (Development Setup):**
+- Anthropic Claude API - `D:\PhapChe\.env.local`
+  - Base URL: `http://172.21.80.1:20128/v1` (internal development proxy)
+  - API Key configured for development
+  - Used by Claude Code Telegram Bot (separate service)
 
 ## Data Storage
 
-**Primary Database:**
-- PostgreSQL (production)
-  - Connection: `DATABASE_URL` environment variable
-  - ORM: Prisma v6.19.0
-  - Schema location: `prisma/schema.prisma`
+**Databases:**
+- SQLite (development) - `file:./prisma/data/legal_service_dev.db`
+  - Prisma Client ORM
+  - Connection via `DATABASE_URL` environment variable
+- PostgreSQL (production) - Connection string format: `postgresql://user:password@host:5432/dbname`
+  - Same Prisma Client ORM
+  - Schema defined in `prisma/schema.prisma`
 
-**Development Database:**
-- SQLite
-  - Same Prisma ORM with sqlite provider
-  - Auto-detected via NODE_ENV
+**File Storage:**
+- Local filesystem - No external cloud storage service detected
+  - Vault files stored with `storageKey` reference
+  - File uploads handled locally
 
-**ORM Client:**
-- `src/lib/prisma.ts` - Singleton Prisma client instance
+**Caching:**
+- None - No Redis or in-memory cache service detected
 
 ## Authentication & Identity
 
 **Auth Provider:**
-- better-auth v1.6.14
-- Prisma adapter for database storage
-- Supports email/password authentication
+- better-auth v1.6.14 - `src/auth.ts`, `src/lib/auth-client.ts`
+  - Email/password authentication enabled
+  - Session-based with 7-day expiry
+  - Session refresh every 24 hours
+  - Prisma adapter with multi-database support (SQLite/PostgreSQL)
 
-**Session Management:**
-- Cookie-based sessions via nextCookies() plugin
-- Session token stored in `better-auth.session_token` cookie
+**Client Auth:**
+- `createAuthClient` from `better-auth/react` - `src/lib/auth-client.ts`
+- `signIn`, `signUp`, `signOut`, `useSession` hooks exposed
+- Session management via server-side `requireAppSession()` - `src/lib/security/session.ts`
 
-**Auth Configuration:**
-- `src/auth.ts` - Main auth configuration
-- `src/app/api/auth/[...all]/route.ts` - Auth API routes
-- `src/middleware.ts` - Session validation middleware
-
-**Supported Auth Flows:**
-- Email/password sign-in
-- Session cookie validation
-- Multi-origin trusted origins (localhost:3000-3005)
-
-## Internationalization
-
-**Supported Locales:**
-- Vietnamese (vi) - default
-- English (en)
-- Chinese (zh)
-- Japanese (ja)
-
-**i18n Provider:**
-- next-intl v4.13.0
-- Message files: `src/messages/{locale}.json`
-- Routing: `src/routing.ts`
-
-## File Storage
-
-**Not detected** - No external file storage (S3, Cloudflare R2, etc.) integrated.
-
-**Local file handling:**
-- Vault files stored with `storageKey` references in `VaultFile` model
-- File metadata tracked in database
-
-## Caching
-
-**Not detected** - No Redis or in-memory caching layer.
-
-**Server State:**
-- @tanstack/react-query for client-side data caching
+**Role-based Access:**
+- Workspace-scoped roles: `customer`, `specialist`, `reviewer`, `coordinator_admin`, `super_admin`
+- RBAC implementation in `src/lib/security/rbac.ts`
 
 ## Monitoring & Observability
 
-**Not detected** - No external monitoring services integrated.
+**Error Tracking:**
+- None - No Sentry, LogRocket, or similar services configured
 
-**Local Development:**
-- React Query DevTools available in development
-- Console logging for debugging
+**Logs:**
+- Console-based logging via `console.log/error`
+- Audit events stored in database (`AuditEvent` model)
+
+**Development Debug:**
+- `/api/debug-session` route for debugging authentication - `src/app/api/debug-session/route.ts`
 
 ## CI/CD & Deployment
 
 **Hosting:**
-- Next.js application (likely Vercel, self-hosted, or similar)
+- Self-hosted / custom deployment
+- Next.js standard deployment targets (Vercel, Node.js server, Docker)
 
 **CI Pipeline:**
-- Playwright for E2E tests in CI (retries: 2, workers: 1)
-
-**Test Commands:**
-```bash
-npm run dev              # Development server
-npm run build            # Production build
-npm run lint             # ESLint check
-npm run typecheck        # TypeScript check
-npm run test:e2e         # Playwright E2E tests
-npm run test:e2e:ui      # Playwright UI mode
-```
-
-**Database Commands:**
-```bash
-npm run prisma:generate   # Generate Prisma client
-npm run db:push          # Push schema to database
-npm run seed             # Run database seed
-```
+- None detected - No GitHub Actions, CircleCI, or similar configured
 
 ## Environment Configuration
 
 **Required env vars:**
-- `DATABASE_URL` - PostgreSQL connection string
-- `BETTER_AUTH_SECRET` - Random 64-char hex string
-- `BETTER_AUTH_URL` - Application base URL
+- `DATABASE_URL` - Database connection string (SQLite file path or PostgreSQL)
+- `BETTER_AUTH_SECRET` - 64-character hex string for authentication signing
+- `BETTER_AUTH_URL` - Base URL for authentication (default: `http://localhost:3000`)
 
 **Secrets location:**
-- `.env` - Local development (gitignored)
-- `.env.example` - Template with placeholders
-- `.env.local` - Local overrides
-- `.env.test` - Test environment
+- `.env.local` - Local development secrets (NOT committed)
+- `.env.example` - Template with placeholder values
+- `.env.test` - Test environment configuration
 
 ## Webhooks & Callbacks
 
 **Incoming:**
-- Not detected
+- None - No webhook endpoints detected
 
 **Outgoing:**
-- Not detected
+- Email notifications (stubbed, ready for provider integration)
+- Delivery ready notifications via email stub
 
-## Key Integration Files
+## Project Structure
 
-| File | Purpose |
-|------|---------|
-| `src/auth.ts` | better-auth configuration |
-| `src/lib/prisma.ts` | Prisma client singleton |
-| `src/middleware.ts` | Auth session validation |
-| `src/routing.ts` | Locale routing configuration |
-| `src/i18n.ts` | Internationalization config |
-| `prisma/schema.prisma` | Database schema |
-
-## Planned/Optional Integrations
-
-Based on CLAUDE.md constraints, these may be added later:
-- **OCR** - Document processing (MVP scope excluded)
-- **E-sign** - Digital signatures (MVP scope excluded)
-- **AI** - Advanced AI features (MVP scope excluded)
+**Database Schema (`prisma/schema.prisma`):**
+- User & Authentication: `User`, `Account`, `Session`, `Verification`, `UserPreferences`
+- Workspace & Multi-tenancy: `Workspace`, `WorkspaceMembership`
+- Legal Requests: `LegalRequest`, `IntakeSubmission`, `RequestAssignment`, `MatterType`
+- Documents: `Document`, `DocumentVersion`, `DocumentTemplate`, `Review`, `ReviewChecklistAnswer`
+- Vault & Storage: `VaultFile`, `Folder`, `Tag`, `VaultFileFolder`, `VaultFileTag`
+- Workflow: `WorkflowTransition`, `RoutingCapability`
+- Messaging: `Message`
+- Audit: `AuditEvent`
 
 ---
 
-*Integration audit: 2026-06-12*
+*Integration audit: 2026-06-14*

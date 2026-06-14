@@ -1,230 +1,248 @@
-<!-- refreshed: 2026-06-12 -->
 # Architecture
 
-**Analysis Date:** 2026-06-12
+**Analysis Date:** 2026-06-14
 
 ## System Overview
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                      Next.js App Router                      │
-│                    `src/app/[locale]/`                       │
-├──────────────────┬──────────────────┬───────────────────────┤
-│   Admin Portal   │   Customer UX    │    Specialist UX       │
-│  `admin/*/page`  │`customer/*/page` │  `specialist/*/page`  │
-│  `admin/*/page`  │                  │                       │
-├──────────────────┴──────────────────┴───────────────────────┤
-│                    API Routes (Server Actions)               │
-│                  `src/app/api/**/route.ts`                   │
-│                  `src/app/**/actions.ts`                    │
-└─────────────────────────────────────────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Service Layer (lib/)                       │
-│                                                              │
-│  ┌──────────────┬──────────────┬──────────────┬────────────┐ │
-│  │   routing/   │   intake/    │  documents/  │  reviews/  │ │
-│  │routing-service│intake-service│vault-service│review-service│
-│  ├──────────────┼──────────────┼──────────────┼────────────┤ │
-│  │   security/  │   audit/     │  delivery/   │   lib/     │ │
-│  │     rbac     │   audit.ts   │notification-service│prisma.ts│
-│  └──────────────┴──────────────┴──────────────┴────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────────────────────────┐
-│              Prisma ORM + SQLite Database                    │
-│                     `prisma/schema.prisma`                   │
-└─────────────────────────────────────────────────────────────┘
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Next.js App Router                          │
+│                   `[src/app/]` - Pages & API Routes                  │
+├─────────────────────┬─────────────────────┬─────────────────────────┤
+│  [locale] Pages     │   API Routes        │    Middleware           │
+│  `[app/[locale]/]`  │  `[app/api/]`       │  `[middleware.ts]`      │
+│  - sign-in          │  - intake           │  - i18n routing         │
+│  - cases            │  - messages         │  - auth protection      │
+│  - create           │  - vault            │                         │
+│  - workspace        │  - admin            │                         │
+│  - admin            │  - settings         │                         │
+└──────────┬──────────┴──────────┬─────────┴─────────────────────────┘
+           │                      │
+           ▼                      ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                     Service Layer `[src/lib/]`                       │
+├──────────────┬───────────────┬───────────────┬──────────────────────┤
+│   Workflow   │   Intake      │   Documents   │   Reviews           │
+│  `[workflow]`│  `[intake]`    │  `[documents]`│  `[reviews]`        │
+│  - state     │  - create     │  - vault      │  - checklist        │
+│  - transitions│  - validate   │  - templates  │  - review service    │
+│              │  - submit     │  - drafts     │                      │
+├──────────────┴───────────────┴───────────────┴──────────────────────┤
+│                    Security & Infrastructure                         │
+│  `[security/]`            `[audit/]`           `[ops/]`              │
+│  - RBAC                  - audit logging      - operations          │
+│  - Session               - event recording    - stats               │
+└─────────────────────────┬───────────────────┴──────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    Prisma ORM `[src/lib/prisma.ts]`                  │
+│                    SQLite (dev) / PostgreSQL (prod)                  │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Component Responsibilities
 
 | Component | Responsibility | File |
 |-----------|----------------|------|
-| `auth.ts` | Better Auth setup, session management | `src/auth.ts` |
-| `lib/prisma.ts` | Singleton Prisma client | `src/lib/prisma.ts` |
-| `routing/` | Assign specialists/reviewers to requests | `src/lib/routing/routing-service.ts` |
-| `intake/` | Capture customer requests, validate schema | `src/lib/intake/intake-service.ts` |
-| `documents/` | Template rendering, vault storage | `src/lib/documents/vault-service.ts`, `src/lib/documents/template-service.ts` |
-| `reviews/` | Checklist-based quality control | `src/lib/reviews/review-service.ts` |
-| `workflow/` | Request state machine, status transitions | `src/lib/workflow/request-workflow.ts` |
-| `security/` | RBAC permissions | `src/lib/security/rbac.ts` |
-| `audit/` | Immutable event log | `src/lib/audit/audit.ts` |
-| `delivery/` | Customer notifications | `src/lib/delivery/notification-service.ts` |
+| Workflow State Machine | Request status transitions, RBAC for status changes | `src/lib/workflow/request-workflow.ts` |
+| Intake Service | Draft creation, answer validation, submission | `src/lib/intake/intake-service.ts` |
+| Vault Service | Secure file storage, signed URL access, RBAC | `src/lib/documents/vault-service.ts` |
+| RBAC Security | Workspace/request access control | `src/lib/security/rbac.ts` |
+| Session Management | Auth session extraction, workspace context | `src/lib/security/session.ts` |
+| Audit Logging | Event recording for all state changes | `src/lib/audit/audit.ts` |
+| Auth | Better-Auth integration with Prisma adapter | `src/auth.ts` |
+| i18n Routing | Locale prefix routing, preference cookies | `src/routing.ts` |
 
 ## Pattern Overview
 
-**Overall:** Layered Next.js App Router with Service Layer Pattern
+**Overall:** Next.js App Router with Service Layer and State Machine
 
 **Key Characteristics:**
-- Next.js App Router with React Server Components (RSC)
-- Server Actions for form mutations (hybrid approach)
-- Type-safe Prisma ORM with SQLite
-- Service layer abstraction over database operations
-- Role-based access control (RBAC) enforced at service layer
-- Immutable audit log for all state changes
-- State machine for request workflow transitions
+- API routes delegate to service layer (not direct DB access in routes)
+- Status transitions enforced server-side via state machine
+- Audit events recorded for every state change
+- RBAC checked at service entry points
+- Session carries workspace context and roles
+- Vault files never expose storageKey, only signed URLs
 
 ## Layers
 
-**UI Layer (Next.js Pages):**
-- Purpose: Render pages, handle forms, collect user input
-- Location: `src/app/[locale]/`, `src/app/[locale]/admin/`, `src/app/[locale]/customer/`, `src/app/[locale]/specialist/`, `src/app/[locale]/reviewer/`
-- Contains: Page components, Server Actions (`actions.ts`), API routes (`route.ts`)
-- Depends on: Service layer
-- Used by: Browser client
-
-**Service Layer (lib/):**
-- Purpose: Business logic, validation, RBAC, state machine operations
-- Location: `src/lib/`
-- Contains: `routing-service.ts`, `intake-service.ts`, `vault-service.ts`, `review-service.ts`, `draft-service.ts`, `template-service.ts`
-- Depends on: Prisma, types
-- Used by: API routes, Server Actions
-
-**Data Layer (Prisma):**
-- Purpose: Database access, schema management
-- Location: `prisma/schema.prisma`
-- Contains: Models for User, Workspace, LegalRequest, Document, Review, VaultFile, etc.
-- Depends on: SQLite database
-- Used by: Service layer
-
-## Data Flow
-
-### Primary Request Flow (Intake to Delivery)
-
-1. **Customer submits intake** (`src/app/intake/actions.ts`) - Captures answers, creates LegalRequest in `draft_intake` status
-2. **Coordinator triages** (`src/lib/routing/routing-service.ts:assignRequest`) - Assigns specialist and reviewer, transitions to `assigned`
-3. **Specialist works** (`src/lib/documents/draft-service.ts`) - Generates document drafts from templates
-4. **Specialist submits for review** - Transitions request to `pending_review`
-5. **Reviewer approves/rejects** (`src/lib/reviews/review-service.ts`) - Uses checklist, transitions to `approved` or `revision_required`
-6. **Document finalized** - `DocumentVersion` marked as `final`
-7. **Delivery** (`src/lib/delivery/delivery-service.ts`) - Customer notified, vault files accessible
-8. **Request closed** - Final state
-
-### Status State Machine
-
-```
-draft_intake → intake_submitted → triage → assigned → in_progress → pending_review
-                                                                            ↓
-                                               revision_required ←→ approved
-                                                                            ↓
-                                                                        delivered
-                                                                            ↓
-                                                                        closed
-```
-
-### Document Review Flow
-
-1. Specialist creates `Document` with `DocumentVersion`
-2. Specialist submits version for review (`submitted_for_review`)
-3. Reviewer starts review (`in_progress`)
-4. Reviewer answers checklist items
-5. Reviewer approves → version becomes `final`, request → `approved`
-6. Reviewer rejects → version → `draft`, request → `revision_required`
-
-**State Management:**
-- Request status stored in `LegalRequest.status`
-- Document versions have independent `DocumentVersion.status`
-- Reviews have `Review.status` and `Review.decision`
-- Workflow transitions logged in `WorkflowTransition`
-
-## Key Abstractions
-
-**AppSession:**
-- Purpose: Represents authenticated user with roles and workspace context
-- Examples: `src/lib/security/session.ts`
-- Pattern: Passed through service methods for authorization
-
-**LegalRequest:**
-- Purpose: Core entity representing a customer's legal request
-- Examples: `prisma/schema.prisma` - `LegalRequest` model
-- Pattern: Status-based workflow, assigned users, linked documents
-
-**DocumentVersion:**
-- Purpose: Immutable snapshot of a document at a point in time
-- Examples: `prisma/schema.prisma` - `DocumentVersion` model
-- Pattern: Versioned, linked to template, has approval status
-
-**AuditEvent:**
-- Purpose: Immutable log of all significant actions
-- Examples: `src/lib/audit/audit.ts`
-- Pattern: Actor, target, action, metadataSummary, correlationId
-
-## Entry Points
-
-**Customer Intake:**
-- Location: `src/app/[locale]/intake/page.tsx`
-- Triggers: GET `/[locale]/intake`, POST via Server Action
-- Responsibilities: Render intake form, call `intake-service.ts` to save/submit
-
-**Admin Routing:**
-- Location: `src/app/[locale]/admin/routing/page.tsx`
-- Triggers: GET admin route
-- Responsibilities: List requests, assign specialists/reviewers
+**Presentation Layer (Next.js App Router):**
+- Purpose: Render pages, handle HTTP requests
+- Location: `src/app/`
+- Contains: Pages (`.tsx`), API routes (`.ts`), layouts
+- Depends on: Service layer, hooks
+- Used by: Browser, mobile clients
 
 **API Routes:**
 - Location: `src/app/api/**/route.ts`
-- Triggers: HTTP requests
-- Responsibilities: Validate session, delegate to service layer
+- Pattern: Validate input, call service, return JSON response
+- Error handling: Map service errors to HTTP status codes
 
-**Server Actions:**
-- Location: `src/app/**/actions.ts`
-- Triggers: Form submissions, button clicks
-- Responsibilities: Collect form data, call service layer, return result
+**Service Layer:**
+- Purpose: Business logic, data validation, authorization
+- Location: `src/lib/**/`
+- Contains: Intake service, vault service, review service, workflow
+- Depends on: Prisma, types
+- Used by: API routes
+
+**Data Access Layer:**
+- Purpose: Database queries via Prisma
+- Location: `src/lib/prisma.ts` (singleton)
+- Contains: PrismaClient instance
+- Depends on: Database (SQLite/PostgreSQL)
+
+## Data Flow
+
+### Primary Request Path (Intake to Delivery)
+
+1. **Create Request** (`src/app/api/intake/create-draft/route.ts:POST`)
+   - User submits matter type
+   - Calls `createDraftIntake()` in intake-service
+   - Creates LegalRequest with draft_intake status
+   - Records audit event
+
+2. **Submit Intake** (`src/app/api/intake/submit/route.ts:POST`)
+   - User submits answers
+   - Validates required fields
+   - Calls `submitIntake()` in intake-service
+   - Transitions to `intake_submitted`
+   - Auto-triages if matter type is unsupported
+
+3. **Triage** (`src/lib/workflow/request-workflow.ts:transitionRequestStatus`)
+   - Coordinator assigns specialist/reviewer
+   - Transitions to `triage` -> `assigned`
+
+4. **In Progress** (`src/lib/workflow/request-workflow.ts`)
+   - Specialist works on request
+   - Creates documents, receives reviews
+
+5. **Review** (`src/lib/reviews/review-service.ts`)
+   - Reviewer approves/rejects document versions
+   - Checklist answers recorded
+
+6. **Deliver** (`src/lib/documents/vault-service.ts`)
+   - Files stored in vault with RBAC
+   - Customer can only download delivered/closed files
+
+7. **Close** (`src/lib/workflow/request-workflow.ts`)
+   - Request closed, final state reached
+
+### Authentication Flow
+
+1. **Middleware** (`src/middleware.ts`)
+   - Intercepts all requests
+   - Checks for better-auth session cookie
+   - Redirects unauthenticated users to sign-in
+
+2. **Session Extraction** (`src/lib/security/session.ts`)
+   - `requireAppSession()` reads auth headers
+   - Returns AppSession with userId, workspaceId, roles
+   - First active workspace membership is activeWorkspaceId
+
+### Vault Access Flow
+
+1. **Request Access** (`src/lib/documents/vault-service.ts:requestVaultFileAccess`)
+   - RBAC check: user must have request access
+   - Customer: only delivered/closed files, must own request
+   - Generates HMAC-signed URL with 15-minute TTL
+
+2. **Download** (`src/app/api/vault/[vaultFileId]/download/route.ts`)
+   - Verifies signature and expiration
+   - Streams file from storage
+
+**State Management:**
+- Server state: Prisma + Better-Auth session
+- Client state: React Query for data fetching
+- Workspace context: Passed via session
+
+## Key Abstractions
+
+**Request Workflow State Machine:**
+- Purpose: Enforces valid status transitions
+- Examples: `src/lib/workflow/request-workflow.ts`
+- Pattern: `REQUEST_TRANSITIONS` map + `canTransitionRequestStatus()` + `transitionRequestStatus()`
+
+**Vault File Access:**
+- Purpose: Secure file download with signed URLs
+- Examples: `src/lib/documents/vault-service.ts`
+- Pattern: HMAC signature, TTL, RBAC check
+
+**RBAC Permission Checks:**
+- Purpose: Control access to workspaces, requests, documents
+- Examples: `src/lib/security/rbac.ts`
+- Pattern: `canAccessX(session, id)` functions returning boolean
+
+**Audit Event Recording:**
+- Purpose: Immutable audit trail for all actions
+- Examples: `src/lib/audit/audit.ts`
+- Pattern: `recordAuditEvent()` with required correlationId
+
+## Entry Points
+
+**Web Application:**
+- Location: `src/app/[locale]/`
+- Triggers: User navigation
+- Responsibilities: Render pages, handle forms
+
+**API Routes:**
+- Location: `src/app/api/**/route.ts`
+- Triggers: Client fetch calls, webhooks
+- Responsibilities: Validate, authorize, execute, respond
+
+**Middleware:**
+- Location: `src/middleware.ts`
+- Triggers: Every HTTP request
+- Responsibilities: i18n routing, auth protection
+
+**Background Jobs:**
+- Location: Not implemented (MVP scope)
+- Responsibilities: Future automation
 
 ## Architectural Constraints
 
-- **Threading:** Node.js single-threaded event loop; async/await for I/O operations
-- **Global state:** Prisma client singleton in `src/lib/prisma.ts` (avoids connection exhaustion)
-- **Circular imports:** No known circular dependency chains; lib services are stateless
-- **Locale routing:** Next-intl with `[locale]` dynamic segment; all pages under `src/app/[locale]/`
-- **Tenant isolation:** All queries scoped by `workspaceId`; no cross-tenant data access
+- **Threading:** Node.js single-threaded event loop, no worker threads
+- **Global state:** Prisma singleton via `globalForPrisma`
+- **Circular imports:** Service layer may import from `lib/types.ts`
+- **Auth:** Better-Auth only, no custom auth implementation
 
 ## Anti-Patterns
 
-### Direct Prisma Access in Pages
+### Direct Prisma Access in Routes
 
-**What happens:** Page components query Prisma directly instead of using service layer
-**Why it's wrong:** Bypasses RBAC checks, duplicates business logic, inconsistent error handling
-**Do this instead:** Create service methods in `src/lib/` and call them from pages/API routes
+**What happens:** Some API routes use `prisma` directly instead of calling service layer
+**Why it's wrong:** Bypasses business logic, validation, audit logging
+**Do this instead:** Create service methods in `src/lib/` and call from routes
 
-### Hardcoded Status Strings
+### Magic Strings for Status
 
-**What happens:** Using raw strings like `'pending_review'` instead of type constants
-**Why it's wrong:** No type safety, easy to misspell, IDE autocomplete unavailable
-**Do this instead:** Use constants from `src/lib/types.ts`:
-```typescript
-import { REQUEST_STATUS } from '@/lib/types';
-const status = REQUEST_STATUS.PENDING_REVIEW;
-```
+**What happens:** Status strings like `'draft_intake'` scattered in components
+**Why it's wrong:** No type safety, typos not caught
+**Do this instead:** Use `REQUEST_STATUS` constants from `src/lib/types.ts`
+
+### Inline Error Messages
+
+**What happens:** Error strings like `'FORBIDDEN'` defined in services and routes
+**Why it's wrong:** Inconsistent, hard to localize, duplicate definitions
+**Do this instead:** Centralize error definitions in constants or error catalog
 
 ## Error Handling
 
-**Strategy:** Service functions throw typed error codes as strings; callers catch and convert to HTTP responses or UI messages
+**Strategy:** Service layer throws named errors, API routes map to HTTP responses
 
 **Patterns:**
-```typescript
-// Service throws error code
-if (!request) throw new Error('REQUEST_NOT_FOUND');
-
-// API route catches and returns 404
-if (error.message === 'REQUEST_NOT_FOUND') {
-  return Response.json({ error: 'Not found' }, { status: 404 });
-}
-```
+- Service errors: `throw new Error('ERROR_CODE')` with descriptive code
+- API error handling: `try/catch` with error message inspection
+- No error codes enum - relies on string matching
 
 ## Cross-Cutting Concerns
 
-**Logging:** Console.log for development; no structured logging framework detected
-
-**Validation:** Service-layer validation with typed error codes; no schema validation library
-
-**Authentication:** Better Auth with Prisma adapter; session stored in cookie via `nextCookies()` plugin
-
-**Authorization:** RBAC service (`src/lib/security/rbac.ts`) checks user roles and request ownership
+**Logging:** `console.error` for errors in API routes
+**Validation:** Per-service input validation, no shared validation framework
+**Authentication:** Better-Auth middleware + session extraction
+**Authorization:** RBAC service layer functions
 
 ---
 
-*Architecture analysis: 2026-06-12*
+*Architecture analysis: 2026-06-14*

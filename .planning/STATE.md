@@ -67,6 +67,11 @@ Phase: 53 — User Dashboard Real Data
 - [x] 53-CONTEXT.md — Context gathered (auto mode)
 - [ ] 53-01-PLAN.md — User dashboard real data integration
 
+### Phase 54: i18n Comprehensive Migration
+
+- [x] 54-CONTEXT.md — Context gathered
+- [ ] 54-PLAN.md — i18n migration (4 waves)
+
 ### Phase 33: User Management
 
 - [x] 33-CONTEXT.md — Context gathered (auto mode)

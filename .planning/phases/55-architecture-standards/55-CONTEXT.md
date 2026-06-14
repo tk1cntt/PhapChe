@@ -2,140 +2,244 @@
 
 **Phase:** 55
 **Created:** 2026-06-14
-**Domain:** Foundation — Development patterns, standards, shared components
+**Updated:** 2026-06-14
+**Domain:** Architecture Foundation - Hybrid Approach
 
 ## Goal
 
-Establish consistent development patterns across the codebase: shared component registry, API standards, service layer separation, type safety, and code conventions that prevent ad-hoc implementation.
+Establish architecture foundation with granular shared components, domain-based structure, and dynamic form/workflow patterns.
 
 ---
 
-## Spec Lock
+## Decisions Locked
 
-Requirements locked from `55-SPEC.md` (7 requirements). This context captures **implementation decisions only** — not requirements.
+### 1. Component Granularity
 
----
+**Principle:** Break down into smallest reusable units for maximum sharing.
 
-## Decisions
+#### Shared Components Structure:
 
-### 1. StatCard Extraction
-
-**Decision:** Unify into single `src/components/ui/StatCard.tsx`
-
-**Rationale:** 
-- Single component reduces duplication
-- Support 5 variants (blue/green/orange/purple/red)
-- `i18n` prop optional — use `titleKey` for i18n, `title` for static strings
-- Maintain backward compatibility with existing usage
-
-### 2. Type Unification Structure
-
-**Decision:** Organize by entity in `src/lib/types/`
-
-**Structure:**
 ```
-src/lib/types/
-├── index.ts          # Re-exports all types
-├── user.ts           # User, AppSession, notification preferences
-├── workspace.ts      # Workspace, Membership, role mappings
-├── request.ts        # LegalRequest, IntakeSubmission, Assignment
-├── audit.ts          # AuditEvent, AuditTargetType
-├── vault.ts          # VaultFile, DocumentVersion
-└── review.ts         # Review, ChecklistAnswer
+src/components/shared/
+├── ui/               # Level 1-2: Atoms & Molecules
+│   ├── Button.tsx
+│   ├── Input.tsx
+│   ├── Select.tsx
+│   ├── Checkbox.tsx
+│   ├── Radio.tsx
+│   ├── Textarea.tsx
+│   ├── DatePicker.tsx
+│   ├── FileUpload.tsx
+│   ├── Badge.tsx
+│   ├── Avatar.tsx
+│   ├── Icon.tsx
+│   ├── StatCard.tsx        # 5 variants: blue, green, orange, purple, red
+│   ├── StatusBadge.tsx     # Multiple status types
+│   ├── SLABar.tsx          # SLA/Progress bars
+│   ├── EmptyState.tsx
+│   ├── LoadingSkeleton.tsx
+│   ├── Pagination.tsx
+│   └── Modal.tsx
+│
+├── table/            # Level 2-3: Table components
+│   ├── DataTable.tsx       # Generic table wrapper
+│   ├── TableHeader.tsx
+│   ├── TableRow.tsx
+│   ├── TableCell.tsx
+│   ├── TableActions.tsx
+│   ├── RequestTable.tsx   # Request list
+│   ├── UserTable.tsx
+│   ├── VaultFileTable.tsx
+│   └── AuditLogTable.tsx
+│
+├── timeline/          # Level 2-3: Timeline components
+│   ├── TimelineItem.tsx
+│   ├── AuditTimeline.tsx   # Audit events
+│   └── ActivityTimeline.tsx
+│
+├── layout/            # Level 4: Templates
+│   ├── AppLayout.tsx
+│   ├── AdminLayout.tsx
+│   ├── UserLayout.tsx
+│   ├── Sidebar.tsx
+│   ├── Header.tsx
+│   └── Breadcrumb.tsx
+│
+└── forms/             # Level 3: Form components
+    ├── FormRenderer.tsx    # Dynamic form
+    ├── FormField.tsx
+    ├── FieldText.tsx
+    ├── FieldSelect.tsx
+    ├── FieldDate.tsx
+    ├── FieldFile.tsx
+    └── FieldCheckbox.tsx
 ```
 
-### 3. Component Registry Format
+### 2. Domain Structure
 
-**Decision:** Markdown format
+```
+src/
+├── app/
+│   ├── [locale]/
+│   │   ├── requests/           # User pages
+│   │   ├── vault/
+│   │   ├── messages/
+│   │   └── admin/
+│   │       ├── dashboard/
+│   │       ├── requests/
+│   │       ├── users/
+│   │       ├── workspaces/
+│   │       ├── operations/
+│   │       ├── audit/
+│   │       └── vault/
+│   └── api/
+│       └── [domain]/
+│
+├── components/
+│   ├── shared/                 # All shared components
+│   ├── requests/               # Domain: Requests
+│   ├── vault/                 # Domain: Vault
+│   ├── messages/               # Domain: Messages
+│   └── admin/                 # Domain: Admin
+│
+└── lib/
+    ├── requests/
+    │   ├── services/
+    │   ├── types/
+    │   └── forms/             # Form Definition engine
+    ├── vault/
+    ├── workflow/
+    │   └── definitions/       # Workflow Definition engine
+    ├── users/
+    ├── audit/
+    └── types/                 # Shared types
+```
 
-**Rationale:**
-- Easy to read and maintain
-- Auto-renders in GitHub/GitLab
-- No build step needed
-- 20+ components with props interface and usage examples
+### 3. Form Definition Pattern
 
-### 4. API Response Format
+**Storage:** Database (configurable by admin)
 
-**Decision:** Envelope pattern with `{data, meta}` structure
+**Schema:**
+```typescript
+interface FormDefinition {
+  id: string;
+  code: string;           // "employment_contract"
+  name: string;
+  fields: FormField[];
+  version: number;
+  status: 'draft' | 'published' | 'deprecated';
+}
 
-**Standard response:**
+interface FormField {
+  key: string;
+  type: 'text' | 'number' | 'date' | 'select' | 'textarea' | 'file' | 'checkbox';
+  label: string;
+  labelKey?: string;
+  placeholder?: string;
+  required?: boolean;
+  options?: { value: string; label: string }[];
+  validation?: ValidationRule[];
+  dependsOn?: string;
+}
+```
+
+### 4. Workflow Definition Pattern
+
+**Storage:** Database (configurable by admin)
+
+**Schema:**
+```typescript
+interface WorkflowDefinition {
+  id: string;
+  code: string;
+  name: string;
+  states: WorkflowState[];
+  transitions: WorkflowTransition[];
+}
+
+interface WorkflowState {
+  code: string;
+  name: string;
+  order: number;
+  color?: string;
+  requiresAssignment: boolean;
+}
+
+interface WorkflowTransition {
+  from: string;
+  to: string;
+  allowedRoles: Role[];
+}
+```
+
+### 5. Template Engine Pattern
+
+**Templates use `{{variables}}`, engine merges data at render time.**
+
+### 6. API Standards
+
 ```typescript
 // Success
-{
-  data: T | T[],  // Response payload
-  meta?: {         // Optional metadata
-    page?: number,
-    pageSize?: number,
-    total?: number,
-    cursor?: string
-  }
-}
-
+{ data: T, meta?: { page, pageSize, total } }
 // Error
-{
-  error: string,   // Error code (e.g., "FORBIDDEN", "NOT_FOUND")
-  detail?: string  // Optional details for debugging
-}
+{ error: string, detail?: string }
 ```
 
----
+### 7. Service Layer
 
-## Canonical Refs
+| What | Where |
+|------|-------|
+| Business logic | `lib/[domain]/services/` |
+| Validation | Service functions |
+| UI state | Components |
+| Server state | TanStack Query |
 
-- `src/lib/types.ts` — Current types file (will be migrated to `src/lib/types/`)
-- `src/components/admin/AdminStatCard.tsx` — Admin variant to be unified
-- `src/components/my-cases/StatCard.tsx` — User variant to be unified
-- `src/components/ui/` — UI components directory (target for shared components)
-- `src/lib/workflow/`, `src/lib/intake/`, `src/lib/documents/` — Existing service layers
+### 8. TypeScript Types
 
----
+`src/lib/types/` organized by entity:
+- user.ts, workspace.ts, request.ts, audit.ts, vault.ts, review.ts, workflow.ts
 
-## Code Context
+### 9. i18n Rules
 
-### Existing Components in `src/components/ui/`
-- `PageSkeleton.tsx` — Loading skeleton for pages
-- `CardSkeleton.tsx` — Loading skeleton for cards
-- `ErrorFallback.tsx` — Error boundary component
-- `Paging.tsx` — Pagination component
-
-### Existing Type Constants
-- `REQUEST_STATUS` — Request workflow states
-- `ROLE` — User roles (customer, specialist, reviewer, coordinator_admin, super_admin)
-- `AUDIT_TARGET_TYPE` — Audit event target types
-- `TEMPLATE_STATUS` — Template lifecycle states
-
-### Service Layer Pattern
-Services in `src/lib/[domain]/` with `index.ts` barrel exports:
-- `workflow/request-workflow.ts` — State machine
-- `intake/intake-service.ts` — Intake form handling
-- `documents/vault-service.ts` — Vault operations
-- `security/rbac.ts` — Access control
+- UI text: ✓ i18n (`t('ComponentName.action')`)
+- Internal logs: ✗ hardcoded
 
 ---
 
-## Boundaries (from SPEC.md)
+## Boundaries
 
 **In scope:**
-- Documentation files (`src/docs/*.md`)
-- Component registry (`src/components/COMPONENT_REGISTRY.md`)
-- Shared component extraction (StatCard)
-- Type unification in `src/lib/types/`
-- Standards enforcement in new code
+- Architecture documentation
+- Component registry (30+ components)
+- Domain structure
+- Form/Workflow/Template patterns
+- Standards
 
 **Out of scope:**
-- Retroactively fixing all existing components
-- Creating new features
-- Database schema changes
-- Performance optimization
-- Test coverage improvement
+- NestJS migration
+- PostgreSQL migration
+- Full dynamic pattern implementation
+- Retroactive refactoring
 
 ---
 
 ## Deferred Ideas
 
-None captured — all gray areas resolved.
+- NestJS backend (future migration)
+- PostgreSQL (future upgrade)
+- Mobile app support
+- Public API
 
 ---
 
-*Context captured: 2026-06-14*
-*Next step: /gsd-plan-phase 55*
+## Canonical Refs
+
+- `src/components/` — Current components
+- `src/lib/` — Current services
+- `src/lib/types.ts` — Current types
+- `prisma/schema.prisma` — Database schema
+
+---
+
+*Context updated: 2026-06-14*
+*Next step: /gsd-execute-phase 55*

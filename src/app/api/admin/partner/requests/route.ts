@@ -29,7 +29,10 @@ async function requireAdminSession() {
     select: { role: true, workspaceId: true },
   });
 
-  const userRoles = memberships.map((m) => m.role);
+  // Filter out null roles
+  const userRoles = memberships
+    .map((m) => m.role)
+    .filter((r): r is string => r !== null);
   const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
 
   if (!hasAdminRole) {
@@ -112,7 +115,11 @@ export async function GET(req: NextRequest) {
       data: requests,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
-  } catch (error) {
+  } catch (error: any) {
+    // Handle auth errors (thrown objects)
+    if (error?.status) {
+      return NextResponse.json({ error: error.error }, { status: error.status });
+    }
     console.error('Error fetching partner requests:', error);
     return NextResponse.json(
       { error: 'Internal Server Error' },

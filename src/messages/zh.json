@@ -293,7 +293,11 @@
     "requests": "请求",
     "ops": "运营",
     "audit": "审计",
-    "vault": "保险库"
+    "vault": "保险库",
+    "helpCard": {
+      "needHelp": "需要帮助？",
+      "viewGuide": "查看文档 →"
+    }
   },
   "AdminWorkspaces": {
     "pageTitle": "客户工作区",
@@ -389,7 +393,22 @@
     "timelineAudit": "审计时间线",
     "totalRecords": "个请求",
     "errorLoading": "从服务器加载数据失败。请重试。",
-    "retry": "重试"
+    "retry": "重试",
+    "hoursAgo": "{count}小时前",
+    "daysAgo": "{count}天前",
+    "statusChanged": "请求已更改为\"{status}\"",
+    "priorityHigh": "高",
+    "priorityMedium": "中",
+    "priorityLow": "低",
+    "requestCode": "请求编号",
+    "status": "状态",
+    "slaColumn": "SLA",
+    "priorityColumn": "优先级",
+    "specialist": "专员",
+    "action": "操作",
+    "viewAudit": "查看审计",
+    "processNow": "立即处理",
+    "dispatch": "分配"
   },
   "AuditEvents": {
     "pageTitle": "审计",

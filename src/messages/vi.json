@@ -294,7 +294,11 @@
     "requests": "Hồ sơ yêu cầu",
     "ops": "Vận hành",
     "audit": "Audit",
-    "vault": "Kho tài liệu"
+    "vault": "Kho tài liệu",
+    "helpCard": {
+      "needHelp": "Cần hỗ trợ?",
+      "viewGuide": "Xem tài liệu →"
+    }
   },
   "AdminWorkspaces": {
     "pageTitle": "Không gian khách hàng",
@@ -390,7 +394,22 @@
     "timelineAudit": "Timeline audit",
     "totalRecords": "hồ sơ",
     "errorLoading": "Đã xảy ra lỗi khi lấy dữ liệu từ máy chủ. Vui lòng thử lại.",
-    "retry": "Thử lại"
+    "retry": "Thử lại",
+    "hoursAgo": "{count} giờ trước",
+    "daysAgo": "{count} ngày trước",
+    "statusChanged": "Hồ sơ chuyển sang \"{status}\"",
+    "priorityHigh": "Cao",
+    "priorityMedium": "Vừa",
+    "priorityLow": "Thấp",
+    "requestCode": "Mã hồ sơ",
+    "status": "Trạng thái",
+    "slaColumn": "SLA",
+    "priorityColumn": "Ưu tiên",
+    "specialist": "Chuyên viên",
+    "action": "Thao tác",
+    "viewAudit": "Xem audit",
+    "processNow": "Xử lý ngay",
+    "dispatch": "Điều phối"
   },
   "AuditEvents": {
     "pageTitle": "Audit",

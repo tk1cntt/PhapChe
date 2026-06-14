@@ -293,7 +293,11 @@
     "requests": "リクエスト",
     "ops": "運用",
     "audit": "監査",
-    "vault": "ボールト"
+    "vault": "ボールト",
+    "helpCard": {
+      "needHelp": "ヘルプが必要ですか？",
+      "viewGuide": "ドキュメントとガイドを見る →"
+    }
   },
   "AdminWorkspaces": {
     "pageTitle": "顧客ワークスペース",
@@ -389,7 +393,22 @@
     "timelineAudit": "監査タイムライン",
     "totalRecords": "件",
     "errorLoading": "サーバーからのデータの読み込みに失敗しました。再試行してください。",
-    "retry": "再試行"
+    "retry": "再試行",
+    "hoursAgo": "{count}時間前",
+    "daysAgo": "{count}日前",
+    "statusChanged": "リクエストが「{status}」に変更されました",
+    "priorityHigh": "高",
+    "priorityMedium": "中",
+    "priorityLow": "低",
+    "requestCode": "リクエスト番号",
+    "status": "ステータス",
+    "slaColumn": "SLA",
+    "priorityColumn": "優先度",
+    "specialist": "担当者",
+    "action": "操作",
+    "viewAudit": "監査を見る",
+    "processNow": "今すぐ処理",
+    "dispatch": "配分"
   },
   "AuditEvents": {
     "pageTitle": "監査",
@@ -1244,7 +1263,7 @@
       "pending": "保留中"
     }
   },
-  "AdminNav": {
+  "AdminNavPlaceholder": {
     "helpCard": {
       "needHelp": "ヘルプが必要ですか？",
       "viewGuide": "ドキュメントとガイドを見る →"

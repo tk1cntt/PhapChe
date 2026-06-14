@@ -294,7 +294,11 @@
     "requests": "Requests",
     "ops": "Operations",
     "audit": "Audit",
-    "vault": "Vault"
+    "vault": "Vault",
+    "helpCard": {
+      "needHelp": "Need help?",
+      "viewGuide": "View docs & guides →"
+    }
   },
   "AdminWorkspaces": {
     "pageTitle": "Customer Workspaces",
@@ -390,7 +394,22 @@
     "timelineAudit": "Audit Timeline",
     "totalRecords": "requests",
     "errorLoading": "Failed to load data from server. Please try again.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "hoursAgo": "{count} hours ago",
+    "daysAgo": "{count} days ago",
+    "statusChanged": "Request changed to \"{status}\"",
+    "priorityHigh": "High",
+    "priorityMedium": "Medium",
+    "priorityLow": "Low",
+    "requestCode": "Request Code",
+    "status": "Status",
+    "slaColumn": "SLA",
+    "priorityColumn": "Priority",
+    "specialist": "Specialist",
+    "action": "Actions",
+    "viewAudit": "View Audit",
+    "processNow": "Process Now",
+    "dispatch": "Dispatch"
   },
   "AuditEvents": {
     "pageTitle": "Audit",

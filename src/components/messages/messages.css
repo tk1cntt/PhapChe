@@ -231,8 +231,8 @@
 }
 
 .msg.out {
-  background: var(--teal);
-  color: #fff;
+  background: #f1f5f9;
+  color: #0f172a;
   margin-left: auto;
 }
 

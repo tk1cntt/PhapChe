@@ -42,8 +42,8 @@ function getSenderColor(senderId: string): { bg: string; text: string; border: s
  * MessageBubble component - renders individual message bubble
  * Styling matches template (D-21, D-22, D-23):
  * - .msg: max-width 72%, padding 14px 16px, border-radius 14px, font-size 14px, line-height 1.55
- * - .msg.out: background #087f78, color #fff, margin-left auto (current user)
- * - .msg.in: background based on sender color, color based on sender color, align-self flex-start (others)
+ * - .msg.out: background #f1f5f9, color #0f172a, margin-left auto (right-aligned), text left-aligned, no name
+ * - .msg.in: background based on sender color, color based on sender color, align-self flex-start, with sender name
  */
 function MessageBubble({ message, currentUserId }: MessageBubbleProps): React.ReactElement {
   const isOutgoing = message.senderId === currentUserId;
@@ -51,16 +51,15 @@ function MessageBubble({ message, currentUserId }: MessageBubbleProps): React.Re
   const displayName = message.senderName || 'Unknown';
 
   if (isOutgoing) {
-    // Current user's message - teal/green, right side
+    // Current user's message - gray, right side, no name, text left-aligned
     return (
       <div className="msg out">
-        <div className="msg-sender-name">Bạn</div>
         <div className="msg-content">{message.content}</div>
       </div>
     );
   }
 
-  // Other sender's message - colored based on senderId, left side
+  // Other sender's message - colored based on senderId, left side, with sender name
   return (
     <div
       className="msg in"

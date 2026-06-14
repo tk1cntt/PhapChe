@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface Activity {
   id: string;
   action: string;
@@ -14,6 +16,8 @@ interface ActivityTimelineProps {
 }
 
 export default function ActivityTimeline({ activities }: ActivityTimelineProps) {
+  const t = useTranslations('Dashboard');
+
   return (
     <div className="panel">
       <div className="panel-title">
@@ -22,13 +26,13 @@ export default function ActivityTimeline({ activities }: ActivityTimelineProps) 
             <circle cx="12" cy="12" r="10" />
             <path d="M12 6v6l4 2" />
           </svg>
-          <span>Hoạt động gần đây</span>
+          <span>{t('activity.title')}</span>
         </div>
       </div>
 
       <div className="timeline">
         {activities.length === 0 ? (
-          <div className="empty-state">Không có hoạt động nào</div>
+          <div className="empty-state">{t('activity.empty')}</div>
         ) : (
           activities.map((a) => (
             <div key={a.id} className="timeline-item">

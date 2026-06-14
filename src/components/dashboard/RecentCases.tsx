@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface Case {
   id: string;
   code: string;
@@ -26,6 +28,9 @@ const statusBadgeClass: Record<string, string> = {
 };
 
 export default function RecentCases({ cases }: RecentCasesProps) {
+  const t = useTranslations('Dashboard');
+  const tActions = useTranslations('Actions');
+
   return (
     <div className="panel">
       <div className="panel-title">
@@ -34,14 +39,14 @@ export default function RecentCases({ cases }: RecentCasesProps) {
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <path d="M14 2v6h6" />
           </svg>
-          <span>Hồ sơ đang xử lý</span>
+          <span>{t('recentCases.title')}</span>
         </div>
-        <a className="small-link" href="#">Xem tất cả →</a>
+        <a className="small-link" href="#">{t('recentCases.seeAll')}</a>
       </div>
 
       <div className="case-list">
         {cases.length === 0 ? (
-          <div className="empty-state">Không có hồ sơ nào đang xử lý</div>
+          <div className="empty-state">{t('recentCases.empty')}</div>
         ) : (
           cases.map((c) => (
             <div key={c.id} className="case-item">
@@ -62,7 +67,7 @@ export default function RecentCases({ cases }: RecentCasesProps) {
                 </span>
               </div>
               <div>
-                <a className="action-link" href="#">Mở →</a>
+                <a className="action-link" href="#">{t('recentCases.open')}</a>
               </div>
             </div>
           ))

@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface Deadline {
   id: string;
   title: string;
@@ -21,6 +23,8 @@ const progressClass: Record<string, string> = {
 };
 
 export default function DeadlineSLA({ deadlines }: DeadlineSLAProps) {
+  const t = useTranslations('Dashboard');
+
   return (
     <div className="panel">
       <div className="panel-title">
@@ -29,13 +33,13 @@ export default function DeadlineSLA({ deadlines }: DeadlineSLAProps) {
             <circle cx="12" cy="12" r="10" />
             <path d="M12 6v6l4 2" />
           </svg>
-          <span>Deadline & SLA</span>
+          <span>{t('deadline.title')}</span>
         </div>
       </div>
 
       <div className="deadline-list">
         {deadlines.length === 0 ? (
-          <div className="empty-state">Không có deadline nào trong tuần này</div>
+          <div className="empty-state">{t('deadline.empty')}</div>
         ) : (
           deadlines.map((d) => (
             <div key={d.id} className="deadline-item">
@@ -50,9 +54,9 @@ export default function DeadlineSLA({ deadlines }: DeadlineSLAProps) {
                 />
               </div>
               <p className="deadline-note">
-                {d.status === 'danger' && 'Cần xử lý ngay'}
-                {d.status === 'warn' && 'Sắp đến hạn'}
-                {d.status === 'ok' && 'Còn thời gian'}
+                {d.status === 'danger' && t('deadline.urgent')}
+                {d.status === 'warn' && t('deadline.warning')}
+                {d.status === 'ok' && t('deadline.safe')}
               </p>
             </div>
           ))

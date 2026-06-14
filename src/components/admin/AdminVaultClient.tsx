@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Upload } from 'lucide-react';
 import { AdminVaultStats, type VaultStats } from './AdminVaultStats';
 import { AdminVaultFoldersPanel } from './AdminVaultFoldersPanel';
@@ -51,6 +52,8 @@ interface VaultData {
 
 export default function AdminVaultClient() {
   const router = useRouter();
+  const t = useTranslations('Vault');
+  const tCommon = useTranslations('Common');
   const [data, setData] = useState<VaultData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -102,13 +105,13 @@ export default function AdminVaultClient() {
       setData(result);
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
-      const errorMessage = err instanceof Error ? err.message : 'Lỗi không xác định';
+      const errorMessage = err instanceof Error ? err.message : tCommon('error');
       setError(errorMessage);
       console.error('Error fetching vault data:', err);
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, router]);
+  }, [debouncedSearch, router, tCommon]);
 
   // Fetch on mount and when search changes
   useEffect(() => {
@@ -148,14 +151,14 @@ export default function AdminVaultClient() {
       {/* Page Header */}
       <div className="vault-page-header">
         <div>
-          <h1>Phân loại vault</h1>
+          <h1>{t('pageTitle')}</h1>
           <p className="vault-subtitle">
-            Tạo thư mục và thẻ để tổ chức hồ sơ pháp lý, phân quyền truy cập và theo dõi tài liệu an toàn.
+            {t('pageDescription')}
           </p>
         </div>
         <button className="vault-upload-btn">
           <Upload size={18} />
-          Tải tệp lên
+          {t('uploadFile')}
         </button>
       </div>
 
@@ -184,10 +187,10 @@ export default function AdminVaultClient() {
               <circle cx="12" cy="12" r="10" />
               <path d="M12 8v4m0 4h.01" />
             </svg>
-            <strong>Không thể tải dữ liệu vault</strong>
+            <strong>{tCommon('error')}</strong>
           </div>
           <p>{error}</p>
-          <button onClick={handleRefresh}>Thử lại</button>
+          <button onClick={handleRefresh}>{t('retry') || 'Thử lại'}</button>
         </div>
       )}
 

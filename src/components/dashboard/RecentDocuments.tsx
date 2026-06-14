@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface Document {
   id: string;
   filename: string;
@@ -41,14 +43,9 @@ const statusBadgeClass: Record<string, string> = {
   ENCRYPTED: 'badge green',
 };
 
-const statusText: Record<string, string> = {
-  ACTIVE: 'Đã mã hóa',
-  PENDING: 'Cần xem',
-  ARCHIVED: 'Đã lưu trữ',
-  ENCRYPTED: 'Đã mã hóa',
-};
-
 export default function RecentDocuments({ documents }: RecentDocumentsProps) {
+  const t = useTranslations('Dashboard');
+
   return (
     <div className="panel">
       <div className="panel-title">
@@ -57,14 +54,14 @@ export default function RecentDocuments({ documents }: RecentDocumentsProps) {
             <path d="M3 7h18v13H3z" />
             <path d="M3 7l3-4h12l3 4" />
           </svg>
-          <span>Tài liệu gần đây</span>
+          <span>{t('recentDocuments.title')}</span>
         </div>
-        <a className="small-link" href="#">Mở vault →</a>
+        <a className="small-link" href="#">{t('recentDocuments.openVault')}</a>
       </div>
 
       <div className="document-list">
         {documents.length === 0 ? (
-          <div className="empty-state">Không có tài liệu nào</div>
+          <div className="empty-state">{t('recentDocuments.empty')}</div>
         ) : (
           documents.map((doc) => (
             <div key={doc.id} className="document-item">
@@ -72,11 +69,11 @@ export default function RecentDocuments({ documents }: RecentDocumentsProps) {
                 <div className="file-icon">{getFileExtension(doc.mimeType)}</div>
                 <div className="file-info">
                   <strong>{doc.filename}</strong>
-                  <span>{formatFileSize(doc.size)} · cập nhật {doc.relativeTime}</span>
+                  <span>{formatFileSize(doc.size)} · {t('recentDocuments.updatedAt')} {doc.relativeTime}</span>
                 </div>
               </div>
               <span className={statusBadgeClass[doc.status] || 'badge blue'}>
-                {statusText[doc.status] || doc.status}
+                {t(`status.${doc.status.toLowerCase()}` as any) || doc.status}
               </span>
             </div>
           ))

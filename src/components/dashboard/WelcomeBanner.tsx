@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface WelcomeBannerProps {
   workspaceName: string;
   activeRequests: number;
@@ -13,20 +15,22 @@ export default function WelcomeBanner({
   pendingDocs,
   newReplies,
 }: WelcomeBannerProps) {
+  const t = useTranslations('Dashboard');
+
   const statusParts: string[] = [];
   if (activeRequests > 0) {
-    statusParts.push(`${activeRequests} hồ sơ đang được xử lý`);
+    statusParts.push(t('welcome.requestsProcessing', { count: activeRequests }));
   }
   if (pendingDocs > 0) {
-    statusParts.push(`${pendingDocs} tài liệu cần xác nhận`);
+    statusParts.push(t('welcome.docsPending', { count: pendingDocs }));
   }
   if (newReplies > 0) {
-    statusParts.push(`${newReplies} phản hồi mới từ chuyên viên pháp lý`);
+    statusParts.push(t('welcome.repliesNew', { count: newReplies }));
   }
 
   const statusText = statusParts.length > 0
     ? statusParts.join(', ')
-    : 'Workspace hoạt động bình thường';
+    : t('welcome.statusNormal');
 
   return (
     <div className="welcome-card">
@@ -38,16 +42,16 @@ export default function WelcomeBanner({
           </svg>
         </div>
         <div>
-          <h2>Workspace của bạn đang hoạt động ổn định</h2>
+          <h2>{t('welcome.title')}</h2>
           <p>
             {statusText}.
-            Dữ liệu chỉ hiển thị trong phạm vi workspace {workspaceName}.
+            {t('welcome.workspaceScope', { workspace: workspaceName })}
           </p>
         </div>
       </div>
       <div className="quick-actions">
-        <button className="ghost-btn">Xem tài liệu</button>
-        <button className="create-btn">Gửi phản hồi</button>
+        <button className="ghost-btn">{t('welcome.viewDocuments')}</button>
+        <button className="create-btn">{t('welcome.sendFeedback')}</button>
       </div>
     </div>
   );

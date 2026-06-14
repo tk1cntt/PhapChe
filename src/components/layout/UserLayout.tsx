@@ -68,7 +68,7 @@ export function UserLayout({
   const userMenuItems: MenuProps['items'] = [
     {
       key: 'logout',
-      label: 'Đăng xuất',
+      label: tCommon('signOut'),
       icon: <LogOut size={16} />,
       onClick: handleLogout,
     },

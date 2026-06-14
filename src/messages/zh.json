@@ -220,9 +220,13 @@
     "transitionReason": "转换原因",
     "noData": "暂无请求。",
     "statTotal": "请求总数",
+    "statTotalDesc": "所有工作区",
     "statProcessing": "处理中",
+    "statProcessingDesc": "等待专员处理",
     "statCompleted": "已完成",
-    "statCancelled": "已取消",
+    "statCompletedDesc": "工作流已完成",
+    "statCancelled": "高优先级",
+    "statCancelledDesc": "接近截止日期",
     "searchPlaceholder": "搜索请求编号、标题...",
     "filterStatus": "按状态筛选",
     "export": "导出列表",
@@ -230,7 +234,17 @@
     "requestType": "请求类型",
     "assignee": "负责人",
     "action": "操作",
-    "viewDetail": "查看详情"
+    "viewDetail": "查看详情",
+    "dispatch": "分配",
+    "view": "查看",
+    "audit": "审计",
+    "columns": "显示列",
+    "refresh": "刷新",
+    "allWorkspaces": "所有工作区",
+    "totalLabel": "个请求",
+    "emptyTitle": "暂无请求",
+    "emptyDesc": "请求列表为空。",
+    "retry": "重试"
   },
   "AdminOps": {
     "pageTitle": "运营",
@@ -254,12 +268,22 @@
     "assigneeBtn": "负责人",
     "columnsBtn": "显示列",
     "exportReport": "导出运营报告",
-    "export": "导出报告"
+    "export": "导出报告",
+    "workspace": "工作区",
+    "columns": "显示列",
+    "refresh": "刷新",
+    "allWorkspaces": "所有工作区",
+    "workloadOverview": "工作量概览",
+    "timelineAudit": "审计时间线",
+    "totalRecords": "个请求",
+    "errorLoading": "从服务器加载数据失败。请重试。",
+    "retry": "重试"
   },
   "AuditEvents": {
     "pageTitle": "审计",
     "pageDescription": "跟踪重要操作，显示时间戳、操作、关联 ID 和安全元数据摘要。",
     "securityNote": "审计中不显示法律内容；追溯时使用 metadataSummary、标识符或哈希。",
+    "securityDisplayTitle": "安全显示原则",
     "time": "时间",
     "actor": "操作者",
     "workspace": "工作区",
@@ -278,7 +302,20 @@
     "statWorkspaceActivity": "活跃工作区",
     "searchPlaceholder": "搜索事件...",
     "filterEventType": "按事件类型筛选",
-    "export": "导出报告"
+    "export": "导出报告",
+    "controlAlertsTitle": "控制警报",
+    "accessDeniedTitle": "访问被拒绝",
+    "accessDeniedDesc": "权限不足或工作区范围错误",
+    "roleChangeTitle": "角色变更",
+    "roleChangeDesc": "需要超级管理员验证",
+    "completeAuditTitle": "完整审计",
+    "completeAuditDesc": "包含操作者、关联ID和元数据摘要",
+    "recentActivityTitle": "最近活动",
+    "refresh": "刷新",
+    "errorLoading": "从服务器加载数据失败。请重试。",
+    "retry": "重试",
+    "warnings": "警告",
+    "totalEvents": "个事件"
   },
   "Vault": {
     "pageTitle": "保险库",
@@ -880,6 +917,56 @@
     "agencyContract": "代理合同",
     "trademarkRegistration": "商标注册",
     "other": "其他 / 不明确"
+  },
+  "Dashboard": {
+    "welcome": {
+      "title": "您的工作区运行正常",
+      "desc": "{processing}个请求正在处理，{pendingDocs}个文档待确认，{newReplies}条新的专员回复。",
+      "workspaceScope": "数据仅在{workspace}工作区内可见。",
+      "statusOk": "工作区正常运行",
+      "requestsProcessing": "{count}个请求正在处理",
+      "docsPending": "{count}个文档待确认",
+      "repliesNew": "{count}条新的专员回复",
+      "statusNormal": "工作区正常运行",
+      "viewDocuments": "查看文档",
+      "sendFeedback": "发送反馈"
+    },
+    "recentDocuments": {
+      "title": "最近文档",
+      "openVault": "打开保险库 →",
+      "empty": "暂无文档",
+      "updatedAt": "更新"
+    },
+    "recentCases": {
+      "title": "处理中的案件",
+      "seeAll": "查看全部 →",
+      "empty": "暂无活跃案件",
+      "open": "打开 →"
+    },
+    "deadline": {
+      "title": "截止日期与 SLA",
+      "empty": "本周暂无截止日期",
+      "urgent": "需要立即处理",
+      "warning": "接近截止日期",
+      "safe": "时间充裕"
+    },
+    "activity": {
+      "title": "最近活动",
+      "empty": "暂无最近活动"
+    },
+    "status": {
+      "encrypted": "已加密",
+      "pendingReview": "待审核",
+      "archived": "已归档",
+      "active": "活跃",
+      "pending": "待处理"
+    }
+  },
+  "AdminNav": {
+    "helpCard": {
+      "needHelp": "需要帮助？",
+      "viewGuide": "查看文档和指南 →"
+    }
   },
   "RequestDetail": {
     "pageTitle": "法律请求",

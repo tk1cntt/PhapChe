@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { AdminStatGrid, StatCardProps } from '@/components/admin/AdminStatGrid';
 import AdminToolbar from '@/components/admin/AdminToolbar';
 import AdminRequestsTable, { RequestRow } from '@/components/admin/AdminRequestsTable';
@@ -31,6 +32,8 @@ interface ApiResponse {
 
 export default function AdminRequestsClient() {
   const router = useRouter();
+  const t = useTranslations('AdminRequests');
+  const tCommon = useTranslations('Common');
   const [requests, setRequests] = useState<RequestRow[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, approved: 0, highPriority: 0 });
   const [loading, setLoading] = useState(true);
@@ -99,9 +102,9 @@ export default function AdminRequestsClient() {
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <div><strong className="block">Lỗi khi tải dữ liệu</strong><span className="text-sm text-red-500">{error}</span></div>
+        <div><strong className="block">{tCommon('error')}</strong><span className="text-sm text-red-500">{error}</span></div>
       </div>
-      <button onClick={() => fetchData()} className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors">Thử lại</button>
+      <button onClick={() => fetchData()} className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors">{t('retry') || 'Thử lại'}</button>
     </div>
   );
   const handleWorkspaceChange = (workspaceId: string | null) => {
@@ -112,11 +115,11 @@ export default function AdminRequestsClient() {
   const handleActionClick = (row: RequestRow) => {
     const action = row.action;
     const fullId = row.fullId || row.id;
-    if (action === 'Điều phối') { console.log('Open dispatch modal for:', fullId); }
-    else if (action === 'Xem') {
+    if (action === t('dispatch') || action === 'Dispatch') { console.log('Open dispatch modal for:', fullId); }
+    else if (action === t('view') || action === 'View') {
       const locale = window.location.pathname.split('/')[1] || 'vi';
       router.push(`/${locale}/admin/requests/${fullId}`);
-    } else if (action === 'Audit' || action === 'Xem log') {
+    } else if (action === t('audit') || action === 'Audit') {
       const locale = window.location.pathname.split('/')[1] || 'vi';
       router.push(`/${locale}/admin/audit?requestId=${fullId}`);
     }
@@ -128,31 +131,36 @@ export default function AdminRequestsClient() {
   const handleRefresh = () => { fetchData(); };
 
   const statCards = [
-    { title: 'Tổng hồ sơ', value: stats.total, description: 'Tất cả workspace', variant: 'blue' as const },
-    { title: 'Đang chờ', value: stats.pending, description: 'Cần chuyên viên xử lý', variant: 'orange' as const },
-    { title: 'Đã duyệt', value: stats.approved, description: 'Hoàn tất workflow', variant: 'green' as const },
-    { title: 'Ưu tiên cao', value: stats.highPriority, description: 'Sắp đến hạn xử lý', variant: 'red' as const },
+    { title: t('statTotal'), value: stats.total, description: t('statTotalDesc') || 'All workspaces', variant: 'blue' as const },
+    { title: t('statProcessing'), value: stats.pending, description: t('statProcessingDesc') || 'Awaiting specialist', variant: 'orange' as const },
+    { title: t('statCompleted'), value: stats.approved, description: t('statCompletedDesc') || 'Workflow completed', variant: 'green' as const },
+    { title: t('statCancelled') || 'High Priority', value: stats.highPriority, description: t('statCancelledDesc') || 'Near deadline', variant: 'red' as const },
   ];
 
   const toolbarTranslations = {
-    searchPlaceholder: 'Tìm hồ sơ, khách hàng, workspace...',
-    filter: 'Bộ lọc',
-    status: 'Trạng thái',
-    workspace: 'Workspace',
-    export: 'Export',
-    columns: 'Cột hiển thị',
-    refresh: 'Làm mới',
-    allWorkspaces: 'Tất cả workspaces',
+    searchPlaceholder: t('searchPlaceholder'),
+    filter: tCommon('filter'),
+    status: tCommon('status'),
+    workspace: t('workspace'),
+    export: tCommon('export'),
+    columns: t('columns') || 'Columns',
+    refresh: t('refresh') || 'Refresh',
+    allWorkspaces: t('allWorkspaces') || 'All workspaces',
   };
 
   const tableTranslations = {
-    code: 'Mã hồ sơ',
-    workspace: 'Workspace',
-    customer: 'Khách hàng',
-    status: 'Trạng thái',
-    requestType: 'Loại yêu cầu',
-    assignee: 'Phụ trách',
-    action: 'Thao tác',
+    code: t('code'),
+    workspace: t('workspace'),
+    customer: t('customer'),
+    status: t('status'),
+    requestType: t('requestType'),
+    assignee: t('assignee'),
+    action: t('action'),
+    dispatch: t('dispatch') || 'Dispatch',
+    view: t('view') || 'View',
+    audit: t('audit') || 'Audit',
+    emptyTitle: t('emptyTitle') || 'No requests',
+    emptyDesc: t('emptyDesc') || 'Request list is empty.',
   };
 
   const totalPages = Math.ceil(total / pageSize);
@@ -162,10 +170,10 @@ export default function AdminRequestsClient() {
       <div className="mb-6 flex justify-between items-start">
         <div>
           <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: '#020617', marginBottom: 12 }}>
-            Hồ sơ yêu cầu
+            {t('pageTitle')}
           </h1>
           <p style={{ fontSize: 15, fontWeight: 500, color: '#5f6e83', margin: 0 }}>
-            Trạng thái hồ sơ được hiển thị từ backend-owned workflow, không chỉnh sửa trực tiếp bằng raw dropdown.
+            {t('pageDescription')}
           </p>
         </div>
         <button
@@ -181,7 +189,7 @@ export default function AdminRequestsClient() {
             <path d="M12 5v14"/>
             <path d="M5 12h14"/>
           </svg>
-          Tạo hồ sơ yêu cầu
+          {t('createButton')}
         </button>
       </div>
 
@@ -203,7 +211,7 @@ export default function AdminRequestsClient() {
 
       {loading ? (
         <div className="bg-white border rounded-[15px] p-8 flex items-center justify-center" style={{ borderColor: 'var(--border)' }}>
-          <div className="text-[#64748b]">Đang tải...</div>
+          <div className="text-[#64748b]">{tCommon('loading')}</div>
         </div>
       ) : !error ? (
         <>
@@ -214,7 +222,7 @@ export default function AdminRequestsClient() {
               current={page}
               pageSize={pageSize}
               total={total}
-              totalLabel={`${total} hồ sơ total`}
+              totalLabel={`${total} ${t('totalLabel') || 'requests'}`}
               onChange={(nextPage, nextPageSize) => {
                 setPageSize(nextPageSize);
                 setPage(nextPage);

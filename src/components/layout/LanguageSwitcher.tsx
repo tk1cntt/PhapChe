@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 
@@ -16,6 +16,7 @@ export default function LanguageSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale();
+  const t = useTranslations('Language');
 
   const currentLang = languages.find((l) => l.code === locale) || languages[0];
 

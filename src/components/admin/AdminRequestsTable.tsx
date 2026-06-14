@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 export interface RequestRow {
   id: string;
   fullId?: string;
@@ -28,6 +30,11 @@ interface AdminRequestsTableProps {
     requestType: string;
     assignee: string;
     action: string;
+    dispatch?: string;
+    view?: string;
+    audit?: string;
+    emptyTitle?: string;
+    emptyDesc?: string;
   };
 }
 
@@ -74,15 +81,22 @@ function Badge({ variant, text }: { variant: string; text: string }) {
 }
 
 export default function AdminRequestsTable({ rows = [], translations }: AdminRequestsTableProps) {
-  const t = translations || {
-    code: 'Mã hồ sơ',
-    workspace: 'Workspace',
-    customer: 'Khách hàng',
-    status: 'Trạng thái',
-    requestType: 'Loại yêu cầu',
-    assignee: 'Phụ trách',
-    action: 'Thao tác',
+  const t = useTranslations('AdminRequests');
+  const defaults = {
+    code: t('code'),
+    workspace: t('workspace'),
+    customer: t('customer'),
+    status: t('status'),
+    requestType: t('requestType'),
+    assignee: t('assignee'),
+    action: t('action'),
+    dispatch: t('dispatch') || 'Dispatch',
+    view: t('view') || 'View',
+    audit: t('audit') || 'Audit',
+    emptyTitle: t('emptyTitle') || 'No requests',
+    emptyDesc: t('emptyDesc') || 'Request list is empty.',
   };
+  const trans = translations || defaults;
   // IN-01: Empty state when no data
   if (!rows || rows.length === 0) {
     return (
@@ -103,8 +117,8 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-slate-700 mb-1">Không có yêu cầu nào</h3>
-          <p className="text-sm text-slate-500">Danh sách yêu cầu pháp lý đang trống.</p>
+          <h3 className="text-lg font-medium text-slate-700 mb-1">{trans.emptyTitle}</h3>
+          <p className="text-sm text-slate-500">{trans.emptyDesc}</p>
         </div>
       </div>
     );
@@ -126,7 +140,7 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
           borderBottom: '1px solid #dfe7f1',
         }}
       >
-        {[t.code, t.workspace, t.customer, t.status, t.requestType, t.assignee, t.action].map(
+        {[trans.code, trans.workspace, trans.customer, trans.status, trans.requestType, trans.assignee, trans.action].map(
           (header, i) => (
             <div
               key={i}

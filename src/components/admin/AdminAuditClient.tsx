@@ -18,6 +18,7 @@ interface AuditEventResponse {
 
 export default function AdminAuditClient() {
   const t = useTranslations('AuditEvents');
+  const tCommon = useTranslations('Common');
   const router = useRouter();
 
   // State
@@ -116,13 +117,13 @@ export default function AdminAuditClient() {
       setData(result);
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
-      const errorMessage = err instanceof Error ? err.message : 'Lỗi không xác định';
+      const errorMessage = err instanceof Error ? err.message : tCommon('error');
       setError(errorMessage);
       console.error('Error fetching audit data:', err);
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, debouncedSearch, router, initialized]);
+  }, [page, pageSize, debouncedSearch, router, initialized, tCommon]);
 
   // Fetch on mount
   useEffect(() => {
@@ -252,7 +253,7 @@ export default function AdminAuditClient() {
           </div>
           <div>
             <Typography.Text strong style={{ fontSize: 18, color: '#0f172a', display: 'block', marginBottom: 8 }}>
-              Nguyên tắc hiển thị an toàn
+              {t('securityDisplayTitle') || 'Nguyên tắc hiển thị an toàn'}
             </Typography.Text>
             <Typography.Text style={{ color: '#59687e', fontSize: 14, lineHeight: 1.7 }}>
               {t('securityNote')}
@@ -402,7 +403,7 @@ export default function AdminAuditClient() {
                 <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
                 <path d="M21 8V3h-5" />
               </svg>
-              Refresh
+              {t('refresh') || 'Refresh'}
             </button>
           </div>
         </div>
@@ -424,10 +425,10 @@ export default function AdminAuditClient() {
               <circle cx="12" cy="12" r="10" />
               <path d="M12 8v4m0 4h.01" />
             </svg>
-            <strong>Không thể tải dữ liệu audit</strong>
+            <strong>{tCommon('error')}</strong>
           </div>
           <p style={{ color: '#64748b', fontSize: 14, marginBottom: 12 }}>
-            Đã xảy ra lỗi khi lấy dữ liệu từ máy chủ. Vui lòng thử lại.
+            {t('errorLoading') || 'Đã xảy ra lỗi khi lấy dữ liệu từ máy chủ. Vui lòng thử lại.'}
           </p>
           <button
             onClick={handleRefresh}
@@ -442,7 +443,7 @@ export default function AdminAuditClient() {
               cursor: 'pointer',
             }}
           >
-            Thử lại
+            {t('retry') || 'Thử lại'}
           </button>
         </div>
       )}
@@ -456,7 +457,7 @@ export default function AdminAuditClient() {
               current={page}
               pageSize={pageSize}
               total={total}
-              totalLabel={`${total} sự kiện`}
+              totalLabel={`${total} ${t('totalEvents') || 'sự kiện'}`}
               onChange={handlePageChange}
             />
           )}
@@ -503,7 +504,7 @@ export default function AdminAuditClient() {
           >
             !
           </span>
-          <span>{stats.criticalCount} Canh bao</span>
+          <span>{stats.criticalCount} {t('warnings') || 'Cảnh báo'}</span>
         </div>
       )}
 

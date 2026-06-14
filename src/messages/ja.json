@@ -220,9 +220,13 @@
     "transitionReason": "遷移理由",
     "noData": "リクエストがまだありません。",
     "statTotal": "リクエスト総数",
+    "statTotalDesc": "全ワークスペース",
     "statProcessing": "処理中",
+    "statProcessingDesc": "スペシャリスト待ち",
     "statCompleted": "完了",
-    "statCancelled": "キャンセル",
+    "statCompletedDesc": "ワークフロー完了",
+    "statCancelled": "高優先度",
+    "statCancelledDesc": "期限接近",
     "searchPlaceholder": "リクエストコード、タイトルを検索...",
     "filterStatus": "ステータスでフィルター",
     "export": "リストをエクスポート",
@@ -230,7 +234,17 @@
     "requestType": "リクエスト種別",
     "assignee": "担当者",
     "action": "アクション",
-    "viewDetail": "詳細を見る"
+    "viewDetail": "詳細を見る",
+    "dispatch": "配分",
+    "view": "表示",
+    "audit": "監査",
+    "columns": "列",
+    "refresh": "更新",
+    "allWorkspaces": "全てのワークスペース",
+    "totalLabel": "件のリクエスト",
+    "emptyTitle": "リクエストがありません",
+    "emptyDesc": "リクエストリストが空です。",
+    "retry": "再試行"
   },
   "AdminOps": {
     "pageTitle": "運用",
@@ -254,12 +268,22 @@
     "assigneeBtn": "担当者",
     "columnsBtn": "表示列",
     "exportReport": "運用レポート出力",
-    "export": "レポート出力"
+    "export": "レポート出力",
+    "workspace": "ワークスペース",
+    "columns": "列",
+    "refresh": "更新",
+    "allWorkspaces": "全てのワークスペース",
+    "workloadOverview": "ワークロード概要",
+    "timelineAudit": "監査タイムライン",
+    "totalRecords": "件",
+    "errorLoading": "サーバーからのデータの読み込みに失敗しました。再試行してください。",
+    "retry": "再試行"
   },
   "AuditEvents": {
     "pageTitle": "監査",
     "pageDescription": "タイムスタンプ、アクション、相関ID、安全なメタデータ要約を示す重要な操作を追跡します。",
     "securityNote": "監査には法的内容は表示されません。追跡には metadataSummary、識別子、またはハッシュを使用してください。",
+    "securityDisplayTitle": "安全な表示原則",
     "time": "日時",
     "actor": "実行者",
     "workspace": "ワークスペース",
@@ -278,7 +302,20 @@
     "statWorkspaceActivity": "アクティブワークスペース",
     "searchPlaceholder": "イベントを検索...",
     "filterEventType": "イベントタイプでフィルター",
-    "export": "レポートをエクスポート"
+    "export": "レポートをエクスポート",
+    "controlAlertsTitle": "コントロールアラート",
+    "accessDeniedTitle": "アクセス拒否",
+    "accessDeniedDesc": "権限が不十分またはワークスペース範囲が不正",
+    "roleChangeTitle": "ロール変更",
+    "roleChangeDesc": "スーパー管理者による確認が必要",
+    "completeAuditTitle": "完全監査",
+    "completeAuditDesc": "実行者、相関ID、メタデータ要約を含む",
+    "recentActivityTitle": "最近のアクティビティ",
+    "refresh": "更新",
+    "errorLoading": "サーバーからのデータの読み込みに失敗しました。再試行してください。",
+    "retry": "再試行",
+    "warnings": "アラート",
+    "totalEvents": "件のイベント"
   },
   "Vault": {
     "pageTitle": "ボールト",
@@ -880,6 +917,56 @@
     "agencyContract": "代理店契約",
     "trademarkRegistration": "商標登録",
     "other": "その他 / 不明"
+  },
+  "Dashboard": {
+    "welcome": {
+      "title": "ワークスペースは正常に稼働しています",
+      "desc": "{processing}件のリクエストが処理中、{pendingDocs}件のドキュメントが確認待ち、{newReplies}件の新しいスペシャリスト返信があります。",
+      "workspaceScope": "データは{workspace}ワークスペース内でのみ表示されます。",
+      "statusOk": "ワークスペースは正常に稼働しています",
+      "requestsProcessing": "{count}件のリクエストが処理中",
+      "docsPending": "{count}件のドキュメントが確認待ち",
+      "repliesNew": "{count}件の新しいスペシャリスト返信",
+      "statusNormal": "ワークスペースは正常に稼働しています",
+      "viewDocuments": "ドキュメントを表示",
+      "sendFeedback": "フィードバックを送信"
+    },
+    "recentDocuments": {
+      "title": "最近のドキュメント",
+      "openVault": "ボールトを開く →",
+      "empty": "ドキュメントがありません",
+      "updatedAt": "更新"
+    },
+    "recentCases": {
+      "title": "処理中のケース",
+      "seeAll": "すべて表示 →",
+      "empty": "アクティブなケースがありません",
+      "open": "開く →"
+    },
+    "deadline": {
+      "title": "期限＆SLA",
+      "empty": "今週の期限はありません",
+      "urgent": "即時対応が必要",
+      "warning": "期限接近中",
+      "safe": "時間あり"
+    },
+    "activity": {
+      "title": "最近のアクティビティ",
+      "empty": "最近のアクティビティがありません"
+    },
+    "status": {
+      "encrypted": "暗号化済み",
+      "pendingReview": "レビュー必要",
+      "archived": "アーカイブ済み",
+      "active": "アクティブ",
+      "pending": "保留中"
+    }
+  },
+  "AdminNav": {
+    "helpCard": {
+      "needHelp": "ヘルプが必要ですか？",
+      "viewGuide": "ドキュメントとガイドを見る →"
+    }
   },
   "RequestDetail": {
     "pageTitle": "法的リクエスト",

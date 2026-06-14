@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { OpsAggregateDto } from '@/lib/ops/ops-service';
 import { AdminOperationsStats } from '@/components/admin/AdminOperationsStats';
 import { AdminOperationsWorkload } from '@/components/admin/AdminOperationsWorkload';
@@ -27,6 +28,8 @@ export interface AdminOperationsClientProps {
 
 export default function AdminOperationsClient({ initialData }: AdminOperationsClientProps) {
   const router = useRouter();
+  const t = useTranslations('AdminOps');
+  const tCommon = useTranslations('Common');
   const [data, setData] = useState<OpsAggregateDto | null>(initialData ?? null);
   const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
@@ -167,14 +170,14 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
   const handleRefresh = () => fetchData();
 
   const toolbarTranslations = {
-    searchPlaceholder: 'Tìm hồ sơ, người phụ trách, workspace...',
-    filter: 'Bộ lọc',
-    status: 'Trạng thái',
-    workspace: 'Workspace',
-    export: 'Export',
-    columns: 'Cột hiển thị',
-    refresh: 'Làm mới',
-    allWorkspaces: 'Tất cả workspaces',
+    searchPlaceholder: t('searchPlaceholder'),
+    filter: tCommon('filter'),
+    status: tCommon('status'),
+    workspace: t('workspace') || 'Workspace',
+    export: tCommon('export'),
+    columns: t('columnsBtn') || 'Columns',
+    refresh: t('refresh') || 'Refresh',
+    allWorkspaces: t('allWorkspaces') || 'All workspaces',
   };
 
   const stats = data?.stats ?? { openRequests: 0, nearSla: 0, completedToday: 0, auditWarnings: 0 };
@@ -185,10 +188,10 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 22 }}>
         <div>
           <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: '#020617', marginBottom: 12 }}>
-            Vận hành
+            {t('pageTitle')}
           </h1>
           <p style={{ fontSize: 15, fontWeight: 500, color: '#5f6e83', margin: 0 }}>
-            Theo dõi trạng thái hồ sơ, phân bổ workload, mốc SLA cơ bản và timeline audit an toàn.
+            {t('pageDescription')}
           </p>
         </div>
         <button
@@ -213,7 +216,7 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
             <path d="M3 3v18h18"/>
             <path d="M7 15l4-4 4 4 5-7"/>
           </svg>
-          Xuất báo cáo vận hành
+          {t('exportReport')}
         </button>
       </div>
 
@@ -237,7 +240,7 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
               <path d="M3 3v18h18"/>
               <path d="M7 16l4-4 3 3 6-8"/>
             </svg>
-            Tổng quan workload
+            {t('workloadOverview') || 'Tổng quan workload'}
           </div>
           <AdminOperationsWorkload workload={data?.workload ?? []} />
         </div>
@@ -257,7 +260,7 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
               <circle cx="12" cy="12" r="10"/>
               <path d="M12 6v6l4 2"/>
             </svg>
-            Timeline audit
+            {t('timelineAudit') || 'Timeline audit'}
           </div>
           <AdminOperationsTimeline timeline={data?.timeline ?? []} />
         </div>
@@ -290,10 +293,10 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
               <circle cx="12" cy="12" r="10"/>
               <path d="M12 8v4m0 4h.01"/>
             </svg>
-            <strong>Không thể tải dữ liệu vận hành</strong>
+            <strong>{tCommon('error')}</strong>
           </div>
           <p style={{ color: '#64748b', fontSize: 14, marginBottom: 12 }}>
-            Đã xảy ra lỗi khi lấy dữ liệu từ máy chủ. Vui lòng thử lại.
+            {t('errorLoading') || 'Đã xảy ra lỗi khi lấy dữ liệu từ máy chủ. Vui lòng thử lại.'}
           </p>
           <button
             onClick={fetchData}
@@ -308,7 +311,7 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
               cursor: 'pointer',
             }}
           >
-            Thử lại
+            {t('retry') || 'Thử lại'}
           </button>
         </div>
       )}
@@ -325,7 +328,7 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
               current={page}
               pageSize={pageSize}
               total={data.pagination.total}
-              totalLabel={`${data.pagination.total} hồ sơ`}
+              totalLabel={`${data.pagination.total} ${t('totalRecords') || 'hồ sơ'}`}
               onChange={handlePageChange}
             />
           )}

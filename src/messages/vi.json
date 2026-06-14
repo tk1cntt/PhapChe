@@ -221,9 +221,13 @@
     "transitionReason": "Lý do chuyển trạng thái",
     "noData": "Chưa có yêu cầu nào.",
     "statTotal": "Tổng số hồ sơ",
+    "statTotalDesc": "Tất cả workspace",
     "statProcessing": "Đang xử lý",
+    "statProcessingDesc": "Cần chuyên viên xử lý",
     "statCompleted": "Hoàn thành",
-    "statCancelled": "Đã huỷ",
+    "statCompletedDesc": "Hoàn tất workflow",
+    "statCancelled": "Ưu tiên cao",
+    "statCancelledDesc": "Sắp đến hạn xử lý",
     "searchPlaceholder": "Tìm mã hồ sơ, tiêu đề...",
     "filterStatus": "Lọc theo trạng thái",
     "export": "Xuất danh sách",
@@ -231,7 +235,17 @@
     "requestType": "Loại yêu cầu",
     "assignee": "Phụ trách",
     "action": "Thao tác",
-    "viewDetail": "Xem chi tiết"
+    "viewDetail": "Xem chi tiết",
+    "dispatch": "Điều phối",
+    "view": "Xem",
+    "audit": "Audit",
+    "columns": "Cột hiển thị",
+    "refresh": "Làm mới",
+    "allWorkspaces": "Tất cả workspaces",
+    "totalLabel": "hồ sơ",
+    "emptyTitle": "Không có yêu cầu nào",
+    "emptyDesc": "Danh sách yêu cầu pháp lý đang trống.",
+    "retry": "Thử lại"
   },
   "AdminOps": {
     "pageTitle": "Vận hành",
@@ -255,7 +269,16 @@
     "assigneeBtn": "Người phụ trách",
     "columnsBtn": "Cột hiển thị",
     "exportReport": "Xuất báo cáo vận hành",
-    "export": "Xuất báo cáo"
+    "export": "Xuất báo cáo",
+    "workspace": "Workspace",
+    "columns": "Cột hiển thị",
+    "refresh": "Làm mới",
+    "allWorkspaces": "Tất cả workspaces",
+    "workloadOverview": "Tổng quan workload",
+    "timelineAudit": "Timeline audit",
+    "totalRecords": "hồ sơ",
+    "errorLoading": "Đã xảy ra lỗi khi lấy dữ liệu từ máy chủ. Vui lòng thử lại.",
+    "retry": "Thử lại"
   },
   "AuditEvents": {
     "pageTitle": "Audit",
@@ -291,7 +314,7 @@
   },
   "Vault": {
     "pageTitle": "Kho tài liệu",
-    "pageDescription": "Tạo thư mục và thẻ để tổ chức hồ sơ pháp lý.",
+    "pageDescription": "Tạo thư mục và thẻ để tổ chức hồ sơ pháp lý, phân quyền truy cập và theo dõi tài liệu an toàn.",
     "folders": "Thư mục",
     "tags": "Thẻ phân loại",
     "files": "Tệp trong vault",
@@ -350,7 +373,46 @@
     "filterBtn": "Bộ lọc",
     "folderDropdown": "Thư mục",
     "tagDropdown": "Thẻ",
-    "columnsBtn": "Cột hiển thị"
+    "columnsBtn": "Cột hiển thị",
+    "retry": "Thử lại"
+  },
+  "AuditEvents": {
+    "pageTitle": "Audit",
+    "pageDescription": "Đong thời gian thao tác quan trọng chi hiển thị định dạnh, action, mã tương quan và tóm tắt metadata an toàn.",
+    "securityNote": "Không hiển thị nội dung pháp lý tho trong audit; dùng metadataSummary, identifier hoặc hash khi cần truy vết.",
+    "securityDisplayTitle": "Nguyên tắc hiển thị an toàn",
+    "time": "Thời gian",
+    "actor": "Actor",
+    "workspace": "Workspace",
+    "action": "Hành động",
+    "target": "Đối tượng",
+    "correlationId": "Mã tương quan",
+    "metadataSummary": "Tóm tắt metadata",
+    "noData": "Chưa có sự kiện kiểm toan nào.",
+    "loading": "Đang tải...",
+    "statTotalEvents": "Tổng số sự kiện",
+    "statCriticalTitle": "Nghiêm trọng",
+    "statCritical": "Sự kiện nghiêm trọng",
+    "statUserActionsTitle": "Thao tác người dùng",
+    "statUserActions": "Thao tác người dùng",
+    "statWorkspaceActivityTitle": "Hoạt động workspace",
+    "statWorkspaceActivity": "Workspace hoạt động",
+    "searchPlaceholder": "Tìm kiếm sự kiện...",
+    "filterEventType": "Lọc theo loại sự kiện",
+    "export": "Xuất báo cáo",
+    "controlAlertsTitle": "Cảnh báo kiểm soát",
+    "accessDeniedTitle": "Truy cập bị từ chối",
+    "accessDeniedDesc": "Không đủ quyền hoặc sai workspace scope",
+    "roleChangeTitle": "Thay đổi role",
+    "roleChangeDesc": "Cần xác minh bởi Super Admin",
+    "completeAuditTitle": "Audit hoàn chỉnh",
+    "completeAuditDesc": "Có actor, correlationId và metadataSummary",
+    "recentActivityTitle": "Hoạt động gần đây",
+    "refresh": "Làm mới",
+    "errorLoading": "Đã xảy ra lỗi khi lấy dữ liệu từ máy chủ. Vui lòng thử lại.",
+    "retry": "Thử lại",
+    "warnings": "Cảnh báo",
+    "totalEvents": "sự kiện"
   },
   "AdminTemplates": {
     "textType": "Văn bản",
@@ -970,6 +1032,56 @@
     "agencyContract": "Hợp đồng đại lý",
     "trademarkRegistration": "Đăng ký nhãn hiệu",
     "other": "Khác / Chưa rõ"
+  },
+  "Dashboard": {
+    "welcome": {
+      "title": "Workspace của bạn đang hoạt động ổn định",
+      "desc": "{processing} hồ sơ đang xử lý, {pendingDocs} tài liệu chờ xác nhận và {newReplies} phản hồi mới từ chuyên viên.",
+      "workspaceScope": "Dữ liệu chỉ hiển thị trong phạm vi workspace {workspace}.",
+      "statusOk": "Workspace hoạt động bình thường",
+      "requestsProcessing": "{count} hồ sơ đang được xử lý",
+      "docsPending": "{count} tài liệu cần xác nhận",
+      "repliesNew": "{count} phản hồi mới từ chuyên viên pháp lý",
+      "statusNormal": "Workspace hoạt động bình thường",
+      "viewDocuments": "Xem tài liệu",
+      "sendFeedback": "Gửi phản hồi"
+    },
+    "recentDocuments": {
+      "title": "Tài liệu gần đây",
+      "openVault": "Mở vault →",
+      "empty": "Không có tài liệu nào",
+      "updatedAt": "cập nhật"
+    },
+    "recentCases": {
+      "title": "Hồ sơ đang xử lý",
+      "seeAll": "Xem tất cả →",
+      "empty": "Không có hồ sơ nào đang xử lý",
+      "open": "Mở →"
+    },
+    "deadline": {
+      "title": "Deadline & SLA",
+      "empty": "Không có deadline nào trong tuần này",
+      "urgent": "Cần xử lý ngay",
+      "warning": "Sắp đến hạn",
+      "safe": "Còn thời gian"
+    },
+    "activity": {
+      "title": "Hoạt động gần đây",
+      "empty": "Không có hoạt động nào"
+    },
+    "status": {
+      "encrypted": "Đã mã hóa",
+      "pendingReview": "Cần xem",
+      "archived": "Đã lưu trữ",
+      "active": "Đang hoạt động",
+      "pending": "Đang chờ"
+    }
+  },
+  "AdminNav": {
+    "helpCard": {
+      "needHelp": "Need help?",
+      "viewGuide": "View docs & guides →"
+    }
   },
   "RequestDetail": {
     "pageTitle": "Yêu cầu pháp lý",

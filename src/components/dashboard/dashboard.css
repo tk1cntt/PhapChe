@@ -543,36 +543,65 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  border-radius: 6px;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 999px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 800;
   white-space: nowrap;
 }
 
+.badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 7px;
+}
+
 .badge.green {
-  background: #dcfce7;
-  color: #15803d;
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.badge.green::before {
+  background: #10b981;
 }
 
 .badge.blue {
   background: #dbeafe;
-  color: #1d4ed8;
+  color: #2563eb;
+}
+
+.badge.blue::before {
+  background: #2563eb;
 }
 
 .badge.orange {
   background: #ffedd5;
-  color: #c2410c;
+  color: #ea580c;
+}
+
+.badge.orange::before {
+  background: #f97316;
 }
 
 .badge.red {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: #ffe4e6;
+  color: #ef4444;
+}
+
+.badge.red::before {
+  background: #ef4444;
 }
 
 .badge.purple {
-  background: #f3e8ff;
-  color: #7e22ce;
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.badge.purple::before {
+  background: #7c3aed;
 }
 
 .badge.gray {

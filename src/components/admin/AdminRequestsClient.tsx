@@ -22,6 +22,14 @@ interface TriageCase {
   priority: string;
 }
 
+interface TriageResponse {
+  data: TriageCase[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 interface StatusItem {
   name: string;
   count: number;
@@ -114,6 +122,9 @@ export default function AdminRequestsClient() {
 
   // Data state
   const [triageCases, setTriageCases] = useState<TriageCase[]>([]);
+  const [triageTotal, setTriageTotal] = useState(0);
+  const [triagePage, setTriagePage] = useState(1);
+  const [triagePageSize] = useState(10);
   const [stats, setStats] = useState<RequestStats | null>(null);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [partners, setPartners] = useState<{ specialist: Partner[]; dedicated: Partner[] }>({
@@ -135,19 +146,20 @@ export default function AdminRequestsClient() {
     search: '',
   });
 
-  // Fetch triage cases
-  const fetchTriageCases = useCallback(async () => {
+  // Fetch triage cases with pagination
+  const fetchTriageCases = useCallback(async (page: number = 1) => {
     try {
-      const res = await fetch('/api/admin/requests/triage');
+      const res = await fetch(`/api/admin/requests/triage?page=${page}&pageSize=${triagePageSize}`);
       if (!res.ok) throw new Error('Failed to fetch triage cases');
-      const data = await res.json();
+      const data: TriageResponse = await res.json();
       setTriageCases(data.data || []);
+      setTriageTotal(data.total || 0);
     } catch (err) {
       console.error('Error fetching triage cases:', err);
       // Fallback to empty array
       setTriageCases([]);
     }
-  }, []);
+  }, [triagePageSize]);
 
   // Fetch stats
   const fetchStats = useCallback(async () => {
@@ -376,7 +388,7 @@ export default function AdminRequestsClient() {
                     <h3>{t('triageListTitle') || 'Hồ sơ chờ phân loại'}</h3>
                     <p>{t('triageListDescription') || 'Click vào hồ sơ để mở form phân loại Organization / Workspace / Partner.'}</p>
                   </div>
-                  <span className="triage-badge">{triageCases.length} {t('pendingCases') || 'hồ sơ chờ'}</span>
+                  <span className="triage-badge">{triageTotal} {t('pendingCases') || 'hồ sơ chờ'}</span>
                 </div>
                 <div className="triage-list">
                   {triageCases.length === 0 ? (
@@ -415,6 +427,36 @@ export default function AdminRequestsClient() {
                     ))
                   )}
                 </div>
+                {/* Pagination */}
+                {triageTotal > triagePageSize && (
+                  <div className="triage-pagination">
+                    <button
+                      className="pagination-btn"
+                      disabled={triagePage <= 1}
+                      onClick={() => {
+                        const newPage = triagePage - 1;
+                        setTriagePage(newPage);
+                        fetchTriageCases(newPage);
+                      }}
+                    >
+                      ← Trước
+                    </button>
+                    <span className="pagination-info">
+                      Trang {triagePage} / {Math.ceil(triageTotal / triagePageSize)}
+                    </span>
+                    <button
+                      className="pagination-btn"
+                      disabled={triagePage >= Math.ceil(triageTotal / triagePageSize)}
+                      onClick={() => {
+                        const newPage = triagePage + 1;
+                        setTriagePage(newPage);
+                        fetchTriageCases(newPage);
+                      }}
+                    >
+                      Sau →
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Triage Detail Panel */}

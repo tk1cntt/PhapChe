@@ -23,6 +23,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // Parse pagination params
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const pageSize = Math.min(50, Math.max(5, parseInt(searchParams.get('pageSize') || '10', 10)));
+    const skip = (page - 1) * pageSize;
+
+    // Find total count
+    const total = await prisma.legalRequest.count({
+      where: {
+        workspace: { organizationId: null },
+      },
+    });
+
     // Find requests that need triage:
     // - Workspace exists but no organization
     const triageRequests = await prisma.legalRequest.findMany({
@@ -60,7 +73,8 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: { createdAt: 'desc' },
-      take: 50,
+      skip,
+      take: pageSize,
     });
 
     // Transform to triage format
@@ -105,7 +119,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data: triageCases,
-      total: triageCases.length,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
     });
   } catch (error) {
     console.error('Admin triage error:', error);

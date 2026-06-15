@@ -150,7 +150,7 @@ export async function GET(
 
       // Recent audit logs
       workspaceIds.length > 0
-        ? prisma.auditLog.findMany({
+        ? prisma.auditEvent.findMany({
             where: {
               workspaceId: { in: workspaceIds },
             },
@@ -191,11 +191,11 @@ export async function GET(
       recentAuditLogs: recentAuditLogs.map((log) => ({
         id: log.id,
         action: log.action,
-        entityType: log.entityType,
-        entityId: log.entityId,
-        description: log.description,
+        targetType: log.targetType,
+        targetId: log.targetId,
+        requestId: log.requestId,
+        metadataSummary: log.metadataSummary,
         createdAt: log.createdAt,
-        metadata: log.metadata,
       })),
     };
 

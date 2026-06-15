@@ -1,6 +1,6 @@
 'use client';
 
-import { Flex, Spin } from 'antd';
+import { Flex, Spin, Alert } from 'antd';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { usePaginationParams } from '@/lib/hooks/usePaginationParams';
@@ -91,15 +91,15 @@ export default function UsersPageClient({
   const { page, pageSize, search, filters, setPage, setPageSize, setFilter } = usePaginationParams(10);
   const debouncedSearch = useDebounce(search, 300);
 
-  const { data, isLoading, refetch } = useQuery<PaginatedResponse>({
+  const { data, isLoading, isError, refetch } = useQuery<PaginatedResponse>({
     queryKey: ['users', { page, pageSize, search: debouncedSearch, filters }],
     queryFn: async () => {
       const params = new URLSearchParams();
-      params.set('page', String(page));
-      params.set('pageSize', String(pageSize));
+      params.set('skip', String((page - 1) * pageSize));
+      params.set('take', String(pageSize));
       if (debouncedSearch) params.set('search', debouncedSearch);
-      if (filters.role) params.set('filter_role', filters.role);
-      if (filters.workspace) params.set('filter_workspace', filters.workspace);
+      if (filters.role) params.set('role', filters.role);
+      if (filters.workspace) params.set('workspaceId', filters.workspace);
 
       const res = await fetch(`/api/admin/users?${params.toString()}`, {
         credentials: 'include',
@@ -121,6 +121,14 @@ export default function UsersPageClient({
     );
   }
 
+
+  if (isError) {
+    return (
+      <Flex justify="center" style={{ padding: 48 }}>
+        <Alert message={t('errorLoadingUsers')} type="error" showIcon />
+      </Flex>
+    );
+  }
   const statCards = [
     {
       title: t('statTotalUsers'),
@@ -156,6 +164,7 @@ export default function UsersPageClient({
     role_super_admin: t('role_super_admin'),
     role_audit_admin: t('role_audit_admin'),
     pendingLabel: t('pendingLabel'),
+    systemRolesLabel: t('systemRolesLabel'),
   };
 
   return (

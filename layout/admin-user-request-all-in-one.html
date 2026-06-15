@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quản lý hồ sơ - Partner / Org / Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #0f172a;
+      background: #f8fafc;
+    }
+    button, input, select { font-family: inherit; }
+    .content {
+      min-height: 100vh;
+      padding: 32px 36px 48px;
+      background:
+        radial-gradient(circle at 82% 8%, rgba(37, 99, 235, 0.06), transparent 28%),
+        radial-gradient(circle at 38% 78%, rgba(15, 118, 110, 0.05), transparent 34%),
+        #f8fafc;
+    }
+    .case-page { max-width: 1500px; margin: 0 auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 24px; }
+    .page-title h1 { font-size: 31px; font-weight: 900; letter-spacing: -0.8px; color: #020617; margin: 0 0 12px; }
+    .page-title p { font-size: 15px; font-weight: 500; color: #5f6e83; margin: 0; line-height: 1.6; }
+    .header-actions, .triage-actions, .routing-actions > div { display: flex; gap: 12px; align-items: center; }
+    .primary-btn, .ghost-btn, .tool-btn, .triage-action { border: none; cursor: pointer; }
+    .primary-btn { height: 45px; padding: 0 18px; border-radius: 10px; background: linear-gradient(180deg,#0f766e,#0b6962); color: white; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 900; box-shadow: 0 8px 18px rgba(15,118,110,.22); }
+    .ghost-btn { height: 45px; padding: 0 16px; border-radius: 10px; border: 1px solid #dfe7f1; background: white; color: #334155; font-size: 14px; font-weight: 900; }
+    .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { min-height: 118px; background: white; border: 1px solid #dfe7f1; border-radius: 18px; padding: 20px; box-shadow: 0 10px 25px rgba(15,23,42,.04); }
+    .stat-label { color: #64748b; font-size: 13px; font-weight: 800; margin-bottom: 9px; }
+    .stat-value { color: #0f172a; font-size: 30px; font-weight: 900; line-height: 1; margin-bottom: 10px; }
+    .stat-desc { color: #94a3b8; font-size: 12px; font-weight: 700; line-height: 1.4; }
+
+    .triage-section { margin-bottom: 24px; }
+    .triage-header, .section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 16px; }
+    .triage-title h2, .section-title h2 { margin: 0; font-size: 21px; font-weight: 900; color: #0f172a; letter-spacing: -.4px; }
+    .triage-title p, .section-title p { margin: 7px 0 0; color: #64748b; font-size: 13px; line-height: 1.5; font-weight: 500; }
+    .triage-workbench { display: grid; grid-template-columns: .95fr 1.05fr; gap: 20px; align-items: start; }
+    .triage-list-panel, .triage-detail-panel, .status-overview-panel, .assignment-panel, .routing-panel, .table-card, .board-column { background: white; border: 1px solid #dfe7f1; border-radius: 18px; box-shadow: 0 10px 25px rgba(15,23,42,.04); overflow: hidden; }
+    .triage-panel-head, .status-panel-head { padding: 20px 22px; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .triage-panel-head h3, .status-panel-head h3 { margin: 0; font-size: 18px; color: #0f172a; font-weight: 900; }
+    .triage-panel-head p, .status-panel-head p { margin: 6px 0 0; color: #64748b; font-size: 13px; line-height: 1.45; }
+    .triage-badge { min-height: 30px; padding: 7px 11px; border-radius: 999px; background: #fff7ed; color: #ea580c; font-size: 12px; font-weight: 900; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+    .triage-badge:before { content:""; width: 7px; height: 7px; border-radius: 50%; background:#f97316; }
+    .triage-list { padding: 16px; display: grid; gap: 14px; }
+    .triage-card { width: 100%; text-align: left; border: 1px solid #edf2f7; border-radius: 16px; background: #fbfdff; padding: 16px; cursor: pointer; display: block; }
+    .triage-card.active { border-color: #0f766e; background: #ecfdf9; box-shadow: 0 0 0 3px rgba(15,118,110,.08); }
+    .triage-code { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .triage-code-icon { width: 38px; height: 38px; border-radius: 12px; background: #fff7ed; color: #f97316; display: grid; place-items: center; font-size: 13px; font-weight: 900; flex-shrink: 0; }
+    .triage-code strong { display: block; color:#0f172a; font-size:14px; font-weight:900; margin-bottom:4px; }
+    .triage-code span { display:block; color:#64748b; font-size:12px; font-weight:700; }
+    .triage-description { color:#475569; font-size:13px; line-height:1.55; margin-bottom:12px; }
+    .triage-meta { display:flex; flex-wrap:wrap; gap:8px; }
+    .triage-chip { min-height:28px; padding:6px 10px; border-radius:999px; background:white; border:1px solid #e2e8f0; color:#475569; font-size:12px; font-weight:800; }
+    .triage-chip.warning { background:#fff7ed; border-color:#fed7aa; color:#ea580c; }
+    .triage-chip.blue { background:#eff6ff; border-color:#bfdbfe; color:#2563eb; }
+    .triage-chip.green { background:#ecfdf9; border-color:#ccfbf1; color:#0f766e; }
+    .triage-detail-panel { padding: 20px; }
+    .selected-case-summary { display:flex; gap:14px; align-items:flex-start; padding:16px; border:1px solid #edf2f7; border-radius:16px; background:linear-gradient(135deg,#f8fafc,#fff); margin-bottom:18px; }
+    .selected-case-icon { width:48px; height:48px; border-radius:15px; background:#fff7ed; color:#ea580c; display:grid; place-items:center; font-size:12px; font-weight:900; flex-shrink:0; }
+    .selected-kicker { color:#64748b; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
+    .selected-case-summary h3 { margin:0 0 8px; color:#0f172a; font-size:17px; font-weight:900; }
+    .selected-case-summary p { margin:0; color:#64748b; font-size:13px; line-height:1.55; }
+    .empty-triage-detail { min-height:420px; display:grid; place-items:center; text-align:center; padding:32px; color:#64748b; }
+    .empty-triage-detail strong { display:block; color:#0f172a; font-size:18px; margin-bottom:8px; }
+    .triage-form-title { margin-bottom:14px; }
+    .triage-form-title strong { display:block; color:#0f172a; font-size:15px; font-weight:900; margin-bottom:5px; }
+    .triage-form-title span { display:block; color:#64748b; font-size:13px; line-height:1.45; }
+    .triage-form-grid, .form-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:12px; }
+    .form-grid { grid-template-columns: repeat(4, 1fr); gap:14px; }
+    .triage-field, .form-field { display:grid; gap:7px; }
+    .triage-field label, .form-field label { color:#334155; font-size:12px; font-weight:900; }
+    .triage-field select, .triage-field input, .form-field select, .form-field input { width:100%; height:42px; border:1px solid #dfe7f1; border-radius:10px; background:white; color:#0f172a; font-size:13px; padding:0 12px; outline:none; }
+    .form-field select, .form-field input { height:46px; border-radius:12px; font-size:14px; padding:0 13px; }
+    .triage-field select:focus, .triage-field input:focus, .form-field select:focus, .form-field input:focus { border-color:#0f766e; box-shadow:0 0 0 3px rgba(15,118,110,.08); }
+    .triage-form-actions { display:flex; justify-content:flex-end; gap:10px; margin-top: 12px; flex-wrap: wrap; }
+    .triage-action { height:38px; padding:0 12px; border-radius:10px; border:1px solid #dfe7f1; background:white; color:#334155; font-size:13px; font-weight:900; }
+    .triage-action.primary { background:#0f766e; border-color:#0f766e; color:white; }
+    .triage-action.orange { background:#fff7ed; border-color:#fed7aa; color:#ea580c; }
+
+    .triage-grid { display:grid; grid-template-columns: 1.35fr .65fr; gap:20px; align-items:start; margin-bottom: 24px; }
+    .status-overview-body { padding:16px; display:grid; gap:14px; }
+    .status-item { border:1px solid #edf2f7; border-radius:15px; background:#fbfdff; padding:15px; }
+    .status-row { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
+    .status-name { color:#0f172a; font-size:14px; font-weight:900; }
+    .status-count { min-width:34px; height:30px; padding:0 9px; border-radius:10px; background:white; border:1px solid #e2e8f0; color:#0f172a; font-size:13px; font-weight:900; display:grid; place-items:center; }
+    .progress-track { height:8px; border-radius:999px; background:#e2e8f0; overflow:hidden; }
+    .progress-fill { height:100%; border-radius:inherit; }
+    .progress-fill.orange{background:#f97316}.progress-fill.blue{background:#2563eb}.progress-fill.purple{background:#7c3aed}.progress-fill.green{background:#0f766e}.progress-fill.red{background:#e11d48}
+    .status-note { color:#64748b; font-size:12px; line-height:1.45; margin-top:9px; }
+    .triage-rule-box { padding:16px; border-top:1px solid #edf2f7; background:#f8fafc; }
+    .triage-rule-box strong { display:block; color:#0f172a; font-size:14px; font-weight:900; margin-bottom:8px; }
+    .triage-rule-box ul { margin:0; padding-left:18px; color:#64748b; font-size:13px; line-height:1.65; }
+
+    .assignment-panel, .routing-panel { padding:22px; margin-bottom:22px; }
+    .mode-tabs { display:flex; gap:10px; flex-wrap:wrap; }
+    .mode-tab { min-height:38px; padding:0 14px; border-radius:999px; border:1px solid #dfe7f1; background:white; color:#475569; display:inline-flex; align-items:center; font-size:13px; font-weight:900; }
+    .mode-tab.active { background:#0f766e; border-color:#0f766e; color:white; }
+    .partner-type-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .partner-type-card { border:1px solid #edf2f7; border-radius:18px; background:#fbfdff; padding:18px; display:grid; gap:14px; }
+    .partner-type-card.specialist{background:linear-gradient(135deg,#eff6ff,#fff)}.partner-type-card.dedicated{background:linear-gradient(135deg,#ecfdf9,#fff)}
+    .type-top { display:flex; gap:14px; align-items:flex-start; }
+    .type-icon { width:48px; height:48px; border-radius:15px; display:grid; place-items:center; font-weight:900; flex-shrink:0; }
+    .specialist .type-icon { background:#dbeafe; color:#2563eb; }.dedicated .type-icon{background:#ccfbf1;color:#0f766e}
+    .type-main strong { display:block; font-size:16px; color:#0f172a; margin-bottom:6px; }
+    .type-main span { display:block; color:#64748b; font-size:13px; line-height:1.55; }
+    .type-rules { display:grid; gap:9px; }
+    .rule { min-height:36px; padding:9px 11px; border-radius:12px; background:white; border:1px solid #edf2f7; color:#334155; font-size:13px; font-weight:700; }
+    .assignment-note { margin-top:10px; padding:13px 14px; border-radius:14px; background:#f8fafc; border:1px solid #edf2f7; color:#64748b; font-size:13px; line-height:1.55; }
+    .assignment-note b { color:#0f172a; }
+    .form-help { color:#64748b; font-size:12px; line-height:1.45; }
+    .routing-actions { display:flex; justify-content:space-between; align-items:center; gap:14px; }
+    .tool-btn { height:44px; border:1px solid #dfe7f1; background:white; border-radius:10px; padding:0 14px; display:inline-flex; align-items:center; gap:9px; color:#1e293b; font-size:14px; font-weight:900; }
+    .tool-btn.primary { background:#0f766e; border-color:#0f766e; color:white; }
+    .routing-preview { margin-top:20px; padding-top:20px; border-top:1px solid #edf2f7; }
+    .preview-grid { display:grid; grid-template-columns:1fr 44px 1fr 44px 1fr; gap:12px; align-items:stretch; }
+    .preview-card { border-radius:16px; border:1px solid #edf2f7; background:#fbfdff; padding:16px; min-height:132px; }
+    .preview-card.partner{background:linear-gradient(135deg,#eff6ff,#fff)}.preview-card.org{background:linear-gradient(135deg,#ecfdf9,#fff)}.preview-card.workspace{background:linear-gradient(135deg,#fff7ed,#fff)}
+    .preview-kicker { color:#64748b; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.04em; margin-bottom:9px; }
+    .preview-card strong { display:block; color:#0f172a; font-size:15px; margin-bottom:7px; }
+    .preview-card span { display:block; color:#64748b; font-size:13px; line-height:1.5; }
+    .preview-card small { display:inline-flex; margin-top:12px; min-height:26px; padding:6px 9px; border-radius:999px; font-size:12px; font-weight:900; }
+    .partner small{background:#dbeafe;color:#2563eb}.org small{background:#ccfbf1;color:#0f766e}.workspace small{background:#ffedd5;color:#ea580c}
+    .preview-arrow { display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:24px; font-weight:900; }
+
+    .main-layout { display:grid; grid-template-columns:minmax(0, 1fr) 360px; gap:22px; align-items:start; }
+    .table-card { overflow:hidden; }
+    .table-head, .table-row { display:grid; grid-template-columns:.9fr 1fr 1.15fr 1.05fr 1fr 1fr .9fr .75fr; }
+    .table-head { background:linear-gradient(180deg,#f8fafc,#f5f7fb); border-bottom:1px solid #dfe7f1; }
+    .th { min-height:56px; display:flex; align-items:center; padding:0 15px; color:#59687e; font-size:13px; font-weight:900; border-right:1px solid #dfe7f1; }
+    .th:last-child { border-right:none; }
+    .table-row { min-height:80px; border-bottom:1px solid #dfe7f1; background:white; }
+    .table-row:hover { background:#fbfdff; }
+    .table-row:last-child { border-bottom:none; }
+    .td { display:flex; align-items:center; padding:0 15px; font-size:14px; color:#0f172a; font-weight:500; border-right:1px solid #dfe7f1; min-width:0; }
+    .td:last-child { border-right:none; }
+    .stack { min-width:0; }
+    .stack strong { display:block; color:#0f172a; font-size:14px; font-weight:900; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .stack span { display:block; color:#64748b; font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .case-code { display:flex; align-items:center; gap:11px; min-width:0; }
+    .code-icon { width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,#dbeafe,#eff6ff); color:#2563eb; display:grid; place-items:center; flex-shrink:0; font-weight: 900; }
+    .badge { min-height:28px; padding:6px 10px; border-radius:999px; display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:900; white-space:nowrap; }
+    .badge:before { content:""; width:7px; height:7px; border-radius:50%; }
+    .badge.blue{background:#dbeafe;color:#2563eb}.badge.blue:before{background:#2563eb}.badge.green{background:#ccfbf1;color:#0f766e}.badge.green:before{background:#10b981}.badge.orange{background:#ffedd5;color:#ea580c}.badge.orange:before{background:#f97316}.badge.purple{background:#ede9fe;color:#7c3aed}.badge.purple:before{background:#7c3aed}.badge.red{background:#ffe4e6;color:#e11d48}.badge.red:before{background:#e11d48}
+    .action-link { color:#087f78; font-weight:900; text-decoration:none; white-space:nowrap; }
+    .board-column { overflow:hidden; }
+    .board-header { padding:18px; border-bottom:1px solid #edf2f7; }
+    .board-header h3 { margin:0; font-size:18px; color:#0f172a; font-weight:900; }
+    .board-header p { margin:6px 0 0; color:#64748b; font-size:13px; line-height:1.45; }
+    .board-list { padding:14px; display:grid; gap:12px; }
+    .board-card { border:1px solid #edf2f7; border-radius:14px; background:#fbfdff; padding:14px; }
+    .board-card strong { display:block; font-size:13px; color:#0f172a; margin-bottom:6px; }
+    .board-card span { display:block; color:#64748b; font-size:12px; line-height:1.45; }
+    .hidden { display:none !important; }
+
+    @media (max-width: 1300px) { .stats-grid{grid-template-columns:repeat(2,1fr)} .partner-type-grid,.main-layout,.triage-grid,.triage-workbench{grid-template-columns:1fr} .form-grid{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width: 900px) { .content{padding:22px} .page-header,.triage-header,.routing-actions,.section-head{flex-direction:column;align-items:stretch} .header-actions,.triage-actions,.routing-actions>div{flex-wrap:wrap} .stats-grid,.form-grid,.triage-form-grid{grid-template-columns:1fr} .preview-grid{grid-template-columns:1fr} .preview-arrow{transform:rotate(90deg); height:24px} .table-card{overflow-x:auto}.table-head,.table-row{min-width:1240px} }
+  </style>
+</head>
+<body>
+<section class="content">
+  <div class="case-page">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Quản lý hồ sơ</h1>
+        <p>Điều phối hồ sơ theo mô hình: hồ sơ vãng lai → phân loại Organization / Workspace → chọn Dedicated Partner hoặc Specialist Partner → chuyển sang bảng quản lý chính.</p>
+      </div>
+      <div class="header-actions">
+        <button class="ghost-btn">Import hồ sơ</button>
+        <button class="primary-btn">+ Tạo hồ sơ yêu cầu</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Chờ phân loại</div><div class="stat-value">9</div><div class="stat-desc">Hồ sơ vãng lai chưa có org/workspace</div></div>
+      <div class="stat-card"><div class="stat-label">Tổng hồ sơ</div><div class="stat-value">81</div><div class="stat-desc">Tất cả partner, org và workspace</div></div>
+      <div class="stat-card"><div class="stat-label">Specialist partner</div><div class="stat-value">5</div><div class="stat-desc">Xử lý theo loại hồ sơ / service scope</div></div>
+      <div class="stat-card"><div class="stat-label">Dedicated partner</div><div class="stat-value">3</div><div class="stat-desc">Phụ trách toàn bộ organization</div></div>
+      <div class="stat-card"><div class="stat-label">SLA rủi ro</div><div class="stat-value">6</div><div class="stat-desc">Cần điều phối hoặc nhắc partner</div></div>
+    </div>
+
+    <section class="triage-section">
+      <div class="triage-header">
+        <div class="triage-title">
+          <h2>Chờ phân loại hồ sơ</h2>
+          <p>Chọn một hồ sơ vãng lai ở danh sách bên trái. Form phân loại nhanh chỉ hiển thị sau khi đã chọn hồ sơ.</p>
+        </div>
+        <div class="triage-actions">
+          <button class="ghost-btn">Rule tự động</button>
+          <button class="primary-btn">Phân loại hàng loạt</button>
+        </div>
+      </div>
+
+      <div class="triage-grid">
+        <div class="triage-workbench">
+          <div class="triage-list-panel">
+            <div class="triage-panel-head">
+              <div><h3>Hồ sơ chờ phân loại</h3><p>Click vào hồ sơ để mở form phân loại Organization / Workspace / Partner.</p></div>
+              <span class="triage-badge">9 hồ sơ chờ</span>
+            </div>
+            <div class="triage-list">
+              <button class="triage-card" type="button" data-case="greenfarm">
+                <div class="triage-code"><div class="triage-code-icon">01</div><div><strong>TMP-2026-014 · Đăng ký nhãn hiệu GREENFARM</strong><span>Public intake form · 15/06/2026 10:42 AM</span></div></div>
+                <div class="triage-description">Người gửi cung cấp tên doanh nghiệp “Green Agriculture”, email info@greenagri.vn, cần đăng ký nhãn hiệu cho sản phẩm nông nghiệp hữu cơ.</div>
+                <div class="triage-meta"><span class="triage-chip warning">Thiếu organizationId</span><span class="triage-chip warning">Thiếu workspaceId</span><span class="triage-chip blue">Gợi ý: sở hữu trí tuệ</span><span class="triage-chip green">Match 86%: Green Agriculture JSC</span></div>
+              </button>
+              <button class="triage-card" type="button" data-case="anphat">
+                <div class="triage-code"><div class="triage-code-icon">02</div><div><strong>TMP-2026-013 · Rà soát hợp đồng phân phối</strong><span>Email intake · 15/06/2026 09:18 AM</span></div></div>
+                <div class="triage-description">File hợp đồng gửi từ domain anphat.vn. Hệ thống nhận diện được Organization nhưng chưa chắc workspace phù hợp.</div>
+                <div class="triage-meta"><span class="triage-chip green">Match 94%: Công ty An Phát</span><span class="triage-chip warning">Cần chọn workspace</span><span class="triage-chip blue">Gợi ý: hợp đồng thương mại</span></div>
+              </button>
+              <button class="triage-card" type="button" data-case="labor">
+                <div class="triage-code"><div class="triage-code-icon">03</div><div><strong>TMP-2026-012 · Tư vấn lao động cho nhân sự mới</strong><span>Customer portal draft · 14/06/2026 05:31 PM</span></div></div>
+                <div class="triage-description">Người gửi có tài khoản nhưng chưa thuộc workspace nào. Cần xác định Organization hoặc mời vào workspace trước khi chuyển hồ sơ.</div>
+                <div class="triage-meta"><span class="triage-chip warning">User chưa có workspace</span><span class="triage-chip blue">Gợi ý: lao động</span><span class="triage-chip">Ưu tiên thường</span></div>
+              </button>
+            </div>
+          </div>
+
+          <div class="triage-detail-panel">
+            <div id="triage-empty" class="empty-triage-detail">
+              <div><strong>Chọn một hồ sơ để phân loại</strong><p>Form phân loại nhanh sẽ hiển thị sau khi bạn chọn một hồ sơ trong danh sách chờ phân loại.</p></div>
+            </div>
+            <div id="triage-form-wrap" class="hidden">
+              <div class="selected-case-summary">
+                <div class="selected-case-icon">TMP</div>
+                <div><div class="selected-kicker">Đang phân loại</div><h3 id="selected-title">TMP-2026-014 · Đăng ký nhãn hiệu GREENFARM</h3><p id="selected-desc">Hồ sơ này chưa có Organization và Workspace chính thức. Vui lòng xác nhận thông tin bên dưới trước khi chuyển sang bảng quản lý chính.</p></div>
+              </div>
+              <form class="triage-form">
+                <div class="triage-form-title"><strong>Form phân loại nhanh</strong><span>Áp dụng cho hồ sơ đang chọn. Sau khi phân loại, hồ sơ sẽ chuyển sang bảng quản lý chính.</span></div>
+                <div class="triage-form-grid">
+                  <div class="triage-field"><label>Organization</label><select id="orgSelect"><option>Chọn organization</option><option selected>Green Agriculture JSC</option><option>Công ty An Phát</option><option>Minh Khang Trading</option><option>+ Tạo organization mới</option></select></div>
+                  <div class="triage-field"><label>Workspace</label><select id="workspaceSelect"><option>Chọn workspace</option><option selected>Demo Legal Workspace</option><option>green-ip workspace</option><option>an-phat workspace</option><option>+ Tạo workspace mới</option></select></div>
+                  <div class="triage-field"><label>Loại hồ sơ</label><select id="serviceSelect"><option>Chọn loại hồ sơ</option><option selected>Sở hữu trí tuệ</option><option>Hợp đồng thương mại</option><option>Thuế</option><option>Lao động</option><option>Tranh chấp</option></select></div>
+                </div>
+                <div class="triage-form-grid">
+                  <div class="triage-field"><label>Mô hình partner</label><select id="modelSelect"><option>Auto detect</option><option selected>Dedicated Partner nếu có</option><option>Specialist Partner theo service type</option><option>Manual assignment</option></select></div>
+                  <div class="triage-field"><label>Partner gợi ý</label><select id="partnerSelect"><option selected>Tư Vấn Pháp Lý Miền Bắc</option><option>Central IP Advisory</option><option>Legal Saigon Partners</option><option>Internal Legal Team</option></select></div>
+                  <div class="triage-field"><label>Độ tin cậy match</label><input id="confidenceInput" value="86% match từ email domain và keyword nhãn hiệu"></div>
+                </div>
+                <div class="triage-field"><label>Lý do phân loại</label><input id="reasonInput" value="Match organization từ email domain greenagri.vn và service keyword: nhãn hiệu"></div>
+                <div class="triage-form-actions"><button type="button" class="triage-action">Lưu nháp phân loại</button><button type="button" class="triage-action orange">Yêu cầu khách bổ sung</button><button type="button" class="triage-action primary">Xác nhận phân loại & chuyển hồ sơ</button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <aside class="status-overview-panel">
+          <div class="status-panel-head"><div><h3>Tổng quan trạng thái hiện tại</h3><p>Thông tin nằm ngoài bảng để admin nắm nhanh sức khỏe pipeline hồ sơ.</p></div></div>
+          <div class="status-overview-body">
+            <div class="status-item"><div class="status-row"><div class="status-name">Chờ phân loại</div><div class="status-count">9</div></div><div class="progress-track"><div class="progress-fill orange" style="width:11%"></div></div><div class="status-note">Hồ sơ vãng lai chưa có org/workspace hoặc service type.</div></div>
+            <div class="status-item"><div class="status-row"><div class="status-name">Đã giao partner</div><div class="status-count">14</div></div><div class="progress-track"><div class="progress-fill blue" style="width:17%"></div></div><div class="status-note">Đã xác định partner, chờ partner phản hồi hoặc tiếp nhận.</div></div>
+            <div class="status-item"><div class="status-row"><div class="status-name">Đang xử lý</div><div class="status-count">19</div></div><div class="progress-track"><div class="progress-fill purple" style="width:23%"></div></div><div class="status-note">Partner hoặc internal team đang xử lý nghiệp vụ.</div></div>
+            <div class="status-item"><div class="status-row"><div class="status-name">Hoàn tất</div><div class="status-count">35</div></div><div class="progress-track"><div class="progress-fill green" style="width:43%"></div></div><div class="status-note">Đã bàn giao kết quả hoặc đóng workflow.</div></div>
+            <div class="status-item"><div class="status-row"><div class="status-name">SLA rủi ro cao</div><div class="status-count">6</div></div><div class="progress-track"><div class="progress-fill red" style="width:7%"></div></div><div class="status-note">Cần nhắc partner, điều phối lại hoặc tăng ưu tiên.</div></div>
+          </div>
+          <div class="triage-rule-box"><strong>Rule sau khi phân loại</strong><ul><li>Nếu Organization có Dedicated Partner active → ưu tiên Dedicated Partner.</li><li>Nếu service type nằm ngoài scope → chuyển Specialist Partner.</li><li>Nếu chưa có Organization → tạo hoặc map Organization trước khi tạo Workspace.</li><li>Mọi thao tác phân loại cần ghi audit reason.</li></ul></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="assignment-panel">
+      <div class="section-head"><div class="section-title"><h2>Phân loại mô hình partner</h2><p>Chọn đúng mô hình để hệ thống biết nên điều phối hồ sơ theo service scope hay theo organization ownership.</p></div><div class="mode-tabs"><span class="mode-tab active">Tất cả</span><span class="mode-tab">Specialist Partner</span><span class="mode-tab">Dedicated Partner</span></div></div>
+      <div class="partner-type-grid">
+        <div class="partner-type-card specialist"><div class="type-top"><div class="type-icon">S</div><div class="type-main"><strong>Specialist Partner</strong><span>Partner chuyên một vài loại hồ sơ. Khi request có service type phù hợp, hệ thống có thể đề xuất hoặc gán partner này.</span></div></div><div class="type-rules"><div class="rule">Dùng khi partner chuyên: IP, thuế, lao động, tranh chấp, hợp đồng.</div><div class="rule">Có thể phục vụ nhiều organization và nhiều workspace.</div><div class="rule">Điều phối theo: serviceType + region + capacity + SLA.</div></div></div>
+        <div class="partner-type-card dedicated"><div class="type-top"><div class="type-icon">D</div><div class="type-main"><strong>Dedicated / Full-service Partner</strong><span>Partner phụ trách toàn bộ một organization hoặc nhóm workspace. Hồ sơ của organization đó sẽ ưu tiên đi qua partner này.</span></div></div><div class="type-rules"><div class="rule">Dùng khi organization có hợp đồng retainer / partner cố định.</div><div class="rule">Có thể đảm nhiệm nhiều loại hồ sơ trong phạm vi organization.</div><div class="rule">Điều phối theo: organizationId + workspaceId + service override.</div></div></div>
+      </div>
+      <div class="assignment-note"><b>Rule đề xuất:</b> nếu organization có Dedicated Partner thì ưu tiên gán partner đó. Nếu serviceType nằm ngoài phạm vi của Dedicated Partner, hệ thống chuyển sang Specialist Partner phù hợp.</div>
+    </section>
+
+    <section class="routing-panel">
+      <div class="section-head"><div class="section-title"><h2>Bộ lọc / Điều phối hồ sơ chính</h2><p>Form này lọc danh sách hồ sơ đã được phân loại và đã chuyển vào workflow chính.</p></div></div>
+      <form class="routing-form">
+        <div class="form-grid">
+          <div class="form-field"><label>Mô hình điều phối</label><select><option selected>Tất cả mô hình</option><option>Specialist Partner</option><option>Dedicated Partner</option></select><div class="form-help">Dùng để tách hồ sơ theo cách gán partner.</div></div>
+          <div class="form-field"><label>Partner</label><select><option selected>Tất cả partner</option><option>Tư Vấn Pháp Lý Miền Bắc</option><option>Legal Saigon Partners</option><option>Internal Legal Team</option></select></div>
+          <div class="form-field"><label>Organization</label><select><option selected>Tất cả organization</option><option>Green Agriculture JSC</option><option>Công ty An Phát</option><option>Minh Khang Trading</option></select></div>
+          <div class="form-field"><label>Workspace</label><select><option selected>Tất cả workspace</option><option>Demo Legal Workspace</option><option>green-ip workspace</option><option>an-phat workspace</option></select></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-field"><label>Loại hồ sơ</label><select><option selected>Tất cả loại hồ sơ</option><option>Sở hữu trí tuệ</option><option>Hợp đồng thương mại</option><option>Thuế</option><option>Lao động</option></select></div>
+          <div class="form-field"><label>Trạng thái</label><select><option selected>Tất cả trạng thái</option><option>Đã gửi</option><option>Đã giao partner</option><option>Đang xử lý</option><option>Hoàn tất</option></select></div>
+          <div class="form-field"><label>SLA</label><select><option selected>Tất cả SLA</option><option>Sắp quá hạn</option><option>Quá hạn</option><option>Đúng hạn</option></select></div>
+          <div class="form-field"><label>Tìm kiếm</label><input value="GREENFARM" placeholder="Mã hồ sơ, org, workspace, partner..."></div>
+        </div>
+        <div class="routing-actions"><div><button type="button" class="tool-btn">Reset</button><button type="button" class="tool-btn">Lưu view</button></div><div><button type="button" class="tool-btn">Preview rule</button><button type="submit" class="tool-btn primary">Áp dụng lọc hồ sơ</button></div></div>
+      </form>
+      <div class="routing-preview"><div class="preview-grid"><div class="preview-card partner"><div class="preview-kicker">Partner model</div><strong>Dedicated Partner</strong><span>Tư Vấn Pháp Lý Miền Bắc đang được gán làm partner chính cho Green Agriculture JSC.</span><small>priority: organization_owner</small></div><div class="preview-arrow">→</div><div class="preview-card org"><div class="preview-kicker">Organization</div><strong>Green Agriculture JSC</strong><span>Organization có 2 workspace. Hồ sơ mặc định ưu tiên Dedicated Partner, trừ khi service nằm ngoài phạm vi.</span><small>org_green_agriculture_jsc</small></div><div class="preview-arrow">→</div><div class="preview-card workspace"><div class="preview-kicker">Workspace</div><strong>Demo Legal Workspace</strong><span>Workspace chứa hồ sơ sở hữu trí tuệ, hợp đồng phân phối và compliance.</span><small>workspace_demo_legal</small></div></div></div>
+    </section>
+
+    <div class="main-layout">
+      <section class="table-card">
+        <div class="table-head"><div class="th">Mã hồ sơ</div><div class="th">Mô hình</div><div class="th">Partner</div><div class="th">Organization</div><div class="th">Workspace</div><div class="th">Loại hồ sơ</div><div class="th">Trạng thái / SLA</div><div class="th">Thao tác</div></div>
+        <div class="table-row"><div class="td"><div class="case-code"><div class="code-icon">IP</div><div class="stack"><strong>REQ-2026-088</strong><span>GREENFARM ORGANIC</span></div></div></div><div class="td"><span class="badge green">Dedicated</span></div><div class="td"><div class="stack"><strong>Tư Vấn Pháp Lý Miền Bắc</strong><span>organization owner</span></div></div><div class="td"><div class="stack"><strong>Green Agriculture JSC</strong><span>green-agriculture-jsc</span></div></div><div class="td"><div class="stack"><strong>Demo Legal Workspace</strong><span>demo-legal-workspace</span></div></div><div class="td"><div class="stack"><strong>Đăng ký nhãn hiệu</strong><span>so_huu_tri_tue</span></div></div><div class="td"><div class="stack"><strong><span class="badge orange">Đang xử lý</span></strong><span>Còn 17h SLA</span></div></div><div class="td"><a class="action-link" href="#">Điều phối →</a></div></div>
+        <div class="table-row"><div class="td"><div class="case-code"><div class="code-icon">HD</div><div class="stack"><strong>REQ-2026-083</strong><span>Hợp đồng phân phối</span></div></div></div><div class="td"><span class="badge green">Dedicated</span></div><div class="td"><div class="stack"><strong>Tư Vấn Pháp Lý Miền Bắc</strong><span>organization owner</span></div></div><div class="td"><div class="stack"><strong>Công ty An Phát</strong><span>an-phat-org</span></div></div><div class="td"><div class="stack"><strong>an-phat workspace</strong><span>an-phat</span></div></div><div class="td"><div class="stack"><strong>Rà soát hợp đồng</strong><span>hop_dong_thuong_mai</span></div></div><div class="td"><div class="stack"><strong><span class="badge purple">Review</span></strong><span>Còn 8h SLA</span></div></div><div class="td"><a class="action-link" href="#">Xem →</a></div></div>
+        <div class="table-row"><div class="td"><div class="case-code"><div class="code-icon">TX</div><div class="stack"><strong>REQ-2026-079</strong><span>Rà soát thuế GTGT</span></div></div></div><div class="td"><span class="badge blue">Specialist</span></div><div class="td"><div class="stack"><strong>Tax Advisory Vietnam</strong><span>service scope: thue</span></div></div><div class="td"><div class="stack"><strong>Green Agriculture JSC</strong><span>dedicated override</span></div></div><div class="td"><div class="stack"><strong>green-tax workspace</strong><span>green-tax</span></div></div><div class="td"><div class="stack"><strong>Tư vấn thuế</strong><span>thue</span></div></div><div class="td"><div class="stack"><strong><span class="badge orange">Cần phản hồi</span></strong><span>Sắp quá hạn</span></div></div><div class="td"><a class="action-link" href="#">Nhắc SLA →</a></div></div>
+        <div class="table-row"><div class="td"><div class="case-code"><div class="code-icon">LD</div><div class="stack"><strong>REQ-2026-076</strong><span>NDA vendor logistics</span></div></div></div><div class="td"><span class="badge blue">Specialist</span></div><div class="td"><div class="stack"><strong>Legal Saigon Partners</strong><span>service scope: nda, lao_dong</span></div></div><div class="td"><div class="stack"><strong>Minh Khang Trading</strong><span>minh-khang-org</span></div></div><div class="td"><div class="stack"><strong>minh-khang workspace</strong><span>minh-khang</span></div></div><div class="td"><div class="stack"><strong>Soạn NDA</strong><span>nda_bao_mat</span></div></div><div class="td"><div class="stack"><strong><span class="badge green">Hoàn tất</span></strong><span>Đúng hạn</span></div></div><div class="td"><a class="action-link" href="#">Audit →</a></div></div>
+      </section>
+      <aside class="board-column"><div class="board-header"><h3>Rule điều phối</h3><p>Thứ tự ưu tiên khi hệ thống gán partner cho hồ sơ.</p></div><div class="board-list"><div class="board-card"><strong>1. Chờ phân loại</strong><span>Hồ sơ vãng lai phải được map Organization / Workspace / Service Type trước.</span></div><div class="board-card"><strong>2. Dedicated Partner</strong><span>Nếu organization/workspace có partner phụ trách chính, ưu tiên gán partner đó.</span></div><div class="board-card"><strong>3. Service override</strong><span>Nếu loại hồ sơ nằm ngoài scope của Dedicated Partner, chuyển sang Specialist Partner.</span></div><div class="board-card"><strong>4. Capacity & SLA</strong><span>Nếu partner quá tải hoặc SLA thấp, hệ thống đề xuất partner dự phòng.</span></div><div class="board-card"><strong>5. Manual assignment</strong><span>Coordinator Admin có thể điều phối thủ công nhưng cần ghi audit reason.</span></div></div></aside>
+    </div>
+  </div>
+</section>
+<script>
+  const cases = {
+    greenfarm: {
+      title: 'TMP-2026-014 · Đăng ký nhãn hiệu GREENFARM',
+      desc: 'Hồ sơ này chưa có Organization và Workspace chính thức. Vui lòng xác nhận thông tin bên dưới trước khi chuyển sang bảng quản lý chính.',
+      org: 'Green Agriculture JSC', workspace: 'Demo Legal Workspace', service: 'Sở hữu trí tuệ', model: 'Dedicated Partner nếu có', partner: 'Tư Vấn Pháp Lý Miền Bắc', confidence: '86% match từ email domain và keyword nhãn hiệu', reason: 'Match organization từ email domain greenagri.vn và service keyword: nhãn hiệu'
+    },
+    anphat: {
+      title: 'TMP-2026-013 · Rà soát hợp đồng phân phối',
+      desc: 'Hệ thống đã nhận diện Organization từ domain anphat.vn nhưng cần admin xác nhận Workspace phù hợp.',
+      org: 'Công ty An Phát', workspace: 'an-phat workspace', service: 'Hợp đồng thương mại', model: 'Dedicated Partner nếu có', partner: 'Tư Vấn Pháp Lý Miền Bắc', confidence: '94% match từ email domain anphat.vn', reason: 'Match organization từ email domain và keyword: hợp đồng phân phối'
+    },
+    labor: {
+      title: 'TMP-2026-012 · Tư vấn lao động cho nhân sự mới',
+      desc: 'Người gửi có tài khoản nhưng chưa thuộc workspace nào. Cần xác định Organization hoặc mời vào workspace.',
+      org: 'Minh Khang Trading', workspace: 'minh-khang workspace', service: 'Lao động', model: 'Specialist Partner theo service type', partner: 'Legal Saigon Partners', confidence: '72% match từ user email và keyword lao động', reason: 'User chưa có workspace, cần xác nhận tổ chức trước khi chuyển hồ sơ'
+    }
+  };
+  function setSelect(select, value) {
+    Array.from(select.options).forEach((opt, index) => {
+      if (opt.text === value) select.selectedIndex = index;
+    });
+  }
+  document.querySelectorAll('.triage-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.triage-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const data = cases[card.dataset.case];
+      document.getElementById('triage-empty').classList.add('hidden');
+      document.getElementById('triage-form-wrap').classList.remove('hidden');
+      document.getElementById('selected-title').textContent = data.title;
+      document.getElementById('selected-desc').textContent = data.desc;
+      setSelect(document.getElementById('orgSelect'), data.org);
+      setSelect(document.getElementById('workspaceSelect'), data.workspace);
+      setSelect(document.getElementById('serviceSelect'), data.service);
+      setSelect(document.getElementById('modelSelect'), data.model);
+      setSelect(document.getElementById('partnerSelect'), data.partner);
+      document.getElementById('confidenceInput').value = data.confidence;
+      document.getElementById('reasonInput').value = data.reason;
+    });
+  });
+</script>
+</body>
+</html>

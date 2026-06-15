@@ -1,0 +1,263 @@
+<style>
+  .triage-workbench {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .triage-list-panel,
+  .triage-detail-panel {
+    background: #ffffff;
+    border: 1px solid #dfe7f1;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+  }
+
+  .triage-card {
+    width: 100%;
+    text-align: left;
+    border: 1px solid #edf2f7;
+    border-radius: 16px;
+    background: #fbfdff;
+    padding: 16px;
+    cursor: pointer;
+  }
+
+  .triage-card.active {
+    border-color: #0f766e;
+    background: #ecfdf9;
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08);
+  }
+
+  .triage-detail-panel {
+    padding: 20px;
+  }
+
+  .selected-case-summary {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 16px;
+    border: 1px solid #edf2f7;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #f8fafc, #ffffff);
+    margin-bottom: 18px;
+  }
+
+  .selected-case-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+    background: #fff7ed;
+    color: #ea580c;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  .selected-kicker {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+
+  .selected-case-summary h3 {
+    margin: 0 0 8px;
+    color: #0f172a;
+    font-size: 17px;
+    font-weight: 900;
+  }
+
+  .selected-case-summary p {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .empty-triage-detail {
+    min-height: 420px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 32px;
+    color: #64748b;
+  }
+
+  .empty-triage-detail strong {
+    display: block;
+    color: #0f172a;
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  @media (max-width: 1100px) {
+    .triage-workbench {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="triage-workbench">
+  <div class="triage-list-panel">
+    <div class="triage-panel-head">
+      <div>
+        <h3>Hồ sơ chờ phân loại</h3>
+        <p>Chọn một hồ sơ để kiểm tra và phân loại vào Organization / Workspace phù hợp.</p>
+      </div>
+      <span class="triage-badge">9 hồ sơ chờ</span>
+    </div>
+
+    <div class="triage-list">
+
+      <button class="triage-card active" type="button">
+        <div class="triage-main">
+          <div class="triage-code">
+            <div class="triage-code-icon">01</div>
+            <div>
+              <strong>TMP-2026-014 · Đăng ký nhãn hiệu GREENFARM</strong>
+              <span>Public intake form · 15/06/2026 10:42 AM</span>
+            </div>
+          </div>
+
+          <div class="triage-description">
+            Người gửi cung cấp tên doanh nghiệp “Green Agriculture”, email info@greenagri.vn,
+            cần đăng ký nhãn hiệu cho sản phẩm nông nghiệp hữu cơ.
+          </div>
+
+          <div class="triage-meta">
+            <span class="triage-chip warning">Thiếu organizationId</span>
+            <span class="triage-chip warning">Thiếu workspaceId</span>
+            <span class="triage-chip blue">Gợi ý: sở hữu trí tuệ</span>
+            <span class="triage-chip green">Match 86%: Green Agriculture JSC</span>
+          </div>
+        </div>
+      </button>
+
+      <button class="triage-card" type="button">
+        <div class="triage-main">
+          <div class="triage-code">
+            <div class="triage-code-icon">02</div>
+            <div>
+              <strong>TMP-2026-013 · Rà soát hợp đồng phân phối</strong>
+              <span>Email intake · 15/06/2026 09:18 AM</span>
+            </div>
+          </div>
+
+          <div class="triage-description">
+            File hợp đồng gửi từ domain anphat.vn. Hệ thống nhận diện được Organization
+            nhưng chưa chắc workspace phù hợp.
+          </div>
+
+          <div class="triage-meta">
+            <span class="triage-chip green">Match 94%: Công ty An Phát</span>
+            <span class="triage-chip warning">Cần chọn workspace</span>
+            <span class="triage-chip blue">Gợi ý: hợp đồng thương mại</span>
+          </div>
+        </div>
+      </button>
+
+    </div>
+  </div>
+
+  <div class="triage-detail-panel">
+    <div class="selected-case-summary">
+      <div class="selected-case-icon">TMP</div>
+      <div>
+        <div class="selected-kicker">Đang phân loại</div>
+        <h3>TMP-2026-014 · Đăng ký nhãn hiệu GREENFARM</h3>
+        <p>
+          Hồ sơ này chưa có Organization và Workspace chính thức. Vui lòng xác nhận thông tin bên dưới
+          trước khi chuyển sang bảng quản lý chính.
+        </p>
+      </div>
+    </div>
+
+    <form class="triage-form">
+      <div class="triage-form-title">
+        <strong>Form phân loại nhanh</strong>
+        <span>Form này chỉ hiển thị sau khi admin chọn một hồ sơ ở danh sách bên trái.</span>
+      </div>
+
+      <div class="triage-form-grid">
+        <div class="triage-field">
+          <label>Organization</label>
+          <select>
+            <option>Chọn organization</option>
+            <option selected>Green Agriculture JSC</option>
+            <option>Công ty An Phát</option>
+            <option>Minh Khang Trading</option>
+            <option>+ Tạo organization mới</option>
+          </select>
+        </div>
+
+        <div class="triage-field">
+          <label>Workspace</label>
+          <select>
+            <option>Chọn workspace</option>
+            <option selected>Demo Legal Workspace</option>
+            <option>green-ip workspace</option>
+            <option>+ Tạo workspace mới</option>
+          </select>
+        </div>
+
+        <div class="triage-field">
+          <label>Loại hồ sơ</label>
+          <select>
+            <option>Chọn loại hồ sơ</option>
+            <option selected>Sở hữu trí tuệ</option>
+            <option>Hợp đồng thương mại</option>
+            <option>Thuế</option>
+            <option>Lao động</option>
+            <option>Tranh chấp</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="triage-form-grid">
+        <div class="triage-field">
+          <label>Mô hình partner</label>
+          <select>
+            <option>Auto detect</option>
+            <option selected>Dedicated Partner nếu có</option>
+            <option>Specialist Partner theo service type</option>
+            <option>Manual assignment</option>
+          </select>
+        </div>
+
+        <div class="triage-field">
+          <label>Partner gợi ý</label>
+          <select>
+            <option selected>Tư Vấn Pháp Lý Miền Bắc</option>
+            <option>Central IP Advisory</option>
+            <option>Legal Saigon Partners</option>
+            <option>Internal Legal Team</option>
+          </select>
+        </div>
+
+        <div class="triage-field">
+          <label>Độ tin cậy match</label>
+          <input value="86% match từ email domain và keyword nhãn hiệu">
+        </div>
+      </div>
+
+      <div class="triage-field">
+        <label>Lý do phân loại</label>
+        <input value="Match organization từ email domain greenagri.vn và service keyword: nhãn hiệu">
+      </div>
+
+      <div class="triage-form-actions">
+        <button type="button" class="triage-action">Lưu nháp phân loại</button>
+        <button type="button" class="triage-action orange">Yêu cầu khách bổ sung</button>
+        <button type="button" class="triage-action primary">Xác nhận phân loại & chuyển hồ sơ</button>
+      </div>
+    </form>
+  </div>
+</div>

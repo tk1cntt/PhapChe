@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import './admin-requests-client.css';
 
+// Type definitions
 interface TriageCase {
   id: string;
+  index: number;
   code: string;
   title: string;
   description: string;
@@ -17,7 +19,6 @@ interface TriageCase {
   missingUser: boolean;
   suggestedService?: string;
   matchOrg?: { name: string; confidence: number };
-  matchWorkspace?: string;
   priority: string;
 }
 
@@ -29,68 +30,276 @@ interface StatusItem {
   note: string;
 }
 
+interface RequestStats {
+  pendingTriage: { count: number; description: string };
+  total: { count: number; description: string };
+  specialistPartner: { count: number; description: string };
+  dedicatedPartner: { count: number; description: string };
+  slaRisk: { count: number; description: string };
+  statusBreakdown: StatusItem[];
+}
+
+interface Organization {
+  id: string;
+  name: string;
+  status: string;
+  workspaces: { id: string; name: string; slug: string }[];
+}
+
+interface Partner {
+  id: string;
+  name: string;
+  type: string;
+  modelType: 'specialist' | 'dedicated';
+  contactEmail?: string;
+  activeRequestCount: number;
+}
+
+interface LegalRequest {
+  id: string;
+  fullId: string;
+  code: string;
+  title: string;
+  workspace: string;
+  workspaceSlug: string;
+  customer: string;
+  customerEmail: string;
+  status: string;
+  statusText: string;
+  assignee: string;
+  assigneeRole: string;
+  sla: string;
+  slaText: string;
+  action: string;
+  priority: string;
+  type: string;
+  createdBy: { name: string; email: string };
+}
+
+interface RequestsResponse {
+  data: LegalRequest[];
+  total: number;
+  page: number;
+  pageSize: number;
+  stats: {
+    total: number;
+    pending: number;
+    approved: number;
+    highPriority: number;
+  };
+}
+
+// SLA helper
+function getSLAVariant(slaDeadline: string | null): { variant: 'red' | 'orange' | 'green' | 'blue'; text: string } {
+  if (!slaDeadline) return { variant: 'blue', text: 'No SLA' };
+  const deadline = new Date(slaDeadline);
+  const now = new Date();
+  if (deadline < now) return { variant: 'red', text: 'Quá hạn' };
+  const hoursLeft = (deadline.getTime() - now.getTime()) / (1000 * 60 * 60);
+  if (hoursLeft < 24) return { variant: 'red', text: `Còn ${Math.ceil(hoursLeft)}h` };
+  if (hoursLeft < 72) return { variant: 'orange', text: `Còn ${Math.ceil(hoursLeft)}h` };
+  return { variant: 'green', text: 'Đúng hạn' };
+}
+
 export default function AdminRequestsClient() {
   const router = useRouter();
   const t = useTranslations('AdminRequests');
   const tCommon = useTranslations('Common');
 
+  // State
   const [selectedTriageId, setSelectedTriageId] = useState<string | null>(null);
   const [routingMode, setRoutingMode] = useState<'all' | 'specialist' | 'dedicated'>('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Sample triage cases (would come from API)
-  const triageCases: TriageCase[] = [
-    {
-      id: 'greenfarm',
-      code: 'TMP-2026-014',
-      title: 'Đăng ký nhãn hiệu GREENFARM',
-      description: 'Người gửi cung cấp tên doanh nghiệp "Green Agriculture", email info@greenagri.vn, cần đăng ký nhãn hiệu cho sản phẩm nông nghiệp hữu cơ.',
-      source: 'Public intake form',
-      date: '15/06/2026 10:42 AM',
-      missingOrg: true,
-      missingWorkspace: true,
-      matchOrg: { name: 'Green Agriculture JSC', confidence: 86 },
-      suggestedService: 'Sở hữu trí tuệ',
-    },
-    {
-      id: 'anphat',
-      code: 'TMP-2026-013',
-      title: 'Rà soát hợp đồng phân phối',
-      description: 'File hợp đồng gửi từ domain anphat.vn. Hệ thống nhận diện được Organization nhưng chưa chắc workspace phù hợp.',
-      source: 'Email intake',
-      date: '15/06/2026 09:18 AM',
-      missingOrg: false,
-      missingWorkspace: true,
-      matchOrg: { name: 'Công ty An Phát', confidence: 94 },
-      suggestedService: 'Hợp đồng thương mại',
-    },
-    {
-      id: 'labor',
-      code: 'TMP-2026-012',
-      title: 'Tư vấn lao động cho nhân sự mới',
-      description: 'Người gửi có tài khoản nhưng chưa thuộc workspace nào. Cần xác định Organization hoặc mời vào workspace trước khi chuyển hồ sơ.',
-      source: 'Customer portal draft',
-      date: '14/06/2026 05:31 PM',
-      missingOrg: false,
-      missingWorkspace: false,
-      missingUser: true,
-      suggestedService: 'Lao động',
-      priority: 'Thường',
-    },
-  ];
+  // Data state
+  const [triageCases, setTriageCases] = useState<TriageCase[]>([]);
+  const [stats, setStats] = useState<RequestStats | null>(null);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [partners, setPartners] = useState<{ specialist: Partner[]; dedicated: Partner[] }>({
+    specialist: [],
+    dedicated: [],
+  });
+  const [requests, setRequests] = useState<LegalRequest[]>([]);
+  const [requestsTotal, setRequestsTotal] = useState(0);
 
-  const statusItems: StatusItem[] = [
-    { name: 'Chờ phân loại', count: 9, percentage: 11, color: 'orange', note: 'Hồ sơ vãng lai chưa có org/workspace hoặc service type.' },
-    { name: 'Đã giao partner', count: 14, percentage: 17, color: 'blue', note: 'Đã xác định partner, chờ partner phản hồi hoặc tiếp nhận.' },
-    { name: 'Đang xử lý', count: 19, percentage: 23, color: 'purple', note: 'Partner hoặc internal team đang xử lý nghiệp vụ.' },
-    { name: 'Hoàn tất', count: 35, percentage: 43, color: 'green', note: 'Đã bàn giao kết quả hoặc đóng workflow.' },
-    { name: 'SLA rủi ro cao', count: 6, percentage: 7, color: 'red', note: 'Cần nhắc partner, điều phối lại hoặc tăng ưu tiên.' },
-  ];
+  // Filters state
+  const [filters, setFilters] = useState({
+    model: '',
+    partner: '',
+    organization: '',
+    workspace: '',
+    serviceType: '',
+    status: '',
+    sla: '',
+    search: '',
+  });
 
-  const getSelectedCase = () => triageCases.find(c => c.id === selectedTriageId);
+  // Fetch triage cases
+  const fetchTriageCases = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/requests/triage');
+      if (!res.ok) throw new Error('Failed to fetch triage cases');
+      const data = await res.json();
+      setTriageCases(data.data || []);
+    } catch (err) {
+      console.error('Error fetching triage cases:', err);
+      // Fallback to empty array
+      setTriageCases([]);
+    }
+  }, []);
+
+  // Fetch stats
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/requests/stats');
+      if (!res.ok) throw new Error('Failed to fetch stats');
+      const data = await res.json();
+      setStats(data);
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    }
+  }, []);
+
+  // Fetch organizations
+  const fetchOrganizations = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/organizations');
+      if (!res.ok) throw new Error('Failed to fetch organizations');
+      const data = await res.json();
+      setOrganizations(data.data || []);
+    } catch (err) {
+      console.error('Error fetching organizations:', err);
+    }
+  }, []);
+
+  // Fetch partners
+  const fetchPartners = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/partners');
+      if (!res.ok) throw new Error('Failed to fetch partners');
+      const data = await res.json();
+      setPartners({
+        specialist: data.specialistPartners || [],
+        dedicated: data.dedicatedPartners || [],
+      });
+    } catch (err) {
+      console.error('Error fetching partners:', err);
+    }
+  }, []);
+
+  // Fetch requests
+  const fetchRequests = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      if (filters.search) params.set('search', filters.search);
+      if (filters.status) params.set('status', filters.status);
+      if (filters.workspace) params.set('workspace', filters.workspace);
+
+      const res = await fetch(`/api/admin/requests?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to fetch requests');
+      const data: RequestsResponse = await res.json();
+      setRequests(data.data || []);
+      setRequestsTotal(data.total || 0);
+    } catch (err) {
+      console.error('Error fetching requests:', err);
+      setRequests([]);
+    }
+  }, [filters]);
+
+  // Initial data fetch
+  useEffect(() => {
+    const fetchAll = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        await Promise.all([
+          fetchTriageCases(),
+          fetchStats(),
+          fetchOrganizations(),
+          fetchPartners(),
+          fetchRequests(),
+        ]);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAll();
+  }, [fetchTriageCases, fetchStats, fetchOrganizations, fetchPartners, fetchRequests]);
+
+  const getSelectedCase = () => triageCases.find((c) => c.id === selectedTriageId);
 
   const handleTriageCardClick = (caseId: string) => {
     setSelectedTriageId(selectedTriageId === caseId ? null : caseId);
   };
+
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleApplyFilters = () => {
+    fetchRequests();
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      model: '',
+      partner: '',
+      organization: '',
+      workspace: '',
+      serviceType: '',
+      status: '',
+      sla: '',
+      search: '',
+    });
+  };
+
+  // Calculate status breakdown from stats or fallback
+  const statusItems: StatusItem[] = stats?.statusBreakdown || [
+    { name: 'Chờ phân loại', count: stats?.pendingTriage?.count || 0, percentage: 0, color: 'orange', note: 'Hồ sơ vãng lai chưa có org/workspace hoặc service type.' },
+    { name: 'Đã giao partner', count: 0, percentage: 0, color: 'blue', note: 'Đã xác định partner, chờ partner phản hồi hoặc tiếp nhận.' },
+    { name: 'Đang xử lý', count: 0, percentage: 0, color: 'purple', note: 'Partner hoặc internal team đang xử lý nghiệp vụ.' },
+    { name: 'Hoàn tất', count: 0, percentage: 0, color: 'green', note: 'Đã bàn giao kết quả hoặc đóng workflow.' },
+    { name: 'SLA rủi ro cao', count: stats?.slaRisk?.count || 0, percentage: 0, color: 'red', note: 'Cần nhắc partner, điều phối lại hoặc tăng ưu tiên.' },
+  ];
+
+  if (loading) {
+    return (
+      <div className="content">
+        <div className="case-page">
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '24px', marginBottom: '8px' }}>⏳</div>
+              <div>Đang tải dữ liệu...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="content">
+        <div className="case-page">
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+            <div style={{ textAlign: 'center', color: '#e11d48' }}>
+              <div style={{ fontSize: '24px', marginBottom: '8px' }}>⚠️</div>
+              <div>{error}</div>
+              <button
+                onClick={() => window.location.reload()}
+                style={{ marginTop: '16px', padding: '8px 16px', cursor: 'pointer' }}
+              >
+                Thử lại
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="content">
@@ -115,27 +324,27 @@ export default function AdminRequestsClient() {
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-label">{t('statPendingTriage') || 'Chờ phân loại'}</div>
-            <div className="stat-value">9</div>
+            <div className="stat-value">{stats?.pendingTriage?.count ?? triageCases.length}</div>
             <div className="stat-desc">{t('statPendingTriageDesc') || 'Hồ sơ vãng lai chưa có org/workspace'}</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">{t('statTotal') || 'Tổng hồ sơ'}</div>
-            <div className="stat-value">81</div>
+            <div className="stat-value">{stats?.total?.count ?? requestsTotal || 0}</div>
             <div className="stat-desc">{t('statTotalDesc') || 'Tất cả partner, org và workspace'}</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">{t('statSpecialistPartner') || 'Specialist partner'}</div>
-            <div className="stat-value">5</div>
+            <div className="stat-value">{stats?.specialistPartner?.count ?? partners.specialist.length}</div>
             <div className="stat-desc">{t('statSpecialistPartnerDesc') || 'Xử lý theo loại hồ sơ / service scope'}</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">{t('statDedicatedPartner') || 'Dedicated partner'}</div>
-            <div className="stat-value">3</div>
+            <div className="stat-value">{stats?.dedicatedPartner?.count ?? partners.dedicated.length}</div>
             <div className="stat-desc">{t('statDedicatedPartnerDesc') || 'Phụ trách toàn bộ organization'}</div>
           </div>
           <div className="stat-card">
             <div className="stat-label">{t('statSlaRisk') || 'SLA rủi ro'}</div>
-            <div className="stat-value">6</div>
+            <div className="stat-value">{stats?.slaRisk?.count ?? 0}</div>
             <div className="stat-desc">{t('statSlaRiskDesc') || 'Cần điều phối hoặc nhắc partner'}</div>
           </div>
         </div>
@@ -170,35 +379,41 @@ export default function AdminRequestsClient() {
                   <span className="triage-badge">{triageCases.length} {t('pendingCases') || 'hồ sơ chờ'}</span>
                 </div>
                 <div className="triage-list">
-                  {triageCases.map((triageCase, index) => (
-                    <button
-                      key={triageCase.id}
-                      className={`triage-card ${selectedTriageId === triageCase.id ? 'active' : ''}`}
-                      type="button"
-                      onClick={() => handleTriageCardClick(triageCase.id)}
-                    >
-                      <div className="triage-code">
-                        <div className="triage-code-icon">{String(index + 1).padStart(2, '0')}</div>
-                        <div>
-                          <strong>{triageCase.code} · {triageCase.title}</strong>
-                          <span>{triageCase.source} · {triageCase.date}</span>
+                  {triageCases.length === 0 ? (
+                    <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
+                      Không có hồ sơ nào cần phân loại
+                    </div>
+                  ) : (
+                    triageCases.map((triageCase) => (
+                      <button
+                        key={triageCase.id}
+                        className={`triage-card ${selectedTriageId === triageCase.id ? 'active' : ''}`}
+                        type="button"
+                        onClick={() => handleTriageCardClick(triageCase.id)}
+                      >
+                        <div className="triage-code">
+                          <div className="triage-code-icon">{String(triageCase.index).padStart(2, '0')}</div>
+                          <div>
+                            <strong>{triageCase.code} · {triageCase.title}</strong>
+                            <span>{triageCase.source} · {triageCase.date}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="triage-description">{triageCase.description}</div>
-                      <div className="triage-meta">
-                        {triageCase.missingOrg && <span className="triage-chip warning">{t('missingOrg') || 'Thiếu organizationId'}</span>}
-                        {triageCase.missingWorkspace && <span className="triage-chip warning">{t('missingWorkspace') || 'Thiếu workspaceId'}</span>}
-                        {triageCase.missingUser && <span className="triage-chip warning">{t('missingUser') || 'User chưa có workspace'}</span>}
-                        {triageCase.suggestedService && <span className="triage-chip blue">{t('suggestion') || 'Gợi ý'}: {triageCase.suggestedService}</span>}
-                        {triageCase.matchOrg && (
-                          <span className="triage-chip green">
-                            {t('match') || 'Match'} {triageCase.matchOrg.confidence}%: {triageCase.matchOrg.name}
-                          </span>
-                        )}
-                        {triageCase.priority && <span className="triage-chip">{triageCase.priority}</span>}
-                      </div>
-                    </button>
-                  ))}
+                        <div className="triage-description">{triageCase.description}</div>
+                        <div className="triage-meta">
+                          {triageCase.missingOrg && <span className="triage-chip warning">{t('missingOrg') || 'Thiếu organizationId'}</span>}
+                          {triageCase.missingWorkspace && <span className="triage-chip warning">{t('missingWorkspace') || 'Thiếu workspaceId'}</span>}
+                          {triageCase.missingUser && <span className="triage-chip warning">{t('missingUser') || 'User chưa có workspace'}</span>}
+                          {triageCase.suggestedService && <span className="triage-chip blue">{t('suggestion') || 'Gợi ý'}: {triageCase.suggestedService}</span>}
+                          {triageCase.matchOrg && (
+                            <span className="triage-chip green">
+                              {t('match') || 'Match'} {triageCase.matchOrg.confidence}%: {triageCase.matchOrg.name}
+                            </span>
+                          )}
+                          {triageCase.priority && <span className="triage-chip">{triageCase.priority}</span>}
+                        </div>
+                      </button>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -229,63 +444,76 @@ export default function AdminRequestsClient() {
                       <div className="triage-form-grid">
                         <div className="triage-field">
                           <label>{t('organization') || 'Organization'}</label>
-                          <select defaultValue="Green Agriculture JSC">
-                            <option>{t('selectOrganization') || 'Chọn organization'}</option>
-                            <option>Green Agriculture JSC</option>
-                            <option>Công ty An Phát</option>
-                            <option>Minh Khang Trading</option>
-                            <option>+ Tạo organization mới</option>
+                          <select>
+                            <option value="">{t('selectOrganization') || 'Chọn organization'}</option>
+                            {organizations.map((org) => (
+                              <option key={org.id} value={org.id}>
+                                {org.name}
+                              </option>
+                            ))}
+                            <option value="__create_new__">+ Tạo organization mới</option>
                           </select>
                         </div>
                         <div className="triage-field">
                           <label>{t('workspace') || 'Workspace'}</label>
-                          <select defaultValue="Demo Legal Workspace">
-                            <option>{t('selectWorkspace') || 'Chọn workspace'}</option>
-                            <option>Demo Legal Workspace</option>
-                            <option>green-ip workspace</option>
-                            <option>an-phat workspace</option>
-                            <option>+ Tạo workspace mới</option>
+                          <select>
+                            <option value="">{t('selectWorkspace') || 'Chọn workspace'}</option>
+                            {organizations.flatMap((org) =>
+                              org.workspaces.map((ws) => (
+                                <option key={ws.id} value={ws.id}>
+                                  {org.name} / {ws.name}
+                                </option>
+                              ))
+                            )}
+                            <option value="__create_new__">+ Tạo workspace mới</option>
                           </select>
                         </div>
                         <div className="triage-field">
                           <label>{t('serviceType') || 'Loại hồ sơ'}</label>
-                          <select defaultValue="Sở hữu trí tuệ">
-                            <option>{t('selectServiceType') || 'Chọn loại hồ sơ'}</option>
-                            <option>Sở hữu trí tuệ</option>
-                            <option>Hợp đồng thương mại</option>
-                            <option>Thuế</option>
-                            <option>Lao động</option>
-                            <option>Tranh chấp</option>
+                          <select>
+                            <option value="">{t('selectServiceType') || 'Chọn loại hồ sơ'}</option>
+                            <option value="so_huu_tri_tue">Sở hữu trí tuệ</option>
+                            <option value="hop_dong_thuong_mai">Hợp đồng thương mại</option>
+                            <option value="thue">Thuế</option>
+                            <option value="lao_dong">Lao động</option>
+                            <option value="tranh_chap">Tranh chấp</option>
                           </select>
                         </div>
                       </div>
                       <div className="triage-form-grid">
                         <div className="triage-field">
                           <label>{t('partnerModel') || 'Mô hình partner'}</label>
-                          <select defaultValue="Dedicated Partner nếu có">
-                            <option>Auto detect</option>
-                            <option>Dedicated Partner nếu có</option>
-                            <option>Specialist Partner theo service type</option>
-                            <option>Manual assignment</option>
+                          <select>
+                            <option value="auto">Auto detect</option>
+                            <option value="dedicated">Dedicated Partner nếu có</option>
+                            <option value="specialist">Specialist Partner theo service type</option>
+                            <option value="manual">Manual assignment</option>
                           </select>
                         </div>
                         <div className="triage-field">
                           <label>{t('suggestedPartner') || 'Partner gợi ý'}</label>
-                          <select defaultValue="Tư Vấn Pháp Lý Miền Bắc">
-                            <option>Tư Vấn Pháp Lý Miền Bắc</option>
-                            <option>Central IP Advisory</option>
-                            <option>Legal Saigon Partners</option>
-                            <option>Internal Legal Team</option>
+                          <select>
+                            <option value="">-- Chọn Partner --</option>
+                            {partners.specialist.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name} (Specialist)
+                              </option>
+                            ))}
+                            {partners.dedicated.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name} (Dedicated)
+                              </option>
+                            ))}
                           </select>
                         </div>
                         <div className="triage-field">
                           <label>{t('confidence') || 'Độ tin cậy match'}</label>
-                          <input type="text" defaultValue="86% match từ email domain và keyword nhãn hiệu" readOnly />
+                          <input type="text" defaultValue={getSelectedCase()?.matchOrg ? `${getSelectedCase()?.matchOrg?.confidence}% match` : 'N/A'} readOnly />
                         </div>
                       </div>
                       <div className="triage-field">
                         <label>{t('triageReason') || 'Lý do phân loại'}</label>
-                        <input type="text" defaultValue="Match organization từ email domain greenagri.vn và service keyword: nhãn hiệu" />
+                        <input type="text" placeholder="Ghi chú lý do phân loại..." />
                       </div>
                       <div className="triage-form-actions">
                         <button type="button" className="triage-action">{t('saveDraft') || 'Lưu nháp phân loại'}</button>
@@ -356,9 +584,19 @@ export default function AdminRequestsClient() {
                 </div>
               </div>
               <div className="type-rules">
-                <div className="rule">{t('specialistRule1') || 'Dùng khi partner chuyên: IP, thuế, lao động, tranh chấp, hợp đồng.'}</div>
-                <div className="rule">{t('specialistRule2') || 'Có thể phục vụ nhiều organization và nhiều workspace.'}</div>
-                <div className="rule">{t('specialistRule3') || 'Điều phối theo: serviceType + region + capacity + SLA.'}</div>
+                {partners.specialist.length > 0 ? (
+                  partners.specialist.slice(0, 3).map((p) => (
+                    <div key={p.id} className="rule">
+                      {p.name} ({p.activeRequestCount} hồ sơ đang xử lý)
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div className="rule">{t('specialistRule1') || 'Dùng khi partner chuyên: IP, thuế, lao động, tranh chấp, hợp đồng.'}</div>
+                    <div className="rule">{t('specialistRule2') || 'Có thể phục vụ nhiều organization và nhiều workspace.'}</div>
+                    <div className="rule">{t('specialistRule3') || 'Điều phối theo: serviceType + region + capacity + SLA.'}</div>
+                  </>
+                )}
               </div>
             </div>
             <div className="partner-type-card dedicated">
@@ -370,9 +608,19 @@ export default function AdminRequestsClient() {
                 </div>
               </div>
               <div className="type-rules">
-                <div className="rule">{t('dedicatedRule1') || 'Dùng khi organization có hợp đồng retainer / partner cố định.'}</div>
-                <div className="rule">{t('dedicatedRule2') || 'Có thể đảm nhiệm nhiều loại hồ sơ trong phạm vi organization.'}</div>
-                <div className="rule">{t('dedicatedRule3') || 'Điều phối theo: organizationId + workspaceId + service override.'}</div>
+                {partners.dedicated.length > 0 ? (
+                  partners.dedicated.slice(0, 3).map((p) => (
+                    <div key={p.id} className="rule">
+                      {p.name} ({p.activeRequestCount} hồ sơ đang xử lý)
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div className="rule">{t('dedicatedRule1') || 'Dùng khi organization có hợp đồng retainer / partner cố định.'}</div>
+                    <div className="rule">{t('dedicatedRule2') || 'Có thể đảm nhiệm nhiều loại hồ sơ trong phạm vi organization.'}</div>
+                    <div className="rule">{t('dedicatedRule3') || 'Điều phối theo: organizationId + workspaceId + service override.'}</div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -389,83 +637,99 @@ export default function AdminRequestsClient() {
               <p>{t('routingDescription') || 'Form này lọc danh sách hồ sơ đã được phân loại và đã chuyển vào workflow chính.'}</p>
             </div>
           </div>
-          <form className="routing-form">
+          <form className="routing-form" onSubmit={(e) => { e.preventDefault(); handleApplyFilters(); }}>
             <div className="form-grid">
               <div className="form-field">
                 <label>{t('routingModel') || 'Mô hình điều phối'}</label>
-                <select>
-                  <option selected>{t('allModels') || 'Tất cả mô hình'}</option>
-                  <option>Specialist Partner</option>
-                  <option>Dedicated Partner</option>
+                <select value={filters.model} onChange={(e) => handleFilterChange('model', e.target.value)}>
+                  <option value="">{t('allModels') || 'Tất cả mô hình'}</option>
+                  <option value="specialist">Specialist Partner</option>
+                  <option value="dedicated">Dedicated Partner</option>
                 </select>
                 <div className="form-help">{t('modelHelp') || 'Dùng để tách hồ sơ theo cách gán partner.'}</div>
               </div>
               <div className="form-field">
                 <label>{t('colPartner') || 'Partner'}</label>
-                <select>
-                  <option selected>{t('allPartners') || 'Tất cả partner'}</option>
-                  <option>Tư Vấn Pháp Lý Miền Bắc</option>
-                  <option>Legal Saigon Partners</option>
-                  <option>Internal Legal Team</option>
+                <select value={filters.partner} onChange={(e) => handleFilterChange('partner', e.target.value)}>
+                  <option value="">{t('allPartners') || 'Tất cả partner'}</option>
+                  {partners.specialist.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                  {partners.dedicated.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="form-field">
                 <label>{t('organization') || 'Organization'}</label>
-                <select>
-                  <option selected>{t('allOrgs') || 'Tất cả organization'}</option>
-                  <option>Green Agriculture JSC</option>
-                  <option>Công ty An Phát</option>
-                  <option>Minh Khang Trading</option>
+                <select value={filters.organization} onChange={(e) => handleFilterChange('organization', e.target.value)}>
+                  <option value="">{t('allOrgs') || 'Tất cả organization'}</option>
+                  {organizations.map((org) => (
+                    <option key={org.id} value={org.id}>{org.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="form-field">
                 <label>{t('workspace') || 'Workspace'}</label>
-                <select>
-                  <option selected>{t('allWorkspaces') || 'Tất cả workspace'}</option>
-                  <option>Demo Legal Workspace</option>
-                  <option>green-ip workspace</option>
-                  <option>an-phat workspace</option>
+                <select value={filters.workspace} onChange={(e) => handleFilterChange('workspace', e.target.value)}>
+                  <option value="">{t('allWorkspaces') || 'Tất cả workspace'}</option>
+                  {organizations.flatMap((org) =>
+                    org.workspaces.map((ws) => (
+                      <option key={ws.id} value={ws.id}>
+                        {org.name} / {ws.name}
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
             </div>
             <div className="form-grid">
               <div className="form-field">
                 <label>{t('serviceType') || 'Loại hồ sơ'}</label>
-                <select>
-                  <option selected>{t('allTypes') || 'Tất cả loại hồ sơ'}</option>
-                  <option>Sở hữu trí tuệ</option>
-                  <option>Hợp đồng thương mại</option>
-                  <option>Thuế</option>
-                  <option>Lao động</option>
+                <select value={filters.serviceType} onChange={(e) => handleFilterChange('serviceType', e.target.value)}>
+                  <option value="">{t('allTypes') || 'Tất cả loại hồ sơ'}</option>
+                  <option value="so_huu_tri_tue">Sở hữu trí tuệ</option>
+                  <option value="hop_dong_thuong_mai">Hợp đồng thương mại</option>
+                  <option value="thue">Thuế</option>
+                  <option value="lao_dong">Lao động</option>
                 </select>
               </div>
               <div className="form-field">
                 <label>{t('colStatus') || 'Trạng thái'}</label>
-                <select>
-                  <option selected>{t('allStatuses') || 'Tất cả trạng thái'}</option>
-                  <option>Đã gửi</option>
-                  <option>Đã giao partner</option>
-                  <option>Đang xử lý</option>
-                  <option>Hoàn tất</option>
+                <select value={filters.status} onChange={(e) => handleFilterChange('status', e.target.value)}>
+                  <option value="">{t('allStatuses') || 'Tất cả trạng thái'}</option>
+                  <option value="draft_intake">Nháp</option>
+                  <option value="intake_submitted">Đã gửi</option>
+                  <option value="assigned">Đã giao partner</option>
+                  <option value="in_progress">Đang xử lý</option>
+                  <option value="pending_review">Chờ review</option>
+                  <option value="approved">Đã duyệt</option>
+                  <option value="delivered">Đã giao</option>
+                  <option value="closed">Đã đóng</option>
                 </select>
               </div>
               <div className="form-field">
                 <label>{t('sla') || 'SLA'}</label>
-                <select>
-                  <option selected>{t('allSla') || 'Tất cả SLA'}</option>
-                  <option>Sắp quá hạn</option>
-                  <option>Quá hạn</option>
-                  <option>Đúng hạn</option>
+                <select value={filters.sla} onChange={(e) => handleFilterChange('sla', e.target.value)}>
+                  <option value="">{t('allSla') || 'Tất cả SLA'}</option>
+                  <option value="at_risk">Sắp quá hạn</option>
+                  <option value="overdue">Quá hạn</option>
+                  <option value="ok">Đúng hạn</option>
                 </select>
               </div>
               <div className="form-field">
                 <label>{t('search') || 'Tìm kiếm'}</label>
-                <input type="text" placeholder={t('searchPlaceholder') || 'Mã hồ sơ, org, workspace, partner...'} />
+                <input
+                  type="text"
+                  placeholder={t('searchPlaceholder') || 'Mã hồ sơ, org, workspace, partner...'}
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                />
               </div>
             </div>
             <div className="routing-actions">
               <div>
-                <button type="button" className="tool-btn">{t('reset') || 'Reset'}</button>
+                <button type="button" className="tool-btn" onClick={handleResetFilters}>{t('reset') || 'Reset'}</button>
                 <button type="button" className="tool-btn">{t('saveView') || 'Lưu view'}</button>
               </div>
               <div>
@@ -480,23 +744,29 @@ export default function AdminRequestsClient() {
             <div className="preview-grid">
               <div className="preview-card partner">
                 <div className="preview-kicker">{t('partnerModel') || 'Partner model'}</div>
-                <strong>Dedicated Partner</strong>
-                <span>Tư Vấn Pháp Lý Miền Bắc đang được gán làm partner chính cho Green Agriculture JSC.</span>
-                <small>priority: organization_owner</small>
+                <strong>{routingMode === 'all' ? 'Tất cả mô hình' : routingMode === 'specialist' ? 'Specialist Partner' : 'Dedicated Partner'}</strong>
+                <span>
+                  {routingMode === 'all'
+                    ? `Tất cả partner đang hoạt động (${partners.specialist.length + partners.dedicated.length} partners)`
+                    : routingMode === 'specialist'
+                    ? `Specialist Partners đang hoạt động (${partners.specialist.length} partners)`
+                    : `Dedicated Partners đang hoạt động (${partners.dedicated.length} partners)`}
+                </span>
+                <small>{routingMode === 'specialist' ? 'priority: service_scope' : routingMode === 'dedicated' ? 'priority: organization_owner' : 'priority: auto'}</small>
               </div>
               <div className="preview-arrow">→</div>
               <div className="preview-card org">
                 <div className="preview-kicker">{t('organization') || 'Organization'}</div>
-                <strong>Green Agriculture JSC</strong>
-                <span>Organization có 2 workspace. Hồ sơ mặc định ưu tiên Dedicated Partner, trừ khi service nằm ngoài phạm vi.</span>
-                <small>org_green_agriculture_jsc</small>
+                <strong>{filters.organization ? organizations.find((o) => o.id === filters.organization)?.name : 'Tất cả Organizations'}</strong>
+                <span>{organizations.length} organizations đang hoạt động trên hệ thống.</span>
+                <small>org_count: {organizations.length}</small>
               </div>
               <div className="preview-arrow">→</div>
               <div className="preview-card workspace">
                 <div className="preview-kicker">{t('workspace') || 'Workspace'}</div>
-                <strong>Demo Legal Workspace</strong>
-                <span>Workspace chứa hồ sơ sở hữu trí tuệ, hợp đồng phân phối và compliance.</span>
-                <small>workspace_demo_legal</small>
+                <strong>{filters.workspace ? organizations.flatMap((o) => o.workspaces).find((w) => w.id === filters.workspace)?.name : 'Tất cả Workspaces'}</strong>
+                <span>{organizations.reduce((sum, o) => sum + o.workspaces.length, 0)} workspaces đang hoạt động.</span>
+                <small>workspace_count: {organizations.reduce((sum, o) => sum + o.workspaces.length, 0)}</small>
               </div>
             </div>
           </div>
@@ -517,189 +787,69 @@ export default function AdminRequestsClient() {
               <div className="th">{t('colAction') || 'Thao tác'}</div>
             </div>
 
-            <div className="table-row">
-              <div className="td">
-                <div className="case-code">
-                  <div className="code-icon">IP</div>
-                  <div className="stack">
-                    <strong>REQ-2026-088</strong>
-                    <span>GREENFARM ORGANIC</span>
+            {requests.length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
+                <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>Không có hồ sơ nào</div>
+                <div>Các hồ sơ sẽ xuất hiện ở đây sau khi được phân loại.</div>
+              </div>
+            ) : (
+              requests.map((request) => (
+                <div key={request.fullId} className="table-row">
+                  <div className="td">
+                    <div className="case-code">
+                      <div className="code-icon">{request.type?.substring(0, 2)?.toUpperCase() || 'RQ'}</div>
+                      <div className="stack">
+                        <strong>{request.code || request.fullId.slice(-10)}</strong>
+                        <span>{request.title}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="td">
+                    <span className={`badge ${request.assigneeRole === 'Specialist' ? 'blue' : 'green'}`}>
+                      {request.assigneeRole === 'Specialist' ? 'Specialist' : request.assigneeRole === 'Reviewer' ? 'Reviewer' : '—'}
+                    </span>
+                  </div>
+                  <div className="td">
+                    <div className="stack">
+                      <strong>{request.assignee}</strong>
+                      <span>{request.assigneeRole !== '—' ? request.assigneeRole.toLowerCase() : 'Chưa gán'}</span>
+                    </div>
+                  </div>
+                  <div className="td">
+                    <div className="stack">
+                      <strong>{request.workspace || '—'}</strong>
+                      <span>{request.workspaceSlug || '—'}</span>
+                    </div>
+                  </div>
+                  <div className="td">
+                    <div className="stack">
+                      <strong>{request.workspace || '—'}</strong>
+                      <span>{request.workspaceSlug || '—'}</span>
+                    </div>
+                  </div>
+                  <div className="td">
+                    <div className="stack">
+                      <strong>{request.type}</strong>
+                      <span>—</span>
+                    </div>
+                  </div>
+                  <div className="td">
+                    <div className="stack">
+                      <strong>
+                        <span className={`badge ${request.status}`}>
+                          {request.statusText}
+                        </span>
+                      </strong>
+                      <span>{request.slaText}</span>
+                    </div>
+                  </div>
+                  <div className="td">
+                    <a className="action-link" href="#">{t('dispatch') || 'Điều phối →'}</a>
                   </div>
                 </div>
-              </div>
-              <div className="td"><span className="badge green">Dedicated</span></div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Tư Vấn Pháp Lý Miền Bắc</strong>
-                  <span>organization owner</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Green Agriculture JSC</strong>
-                  <span>green-agriculture-jsc</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Demo Legal Workspace</strong>
-                  <span>demo-legal-workspace</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Đăng ký nhãn hiệu</strong>
-                  <span>so_huu_tri_tue</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong><span className="badge orange">Đang xử lý</span></strong>
-                  <span>Còn 17h SLA</span>
-                </div>
-              </div>
-              <div className="td">
-                <a className="action-link" href="#">{t('dispatch') || 'Điều phối →'}</a>
-              </div>
-            </div>
-
-            <div className="table-row">
-              <div className="td">
-                <div className="case-code">
-                  <div className="code-icon">HD</div>
-                  <div className="stack">
-                    <strong>REQ-2026-083</strong>
-                    <span>Hợp đồng phân phối</span>
-                  </div>
-                </div>
-              </div>
-              <div className="td"><span className="badge green">Dedicated</span></div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Tư Vấn Pháp Lý Miền Bắc</strong>
-                  <span>organization owner</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Công ty An Phát</strong>
-                  <span>an-phat-org</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>an-phat workspace</strong>
-                  <span>an-phat</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Rà soát hợp đồng</strong>
-                  <span>hop_dong_thuong_mai</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong><span className="badge purple">Review</span></strong>
-                  <span>Còn 8h SLA</span>
-                </div>
-              </div>
-              <div className="td">
-                <a className="action-link" href="#">{t('view') || 'Xem →'}</a>
-              </div>
-            </div>
-
-            <div className="table-row">
-              <div className="td">
-                <div className="case-code">
-                  <div className="code-icon">TX</div>
-                  <div className="stack">
-                    <strong>REQ-2026-079</strong>
-                    <span>Rà soát thuế GTGT</span>
-                  </div>
-                </div>
-              </div>
-              <div className="td"><span className="badge blue">Specialist</span></div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Tax Advisory Vietnam</strong>
-                  <span>service scope: thue</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Green Agriculture JSC</strong>
-                  <span>dedicated override</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>green-tax workspace</strong>
-                  <span>green-tax</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Tư vấn thuế</strong>
-                  <span>thue</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong><span className="badge orange">Cần phản hồi</span></strong>
-                  <span>Sắp quá hạn</span>
-                </div>
-              </div>
-              <div className="td">
-                <a className="action-link" href="#">{t('remindSla') || 'Nhắc SLA →'}</a>
-              </div>
-            </div>
-
-            <div className="table-row">
-              <div className="td">
-                <div className="case-code">
-                  <div className="code-icon">LD</div>
-                  <div className="stack">
-                    <strong>REQ-2026-076</strong>
-                    <span>NDA vendor logistics</span>
-                  </div>
-                </div>
-              </div>
-              <div className="td"><span className="badge blue">Specialist</span></div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Legal Saigon Partners</strong>
-                  <span>service scope: nda, lao_dong</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Minh Khang Trading</strong>
-                  <span>minh-khang-org</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>minh-khang workspace</strong>
-                  <span>minh-khang</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong>Soạn NDA</strong>
-                  <span>nda_bao_mat</span>
-                </div>
-              </div>
-              <div className="td">
-                <div className="stack">
-                  <strong><span className="badge green">Hoàn tất</span></strong>
-                  <span>Đúng hạn</span>
-                </div>
-              </div>
-              <div className="td">
-                <a className="action-link" href="#">{t('audit') || 'Audit →'}</a>
-              </div>
-            </div>
+              ))
+            )}
           </section>
 
           {/* Board Sidebar */}

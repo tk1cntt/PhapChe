@@ -397,7 +397,7 @@ export default function UserTable({
           current={pagination.current}
           pageSize={pagination.pageSize}
           total={pagination.total}
-          totalLabel={`${pagination.total} users total`}
+          totalLabel={t('usersTotal', { count: pagination.total })}
           onChange={pagination.onChange}
         />
       )}

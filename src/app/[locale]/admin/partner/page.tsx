@@ -303,7 +303,10 @@ export default function AdminPartnerPage() {
                       className="action-link"
                       onClick={() => {
                         const locale = window.location.pathname.split('/')[1] || 'vi';
-                        router.push(`/${locale}/admin/requests/${req.id}`);
+                        const partnerId = req.assignedPartner?.id || req.engagement?.partnerId;
+                        if (partnerId) {
+                          router.push(`/${locale}/admin/partner/${partnerId}`);
+                        }
                       }}
                     >
                       {t('view')} →

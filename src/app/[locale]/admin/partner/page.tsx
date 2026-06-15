@@ -154,10 +154,10 @@ export default function AdminPartnerPage() {
       {/* Header */}
       <div className="mb-6 flex justify-between items-start">
         <div>
-          <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: '#020617', marginBottom: 12 }}>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-950 mb-3">
             {t('pageTitle')}
           </h1>
-          <p style={{ fontSize: 15, fontWeight: 500, color: '#5f6e83', margin: 0 }}>
+          <p className="text-sm font-medium text-slate-500 m-0">
             {t('pageDescription')}
           </p>
         </div>
@@ -198,12 +198,12 @@ export default function AdminPartnerPage() {
 
       {/* Table */}
       {loading ? (
-        <div className="bg-white border rounded-[15px] p-8 flex items-center justify-center" style={{ borderColor: 'var(--border)' }}>
+        <div className="bg-white border rounded-[15px] p-8 flex items-center justify-center">
           <div className="text-[#64748b]">{tCommon('loading')}</div>
         </div>
       ) : !error ? (
         <>
-          <div className="bg-white border rounded-[15px] overflow-hidden" style={{ borderColor: '#dfe7f1', boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)' }}>
+          <div className="bg-white border rounded-[15px] overflow-hidden border-[#dfe7f1] shadow-[0_10px_25px_rgba(15,23,42,0.04)]">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-slate-50">
                 <tr>

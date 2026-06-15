@@ -54,7 +54,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await requireAdminSession();
+    await requireAdminSession(); // Auth only, no userId needed
 
     const { id } = await params;
 

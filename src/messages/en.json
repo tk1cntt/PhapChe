@@ -1446,5 +1446,32 @@
     "status_delivered": "Delivered",
     "status_closed": "Closed",
     "status_cancelled": "Cancelled"
+  },
+  "partner": {
+    "status": {
+      "title": "Update Status",
+      "label": "Status",
+      "note": "Note",
+      "notePlaceholder": "Add a note about this status change...",
+      "update": "Update",
+      "updateSuccess": "Status updated successfully"
+    },
+    "comments": {
+      "title": "Comments",
+      "add": "Add Comment",
+      "empty": "No comments yet",
+      "placeholder": "Write your comment...",
+      "internal": "Internal",
+      "send": "Send"
+    },
+    "documents": {
+      "title": "Documents",
+      "upload": "Upload Document",
+      "uploadSuccess": "Document uploaded successfully",
+      "sizeError": "File size exceeds 10MB limit",
+      "descriptionPlaceholder": "Document description (optional)",
+      "empty": "No documents yet",
+      "download": "Download"
+    }
   }
 }

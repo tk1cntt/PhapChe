@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 
 interface Comment {
   id: string;
@@ -12,11 +13,35 @@ interface Comment {
 }
 
 interface CommentListProps {
-  comments: Comment[];
+  comments?: Comment[];
+  requestId?: string;
 }
 
-export function CommentList({ comments }: CommentListProps) {
+export function CommentList({ comments, requestId }: CommentListProps) {
   const t = useTranslations();
+  const [commentsData, setCommentsData] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (requestId && !comments) {
+      setLoading(true);
+      fetch(`/api/admin/partner/requests/${requestId}/comments`)
+        .then(res => res.json())
+        .then(data => {
+          setCommentsData(data.data || []);
+        })
+        .catch(() => {
+          setCommentsData([]);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else if (comments) {
+      setCommentsData(comments);
+    }
+  }, [requestId, comments]);
+
+  const displayComments = requestId && !comments ? commentsData : (comments || commentsData);
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleString('vi-VN', {
@@ -31,8 +56,12 @@ export function CommentList({ comments }: CommentListProps) {
   return (
     <div className="space-y-4">
       <h3 className="font-medium text-lg">{t('partner.comments.title')}</h3>
-      
-      {comments.length === 0 ? (
+
+      {loading ? (
+        <div className="text-center py-8 text-gray-500">
+          <div className="animate-pulse">{t('common.loading')}</div>
+        </div>
+      ) : displayComments.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -41,7 +70,7 @@ export function CommentList({ comments }: CommentListProps) {
         </div>
       ) : (
         <div className="space-y-3">
-          {comments.map((comment) => (
+          {displayComments.map((comment) => (
             <div
               key={comment.id}
               className={`p-4 rounded-lg ${

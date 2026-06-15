@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 
 interface Document {
   id: string;
@@ -13,13 +14,37 @@ interface Document {
 }
 
 interface DocumentListProps {
-  documents: Document[];
+  documents?: Document[];
+  requestId?: string;
   onDelete?: (id: string) => void;
   onDownload?: (storageKey: string, filename: string) => void;
 }
 
-export function DocumentList({ documents, onDelete, onDownload }: DocumentListProps) {
+export function DocumentList({ documents, requestId, onDelete, onDownload }: DocumentListProps) {
   const t = useTranslations();
+  const [documentsData, setDocumentsData] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (requestId && !documents) {
+      setLoading(true);
+      fetch(`/api/admin/partner/requests/${requestId}/documents`)
+        .then(res => res.json())
+        .then(data => {
+          setDocumentsData(data.data || []);
+        })
+        .catch(() => {
+          setDocumentsData([]);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else if (documents) {
+      setDocumentsData(documents);
+    }
+  }, [requestId, documents]);
+
+  const displayDocuments = requestId && !documents ? documentsData : (documents || documentsData);
 
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -62,7 +87,11 @@ export function DocumentList({ documents, onDelete, onDownload }: DocumentListPr
     <div className="space-y-4">
       <h3 className="font-medium text-lg">{t('partner.documents.title')}</h3>
 
-      {documents.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-8 text-gray-500">
+          <div className="animate-pulse">{t('common.loading')}</div>
+        </div>
+      ) : displayDocuments.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -71,7 +100,7 @@ export function DocumentList({ documents, onDelete, onDownload }: DocumentListPr
         </div>
       ) : (
         <div className="divide-y border-b">
-          {documents.map((doc) => (
+          {displayDocuments.map((doc) => (
             <div key={doc.id} className="py-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {getFileIcon(doc.mimeType)}
@@ -94,7 +123,11 @@ export function DocumentList({ documents, onDelete, onDownload }: DocumentListPr
                 </button>
                 {onDelete && (
                   <button
-                    onClick={() => onDelete(doc.id)}
+                    onClick={() => {
+                      if (window.confirm('Bạn có chắc chắn muốn xóa tài liệu này?')) {
+                        onDelete(doc.id);
+                      }
+                    }}
                     className="text-red-500 text-sm hover:underline"
                   >
                     {t('common.delete')}

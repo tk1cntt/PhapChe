@@ -1383,5 +1383,32 @@
     "status_delivered": "Đã giao tài liệu",
     "status_closed": "Đã đóng hồ sơ",
     "status_cancelled": "Đã hủy"
+  },
+  "partner": {
+    "status": {
+      "title": "Cập nhật trạng thái",
+      "label": "Trạng thái",
+      "note": "Ghi chú",
+      "notePlaceholder": "Thêm ghi chú về thay đổi trạng thái này...",
+      "update": "Cập nhật",
+      "updateSuccess": "Cập nhật trạng thái thành công"
+    },
+    "comments": {
+      "title": "Bình luận",
+      "add": "Thêm bình luận",
+      "empty": "Chưa có bình luận nào",
+      "placeholder": "Viết bình luận của bạn...",
+      "internal": "Nội bộ",
+      "send": "Gửi"
+    },
+    "documents": {
+      "title": "Tài liệu",
+      "upload": "Tải lên tài liệu",
+      "uploadSuccess": "Tải lên tài liệu thành công",
+      "sizeError": "Kích thước file vượt quá giới hạn 10MB",
+      "descriptionPlaceholder": "Mô tả tài liệu (tùy chọn)",
+      "empty": "Chưa có tài liệu nào",
+      "download": "Tải về"
+    }
   }
 }

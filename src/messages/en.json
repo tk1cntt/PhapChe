@@ -397,6 +397,8 @@
     "routingTitle": "Main Case Filter / Routing",
     "routingDescription": "This form filters classified and workflow-transferred cases.",
     "routingModel": "Routing Model",
+    "modelHelp": "Used to separate cases by partner assignment method.",
+    "colPartner": "Partner",
     "allModels": "All Models",
     "allPartners": "All Partners",
     "allOrgs": "All Organizations",

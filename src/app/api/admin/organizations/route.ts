@@ -65,6 +65,11 @@ export async function GET(req: NextRequest) {
         where,
         include: {
           tenant: { select: { id: true, name: true } },
+          workspaces: {
+            select: { id: true, name: true, slug: true },
+            where: { isActive: true },
+            orderBy: { name: 'asc' },
+          },
           _count: { select: { workspaces: true } },
         },
         orderBy: { createdAt: 'desc' },

@@ -674,7 +674,7 @@ export default function AdminRequestsClient() {
                 <select value={filters.workspace} onChange={(e) => handleFilterChange('workspace', e.target.value)}>
                   <option value="">{t('allWorkspaces') || 'Tất cả workspace'}</option>
                   {organizations.flatMap((org) =>
-                    org.workspaces.map((ws) => (
+                    (org.workspaces || []).map((ws) => (
                       <option key={ws.id} value={ws.id}>
                         {org.name} / {ws.name}
                       </option>

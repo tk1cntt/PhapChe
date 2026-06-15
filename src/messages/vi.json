@@ -397,6 +397,8 @@
     "routingTitle": "Bộ lọc / Điều phối hồ sơ chính",
     "routingDescription": "Form này lọc danh sách hồ sơ đã được phân loại và đã chuyển vào workflow chính.",
     "routingModel": "Mô hình điều phối",
+    "modelHelp": "Dùng để tách hồ sơ theo cách gán partner.",
+    "colPartner": "Partner",
     "allModels": "Tất cả mô hình",
     "allPartners": "Tất cả partner",
     "allOrgs": "Tất cả organization",

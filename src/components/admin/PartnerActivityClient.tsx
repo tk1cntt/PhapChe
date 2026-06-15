@@ -234,6 +234,71 @@ function parseActivityMeta(log: AuditLog) {
   }
 }
 
+function formatActivityAction(action: string, meta: any, actorName?: string): { title: string; description: string } {
+  const actionMap: Record<string, { title: string; desc: string }> = {
+    'document.uploaded': {
+      title: `Partner upload "${meta.docName || 'tài liệu'}"`,
+      desc: 'Tài liệu được gắn vào hồ sơ và chia sẻ cho Coordinator Admin review.',
+    },
+    'document.viewed': {
+      title: `${actorName || 'Partner'} xem tài liệu`,
+      desc: meta.docName || 'Tài liệu được xem.',
+    },
+    'document.downloaded': {
+      title: `${actorName || 'Partner'} tải tài liệu`,
+      desc: `Tải ${meta.docName || 'tài liệu'}.`,
+    },
+    'member.added': {
+      title: `${actorName || 'Admin'} thêm thành viên mới`,
+      desc: meta.extra || 'Thành viên được thêm vào workspace.',
+    },
+    'request.status_changed': {
+      title: `${meta.requestCode || 'Hồ sơ'} chuyển trạng thái`,
+      desc: meta.extra || 'Trạng thái hồ sơ đã được cập nhật.',
+    },
+    'request.created': {
+      title: `${meta.requestCode || 'Hồ sơ mới'} được tạo`,
+      desc: meta.extra || 'Yêu cầu pháp lý mới được tạo.',
+    },
+    'request.assigned': {
+      title: `${meta.requestCode || 'Hồ sơ'} được giao cho partner`,
+      desc: meta.extra || 'Hồ sơ được chỉ định xử lý.',
+    },
+    'review.completed': {
+      title: 'Review hoàn tất',
+      desc: meta.extra || 'Tài liệu đã được review và phê duyệt.',
+    },
+    'review.requested': {
+      title: 'Yêu cầu review',
+      desc: meta.extra || 'Tài liệu cần được review.',
+    },
+    'comment.created': {
+      title: `${actorName || 'User'} bình luận`,
+      desc: meta.extra || 'Bình luận mới được thêm.',
+    },
+    'SLA risk': {
+      title: `SLA risk: ${meta.requestCode || 'Hồ sơ'} sắp quá hạn`,
+      desc: meta.extra || 'Hồ sơ sắp quá hạn phản hồi.',
+    },
+  };
+
+  const formatted = actionMap[action];
+  if (formatted) {
+    return { title: formatted.title, description: formatted.desc };
+  }
+
+  // Fallback: format action key to title
+  const title = action
+    .split('.')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
+  return {
+    title: `${actorName || 'System'} ${title.toLowerCase()}`,
+    description: meta.extra || action,
+  };
+}
+
 export default function PartnerActivityClient() {
   const params = useParams();
   const router = useRouter();
@@ -520,24 +585,34 @@ export default function PartnerActivityClient() {
                   {partner.recentAuditLogs?.slice(0, 5).map((log) => {
                     const meta = parseActivityMeta(log);
                     const isImportant = log.action.includes('SLA') || log.action.includes('risk');
+                    const { title, description } = formatActivityAction(log.action, meta, log.actorName);
+
+                    const iconType = log.targetType === 'request' ? 'case' :
+                      log.targetType === 'vault_file' ? 'doc' :
+                        log.targetType === 'workspace' ? 'org' : 'user';
+                    const iconLabel = log.targetType === 'request' ? 'REQ' :
+                      log.targetType === 'vault_file' ? 'DOC' :
+                        log.targetType === 'workspace' ? 'ORG' : 'USR';
+
                     return (
                       <div
                         key={log.id}
                         className={`activity-item ${isImportant ? 'important' : ''}`}
                         data-type={log.targetType === 'request' ? 'cases' : log.targetType === 'vault_file' ? 'docs' : log.targetType}
                       >
-                        <div className={`activity-icon ${log.targetType === 'request' ? 'case' : log.targetType === 'vault_file' ? 'doc' : log.targetType === 'workspace' ? 'org' : 'user'}`}>
-                          {log.targetType === 'request' ? 'REQ' : log.targetType === 'vault_file' ? 'DOC' : log.targetType === 'workspace' ? 'ORG' : 'USR'}
+                        <div className={`activity-icon ${iconType}`}>
+                          {iconLabel}
                         </div>
                         <div className="activity-content">
-                          <strong>{log.action}</strong>
-                          <p>{meta.extra || log.action}</p>
+                          <strong>{title}</strong>
+                          <p>{description}</p>
                           <div className="activity-meta">
                             {meta.orgName && <span className="mini-badge orange">{meta.orgName}</span>}
                             {meta.workspaceName && <span className="mini-badge blue">{meta.workspaceName}</span>}
-                            {meta.userName && <span className="mini-badge gray">Owner: {meta.userName}</span>}
-                            {meta.docType && <span className="mini-badge green">{meta.docType}</span>}
+                            {meta.requestCode && <span className="mini-badge gray">{meta.requestCode}</span>}
                             {meta.docSize && <span className="mini-badge gray">{meta.docSize}</span>}
+                            {meta.docType && <span className="mini-badge green">{meta.docType}</span>}
+                            {meta.requestTitle && <span className="mini-badge purple">{meta.requestTitle}</span>}
                           </div>
                         </div>
                         <div className="activity-time">{getRelativeTime(log.createdAt)}</div>

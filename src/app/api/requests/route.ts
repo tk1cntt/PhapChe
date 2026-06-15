@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const take = parseInt(searchParams.get('take') || '20', 10);
 
   // Get user's workspace IDs
-  const memberships = await prisma.workspaceMember.findMany({
+  const memberships = await prisma.workspaceMembership.findMany({
     where: { userId: session.user.id },
     select: { workspaceId: true },
   });
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Verify workspace membership
-  const membership = await prisma.workspaceMember.findFirst({
+  const membership = await prisma.workspaceMembership.findFirst({
     where: { workspaceId, userId: session.user.id },
   });
 

@@ -54,7 +54,7 @@ const defaultIcons: Record<string, React.ReactNode> = {
 };
 
 export function StatCard({ title, value, description, icon, variant = 'blue' }: StatCardProps) {
-  const style = variants[variant];
+  const style = variants[variant] ?? variants.blue;
   return (
     <div data-testid="admin-stat-card" style={{
       height: 126,

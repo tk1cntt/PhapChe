@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { X, Building2 } from 'lucide-react';
 import { AdminStatGrid } from '@/components/admin/AdminStatGrid';
 import AdminToolbar from '@/components/admin/AdminToolbar';
 import Paging from '@/components/ui/Paging';
@@ -84,6 +85,20 @@ export default function AdminOrganizationsPage() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    businessType: '',
+    registrationNumber: '',
+    address: '',
+    contactEmail: '',
+    status: 'active',
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
+
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -136,9 +151,67 @@ export default function AdminOrganizationsPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const handleCreate = () => {
-    const locale = window.location.pathname.split('/')[1] || 'vi';
-    router.push(`/${locale}/admin/organizations/new`);
+  const openCreateModal = () => {
+    setFormData({
+      name: '',
+      businessType: '',
+      registrationNumber: '',
+      address: '',
+      contactEmail: '',
+      status: 'active',
+    });
+    setFormError('');
+    setFormSuccess('');
+    setShowModal(true);
+  };
+
+  const closeCreateModal = () => {
+    setShowModal(false);
+    setFormError('');
+    setFormSuccess('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError('');
+    setFormSuccess('');
+
+    if (!formData.name.trim()) {
+      setFormError('Organization name is required');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/admin/organizations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          businessType: formData.businessType || undefined,
+          registrationNumber: formData.registrationNumber || undefined,
+          address: formData.address || undefined,
+          contactEmail: formData.contactEmail || undefined,
+          status: formData.status,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to create organization');
+      }
+
+      setFormSuccess('Organization created successfully');
+      setTimeout(() => {
+        closeCreateModal();
+        fetchData();
+      }, 1500);
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Failed to create organization');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const statCards = [
@@ -182,8 +255,8 @@ export default function AdminOrganizationsPage() {
           </p>
         </div>
         <button
-          onClick={handleCreate}
-          className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors flex items-center gap-2"
+          onClick={openCreateModal}
+          className="create-btn"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -328,6 +401,111 @@ export default function AdminOrganizationsPage() {
           />
         </>
       ) : null}
+
+      {/* Create Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={closeCreateModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-header-left">
+                <div className="modal-icon">
+                  <Building2 size={22} color="#087f78" />
+                </div>
+                <div>
+                  <h3>{t('create')}</h3>
+                  <p>{t('createModalDesc')}</p>
+                </div>
+              </div>
+              <button className="modal-close" onClick={closeCreateModal}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="form-field">
+                <label>{t('formName')} *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder={t('formNamePlaceholder')}
+                  disabled={isSubmitting}
+                  autoFocus
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-field">
+                  <label>{t('formBusinessType')}</label>
+                  <input
+                    type="text"
+                    value={formData.businessType}
+                    onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
+                    placeholder={t('formBusinessTypePlaceholder')}
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>{t('formRegistrationNumber')}</label>
+                  <input
+                    type="text"
+                    value={formData.registrationNumber}
+                    onChange={(e) => setFormData({ ...formData, registrationNumber: e.target.value })}
+                    placeholder={t('formRegistrationNumberPlaceholder')}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+
+              <div className="form-field">
+                <label>{t('formAddress')}</label>
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder={t('formAddressPlaceholder')}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="form-field">
+                <label>{t('formContactEmail')}</label>
+                <input
+                  type="email"
+                  value={formData.contactEmail}
+                  onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                  placeholder={t('formContactEmailPlaceholder')}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="form-field">
+                <label>{t('formStatus')}</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  disabled={isSubmitting}
+                >
+                  <option value="active">{t('statusActive')}</option>
+                  <option value="inactive">{t('statusInactive')}</option>
+                </select>
+              </div>
+
+              {formError && <div className="form-error">{formError}</div>}
+              {formSuccess && <div className="form-success">{formSuccess}</div>}
+
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={closeCreateModal} disabled={isSubmitting}>
+                  {tCommon('cancel')}
+                </button>
+                <button type="submit" className="btn-submit" disabled={isSubmitting || !formData.name.trim()}>
+                  {isSubmitting ? tCommon('loading') : t('create')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

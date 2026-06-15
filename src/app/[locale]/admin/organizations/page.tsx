@@ -39,6 +39,48 @@ interface Stats {
   inactive: number;
 }
 
+const badgeStyles: Record<string, { bg: string; color: string; dot: string }> = {
+  active: { bg: '#ccfbf1', color: '#0f766e', dot: '#10b981' },
+  inactive: { bg: '#f1f5f9', color: '#64748b', dot: '#64748b' },
+  pending: { bg: '#ffedd5', color: '#ea580c', dot: '#f97316' },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const style = badgeStyles[status] || badgeStyles.inactive;
+  const labels: Record<string, string> = {
+    active: 'Active',
+    inactive: 'Inactive',
+    pending: 'Pending',
+  };
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        height: 28,
+        padding: '0 11px',
+        borderRadius: 999,
+        fontSize: 12,
+        fontWeight: 800,
+        whiteSpace: 'nowrap',
+        background: style.bg,
+        color: style.color,
+      }}
+    >
+      <span
+        style={{
+          width: 7,
+          height: 7,
+          borderRadius: '50%',
+          marginRight: 7,
+          background: style.dot,
+        }}
+      />
+      {labels[status] || status}
+    </span>
+  );
+}
+
 export default function AdminOrganizationsPage() {
   const router = useRouter();
   const t = useTranslations('AdminOrganizations');
@@ -106,29 +148,28 @@ export default function AdminOrganizationsPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const handleSearch = (query: string) => { setSearch(query); };
   const handleRefresh = () => { fetchData(); };
   const handleCreate = () => {
     const locale = window.location.pathname.split('/')[1] || 'vi';
     router.push(`/${locale}/admin/organizations/new`);
   };
 
-  const getStatusColor = (status: string): string => {
-    const colors: Record<string, string> = {
-      active: 'bg-green-100 text-green-800',
-      inactive: 'bg-gray-100 text-gray-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-    };
-    return colors[status] ?? 'bg-gray-100 text-gray-800';
-  };
-
   const statCards = [
     { title: t('statTotal'), value: stats.total, description: t('statTotalDesc'), variant: 'blue' as const },
     { title: t('statActive'), value: stats.active, description: t('statActiveDesc'), variant: 'green' as const },
-    { title: t('statInactive'), value: stats.inactive, description: t('statInactiveDesc'), variant: 'gray' as const },
+    { title: t('statInactive'), value: stats.inactive, description: t('statInactiveDesc'), variant: 'purple' as const },
   ];
 
   const totalPages = Math.ceil(total / take);
+
+  // Column translations
+  const columns = {
+    name: t('colName'),
+    businessType: t('colBusinessType'),
+    workspaces: t('colWorkspaces'),
+    status: t('colStatus'),
+    action: t('colActions'),
+  };
 
   return (
     <div>
@@ -209,90 +250,130 @@ export default function AdminOrganizationsPage() {
         </div>
       ) : !error ? (
         <>
-          <div className="bg-white border rounded-[15px] overflow-hidden" style={{ borderColor: '#dfe7f1', boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)' }}>
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colName')}
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colBusinessType')}
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colWorkspaces')}
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colStatus')}
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colActions')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {organizations.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                      {t('emptyTitle')}
-                    </td>
-                  </tr>
-                ) : (
-                  organizations.map((org) => (
-                    <tr key={org.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
-                            <span className="text-teal-700 font-semibold text-sm">
-                              {org.name.charAt(0).toUpperCase()}
+          <div
+            className="bg-white border rounded-[15px] overflow-hidden"
+            style={{ borderColor: '#dfe7f1', boxShadow: '0 18px 42px rgba(15, 23, 42, 0.06)' }}
+          >
+            {/* Table Header */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1.5fr 1fr 0.8fr 0.8fr 0.7fr',
+                background: 'linear-gradient(180deg, #f8fafc, #f5f7fb)',
+                borderBottom: '1px solid #dfe7f1',
+              }}
+            >
+              {[columns.name, columns.businessType, columns.workspaces, columns.status, columns.action].map((header, i) => (
+                <div
+                  key={i}
+                  style={{
+                    minHeight: 54,
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 18px',
+                    color: '#59687e',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    borderRight: i === 4 ? 'none' : '1px solid #dfe7f1',
+                  }}
+                >
+                  {header}
+                </div>
+              ))}
+            </div>
+
+            {/* Empty State */}
+            {organizations.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 px-4">
+                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-slate-700 mb-1">{t('emptyTitle')}</h3>
+              </div>
+            ) : (
+              /* Table Rows */
+              organizations.map((org, rowIndex) => (
+                <div
+                  key={org.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1.5fr 1fr 0.8fr 0.8fr 0.7fr',
+                    minHeight: 68,
+                    borderBottom: rowIndex === organizations.length - 1 ? 'none' : '1px solid #dfe7f1',
+                    background: '#fff',
+                    transition: '0.2s',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#fbfdff'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = '#fff'; }}
+                >
+                  {/* Name */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 38, height: 38, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, #ccfbf1, #eefbf8)', color: '#0f766e' }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span className="text-sm font-bold text-[#0f172a]">{org.name}</span>
+                          {org.isDefault && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                height: 20,
+                                padding: '0 8px',
+                                borderRadius: 999,
+                                fontSize: 10,
+                                fontWeight: 800,
+                                background: '#ccfbf1',
+                                color: '#0f766e',
+                              }}
+                            >
+                              {t('default')}
                             </span>
-                          </div>
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {org.name}
-                              {org.isDefault && (
-                                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800">
-                                  {t('default')}
-                                </span>
-                              )}
-                            </div>
-                            {org.contactEmail && (
-                              <div className="text-xs text-gray-500">{org.contactEmail}</div>
-                            )}
-                          </div>
+                          )}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-600">
-                          {org.businessType || '-'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {org._count?.workspaces || 0} {t('workspaces')}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusColor(org.status)}`}>
-                          {org.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <button
-                          onClick={() => {
-                            const locale = window.location.pathname.split('/')[1] || 'vi';
-                            router.push(`/${locale}/admin/organizations/${org.id}`);
-                          }}
-                          className="text-blue-600 hover:text-blue-800 font-medium"
-                        >
-                          {t('view')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                        {org.contactEmail && (
+                          <span style={{ fontSize: 12, color: '#64748b' }}>{org.contactEmail}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Business Type */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+                    <span>{org.businessType || '—'}</span>
+                  </div>
+
+                  {/* Workspaces */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1' }}>
+                    <span>{org._count?.workspaces || 0}</span>
+                  </div>
+
+                  {/* Status */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1' }}>
+                    <StatusBadge status={org.status} />
+                  </div>
+
+                  {/* Action */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: 'none' }}>
+                    <button
+                      onClick={() => {
+                        const locale = window.location.pathname.split('/')[1] || 'vi';
+                        router.push(`/${locale}/admin/organizations/${org.id}`);
+                      }}
+                      style={{ color: '#087f78', fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', background: 'none', border: 'none', cursor: 'pointer' }}
+                    >
+                      {t('view')} →
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
 
           {/* Pagination */}

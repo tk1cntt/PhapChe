@@ -40,6 +40,46 @@ interface ApiResponse {
   };
 }
 
+const badgeStyles: Record<string, { bg: string; color: string; dot: string }> = {
+  completed: { bg: '#ccfbf1', color: '#0f766e', dot: '#10b981' },
+  delivered: { bg: '#ccfbf1', color: '#0f766e', dot: '#10b981' },
+  in_progress: { bg: '#dbeafe', color: '#2563eb', dot: '#3b82f6' },
+  pending_review: { bg: '#ffedd5', color: '#ea580c', dot: '#f97316' },
+  cancelled: { bg: '#ffe4e6', color: '#ef4444', dot: '#ef4444' },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const style = badgeStyles[status] || { bg: '#f1f5f9', color: '#64748b', dot: '#64748b' };
+  const label = REQUEST_STATUS_LABELS[status] || status;
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        height: 28,
+        padding: '0 11px',
+        borderRadius: 999,
+        fontSize: 12,
+        fontWeight: 800,
+        whiteSpace: 'nowrap',
+        background: style.bg,
+        color: style.color,
+      }}
+    >
+      <span
+        style={{
+          width: 7,
+          height: 7,
+          borderRadius: '50%',
+          marginRight: 7,
+          background: style.dot,
+        }}
+      />
+      {label}
+    </span>
+  );
+}
+
 export default function AdminPartnerPage() {
   const router = useRouter();
   const t = useTranslations('AdminPartner');
@@ -118,18 +158,7 @@ export default function AdminPartnerPage() {
   const getPartnerName = (req: PartnerRequest) => {
     if (req.assignedPartner?.name) return req.assignedPartner.name;
     if (req.engagement?.partner?.name) return req.engagement.partner.name;
-    return '-';
-  };
-
-  const getStatusColor = (status: string): string => {
-    const colors: Record<string, string> = {
-      completed: 'bg-green-100 text-green-800',
-      delivered: 'bg-green-100 text-green-800',
-      in_progress: 'bg-blue-100 text-blue-800',
-      pending_review: 'bg-yellow-100 text-yellow-800',
-      cancelled: 'bg-red-100 text-red-800',
-    };
-    return colors[status] ?? 'bg-gray-100 text-gray-800';
+    return '—';
   };
 
   const statCards = [
@@ -148,6 +177,16 @@ export default function AdminPartnerPage() {
   };
 
   const totalPages = Math.ceil(total / pageSize);
+
+  // Column translations
+  const columns = {
+    id: t('colId'),
+    partner: t('colPartner'),
+    customer: t('colCustomer'),
+    status: t('colStatus'),
+    updated: t('colUpdated'),
+    action: t('colActions'),
+  };
 
   return (
     <div>
@@ -198,81 +237,127 @@ export default function AdminPartnerPage() {
 
       {/* Table */}
       {loading ? (
-        <div className="bg-white border rounded-[15px] p-8 flex items-center justify-center">
+        <div className="bg-white border rounded-[15px] p-8 flex items-center justify-center" style={{ borderColor: 'var(--border)' }}>
           <div className="text-[#64748b]">{tCommon('loading')}</div>
         </div>
       ) : !error ? (
         <>
-          <div className="bg-white border rounded-[15px] overflow-hidden border-[#dfe7f1] shadow-[0_10px_25px_rgba(15,23,42,0.04)]">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colId')}
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colPartner')}
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colCustomer')}
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colStatus')}
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colUpdated')}
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {t('colActions')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {requests.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                      {t('emptyTitle')}
-                    </td>
-                  </tr>
-                ) : (
-                  requests.map((req) => (
-                    <tr key={req.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-mono text-gray-900">{req.id.slice(0, 8)}...</span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-medium text-gray-900">{getPartnerName(req)}</span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{req.customer?.name || '-'}</div>
+          <div
+            className="bg-white border rounded-[15px] overflow-hidden"
+            style={{ borderColor: '#dfe7f1', boxShadow: '0 18px 42px rgba(15, 23, 42, 0.06)' }}
+          >
+            {/* Table Header */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '0.8fr 1fr 1.2fr 1fr 0.9fr 0.7fr',
+                background: 'linear-gradient(180deg, #f8fafc, #f5f7fb)',
+                borderBottom: '1px solid #dfe7f1',
+              }}
+            >
+              {[columns.id, columns.partner, columns.customer, columns.status, columns.updated, columns.action].map((header, i) => (
+                <div
+                  key={i}
+                  style={{
+                    minHeight: 54,
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 18px',
+                    color: '#59687e',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    borderRight: i === 5 ? 'none' : '1px solid #dfe7f1',
+                  }}
+                >
+                  {header}
+                </div>
+              ))}
+            </div>
+
+            {/* Empty State */}
+            {requests.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 px-4">
+                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-slate-700 mb-1">{t('emptyTitle')}</h3>
+              </div>
+            ) : (
+              /* Table Rows */
+              requests.map((req, rowIndex) => (
+                <div
+                  key={req.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '0.8fr 1fr 1.2fr 1fr 0.9fr 0.7fr',
+                    minHeight: 68,
+                    borderBottom: rowIndex === requests.length - 1 ? 'none' : '1px solid #dfe7f1',
+                    background: '#fff',
+                    transition: '0.2s',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#fbfdff'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = '#fff'; }}
+                >
+                  {/* ID */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontWeight: 800, color: '#0f172a' }}>
+                      <div style={{ width: 38, height: 38, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, #dbeafe, #eff6ff)', color: '#2563eb' }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                          <path d="M14 2v6h6"/>
+                        </svg>
+                      </div>
+                      <span className="text-sm font-bold text-[#0f172a] font-mono">{req.id.slice(0, 8)}...</span>
+                    </div>
+                  </div>
+
+                  {/* Partner */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+                    <span>{getPartnerName(req)}</span>
+                  </div>
+
+                  {/* Customer */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 800, fontSize: 13, background: '#eef2f7', color: '#334155' }}>
+                        {req.customer?.name ? req.customer.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() : '—'}
+                      </div>
+                      <div>
+                        <span style={{ display: 'block', fontSize: 14, fontWeight: 600 }}>{req.customer?.name || '—'}</span>
                         {req.customer?.email && (
-                          <div className="text-xs text-gray-500">{req.customer.email}</div>
+                          <span style={{ fontSize: 12, color: '#64748b' }}>{req.customer.email}</span>
                         )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusColor(req.status)}`}>
-                          {REQUEST_STATUS_LABELS[req.status] || req.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(req.updatedAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <button
-                          onClick={() => {
-                            const locale = window.location.pathname.split('/')[1] || 'vi';
-                            router.push(`/${locale}/admin/partner/${req.id}`);
-                          }}
-                          className="text-blue-600 hover:text-blue-800 font-medium"
-                        >
-                          {t('view')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1' }}>
+                    <StatusBadge status={req.status} />
+                  </div>
+
+                  {/* Updated */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#64748b', fontWeight: 500, borderRight: '1px solid #dfe7f1' }}>
+                    {new Date(req.updatedAt).toLocaleDateString()}
+                  </div>
+
+                  {/* Action */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: 'none' }}>
+                    <button
+                      onClick={() => {
+                        const locale = window.location.pathname.split('/')[1] || 'vi';
+                        router.push(`/${locale}/admin/partner/${req.id}`);
+                      }}
+                      style={{ color: '#087f78', fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', background: 'none', border: 'none', cursor: 'pointer' }}
+                    >
+                      {t('view')} →
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
 
           {/* Pagination */}

@@ -329,7 +329,7 @@ export default function AdminRequestsClient() {
           </div>
           <div className="stat-card">
             <div className="stat-label">{t('statTotal') || 'Tổng hồ sơ'}</div>
-            <div className="stat-value">{stats?.total?.count ?? requestsTotal || 0}</div>
+            <div className="stat-value">{(stats?.total?.count ?? requestsTotal) || 0}</div>
             <div className="stat-desc">{t('statTotalDesc') || 'Tất cả partner, org và workspace'}</div>
           </div>
           <div className="stat-card">

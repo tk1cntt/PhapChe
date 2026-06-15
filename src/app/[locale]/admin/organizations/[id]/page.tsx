@@ -43,7 +43,7 @@ export default function AdminOrganizationDetailPage() {
   // Form state
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
+    registrationNumber: '',
     businessType: '',
     contactEmail: '',
     address: '',
@@ -73,7 +73,7 @@ export default function AdminOrganizationDetailPage() {
       setOrganization(data.data);
       setFormData({
         name: data.data.name,
-        description: data.data.registrationNumber || '',
+        registrationNumber: data.data.registrationNumber || '',
         businessType: data.data.businessType || '',
         contactEmail: data.data.contactEmail || '',
         address: data.data.address || '',
@@ -98,11 +98,11 @@ export default function AdminOrganizationDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
-          description: formData.description,
+          registrationNumber: formData.registrationNumber,
           businessType: formData.businessType || undefined,
           contactEmail: formData.contactEmail || undefined,
           address: formData.address || undefined,
-          isActive: formData.status === 'active',
+          status: formData.status,
         }),
       });
 
@@ -248,7 +248,7 @@ export default function AdminOrganizationDetailPage() {
                       setIsEditing(false);
                       setFormData({
                         name: organization.name,
-                        description: organization.registrationNumber || '',
+                        registrationNumber: organization.registrationNumber || '',
                         businessType: organization.businessType || '',
                         contactEmail: organization.contactEmail || '',
                         address: organization.address || '',
@@ -353,10 +353,6 @@ export default function AdminOrganizationDetailPage() {
                     <div className="text-sm text-gray-500">{t('formRegistrationNumber')}</div>
                     <div className="text-sm font-medium text-gray-900">{organization.registrationNumber || '-'}</div>
                   </div>
-                  <div>
-                    <div className="text-sm text-gray-500">{t('formSlug')}</div>
-                    <div className="text-sm font-medium text-gray-900 font-mono">{organization.slug}</div>
-                  </div>
                 </div>
               </div>
             )}
@@ -372,10 +368,6 @@ export default function AdminOrganizationDetailPage() {
               <div className="flex justify-between items-center">
                 <div className="text-sm text-gray-500">{t('workspaces')}</div>
                 <div className="text-lg font-semibold text-gray-900">{organization._count?.workspaces || 0}</div>
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-500">{t('users')}</div>
-                <div className="text-lg font-semibold text-gray-900">{organization._count?.users || 0}</div>
               </div>
             </div>
           </div>

@@ -271,9 +271,6 @@ export default function AdminOrganizationsPage() {
                         <div className="text-sm text-gray-900">
                           {org._count?.workspaces || 0} {t('workspaces')}
                         </div>
-                        <div className="text-xs text-gray-500">
-                          {org._count?.users || 0} {t('users')}
-                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusColor(org.status)}`}>

@@ -30,7 +30,11 @@ async function requireAdminSession() {
     select: { role: true, workspaceId: true },
   });
 
-  const userRoles = memberships.map((m) => m.role);
+  // Filter out null roles
+  const userRoles = memberships
+    .map((m) => m.role)
+    .filter((r): r is string => r !== null);
+
   const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
 
   if (!hasAdminRole) {

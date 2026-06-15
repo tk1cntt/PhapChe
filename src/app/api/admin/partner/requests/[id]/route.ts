@@ -30,7 +30,11 @@ async function requireAdminSession() {
     select: { role: true, workspaceId: true },
   });
 
-  const userRoles = memberships.map((m) => m.role);
+  // Filter out null roles
+  const userRoles = memberships
+    .map((m) => m.role)
+    .filter((r): r is string => r !== null);
+
   const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
 
   if (!hasAdminRole) {
@@ -63,7 +67,7 @@ export async function GET(
             partner: { select: { name: true } }
           }
         },
-        customer: { select: { id: true, name: true, email: true } },
+        createdBy: { select: { id: true, name: true, email: true } },
         workspace: { select: { id: true, name: true } },
       },
     });
@@ -82,7 +86,7 @@ export async function GET(
     }
     console.error('Error fetching partner request detail:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'Internal Server Error', detail: error?.message },
       { status: 500 }
     );
   }

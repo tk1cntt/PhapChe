@@ -11,6 +11,7 @@ interface RolePillsProps {
     role_super_admin: string;
     role_audit_admin: string;
     pendingLabel: string;
+    systemRolesLabel: string;
   };
 }
 
@@ -48,7 +49,7 @@ export default function RolePills({ roleStats, pendingCount, translations }: Rol
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           <path d="M9 12l2 2 4-4"/>
         </svg>
-        System Roles
+        {translations.systemRolesLabel || "System Roles"}
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 18 }}>

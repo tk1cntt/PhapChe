@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { headers } from 'next/headers';
 
 // Valid admin roles per schema: coordinator_admin, super_admin
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -33,6 +34,7 @@ async function requireAdminSession() {
   const userRoles = memberships
     .map((m) => m.role)
     .filter((r): r is string => r !== null);
+
   const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
 
   if (!hasAdminRole) {
@@ -47,8 +49,6 @@ async function requireAdminSession() {
   };
 }
 
-import { headers } from 'next/headers';
-
 export async function GET(req: NextRequest) {
   try {
     await requireAdminSession();
@@ -60,59 +60,56 @@ export async function GET(req: NextRequest) {
     const partnerId = searchParams.get('partnerId');
     const search = searchParams.get('search');
 
+    // Build base where clause
     const where: Record<string, unknown> = {};
-
-    // Filter to only partner-related requests
-    const partnerFilter = {
-      OR: [
-        { assignedPartnerId: { not: null } },
-        { engagement: { partnerId: { not: null } } },
-      ],
-    };
 
     if (status) where.status = status;
     if (partnerId) where.assignedPartnerId = partnerId;
 
-    // Search by title, description, or customer name
+    // Search by title, description, or customer (createdBy) name
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
-        { customer: { name: { contains: search, mode: 'insensitive' } } },
+        { createdBy: { name: { contains: search, mode: 'insensitive' } } },
         { assignedPartner: { name: { contains: search, mode: 'insensitive' } } },
       ];
     }
 
-    const [requests, total] = await Promise.all([
-      prisma.legalRequest.findMany({
-        where: {
-          ...partnerFilter,
-          ...where,
+    // Fetch more records to filter for partner-related ones in memory
+    // SQLite doesn't handle OR with NOT NULL well
+    const fetchLimit = 200; // Fetch up to 200 to filter
+
+    const allRequests = await prisma.legalRequest.findMany({
+      where,
+      include: {
+        assignedPartner: { select: { id: true, name: true } },
+        engagement: {
+          select: {
+            partnerId: true,
+            partner: { select: { name: true } }
+          }
         },
-        include: {
-          assignedPartner: { select: { id: true, name: true } },
-          engagement: {
-            select: {
-              partnerId: true,
-              partner: { select: { name: true } }
-            }
-          },
-          customer: { select: { id: true, name: true, email: true } },
-        },
-        orderBy: { updatedAt: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      prisma.legalRequest.count({
-        where: {
-          ...partnerFilter,
-          ...where,
-        },
-      }),
-    ]);
+        createdBy: { select: { id: true, name: true, email: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: fetchLimit,
+    });
+
+    // Filter in-memory for partner-related requests
+    const partnerRequests = allRequests.filter(
+      (r) => r.assignedPartnerId || r.engagement?.partnerId
+    );
+
+    // Apply pagination
+    const total = partnerRequests.length;
+    const paginatedRequests = partnerRequests.slice(
+      (page - 1) * limit,
+      page * limit
+    );
 
     return NextResponse.json({
-      data: requests,
+      data: paginatedRequests,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (error: any) {
@@ -120,9 +117,9 @@ export async function GET(req: NextRequest) {
     if (error?.status) {
       return NextResponse.json({ error: error.error }, { status: error.status });
     }
-    console.error('Error fetching partner requests:', error);
+    console.error('Admin partner requests error:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'Internal Server Error', detail: error?.message },
       { status: 500 }
     );
   }

@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { Building2 } from 'lucide-react';
+import './organization-detail.css';
 
 interface Organization {
   id: string;
@@ -25,6 +27,30 @@ interface Organization {
 
 interface ApiResponse {
   data: Organization;
+}
+
+const badgeStyles: Record<string, { bg: string; color: string; dot: string }> = {
+  active: { bg: '#ccfbf1', color: '#0f766e', dot: '#10b981' },
+  inactive: { bg: '#f1f5f9', color: '#64748b', dot: '#64748b' },
+  pending: { bg: '#ffedd5', color: '#ea580c', dot: '#f97316' },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const style = badgeStyles[status] || badgeStyles.inactive;
+  const labels: Record<string, string> = {
+    active: 'Active',
+    inactive: 'Inactive',
+    pending: 'Pending',
+  };
+  return (
+    <span
+      className="status-badge"
+      style={{ background: style.bg, color: style.color }}
+    >
+      <span className="status-dot" style={{ background: style.dot }} />
+      {labels[status] || status}
+    </span>
+  );
 }
 
 export default function AdminOrganizationDetailPage() {
@@ -142,39 +168,25 @@ export default function AdminOrganizationDetailPage() {
     }
   };
 
-  const getStatusColor = (status: string): string => {
-    const colors: Record<string, string> = {
-      active: 'bg-green-100 text-green-800',
-      inactive: 'bg-gray-100 text-gray-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-    };
-    return colors[status] ?? 'bg-gray-100 text-gray-800';
-  };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-[#64748b]">{tCommon('loading')}</div>
+      <div className="detail-loading">
+        <div className="loading-text">{tCommon('loading')}</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-white border rounded-[15px] p-8">
-        <div className="flex items-center gap-3 text-red-600">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="detail-error">
+        <div className="error-icon">
+          <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <div>
-            <strong className="block">{tCommon('error')}</strong>
-            <span className="text-sm text-red-500">{error}</span>
-          </div>
         </div>
-        <button
-          onClick={() => fetchData()}
-          className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
-        >
+        <div className="error-title">{tCommon('error')}</div>
+        <div className="error-message">{error}</div>
+        <button onClick={() => fetchData()} className="btn-retry">
           {t('retry')}
         </button>
       </div>
@@ -186,13 +198,13 @@ export default function AdminOrganizationDetailPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6">
+      <div className="detail-header">
         <button
           onClick={() => {
             const locale = window.location.pathname.split('/')[1] || 'vi';
             router.push(`/${locale}/admin/organizations`);
           }}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4"
+          className="back-link"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -200,23 +212,23 @@ export default function AdminOrganizationDetailPage() {
           {t('back')}
         </button>
 
-        <div className="flex justify-between items-start">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-teal-100 flex items-center justify-center">
-              <span className="text-teal-700 font-bold text-xl">
-                {organization.name.charAt(0).toUpperCase()}
-              </span>
+        <div className="detail-header-content">
+          <div className="org-info">
+            <div className="org-avatar">
+              <Building2 size={28} color="#0f766e" />
             </div>
-            <div>
-              <h1 style={{ fontSize: 28, fontWeight: 700, color: '#020617', marginBottom: 4 }}>
-                {organization.name}
-              </h1>
-              <div className="flex items-center gap-2">
-                <span className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusColor(organization.status)}`}>
-                  {organization.status}
-                </span>
+            <div className="org-details">
+              <h1>{organization.name}</h1>
+              <div className="org-badges">
+                <StatusBadge status={organization.status} />
                 {organization.isDefault && (
-                  <span className="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800">
+                  <span
+                    className="default-badge"
+                    style={{
+                      background: '#ccfbf1',
+                      color: '#0f766e',
+                    }}
+                  >
                     {t('default')}
                   </span>
                 )}
@@ -225,19 +237,19 @@ export default function AdminOrganizationDetailPage() {
           </div>
 
           {!organization.isDefault && (
-            <div className="flex gap-2">
+            <div className="detail-actions">
               {!isEditing ? (
                 <>
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
+                  <button onClick={() => setIsEditing(true)} className="btn-edit">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
                     {t('edit')}
                   </button>
-                  <button
-                    onClick={handleDelete}
-                    className="px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-                  >
+                  <button onClick={handleDelete} className="btn-delete">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                     {t('delete')}
                   </button>
                 </>
@@ -255,14 +267,14 @@ export default function AdminOrganizationDetailPage() {
                         status: organization.status,
                       });
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="btn-edit"
                   >
                     {t('cancel')}
                   </button>
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors disabled:opacity-50"
+                    className="btn-save"
                   >
                     {saving ? tCommon('saving') : t('save')}
                   </button>
@@ -274,56 +286,63 @@ export default function AdminOrganizationDetailPage() {
       </div>
 
       {/* Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="detail-content">
         {/* Main Info */}
-        <div className="lg:col-span-2">
-          <div className="bg-white border rounded-[15px] p-6" style={{ borderColor: '#dfe7f1', boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)' }}>
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">{t('organizationInfo')}</h2>
+        <div>
+          <div className="detail-card">
+            <h2>{t('organizationInfo')}</h2>
 
             {isEditing ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('formName')}</label>
+              <div className="edit-form">
+                <div className="form-field">
+                  <label>{t('formName')} *</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('formBusinessType')}</label>
+                <div className="form-field">
+                  <label>{t('formBusinessType')}</label>
                   <input
                     type="text"
                     value={formData.businessType}
                     onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    placeholder={t('formBusinessTypePlaceholder')}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('formContactEmail')}</label>
+                <div className="form-field">
+                  <label>{t('formRegistrationNumber')}</label>
+                  <input
+                    type="text"
+                    value={formData.registrationNumber}
+                    onChange={(e) => setFormData({ ...formData, registrationNumber: e.target.value })}
+                    placeholder={t('formRegistrationNumberPlaceholder')}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>{t('formContactEmail')}</label>
                   <input
                     type="email"
                     value={formData.contactEmail}
                     onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    placeholder={t('formContactEmailPlaceholder')}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('formAddress')}</label>
+                <div className="form-field">
+                  <label>{t('formAddress')}</label>
                   <input
                     type="text"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    placeholder={t('formAddressPlaceholder')}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('formStatus')}</label>
+                <div className="form-field">
+                  <label>{t('formStatus')}</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
                     <option value="active">{t('statusActive')}</option>
                     <option value="inactive">{t('statusInactive')}</option>
@@ -331,28 +350,26 @@ export default function AdminOrganizationDetailPage() {
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-sm text-gray-500">{t('formName')}</div>
-                    <div className="text-sm font-medium text-gray-900">{organization.name}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">{t('formBusinessType')}</div>
-                    <div className="text-sm font-medium text-gray-900">{organization.businessType || '-'}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">{t('formContactEmail')}</div>
-                    <div className="text-sm font-medium text-gray-900">{organization.contactEmail || '-'}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">{t('formAddress')}</div>
-                    <div className="text-sm font-medium text-gray-900">{organization.address || '-'}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">{t('formRegistrationNumber')}</div>
-                    <div className="text-sm font-medium text-gray-900">{organization.registrationNumber || '-'}</div>
-                  </div>
+              <div className="info-grid">
+                <div className="info-item">
+                  <div className="info-label">{t('formName')}</div>
+                  <div className="info-value">{organization.name}</div>
+                </div>
+                <div className="info-item">
+                  <div className="info-label">{t('formBusinessType')}</div>
+                  <div className="info-value">{organization.businessType || '—'}</div>
+                </div>
+                <div className="info-item">
+                  <div className="info-label">{t('formContactEmail')}</div>
+                  <div className="info-value">{organization.contactEmail || '—'}</div>
+                </div>
+                <div className="info-item">
+                  <div className="info-label">{t('formAddress')}</div>
+                  <div className="info-value">{organization.address || '—'}</div>
+                </div>
+                <div className="info-item">
+                  <div className="info-label">{t('formRegistrationNumber')}</div>
+                  <div className="info-value">{organization.registrationNumber || '—'}</div>
                 </div>
               </div>
             )}
@@ -360,33 +377,38 @@ export default function AdminOrganizationDetailPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="sidebar">
           {/* Stats */}
-          <div className="bg-white border rounded-[15px] p-6" style={{ borderColor: '#dfe7f1', boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)' }}>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('statistics')}</h2>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-gray-500">{t('workspaces')}</div>
-                <div className="text-lg font-semibold text-gray-900">{organization._count?.workspaces || 0}</div>
+          <div className="detail-card">
+            <h2>{t('statistics')}</h2>
+            <div>
+              <div className="stat-item">
+                <div className="stat-label">{t('workspaces')}</div>
+                <div className="stat-value">{organization._count?.workspaces || 0}</div>
               </div>
             </div>
           </div>
 
           {/* Workspaces List */}
           {organization.workspaces && organization.workspaces.length > 0 && (
-            <div className="bg-white border rounded-[15px] p-6" style={{ borderColor: '#dfe7f1', boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)' }}>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('recentWorkspaces')}</h2>
-              <div className="space-y-3">
+            <div className="detail-card">
+              <h2>{t('recentWorkspaces')}</h2>
+              <div className="workspace-list">
                 {organization.workspaces.slice(0, 5).map((ws) => (
-                  <div key={ws.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-blue-700 font-semibold text-xs">
-                        {ws.name.charAt(0).toUpperCase()}
-                      </span>
+                  <div
+                    key={ws.id}
+                    className="workspace-item"
+                    onClick={() => {
+                      const locale = window.location.pathname.split('/')[1] || 'vi';
+                      router.push(`/${locale}/admin/workspaces/${ws.id}`);
+                    }}
+                  >
+                    <div className="workspace-avatar">
+                      <span>{ws.name.charAt(0).toUpperCase()}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-gray-900 truncate">{ws.name}</div>
-                      <div className="text-xs text-gray-500">{ws.slug}</div>
+                    <div className="workspace-info">
+                      <div className="workspace-name">{ws.name}</div>
+                      <div className="workspace-slug">{ws.slug}</div>
                     </div>
                   </div>
                 ))}
@@ -395,16 +417,16 @@ export default function AdminOrganizationDetailPage() {
           )}
 
           {/* Metadata */}
-          <div className="bg-white border rounded-[15px] p-6" style={{ borderColor: '#dfe7f1', boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)' }}>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('metadata')}</h2>
-            <div className="space-y-3 text-sm">
-              <div>
-                <div className="text-gray-500">{t('createdAt')}</div>
-                <div className="text-gray-900">{new Date(organization.createdAt).toLocaleString()}</div>
+          <div className="detail-card">
+            <h2>{t('metadata')}</h2>
+            <div className="metadata-list">
+              <div className="metadata-item">
+                <div className="metadata-label">{t('createdAt')}</div>
+                <div className="metadata-value">{new Date(organization.createdAt).toLocaleString()}</div>
               </div>
-              <div>
-                <div className="text-gray-500">{t('updatedAt')}</div>
-                <div className="text-gray-900">{new Date(organization.updatedAt).toLocaleString()}</div>
+              <div className="metadata-item">
+                <div className="metadata-label">{t('updatedAt')}</div>
+                <div className="metadata-value">{new Date(organization.updatedAt).toLocaleString()}</div>
               </div>
             </div>
           </div>

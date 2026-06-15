@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, usePathname } from 'next/navigation';
 import './partner-activity-client.css';
 
 interface PartnerStats {
@@ -126,7 +126,14 @@ function getInitials(name: string): string {
 export default function PartnerActivityClient() {
   const params = useParams();
   const router = useRouter();
+  const pathname = usePathname();
   const partnerId = params.id as string;
+
+  const getLocale = () => pathname.split('/')[1] || 'vi';
+
+  const navigateToRequest = (requestId: string) => {
+    router.push(`/${getLocale()}/admin/requests/${requestId}`);
+  };
 
   const [partner, setPartner] = useState<Partner | null>(null);
   const [loading, setLoading] = useState(true);
@@ -186,7 +193,7 @@ export default function PartnerActivityClient() {
       <div className="partner-activity">
         {/* Topbar */}
         <div className="topbar">
-          <button className="back-link" onClick={() => router.push('/vi/admin/partner')}>
+          <button className="back-link" onClick={() => router.push(`/${getLocale()}/admin/partner`)}>
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -362,7 +369,7 @@ export default function PartnerActivityClient() {
                   </thead>
                   <tbody>
                     {partner.recentRequests?.slice(0, 10).map((req) => (
-                      <tr key={req.id}>
+                      <tr key={req.id} onClick={() => navigateToRequest(req.id)} style={{ cursor: 'pointer' }}>
                         <td>
                           <div className="stack">
                             <strong>{req.code}</strong>

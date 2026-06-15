@@ -1,6 +1,7 @@
 /**
  * Partner Data Seed Script
  * Seeds: Partner Members, Engagements, Service Scopes, Legal Requests assigned to partners
+ * Data matches the mock UI in layout/admin-partner-activity.html
  */
 
 import { prisma } from '../src/lib/prisma';
@@ -63,43 +64,54 @@ async function seedEngagements() {
 
   // Get existing partners and organizations
   const partners = await prisma.partner.findMany();
-  const organizations = await prisma.organization.findMany({
+  let organizations = await prisma.organization.findMany({
+    where: { status: 'active' },
+    take: 10,
+  });
+
+  // Create organizations matching mock UI
+  const sampleOrgs = [
+    { name: 'Green Agriculture JSC', businessType: 'Agriculture', address: '123 Dien Bien Phu, Ba Dinh, Hanoi' },
+    { name: 'Cong Ty An Phat', businessType: 'Manufacturing', address: '456 Nguyen Trai, Thanh Xuan, Hanoi' },
+    { name: 'Nam Viet Foods', businessType: 'Food & Beverage', address: '789 Le Lai, District 1, HCMC' },
+    { name: 'Minh Khang Trading', businessType: 'Trading', address: '321 Tran Hung Dao, District 5, HCMC' },
+    { name: 'Tech Solutions Corp', businessType: 'Technology', address: '555 Nguyen Hue, District 1, HCMC' },
+    { name: 'Global Services JSC', businessType: 'Services', address: '888 Dong Khoi, District 1, HCMC' },
+  ];
+
+  const tenant = await prisma.tenant.findFirst();
+  if (!tenant) {
+    console.log('  No tenant found, skipping organization creation');
+    return { organizations: [] };
+  }
+
+  // Create or get organizations
+  for (const org of sampleOrgs) {
+    let existing = organizations.find(o => o.name === org.name);
+    if (!existing) {
+      existing = await prisma.organization.upsert({
+        where: { id: `org-${org.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')}` },
+        update: {},
+        create: {
+          id: `org-${org.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')}`,
+          tenantId: tenant.id,
+          name: org.name,
+          businessType: org.businessType,
+          address: org.address,
+          status: 'active',
+        },
+      });
+      console.log(`  Created org: ${org.name}`);
+    }
+  }
+
+  organizations = await prisma.organization.findMany({
     where: { status: 'active' },
     take: 10,
   });
 
   // Get service types
   const serviceTypes = await prisma.serviceType.findMany({ where: { isActive: true } });
-
-  if (organizations.length === 0) {
-    console.log('  No organizations found, creating sample ones...');
-
-    // Create sample organizations
-    const sampleOrgs = [
-      { name: 'Cong Ty TNHH Tech Solutions', businessType: 'Technology', address: '123 Nguyen Hue, District 1, HCMC' },
-      { name: 'Cong Ty CP ABC Group', businessType: 'Manufacturing', address: '456 Le Duan, District 3, HCMC' },
-      { name: 'Cong Ty TNHH XYZ Trading', businessType: 'Trading', address: '789 Dien Bien Phu, Binh Thanh, HCMC' },
-      { name: 'Cong Ty TNHH ABC Food', businessType: 'Food & Beverage', address: '321 Vo Thi Sau, District 3, HCMC' },
-      { name: 'Cong Ty CP Global Services', businessType: 'Services', address: '654 Cach Mang Thang Tam, District 10, HCMC' },
-    ];
-
-    for (const org of sampleOrgs) {
-      const tenant = await prisma.tenant.findFirst();
-      if (tenant) {
-        const created = await prisma.organization.create({
-          data: {
-            tenantId: tenant.id,
-            name: org.name,
-            businessType: org.businessType,
-            address: org.address,
-            status: 'active',
-          },
-        });
-        organizations.push(created);
-        console.log(`  Created org: ${org.name}`);
-      }
-    }
-  }
 
   // Create engagements for each partner with organizations
   let engagementCount = 0;
@@ -118,7 +130,7 @@ async function seedEngagements() {
           partnerId: partner.id,
           organizationId: org.id,
           status: 'active',
-          startDate: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000), // Random date in past year
+          startDate: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000),
         },
       });
 
@@ -157,33 +169,91 @@ async function seedPartnerRequests() {
   // Get some users for createdBy
   const customerUser = await prisma.user.findFirst({ where: { email: { contains: 'customer' } } });
   if (!customerUser) {
-    console.log('  No customer user found, skipping request creation');
-    return;
+    console.log('  Creating sample customer user...');
+    await ensureUser('customer@demo.test', 'Customer Demo User');
   }
 
-  const requestTemplates = [
-    { title: 'Review Labor Contract', matterType: 'labor_contract', priority: 'high' },
-    { title: 'Trademark Registration Application', matterType: 'trademark_registration', priority: 'medium' },
-    { title: 'Company Formation Documents', matterType: 'company_formation', priority: 'high' },
-    { title: 'Compliance Audit Request', matterType: 'compliance_review', priority: 'low' },
-    { title: 'Contract Negotiation Support', matterType: 'contract_negotiation', priority: 'medium' },
-    { title: 'Employment Policy Review', matterType: 'labor_contract', priority: 'medium' },
-    { title: 'NDA Review and Execution', matterType: 'contract_negotiation', priority: 'high' },
-    { title: 'Business License Renewal', matterType: 'company_formation', priority: 'low' },
+  const requestsData = [
+    // REQ-2026-088 - SLA Risk (matching mock UI)
+    {
+      code: 'REQ-2026-088',
+      title: 'GREENFARM ORGANIC',
+      matterType: 'trademark_registration',
+      status: 'in_progress',
+      priority: 'high',
+      slaHours: 17,
+      orgName: 'Green Agriculture JSC',
+      workspaceName: 'Demo Legal Workspace',
+    },
+    // REQ-2026-083 - Pending Review
+    {
+      code: 'REQ-2026-083',
+      title: 'Hop dong phan phoi',
+      matterType: 'contract_review',
+      status: 'pending_review',
+      priority: 'high',
+      slaHours: 48,
+      orgName: 'Cong Ty An Phat',
+      workspaceName: 'an-phat workspace',
+    },
+    // REQ-2026-071 - In Progress with SLA risk
+    {
+      code: 'REQ-2026-071',
+      title: 'Tu van nganh nghe',
+      matterType: 'corporate_advisory',
+      status: 'in_progress',
+      priority: 'medium',
+      slaHours: 8,
+      orgName: 'Nam Viet Foods',
+      workspaceName: 'nam-viet workspace',
+    },
+    // REQ-2026-064 - Completed
+    {
+      code: 'REQ-2026-064',
+      title: 'NDA vendor logistics',
+      matterType: 'contract_review',
+      status: 'delivered',
+      priority: 'medium',
+      slaHours: 72,
+      orgName: 'Minh Khang Trading',
+      workspaceName: 'minh-khang workspace',
+    },
+    // Additional requests for variety
+    {
+      code: 'REQ-2026-055',
+      title: 'Dang ky nhan hieu moi',
+      matterType: 'trademark_registration',
+      status: 'in_progress',
+      priority: 'high',
+      slaHours: 36,
+      orgName: 'Green Agriculture JSC',
+      workspaceName: 'green-ip workspace',
+    },
+    {
+      code: 'REQ-2026-048',
+      title: 'Hop dong lao dong',
+      matterType: 'labor_contract',
+      status: 'assigned',
+      priority: 'medium',
+      slaHours: 24,
+      orgName: 'Tech Solutions Corp',
+      workspaceName: 'tech-solutions workspace',
+    },
   ];
-
-  const statuses = ['assigned', 'in_progress', 'pending_review', 'approved', 'delivered'];
 
   let requestCount = 0;
   for (const partner of partners) {
     if (partner.engagements.length === 0) continue;
 
-    // Each partner gets 3-6 requests
-    const requestCountForPartner = Math.floor(Math.random() * 4) + 3;
+    // Create requests with specific data first
+    for (let i = 0; i < Math.min(requestsData.length, partner.engagements.length * 2); i++) {
+      const reqData = requestsData[i % requestsData.length];
 
-    for (let i = 0; i < requestCountForPartner; i++) {
-      const template = requestTemplates[i % requestTemplates.length];
-      const engagement = partner.engagements[Math.floor(Math.random() * partner.engagements.length)];
+      // Find matching organization
+      const engagement = partner.engagements.find(e => e.organization?.name === reqData.orgName)
+        || partner.engagements[0];
+
+      if (!engagement) continue;
 
       // Get workspace from organization
       const org = await prisma.organization.findUnique({
@@ -191,29 +261,32 @@ async function seedPartnerRequests() {
         include: { workspaces: { take: 1 } },
       });
 
-      const workspace = org?.workspaces[0];
+      const workspace = org?.workspaces[0] || await prisma.workspace.findFirst({ where: { organizationId: org.id } });
       if (!workspace) continue;
-
-      const status = statuses[Math.floor(Math.random() * statuses.length)];
-      const slaDays = Math.floor(Math.random() * 14) + 1;
 
       const request = await prisma.legalRequest.upsert({
         where: { id: `partner-req-${partner.slug}-${String(i + 1).padStart(2, '0')}` },
         update: {
+          code: reqData.code,
+          workspaceId: workspace.id,
+          title: reqData.title,
+          matterType: reqData.matterType,
+          status: reqData.status,
+          priority: reqData.priority,
+          slaDeadline: new Date(Date.now() + reqData.slaHours * 60 * 60 * 1000),
           assignedPartnerId: partner.id,
           engagementId: engagement.id,
-          status,
-          priority: template.priority,
         },
         create: {
           id: `partner-req-${partner.slug}-${String(i + 1).padStart(2, '0')}`,
+          code: reqData.code,
           workspaceId: workspace.id,
-          title: template.title,
-          matterType: template.matterType,
-          status,
-          priority: template.priority,
-          slaDeadline: new Date(Date.now() + slaDays * 24 * 60 * 60 * 1000),
-          createdById: customerUser.id,
+          title: reqData.title,
+          matterType: reqData.matterType,
+          status: reqData.status,
+          priority: reqData.priority,
+          slaDeadline: new Date(Date.now() + reqData.slaHours * 60 * 60 * 1000),
+          createdById: customerUser?.id || (await prisma.user.findFirst())?.id,
           assignedPartnerId: partner.id,
           engagementId: engagement.id,
         },
@@ -221,7 +294,7 @@ async function seedPartnerRequests() {
 
       requestCount++;
     }
-    console.log(`  ✓ ${partner.name}: ${requestCountForPartner} requests`);
+    console.log(`  ✓ ${partner.name}: ${Math.min(requestsData.length, partner.engagements.length * 2)} requests`);
   }
 
   console.log(`  Total requests created: ${requestCount}`);
@@ -234,7 +307,7 @@ async function seedAuditEvents() {
   const requests = await prisma.legalRequest.findMany({
     where: { assignedPartnerId: { not: null } },
     take: 20,
-    include: { workspace: true },
+    include: { workspace: true, engagement: { include: { organization: true } } },
   });
 
   if (requests.length === 0) {
@@ -246,63 +319,129 @@ async function seedAuditEvents() {
     where: { email: { contains: 'admin' } },
   });
 
-  const actions = [
-    'Request assigned to partner',
-    'Request status changed to in_progress',
-    'Document uploaded',
-    'Review requested',
-    'Request approved',
-    'SLA warning triggered',
-    'Comment added',
-    'Document delivered to customer',
+  // Audit events matching mock UI
+  const auditEventsData = [
+    {
+      action: 'SLA risk: Request approaching deadline',
+      targetType: 'request',
+      hoursAgo: 0.25, // 14 minutes
+      requestCode: 'REQ-2026-088',
+      requestTitle: 'GREENFARM ORGANIC',
+      orgName: 'Green Agriculture JSC',
+      workspaceName: 'Demo Legal Workspace',
+      extra: 'Partner chua phan hoi yeu cau xac nhan nhom Nice',
+    },
+    {
+      action: 'Partner upload document',
+      targetType: 'vault_file',
+      hoursAgo: 1,
+      requestCode: 'REQ-2026-088',
+      requestTitle: 'GREENFARM ORGANIC',
+      docName: 'ket-qua-tra-cuu-so-bo.pdf',
+      docSize: '2.1 MB',
+      docType: 'Uploaded',
+    },
+    {
+      action: 'Partner user commented',
+      targetType: 'request',
+      hoursAgo: 2,
+      requestCode: 'REQ-2026-088',
+      requestTitle: 'GREENFARM ORGANIC',
+      userName: 'Le Thu Ha',
+      orgName: 'Green Agriculture JSC',
+      extra: 'Yeu cau khach hang xac nhan danh muc san pham',
+    },
+    {
+      action: 'Request status changed to pending_review',
+      targetType: 'request',
+      hoursAgo: 4,
+      requestCode: 'REQ-2026-083',
+      requestTitle: 'Hop dong phan phoi',
+      orgName: 'Cong Ty An Phat',
+      workspaceName: 'an-phat workspace',
+      extra: 'Ra soat hop dong phan phoi da hoan thanh',
+    },
+    {
+      action: 'Partner added to workspace',
+      targetType: 'workspace',
+      hoursAgo: 24, // Yesterday
+      orgName: 'Nam Viet Foods',
+      workspaceName: 'nam-viet workspace',
+      extra: 'Coordinator Admin cap quyen xem ho so',
+    },
   ];
 
   let eventCount = 0;
-  for (const request of requests) {
-    // Create 2-4 audit events per request
-    const eventCountForRequest = Math.floor(Math.random() * 3) + 2;
+  for (const eventData of auditEventsData) {
+    const request = requests.find(r => r.code === eventData.requestCode) || requests[0];
 
-    for (let i = 0; i < eventCountForRequest; i++) {
-      const action = actions[Math.floor(Math.random() * actions.length)];
-      const hoursAgo = Math.floor(Math.random() * 72); // Within last 72 hours
-
-      await prisma.auditEvent.create({
-        data: {
-          actorId: adminUser?.id,
-          workspaceId: request.workspaceId,
-          action,
-          targetType: 'request',
-          targetId: request.id,
-          requestId: request.id,
-          metadataSummary: JSON.stringify({
-            extra: `${action} - ${request.title}`,
-            requestCode: request.code,
-          }),
-          createdAt: new Date(Date.now() - hoursAgo * 60 * 60 * 1000),
-        },
-      });
-      eventCount++;
-    }
+    await prisma.auditEvent.create({
+      data: {
+        actorId: adminUser?.id,
+        workspaceId: request?.workspaceId,
+        action: eventData.action,
+        targetType: eventData.targetType,
+        targetId: eventData.targetType === 'request' ? request?.id : `doc-${eventData.docName}`,
+        requestId: request?.id,
+        metadataSummary: JSON.stringify({
+          extra: eventData.extra || eventData.action,
+          requestCode: eventData.requestCode,
+          requestTitle: eventData.requestTitle,
+          orgName: eventData.orgName,
+          workspaceName: eventData.workspaceName,
+          userName: eventData.userName,
+          docName: eventData.docName,
+          docSize: eventData.docSize,
+          docType: eventData.docType,
+        }),
+        createdAt: new Date(Date.now() - eventData.hoursAgo * 60 * 60 * 1000),
+      },
+    });
+    eventCount++;
   }
 
   console.log(`  ✓ Created ${eventCount} audit events`);
 }
 
+async function seedUsers() {
+  console.log('Seeding additional users matching mock UI...');
+
+  // Users from mock UI
+  const users = [
+    { email: 'le.thu.ha@partner.test', name: 'Le Thu Ha', type: 'partner' },
+    { email: 'minh.trang@admin.test', name: 'Minh Trang', type: 'admin' },
+    { email: 'mai.phuong@customer.test', name: 'Mai Phuong', type: 'customer' },
+    { email: 'hai.nam@customer.test', name: 'Hai Nam', type: 'customer' },
+    { email: 'van.trang@customer.test', name: 'Van Trang', type: 'customer' },
+    { email: 'quang.dung@customer.test', name: 'Quang Dung', type: 'customer' },
+    { email: 'linh.anh@customer.test', name: 'Linh Anh', type: 'customer' },
+  ];
+
+  for (const userData of users) {
+    await ensureUser(userData.email, userData.name);
+  }
+
+  console.log(`  ✓ Created ${users.length} users`);
+}
+
 async function main() {
   console.log('');
-  console.log('=== Partner Data Seed ===');
+  console.log('=== Partner Data Seed (Mock UI Compatible) ===');
   console.log('');
 
-  // 1. Seed partner members
+  // 1. Seed additional users
+  await seedUsers();
+
+  // 2. Seed partner members
   await seedPartnerMembers();
 
-  // 2. Seed engagements
+  // 3. Seed engagements with organizations
   await seedEngagements();
 
-  // 3. Seed legal requests assigned to partners
+  // 4. Seed legal requests assigned to partners
   await seedPartnerRequests();
 
-  // 4. Seed audit events
+  // 5. Seed audit events
   await seedAuditEvents();
 
   console.log('');
@@ -316,9 +455,11 @@ async function main() {
   const scopeCount = await prisma.engagementServiceScope.count();
   const requestCount = await prisma.legalRequest.count({ where: { assignedPartnerId: { not: null } } });
   const auditCount = await prisma.auditEvent.count();
+  const orgCount = await prisma.organization.count();
 
   console.log('Summary:');
   console.log(`  Partners: ${partnerCount}`);
+  console.log(`  Organizations: ${orgCount}`);
   console.log(`  Partner Members: ${memberCount}`);
   console.log(`  Engagements: ${engagementCount}`);
   console.log(`  Service Scopes: ${scopeCount}`);

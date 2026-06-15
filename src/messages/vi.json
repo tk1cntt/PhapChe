@@ -453,7 +453,13 @@
     "metadata": "Thông tin hệ thống",
     "createdAt": "Ngày tạo",
     "updatedAt": "Cập nhật lần cuối",
-    "deleteConfirm": "Bạn có chắc chắn muốn xóa tổ chức này?"
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa tổ chức này?",
+    "operationNotes": "Ghi chú vận hành",
+    "systemInfo": "Thông tin hệ thống",
+    "quickActions": "Thao tác nhanh",
+    "createWorkspace": "Tạo workspace",
+    "createRequest": "Tạo hồ sơ pháp lý",
+    "viewAuditLog": "Xem audit log"
   },
   "AdminOps": {
     "pageTitle": "Vận hành",

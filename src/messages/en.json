@@ -453,7 +453,13 @@
     "metadata": "System Information",
     "createdAt": "Created",
     "updatedAt": "Last Updated",
-    "deleteConfirm": "Are you sure you want to delete this organization?"
+    "deleteConfirm": "Are you sure you want to delete this organization?",
+    "operationNotes": "Operation Notes",
+    "systemInfo": "System Information",
+    "quickActions": "Quick Actions",
+    "createWorkspace": "Create Workspace",
+    "createRequest": "Create Legal Request",
+    "viewAuditLog": "View Audit Log"
   },
   "AdminOps": {
     "pageTitle": "Operations",

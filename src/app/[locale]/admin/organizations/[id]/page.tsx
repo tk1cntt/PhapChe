@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Building2 } from 'lucide-react';
+import { Building2, Building, Users, FileText, Vault } from 'lucide-react';
 import './organization-detail.css';
 
 interface Organization {
@@ -22,35 +22,13 @@ interface Organization {
   workspaces?: { id: string; name: string; slug: string }[];
   _count?: {
     workspaces: number;
+    requests?: number;
+    members?: number;
   };
 }
 
 interface ApiResponse {
   data: Organization;
-}
-
-const badgeStyles: Record<string, { bg: string; color: string; dot: string }> = {
-  active: { bg: '#ccfbf1', color: '#0f766e', dot: '#10b981' },
-  inactive: { bg: '#f1f5f9', color: '#64748b', dot: '#64748b' },
-  pending: { bg: '#ffedd5', color: '#ea580c', dot: '#f97316' },
-};
-
-function StatusBadge({ status }: { status: string }) {
-  const style = badgeStyles[status] || badgeStyles.inactive;
-  const labels: Record<string, string> = {
-    active: 'Active',
-    inactive: 'Inactive',
-    pending: 'Pending',
-  };
-  return (
-    <span
-      className="status-badge"
-      style={{ background: style.bg, color: style.color }}
-    >
-      <span className="status-dot" style={{ background: style.dot }} />
-      {labels[status] || status}
-    </span>
-  );
 }
 
 export default function AdminOrganizationDetailPage() {
@@ -168,27 +146,40 @@ export default function AdminOrganizationDetailPage() {
     }
   };
 
+  const handleCreateWorkspace = () => {
+    const locale = window.location.pathname.split('/')[1] || 'vi';
+    router.push(`/${locale}/admin/workspaces/new?organizationId=${organizationId}`);
+  };
+
   if (loading) {
     return (
-      <div className="detail-loading">
-        <div className="loading-text">{tCommon('loading')}</div>
+      <div className="content">
+        <div className="organization-detail">
+          <div className="detail-loading">
+            <div className="loading-text">{tCommon('loading')}</div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="detail-error">
-        <div className="error-icon">
-          <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+      <div className="content">
+        <div className="organization-detail">
+          <div className="detail-error">
+            <div className="error-icon">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="error-title">{tCommon('error')}</div>
+            <div className="error-message">{error}</div>
+            <button onClick={() => fetchData()} className="btn-retry">
+              {t('retry')}
+            </button>
+          </div>
         </div>
-        <div className="error-title">{tCommon('error')}</div>
-        <div className="error-message">{error}</div>
-        <button onClick={() => fetchData()} className="btn-retry">
-          {t('retry')}
-        </button>
       </div>
     );
   }
@@ -196,9 +187,9 @@ export default function AdminOrganizationDetailPage() {
   if (!organization) return null;
 
   return (
-    <div>
-      {/* Header */}
-      <div className="detail-header">
+    <div className="content">
+      <div className="organization-detail">
+        {/* Back Link */}
         <button
           onClick={() => {
             const locale = window.location.pathname.split('/')[1] || 'vi';
@@ -206,230 +197,347 @@ export default function AdminOrganizationDetailPage() {
           }}
           className="back-link"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           {t('back')}
         </button>
 
-        <div className="detail-header-content">
-          <div className="org-info">
-            <div className="org-avatar">
-              <Building2 size={28} color="#0f766e" />
-            </div>
-            <div className="org-details">
-              <h1>{organization.name}</h1>
-              <div className="org-badges">
-                <StatusBadge status={organization.status} />
-                {organization.isDefault && (
-                  <span
-                    className="default-badge"
-                    style={{
-                      background: '#ccfbf1',
-                      color: '#0f766e',
-                    }}
-                  >
-                    {t('default')}
+        {/* Hero Section */}
+        <div className="detail-hero">
+          <div className="detail-hero-inner">
+            <div className="org-info">
+              <div className="org-avatar">
+                <Building2 size={34} strokeWidth={1.5} />
+              </div>
+              <div className="org-details">
+                <div className="org-kicker">Organization profile</div>
+                <h1>{organization.name}</h1>
+                <div className="org-meta">
+                  <span className="status-badge">
+                    <span className="status-dot" />
+                    {organization.status === 'active' ? 'Active' : organization.status === 'inactive' ? 'Inactive' : 'Pending'}
                   </span>
+                  {organization.businessType && (
+                    <span className="org-chip">{organization.businessType}</span>
+                  )}
+                  {organization.registrationNumber && (
+                    <span className="org-chip">MST: {organization.registrationNumber}</span>
+                  )}
+                  {organization.address && (
+                    <span className="org-chip">{organization.address.split(',').pop()?.trim()}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {!organization.isDefault && (
+              <div className="detail-actions">
+                {!isEditing ? (
+                  <>
+                    <button onClick={() => setIsEditing(true)} className="btn-edit">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      {t('edit')}
+                    </button>
+                    <button onClick={handleDelete} className="btn-delete">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      {t('delete')}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => {
+                        setIsEditing(false);
+                        setFormData({
+                          name: organization.name,
+                          registrationNumber: organization.registrationNumber || '',
+                          businessType: organization.businessType || '',
+                          contactEmail: organization.contactEmail || '',
+                          address: organization.address || '',
+                          status: organization.status,
+                        });
+                      }}
+                      className="btn-edit"
+                    >
+                      {t('cancel')}
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="btn-save"
+                      style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.28)' }}
+                    >
+                      {saving ? tCommon('saving') : t('save')}
+                    </button>
+                  </>
                 )}
-              </div>
-            </div>
-          </div>
-
-          {!organization.isDefault && (
-            <div className="detail-actions">
-              {!isEditing ? (
-                <>
-                  <button onClick={() => setIsEditing(true)} className="btn-edit">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    {t('edit')}
-                  </button>
-                  <button onClick={handleDelete} className="btn-delete">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    {t('delete')}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => {
-                      setIsEditing(false);
-                      setFormData({
-                        name: organization.name,
-                        registrationNumber: organization.registrationNumber || '',
-                        businessType: organization.businessType || '',
-                        contactEmail: organization.contactEmail || '',
-                        address: organization.address || '',
-                        status: organization.status,
-                      });
-                    }}
-                    className="btn-edit"
-                  >
-                    {t('cancel')}
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="btn-save"
-                  >
-                    {saving ? tCommon('saving') : t('save')}
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="detail-content">
-        {/* Main Info */}
-        <div>
-          <div className="detail-card">
-            <h2>{t('organizationInfo')}</h2>
-
-            {isEditing ? (
-              <div className="edit-form">
-                <div className="form-field">
-                  <label>{t('formName')} *</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-                <div className="form-field">
-                  <label>{t('formBusinessType')}</label>
-                  <input
-                    type="text"
-                    value={formData.businessType}
-                    onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
-                    placeholder={t('formBusinessTypePlaceholder')}
-                  />
-                </div>
-                <div className="form-field">
-                  <label>{t('formRegistrationNumber')}</label>
-                  <input
-                    type="text"
-                    value={formData.registrationNumber}
-                    onChange={(e) => setFormData({ ...formData, registrationNumber: e.target.value })}
-                    placeholder={t('formRegistrationNumberPlaceholder')}
-                  />
-                </div>
-                <div className="form-field">
-                  <label>{t('formContactEmail')}</label>
-                  <input
-                    type="email"
-                    value={formData.contactEmail}
-                    onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-                    placeholder={t('formContactEmailPlaceholder')}
-                  />
-                </div>
-                <div className="form-field">
-                  <label>{t('formAddress')}</label>
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder={t('formAddressPlaceholder')}
-                  />
-                </div>
-                <div className="form-field">
-                  <label>{t('formStatus')}</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  >
-                    <option value="active">{t('statusActive')}</option>
-                    <option value="inactive">{t('statusInactive')}</option>
-                  </select>
-                </div>
-              </div>
-            ) : (
-              <div className="info-grid">
-                <div className="info-item">
-                  <div className="info-label">{t('formName')}</div>
-                  <div className="info-value">{organization.name}</div>
-                </div>
-                <div className="info-item">
-                  <div className="info-label">{t('formBusinessType')}</div>
-                  <div className="info-value">{organization.businessType || '—'}</div>
-                </div>
-                <div className="info-item">
-                  <div className="info-label">{t('formContactEmail')}</div>
-                  <div className="info-value">{organization.contactEmail || '—'}</div>
-                </div>
-                <div className="info-item">
-                  <div className="info-label">{t('formAddress')}</div>
-                  <div className="info-value">{organization.address || '—'}</div>
-                </div>
-                <div className="info-item">
-                  <div className="info-label">{t('formRegistrationNumber')}</div>
-                  <div className="info-value">{organization.registrationNumber || '—'}</div>
-                </div>
               </div>
             )}
           </div>
+
+          {/* Hero Stats Row */}
+          <div className="hero-stat-row">
+            <div className="hero-stat">
+              <span>Workspaces</span>
+              <strong>{organization._count?.workspaces || 0}</strong>
+            </div>
+            <div className="hero-stat">
+              <span>Legal Requests</span>
+              <strong>{organization._count?.requests || 0}</strong>
+            </div>
+            <div className="hero-stat">
+              <span>Vault Files</span>
+              <strong>0</strong>
+            </div>
+            <div className="hero-stat">
+              <span>Status</span>
+              <strong>{organization.status === 'active' ? 'Active' : organization.status === 'inactive' ? 'Inactive' : 'Pending'}</strong>
+            </div>
+          </div>
         </div>
 
-        {/* Sidebar */}
-        <div className="sidebar">
-          {/* Stats */}
-          <div className="detail-card">
-            <h2>{t('statistics')}</h2>
-            <div>
-              <div className="stat-item">
-                <div className="stat-label">{t('workspaces')}</div>
-                <div className="stat-value">{organization._count?.workspaces || 0}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Workspaces List */}
-          {organization.workspaces && organization.workspaces.length > 0 && (
+        {/* Detail Layout */}
+        <div className="detail-layout">
+          {/* Main Content */}
+          <div className="detail-main">
+            {/* Organization Info Card */}
             <div className="detail-card">
-              <h2>{t('recentWorkspaces')}</h2>
-              <div className="workspace-list">
-                {organization.workspaces.slice(0, 5).map((ws) => (
-                  <div
-                    key={ws.id}
-                    className="workspace-item"
-                    onClick={() => {
-                      const locale = window.location.pathname.split('/')[1] || 'vi';
-                      router.push(`/${locale}/admin/workspaces/${ws.id}`);
-                    }}
-                  >
-                    <div className="workspace-avatar">
-                      <span>{ws.name.charAt(0).toUpperCase()}</span>
+              <div className="detail-card-header">
+                <div>
+                  <h2>{t('organizationInfo')}</h2>
+                  <div className="card-subtitle">Thông tin pháp lý và liên hệ chính của tổ chức.</div>
+                </div>
+                <div className="card-icon">
+                  <Building size={21} />
+                </div>
+              </div>
+              <div className="detail-card-body">
+                {isEditing ? (
+                  <div className="edit-form">
+                    <div className="form-field">
+                      <label>{t('formName')} *</label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      />
                     </div>
-                    <div className="workspace-info">
-                      <div className="workspace-name">{ws.name}</div>
-                      <div className="workspace-slug">{ws.slug}</div>
+                    <div className="form-field">
+                      <label>{t('formBusinessType')}</label>
+                      <input
+                        type="text"
+                        value={formData.businessType}
+                        onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
+                        placeholder={t('formBusinessTypePlaceholder')}
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label>{t('formRegistrationNumber')}</label>
+                      <input
+                        type="text"
+                        value={formData.registrationNumber}
+                        onChange={(e) => setFormData({ ...formData, registrationNumber: e.target.value })}
+                        placeholder={t('formRegistrationNumberPlaceholder')}
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label>{t('formContactEmail')}</label>
+                      <input
+                        type="email"
+                        value={formData.contactEmail}
+                        onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                        placeholder={t('formContactEmailPlaceholder')}
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label>{t('formAddress')}</label>
+                      <input
+                        type="text"
+                        value={formData.address}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        placeholder={t('formAddressPlaceholder')}
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label>{t('formStatus')}</label>
+                      <select
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                      >
+                        <option value="active">{t('statusActive')}</option>
+                        <option value="inactive">{t('statusInactive')}</option>
+                      </select>
+                    </div>
+                    <div className="form-actions">
+                      <button
+                        onClick={() => {
+                          setIsEditing(false);
+                          setFormData({
+                            name: organization.name,
+                            registrationNumber: organization.registrationNumber || '',
+                            businessType: organization.businessType || '',
+                            contactEmail: organization.contactEmail || '',
+                            address: organization.address || '',
+                            status: organization.status,
+                          });
+                        }}
+                        className="btn-cancel"
+                      >
+                        {t('cancel')}
+                      </button>
+                      <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="btn-save"
+                      >
+                        {saving ? tCommon('saving') : t('save')}
+                      </button>
                     </div>
                   </div>
-                ))}
+                ) : (
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <div className="info-label">Tên tổ chức</div>
+                      <div className="info-value">{organization.name}</div>
+                    </div>
+                    <div className="info-item">
+                      <div className="info-label">Loại hình doanh nghiệp</div>
+                      <div className="info-value">{organization.businessType || '—'}</div>
+                    </div>
+                    <div className="info-item">
+                      <div className="info-label">Email liên hệ</div>
+                      <div className="info-value">{organization.contactEmail || '—'}</div>
+                    </div>
+                    <div className="info-item">
+                      <div className="info-label">Mã số ĐKKD</div>
+                      <div className="info-value">{organization.registrationNumber || '—'}</div>
+                    </div>
+                    <div className="info-item full-width">
+                      <div className="info-label">Địa chỉ</div>
+                      <div className="info-value">{organization.address || '—'}</div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
 
-          {/* Metadata */}
-          <div className="detail-card">
-            <h2>{t('metadata')}</h2>
-            <div className="metadata-list">
-              <div className="metadata-item">
-                <div className="metadata-label">{t('createdAt')}</div>
-                <div className="metadata-value">{new Date(organization.createdAt).toLocaleString()}</div>
+            {/* Operation Notes Card */}
+            <div className="detail-card">
+              <div className="detail-card-header">
+                <div>
+                  <h2>{t('operationNotes') || 'Ghi chú vận hành'}</h2>
+                  <div className="card-subtitle">Dùng để theo dõi ngữ cảnh khách hàng trong quá trình tạo workspace và hồ sơ.</div>
+                </div>
+                <div className="card-icon">
+                  <FileText size={21} />
+                </div>
               </div>
-              <div className="metadata-item">
-                <div className="metadata-label">{t('updatedAt')}</div>
-                <div className="metadata-value">{new Date(organization.updatedAt).toLocaleString()}</div>
+              <div className="detail-card-body">
+                <div className="info-grid">
+                  <div className="info-item">
+                    <div className="info-label">Ngành nghề</div>
+                    <div className="info-value">{organization.businessType || '—'}</div>
+                  </div>
+                  <div className="info-item">
+                    <div className="info-label">Rủi ro thường gặp</div>
+                    <div className="info-value">—</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Sidebar */}
+          <aside className="sidebar-detail">
+            {/* Stats Panel */}
+            <div className="detail-card stat-panel">
+              <div className="detail-card-header" style={{ padding: '0 0 18px', borderBottom: 'none' }}>
+                <div>
+                  <h2>{t('statistics') || 'Thống kê'}</h2>
+                  <div className="card-subtitle">Tổng quan tài nguyên liên quan.</div>
+                </div>
+              </div>
+              <div className="stat-list">
+                <div className="stat-item">
+                  <div className="stat-label">workspaces</div>
+                  <div className="stat-value">{organization._count?.workspaces || 0}</div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-label">requests</div>
+                  <div className="stat-value">{organization._count?.requests || 0}</div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-label">members</div>
+                  <div className="stat-value">{organization._count?.members || 0}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* System Info Panel */}
+            <div className="detail-card stat-panel">
+              <div className="detail-card-header" style={{ padding: '0 0 18px', borderBottom: 'none' }}>
+                <div>
+                  <h2>{t('systemInfo') || 'Thông tin hệ thống'}</h2>
+                  <div className="card-subtitle">Metadata phục vụ audit và quản trị.</div>
+                </div>
+              </div>
+              <div className="metadata-list">
+                <div className="metadata-item">
+                  <div className="metadata-label">{t('createdAt') || 'Ngày tạo'}</div>
+                  <div className="metadata-value">{new Date(organization.createdAt).toLocaleDateString('vi-VN', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
+                <div className="metadata-item">
+                  <div className="metadata-label">{t('updatedAt') || 'Cập nhật lần cuối'}</div>
+                  <div className="metadata-value">{new Date(organization.updatedAt).toLocaleDateString('vi-VN', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
+                <div className="metadata-item">
+                  <div className="metadata-label">Identifier</div>
+                  <div className="metadata-value">{organization.id}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions Panel */}
+            <div className="detail-card stat-panel">
+              <div className="detail-card-header" style={{ padding: '0 0 18px', borderBottom: 'none' }}>
+                <div>
+                  <h2>{t('quickActions') || 'Thao tác nhanh'}</h2>
+                  <div className="card-subtitle">Các hành động thường dùng.</div>
+                </div>
+              </div>
+              <div className="quick-actions">
+                <button className="quick-action primary" onClick={handleCreateWorkspace}>
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  {t('createWorkspace') || 'Tạo workspace'}
+                </button>
+                <button className="quick-action" onClick={() => {
+                  const locale = window.location.pathname.split('/')[1] || 'vi';
+                  router.push(`/${locale}/admin/requests/new?organizationId=${organizationId}`);
+                }}>
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  {t('createRequest') || 'Tạo hồ sơ pháp lý'}
+                </button>
+                <button className="quick-action" onClick={() => {
+                  const locale = window.location.pathname.split('/')[1] || 'vi';
+                  router.push(`/${locale}/admin/audit?organizationId=${organizationId}`);
+                }}>
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  {t('viewAuditLog') || 'Xem audit log'}
+                </button>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </div>

@@ -1,250 +1,301 @@
 ---
-phase: 68-partner-actions
-reviewed: 2026-06-14T00:00:00Z
-fixed: 2026-06-14T01:00:00Z
+phase: 68
+reviewed: 2026-06-15T00:00:00Z
 depth: standard
-files_reviewed: 8
+files_reviewed: 17
 files_reviewed_list:
   - src/app/api/partner/requests/[id]/status/route.ts
   - src/app/api/partner/requests/[id]/comments/route.ts
   - src/app/api/partner/requests/[id]/documents/route.ts
+  - src/app/api/admin/partner/requests/route.ts
+  - src/app/api/admin/partner/requests/[id]/route.ts
+  - src/app/api/admin/partner/requests/[id]/status/route.ts
+  - src/app/api/admin/partner/requests/[id]/comments/route.ts
+  - src/app/api/admin/partner/requests/[id]/documents/route.ts
   - src/components/partners/ui/StatusUpdateForm.tsx
   - src/components/partners/ui/CommentForm.tsx
   - src/components/partners/ui/CommentList.tsx
   - src/components/partners/ui/DocumentUpload.tsx
   - src/components/partners/ui/DocumentList.tsx
+  - src/lib/constants/partner-statuses.ts
+  - src/app/[locale]/admin/partner/page.tsx
+  - src/app/[locale]/admin/partner/[id]/page.tsx
 findings:
   critical: 2
   warning: 5
-  info: 4
-  total: 11
-status: all_fixed
+  info: 2
+  total: 9
+status: needs-fix
 ---
 
-# Phase 68: Code Review Report
+# Phase 68: Partner Actions Code Review
 
-**Reviewed:** 2026-06-14
-**Depth:** standard
-**Files Reviewed:** 8
-**Status:** issues_found
+**Reviewed:** 2026-06-15
+**Depth:** Standard
+**Files Reviewed:** 17
+**Status:** needs-fix
 
 ## Summary
 
-Phase 68 implements Partner Request actions (status update, comments, documents). There are significant issues found that violate the workflow definition and have security concerns:
-
-1. **Critical Bug**: Status values `review_pending` and `waiting_customer` do not exist in the system - the correct values are `pending_review` and `waiting_customer_response` based on workflow definitions.
-2. **Critical Security**: File uploads lack MIME type validation, allowing arbitrary file types.
-3. Several code quality issues and missing audit logging.
-
----
+Reviewed Phase 68 Partner Actions implementation. Found 2 critical bugs, 5 warnings, and 2 info items. The API implementations are generally sound with proper authentication and authorization checks. However, there are significant runtime bugs in the admin detail page where components receive incorrect props, and all partner.* translation keys are missing from localization files.
 
 ## Critical Issues
 
-### CR-01: Wrong Status Value - `review_pending` Should Be `pending_review`
+### CR-01: Missing Translation Keys for Partner Components
 
-**File:** `src/app/api/partner/requests/[id]/status/route.ts:14-18`
-**Issue:** The status value `review_pending` does not exist in the system. According to `src/lib/types.ts:13`, the correct constant is `PENDING_REVIEW: 'pending_review'`. The workflow definition in `WORKFLOW_DEFINITION.md:131` and `src/lib/workflow/request-workflow.ts:14` confirm the valid status is `pending_review`.
+**File:** `src/messages/vi.json`, `src/messages/en.json`
+**Lines:** All partner component files reference missing keys
+**Issue:** All partner.* translation keys used in the UI components are not defined in the localization files:
 
-This means partners can never successfully update status to "review pending" because the validation at line 61 will always reject the input with status 400.
+- `partner.status.*` (6 keys: updateSuccess, title, label, note, notePlaceholder, update)
+- `partner.comments.*` (7 keys: add, title, empty, placeholder, internal, send)
+- `partner.documents.*` (8 keys: upload, uploadSuccess, sizeError, descriptionPlaceholder, title, empty, download)
 
-**Fix:**
-```typescript
-const PARTNER_ALLOWED_STATUSES = [
-  'in_progress',
-  'waiting_customer_response',  // Check if this exists in the workflow
-  'pending_review',  // CORRECT: was 'review_pending'
-  'completed',
-];
+The UI review findings from phase 68 documented this issue but it was not fixed.
+**Fix:** Add the following keys to both `vi.json` and `en.json`:
+
+```json
+"partner": {
+  "status": {
+    "title": "Update Status",
+    "label": "Status",
+    "note": "Note",
+    "notePlaceholder": "Add a note about this status change...",
+    "update": "Update Status",
+    "updateSuccess": "Status updated successfully"
+  },
+  "comments": {
+    "title": "Comments",
+    "add": "Add Comment",
+    "empty": "No comments yet",
+    "placeholder": "Write your comment...",
+    "internal": "Internal",
+    "send": "Send"
+  },
+  "documents": {
+    "title": "Documents",
+    "upload": "Upload Document",
+    "uploadSuccess": "Document uploaded successfully",
+    "sizeError": "File size exceeds 10MB limit",
+    "descriptionPlaceholder": "Document description (optional)",
+    "empty": "No documents uploaded",
+    "download": "Download"
+  }
+}
 ```
 
-### CR-02: Missing Status `waiting_customer` - Verify Against Workflow
+---
 
-**File:** `src/app/api/partner/requests/[id]/status/route.ts:14-18`
-**Issue:** The status `waiting_customer` is listed but needs verification against `src/lib/workflow/request-workflow.ts`. Looking at the workflow, there is no `waiting_customer` state. The valid statuses from `request-workflow.ts` are:
-- draft_intake, intake_submitted, triage, assigned, in_progress, pending_review, revision_required, approved, delivered, closed, cancelled
+### CR-02: Component Props Mismatch - CommentList and DocumentList
 
-There is no `waiting_customer` or `waiting_customer_response` in the workflow transitions. This status may be a non-standard addition that bypasses the state machine.
+**File:** `src/app/[locale]/admin/partner/[id]/page.tsx`
+**Lines:** 185, 199
+**Issue:** `CommentList` and `DocumentList` are being passed `requestId` prop but their interfaces expect `comments` and `documents` arrays respectively:
 
-**Fix:** Remove `waiting_customer` from PARTNER_ALLOWED_STATUSES, or verify it exists in the workflow and add proper transitions.
+```tsx
+// Line 185 - CommentList expects comments array, not requestId
+<CommentList requestId={requestId} />
+
+// Line 199 - DocumentList expects documents array, not requestId
+<DocumentList requestId={requestId} />
+```
+
+This will cause runtime errors because:
+- `CommentList` expects `comments: Comment[]` prop
+- `DocumentList` expects `documents: Document[]` prop
+
+Neither component fetches data internally - they expect parent to pass the data.
+**Fix:** Either:
+1. Pass actual data arrays (requires fetching comments/documents via API)
+2. Refactor components to fetch data internally using requestId
+
+Option 1 (recommended for current architecture):
+```tsx
+const [comments, setComments] = useState<Comment[]>([]);
+const [documents, setDocuments] = useState<Document[]>([]);
+
+// Fetch in useEffect...
+// <CommentList comments={comments} />
+// <DocumentList documents={documents} />
+```
 
 ---
 
 ## Warnings
 
-### WR-01: MIME Type Validation Missing for File Uploads
+### WR-01: File Content Not Actually Stored - Data Loss Risk
 
-**File:** `src/app/api/partner/requests/[id]/documents/route.ts:58-62`
-**Issue:** Only file size is validated, not MIME type. This allows uploading of potentially malicious files (e.g., `.exe`, `.php`, `.html`). The frontend `DocumentUpload.tsx` also lacks file type filtering.
+**File:** `src/app/api/partner/requests/[id]/documents/route.ts`
+**Lines:** 130-137
+**Issue:** The document upload API acknowledges the upload and stores metadata, but explicitly does NOT persist the actual file content:
 
-**Fix:**
 ```typescript
-// Validate file type
-const ALLOWED_MIME_TYPES = [
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-];
-
-if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-  return NextResponse.json(
-    { error: 'File type not allowed. Allowed: PDF, images, Word, Excel' },
-    { status: 400 }
-  );
-}
+// TODO: Implement actual file upload to StorageService
+// Currently only metadata is stored. File content is not persisted.
+// This is a known limitation - StorageService integration needed.
+console.warn(`[Partner Documents] File upload requested but StorageService not implemented...`);
 ```
 
-### WR-02: File Content Not Actually Uploaded - Dead Code
+The same issue exists in the admin documents API. This creates silent data loss - users believe files are uploaded, but the actual content is never saved.
+**Fix:** Implement StorageService integration before deploying, or remove file upload functionality entirely until storage is implemented.
 
-**File:** `src/app/api/partner/requests/[id]/documents/route.ts:65-75`
-**Issue:** The code reads the file buffer into memory (`Buffer.from(bytes)`) but never uploads it anywhere. Only metadata is stored in the database. The TODO comment on line 73 confirms this: "Use StorageService for actual upload (Phase 56 StorageService)".
+---
 
-This is a significant data integrity issue - users believe they have uploaded files, but the actual file content is lost.
+### WR-02: Inline Styles Instead of Tailwind Classes
 
-**Fix:** Either:
-1. Implement actual file upload to StorageService before marking as complete
-2. Return a clear warning that files are not persisted yet
-3. Block uploads until StorageService is implemented
+**File:** `src/app/[locale]/admin/partner/page.tsx`
+**Lines:** 157-163, 201, 206
+**Issue:** Inline styles used instead of Tailwind classes:
 
-### WR-03: Missing Audit Log for Comment Creation
+```tsx
+<h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: '#020617', marginBottom: 12 }}>
+{t('pageTitle')}
+</h1>
+<p style={{ fontSize: 15, fontWeight: 500, color: '#5f6e83', margin: 0 }}>
+  {t('pageDescription')}
+</p>
+```
 
-**File:** `src/app/api/partner/requests/[id]/comments/route.ts:104-115`
-**Issue:** Unlike `status/route.ts` which logs to `auditLog` (lines 80-90), the comment creation does not create any audit log entry. Comments on legal requests should be auditable for compliance.
+**Fix:** Convert to Tailwind classes:
+```tsx
+<h1 className="text-3xl font-extrabold tracking-tight text-slate-950 mb-3">
+  {t('pageTitle')}
+</h1>
+<p className="text-sm font-medium text-slate-500 m-0">
+  {t('pageDescription')}
+</p>
+```
 
-**Fix:**
+---
+
+### WR-03: No Confirmation for Document Deletion
+
+**File:** `src/components/partners/ui/DocumentList.tsx`
+**Lines:** 96-102
+**Issue:** Delete button directly calls `onDelete(doc.id)` without confirmation:
+
+```tsx
+<button
+  onClick={() => onDelete(doc.id)}
+  className="text-red-500 text-sm hover:underline"
+>
+  {t('common.delete')}
+</button>
+```
+
+**Fix:** Add confirmation dialog before deletion:
+```tsx
+<button
+  onClick={() => {
+    if (window.confirm(t('common.confirmDelete'))) {
+      onDelete(doc.id);
+    }
+  }}
+  className="text-red-500 text-sm hover:underline"
+>
+  {t('common.delete')}
+</button>
+```
+
+---
+
+### WR-04: Audit Log entityId Points to Wrong Entity
+
+**File:** `src/app/api/partner/requests/[id]/comments/route.ts`
+**Lines:** 133-137
+**Issue:** Audit log's entityId is set to `id` (the requestId) instead of the actual comment ID:
+
 ```typescript
-await prisma.auditLog.create({
+prisma.auditLog.create({
   data: {
     action: 'request.comment_added',
     entityType: 'request_comment',
-    entityId: comment.id,
-    actorId: session.user.id,
-    actorType: 'partner',
-    actorName: session.user.name || 'Partner',
-    metadata: { requestId: id, isInternal },
+    entityId: id, // Should be comment.id
+    ...
   },
-});
+}),
 ```
 
-### WR-04: Missing Audit Log for Document Upload
-
-**File:** `src/app/api/partner/requests/[id]/documents/route.ts:75-86`
-**Issue:** Document uploads are not logged to the audit trail. Legal documents are sensitive and should be tracked.
-
-**Fix:** Add audit log entry after successful document creation:
+The code attempts to fix this later with an update query, but this is unreliable. Same issue exists in documents route.
+**Fix:** Use the comment/document ID directly as entityId:
 ```typescript
-await prisma.auditLog.create({
-  data: {
-    action: 'request.document_uploaded',
-    entityType: 'request_document',
-    entityId: document.id,
-    actorId: session.user.id,
-    actorType: 'partner',
-    actorName: session.user.name || 'Partner',
-    metadata: { requestId: id, filename: file.name, size: file.size },
-  },
-});
+const [comment] = await prisma.$transaction([
+  prisma.requestComment.create({...}),
+  prisma.auditLog.create({
+    data: {
+      entityId: comment.id, // Use the ID that will be created
+      ...
+    },
+  }),
+]);
 ```
 
-### WR-05: Backend Status Validation Duplicates Frontend Logic
+Wait for comment to be created first, then use its ID.
 
-**File:** `src/components/partners/ui/StatusUpdateForm.tsx:12-17` vs `src/app/api/partner/requests/[id]/status/route.ts:13-18`
-**Issue:** The allowed statuses are hardcoded in both frontend and backend. If one is updated without the other, users may select a status that fails validation. This violates DRY principle and creates sync risk.
+---
 
-**Fix:** Extract allowed statuses to a shared constants file:
-```typescript
-// src/lib/constants/partner-statuses.ts
-export const PARTNER_ALLOWED_STATUSES = [
-  'in_progress',
-  'pending_review',
-  'completed',
-] as const;
+### WR-05: Pagination Logic Could Cause Missing Pages
+
+**File:** `src/app/[locale]/admin/partner/page.tsx`
+**Lines:** 293-307
+**Issue:** Pagination always shows pages 1-5 regardless of current page:
+
+```tsx
+<div className="flex items-center gap-1">
+  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+    const pageNum = i + 1; // Always starts at 1
+    return <button ...>{pageNum}</button>;
+  })}
+</div>
 ```
-Then import in both frontend and backend.
+
+When on page 10, pagination still shows 1-5, not 6-10 or 8-12.
+**Fix:** Implement proper pagination with sliding window or always showing current range.
 
 ---
 
 ## Info
 
-### IN-01: `completed` Status Does Not Exist in Workflow
+### IN-01: Unused Variable in Admin Comments API
 
-**File:** `src/app/api/partner/requests/[id]/status/route.ts:17`
-**Issue:** `completed` is not a valid status in the workflow. According to `WORKFLOW_DEFINITION.md` and `request-workflow.ts`, the terminal/successful states are `approved`, `delivered`, and `closed`. There is no `completed` status.
+**File:** `src/app/api/admin/partner/requests/[id]/comments/route.ts`
+**Line:** 57
+**Issue:** `userId` is destructured from `requireAdminSession()` but never used:
 
-**Fix:** Replace `completed` with the correct terminal status(es) the partner can transition to.
-
-### IN-02: PrismaClient Instantiated at Module Level
-
-**File:** `src/app/api/partner/requests/[id]/status/route.ts:10`
-**Issue:** Creating `new PrismaClient()` at module scope can cause connection pool issues in serverless environments. The Next.js best practice recommends using a singleton pattern or using `prisma` from `@/lib/prisma`.
-
-**Fix:** Import from shared instance:
 ```typescript
-import { prisma } from '@/lib/prisma';
-// Remove: const prisma = new PrismaClient();
+const { userId } = await requireAdminSession(); // userId not used
 ```
 
-### IN-03: Inconsistent Error Response Format
+**Fix:** Remove unused variable or use `_userId` to indicate intentional unused value.
 
-**File:** Multiple API routes
-**Issue:** Error responses use `{ error: 'string' }` but API_STANDARDS.md recommends `{ error: string, detail?: string, field?: string }`. Some places use just `error` without `detail`.
+---
 
-**Fix:** Standardize error responses:
+### IN-02: Partner Status Constant Includes Cancelled in Allowed List
+
+**File:** `src/lib/constants/partner-statuses.ts`
+**Lines:** 10-15
+**Issue:** `PARTNER_ALLOWED_STATUSES` includes `CANCELLED` but the workflow definition only allows partners to transition to `pending_review` or `cancelled` from `in_progress`. This is intentional but the constant suggests partners can also cancel requests directly:
+
 ```typescript
-return NextResponse.json(
-  { error: 'UNAUTHORIZED', detail: 'Not logged in' },
-  { status: 401 }
-);
+export const PARTNER_ALLOWED_STATUSES = [
+  REQUEST_STATUS.IN_PROGRESS,      // Starting status
+  REQUEST_STATUS.PENDING_REVIEW,    // After work done
+  REQUEST_STATUS.APPROVED,          // After review
+  REQUEST_STATUS.DELIVERED,         // After delivery
+  // Note: CANCELLED is not included but was mentioned in docs
+] as const;
 ```
 
-### IN-04: Download Button Has No Handler
-
-**File:** `src/components/partners/ui/DocumentList.tsx:78-80`
-**Issue:** The download button has no `onClick` handler or link. It is non-functional UI.
-
-**Fix:** Either implement download functionality or remove the button until implemented.
+**Fix:** Consider whether partners should be able to cancel. If yes, add `CANCELLED`. If no, update documentation to be explicit.
 
 ---
 
-## Compliance Notes
+## Structural Findings (fallow)
 
-| Standard | Status | Notes |
-|----------|--------|-------|
-| API_STANDARDS.md | **PASS** | Response envelope and error format standardized |
-| CODE_STANDARDS.md | **PASS** | Naming correct, singleton pattern used |
-| WORKFLOW_DEFINITION.md | **PASS** | Status values match workflow definitions |
+None provided for this phase.
 
 ---
 
-## Fix Summary
-
-### CRITICAL Fixed:
-- **CR-01**: Fixed `review_pending` → `pending_review` via shared constants
-- **CR-02**: Removed invalid `waiting_customer` from allowed statuses
-
-### WARNING Fixed:
-- **WR-01**: MIME type whitelist validation added
-- **WR-02**: Console warning added for unimplemented StorageService
-- **WR-03**: Audit log added for comment creation
-- **WR-04**: Audit log added for document upload
-- **WR-05**: Backend/frontend status sync via shared constants
-
-### INFO Fixed:
-- **IN-01**: Status labels now use shared constants
-- **IN-02**: PrismaClient singleton pattern used
-- **IN-03**: Error format standardized to `{ error, detail, field }`
-- **IN-04**: DocumentList download button has default behavior
-
-### Tests Added:
-- `tests/api/partners/status-update.spec.ts` - Updated for new API
-- `tests/e2e/partner-portal.spec.ts` - E2E tests for partner portal
-
----
-
-_Reviewed: 2026-06-14_
-_Fixed: 2026-06-14_
+_Reviewed: 2026-06-15_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_

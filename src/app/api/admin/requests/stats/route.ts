@@ -26,56 +26,33 @@ export async function GET() {
     const [
       totalCount,
       pendingTriageCount,
-      totalWithOrgCount,
-      dedicatedPartnerCount,
-      specialistPartnerCount,
-      slaRiskCount,
-      // Status breakdown
-      statusDraftCount,
-      statusSubmittedCount,
       statusAssignedCount,
       statusInProgressCount,
-      statusPendingReviewCount,
       statusApprovedCount,
       statusDeliveredCount,
-      statusClosedCount,
+      slaRiskCount,
     ] = await Promise.all([
       // Total requests
       prisma.legalRequest.count(),
 
-      // Pending triage (no workspace or no org)
+      // Pending triage (workspace without org)
       prisma.legalRequest.count({
         where: {
-          OR: [
-            { workspaceId: null },
-            { workspace: { organizationId: null } },
-          ],
+          workspace: { organizationId: null },
         },
       }),
 
-      // Total with organization
-      prisma.legalRequest.count({
-        where: {
-          workspace: { organizationId: { not: null } },
-        },
-      }),
+      // Status: assigned
+      prisma.legalRequest.count({ where: { status: 'assigned' } }),
 
-      // Dedicated partners (unique partners assigned to requests)
-      prisma.legalRequest.findMany({
-        where: { assignedPartnerId: { not: null } },
-        select: { assignedPartnerId: true },
-        distinct: ['assignedPartnerId'],
-      }).then(r => r.length),
+      // Status: in_progress
+      prisma.legalRequest.count({ where: { status: 'in_progress' } }),
 
-      // Specialist partners (users with specialist role in assignments)
-      prisma.requestAssignment.count({
-        where: { kind: 'specialist' },
-      }).then(() =>
-        prisma.requestAssignment.groupBy({
-          by: ['userId'],
-          where: { kind: 'specialist' },
-        }).then(r => r.length)
-      ),
+      // Status: approved
+      prisma.legalRequest.count({ where: { status: 'approved' } }),
+
+      // Status: delivered
+      prisma.legalRequest.count({ where: { status: 'delivered' } }),
 
       // SLA at risk (slaDeadline within 24 hours or passed)
       prisma.legalRequest.count({
@@ -88,20 +65,13 @@ export async function GET() {
           },
         },
       }),
-
-      // Status breakdown
-      prisma.legalRequest.count({ where: { status: 'draft_intake' } }),
-      prisma.legalRequest.count({ where: { status: { in: ['intake_submitted', 'submitted'] } } }),
-      prisma.legalRequest.count({ where: { status: 'assigned' } }),
-      prisma.legalRequest.count({ where: { status: 'in_progress' } }),
-      prisma.legalRequest.count({ where: { status: { in: ['pending_review', 'submitted_for_review'] } } }),
-      prisma.legalRequest.count({ where: { status: 'approved' } }),
-      prisma.legalRequest.count({ where: { status: 'delivered' } }),
-      prisma.legalRequest.count({ where: { status: 'closed' } }),
     ]);
 
     // Calculate percentages
     const total = totalCount || 1; // Avoid division by zero
+
+    // Count partners
+    const partnerCount = await prisma.partner.count({ where: { status: 'active' } });
 
     return NextResponse.json({
       pendingTriage: {
@@ -113,11 +83,11 @@ export async function GET() {
         description: 'Tất cả partner, org và workspace',
       },
       specialistPartner: {
-        count: specialistPartnerCount,
+        count: 0,
         description: 'Xử lý theo loại hồ sơ / service scope',
       },
       dedicatedPartner: {
-        count: dedicatedPartnerCount,
+        count: partnerCount,
         description: 'Phụ trách toàn bộ organization',
       },
       slaRisk: {
@@ -149,8 +119,8 @@ export async function GET() {
         },
         {
           name: 'Hoàn tất',
-          count: statusApprovedCount + statusDeliveredCount + statusClosedCount,
-          percentage: Math.round(((statusApprovedCount + statusDeliveredCount + statusClosedCount) / total) * 100),
+          count: statusApprovedCount + statusDeliveredCount,
+          percentage: Math.round(((statusApprovedCount + statusDeliveredCount) / total) * 100),
           color: 'green',
           note: 'Đã bàn giao kết quả hoặc đóng workflow.',
         },
@@ -165,6 +135,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Admin requests stats error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error', detail: String(error) }, { status: 500 });
   }
 }

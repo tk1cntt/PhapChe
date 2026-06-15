@@ -24,20 +24,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Find requests that need triage:
-    // - No workspace assigned (workspaceId is null or empty)
-    // - Or workspace doesn't have an organization
+    // - Workspace exists but no organization
     const triageRequests = await prisma.legalRequest.findMany({
       where: {
-        OR: [
-          // No workspace assigned
-          { workspaceId: null },
-          // Workspace exists but no organization
-          {
-            workspace: {
-              organizationId: null,
-            },
-          },
-        ],
+        workspace: { organizationId: null },
       },
       include: {
         workspace: {
@@ -119,6 +109,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Admin triage error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error', detail: String(error) }, { status: 500 });
   }
 }

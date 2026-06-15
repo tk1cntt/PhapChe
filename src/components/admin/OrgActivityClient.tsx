@@ -27,11 +27,11 @@ interface RecentRequest {
 interface AuditLog {
   id: string;
   action: string;
-  entityType: string;
-  entityId: string;
-  description: string;
+  targetType: string;
+  targetId: string;
+  requestId: string | null;
+  metadataSummary: string | null;
   createdAt: string;
-  metadata: any;
 }
 
 interface Organization {
@@ -353,12 +353,12 @@ export default function OrgActivityClient() {
                 <div className="feed">
                   {organization.recentAuditLogs?.slice(0, 5).map((log) => (
                     <div key={log.id} className={`feed-item ${log.action.includes('SLA') || log.action.includes('risk') ? 'warning' : ''}`}>
-                      <div className={`feed-icon ${log.entityType === 'LegalRequest' ? 'req' : log.entityType === 'VaultFile' ? 'doc' : 'user'}`}>
-                        {log.entityType === 'LegalRequest' ? 'REQ' : log.entityType === 'VaultFile' ? 'DOC' : 'USR'}
+                      <div className={`feed-icon ${log.targetType === 'request' ? 'req' : log.targetType === 'vault_file' ? 'doc' : 'user'}`}>
+                        {log.targetType === 'request' ? 'REQ' : log.targetType === 'vault_file' ? 'DOC' : 'USR'}
                       </div>
                       <div className="feed-content">
                         <strong>{log.action}</strong>
-                        <p>{log.description || `Entity: ${log.entityType}`}</p>
+                        <p>{log.metadataSummary ? JSON.parse(log.metadataSummary)?.extra : `Target: ${log.targetType}`}</p>
                       </div>
                       <div className="feed-time">{getRelativeTime(log.createdAt)}</div>
                     </div>

@@ -1,0 +1,999 @@
+<style>
+  .content {
+    min-height: calc(100vh - 76px);
+    padding: 32px 36px 48px;
+    background:
+      radial-gradient(circle at 82% 8%, rgba(15, 118, 110, 0.05), transparent 28%),
+      radial-gradient(circle at 38% 76%, rgba(37, 99, 235, 0.04), transparent 34%),
+      #f8fafc;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #0f172a;
+  }
+
+  .partner-profile {
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+
+  .top-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+
+  .back-link,
+  .ghost-btn,
+  .primary-btn,
+  .danger-btn,
+  .small-btn {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+  }
+
+  .back-link {
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid #dfe7f1;
+    background: #ffffff;
+    color: #475569;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  }
+
+  .back-link svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .top-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .ghost-btn,
+  .primary-btn,
+  .danger-btn {
+    height: 42px;
+    padding: 0 15px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .ghost-btn {
+    border: 1px solid #dfe7f1;
+    background: #ffffff;
+    color: #334155;
+  }
+
+  .primary-btn {
+    background: #0f766e;
+    color: #ffffff;
+    box-shadow: 0 8px 18px rgba(15, 118, 110, 0.18);
+  }
+
+  .danger-btn {
+    background: #fff1f2;
+    color: #e11d48;
+    border: 1px solid #fecdd3;
+  }
+
+  .partner-hero {
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #dfe7f1;
+    border-radius: 24px;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+    margin-bottom: 24px;
+  }
+
+  .partner-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 7px;
+    background: linear-gradient(90deg, #0f766e, #10b981, #2563eb);
+  }
+
+  .partner-hero-main {
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 26px;
+  }
+
+  .partner-identity {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .partner-logo {
+    width: 74px;
+    height: 74px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #ecfdf9, #eff6ff);
+    color: #0f766e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 900;
+    border: 1px solid #dbeafe;
+    flex-shrink: 0;
+  }
+
+  .partner-kicker {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .partner-title h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 32px;
+    line-height: 1.15;
+    letter-spacing: -0.8px;
+  }
+
+  .partner-desc {
+    margin-top: 12px;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.7;
+    font-weight: 500;
+    max-width: 760px;
+  }
+
+  .partner-tags {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+
+  .chip,
+  .status-badge,
+  .service-chip {
+    min-height: 30px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .chip {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+  }
+
+  .service-chip {
+    background: #eff6ff;
+    color: #2563eb;
+  }
+
+  .status-badge {
+    background: #ccfbf1;
+    color: #0f766e;
+    gap: 8px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18);
+  }
+
+  .partner-status-box {
+    display: grid;
+    gap: 10px;
+    justify-items: end;
+    flex-shrink: 0;
+  }
+
+  .partner-score {
+    width: 116px;
+    height: 92px;
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+
+  .partner-score strong {
+    display: block;
+    font-size: 28px;
+    color: #0f766e;
+    line-height: 1;
+  }
+
+  .partner-score span {
+    display: block;
+    margin-top: 7px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748b;
+  }
+
+  .hero-stat-grid {
+    padding: 0 30px 30px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .hero-stat {
+    min-height: 92px;
+    padding: 16px;
+    border-radius: 16px;
+    background: #fbfdff;
+    border: 1px solid #edf2f7;
+  }
+
+  .hero-stat-label {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+
+  .hero-stat-value {
+    color: #0f172a;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.4px;
+  }
+
+  .hero-stat-sub {
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .main-column,
+  .side-column {
+    display: grid;
+    gap: 22px;
+  }
+
+  .detail-card {
+    background: #ffffff;
+    border: 1px solid #dfe7f1;
+    border-radius: 20px;
+    box-shadow: 0 14px 35px rgba(15, 23, 42, 0.055);
+    overflow: hidden;
+  }
+
+  .detail-card-header {
+    padding: 22px 24px;
+    border-bottom: 1px solid #edf2f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .detail-card-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    background: #ecfdf9;
+    color: #0f766e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .card-icon.blue {
+    background: #eff6ff;
+    color: #2563eb;
+  }
+
+  .card-icon.orange {
+    background: #fff7ed;
+    color: #f97316;
+  }
+
+  .card-icon.purple {
+    background: #f5f3ff;
+    color: #7c3aed;
+  }
+
+  .card-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .detail-card h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 20px;
+    letter-spacing: -0.3px;
+  }
+
+  .card-subtitle {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .detail-card-body {
+    padding: 24px;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .info-item,
+  .side-item,
+  .service-item,
+  .request-item,
+  .contact-item,
+  .audit-item {
+    border: 1px solid #edf2f7;
+    background: #fbfdff;
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  .info-label,
+  .side-label {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 9px;
+  }
+
+  .info-value,
+  .side-value {
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+
+  .service-list,
+  .request-list,
+  .side-list,
+  .contact-list,
+  .audit-list {
+    display: grid;
+    gap: 14px;
+  }
+
+  .service-item,
+  .request-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .service-main,
+  .request-main {
+    min-width: 0;
+  }
+
+  .service-main strong,
+  .request-main strong,
+  .contact-main strong,
+  .audit-main strong {
+    display: block;
+    color: #0f172a;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .service-main span,
+  .request-main span,
+  .contact-main span,
+  .audit-main span {
+    display: block;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .badge {
+    min-height: 28px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .badge.green {
+    background: #ccfbf1;
+    color: #0f766e;
+  }
+
+  .badge.blue {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+
+  .badge.orange {
+    background: #ffedd5;
+    color: #ea580c;
+  }
+
+  .badge.purple {
+    background: #ede9fe;
+    color: #7c3aed;
+  }
+
+  .contact-item,
+  .audit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+  }
+
+  .contact-avatar,
+  .audit-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    background: #ecfdf9;
+    color: #0f766e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  .contact-avatar.blue {
+    background: #eff6ff;
+    color: #2563eb;
+  }
+
+  .quick-actions {
+    display: grid;
+    gap: 10px;
+  }
+
+  .small-btn {
+    height: 40px;
+    padding: 0 13px;
+    border-radius: 10px;
+    border: 1px solid #dfe7f1;
+    background: #ffffff;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .small-btn.primary {
+    background: #0f766e;
+    border-color: #0f766e;
+    color: #ffffff;
+  }
+
+  .small-btn.danger {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    color: #e11d48;
+  }
+
+  @media (max-width: 1180px) {
+    .detail-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-stat-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .content {
+      padding: 22px;
+    }
+
+    .top-line,
+    .partner-hero-main {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .top-actions {
+      flex-wrap: wrap;
+    }
+
+    .hero-stat-grid,
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .partner-status-box {
+      justify-items: start;
+    }
+
+    .service-item,
+    .request-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<section class="content">
+  <div class="partner-profile">
+
+    <div class="top-line">
+      <button class="back-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Quay lại danh sách partner
+      </button>
+
+      <div class="top-actions">
+        <button class="ghost-btn">Xem audit</button>
+        <button class="ghost-btn">Xuất thông tin</button>
+        <button class="primary-btn">Chỉnh sửa partner</button>
+        <button class="danger-btn">Ngừng hợp tác</button>
+      </div>
+    </div>
+
+    <div class="partner-hero">
+      <div class="partner-hero-main">
+        <div class="partner-identity">
+          <div class="partner-logo">PB</div>
+
+          <div class="partner-title">
+            <div class="partner-kicker">Partner profile</div>
+            <h1>Tư Vấn Pháp Lý Miền Bắc</h1>
+
+            <p class="partner-desc">
+              Đơn vị đối tác chuyên xử lý hồ sơ sở hữu trí tuệ, đăng ký nhãn hiệu,
+              tư vấn hợp đồng thương mại và rà soát pháp lý cho doanh nghiệp SME.
+            </p>
+
+            <div class="partner-tags">
+              <span class="chip">ID: partner_north_legal_001</span>
+              <span class="chip">Tax ID: 0109876543</span>
+              <span class="service-chip">Intellectual Property</span>
+              <span class="service-chip">Contract Review</span>
+              <span class="service-chip">Corporate Legal</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="partner-status-box">
+          <span class="status-badge">
+            <span class="status-dot"></span>
+            Active Partner
+          </span>
+
+          <div class="partner-score">
+            <div>
+              <strong>4.8</strong>
+              <span>Partner rating</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-stat-grid">
+        <div class="hero-stat">
+          <div class="hero-stat-label">Tổng hồ sơ</div>
+          <div class="hero-stat-value">46</div>
+          <div class="hero-stat-sub">Từ 01/2026</div>
+        </div>
+
+        <div class="hero-stat">
+          <div class="hero-stat-label">Đang xử lý</div>
+          <div class="hero-stat-value">8</div>
+          <div class="hero-stat-sub">3 hồ sơ IP</div>
+        </div>
+
+        <div class="hero-stat">
+          <div class="hero-stat-label">Hoàn tất</div>
+          <div class="hero-stat-value">35</div>
+          <div class="hero-stat-sub">76% đúng hạn</div>
+        </div>
+
+        <div class="hero-stat">
+          <div class="hero-stat-label">SLA trung bình</div>
+          <div class="hero-stat-value">18h</div>
+          <div class="hero-stat-sub">Phản hồi đầu tiên</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-layout">
+
+      <main class="main-column">
+
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <div class="detail-card-title">
+              <div class="card-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 21h18M5 21V7h6v14M13 21V3h6v18"></path>
+                </svg>
+              </div>
+
+              <div>
+                <h2>Thông tin partner</h2>
+                <div class="card-subtitle">Thông tin pháp lý, liên hệ và phạm vi hoạt động của đối tác.</div>
+              </div>
+            </div>
+
+            <span class="chip">Verified profile</span>
+          </div>
+
+          <div class="detail-card-body">
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">Tên partner</div>
+                <div class="info-value">Tư Vấn Pháp Lý Miền Bắc</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">Loại đối tác</div>
+                <div class="info-value">Law Firm / Legal Service Provider</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">Email liên hệ</div>
+                <div class="info-value">contact@phaplymienbac.vn</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">Hotline</div>
+                <div class="info-value">+84 24 6688 9012</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">Mã số thuế</div>
+                <div class="info-value">0109876543</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">Khu vực phụ trách</div>
+                <div class="info-value">Hà Nội, Bắc Ninh, Hải Phòng, Quảng Ninh</div>
+              </div>
+
+              <div class="info-item" style="grid-column: 1 / -1;">
+                <div class="info-label">Địa chỉ</div>
+                <div class="info-value">
+                  Tầng 8, Tòa nhà Legal Center, 12 Duy Tân, Cầu Giấy, Hà Nội
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <div class="detail-card-title">
+              <div class="card-icon blue">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z"></path>
+                </svg>
+              </div>
+
+              <div>
+                <h2>Dịch vụ phụ trách</h2>
+                <div class="card-subtitle">Các nhóm dịch vụ được phép giao cho partner này.</div>
+              </div>
+            </div>
+
+            <span class="chip">5 service groups</span>
+          </div>
+
+          <div class="detail-card-body">
+            <div class="service-list">
+              <div class="service-item">
+                <div class="service-main">
+                  <strong>Đăng ký nhãn hiệu</strong>
+                  <span>Tra cứu sơ bộ, tư vấn nhóm Nice, chuẩn bị hồ sơ nộp đơn, theo dõi phản hồi.</span>
+                </div>
+                <span class="badge green">Active</span>
+              </div>
+
+              <div class="service-item">
+                <div class="service-main">
+                  <strong>Rà soát hợp đồng thương mại</strong>
+                  <span>Kiểm tra điều khoản thanh toán, phạt vi phạm, bảo mật, giới hạn trách nhiệm.</span>
+                </div>
+                <span class="badge green">Active</span>
+              </div>
+
+              <div class="service-item">
+                <div class="service-main">
+                  <strong>Tư vấn thành lập doanh nghiệp</strong>
+                  <span>Hồ sơ đăng ký kinh doanh, cơ cấu cổ đông, ngành nghề và đại diện pháp luật.</span>
+                </div>
+                <span class="badge blue">Limited</span>
+              </div>
+
+              <div class="service-item">
+                <div class="service-main">
+                  <strong>Soạn NDA / thỏa thuận bảo mật</strong>
+                  <span>Soạn thảo và rà soát NDA cho vendor, nhân sự, đối tác chiến lược.</span>
+                </div>
+                <span class="badge green">Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <div class="detail-card-title">
+              <div class="card-icon orange">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 7v5l3 3"></path>
+                </svg>
+              </div>
+
+              <div>
+                <h2>Hồ sơ gần đây được giao</h2>
+                <div class="card-subtitle">Các request mới nhất mà partner đang xử lý hoặc đã hoàn tất.</div>
+              </div>
+            </div>
+
+            <span class="chip">Recent 4</span>
+          </div>
+
+          <div class="detail-card-body">
+            <div class="request-list">
+              <div class="request-item">
+                <div class="request-main">
+                  <strong>REQ-2026-088 · Đăng ký nhãn hiệu GREENFARM ORGANIC</strong>
+                  <span>Green Agriculture JSC · Demo Legal Workspace · cập nhật 10:24 AM</span>
+                </div>
+                <span class="badge orange">Đang xử lý</span>
+              </div>
+
+              <div class="request-item">
+                <div class="request-main">
+                  <strong>REQ-2026-083 · Rà soát hợp đồng phân phối miền Bắc</strong>
+                  <span>Công ty An Phát · an-phat workspace · SLA còn 8h</span>
+                </div>
+                <span class="badge blue">Review</span>
+              </div>
+
+              <div class="request-item">
+                <div class="request-main">
+                  <strong>REQ-2026-076 · Soạn NDA cho vendor logistics</strong>
+                  <span>Minh Khang Trading · minh-khang workspace · hoàn tất 12/06/2026</span>
+                </div>
+                <span class="badge green">Hoàn tất</span>
+              </div>
+
+              <div class="request-item">
+                <div class="request-main">
+                  <strong>REQ-2026-071 · Tư vấn nhóm ngành đăng ký kinh doanh</strong>
+                  <span>Nam Việt Foods · nam-viet workspace · cần bổ sung giấy tờ</span>
+                </div>
+                <span class="badge orange">Cần phản hồi</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <aside class="side-column">
+
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <div class="detail-card-title">
+              <div class="card-icon purple">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M22 21v-2a4 4 0 00-3-3.87"></path>
+                </svg>
+              </div>
+
+              <div>
+                <h2>Người liên hệ</h2>
+                <div class="card-subtitle">Đầu mối vận hành của partner.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-card-body">
+            <div class="contact-list">
+              <div class="contact-item">
+                <div class="contact-avatar">HN</div>
+                <div class="contact-main">
+                  <strong>Hoàng Ngọc</strong>
+                  <span>Managing Partner · hoang.ngoc@phaplymienbac.vn · +84 912 889 102</span>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-avatar blue">LT</div>
+                <div class="contact-main">
+                  <strong>Lê Thu Hà</strong>
+                  <span>IP Specialist · thuha.le@phaplymienbac.vn · phụ trách hồ sơ nhãn hiệu</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <div class="detail-card-title">
+              <div class="card-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+
+              <div>
+                <h2>Thông tin vận hành</h2>
+                <div class="card-subtitle">Phạm vi, SLA và điều kiện giao hồ sơ.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-card-body">
+            <div class="side-list">
+              <div class="side-item">
+                <div class="side-label">Trạng thái hợp tác</div>
+                <div class="side-value">Active · có thể nhận hồ sơ mới</div>
+              </div>
+
+              <div class="side-item">
+                <div class="side-label">SLA phản hồi đầu tiên</div>
+                <div class="side-value">24 giờ làm việc</div>
+              </div>
+
+              <div class="side-item">
+                <div class="side-label">Giới hạn hồ sơ đồng thời</div>
+                <div class="side-value">Tối đa 12 hồ sơ đang xử lý</div>
+              </div>
+
+              <div class="side-item">
+                <div class="side-label">Hồ sơ đang mở</div>
+                <div class="side-value">8 / 12 hồ sơ</div>
+              </div>
+
+              <div class="side-item">
+                <div class="side-label">Workspace được phép</div>
+                <div class="side-value">Demo Legal Workspace, An Phát, Minh Khang, Nam Việt</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <div class="detail-card-title">
+              <div class="card-icon blue">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3"></path>
+                </svg>
+              </div>
+
+              <div>
+                <h2>Metadata hệ thống</h2>
+                <div class="card-subtitle">Thông tin phục vụ quản trị và audit.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-card-body">
+            <div class="side-list">
+              <div class="side-item">
+                <div class="side-label">Ngày tạo</div>
+                <div class="side-value">6/01/2026 · 09:20 AM</div>
+              </div>
+
+              <div class="side-item">
+                <div class="side-label">Cập nhật lần cuối</div>
+                <div class="side-value">6/15/2026 · 10:31 AM</div>
+              </div>
+
+              <div class="side-item">
+                <div class="side-label">Partner ID</div>
+                <div class="side-value">partner_north_legal_001</div>
+              </div>
+
+              <div class="side-item">
+                <div class="side-label">Correlation ID gần nhất</div>
+                <div class="side-value">corr_partner_20260615_91fd2a</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <div class="detail-card-title">
+              <div class="card-icon orange">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3"></path>
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+              </div>
+
+              <div>
+                <h2>Thao tác nhanh</h2>
+                <div class="card-subtitle">Các hành động quản trị partner.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-card-body">
+            <div class="quick-actions">
+              <button class="small-btn primary">Giao hồ sơ mới</button>
+              <button class="small-btn">Cập nhật service scope</button>
+              <button class="small-btn">Xem audit partner</button>
+              <button class="small-btn danger">Tạm ngừng nhận hồ sơ</button>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+  </div>
+</section>

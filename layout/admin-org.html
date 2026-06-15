@@ -1,0 +1,680 @@
+<style>
+  .content {
+    padding: 32px 36px 48px;
+    background:
+      radial-gradient(circle at 82% 8%, rgba(13, 148, 136, 0.08), transparent 28%),
+      radial-gradient(circle at 42% 76%, rgba(37, 99, 235, 0.05), transparent 34%),
+      #f8fafc;
+    min-height: calc(100vh - 76px);
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #0f172a;
+  }
+
+  .organization-detail {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid #dfe7f1;
+    background: #ffffff;
+    color: #475569;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    margin-bottom: 20px;
+  }
+
+  .back-link svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .detail-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    background:
+      linear-gradient(135deg, rgba(5, 150, 105, 0.95), rgba(15, 118, 110, 0.95)),
+      #0f766e;
+    padding: 28px;
+    color: #ffffff;
+    box-shadow: 0 24px 60px rgba(15, 118, 110, 0.22);
+    margin-bottom: 24px;
+  }
+
+  .detail-hero::before {
+    content: "";
+    position: absolute;
+    right: -90px;
+    top: -110px;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .detail-hero::after {
+    content: "";
+    position: absolute;
+    right: 120px;
+    bottom: -120px;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .detail-hero-inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    gap: 28px;
+    align-items: flex-start;
+  }
+
+  .org-info {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+
+  .org-avatar {
+    width: 76px;
+    height: 76px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+  }
+
+  .org-avatar svg {
+    width: 34px;
+    height: 34px;
+    stroke: #ffffff;
+  }
+
+  .org-kicker {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+    margin-bottom: 8px;
+  }
+
+  .org-details h1 {
+    font-size: 34px;
+    line-height: 1.15;
+    letter-spacing: -0.9px;
+    margin: 0 0 12px;
+    color: #ffffff;
+  }
+
+  .org-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .status-badge,
+  .org-chip {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+  }
+
+  .detail-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .btn-edit {
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+  }
+
+  .btn-edit:hover {
+    background: rgba(255, 255, 255, 0.24);
+  }
+
+  .btn-delete {
+    border: 1px solid rgba(254, 226, 226, 0.5);
+    background: rgba(239, 68, 68, 0.18);
+    color: #fff1f2;
+  }
+
+  .btn-delete:hover {
+    background: rgba(239, 68, 68, 0.28);
+  }
+
+  .btn-edit svg,
+  .btn-delete svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .hero-stat-row {
+    position: relative;
+    z-index: 2;
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .hero-stat {
+    min-height: 84px;
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(10px);
+  }
+
+  .hero-stat span {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.72);
+    margin-bottom: 8px;
+  }
+
+  .hero-stat strong {
+    display: block;
+    font-size: 24px;
+    color: #ffffff;
+    letter-spacing: -0.4px;
+  }
+
+  .detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .detail-main {
+    display: grid;
+    gap: 24px;
+  }
+
+  .detail-card {
+    background: #ffffff;
+    border: 1px solid #dfe7f1;
+    border-radius: 20px;
+    box-shadow: 0 14px 35px rgba(15, 23, 42, 0.055);
+    overflow: hidden;
+  }
+
+  .detail-card-header {
+    padding: 22px 24px;
+    border-bottom: 1px solid #edf2f7;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .detail-card h2 {
+    font-size: 20px;
+    letter-spacing: -0.3px;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  .card-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  .card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    background: #ecfdf9;
+    color: #0f766e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .detail-card-body {
+    padding: 24px;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .info-item {
+    min-height: 92px;
+    padding: 16px;
+    border: 1px solid #edf2f7;
+    border-radius: 16px;
+    background: #fbfdff;
+  }
+
+  .info-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+
+  .info-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+
+  .sidebar-detail {
+    display: grid;
+    gap: 20px;
+  }
+
+  .stat-panel {
+    padding: 20px;
+  }
+
+  .stat-list {
+    display: grid;
+    gap: 14px;
+  }
+
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  .stat-value {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: #ecfdf9;
+    color: #0f766e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 900;
+  }
+
+  .metadata-list {
+    display: grid;
+    gap: 14px;
+  }
+
+  .metadata-item {
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid #edf2f7;
+    background: #fbfdff;
+  }
+
+  .metadata-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .metadata-value {
+    font-size: 14px;
+    color: #0f172a;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .quick-actions {
+    display: grid;
+    gap: 10px;
+  }
+
+  .quick-action {
+    height: 46px;
+    border: 1px solid #dfe7f1;
+    background: #ffffff;
+    border-radius: 12px;
+    color: #334155;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .quick-action.primary {
+    background: #0f766e;
+    border-color: #0f766e;
+    color: #ffffff;
+  }
+
+  @media (max-width: 1100px) {
+    .detail-hero-inner {
+      flex-direction: column;
+    }
+
+    .detail-actions {
+      width: 100%;
+    }
+
+    .btn-edit,
+    .btn-delete {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .hero-stat-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .detail-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<section class="content">
+  <div class="organization-detail">
+
+    <button class="back-link">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Quay lại danh sách tổ chức
+    </button>
+
+    <div class="detail-hero">
+      <div class="detail-hero-inner">
+        <div class="org-info">
+          <div class="org-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 12h4"></path>
+              <path d="M10 8h4"></path>
+              <path d="M14 21v-3a2 2 0 0 0-4 0v3"></path>
+              <path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"></path>
+              <path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"></path>
+            </svg>
+          </div>
+
+          <div class="org-details">
+            <div class="org-kicker">Organization profile</div>
+            <h1>Green Agriculture JSC</h1>
+
+            <div class="org-meta">
+              <span class="status-badge">
+                <span class="status-dot"></span>
+                Active
+              </span>
+              <span class="org-chip">Agriculture</span>
+              <span class="org-chip">MST: 3456789012</span>
+              <span class="org-chip">Ho Chi Minh City</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <button class="btn-edit">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            Chỉnh sửa
+          </button>
+
+          <button class="btn-delete">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            Xóa
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-stat-row">
+        <div class="hero-stat">
+          <span>Workspaces</span>
+          <strong>0</strong>
+        </div>
+
+        <div class="hero-stat">
+          <span>Legal Requests</span>
+          <strong>0</strong>
+        </div>
+
+        <div class="hero-stat">
+          <span>Vault Files</span>
+          <strong>0</strong>
+        </div>
+
+        <div class="hero-stat">
+          <span>Status</span>
+          <strong>Active</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-layout">
+
+      <div class="detail-main">
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <div>
+              <h2>Thông tin tổ chức</h2>
+              <div class="card-subtitle">Thông tin pháp lý và liên hệ chính của tổ chức.</div>
+            </div>
+
+            <div class="card-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7h6v14M13 21V3h6v18"></path>
+              </svg>
+            </div>
+          </div>
+
+          <div class="detail-card-body">
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">Tên tổ chức</div>
+                <div class="info-value">Green Agriculture JSC</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">Loại hình doanh nghiệp</div>
+                <div class="info-value">Agriculture</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">Email liên hệ</div>
+                <div class="info-value">info@greenagri.vn</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">Mã số ĐKKD</div>
+                <div class="info-value">3456789012</div>
+              </div>
+
+              <div class="info-item" style="grid-column: 1 / -1;">
+                <div class="info-label">Địa chỉ</div>
+                <div class="info-value">321 Farm Road, Cu Chi District, Ho Chi Minh City</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <div>
+              <h2>Ghi chú vận hành</h2>
+              <div class="card-subtitle">Dùng để theo dõi ngữ cảnh khách hàng trong quá trình tạo workspace và hồ sơ.</div>
+            </div>
+
+            <div class="card-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-6 4h10M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <div class="detail-card-body">
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">Ngành nghề</div>
+                <div class="info-value">Nông nghiệp, chuỗi cung ứng thực phẩm, hợp đồng đại lý phân phối.</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">Rủi ro thường gặp</div>
+                <div class="info-value">Điều khoản thanh toán, chất lượng hàng hóa, trách nhiệm giao nhận.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="sidebar-detail">
+
+        <div class="detail-card stat-panel">
+          <div class="detail-card-header" style="padding: 0 0 18px; border-bottom: none;">
+            <div>
+              <h2>Thống kê</h2>
+              <div class="card-subtitle">Tổng quan tài nguyên liên quan.</div>
+            </div>
+          </div>
+
+          <div class="stat-list">
+            <div class="stat-item">
+              <div class="stat-label">workspaces</div>
+              <div class="stat-value">0</div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-label">requests</div>
+              <div class="stat-value">0</div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-label">members</div>
+              <div class="stat-value">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card stat-panel">
+          <div class="detail-card-header" style="padding: 0 0 18px; border-bottom: none;">
+            <div>
+              <h2>Thông tin hệ thống</h2>
+              <div class="card-subtitle">Metadata phục vụ audit và quản trị.</div>
+            </div>
+          </div>
+
+          <div class="metadata-list">
+            <div class="metadata-item">
+              <div class="metadata-label">Ngày tạo</div>
+              <div class="metadata-value">6/15/2026, 7:58:50 AM</div>
+            </div>
+
+            <div class="metadata-item">
+              <div class="metadata-label">Cập nhật lần cuối</div>
+              <div class="metadata-value">6/15/2026, 7:58:50 AM</div>
+            </div>
+
+            <div class="metadata-item">
+              <div class="metadata-label">Identifier</div>
+              <div class="metadata-value">org_green_agriculture_jsc</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card stat-panel">
+          <div class="detail-card-header" style="padding: 0 0 18px; border-bottom: none;">
+            <div>
+              <h2>Thao tác nhanh</h2>
+              <div class="card-subtitle">Các hành động thường dùng.</div>
+            </div>
+          </div>
+
+          <div class="quick-actions">
+            <button class="quick-action primary">Tạo workspace</button>
+            <button class="quick-action">Tạo hồ sơ pháp lý</button>
+            <button class="quick-action">Xem audit log</button>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </div>
+</section>

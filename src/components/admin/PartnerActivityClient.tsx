@@ -80,7 +80,8 @@ interface AuditLog {
   targetType: string;
   targetId: string;
   requestId: string | null;
-  metadata: {
+  actorName?: string;
+  metadata?: {
     orgName?: string;
     workspaceName?: string;
     userName?: string;
@@ -91,6 +92,7 @@ interface AuditLog {
     requestTitle?: string;
     extra?: string;
   };
+  metadataSummary?: any;
   createdAt: string;
 }
 
@@ -216,7 +218,17 @@ function parseActivityMeta(log: AuditLog) {
     if (typeof log.metadata === 'string') {
       return JSON.parse(log.metadata);
     }
-    return log.metadata || {};
+    if (log.metadata) {
+      return log.metadata;
+    }
+    // Handle metadataSummary from API
+    if (typeof log.metadataSummary === 'string') {
+      return JSON.parse(log.metadataSummary);
+    }
+    if (log.metadataSummary) {
+      return log.metadataSummary;
+    }
+    return {};
   } catch {
     return {};
   }
@@ -246,61 +258,9 @@ export default function PartnerActivityClient() {
       const res = await fetch(`/api/admin/partners/${partnerId}`);
       if (!res.ok) throw new Error('Failed to fetch partner');
       const data = await res.json();
-
-      // Transform API data to match component expectations
       const apiData = data.data;
 
-      // Calculate derived data
-      const uniqueOrgs = new Set(apiData.engagements?.map((e: Engagement) => e.organization.id) || []);
-      const uniqueWorkspaces = new Set(apiData.recentRequests?.map((r: Request) => r.workspaceId) || []);
-
-      // Build related users from audit logs and members
-      const relatedUsersMap = new Map<string, RelatedUser>();
-
-      // Add partner members
-      apiData.members?.forEach((m: PartnerMember) => {
-        relatedUsersMap.set(m.id, {
-          id: m.id,
-          name: m.name,
-          role: 'partner',
-          description: `${m.role} của partner · owner của ${apiData.stats.activeRequests} hồ sơ đang mở`,
-        });
-      });
-
-      // Add users from audit logs
-      apiData.recentAuditLogs?.forEach((log: AuditLog) => {
-        const meta = parseActivityMeta(log);
-        if (meta.userName && !relatedUsersMap.has(meta.userName)) {
-          const isAdmin = meta.userName.includes('Admin') || meta.userName.includes('Minh Trang');
-          relatedUsersMap.set(meta.userName, {
-            id: meta.userName,
-            name: meta.userName,
-            role: isAdmin ? 'admin' : 'customer',
-            description: isAdmin
-              ? 'Coordinator Admin · giao việc và review tài liệu partner'
-              : `Customer · trao đổi về hồ sơ`,
-          });
-        }
-      });
-
-      // Build timeline from audit logs
-      const timelineMap = new Map<string, TimelineEvent>();
-      apiData.recentAuditLogs?.forEach((log: AuditLog) => {
-        const meta = parseActivityMeta(log);
-        const key = `${meta.requestCode || log.action}-${meta.orgName || ''}`;
-        if (!timelineMap.has(key) && meta.requestCode) {
-          timelineMap.set(key, {
-            id: log.id,
-            action: log.action,
-            requestCode: meta.requestCode,
-            orgName: meta.orgName,
-            date: new Date(log.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
-          });
-        }
-      });
-      const timeline = Array.from(timelineMap.values()).slice(0, 4);
-
-      // Build documents from audit logs (simulated)
+      // Build documents from audit logs
       const docsMap = new Map<string, Document>();
       apiData.recentAuditLogs?.forEach((log: AuditLog) => {
         const meta = parseActivityMeta(log);
@@ -310,35 +270,62 @@ export default function PartnerActivityClient() {
             name: meta.docName,
             fileType: meta.docName.split('.').pop() || 'DOC',
             fileSize: meta.docSize || '1.0 MB',
-            uploadedBy: meta.userName || 'Partner',
+            uploadedBy: meta.userName || log.actorName || 'Partner',
             uploadedAt: log.createdAt,
             requestCode: meta.requestCode || '',
             organizationName: meta.orgName || '',
           });
         }
       });
-      const recentDocuments = Array.from(docsMap.values());
+
+      // Build engagements from API data
+      const engagements: Engagement[] = (apiData.engagements || []).map((e: any) => ({
+        id: e.id,
+        status: e.status,
+        organization: e.organization,
+        serviceScopes: e.serviceScopes || [],
+        startedAt: e.startedAt,
+      }));
 
       const transformedData: Partner = {
-        ...apiData,
-        serviceScopes: apiData.engagements?.flatMap((e: Engagement) =>
-          e.serviceScopes?.map((s: ServiceScope) => s.name) || []
-        ).filter(Boolean) || [],
-        recentDocuments,
-        relatedUsers: Array.from(relatedUsersMap.values()).slice(0, 5),
-        timeline,
-        capacity: {
-          openRequests: { current: apiData.stats.activeRequests, max: 32 },
-          slaOnTime: 88,
-          pendingDocs: 11,
-          slaRisks: {
-            count: apiData.stats.slaRisk,
-            requests: 'REQ-2026-088, REQ-2026-071',
-          },
-          accessReview: {
-            count: 1,
-            description: 'Partner vẫn còn quyền xem workspace sau khi hồ sơ đóng.',
-          },
+        id: apiData.id,
+        name: apiData.name,
+        slug: apiData.slug,
+        type: apiData.type,
+        status: apiData.status,
+        contactEmail: apiData.contactEmail,
+        phone: apiData.phone,
+        address: apiData.address,
+        createdAt: apiData.createdAt,
+        modelType: apiData.modelType,
+        lastActive: apiData.lastActive,
+        serviceScopes: apiData.serviceScopes || [],
+        _count: apiData._count || { members: 0, engagements: 0, totalRequests: 0 },
+        stats: {
+          activeRequests: apiData.stats?.activeRequests || 0,
+          completedRequests: apiData.stats?.completedRequests || 0,
+          slaRisk: apiData.stats?.slaRisk || 0,
+          avgResponseTime: apiData.stats?.avgResponseTime || null,
+          totalDocuments: apiData.stats?.documents || 0,
+          totalWorkspaces: apiData.stats?.workspaces || 0,
+          usersTouched: apiData.stats?.usersTouched || 0,
+        },
+        engagements,
+        members: apiData.members || [],
+        recentRequests: apiData.recentRequests || [],
+        recentDocuments: Array.from(docsMap.values()),
+        recentAuditLogs: apiData.recentAuditLogs?.map((log: any) => ({
+          ...log,
+          metadata: log.metadataSummary ? JSON.parse(log.metadataSummary) : {},
+        })) || [],
+        relatedUsers: apiData.relatedUsers || [],
+        timeline: apiData.timeline || [],
+        capacity: apiData.capacity || {
+          openRequests: { current: 0, max: 32 },
+          slaOnTime: 100,
+          pendingDocs: 0,
+          slaRisks: { count: 0, requests: '' },
+          accessReview: { count: 0, description: '' },
         },
       };
 

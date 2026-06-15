@@ -719,13 +719,11 @@
 }
 
 .side-item {
-  border-bottom: 1px solid #edf2f7;
-  padding-bottom: 14px;
+  padding: 12px 0;
 }
 
-.side-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+.side-item + .side-item {
+  border-top: 1px solid #edf2f7;
 }
 
 .side-label {

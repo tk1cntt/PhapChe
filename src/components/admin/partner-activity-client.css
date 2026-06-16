@@ -259,15 +259,18 @@
   gap: 14px;
 }
 
-.stat-card {
+.hero-stats .stat-card {
   min-height: 94px;
   padding: 15px;
   border-radius: 16px;
   background: #fbfdff;
   border: 1px solid #edf2f7;
+  display: block;
+  height: auto;
+  box-shadow: none;
 }
 
-.stat-label {
+.hero-stats .stat-label {
   font-size: 12px;
   color: #64748b;
   font-weight: 950;
@@ -276,7 +279,7 @@
   margin-bottom: 10px;
 }
 
-.stat-value {
+.hero-stats .stat-value {
   font-size: 25px;
   color: #0f172a;
   font-weight: 950;
@@ -284,7 +287,7 @@
   letter-spacing: -0.4px;
 }
 
-.stat-sub {
+.hero-stats .stat-sub {
   margin-top: 8px;
   color: #94a3b8;
   font-size: 12px;
@@ -368,7 +371,7 @@
 }
 
 .main,
-.sidebar {
+.activity-sidebar {
   display: grid;
   gap: 22px;
 }
@@ -713,20 +716,23 @@
 }
 
 /* Sidebar */
-.side-list {
+.activity-sidebar .side-list {
   display: grid;
   gap: 14px;
 }
 
-.side-item {
+.activity-sidebar .side-item {
   padding: 12px 0;
+  border: none;
+  background: none;
+  border-radius: 0;
 }
 
-.side-item + .side-item {
+.activity-sidebar .side-item + .side-item {
   border-top: 1px solid #edf2f7;
 }
 
-.side-label {
+.activity-sidebar .side-label {
   color: #64748b;
   font-size: 12px;
   font-weight: 950;
@@ -735,7 +741,7 @@
   margin-bottom: 8px;
 }
 
-.side-value {
+.activity-sidebar .side-value {
   color: #0f172a;
   font-size: 14px;
   font-weight: 850;

@@ -789,7 +789,7 @@ export default function PartnerActivityClient() {
           </main>
 
           {/* Sidebar */}
-          <aside className="sidebar">
+          <aside className="activity-sidebar">
             {/* Partner Status */}
             <section className="panel">
               <div className="panel-head">

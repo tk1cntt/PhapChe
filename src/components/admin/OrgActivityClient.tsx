@@ -40,6 +40,7 @@ interface FeedItem {
   description: string;
   time: string;
   isWarning: boolean;
+  activityType?: 'sla' | 'docs' | 'users' | 'cases';
   badges: { label: string; variant: string }[];
 }
 
@@ -48,6 +49,9 @@ interface RequestRow {
   code: string;
   title: string;
   workspaceName: string;
+  partnerName: string;
+  serviceType: string;
+  relatedUsers: string[];
   statusVariant: string;
   statusText: string;
   slaVariant: string;
@@ -62,6 +66,9 @@ interface WorkspaceCard {
   isActive: boolean;
   statusBadge: 'green' | 'blue' | 'orange' | 'gray';
   statusLabel: string;
+  openCases: number;
+  documentCount: number;
+  memberCount: number;
 }
 
 interface PartnerCard {
@@ -76,8 +83,9 @@ interface PartnerCard {
 interface DocumentCard {
   id: string;
   filename: string;
-  uploadedBy: string;
   workspaceName: string;
+  uploadedBy: string;
+  description: string;
   fileSize: string;
   fileIconClass: string;
   ext: string;
@@ -89,6 +97,8 @@ interface MemberCard {
   email: string;
   role: string;
   workspaceName: string;
+  description?: string;
+  badge?: { label: string; variant: string };
 }
 
 interface OrgActivityClientProps {
@@ -310,25 +320,25 @@ export default function OrgActivityClient({
                 <span className="chip">24h gần nhất</span>
               </div>
               <div className="panel-body">
-                <div className="feed">
+                <div className="activity-feed">
                   {enrichedFeed.length === 0 ? (
                     <div className="empty-state">Chưa có hoạt động gần đây</div>
                   ) : (
                     enrichedFeed.map((item) => (
-                      <div key={item.id} className={`feed-item ${item.isWarning ? 'warning' : ''}`}>
-                        <div className={`feed-icon ${item.iconType}`}>{item.iconLabel}</div>
-                        <div className="feed-content">
+                      <div key={item.id} className={`activity-item ${item.isWarning ? 'important' : ''}`} data-type={item.activityType || 'cases'}>
+                        <div className={`activity-icon ${item.iconType}`}>{item.iconLabel}</div>
+                        <div className="activity-content">
                           <strong>{item.title}</strong>
                           <p>{item.description}</p>
                           {item.badges.length > 0 && (
-                            <div className="feed-meta">
+                            <div className="activity-meta">
                               {item.badges.map((b, bi) => (
                                 <span key={bi} className={`mini-badge ${b.variant}`}>{b.label}</span>
                               ))}
                             </div>
                           )}
                         </div>
-                        <div className="feed-time">{item.time}</div>
+                        <div className="activity-time">{item.time}</div>
                       </div>
                     ))
                   )}
@@ -354,6 +364,9 @@ export default function OrgActivityClient({
                     <tr>
                       <th>Mã hồ sơ</th>
                       <th>Workspace</th>
+                      <th>Partner</th>
+                      <th>Dịch vụ</th>
+                      <th>User liên quan</th>
                       <th>Trạng thái</th>
                       <th>SLA</th>
                     </tr>
@@ -361,7 +374,7 @@ export default function OrgActivityClient({
                   <tbody>
                     {requestRows.length === 0 ? (
                       <tr>
-                        <td colSpan={4} style={{ textAlign: 'center', padding: 32, color: '#64748b' }}>
+                        <td colSpan={7} style={{ textAlign: 'center', padding: 32, color: '#64748b' }}>
                           Chưa có hồ sơ nào
                         </td>
                       </tr>
@@ -375,6 +388,9 @@ export default function OrgActivityClient({
                             </div>
                           </td>
                           <td>{req.workspaceName}</td>
+                          <td>{req.partnerName}</td>
+                          <td>{req.serviceType}</td>
+                          <td>{req.relatedUsers.join(', ')}</td>
                           <td>
                             <span className={`mini-badge ${req.statusVariant}`}>{req.statusText}</span>
                           </td>
@@ -411,6 +427,11 @@ export default function OrgActivityClient({
                         <div>
                           <strong>{ws.name}</strong>
                           <span>{ws.description}</span>
+                          <div className="metric-row">
+                            <span className="metric">{ws.openCases} open cases</span>
+                            <span className="metric">{ws.documentCount} documents</span>
+                            <span className="metric">{ws.memberCount} members</span>
+                          </div>
                         </div>
                         <span className={`mini-badge ${ws.statusBadge}`}>{ws.statusLabel}</span>
                       </div>
@@ -442,7 +463,7 @@ export default function OrgActivityClient({
                         <div className={`file-icon ${doc.fileIconClass}`}>{doc.ext}</div>
                         <div className="stack">
                           <strong>{doc.filename}</strong>
-                          <span>{doc.workspaceName} · upload bởi {doc.uploadedBy}{doc.fileSize && ` · ${doc.fileSize}`}</span>
+                          <span>{doc.description}</span>
                         </div>
                         <div className="file-actions">
                           <button className="small-btn">Xem</button>
@@ -457,7 +478,7 @@ export default function OrgActivityClient({
           </main>
 
           {/* ─────── Sidebar ─────── */}
-          <aside className="sidebar">
+          <aside className="activity-sidebar">
             {/* ── Org Status ── */}
             <section className="panel">
               <div className="panel-head">
@@ -559,7 +580,12 @@ export default function OrgActivityClient({
                           </div>
                           <div>
                             <strong>{m.name}</strong>
-                            <span>{m.role} · {m.workspaceName}</span>
+                            <span>{m.role} · {m.description || m.workspaceName}</span>
+                            {m.badge && (
+                              <div className="chips" style={{ marginTop: 10 }}>
+                                <span className={`mini-badge ${m.badge.variant}`}>{m.badge.label}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       );

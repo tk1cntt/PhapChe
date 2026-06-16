@@ -9,6 +9,7 @@ import ApprovalPanel from '@/components/admin/ApprovalPanel';
 import AuditTimeline from '@/components/admin/AuditTimeline';
 import AdminToolbar from '@/components/admin/AdminToolbar';
 import AdminRequestsTable from '@/components/admin/AdminRequestsTable';
+import '@/components/admin/admin.css';
 import { Users, FolderKanban, Clock, AlertTriangle } from 'lucide-react';
 
 interface AdminDashboardClientProps {
@@ -122,29 +123,21 @@ export default function AdminDashboardClient({
   translations: t,
 }: AdminDashboardClientProps) {
   return (
-    <div className="p-6 max-w-[1600px] mx-auto">
+    <>
       {/* Section 1: Page Header */}
-      <div className="flex justify-between items-start mb-8">
+      <div className="page-header">
         <div>
-          <h1 className="text-[31px] font-extrabold tracking-tight text-[#020617] mb-3">
-            {t.pageTitle}
-          </h1>
-          <p className="text-[15px] font-medium text-[#5f6e83] m-0">{t.pageDesc}</p>
+          <h1>{t.pageTitle}</h1>
+          <p className="subtitle">{t.pageDesc}</p>
         </div>
-        <div className="flex gap-3">
-          <button
-            className="h-11 px-5 border rounded-lg text-[#1e293b] font-bold flex items-center gap-2 bg-white cursor-pointer"
-            style={{ borderColor: 'var(--border)' }}
-          >
-            {t.exportReport}
-          </button>
-          <button
-            className="h-11 px-5 border-0 rounded-lg text-white font-bold flex items-center gap-2 cursor-pointer"
-            style={{
-              background: 'linear-gradient(180deg, #0b8f86, #087970)',
-              boxShadow: '0 8px 18px rgba(8, 127, 120, 0.25)',
-            }}
-          >
+
+        <div className="header-actions">
+          <button className="ghost-btn">{t.exportReport}</button>
+          <button className="create-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
             {t.createRequest}
           </button>
         </div>
@@ -154,45 +147,45 @@ export default function AdminDashboardClient({
       <AdminBanner title={t.bannerTitle} description={t.bannerDesc} />
 
       {/* Section 3: 4 Stat Cards */}
-      <div className="grid grid-cols-4 gap-5 mb-8">
+      <div className="stats">
         <AdminStatCard
           variant="blue"
           title={t.statUsers}
           value={String(stats.users.total)}
           description={t.statUsersDesc}
-          icon={<Users className="h-10 w-10" />}
+          icon={<Users size={30} />}
         />
         <AdminStatCard
           variant="green"
           title={t.statWorkspaces}
           value={String(stats.workspaces.total)}
           description={t.statWorkspacesDesc}
-          icon={<FolderKanban className="h-10 w-10" />}
+          icon={<FolderKanban size={30} />}
         />
         <AdminStatCard
           variant="orange"
           title={t.statNearSla}
           value={String(stats.nearSla)}
           description={t.statNearSlaDesc}
-          icon={<Clock className="h-10 w-10" />}
+          icon={<Clock size={30} />}
         />
         <AdminStatCard
           variant="red"
           title={t.statAuditAlerts}
           value={String(stats.auditAlerts)}
           description={t.statAuditAlertsDesc}
-          icon={<AlertTriangle className="h-10 w-10" />}
+          icon={<AlertTriangle size={30} />}
         />
       </div>
 
-      {/* Section 4: Grid-2 (1.25fr/0.75fr) - Workload + Alerts */}
-      <div className="grid grid-cols-[1.25fr_0.75fr] gap-5 mb-8">
+      {/* Section 4: Grid-2 - Workload + Alerts */}
+      <div className="admin-grid-2">
         <WorkloadPanel specialists={workloadData} />
         <AlertPanel alerts={alertData} />
       </div>
 
-      {/* Section 5: Grid-3 (0.9fr/0.9fr/1.2fr) - Workspaces + Approvals + Timeline */}
-      <div className="grid grid-cols-[0.9fr_0.9fr_1.2fr] gap-5 mb-8">
+      {/* Section 5: Grid-3 - Workspaces + Approvals + Timeline */}
+      <div className="admin-grid-3">
         <WorkspacePanel workspaces={workspaceData} />
         <ApprovalPanel approvals={approvalData} />
         <AuditTimeline entries={timelineData} />
@@ -215,7 +208,21 @@ export default function AdminDashboardClient({
       />
 
       {/* Section 7: Request Table */}
-      <AdminRequestsTable rows={requestTableData} />
-    </div>
+      <AdminRequestsTable
+        rows={requestTableData}
+        translations={{
+          code: t.colCode,
+          workspace: t.colWorkspace,
+          customer: t.colCustomer,
+          status: t.colStatus,
+          requestType: 'Loại yêu cầu',
+          assignee: t.colAssignee,
+          action: t.colAction,
+          dispatch: 'Điều phối',
+          view: 'Xem',
+          audit: 'Audit',
+        }}
+      />
+    </>
   );
 }

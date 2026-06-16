@@ -1,192 +1,158 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { Building2, ArrowLeft, FileText, Download, Eye, Plus, Clock, AlertTriangle, CheckCircle, Users, Briefcase, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Building2, ArrowLeft, Download, Eye, Plus } from 'lucide-react';
 import './org-activity-client.css';
 
-interface OrganizationStats {
-  openRequests: number;
-  inProgressRequests: number;
-  slaRisk: number;
-  activeWorkspacesToday: number;
-}
-
-interface RecentRequest {
-  id: string;
-  code: string;
-  title: string;
-  status: string;
-  priority: string;
-  slaDeadline: string | null;
-  workspaceName: string;
-  createdByName: string;
-}
-
-interface AuditLog {
-  id: string;
-  action: string;
-  targetType: string;
-  targetId: string;
-  requestId: string | null;
-  metadataSummary: string | null;
-  createdAt: string;
-}
-
-interface Organization {
+// ── Types ──// ── Types ──// ── Types ──// ── Types ──
+interface OrgInfo {
   id: string;
   name: string;
+  slug: string;
   status: string;
   businessType: string | null;
   registrationNumber: string | null;
   address: string | null;
   contactEmail: string | null;
-  isDefault: boolean;
-  createdAt: string;
-  updatedAt: string;
-  workspaces: { id: string; name: string; slug: string; isActive: boolean }[];
-  _count: {
-    workspaces: number;
-    members: number;
-    openRequests: number;
-    vaultFiles: number;
-  };
-  stats: OrganizationStats;
-  recentRequests: RecentRequest[];
-  recentAuditLogs: AuditLog[];
+  healthScore: number;
+}
+
+interface OrgStats {
+  workspaces: number;
+  workspacesActive: number;
+  openCases: number;
+  inProgress: number;
+  partners: number;
+  members: number;
+  membersActive: number;
+  vaultFiles: number;
+  vaultFilesNew: number;
+  slaRisk: number;
+  slaNeedsResponse: number;
+}
+
+interface FeedItem {
+  id: string;
+  iconType: 'req' | 'doc' | 'user' | 'partner';
+  iconLabel: string;
+  title: string;
+  description: string;
+  time: string;
+  isWarning: boolean;
+  badges: { label: string; variant: string }[];
+}
+
+interface RequestRow {
+  id: string;
+  code: string;
+  title: string;
+  workspaceName: string;
+  statusVariant: string;
+  statusText: string;
+  slaVariant: string;
+  slaText: string;
+}
+
+interface WorkspaceCard {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  isActive: boolean;
+  statusBadge: 'green' | 'blue' | 'orange' | 'gray';
+  statusLabel: string;
+}
+
+interface PartnerCard {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+  statusBadge: 'green' | 'blue' | 'orange' | 'gray';
+  statusLabel: string;
+}
+
+interface DocumentCard {
+  id: string;
+  filename: string;
+  uploadedBy: string;
+  workspaceName: string;
+  fileSize: string;
+  fileIconClass: string;
+  ext: string;
+}
+
+interface MemberCard {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  workspaceName: string;
+}
+
+interface OrgActivityClientProps {
+  orgData: OrgInfo;
+  stats: OrgStats;
+  activityFeed: FeedItem[];
+  requestRows: RequestRow[];
+  workspaceCards: WorkspaceCard[];
+  partnerCards: PartnerCard[];
+  documentCards: DocumentCard[];
+  memberCards: MemberCard[];
 }
 
 type TabType = 'all' | 'requests' | 'workspaces' | 'partners' | 'documents' | 'users' | 'sla';
 
-const STATUS_COLORS: Record<string, string> = {
-  draft_intake: 'gray',
-  intake_submitted: 'blue',
-  assigned: 'blue',
-  in_progress: 'purple',
-  pending_review: 'orange',
-  approved: 'green',
-  delivered: 'green',
-  closed: 'gray',
-  cancelled: 'gray',
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  draft_intake: 'Nháp',
-  intake_submitted: 'Đã gửi',
-  assigned: 'Đã giao',
-  in_progress: 'Đang xử lý',
-  pending_review: 'Chờ duyệt',
-  approved: 'Đã duyệt',
-  delivered: 'Đã giao',
-  closed: 'Đã đóng',
-  cancelled: 'Đã hủy',
-};
-
-function getRelativeTime(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return 'Vừa xong';
-  if (diffMins < 60) return `${diffMins} phút trước`;
-  if (diffHours < 24) return `${diffHours} giờ trước`;
-  if (diffDays === 1) return 'Hôm qua';
-  return `${diffDays} ngày trước`;
-}
-
-function getSLAStatus(deadline: string | null): { variant: string; text: string } {
-  if (!deadline) return { variant: 'green', text: 'No SLA' };
-  const deadlineDate = new Date(deadline);
-  const now = new Date();
-  if (deadlineDate < now) return { variant: 'red', text: 'Quá hạn' };
-  const hoursLeft = (deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-  if (hoursLeft < 24) return { variant: 'red', text: `Còn ${Math.ceil(hoursLeft)}h` };
-  if (hoursLeft < 72) return { variant: 'orange', text: `Còn ${Math.ceil(hoursLeft)}h` };
-  return { variant: 'green', text: 'Đúng hạn' };
-}
-
-export default function OrgActivityClient() {
+export default function OrgActivityClient({
+  orgData,
+  stats,
+  activityFeed,
+  requestRows,
+  workspaceCards,
+  partnerCards,
+  documentCards,
+  memberCards,
+}: OrgActivityClientProps) {
   const router = useRouter();
-  const params = useParams();
-  const t = useTranslations('AdminOrganizations');
-
-  const organizationId = params.id as string;
-  const [organization, setOrganization] = useState<Organization | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/admin/organizations/${organizationId}`);
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          router.push('/sign-in');
-          return;
-        }
-        throw new Error('Failed to fetch organization');
-      }
-      const data = await response.json();
-      setOrganization(data.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load');
-    } finally {
-      setLoading(false);
-    }
-  }, [organizationId, router]);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
-
   const handleBack = () => {
-    const locale = window.location.pathname.split('/')[1] || 'vi';
-    router.push(`/${locale}/admin/organizations`);
+    router.push('/vi/admin/organizations');
   };
 
-  if (loading) {
-    return (
-      <div className="content">
-        <div className="org-activity">
-          <div className="activity-loading">
-            <Clock className="animate-spin" size={32} />
-            <span>Đang tải dữ liệu...</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Build hero chips
+  const heroChips: string[] = [];
+  if (orgData.slug) heroChips.push(orgData.slug);
+  if (orgData.registrationNumber) heroChips.push(`MST: ${orgData.registrationNumber}`);
+  if (orgData.businessType) heroChips.push(orgData.businessType);
+  if (orgData.address) heroChips.push(orgData.address.split(',').pop()?.trim() || orgData.address);
 
-  if (error || !organization) {
-    return (
-      <div className="content">
-        <div className="org-activity">
-          <div className="activity-error">
-            <AlertTriangle size={32} />
-            <span>{error || 'Không tìm thấy organization'}</span>
-            <button onClick={fetchData}>Thử lại</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Build activity feed with mock badges (enriched from data patterns)
+  const enrichedFeed = activityFeed.map((item, i) => {
+    const enrichedBadges = [...item.badges];
+    if (item.isWarning && enrichedBadges.length === 0) enrichedBadges.push({ label: 'SLA risk', variant: 'orange' });
+    if (item.iconType === 'req' && enrichedBadges.length === 0) enrichedBadges.push({ label: 'Request', variant: 'blue' });
+    if (item.iconType === 'doc' && enrichedBadges.length === 0) enrichedBadges.push({ label: 'Document', variant: 'orange' });
+    return { ...item, badges: enrichedBadges };
+  });
 
-  const stats = organization.stats || {
-    openRequests: organization._count?.openRequests || 0,
-    inProgressRequests: 0,
-    slaRisk: 0,
-    activeWorkspacesToday: organization.workspaces?.filter((w) => w.isActive).length || 0,
+  // Tab labels
+  const tabLabels: Record<TabType, string> = {
+    all: 'Tất cả hoạt động',
+    requests: 'Hồ sơ',
+    workspaces: 'Workspace',
+    partners: 'Partner',
+    documents: 'Tài liệu',
+    users: 'User',
+    sla: 'SLA / Risk',
   };
 
   return (
     <div className="content">
       <div className="org-activity">
-        {/* Topbar */}
+        {/* ─────── Topbar ─────── */}
         <div className="topbar">
           <button className="back-link" onClick={handleBack}>
             <ArrowLeft size={16} />
@@ -194,57 +160,49 @@ export default function OrgActivityClient() {
           </button>
           <div className="top-actions">
             <button className="ghost-btn">
-              <Download size={14} />
-              Xuất báo cáo
+              <Download size={14} /> Xuất báo cáo
             </button>
             <button className="ghost-btn">
-              <Eye size={14} />
-              Xem audit
+              <Eye size={14} /> Xem audit
             </button>
             <button className="primary-btn">
-              <Plus size={14} />
-              Cập nhật tổ chức
+              <Plus size={14} /> Cập nhật tổ chức
             </button>
+            <button className="danger-btn">Tạm ngưng</button>
           </div>
         </div>
 
-        {/* Org Hero */}
+        {/* ─────── Hero ─────── */}
         <div className="org-hero">
           <div className="hero-main">
             <div className="org-identity">
               <div className="org-avatar">
-                <Building2 size={36} strokeWidth={1.5} />
+                <Building2 size={36} strokeWidth={1.6} />
               </div>
               <div className="hero-title">
                 <div className="kicker">Organization activity dashboard</div>
-                <h1>{organization.name}</h1>
+                <h1>{orgData.name}</h1>
                 <p className="hero-desc">
                   Theo dõi toàn bộ hoạt động của tổ chức: workspace nào đang hoạt động,
                   hồ sơ pháp lý nào đang mở, partner nào đang xử lý, user nào tham gia,
                   tài liệu nào được upload/review và các rủi ro SLA/compliance liên quan.
                 </p>
                 <div className="chips">
-                  <span className="chip">{organization.id}</span>
-                  {organization.registrationNumber && (
-                    <span className="chip">MST: {organization.registrationNumber}</span>
-                  )}
-                  {organization.businessType && (
-                    <span className="chip">{organization.businessType}</span>
-                  )}
-                  {organization.address && (
-                    <span className="chip">{organization.address.split(',').pop()?.trim()}</span>
-                  )}
+                  {heroChips.map((c, i) => (
+                    <span key={i} className="chip">{c}</span>
+                  ))}
                 </div>
               </div>
             </div>
+
             <div className="hero-right">
-              <span className={`status-badge ${organization.status !== 'active' ? 'inactive' : ''}`}>
+              <span className={`status-badge ${orgData.status !== 'active' ? 'inactive' : ''}`}>
                 <span className="status-dot" />
-                {organization.status === 'active' ? 'Active organization' : 'Inactive organization'}
+                {orgData.status === 'active' ? 'Active organization' : 'Inactive organization'}
               </span>
               <div className="health-card">
                 <div>
-                  <strong>{organization._count?.workspaces > 0 ? '89' : '0'}%</strong>
+                  <strong>{orgData.healthScore}%</strong>
                   <span>Org health</span>
                 </div>
               </div>
@@ -255,53 +213,47 @@ export default function OrgActivityClient() {
           <div className="hero-stats">
             <div className="stat-card">
               <div className="stat-label">Workspaces</div>
-              <div className="stat-value">{organization._count?.workspaces || 0}</div>
-              <div className="stat-sub">{stats.activeWorkspacesToday} active hôm nay</div>
+              <div className="stat-value">{stats.workspaces}</div>
+              <div className="stat-sub">{stats.workspacesActive} active hôm nay</div>
             </div>
             <div className="stat-card">
               <div className="stat-label">Open cases</div>
-              <div className="stat-value">{stats.openRequests}</div>
-              <div className="stat-sub">{stats.inProgressRequests} đang xử lý</div>
+              <div className="stat-value">{stats.openCases}</div>
+              <div className="stat-sub">{stats.inProgress} đang xử lý</div>
             </div>
             <div className="stat-card">
               <div className="stat-label">Partners</div>
-              <div className="stat-value">-</div>
-              <div className="stat-sub">TBD</div>
+              <div className="stat-value">{stats.partners}</div>
+              <div className="stat-sub">{stats.partners > 0 ? `${stats.partners} partners` : 'TBD'}</div>
             </div>
             <div className="stat-card">
               <div className="stat-label">Members</div>
-              <div className="stat-value">{organization._count?.members || 0}</div>
-              <div className="stat-sub">Active members</div>
+              <div className="stat-value">{stats.members}</div>
+              <div className="stat-sub">{stats.membersActive} active tuần này</div>
             </div>
             <div className="stat-card">
               <div className="stat-label">Vault files</div>
-              <div className="stat-value">{organization._count?.vaultFiles || 0}</div>
-              <div className="stat-sub">files stored</div>
+              <div className="stat-value">{stats.vaultFiles}</div>
+              <div className="stat-sub">{stats.vaultFilesNew} file mới</div>
             </div>
             <div className="stat-card">
               <div className="stat-label">SLA risk</div>
               <div className="stat-value">{stats.slaRisk}</div>
-              <div className="stat-sub">cần theo dõi</div>
+              <div className="stat-sub">{stats.slaNeedsResponse} cần phản hồi</div>
             </div>
           </div>
         </div>
 
-        {/* Activity Controls */}
+        {/* ─────── Activity Controls ─────── */}
         <div className="activity-controls">
           <div className="tabs">
-            {(['all', 'requests', 'workspaces', 'partners', 'documents', 'users', 'sla'] as TabType[]).map((tab) => (
+            {(Object.keys(tabLabels) as TabType[]).map((tab) => (
               <button
                 key={tab}
                 className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
                 onClick={() => setActiveTab(tab)}
               >
-                {tab === 'all' ? 'Tất cả hoạt động' :
-                 tab === 'requests' ? 'Hồ sơ' :
-                 tab === 'workspaces' ? 'Workspace' :
-                 tab === 'partners' ? 'Partner' :
-                 tab === 'documents' ? 'Tài liệu' :
-                 tab === 'users' ? 'User' :
-                 'SLA / Risk'}
+                {tabLabels[tab]}
               </button>
             ))}
           </div>
@@ -314,8 +266,14 @@ export default function OrgActivityClient() {
             />
             <select className="select">
               <option>Tất cả workspace</option>
-              {organization.workspaces.map((ws) => (
+              {workspaceCards.map((ws) => (
                 <option key={ws.id} value={ws.id}>{ws.name}</option>
+              ))}
+            </select>
+            <select className="select">
+              <option>Tất cả partner</option>
+              {partnerCards.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
             <select className="select">
@@ -323,67 +281,72 @@ export default function OrgActivityClient() {
               <option>Chờ phân loại</option>
               <option>Đã giao partner</option>
               <option>Đang xử lý</option>
+              <option>Cần phản hồi</option>
               <option>Hoàn tất</option>
             </select>
             <select className="select">
               <option>7 ngày gần nhất</option>
               <option>Hôm nay</option>
               <option>30 ngày gần nhất</option>
+              <option>Quý này</option>
             </select>
             <button className="filter-btn">Lọc</button>
           </div>
         </div>
 
-        {/* Main Layout */}
+        {/* ─────── Main Layout ─────── */}
         <div className="layout">
           <main className="main">
-            {/* Activity Feed */}
+            {/* ── Activity Feed ── */}
             <section className="panel">
               <div className="panel-head">
                 <div className="panel-title">
                   <div className="icon green">A</div>
                   <div>
                     <h2>Activity feed</h2>
-                    <div className="subtitle">Dòng thời gian hoạt động gần nhất của organization.</div>
+                    <div className="subtitle">Dòng thời gian hoạt động gần nhất của organization trên hồ sơ, partner, user và tài liệu.</div>
                   </div>
                 </div>
                 <span className="chip">24h gần nhất</span>
               </div>
               <div className="panel-body">
                 <div className="feed">
-                  {organization.recentAuditLogs?.slice(0, 5).map((log) => (
-                    <div key={log.id} className={`feed-item ${log.action.includes('SLA') || log.action.includes('risk') ? 'warning' : ''}`}>
-                      <div className={`feed-icon ${log.targetType === 'request' ? 'req' : log.targetType === 'vault_file' ? 'doc' : 'user'}`}>
-                        {log.targetType === 'request' ? 'REQ' : log.targetType === 'vault_file' ? 'DOC' : 'USR'}
+                  {enrichedFeed.length === 0 ? (
+                    <div className="empty-state">Chưa có hoạt động gần đây</div>
+                  ) : (
+                    enrichedFeed.map((item) => (
+                      <div key={item.id} className={`feed-item ${item.isWarning ? 'warning' : ''}`}>
+                        <div className={`feed-icon ${item.iconType}`}>{item.iconLabel}</div>
+                        <div className="feed-content">
+                          <strong>{item.title}</strong>
+                          <p>{item.description}</p>
+                          {item.badges.length > 0 && (
+                            <div className="feed-meta">
+                              {item.badges.map((b, bi) => (
+                                <span key={bi} className={`mini-badge ${b.variant}`}>{b.label}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="feed-time">{item.time}</div>
                       </div>
-                      <div className="feed-content">
-                        <strong>{log.action}</strong>
-                        <p>{log.metadataSummary ? JSON.parse(log.metadataSummary)?.extra : `Target: ${log.targetType}`}</p>
-                      </div>
-                      <div className="feed-time">{getRelativeTime(log.createdAt)}</div>
-                    </div>
-                  ))}
-                  {(!organization.recentAuditLogs || organization.recentAuditLogs.length === 0) && (
-                    <div className="empty-state">
-                      <Clock size={24} />
-                      <span>Chưa có hoạt động gần đây</span>
-                    </div>
+                    ))
                   )}
                 </div>
               </div>
             </section>
 
-            {/* Active Requests Table */}
+            {/* ── Active Requests Table ── */}
             <section className="panel table-wrap">
               <div className="panel-head">
                 <div className="panel-title">
                   <div className="icon blue">C</div>
                   <div>
                     <h2>Hồ sơ đang hoạt động</h2>
-                    <div className="subtitle">Các hồ sơ pháp lý đang mở của organization.</div>
+                    <div className="subtitle">Các hồ sơ pháp lý đang mở của organization theo workspace, partner và trạng thái.</div>
                   </div>
                 </div>
-                <span className="chip">{stats.openRequests} hồ sơ mở</span>
+                <span className="chip">{stats.openCases} hồ sơ mở</span>
               </div>
               <div className="panel-body" style={{ padding: 0 }}>
                 <table className="activity-table">
@@ -396,9 +359,14 @@ export default function OrgActivityClient() {
                     </tr>
                   </thead>
                   <tbody>
-                    {organization.recentRequests?.slice(0, 10).map((req) => {
-                      const sla = getSLAStatus(req.slaDeadline);
-                      return (
+                    {requestRows.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} style={{ textAlign: 'center', padding: 32, color: '#64748b' }}>
+                          Chưa có hồ sơ nào
+                        </td>
+                      </tr>
+                    ) : (
+                      requestRows.map((req) => (
                         <tr key={req.id}>
                           <td>
                             <div className="stack">
@@ -408,69 +376,89 @@ export default function OrgActivityClient() {
                           </td>
                           <td>{req.workspaceName}</td>
                           <td>
-                            <span className={`mini-badge ${STATUS_COLORS[req.status] || 'gray'}`}>
-                              {STATUS_LABELS[req.status] || req.status}
-                            </span>
+                            <span className={`mini-badge ${req.statusVariant}`}>{req.statusText}</span>
                           </td>
                           <td>
-                            <span className={`mini-badge ${sla.variant}`}>
-                              {sla.text}
-                            </span>
+                            <span className={`mini-badge ${req.slaVariant}`}>{req.slaText}</span>
                           </td>
                         </tr>
-                      );
-                    })}
-                    {(!organization.recentRequests || organization.recentRequests.length === 0) && (
-                      <tr>
-                        <td colSpan={4} style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>
-                          Chưa có hồ sơ nào
-                        </td>
-                      </tr>
+                      ))
                     )}
                   </tbody>
                 </table>
               </div>
             </section>
 
-            {/* Workspaces Grid */}
+            {/* ── Workspaces Grid ── */}
             <section className="panel">
               <div className="panel-head">
                 <div className="panel-title">
                   <div className="icon purple">W</div>
                   <div>
                     <h2>Workspaces đang hoạt động</h2>
-                    <div className="subtitle">Các workspace thuộc organization.</div>
+                    <div className="subtitle">Các workspace thuộc organization và tình trạng tài nguyên bên trong.</div>
                   </div>
                 </div>
-                <span className="chip">{organization.workspaces.length} workspaces</span>
+                <span className="chip">{workspaceCards.length} workspaces</span>
               </div>
               <div className="panel-body">
                 <div className="workspace-grid">
-                  {organization.workspaces.map((ws) => (
-                    <div key={ws.id} className="workspace-card">
-                      <div>
-                        <strong>{ws.name}</strong>
-                        <span>{ws.slug}</span>
+                  {workspaceCards.length === 0 ? (
+                    <div className="empty-state">Chưa có workspace nào</div>
+                  ) : (
+                    workspaceCards.map((ws) => (
+                      <div key={ws.id} className="workspace-card">
+                        <div>
+                          <strong>{ws.name}</strong>
+                          <span>{ws.description}</span>
+                        </div>
+                        <span className={`mini-badge ${ws.statusBadge}`}>{ws.statusLabel}</span>
                       </div>
-                      <span className={`mini-badge ${ws.isActive ? 'green' : 'gray'}`}>
-                        {ws.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </div>
-                  ))}
-                  {organization.workspaces.length === 0 && (
-                    <div className="empty-state">
-                      <Briefcase size={24} />
-                      <span>Chưa có workspace nào</span>
-                    </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* ── Recent Documents ── */}
+            <section className="panel">
+              <div className="panel-head">
+                <div className="panel-title">
+                  <div className="icon orange">D</div>
+                  <div>
+                    <h2>Tài liệu gần đây</h2>
+                    <div className="subtitle">Tài liệu được upload, review hoặc chia sẻ trong phạm vi organization.</div>
+                  </div>
+                </div>
+                <span className="chip">{stats.vaultFiles} vault files</span>
+              </div>
+              <div className="panel-body">
+                <div className="doc-grid">
+                  {documentCards.length === 0 ? (
+                    <div className="empty-state">Chưa có tài liệu</div>
+                  ) : (
+                    documentCards.map((doc) => (
+                      <div key={doc.id} className="doc-card">
+                        <div className={`file-icon ${doc.fileIconClass}`}>{doc.ext}</div>
+                        <div className="stack">
+                          <strong>{doc.filename}</strong>
+                          <span>{doc.workspaceName} · upload bởi {doc.uploadedBy}{doc.fileSize && ` · ${doc.fileSize}`}</span>
+                        </div>
+                        <div className="file-actions">
+                          <button className="small-btn">Xem</button>
+                          <button className="small-btn primary">Tải</button>
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
               </div>
             </section>
           </main>
 
-          {/* Sidebar */}
+          {/* ─────── Sidebar ─────── */}
           <aside className="sidebar">
-            {/* Org Status */}
+            {/* ── Org Status ── */}
             <section className="panel">
               <div className="panel-head">
                 <div className="panel-title">
@@ -486,28 +474,102 @@ export default function OrgActivityClient() {
                   <div className="side-item">
                     <div className="side-label">Trạng thái</div>
                     <div className="side-value">
-                      {organization.status === 'active' ? 'Active · đang có hồ sơ mở' : 'Inactive'}
+                      {orgData.status === 'active' ? 'Active · đang có hồ sơ mở' : 'Inactive'}
                     </div>
                   </div>
                   <div className="side-item">
                     <div className="side-label">Organization type</div>
-                    <div className="side-value">{organization.businessType || 'N/A'}</div>
+                    <div className="side-value">
+                      {orgData.businessType ? `SME · ${orgData.businessType}` : 'N/A'}
+                    </div>
                   </div>
                   <div className="side-item">
                     <div className="side-label">Primary workspace</div>
+                    <div className="side-value">{workspaceCards[0]?.name || 'Chưa có'}</div>
+                  </div>
+                  <div className="side-item">
+                    <div className="side-label">Last active</div>
                     <div className="side-value">
-                      {organization.workspaces[0]?.name || 'Chưa có'}
+                      {activityFeed[0]
+                        ? `${activityFeed[0].time} · ${activityFeed[0].title}`
+                        : 'Chưa có hoạt động'}
                     </div>
                   </div>
                   <div className="side-item">
                     <div className="side-label">Identifier</div>
-                    <div className="side-value">{organization.id}</div>
+                    <div className="side-value">{orgData.slug}</div>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* SLA & Risk */}
+            {/* ── Partners ── */}
+            <section className="panel">
+              <div className="panel-head">
+                <div className="panel-title">
+                  <div className="icon blue">P</div>
+                  <div>
+                    <h2>Partners liên quan</h2>
+                    <div className="subtitle">Partner đang xử lý hồ sơ cho organization.</div>
+                  </div>
+                </div>
+              </div>
+              <div className="panel-body">
+                <div className="partner-grid">
+                  {partnerCards.length === 0 ? (
+                    <div className="empty-state">Chưa có partner</div>
+                  ) : (
+                    partnerCards.map((p) => (
+                      <div key={p.id} className="partner-card">
+                        <div>
+                          <strong>{p.name}</strong>
+                          <span>{p.description}</span>
+                        </div>
+                        <span className={`mini-badge ${p.statusBadge}`}>{p.statusLabel}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* ── Members ── */}
+            <section className="panel">
+              <div className="panel-head">
+                <div className="panel-title">
+                  <div className="icon purple">U</div>
+                  <div>
+                    <h2>Members active</h2>
+                    <div className="subtitle">User của organization và admin/partner tương tác gần đây.</div>
+                  </div>
+                </div>
+              </div>
+              <div className="panel-body">
+                <div className="member-grid">
+                  {memberCards.length === 0 ? (
+                    <div className="empty-state">Chưa có thành viên</div>
+                  ) : (
+                    memberCards.slice(0, 6).map((m, i) => {
+                      const avatarColors = ['green', '', 'purple', '', 'blue', ''];
+                      const avatarClass = avatarColors[i % 6] || '';
+                      return (
+                        <div key={m.id} className="member-card">
+                          <div className={`avatar ${avatarClass}`}>
+                            {m.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
+                          </div>
+                          <div>
+                            <strong>{m.name}</strong>
+                            <span>{m.role} · {m.workspaceName}</span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* ── SLA & Risk ── */}
             <section className="panel">
               <div className="panel-head">
                 <div className="panel-title">
@@ -523,49 +585,71 @@ export default function OrgActivityClient() {
                   <div className="capacity-row">
                     <div className="capacity-top">
                       <span>Hồ sơ đang mở</span>
-                      <span>{stats.openRequests} / 30</span>
+                      <span>{stats.openCases} / 30</span>
                     </div>
                     <div className="track">
-                      <div className="fill blue" style={{ width: `${Math.min(100, (stats.openRequests / 30) * 100)}%` }} />
+                      <div className="fill blue" style={{ width: `${Math.min(100, (stats.openCases / 30) * 100)}%` }} />
                     </div>
                   </div>
                   <div className="capacity-row">
                     <div className="capacity-top">
                       <span>SLA đúng hạn</span>
-                      <span>{stats.openRequests - stats.slaRisk > 0 ? Math.round(((stats.openRequests - stats.slaRisk) / stats.openRequests) * 100) : 100}%</span>
+                      <span>{stats.openCases > 0 ? Math.round(((stats.openCases - stats.slaRisk) / stats.openCases) * 100) : 100}%</span>
                     </div>
                     <div className="track">
-                      <div className="fill green" style={{ width: `${stats.openRequests > 0 ? Math.max(0, ((stats.openRequests - stats.slaRisk) / stats.openRequests) * 100) : 100}%` }} />
+                      <div className="fill green" style={{ width: `${stats.openCases > 0 ? Math.max(0, ((stats.openCases - stats.slaRisk) / stats.openCases) * 100) : 100}%` }} />
                     </div>
                   </div>
+                  <div className="capacity-row">
+                    <div className="capacity-top">
+                      <span>Tài liệu chờ bổ sung</span>
+                      <span>{stats.vaultFilesNew}</span>
+                    </div>
+                    <div className="track">
+                      <div className="fill orange" style={{ width: `${Math.min(100, (stats.vaultFilesNew / 10) * 100)}%` }} />
+                    </div>
+                  </div>
+
                   {stats.slaRisk > 0 && (
                     <div className="risk-card">
-                      <strong>{stats.slaRisk} hồ sơ SLA rủi ro</strong>
-                      <span>Cần nhắc nhở partner hoặc điều phối lại.</span>
+                      <strong>{stats.slaNeedsResponse} hồ sơ cần khách phản hồi</strong>
+                      <span>Một số hồ sơ đang chờ organization bổ sung tài liệu/xác nhận thông tin.</span>
                     </div>
                   )}
+
+                  <div className="risk-card red">
+                    <strong>1 quyền truy cập cần rà soát</strong>
+                    <span>Rà soát định kỳ quyền truy cập của user trong workspace.</span>
+                  </div>
                 </div>
               </div>
             </section>
 
-            {/* Members */}
+            {/* ── Timeline ── */}
             <section className="panel">
               <div className="panel-head">
                 <div className="panel-title">
-                  <div className="icon purple">U</div>
+                  <div className="icon green">T</div>
                   <div>
-                    <h2>Members</h2>
-                    <div className="subtitle">User của organization.</div>
+                    <h2>Timeline tuần này</h2>
+                    <div className="subtitle">Các mốc hoạt động chính của organization.</div>
                   </div>
                 </div>
               </div>
               <div className="panel-body">
-                <div className="member-count-display">
-                  <Users size={32} />
-                  <div>
-                    <strong>{organization._count?.members || 0}</strong>
-                    <span>total members</span>
-                  </div>
+                <div className="timeline">
+                  {activityFeed.slice(0, 5).map((item, i) => (
+                    <div key={item.id} className="timeline-item">
+                      <div className="timeline-dot">{i + 1}</div>
+                      <div className="timeline-body">
+                        <strong>{item.title}</strong>
+                        <span>{item.time}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {activityFeed.length === 0 && (
+                    <div className="empty-state">Chưa có mốc hoạt động</div>
+                  )}
                 </div>
               </div>
             </section>

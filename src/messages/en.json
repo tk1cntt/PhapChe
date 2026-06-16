@@ -292,6 +292,8 @@
     "users": "Users",
     "workspaces": "Workspaces",
     "requests": "Requests",
+    "partner": "Partners",
+    "organizations": "Organizations",
     "ops": "Operations",
     "audit": "Audit",
     "vault": "Vault",

@@ -16,66 +16,31 @@ export default function AuditTimeline({ entries = [] }: AuditTimelineProps) {
   const t = useTranslations('AdminDashboard');
 
   return (
-    <div
-      className="bg-white border rounded-[15px] p-6"
-      style={{
-        borderColor: 'var(--border)',
-        boxShadow: 'var(--soft-shadow)',
-      }}
-    >
+    <div className="panel">
       {/* Panel Title */}
-      <div className="flex items-center gap-3 text-xl font-bold text-[#0f172a] mb-[18px]">
-        <svg
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#087f78"
-          strokeWidth="2"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 6v6l4 2" />
-        </svg>
-        {t('timelinePanel')}
+      <div className="panel-title">
+        <div className="panel-title-left">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg>
+          {t('timelinePanel')}
+        </div>
       </div>
 
       {/* Timeline */}
-      <div className="relative">
-        {/* Vertical line */}
-        <div
-          className="absolute left-[13px] top-2 bottom-2 w-0.5 bg-gray-200"
-          style={{ background: '#e2e8f0' }}
-        />
-
+      <div className="timeline">
         {entries.length === 0 ? (
-          <div className="text-center text-[#94a3b8] py-4">
+          <div style={{ textAlign: 'center', color: '#94a3b8', padding: '16px 0' }}>
             {t('noTimeline')}
           </div>
         ) : (
           entries.map((entry, index) => (
-            <div
-              key={index}
-              className="relative pl-10 pb-5 last:pb-0"
-            >
-              {/* Timeline dot */}
-              <div
-                className="absolute left-[5px] top-1 w-[18px] h-[18px] rounded-full border-4 z-10"
-                style={{
-                  background: '#087f78',
-                  borderColor: '#d9f8f4',
-                }}
-              />
-
-              {/* Content */}
-              <strong className="block text-sm font-semibold mb-1 text-[#0f172a]">
-                {entry.title}
-              </strong>
-              <p className="text-[13px] text-[#64748b] leading-relaxed m-0">
-                {entry.description}
-              </p>
-              <div className="text-[12px] text-[#94a3b8] mt-1 font-semibold">
-                {entry.time}
-              </div>
+            <div key={index} className="timeline-item">
+              <div className="timeline-dot" />
+              <strong>{entry.title}</strong>
+              <p>{entry.description}</p>
+              <div className="timeline-time">{entry.time}</div>
             </div>
           ))
         )}

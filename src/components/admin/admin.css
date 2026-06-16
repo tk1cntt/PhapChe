@@ -1,232 +1,207 @@
-/* Admin Dashboard Shared Styles */
+/* Admin Dashboard Specific Styles */
 
-/* Panel container base */
-.admin-panel {
-  @apply bg-white border border-gray-200 rounded-[15px] shadow-md p-6;
+/* Admin Banner */
+.admin-banner {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  box-shadow: var(--soft-shadow);
+  padding: 26px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
 }
 
-/* Panel title */
-.panel-title {
-  @apply flex justify-between items-center mb-4;
+.banner-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
-.panel-title-left {
-  @apply flex items-center gap-3 text-lg font-bold text-[#0f172a];
+.banner-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0b8f86, #087970);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 20px rgba(8, 127, 120, 0.22);
+  flex-shrink: 0;
 }
 
-/* Workload list items */
-.workload-list {
-  @apply space-y-0;
+.admin-banner h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: #0f172a;
+  font-weight: 700;
 }
 
-.workload-item {
-  @apply flex items-center justify-between py-3 border-b border-gray-100 last:border-0;
+.admin-banner p {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 500;
+  margin: 0;
 }
 
-.workload-item .person {
-  @apply flex items-center gap-3;
+.banner-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
-.workload-item .person-avatar {
-  @apply w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center text-sm font-bold;
+/* Header Actions */
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
-.workload-item .progress {
-  @apply w-24 h-2 bg-gray-200 rounded-full overflow-hidden;
+/* Admin Grid Layouts */
+.admin-grid-2 {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 20px;
+  margin-bottom: 24px;
 }
 
-.workload-item .progress .ok {
-  @apply bg-teal-500;
+.admin-grid-3 {
+  display: grid;
+  grid-template-columns: 0.9fr 0.9fr 1.2fr;
+  gap: 20px;
+  margin-bottom: 24px;
 }
 
-.workload-item .progress .warn {
-  @apply bg-orange-500;
+@media (max-width: 1200px) {
+  .admin-grid-2,
+  .admin-grid-3 {
+    grid-template-columns: 1fr;
+  }
 }
 
-.workload-item .progress .danger {
-  @apply bg-red-500;
+/* Stat Icon - Missing variants */
+.stat-icon.green {
+  color: #0f766e;
+  background: linear-gradient(135deg, #d4f4ed, #eefbf8);
 }
 
-.workload-item .workload-count {
-  @apply text-sm font-semibold text-[#64748b] w-16 text-right;
+.stat-icon.red {
+  color: #ef4444;
+  background: linear-gradient(135deg, #ffe4e6, #fff1f2);
 }
 
-/* Alert list items */
-.alert-list {
-  @apply space-y-0;
+/* Case Cell for Table */
+.case-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
-.alert-item {
-  @apply flex items-center justify-between py-3 border-b border-gray-100 last:border-0;
+.case-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.alert-item .item-left {
-  @apply flex items-center gap-3;
+/* Floating Chat */
+.floating-chat {
+  position: fixed;
+  right: 22px;
+  bottom: 20px;
+  min-width: 118px;
+  height: 48px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ef4444, #dc2626);
+  color: #fff;
+  border: 3px solid #facc15;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+  padding: 0 14px;
+  z-index: 100;
+  text-decoration: none;
 }
 
-.alert-item .item-icon {
-  @apply w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm;
+.floating-chat span:first-child {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.alert-item .item-icon.red {
-  @apply bg-red-100 text-red-600;
+/* Timeline */
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 18px;
 }
 
-.alert-item .item-icon.orange {
-  @apply bg-orange-100 text-orange-600;
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: #e2e8f0;
 }
 
-.alert-item .item-icon.blue {
-  @apply bg-blue-100 text-blue-600;
+.timeline-item {
+  position: relative;
+  padding-left: 38px;
 }
 
-.alert-item .item-icon.green {
-  @apply bg-green-100 text-green-600;
+.timeline-dot {
+  position: absolute;
+  left: 5px;
+  top: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #087f78;
+  border: 4px solid #d9f8f4;
+  z-index: 2;
 }
 
-.alert-item .item-info {
-  @apply min-w-0;
+.timeline-item strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
 }
 
-.alert-item .item-info strong {
-  @apply block text-sm font-semibold text-[#0f172a];
+.timeline-item p {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
 }
 
-.alert-item .item-info span {
-  @apply block text-xs text-[#64748b];
+.timeline-time {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 5px;
+  font-weight: 600;
 }
 
-.alert-item .badge {
-  @apply px-3 py-1 rounded-full text-xs font-bold;
-}
-
-.alert-item .badge.red {
-  @apply bg-red-100 text-red-700;
-}
-
-.alert-item .badge.orange {
-  @apply bg-orange-100 text-orange-700;
-}
-
-.alert-item .badge.blue {
-  @apply bg-blue-100 text-blue-700;
-}
-
-.alert-item .badge.green {
-  @apply bg-green-100 text-green-700;
-}
-
-/* Workspace list items */
-.workspace-list {
-  @apply space-y-0;
-}
-
-.workspace-item {
-  @apply flex items-center justify-between py-3 border-b border-gray-100 last:border-0;
-}
-
-.workspace-item .item-left {
-  @apply flex items-center gap-3;
-}
-
-.workspace-item .item-icon {
-  @apply w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm;
-}
-
-.workspace-item .item-icon.green {
-  @apply bg-green-100 text-green-600;
-}
-
-.workspace-item .item-icon.blue {
-  @apply bg-blue-100 text-blue-600;
-}
-
-.workspace-item .item-icon.orange {
-  @apply bg-orange-100 text-orange-600;
-}
-
-.workspace-item .item-info {
-  @apply min-w-0;
-}
-
-.workspace-item .item-info strong {
-  @apply block text-sm font-semibold text-[#0f172a];
-}
-
-.workspace-item .item-info span {
-  @apply block text-xs text-[#64748b];
-}
-
-.workspace-item .badge {
-  @apply px-3 py-1 rounded-full text-xs font-bold;
-}
-
-.workspace-item .badge.green {
-  @apply bg-green-100 text-green-700;
-}
-
-.workspace-item .badge.blue {
-  @apply bg-blue-100 text-blue-700;
-}
-
-/* Approval list items */
-.approval-list {
-  @apply space-y-0;
-}
-
-.approval-item {
-  @apply flex items-center justify-between py-3 border-b border-gray-100 last:border-0;
-}
-
-.approval-item .item-left {
-  @apply flex items-center gap-3;
-}
-
-.approval-item .item-icon {
-  @apply w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm;
-}
-
-.approval-item .item-icon.orange {
-  @apply bg-orange-100 text-orange-600;
-}
-
-.approval-item .item-icon.blue {
-  @apply bg-blue-100 text-blue-600;
-}
-
-.approval-item .item-icon.red {
-  @apply bg-red-100 text-red-600;
-}
-
-.approval-item .item-info {
-  @apply min-w-0;
-}
-
-.approval-item .item-info strong {
-  @apply block text-sm font-semibold text-[#0f172a];
-}
-
-.approval-item .item-info span {
-  @apply block text-xs text-[#64748b];
-}
-
-.approval-item .badge {
-  @apply px-3 py-1 rounded-full text-xs font-bold;
-}
-
-.approval-item .badge.orange {
-  @apply bg-orange-100 text-orange-700;
-}
-
-.approval-item .badge.blue {
-  @apply bg-blue-100 text-blue-700;
-}
-
-.approval-item .badge.red {
-  @apply bg-red-100 text-red-700;
-}
-
-/* Small links */
-.small-link {
-  @apply text-sm font-semibold text-teal-600 hover:text-teal-700 no-underline transition-colors;
+/* Responsive */
+@media (max-width: 1450px) {
+  .app {
+    min-width: 1450px;
+  }
 }

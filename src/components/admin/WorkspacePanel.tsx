@@ -1,44 +1,33 @@
-"use client";
+'use client';
 
-import { Building } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations } from 'next-intl';
 
 interface WorkspaceItemProps {
   initials: string;
-  iconColor: "green" | "blue" | "orange";
+  iconColor: 'green' | 'blue' | 'orange';
   name: string;
   description: string;
   badge: string;
-  badgeColor: "green" | "blue" | "orange";
+  badgeColor: 'green' | 'blue' | 'orange';
 }
 
-const iconColorStyles = {
-  green: "bg-green-100 text-green-600",
-  blue: "bg-blue-100 text-blue-600",
-  orange: "bg-orange-100 text-orange-600",
-};
-
-const badgeColorStyles = {
-  green: "bg-green-100 text-green-700",
-  blue: "bg-blue-100 text-blue-700",
-  orange: "bg-orange-100 text-orange-700",
+const badgeClass: Record<string, string> = {
+  green: 'badge green',
+  blue: 'badge blue',
+  orange: 'badge orange',
 };
 
 function WorkspaceItem({ initials, iconColor, name, description, badge, badgeColor }: WorkspaceItemProps) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
-      <div className="flex items-center gap-3">
-        <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm ${iconColorStyles[iconColor]}`}>
-          {initials}
-        </div>
-        <div>
-          <div className="font-semibold text-sm text-[#0f172a]">{name}</div>
-          <div className="text-xs text-[#64748b]">{description}</div>
+    <div className="workspace-item">
+      <div className="item-left">
+        <div className={`item-icon ${iconColor}`}>{initials}</div>
+        <div className="item-info">
+          <strong>{name}</strong>
+          <span>{description}</span>
         </div>
       </div>
-      <span className={`px-3 py-1 rounded-full text-xs font-bold ${badgeColorStyles[badgeColor]}`}>
-        {badge}
-      </span>
+      <span className={badgeClass[badgeColor] || badgeClass.blue}>{badge}</span>
     </div>
   );
 }
@@ -47,23 +36,25 @@ export function WorkspacePanel({ workspaces = [] }: { workspaces?: WorkspaceItem
   const t = useTranslations('AdminDashboard');
 
   return (
-    <div
-      className="bg-white border border-gray-200 rounded-[15px] shadow-md p-6"
-      style={{ boxShadow: 'var(--soft-shadow)', borderColor: 'var(--border)' }}
-    >
-      <div className="flex items-center gap-3 text-lg font-bold text-[#0f172a] mb-4">
-        <Building width={22} height={22} className="text-teal-600" />
-        <span>{t('workspacesPanel')}</span>
+    <div className="panel">
+      <div className="panel-title">
+        <div className="panel-title-left">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 21h18" />
+            <path d="M5 21V7h6v14" />
+            <path d="M13 21V3h6v18" />
+          </svg>
+          {t('workspacesPanel')}
+        </div>
       </div>
+
       <div className="workspace-list">
         {workspaces.length === 0 ? (
-          <div className="py-6 text-center text-[#94a3b8]">
+          <div style={{ padding: '24px 0', textAlign: 'center', color: '#94a3b8' }}>
             {t('noWorkspaces')}
           </div>
         ) : (
-          workspaces.map((ws, index) => (
-            <WorkspaceItem key={index} {...ws} />
-          ))
+          workspaces.map((ws, index) => <WorkspaceItem key={index} {...ws} />)
         )}
       </div>
     </div>

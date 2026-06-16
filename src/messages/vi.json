@@ -275,6 +275,7 @@
     "primaryAdmin": "Quản trị chính",
     "team": "Nhóm",
     "noData": "Không có dữ liệu",
+    "usersTotal": "{count} người dùng",
     "totalUsersCount": "Tổng {total} người dùng",
     "role_audit_admin": "Kiểm toán viên"
   },

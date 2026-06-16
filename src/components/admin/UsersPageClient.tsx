@@ -111,7 +111,7 @@ export default function UsersPageClient({
   });
 
   const users = data?.data ?? [];
-  const total = data?.total ?? 0;
+  const total = data?.pagination?.total ?? 0;
 
   if (isLoading) {
     return (

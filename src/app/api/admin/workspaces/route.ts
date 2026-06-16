@@ -9,14 +9,34 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
+const ADMIN_ROLES = ['super_admin', 'coordinator_admin'];
+
+async function requireAdminSession() {
+  const session = await auth.api.getSession();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    throw { status: 401, error: 'Unauthorized' };
   }
 
-  if (session.user.role !== 'platform_admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const memberships = await prisma.workspaceMembership.findMany({
+    where: { userId: session.user.id, isActive: true },
+    select: { role: true },
+  });
+
+  const userRoles = memberships.map((m) => m.role).filter((r): r is string => r !== null);
+  const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
+
+  if (!hasAdminRole) {
+    throw { status: 403, error: 'Forbidden' };
+  }
+
+  return { session, userId: session.user.id };
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    await requireAdminSession();
+  } catch (e: any) {
+    return NextResponse.json({ error: e.error }, { status: e.status });
   }
 
   const { searchParams } = new URL(req.url);
@@ -62,13 +82,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  if (session.user.role !== 'platform_admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  try {
+    await requireAdminSession();
+  } catch (e: any) {
+    return NextResponse.json({ error: e.error }, { status: e.status });
   }
 
   const body = await req.json();

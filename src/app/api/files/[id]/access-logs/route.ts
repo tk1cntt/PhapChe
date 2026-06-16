@@ -6,7 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'better-auth';
+import { headers } from 'next/headers';
+import { auth } from '@/auth';
 import { storageServer } from '@/lib/storage/server';
 import { prisma } from '@/lib/prisma';
 
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
 
     // Get authenticated user
-    const session = await getServerSession();
+    const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session?.user?.id) {
       return NextResponse.json(

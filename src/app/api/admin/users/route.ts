@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
       data: {
         email,
         name,
-        emailVerified: new Date(),
+        emailVerified: true,
         memberships: workspaceId ? {
           create: {
             workspaceId,

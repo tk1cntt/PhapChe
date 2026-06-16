@@ -135,7 +135,7 @@ async function addDiverseData() {
           data: {
             requestId: req.id,
             userId: createdByUser.id,
-            role: 'specialist',
+            createdById: createdByUser.id,
           }
         }).catch(() => {});
       }
@@ -166,17 +166,14 @@ async function addDiverseData() {
     const action = auditActions[i % auditActions.length];
 
     try {
+      const ws = workspaces[i % workspaces.length];
       await prisma.auditEvent.create({
         data: {
-          userId: user?.id,
+          actorId: user?.id,
           action,
-          entityType: 'request',
-          entityId: req?.id,
-          metadata: {
-            ip: `192.168.1.${100 + (i % 50)}`,
-            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-            details: `Action: ${action}`,
-          },
+          targetType: 'request',
+          targetId: req?.id || '',
+          workspaceId: ws?.id || '',
         }
       });
       auditCount++;

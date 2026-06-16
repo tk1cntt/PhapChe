@@ -35,7 +35,7 @@ export default async function DashboardPage() {
     activeWorkspaceId
       ? prisma.workspace.findUnique({
           where: { id: activeWorkspaceId },
-          select: { name: true, slug: true },
+          select: { id: true, name: true, slug: true },
         })
       : null,
     // Total = all workspace requests

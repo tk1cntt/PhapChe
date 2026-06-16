@@ -7,7 +7,9 @@
  * const { data } = await requestsApi.list({ status: 'draft' });
  */
 
-export { apiClient, ApiClient } from './client';
+import { apiClient, ApiClient } from './client';
+
+export { apiClient, ApiClient };
 export type { RequestOptions, ApiResponse, ErrorResponse } from './client';
 
 // Type definitions for API responses

@@ -35,9 +35,12 @@ interface UserRow {
 
 interface PaginatedResponse {
   data: UserRow[];
-  total: number;
-  page: number;
-  pageSize: number;
+  pagination: {
+    total: number;
+    skip: number;
+    take: number;
+    hasMore: boolean;
+  };
 }
 
 interface UsersPageClientProps {
@@ -245,6 +248,7 @@ export default function UsersPageClient({
         dataSource={users}
         roleColors={roleColors}
         avatarColors={avatarColors}
+        locale={locale}
         pagination={{
           current: page,
           pageSize: pageSize,

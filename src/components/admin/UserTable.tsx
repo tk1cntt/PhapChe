@@ -27,6 +27,7 @@ interface UserTableProps {
   roleColors?: Record<string, { bg: string; color: string }>;
   avatarColors?: Record<string, { bg: string; color: string }>;
   pagination?: false | PaginationConfig;
+  locale?: string;
 }
 
 function getInitials(name: string): string {
@@ -50,6 +51,7 @@ export default function UserTable({
   roleColors,
   avatarColors,
   pagination,
+  locale = 'vi',
 }: UserTableProps) {
   const t = useTranslations('AdminUsers');
 
@@ -376,7 +378,7 @@ export default function UserTable({
               minWidth: 0,
             }}>
               <Link
-                href="#"
+                href={`/${locale}/admin/users/${row.id}`}
                 style={{
                   color: '#087f78',
                   fontWeight: 800,

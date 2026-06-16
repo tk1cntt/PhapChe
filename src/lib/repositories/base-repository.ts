@@ -100,11 +100,11 @@ export abstract class BaseRepository<T, CreateInput, UpdateInput, WhereInput> {
   }
 
   // Abstract methods for Prisma operations
-  protected abstract prismaFindById(id: string): Promise<unknown | null>;
-  protected abstract prismaFindMany(options: FindManyOptions<WhereInput>): Promise<unknown[]>;
-  protected abstract prismaCreate(data: CreateInput): Promise<unknown>;
-  protected abstract prismaUpdate(id: string, data: UpdateInput): Promise<unknown>;
-  protected abstract prismaDelete(id: string): Promise<void>;
+  protected abstract dbFindById(id: string): Promise<unknown | null>;
+  protected abstract dbFindMany(options: FindManyOptions<WhereInput>): Promise<unknown[]>;
+  protected abstract dbCreate(data: CreateInput): Promise<unknown>;
+  protected abstract dbUpdate(id: string, data: UpdateInput): Promise<unknown>;
+  protected abstract dbDelete(id: string): Promise<unknown>;
 
   // Permission checks (can be overridden)
   protected abstract canAccess(ctx: RequestContext, entity: unknown): Promise<boolean>;

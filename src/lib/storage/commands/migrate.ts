@@ -390,4 +390,5 @@ main().catch((error) => {
   process.exit(1);
 });
 
-export { migrate, dryRun, MigrationOptions, MigrationResult };
+export { migrate, dryRun };
+export type { MigrationOptions, MigrationResult };

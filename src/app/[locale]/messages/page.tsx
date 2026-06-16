@@ -113,10 +113,9 @@ export default async function MessagesPage({
       isOutgoing: msg.senderId === userId,
       createdAt: msg.createdAt.toISOString(),
     };
-    if (!dbMessages[msg.legalRequestId]) {
-      dbMessages[msg.legalRequestId] = [];
+    if (msg.legalRequestId && dbMessages[msg.legalRequestId]) {
+      dbMessages[msg.legalRequestId].push(messageData);
     }
-    dbMessages[msg.legalRequestId].push(messageData);
   });
 
   // Avatar colors

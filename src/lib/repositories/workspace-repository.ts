@@ -18,23 +18,23 @@ export class WorkspaceRepository extends BaseRepository<
     super(customDb);
   }
 
-  protected async prismaFindById(id: string) {
+  protected async dbFindById(id: string) {
     return this.db.workspace.findUnique({ where: { id } });
   }
 
-  protected async prismaFindMany(options: FindManyOptions<{ id?: string; organizationId?: string; isActive?: boolean }>) {
+  protected async dbFindMany(options: FindManyOptions<{ id?: string; organizationId?: string; isActive?: boolean }>) {
     return this.db.workspace.findMany(options as Parameters<typeof this.db.workspace.findMany>[0]);
   }
 
-  protected async prismaCreate(data: { name: string; slug: string; organizationId?: string }) {
+  protected async dbCreate(data: { name: string; slug: string; organizationId?: string }) {
     return this.db.workspace.create({ data });
   }
 
-  protected async prismaUpdate(id: string, data: { name?: string; isActive?: boolean }) {
+  protected async dbUpdate(id: string, data: { name?: string; isActive?: boolean }) {
     return this.db.workspace.update({ where: { id }, data });
   }
 
-  protected async prismaDelete(id: string) {
+  protected async dbDelete(id: string) {
     return this.db.workspace.delete({ where: { id } });
   }
 

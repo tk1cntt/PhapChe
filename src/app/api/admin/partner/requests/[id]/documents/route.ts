@@ -3,8 +3,7 @@
  * GET/POST /api/admin/partner/requests/[id]/documents
  *
  * Admin can view and upload documents for partner requests.
- * All actions are logged to audit.
- * Platform-level admin - queries all memberships to find admin roles.
+ * Uses VaultFile model for storing documents.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -73,7 +72,7 @@ export async function GET(
     // Verify request exists
     const requestExists = await prisma.legalRequest.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, workspaceId: true },
     });
 
     if (!requestExists) {
@@ -83,20 +82,30 @@ export async function GET(
       );
     }
 
-    const documents = await prisma.requestDocument.findMany({
+    // Get vault files for this request
+    const files = await prisma.vaultFile.findMany({
       where: { requestId: id },
       select: {
         id: true,
         filename: true,
-        mimeType: true,
+        contentType: true,
         size: true,
-        description: true,
+        category: true,
+        visibility: true,
         createdAt: true,
-        uploadedBy: true,
-        uploadedByType: true,
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    // Transform to document format
+    const documents = files.map((f) => ({
+      id: f.id,
+      filename: f.filename,
+      mimeType: f.contentType,
+      size: f.size,
+      description: f.category || f.filename,
+      createdAt: f.createdAt,
+    }));
 
     return NextResponse.json({ data: documents });
   } catch (error: any) {
@@ -123,7 +132,7 @@ export async function POST(
     // Verify request exists
     const requestExists = await prisma.legalRequest.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, workspaceId: true },
     });
 
     if (!requestExists) {
@@ -160,40 +169,45 @@ export async function POST(
       );
     }
 
-    // Generate storage key
-    const timestamp = Date.now();
-    const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const storageKey = `admin/requests/${id}/${timestamp}-${safeName}`;
-
-    const document = await prisma.requestDocument.create({
+    // Store file metadata in vault file
+    const vaultFile = await prisma.vaultFile.create({
       data: {
+        workspaceId: requestExists.workspaceId,
         requestId: id,
+        actorId: userId,
         filename: file.name,
-        storageKey,
-        mimeType: file.type,
+        contentType: file.type,
         size: file.size,
-        uploadedBy: userId,
-        uploadedByType: 'admin',
-        description: description || null,
+        fileKind: 'upload',
+        source: 'admin_upload',
       },
     });
 
-    // Admin audit log
-    await prisma.auditLog.create({
+    // Audit log using AuditEvent
+    await prisma.auditEvent.create({
       data: {
-        action: 'admin.partner.document_upload',
-        entityType: 'legal_request',
-        entityId: id,
         actorId: userId,
-        actorType: 'admin',
-        actorName: session.user.name || 'Admin',
-        metadata: {
-          documentId: document.id,
+        workspaceId: requestExists.workspaceId,
+        action: 'admin.partner.document_upload',
+        targetType: 'request',
+        targetId: id,
+        requestId: id,
+        metadataSummary: JSON.stringify({
+          documentId: vaultFile.id,
           filename: file.name,
           size: file.size,
-        },
+        }),
       },
     });
+
+    const document = {
+      id: vaultFile.id,
+      filename: vaultFile.filename,
+      mimeType: vaultFile.contentType || 'application/octet-stream',
+      size: vaultFile.size,
+      description: description || vaultFile.filename || 'Document',
+      createdAt: vaultFile.createdAt,
+    };
 
     return NextResponse.json({ data: document }, { status: 201 });
   } catch (error: any) {

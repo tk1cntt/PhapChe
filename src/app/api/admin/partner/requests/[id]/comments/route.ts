@@ -3,8 +3,7 @@
  * GET/POST /api/admin/partner/requests/[id]/comments
  *
  * Admin can view and add comments on partner requests.
- * All actions are logged to audit.
- * Platform-level admin - queries all memberships to find admin roles.
+ * Uses Message model for storing comments.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -71,13 +70,31 @@ export async function GET(
       );
     }
 
-    const comments = await prisma.requestComment.findMany({
-      where: { requestId: id },
-      include: {
-        author: { select: { id: true, name: true, email: true } },
-      },
+    // Get messages for this request (using Message model for comments)
+    const messages = await prisma.message.findMany({
+      where: { legalRequestId: id },
       orderBy: { createdAt: 'asc' },
     });
+
+    // Get unique sender IDs
+    const senderIds = [...new Set(messages.map((m) => m.senderId))];
+
+    // Fetch all senders in one query
+    const senders = await prisma.user.findMany({
+      where: { id: { in: senderIds } },
+      select: { id: true, name: true, email: true },
+    });
+    const senderMap = new Map(senders.map((s) => [s.id, s]));
+
+    // Transform to comment format
+    const comments = messages.map((msg) => ({
+      id: msg.id,
+      requestId: msg.legalRequestId,
+      content: msg.content,
+      authorId: msg.senderId,
+      author: senderMap.get(msg.senderId) || { id: msg.senderId, name: 'Unknown', email: '' },
+      createdAt: msg.createdAt,
+    }));
 
     return NextResponse.json({ data: comments });
   } catch (error: any) {
@@ -97,14 +114,14 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { session, userId } = await requireAdminSession();
+    const { session, userId, activeWorkspaceId } = await requireAdminSession();
 
     const { id } = await params;
 
-    // Verify request exists
+    // Verify request exists and get workspace
     const requestExists = await prisma.legalRequest.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, workspaceId: true },
     });
 
     if (!requestExists) {
@@ -115,7 +132,7 @@ export async function POST(
     }
 
     const body = await req.json();
-    const { content, isInternal } = body;
+    const { content } = body;
 
     if (!content?.trim()) {
       return NextResponse.json(
@@ -124,31 +141,45 @@ export async function POST(
       );
     }
 
-    const comment = await prisma.requestComment.create({
+    // Get sender info
+    const sender = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, email: true },
+    });
+
+    // Use Message model for storing comments
+    const message = await prisma.message.create({
       data: {
-        requestId: id,
-        authorId: userId,
-        authorType: 'admin',
+        workspaceId: requestExists.workspaceId,
+        legalRequestId: id,
+        senderId: userId,
+        recipientId: userId, // Self-message for comments
         content: content.trim(),
-        isInternal: isInternal || false,
-      },
-      include: {
-        author: { select: { id: true, name: true, email: true } },
+        isRead: true,
       },
     });
 
-    // Admin audit log
-    await prisma.auditLog.create({
+    // Audit log using AuditEvent
+    await prisma.auditEvent.create({
       data: {
-        action: 'admin.partner.comment_add',
-        entityType: 'legal_request',
-        entityId: id,
         actorId: userId,
-        actorType: 'admin',
-        actorName: session.user.name || 'Admin',
-        metadata: { commentId: comment.id },
+        workspaceId: requestExists.workspaceId,
+        action: 'admin.partner.comment_add',
+        targetType: 'request',
+        targetId: id,
+        requestId: id,
+        metadataSummary: JSON.stringify({ commentId: message.id }),
       },
     });
+
+    const comment = {
+      id: message.id,
+      requestId: message.legalRequestId,
+      content: message.content,
+      authorId: message.senderId,
+      author: sender || { id: userId, name: 'Unknown', email: '' },
+      createdAt: message.createdAt,
+    };
 
     return NextResponse.json({ data: comment }, { status: 201 });
   } catch (error: any) {

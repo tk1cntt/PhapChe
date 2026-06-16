@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import OrgActivityClient from '@/components/admin/OrgActivityClient';
+import { Prisma } from '@prisma/client';
 
 interface PageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -164,7 +165,8 @@ export default async function AdminOrganizationActivityPage({ params }: PageProp
   // Transform to props
   const uniqueMembers = workspaceMembers.map((m) => {
     // Determine badge based on role
-    let badge = { label: m.role, variant: 'green' as const };
+    type BadgeVariant = 'green' | 'blue' | 'purple' | 'gray' | 'orange' | 'red';
+    let badge: { label: string; variant: BadgeVariant } = { label: m.role, variant: 'green' };
     if (m.role === 'owner') badge = { label: 'Customer admin', variant: 'green' };
     else if (m.role === 'reviewer') badge = { label: 'Reviewer', variant: 'purple' };
     else if (m.role === 'specialist') badge = { label: 'Specialist', variant: 'blue' };
@@ -358,7 +360,7 @@ export default async function AdminOrganizationActivityPage({ params }: PageProp
     id: eng.partner.id,
     name: eng.partner.name,
     type: eng.partner.type,
-    description: `${eng.partner.type === 'law_firm' ? 'Law Firm' : eng.partner.type === 'consultancy' ? 'Consultancy' : 'Individual'} · ${eng.serviceScopes.length} dịch vụ`,
+    description: `${eng.partner.type === 'law_firm' ? 'Law Firm' : eng.partner.type === 'consultancy' ? 'Consultancy' : 'Individual'}`,
     statusBadge: 'green' as const,
     statusLabel: 'Active',
   }));

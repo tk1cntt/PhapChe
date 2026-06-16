@@ -6,7 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'better-auth';
+import { headers } from 'next/headers';
+import { auth } from '@/auth';
 import { storageServer } from '@/lib/storage/server';
 import { LocalStorageProvider } from '@/lib/storage/providers/local-storage.provider';
 import { prisma } from '@/lib/prisma';
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
 
     // Get authenticated user
-    const session = await getServerSession();
+    const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -74,13 +75,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           bucket: file.bucket || undefined,
         });
 
-        const bufferData = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
+        const bufferData = buffer instanceof Buffer ? buffer : Buffer.from(await new Response(buffer as ReadableStream).arrayBuffer());
 
         // Log access
         await storageServer.getDownloadUrl(id, session.user.id);
 
-        // Return file with proper headers
-        return new NextResponse(bufferData, {
+        // Return file with proper headers (convert Buffer to Uint8Array)
+        return new NextResponse(new Uint8Array(bufferData), {
           status: 200,
           headers: {
             'Content-Type': file.mimeType,

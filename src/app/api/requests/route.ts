@@ -133,15 +133,15 @@ export async function POST(req: NextRequest) {
   });
 
   // Log to audit
-  await prisma.auditLog.create({
+  await prisma.auditEvent.create({
     data: {
-      action: 'request.create',
-      entityType: 'legal_request',
-      entityId: request.id,
       actorId: session.user.id,
-      actorType: 'user',
-      actorName: session.user.name || 'User',
-      metadata: { code, title, serviceTypeId },
+      workspaceId,
+      action: 'request.create',
+      targetType: 'request',
+      targetId: request.id,
+      requestId: request.id,
+      metadataSummary: JSON.stringify({ code, title, serviceTypeId }),
     },
   });
 

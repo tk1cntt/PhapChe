@@ -89,8 +89,7 @@ export async function uploadFile(
  * @returns File metadata with download URL
  */
 export async function getFile(fileId: string): Promise<FileMetadata> {
-  const response = await apiClient.get<FileMetadata>(`/api/files/${fileId}`);
-  return response.data;
+  return apiClient.get<FileMetadata>(`/api/files/${fileId}`);
 }
 
 /**

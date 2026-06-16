@@ -3,6 +3,7 @@
  * GET/POST /api/partner/requests/[id]/documents
  *
  * Partner can upload and view documents for requests assigned to them
+ * Uses VaultFile model for document storage
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -40,7 +41,7 @@ async function checkPartnerAccess(requestId: string, userId: string) {
 
   const request = await prisma.legalRequest.findUnique({
     where: { id: requestId },
-    include: { engagement: { select: { partnerId: true } } },
+    select: { id: true, workspaceId: true, assignedPartnerId: true, engagement: { select: { partnerId: true } } },
   });
 
   if (!request) {
@@ -73,12 +74,14 @@ export async function POST(
   }
 
   const access = await checkPartnerAccess(id, session.user.id);
-  if (access.error) {
+  if (access.error || !access.request) {
     return NextResponse.json(
-      { error: access.error, detail: access.detail },
-      { status: access.status }
+      { error: access.error || 'Access denied', detail: access.detail || 'Access denied' },
+      { status: access.status || 403 }
     );
   }
+
+  const { request: currentRequest } = access;
 
   // Handle multipart form data
   let formData: FormData;
@@ -122,65 +125,48 @@ export async function POST(
     );
   }
 
-  // Generate unique storage key
-  const timestamp = Date.now();
-  const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-  const storageKey = `partners/${access.member.partnerId}/requests/${id}/${timestamp}-${safeName}`;
-
-  // Read file buffer
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-
-  // TODO: Implement actual file upload to StorageService
-  // Currently only metadata is stored. File content is not persisted.
-  // This is a known limitation - StorageService integration needed.
-  console.warn(`[Partner Documents] File upload requested but StorageService not implemented. StorageKey: ${storageKey}`);
-
-  // Create document record and audit log in transaction
-  const [document] = await prisma.$transaction([
-    prisma.requestDocument.create({
-      data: {
-        requestId: id,
-        filename: file.name,
-        storageKey,
-        mimeType: file.type,
-        size: file.size,
-        uploadedBy: session.user.id,
-        uploadedByType: 'partner',
-        description: description?.trim() || null,
-      },
-    }),
-    prisma.auditLog.create({
-      data: {
-        action: 'request.document_uploaded',
-        entityType: 'request_document',
-        entityId: id, // Will be updated after document creation
-        actorId: session.user.id,
-        actorType: 'partner',
-        actorName: session.user.name || 'Partner',
-        metadata: {
-          requestId: id,
-          filename: file.name,
-          mimeType: file.type,
-          size: file.size,
-          storageKey,
-        },
-      },
-    }),
-  ]);
-
-  // Update audit log with actual document ID
-  await prisma.auditLog.update({
-    where: { id: document.id },
-    data: { entityId: document.id },
-  }).catch(() => {
-    // Ignore if update fails - the audit log is still created
+  // Create vault file record
+  const vaultFile = await prisma.vaultFile.create({
+    data: {
+      workspaceId: currentRequest.workspaceId,
+      requestId: id,
+      actorId: session.user.id,
+      filename: file.name,
+      contentType: file.type,
+      size: file.size,
+      fileKind: 'upload',
+      source: 'partner_upload',
+    },
   });
 
-  return NextResponse.json({
-    data: document,
-    warning: 'File content storage not yet implemented. Use StorageService to persist actual file.'
-  }, { status: 201 });
+  // Create audit event
+  await prisma.auditEvent.create({
+    data: {
+      actorId: session.user.id,
+      workspaceId: currentRequest.workspaceId,
+      action: 'request.document_uploaded',
+      targetType: 'request',
+      targetId: id,
+      requestId: id,
+      metadataSummary: JSON.stringify({
+        documentId: vaultFile.id,
+        filename: file.name,
+        mimeType: file.type,
+        size: file.size,
+      }),
+    },
+  });
+
+  const document = {
+    id: vaultFile.id,
+    filename: vaultFile.filename,
+    mimeType: vaultFile.contentType,
+    size: vaultFile.size,
+    description: description?.trim() || vaultFile.filename,
+    createdAt: vaultFile.createdAt,
+  };
+
+  return NextResponse.json({ data: document }, { status: 201 });
 }
 
 // GET - List documents
@@ -206,19 +192,26 @@ export async function GET(
     );
   }
 
-  const documents = await prisma.requestDocument.findMany({
+  const files = await prisma.vaultFile.findMany({
     where: { requestId: id },
     select: {
       id: true,
       filename: true,
-      mimeType: true,
+      contentType: true,
       size: true,
-      description: true,
       createdAt: true,
-      uploadedBy: true,
     },
     orderBy: { createdAt: 'desc' },
   });
+
+  const documents = files.map((f) => ({
+    id: f.id,
+    filename: f.filename,
+    mimeType: f.contentType,
+    size: f.size,
+    description: f.filename,
+    createdAt: f.createdAt,
+  }));
 
   return NextResponse.json({ data: documents });
 }

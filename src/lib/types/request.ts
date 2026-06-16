@@ -2,7 +2,12 @@
  * Request Type Definitions
  */
 
-import type { RequestStatus, Priority } from '@/lib/types';
+import type { RequestStatus } from '@/lib/types';
+
+/**
+ * Priority type for requests
+ */
+export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 
 /**
  * Legal request entity

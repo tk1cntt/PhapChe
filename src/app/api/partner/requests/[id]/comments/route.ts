@@ -3,6 +3,7 @@
  * GET/POST /api/partner/requests/[id]/comments
  *
  * Partner can view and add comments for requests assigned to them
+ * Uses Message model for comments
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -22,7 +23,7 @@ async function checkPartnerAccess(requestId: string, userId: string) {
 
   const request = await prisma.legalRequest.findUnique({
     where: { id: requestId },
-    include: { engagement: { select: { partnerId: true } } },
+    select: { id: true, workspaceId: true, assignedPartnerId: true, engagement: { select: { partnerId: true } } },
   });
 
   if (!request) {
@@ -62,13 +63,30 @@ export async function GET(
     );
   }
 
-  const comments = await prisma.requestComment.findMany({
-    where: { requestId: id },
-    include: {
-      author: { select: { id: true, name: true, email: true } },
-    },
+  // Get messages for this request (using Message model for comments)
+  const messages = await prisma.message.findMany({
+    where: { legalRequestId: id },
     orderBy: { createdAt: 'asc' },
   });
+
+  // Get sender info
+  const senderIds = [...new Set(messages.map((m) => m.senderId))];
+  const senders = await prisma.user.findMany({
+    where: { id: { in: senderIds } },
+    select: { id: true, name: true, email: true },
+  });
+  const senderMap = new Map(senders.map((s) => [s.id, s]));
+
+  // Transform to comment format
+  const comments = messages.map((msg) => ({
+    id: msg.id,
+    requestId: msg.legalRequestId,
+    content: msg.content,
+    authorId: msg.senderId,
+    author: senderMap.get(msg.senderId) || { id: msg.senderId, name: 'Unknown', email: '' },
+    isInternal: false,
+    createdAt: msg.createdAt,
+  }));
 
   return NextResponse.json({ data: comments });
 }
@@ -89,13 +107,14 @@ export async function POST(
   }
 
   const access = await checkPartnerAccess(id, session.user.id);
-  if (access.error) {
+  if (access.error || !access.request) {
     return NextResponse.json(
-      { error: access.error, detail: access.detail },
-      { status: access.status }
+      { error: access.error || 'Access denied', detail: access.detail || 'Access denied' },
+      { status: access.status || 403 }
     );
   }
 
+  const { request: currentRequest } = access;
   const body = await req.json();
   const { content, isInternal } = body;
 
@@ -116,44 +135,49 @@ export async function POST(
 
   const trimmedContent = content.trim();
 
-  // Create comment and audit log in transaction
-  const [comment] = await prisma.$transaction([
-    prisma.requestComment.create({
+  // Create message and audit event
+  const [message] = await prisma.$transaction([
+    prisma.message.create({
       data: {
-        requestId: id,
-        authorId: session.user.id,
-        authorType: 'partner',
+        workspaceId: currentRequest.workspaceId,
+        legalRequestId: id,
+        senderId: session.user.id,
+        recipientId: session.user.id,
         content: trimmedContent,
-        isInternal: Boolean(isInternal),
-      },
-      include: {
-        author: { select: { id: true, name: true, email: true } },
+        isRead: true,
       },
     }),
-    prisma.auditLog.create({
+    prisma.auditEvent.create({
       data: {
-        action: 'request.comment_added',
-        entityType: 'request_comment',
-        entityId: id, // Will be updated after comment creation
         actorId: session.user.id,
-        actorType: 'partner',
-        actorName: session.user.name || 'Partner',
-        metadata: {
-          requestId: id,
+        workspaceId: currentRequest.workspaceId,
+        action: 'request.comment_added',
+        targetType: 'request',
+        targetId: id,
+        requestId: id,
+        metadataSummary: JSON.stringify({
           isInternal: Boolean(isInternal),
           contentLength: trimmedContent.length,
-        },
+        }),
       },
     }),
   ]);
 
-  // Update audit log with actual comment ID
-  await prisma.auditLog.update({
-    where: { id: comment.id },
-    data: { entityId: comment.id },
-  }).catch(() => {
-    // Ignore if update fails - the audit log is still created
+  // Get sender info
+  const sender = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, name: true, email: true },
   });
+
+  const comment = {
+    id: message.id,
+    requestId: message.legalRequestId,
+    content: message.content,
+    authorId: message.senderId,
+    author: sender || { id: session.user.id, name: 'Unknown', email: '' },
+    isInternal: Boolean(isInternal),
+    createdAt: message.createdAt,
+  };
 
   return NextResponse.json({ data: comment }, { status: 201 });
 }

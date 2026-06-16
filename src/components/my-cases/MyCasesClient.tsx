@@ -23,6 +23,7 @@ export interface CaseRow {
   updatedTime: string;
   slaText: string;
   slaVariant: 'green' | 'orange' | 'red' | 'blue';
+  remainingHours?: number;
   actionText: string;
   actionHref: string;
 }

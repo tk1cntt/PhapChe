@@ -20,7 +20,7 @@ export interface MyCaseRow {
   updatedTime: string;
   slaText: string;
   slaVariant: 'green' | 'orange' | 'red' | 'blue';
-  remainingHours: number;
+  remainingHours?: number;
   actionText: string;
   actionHref: string;
 }
@@ -47,7 +47,7 @@ function getStatusBadgeVariant(status: MyCaseRow['statusBadge']): 'green' | 'ora
   }
 }
 
-function getSlaBadgeVariant(slaText: string, remainingHours: number): 'green' | 'orange' | 'red' | 'blue' {
+function getSlaBadgeVariant(slaText: string, remainingHours?: number): 'green' | 'orange' | 'red' | 'blue' {
   // Theo dõi (completed) → blue
   if (slaText === 'Theo dõi') {
     return 'blue';

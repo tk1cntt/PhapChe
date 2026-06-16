@@ -249,9 +249,9 @@ async function seedPartnerRequests() {
     for (let i = 0; i < Math.min(requestsData.length, partner.engagements.length * 2); i++) {
       const reqData = requestsData[i % requestsData.length];
 
-      // Find matching organization
-      const engagement = partner.engagements.find(e => e.organization?.name === reqData.orgName)
-        || partner.engagements[0];
+      // Find matching organization (skip the name check since no relation exists)
+      const engagement = partner.engagements[0]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
+      if (!engagement) continue;
 
       if (!engagement) continue;
 
@@ -261,7 +261,7 @@ async function seedPartnerRequests() {
         include: { workspaces: { take: 1 } },
       });
 
-      const workspace = org?.workspaces[0] || await prisma.workspace.findFirst({ where: { organizationId: org.id } });
+      const workspace = org?.workspaces[0] || (org ? await prisma.workspace.findFirst({ where: { organizationId: org.id } }) : null);
       if (!workspace) continue;
 
       const request = await prisma.legalRequest.upsert({
@@ -286,7 +286,7 @@ async function seedPartnerRequests() {
           status: reqData.status,
           priority: reqData.priority,
           slaDeadline: new Date(Date.now() + reqData.slaHours * 60 * 60 * 1000),
-          createdById: customerUser?.id || (await prisma.user.findFirst())?.id,
+          createdById: customerUser?.id || (await prisma.user.findFirst())?.id || '',
           assignedPartnerId: partner.id,
           engagementId: engagement.id,
         },

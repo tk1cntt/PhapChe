@@ -18,24 +18,24 @@ export class OrganizationRepository extends BaseRepository<
     super(customDb);
   }
 
-  protected async prismaFindById(id: string) {
+  protected async dbFindById(id: string) {
     return this.db.organization.findUnique({ where: { id } });
   }
 
-  protected async prismaFindMany(options: FindManyOptions<{ id?: string; tenantId?: string; status?: string }>) {
+  protected async dbFindMany(options: FindManyOptions<{ id?: string; tenantId?: string; status?: string }>) {
     return this.db.organization.findMany(options as Parameters<typeof this.db.organization.findMany>[0]);
   }
 
-  protected async prismaCreate(data: { name: string; tenantId: string; businessType?: string }) {
+  protected async dbCreate(data: { name: string; tenantId: string; businessType?: string }) {
     return this.db.organization.create({ data });
   }
 
-  protected async prismaUpdate(id: string, data: { name?: string; businessType?: string; status?: string }) {
-    return this.prisma.organization.update({ where: { id }, data });
+  protected async dbUpdate(id: string, data: { name?: string; businessType?: string; status?: string }) {
+    return this.db.organization.update({ where: { id }, data });
   }
 
-  protected async prismaDelete(id: string) {
-    return this.prisma.organization.delete({ where: { id } });
+  protected async dbDelete(id: string) {
+    return this.db.organization.delete({ where: { id } });
   }
 
   protected async canAccess(ctx: RequestContext, entity: unknown): Promise<boolean> {
@@ -65,7 +65,7 @@ export class OrganizationRepository extends BaseRepository<
    */
   async listForTenant(ctx: RequestContext, options?: { skip?: number; take?: number }) {
     if (!ctx.tenant) throw new Error('Tenant context required');
-    return this.prisma.organization.findMany({
+    return this.db.organization.findMany({
       where: { tenantId: ctx.tenant.id },
       ...options,
     });

@@ -11,7 +11,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
-import { REQUEST_STATUS } from '@/lib/types';
 
 // Valid admin roles
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -61,8 +60,11 @@ export async function PATCH(
     const body = await req.json();
     const { status, note } = body;
 
+    // Valid statuses
+    const VALID_STATUSES = ['draft_intake', 'submitted', 'triage', 'assigned', 'in_progress', 'pending_review', 'review', 'approved', 'delivered', 'closed', 'cancelled'];
+
     // Validate status
-    if (!status || !Object.values(REQUEST_STATUS).includes(status)) {
+    if (!status || !VALID_STATUSES.includes(status)) {
       return NextResponse.json(
         { error: 'INVALID_STATUS', detail: 'Status must be a valid request status' },
         { status: 400 }
@@ -98,20 +100,19 @@ export async function PATCH(
       },
     });
 
-    // Admin audit log
-    await prisma.auditLog.create({
+    // Admin audit log using AuditEvent
+    await prisma.auditEvent.create({
       data: {
-        action: 'admin.partner.status_override',
-        entityType: 'legal_request',
-        entityId: id,
         actorId: userId,
-        actorType: 'admin',
-        actorName: session.user.name || 'Admin',
-        metadata: {
+        workspaceId: '', // Platform-level admin, no specific workspace
+        action: 'admin.partner.status_override',
+        targetType: 'request',
+        targetId: id,
+        metadataSummary: JSON.stringify({
           previousStatus: existingRequest.status,
           newStatus: status,
           note: note || null,
-        },
+        }),
       },
     });
 

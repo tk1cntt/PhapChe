@@ -10,11 +10,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { REQUEST_STATUS } from '@/lib/types';
-import { PARTNER_ALLOWED_STATUSES } from '@/lib/constants/partner-statuses';
 
-// Allowed statuses as string array for validation
-const ALLOWED_STATUS_VALUES = PARTNER_ALLOWED_STATUSES as unknown as string[];
+// Allowed statuses for partners
+const PARTNER_ALLOWED_STATUSES = [
+  'in_progress',
+  'pending_review',
+  'review',
+  'revision_required',
+  'approved',
+  'delivered',
+];
+
+// Workflow transitions
+const WORKFLOW_TRANSITIONS: Record<string, string[]> = {
+  'in_progress': ['pending_review', 'cancelled'],
+  'pending_review': ['approved', 'in_progress'],
+  'review': ['revision_required', 'approved'],
+  'revision_required': ['pending_review'],
+  'approved': ['delivered'],
+};
 
 export async function PATCH(
   req: NextRequest,
@@ -46,7 +60,7 @@ export async function PATCH(
   // Verify request access
   const request = await prisma.legalRequest.findUnique({
     where: { id },
-    include: { engagement: { select: { partnerId: true } } },
+    select: { id: true, status: true, workspaceId: true, assignedPartnerId: true, engagement: { select: { partnerId: true } } },
   });
 
   if (!request) {
@@ -78,11 +92,11 @@ export async function PATCH(
   }
 
   // Validate against allowed statuses
-  if (!ALLOWED_STATUS_VALUES.includes(status)) {
+  if (!PARTNER_ALLOWED_STATUSES.includes(status)) {
     return NextResponse.json(
       {
         error: 'VALIDATION_ERROR',
-        detail: `Invalid status. Allowed values: ${ALLOWED_STATUS_VALUES.join(', ')}`,
+        detail: `Invalid status. Allowed values: ${PARTNER_ALLOWED_STATUSES.join(', ')}`,
         field: 'status'
       },
       { status: 400 }
@@ -90,13 +104,7 @@ export async function PATCH(
   }
 
   // Validate workflow transition
-  const validTransitions: Record<string, string[]> = {
-    [REQUEST_STATUS.IN_PROGRESS]: [REQUEST_STATUS.PENDING_REVIEW, REQUEST_STATUS.CANCELLED],
-    [REQUEST_STATUS.PENDING_REVIEW]: [REQUEST_STATUS.APPROVED, REQUEST_STATUS.REVISION_REQUIRED],
-    [REQUEST_STATUS.APPROVED]: [REQUEST_STATUS.DELIVERED],
-  };
-
-  const allowedNextStatuses = validTransitions[request.status] || [];
+  const allowedNextStatuses = WORKFLOW_TRANSITIONS[request.status] || [];
   if (status !== request.status && !allowedNextStatuses.includes(status)) {
     return NextResponse.json(
       {
@@ -127,19 +135,19 @@ export async function PATCH(
         reason: note || null,
       },
     }),
-    prisma.auditLog.create({
+    prisma.auditEvent.create({
       data: {
-        action: 'request.status_update',
-        entityType: 'legal_request',
-        entityId: id,
         actorId: session.user.id,
-        actorType: 'partner',
-        actorName: session.user.name || 'Partner',
-        metadata: {
+        workspaceId: request.workspaceId,
+        action: 'request.status_update',
+        targetType: 'request',
+        targetId: id,
+        requestId: id,
+        metadataSummary: JSON.stringify({
           fromStatus: request.status,
           toStatus: status,
-          note
-        },
+          note,
+        }),
       },
     }),
   ]);

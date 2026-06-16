@@ -109,6 +109,7 @@ export async function GET(
         },
         include: {
           actor: { select: { id: true, name: true } },
+          workspace: { select: { name: true, organization: { select: { name: true } } } },
         },
         orderBy: { createdAt: 'desc' },
         take: 10,
@@ -116,10 +117,15 @@ export async function GET(
     ]);
 
     // Build related users from members
-    const relatedUsers = partner.members.map((m) => ({
+    const relatedUsers: Array<{
+      id: string;
+      name: string;
+      role: 'partner' | 'customer';
+      description: string;
+    }> = partner.members.map((m) => ({
       id: m.user.id,
       name: m.user.name,
-      role: 'partner' as const,
+      role: 'partner',
       description: `${m.role === 'partner_admin' ? 'Partner Admin' : m.role} · owner của ${Math.floor(Math.random() * 5) + 1} hồ sơ đang mở`,
     }));
 

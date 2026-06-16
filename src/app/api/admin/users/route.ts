@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
     if (workspaceId) {
       where.memberships = { some: { workspaceId } };
     }
-    if (isActive !== null) {
+    if (isActive !== null && isActive !== undefined) {
       where.isActive = isActive === 'true';
     }
 

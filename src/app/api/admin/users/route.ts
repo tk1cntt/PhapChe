@@ -80,6 +80,7 @@ export async function GET(req: NextRequest) {
           isActive: true,
           emailVerified: true,
           createdAt: true,
+          lastActiveAt: true,
           memberships: {
             select: {
               id: true,
@@ -96,8 +97,34 @@ export async function GET(req: NextRequest) {
       prisma.user.count({ where }),
     ]);
 
+    // Transform users to include computed fields
+    const transformedUsers = users.map((user) => {
+      // Determine status: 'invited' if not verified, 'active' if active, 'inactive' otherwise
+      let status: 'active' | 'invited' | 'inactive' = 'inactive';
+      if (!user.emailVerified) {
+        status = 'invited';
+      } else if (user.isActive) {
+        status = 'active';
+      }
+
+      // Get primary membership
+      const primaryMembership = user.memberships?.[0];
+      const primaryRole = primaryMembership?.role || 'customer';
+      const primaryWorkspace = primaryMembership?.workspace?.name || '—';
+
+      return {
+        ...user,
+        key: user.id,
+        status,
+        role: primaryRole,
+        workspace: primaryWorkspace,
+        lastActive: user.lastActiveAt?.toISOString() || null,
+        createdAt: user.createdAt.toISOString(),
+      };
+    });
+
     return NextResponse.json({
-      data: users,
+      data: transformedUsers,
       pagination: { total, skip, take, hasMore: skip + take < total },
     });
   } catch (error: any) {

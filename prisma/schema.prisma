@@ -26,6 +26,7 @@ model User {
   timezone           String?              @default("Asia/Ho_Chi_Minh")
   locale             String?              @default("vi")
   avatarUrl          String?
+  userType           String               @default("customer")  // "staff" or "customer"
   lastActiveAt       DateTime?
   isActive           Boolean              @default(true)
   emailVerified      Boolean              @default(false)
@@ -250,6 +251,7 @@ model LegalRequest {
   assignedReviewerId   String?
   engagementId         String?              // FK to Engagement
   assignedPartnerId    String?              // FK to Partner (direct assignment)
+  deletedAt            DateTime?            // Soft delete
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   workspace            Workspace            @relation(fields: [workspaceId], references: [id])
@@ -275,6 +277,9 @@ model LegalRequest {
   @@index([status])
   @@index([engagementId])
   @@index([assignedPartnerId])
+  @@index([deletedAt])
+  @@index([workspaceId, status])
+  @@index([assignedSpecialistId, status])
 }
 
 model MatterType {
@@ -344,6 +349,8 @@ model RequestAssignment {
   @@index([kind])
   @@index([partnerId])
   @@index([engagementId])
+  @@index([userId, kind])
+  @@index([requestId, kind])
 }
 
 model RoutingCapability {
@@ -403,6 +410,7 @@ model Document {
   workspaceId String
   requestId   String
   title       String
+  deletedAt   DateTime?   // Soft delete
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   workspace   Workspace    @relation(fields: [workspaceId], references: [id])
@@ -412,6 +420,7 @@ model Document {
 
   @@index([workspaceId])
   @@index([requestId])
+  @@index([deletedAt])
 }
 
 model Review {
@@ -489,6 +498,7 @@ model VaultFile {
   id                String       @id @default(cuid())
   requestId         String
   workspaceId       String
+  organizationId    String?
   actorId           String
   filename          String?
   storageKey        String?
@@ -500,6 +510,7 @@ model VaultFile {
   reason            String?
   size              Int?
   contentType       String?
+  deletedAt         DateTime?   // Soft delete
   createdAt         DateTime     @default(now())
   request           LegalRequest @relation(fields: [requestId], references: [id])
   workspace         Workspace    @relation(fields: [workspaceId], references: [id])
@@ -508,9 +519,12 @@ model VaultFile {
   vaultFileTags     VaultFileTag[]
 
   @@index([requestId])
+  @@index([workspaceId])
+  @@index([organizationId])
   @@index([actorId])
   @@index([fileKind])
   @@index([documentVersionId])
+  @@index([deletedAt])
 }
 
 model Folder {
@@ -577,6 +591,7 @@ model AuditEvent {
   id              String      @id @default(cuid())
   actorId         String?
   workspaceId     String
+  organizationId  String?
   action          String
   targetType      String
   targetId        String
@@ -590,9 +605,12 @@ model AuditEvent {
 
   @@index([actorId])
   @@index([workspaceId])
+  @@index([organizationId])
   @@index([requestId])
   @@index([targetType, targetId])
   @@index([correlationId])
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@index([actorId, createdAt(sort: Desc)])
 }
 
 model Account {
@@ -714,6 +732,7 @@ model FileAccessLog {
 model Message {
   id               String    @id @default(cuid())
   workspaceId      String
+  organizationId    String?
   legalRequestId   String?
   senderId         String
   recipientId      String
@@ -724,6 +743,7 @@ model Message {
   legalRequest     LegalRequest? @relation(fields: [legalRequestId], references: [id])
 
   @@index([workspaceId])
+  @@index([organizationId])
   @@index([legalRequestId])
   @@index([senderId])
   @@index([recipientId])

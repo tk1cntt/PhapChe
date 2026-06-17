@@ -5,6 +5,11 @@
 import type { Role } from '@/lib/types';
 
 /**
+ * User type enumeration
+ */
+export type UserType = 'staff' | 'customer';
+
+/**
  * User entity representing a platform user
  */
 export interface User {
@@ -13,6 +18,7 @@ export interface User {
   name: string;
   phone?: string;
   title?: string;
+  userType: UserType;
   role: Role;
   workspaceId?: string;
   language?: string;

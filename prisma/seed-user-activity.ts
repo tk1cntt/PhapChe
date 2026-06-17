@@ -175,8 +175,9 @@ async function seedUserActivity() {
         await prisma.message.create({
           data: {
             legalRequestId: request.id,
+            workspaceId: userWorkspace.id,
             senderId: user.id,
-            senderType: 'specialist',
+            recipientId: user.id, // Placeholder - in real scenario would be different user
             content: commentTypes[Math.floor(Math.random() * commentTypes.length)],
             createdAt: new Date(Date.now() - daysAgo * 86400000),
           },

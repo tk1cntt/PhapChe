@@ -67,48 +67,50 @@ export async function uploadVaultFile(input: UploadVaultFileInput) {
   const { file, ...metadata } = input;
 
   if (isEnabled('DB_MIGRATION_PHASE4')) {
-    // New: Create File first, then VaultFile with fileId
-    const fileRecord = await prisma.file.create({
-      data: {
-        workspaceId: metadata.workspaceId,
-        requestId: metadata.requestId,
-        storageDriver: 'local',
-        objectKey: generateObjectKey(file.originalname),
-        originalName: file.originalname,
-        mimeType: file.mimetype,
-        size: file.size,
-        checksum: await calculateChecksum(file.buffer),
-        category: 'vault_file',
-        visibility: 'private',
-        status: 'uploaded',
-        createdById: metadata.actorId,
-      },
-    });
+    // New: Create File and VaultFile in transaction to prevent orphaned records
+    return prisma.$transaction(async (tx) => {
+      const fileRecord = await tx.file.create({
+        data: {
+          workspaceId: metadata.workspaceId,
+          requestId: metadata.requestId,
+          storageDriver: 'local',
+          objectKey: generateObjectKey(file.originalname),
+          originalName: file.originalname,
+          mimeType: file.mimetype,
+          size: file.size,
+          checksum: await calculateChecksum(file.buffer),
+          category: 'vault_file',
+          visibility: 'private',
+          status: 'uploaded',
+          createdById: metadata.actorId,
+        },
+      });
 
-    return prisma.vaultFile.create({
-      data: {
-        requestId: metadata.requestId,
-        workspaceId: metadata.workspaceId,
-        actorId: metadata.actorId,
-        fileId: fileRecord.id, // NEW: FK to File
-        // Old fields: set to null when flag enabled
-        filename: null,
-        storageKey: null,
-        size: null,
-        contentType: null,
-        fileKind: metadata.fileKind,
-        source: metadata.source,
-        documentVersionId: metadata.documentVersionId,
-        fromStatus: metadata.fromStatus,
-        toStatus: metadata.toStatus,
-        reason: metadata.reason,
-      },
-      include: {
-        file: true, // Include File for storage info
-        request: { select: { id: true, title: true } },
-        workspace: { select: { id: true, name: true } },
-        actor: { select: { id: true, name: true } },
-      },
+      return tx.vaultFile.create({
+        data: {
+          requestId: metadata.requestId,
+          workspaceId: metadata.workspaceId,
+          actorId: metadata.actorId,
+          fileId: fileRecord.id, // NEW: FK to File
+          // Old fields: set to null when flag enabled
+          filename: null,
+          storageKey: null,
+          size: null,
+          contentType: null,
+          fileKind: metadata.fileKind,
+          source: metadata.source,
+          documentVersionId: metadata.documentVersionId,
+          fromStatus: metadata.fromStatus,
+          toStatus: metadata.toStatus,
+          reason: metadata.reason,
+        },
+        include: {
+          file: true, // Include File for storage info
+          request: { select: { id: true, title: true } },
+          workspace: { select: { id: true, name: true } },
+          actor: { select: { id: true, name: true } },
+        },
+      });
     });
   }
 

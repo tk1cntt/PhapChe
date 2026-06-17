@@ -221,6 +221,9 @@ CREATE INDEX IF NOT EXISTS idx_legalRequest_workspaceId_status ON "LegalRequest"
 CREATE INDEX IF NOT EXISTS idx_legalRequest_assignedSpecialistId_status ON "LegalRequest" (assignedSpecialistId, status);
 
 -- Table: MatterType
+-- Note: SQLite doesn't support partial unique indexes.
+-- When workspaceId is NULL, multiple global matter types with same key are allowed.
+-- For PostgreSQL migration, use: CREATE UNIQUE INDEX ... WHERE workspaceId IS NULL;
 CREATE TABLE IF NOT EXISTS "MatterType" (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   workspaceId TEXT,
@@ -448,6 +451,9 @@ CREATE INDEX IF NOT EXISTS idx_vaultFile_documentVersionId ON "VaultFile" (docum
 CREATE INDEX IF NOT EXISTS idx_vaultFile_deletedAt ON "VaultFile" (deletedAt);
 
 -- Table: Folder
+-- Note: SQLite doesn't support partial unique indexes.
+-- When parentId is NULL (root folder), multiple root folders with same name_vi are allowed.
+-- For PostgreSQL migration, use: CREATE UNIQUE INDEX ... WHERE parentId IS NULL;
 CREATE TABLE IF NOT EXISTS "Folder" (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   workspaceId TEXT NOT NULL,

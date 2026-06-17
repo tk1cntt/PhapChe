@@ -314,6 +314,9 @@ model MatterType {
   submissions         IntakeSubmission[]
   routingCapabilities RoutingCapability[]
 
+  // Note: SQLite doesn't support partial unique indexes.
+  // When workspaceId is NULL, multiple global matter types with same key are allowed.
+  // For PostgreSQL migration, use: CREATE UNIQUE INDEX ... WHERE workspaceId IS NULL;
   @@unique([workspaceId, key])
   @@index([workspaceId])
   @@index([isActive])
@@ -555,6 +558,9 @@ model Folder {
   children        Folder[]         @relation("FolderHierarchy")
   vaultFileFolders VaultFileFolder[]
 
+  // Note: SQLite doesn't support partial unique indexes.
+  // When parentId is NULL (root folder), multiple root folders with same name_vi are allowed.
+  // For PostgreSQL migration, use: CREATE UNIQUE INDEX ... WHERE parentId IS NULL;
   @@unique([workspaceId, parentId, name_vi])
   @@index([workspaceId])
   @@index([parentId])

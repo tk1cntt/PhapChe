@@ -69,6 +69,12 @@ export async function uploadVaultFile(input: UploadVaultFileInput) {
   if (isEnabled('DB_MIGRATION_PHASE4')) {
     // New: Create File and VaultFile in transaction to prevent orphaned records
     return prisma.$transaction(async (tx) => {
+      // Get organizationId from the request's engagement
+      const request = await tx.legalRequest.findUnique({
+        where: { id: metadata.requestId },
+        select: { engagement: { select: { organizationId: true } } },
+      });
+
       const fileRecord = await tx.file.create({
         data: {
           workspaceId: metadata.workspaceId,
@@ -92,6 +98,7 @@ export async function uploadVaultFile(input: UploadVaultFileInput) {
           workspaceId: metadata.workspaceId,
           actorId: metadata.actorId,
           fileId: fileRecord.id, // NEW: FK to File
+          organizationId: request?.engagement?.organizationId || null,
           // Old fields: set to null when flag enabled
           filename: null,
           storageKey: null,

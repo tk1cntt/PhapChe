@@ -191,6 +191,7 @@ CREATE TABLE IF NOT EXISTS "LegalRequest" (
   description TEXT,
   priority TEXT,
   matterType TEXT,
+  matterTypeId TEXT,
   status TEXT DEFAULT 'draft_intake' NOT NULL,
   slaDeadline TEXT,
   createdById TEXT NOT NULL,
@@ -206,7 +207,8 @@ CREATE TABLE IF NOT EXISTS "LegalRequest" (
   FOREIGN KEY (assignedSpecialistId) REFERENCES "User" (id),
   FOREIGN KEY (assignedReviewerId) REFERENCES "User" (id),
   FOREIGN KEY (engagementId) REFERENCES "Engagement" (id),
-  FOREIGN KEY (assignedPartnerId) REFERENCES "Partner" (id)
+  FOREIGN KEY (assignedPartnerId) REFERENCES "Partner" (id),
+  FOREIGN KEY (matterTypeId) REFERENCES "MatterType" (id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_legalRequest_workspaceId ON "LegalRequest" (workspaceId);
@@ -219,11 +221,9 @@ CREATE INDEX IF NOT EXISTS idx_legalRequest_assignedPartnerId ON "LegalRequest" 
 CREATE INDEX IF NOT EXISTS idx_legalRequest_deletedAt ON "LegalRequest" (deletedAt);
 CREATE INDEX IF NOT EXISTS idx_legalRequest_workspaceId_status ON "LegalRequest" (workspaceId, status);
 CREATE INDEX IF NOT EXISTS idx_legalRequest_assignedSpecialistId_status ON "LegalRequest" (assignedSpecialistId, status);
+CREATE INDEX IF NOT EXISTS idx_legalRequest_matterTypeId ON "LegalRequest" (matterTypeId);
 
 -- Table: MatterType
--- Note: SQLite doesn't support partial unique indexes.
--- When workspaceId is NULL, multiple global matter types with same key are allowed.
--- For PostgreSQL migration, use: CREATE UNIQUE INDEX ... WHERE workspaceId IS NULL;
 CREATE TABLE IF NOT EXISTS "MatterType" (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   workspaceId TEXT,
@@ -275,6 +275,8 @@ CREATE TABLE IF NOT EXISTS "RequestAssignment" (
   reason TEXT,
   partnerId TEXT,
   engagementId TEXT,
+  isCurrent INTEGER DEFAULT 1 NOT NULL,
+  endedAt TEXT,
   createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
   createdById TEXT NOT NULL,
   FOREIGN KEY (requestId) REFERENCES "LegalRequest" (id),
@@ -291,6 +293,8 @@ CREATE INDEX IF NOT EXISTS idx_requestAssignment_partnerId ON "RequestAssignment
 CREATE INDEX IF NOT EXISTS idx_requestAssignment_engagementId ON "RequestAssignment" (engagementId);
 CREATE INDEX IF NOT EXISTS idx_requestAssignment_userId_kind ON "RequestAssignment" (userId, kind);
 CREATE INDEX IF NOT EXISTS idx_requestAssignment_requestId_kind ON "RequestAssignment" (requestId, kind);
+CREATE INDEX IF NOT EXISTS idx_requestAssignment_requestId_kind_isCurrent ON "RequestAssignment" (requestId, kind, isCurrent);
+CREATE INDEX IF NOT EXISTS idx_requestAssignment_isCurrent ON "RequestAssignment" (isCurrent);
 
 -- Table: RoutingCapability
 CREATE TABLE IF NOT EXISTS "RoutingCapability" (
@@ -339,8 +343,7 @@ CREATE TABLE IF NOT EXISTS "DocumentVersion" (
   generatedContent TEXT NOT NULL,
   createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
   updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
-  FOREIGN KEY (documentId) REFERENCES "Document" (id),
-  FOREIGN KEY (templateId) REFERENCES "DocumentTemplate" (id)
+  FOREIGN KEY (documentId) REFERENCES "Document" (id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_documentVersion_documentId ON "DocumentVersion" (documentId);
@@ -417,8 +420,8 @@ CREATE TABLE IF NOT EXISTS "DocumentTemplate" (
 CREATE INDEX IF NOT EXISTS idx_documentTemplate_workspaceId_matterTypeKey ON "DocumentTemplate" (workspaceId, matterTypeKey);
 CREATE INDEX IF NOT EXISTS idx_documentTemplate_workspaceId_status ON "DocumentTemplate" (workspaceId, status);
 
--- Table: VaultFile
-CREATE TABLE IF NOT EXISTS "VaultFile" (
+-- Table: VaultItem (renamed from VaultFile)
+CREATE TABLE IF NOT EXISTS "VaultItem" (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   requestId TEXT NOT NULL,
   workspaceId TEXT NOT NULL,
@@ -435,25 +438,24 @@ CREATE TABLE IF NOT EXISTS "VaultFile" (
   size INTEGER,
   contentType TEXT,
   deletedAt TEXT,
+  fileId TEXT,
   createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
   FOREIGN KEY (requestId) REFERENCES "LegalRequest" (id),
   FOREIGN KEY (workspaceId) REFERENCES "Workspace" (id),
   FOREIGN KEY (actorId) REFERENCES "User" (id),
-  FOREIGN KEY (organizationId) REFERENCES "Organization" (id)
+  FOREIGN KEY (fileId) REFERENCES "File" (id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_vaultFile_requestId ON "VaultFile" (requestId);
-CREATE INDEX IF NOT EXISTS idx_vaultFile_workspaceId ON "VaultFile" (workspaceId);
-CREATE INDEX IF NOT EXISTS idx_vaultFile_organizationId ON "VaultFile" (organizationId);
-CREATE INDEX IF NOT EXISTS idx_vaultFile_actorId ON "VaultFile" (actorId);
-CREATE INDEX IF NOT EXISTS idx_vaultFile_fileKind ON "VaultFile" (fileKind);
-CREATE INDEX IF NOT EXISTS idx_vaultFile_documentVersionId ON "VaultFile" (documentVersionId);
-CREATE INDEX IF NOT EXISTS idx_vaultFile_deletedAt ON "VaultFile" (deletedAt);
+CREATE INDEX IF NOT EXISTS idx_vaultItem_requestId ON "VaultItem" (requestId);
+CREATE INDEX IF NOT EXISTS idx_vaultItem_workspaceId ON "VaultItem" (workspaceId);
+CREATE INDEX IF NOT EXISTS idx_vaultItem_organizationId ON "VaultItem" (organizationId);
+CREATE INDEX IF NOT EXISTS idx_vaultItem_actorId ON "VaultItem" (actorId);
+CREATE INDEX IF NOT EXISTS idx_vaultItem_fileKind ON "VaultItem" (fileKind);
+CREATE INDEX IF NOT EXISTS idx_vaultItem_documentVersionId ON "VaultItem" (documentVersionId);
+CREATE INDEX IF NOT EXISTS idx_vaultItem_deletedAt ON "VaultItem" (deletedAt);
+CREATE INDEX IF NOT EXISTS idx_vaultItem_fileId ON "VaultItem" (fileId);
 
 -- Table: Folder
--- Note: SQLite doesn't support partial unique indexes.
--- When parentId is NULL (root folder), multiple root folders with same name_vi are allowed.
--- For PostgreSQL migration, use: CREATE UNIQUE INDEX ... WHERE parentId IS NULL;
 CREATE TABLE IF NOT EXISTS "Folder" (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   workspaceId TEXT NOT NULL,
@@ -488,25 +490,25 @@ CREATE TABLE IF NOT EXISTS "Tag" (
 
 CREATE INDEX IF NOT EXISTS idx_tag_workspaceId ON "Tag" (workspaceId);
 
--- Table: VaultFileFolder (junction)
-CREATE TABLE IF NOT EXISTS "VaultFileFolder" (
-  vaultFileId TEXT NOT NULL,
+-- Table: VaultItemFolder (renamed from VaultFileFolder)
+CREATE TABLE IF NOT EXISTS "VaultItemFolder" (
+  vaultItemId TEXT NOT NULL,
   folderId TEXT NOT NULL,
   createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-  PRIMARY KEY (vaultFileId, folderId),
-  FOREIGN KEY (vaultFileId) REFERENCES "VaultFile" (id),
+  PRIMARY KEY (vaultItemId, folderId),
+  FOREIGN KEY (vaultItemId) REFERENCES "VaultItem" (id),
   FOREIGN KEY (folderId) REFERENCES "Folder" (id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_vaultFileFolder_folderId ON "VaultFileFolder" (folderId);
+CREATE INDEX IF NOT EXISTS idx_vaultItemFolder_folderId ON "VaultItemFolder" (folderId);
 
--- Table: VaultFileTag (junction)
-CREATE TABLE IF NOT EXISTS "VaultFileTag" (
-  vaultFileId TEXT NOT NULL,
+-- Table: VaultItemTag (renamed from VaultFileTag)
+CREATE TABLE IF NOT EXISTS "VaultItemTag" (
+  vaultItemId TEXT NOT NULL,
   tagId TEXT NOT NULL,
   createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-  PRIMARY KEY (vaultFileId, tagId),
-  FOREIGN KEY (vaultFileId) REFERENCES "VaultFile" (id),
+  PRIMARY KEY (vaultItemId, tagId),
+  FOREIGN KEY (vaultItemId) REFERENCES "VaultItem" (id),
   FOREIGN KEY (tagId) REFERENCES "Tag" (id)
 );
 
@@ -659,8 +661,7 @@ CREATE TABLE IF NOT EXISTS "FileAccessLog" (
   ipAddress TEXT,
   userAgent TEXT,
   createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-  FOREIGN KEY (fileId) REFERENCES "File" (id) ON DELETE CASCADE,
-  FOREIGN KEY (userId) REFERENCES "User" (id) ON DELETE SET NULL
+  FOREIGN KEY (fileId) REFERENCES "File" (id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_fileAccessLog_fileId ON "FileAccessLog" (fileId);
@@ -681,9 +682,7 @@ CREATE TABLE IF NOT EXISTS "Message" (
   createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
   updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
   FOREIGN KEY (workspaceId) REFERENCES "Workspace" (id),
-  FOREIGN KEY (legalRequestId) REFERENCES "LegalRequest" (id),
-  FOREIGN KEY (senderId) REFERENCES "User" (id),
-  FOREIGN KEY (recipientId) REFERENCES "User" (id)
+  FOREIGN KEY (legalRequestId) REFERENCES "LegalRequest" (id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_message_workspaceId ON "Message" (workspaceId);

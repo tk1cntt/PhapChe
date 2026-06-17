@@ -44,7 +44,7 @@ model User {
   reviews            Review[]
   workflowActions    WorkflowTransition[]
   auditEvents        AuditEvent[]
-  vaultFiles         VaultFile[]
+  vaultItems         VaultItem[]           // Renamed from vaultFiles
   routingCapabilities RoutingCapability[]
   accounts           Account[]
   sessions           Session[]
@@ -52,9 +52,6 @@ model User {
   createdFiles       File[]             @relation("FileCreator")
   fileVersions       FileVersion[]      @relation("FileVersionCreator")
   partnerMembers     PartnerMember[]
-  sentMessages       Message[]      @relation("MessageSender")
-  receivedMessages   Message[]      @relation("MessageRecipient")
-  fileAccessLogs     FileAccessLog[]
 }
 
 model UserPreferences {
@@ -100,7 +97,6 @@ model Organization {
   tenant     Tenant      @relation(fields: [tenantId], references: [id])
   workspaces Workspace[]
   engagements Engagement[]
-  vaultFiles VaultFile[]
 
   @@index([tenantId])
   @@index([status])
@@ -217,7 +213,7 @@ model Workspace {
   routingCapabilities RoutingCapability[]
   documents        Document[]
   reviews          Review[]
-  vaultFiles       VaultFile[]
+  vaultItems       VaultItem[]           // Renamed from vaultFiles
   auditEvents      AuditEvent[]
   documentTemplates DocumentTemplate[]
   folders          Folder[]
@@ -252,7 +248,8 @@ model LegalRequest {
   title                String
   description          String?
   priority             String?
-  matterType           String?
+  matterType           String?              // Backward compatible - kept for migration
+  matterTypeId         String?              // FK to MatterType.id (type-safe reference)
   status               String               @default("draft_intake")
   slaDeadline          DateTime?
   createdById          String
@@ -269,10 +266,11 @@ model LegalRequest {
   assignedReviewer     User?                @relation("AssignedReviewer", fields: [assignedReviewerId], references: [id])
   engagement           Engagement?          @relation(fields: [engagementId], references: [id])
   assignedPartner      Partner?              @relation(fields: [assignedPartnerId], references: [id], name: "AssignedPartnerRelation")
+  matterTypeRef        MatterType?          @relation(fields: [matterTypeId], references: [id])
   assignments          RequestAssignment[]
   documents            Document[]
   reviews              Review[]
-  vaultFiles            VaultFile[]
+  vaultItems           VaultItem[]          // Renamed from vaultFiles
   files                File[]
   intakeSubmission     IntakeSubmission?
   workflowTransitions  WorkflowTransition[]
@@ -289,6 +287,7 @@ model LegalRequest {
   @@index([deletedAt])
   @@index([workspaceId, status])
   @@index([assignedSpecialistId, status])
+  @@index([matterTypeId])
 }
 
 model MatterType {
@@ -313,10 +312,8 @@ model MatterType {
   workspace           Workspace?          @relation(fields: [workspaceId], references: [id])
   submissions         IntakeSubmission[]
   routingCapabilities RoutingCapability[]
+  legalRequests      LegalRequest[]  // Inverse relation for matterTypeRef
 
-  // Note: SQLite doesn't support partial unique indexes.
-  // When workspaceId is NULL, multiple global matter types with same key are allowed.
-  // For PostgreSQL migration, use: CREATE UNIQUE INDEX ... WHERE workspaceId IS NULL;
   @@unique([workspaceId, key])
   @@index([workspaceId])
   @@index([isActive])
@@ -348,6 +345,8 @@ model RequestAssignment {
   reason      String?
   partnerId   String?      // FK to Partner
   engagementId String?     // FK to Engagement
+  isCurrent   Boolean      @default(true)  // Source of truth flag
+  endedAt     DateTime?                    // When assignment ended
   createdAt   DateTime     @default(now())
   createdById String
   request     LegalRequest @relation(fields: [requestId], references: [id])
@@ -363,6 +362,8 @@ model RequestAssignment {
   @@index([engagementId])
   @@index([userId, kind])
   @@index([requestId, kind])
+  @@index([requestId, kind, isCurrent])
+  @@index([isCurrent])
 }
 
 model RoutingCapability {
@@ -394,7 +395,6 @@ model DocumentVersion {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   document           Document @relation(fields: [documentId], references: [id])
-  template           DocumentTemplate @relation(fields: [templateId], references: [id])
 
   @@index([documentId])
   @@index([templateId])
@@ -501,14 +501,13 @@ model DocumentTemplate {
   workspace         Workspace      @relation(fields: [workspaceId], references: [id])
   previousVersion   DocumentTemplate? @relation("TemplateVersion", fields: [previousVersionId], references: [id])
   nextVersions      DocumentTemplate[] @relation("TemplateVersion")
-  documentVersions  DocumentVersion[]
 
   @@unique([workspaceId, matterTypeKey, version])
   @@index([workspaceId, matterTypeKey])
   @@index([workspaceId, status])
 }
 
-model VaultFile {
+model VaultItem {
   id                String       @id @default(cuid())
   requestId         String
   workspaceId       String
@@ -525,13 +524,14 @@ model VaultFile {
   size              Int?
   contentType       String?
   deletedAt         DateTime?   // Soft delete
+  fileId            String?      // FK to File.id for 2-tier vault architecture
   createdAt         DateTime     @default(now())
   request           LegalRequest @relation(fields: [requestId], references: [id])
   workspace         Workspace    @relation(fields: [workspaceId], references: [id])
   actor             User         @relation(fields: [actorId], references: [id])
-  organization      Organization? @relation(fields: [organizationId], references: [id])
-  vaultFileFolders  VaultFileFolder[]
-  vaultFileTags     VaultFileTag[]
+  file              File?        @relation(fields: [fileId], references: [id])
+  vaultItemFolders  VaultItemFolder[]
+  vaultItemTags     VaultItemTag[]
 
   @@index([requestId])
   @@index([workspaceId])
@@ -540,6 +540,7 @@ model VaultFile {
   @@index([fileKind])
   @@index([documentVersionId])
   @@index([deletedAt])
+  @@index([fileId])
 }
 
 model Folder {
@@ -556,11 +557,8 @@ model Folder {
   workspace       Workspace        @relation(fields: [workspaceId], references: [id])
   parent          Folder?          @relation("FolderHierarchy", fields: [parentId], references: [id])
   children        Folder[]         @relation("FolderHierarchy")
-  vaultFileFolders VaultFileFolder[]
+  vaultItemFolders VaultItemFolder[]
 
-  // Note: SQLite doesn't support partial unique indexes.
-  // When parentId is NULL (root folder), multiple root folders with same name_vi are allowed.
-  // For PostgreSQL migration, use: CREATE UNIQUE INDEX ... WHERE parentId IS NULL;
   @@unique([workspaceId, parentId, name_vi])
   @@index([workspaceId])
   @@index([parentId])
@@ -577,31 +575,31 @@ model Tag {
   label_ja     String?
   createdAt    DateTime       @default(now())
   workspace    Workspace      @relation(fields: [workspaceId], references: [id])
-  vaultFileTags VaultFileTag[]
+  vaultItemTags VaultItemTag[]
 
   @@unique([workspaceId, key])
   @@index([workspaceId])
 }
 
-model VaultFileFolder {
-  vaultFileId  String
+model VaultItemFolder {
+  vaultItemId  String
   folderId     String
   createdAt    DateTime   @default(now())
-  vaultFile    VaultFile  @relation(fields: [vaultFileId], references: [id])
+  vaultItem    VaultItem  @relation(fields: [vaultItemId], references: [id])
   folder       Folder     @relation(fields: [folderId], references: [id])
 
-  @@id([vaultFileId, folderId])
+  @@id([vaultItemId, folderId])
   @@index([folderId])
 }
 
-model VaultFileTag {
-  vaultFileId  String
+model VaultItemTag {
+  vaultItemId  String
   tagId        String
   createdAt    DateTime   @default(now())
-  vaultFile    VaultFile  @relation(fields: [vaultFileId], references: [id])
+  vaultItem    VaultItem  @relation(fields: [vaultItemId], references: [id])
   tag          Tag        @relation(fields: [tagId], references: [id])
 
-  @@id([vaultFileId, tagId])
+  @@id([vaultItemId, tagId])
   @@index([tagId])
 }
 
@@ -703,6 +701,7 @@ model File {
   creator         User            @relation("FileCreator", fields: [createdById], references: [id])
   versions        FileVersion[]
   accessLogs      FileAccessLog[]
+  vaultItems      VaultItem[]     // Inverse relation for 2-tier vault
 
   @@index([workspaceId])
   @@index([requestId])
@@ -740,7 +739,6 @@ model FileAccessLog {
   createdAt  DateTime @default(now())
 
   file       File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([fileId])
   @@index([userId])
@@ -760,8 +758,6 @@ model Message {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   legalRequest     LegalRequest? @relation(fields: [legalRequestId], references: [id])
-  sender           User      @relation("MessageSender", fields: [senderId], references: [id])
-  recipient        User      @relation("MessageRecipient", fields: [recipientId], references: [id])
 
   @@index([workspaceId])
   @@index([organizationId])

@@ -248,7 +248,8 @@ model LegalRequest {
   title                String
   description          String?
   priority             String?
-  matterType           String?
+  matterType           String?              // Backward compatible - kept for migration
+  matterTypeId         String?              // FK to MatterType.id (type-safe reference)
   status               String               @default("draft_intake")
   slaDeadline          DateTime?
   createdById          String
@@ -265,10 +266,11 @@ model LegalRequest {
   assignedReviewer     User?                @relation("AssignedReviewer", fields: [assignedReviewerId], references: [id])
   engagement           Engagement?          @relation(fields: [engagementId], references: [id])
   assignedPartner      Partner?              @relation(fields: [assignedPartnerId], references: [id], name: "AssignedPartnerRelation")
+  matterTypeRef        MatterType?          @relation(fields: [matterTypeId], references: [id])
   assignments          RequestAssignment[]
   documents            Document[]
   reviews              Review[]
-  vaultFiles            VaultFile[]
+  vaultFiles           VaultFile[]
   files                File[]
   intakeSubmission     IntakeSubmission?
   workflowTransitions  WorkflowTransition[]
@@ -285,6 +287,7 @@ model LegalRequest {
   @@index([deletedAt])
   @@index([workspaceId, status])
   @@index([assignedSpecialistId, status])
+  @@index([matterTypeId])
 }
 
 model MatterType {
@@ -309,6 +312,7 @@ model MatterType {
   workspace           Workspace?          @relation(fields: [workspaceId], references: [id])
   submissions         IntakeSubmission[]
   routingCapabilities RoutingCapability[]
+  legalRequests      LegalRequest[]  // Inverse relation for matterTypeRef
 
   @@unique([workspaceId, key])
   @@index([workspaceId])

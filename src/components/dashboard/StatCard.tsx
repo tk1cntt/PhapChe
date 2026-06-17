@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { StatsData } from './DashboardClient';
 
 interface StatCardProps {
@@ -58,15 +59,17 @@ export default function StatCard({
   );
 }
 
-// StatsCardGrid - receives stats data from parent
+// StatsCardGrid - receives stats data from parent with i18n
 export function StatsCardGrid({ data }: { data: StatsData }) {
+  const t = useTranslations('StatCard');
+
   return (
     <div className="stats-grid">
       <StatCard
         variant="blue"
-        title="Tổng hồ sơ"
+        title={t('totalRequests')}
         value={data.totalRequests}
-        description="Trong workspace hiện tại"
+        description={t('totalRequestsDesc')}
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -76,9 +79,9 @@ export function StatsCardGrid({ data }: { data: StatsData }) {
       />
       <StatCard
         variant="orange"
-        title="Đang xử lý"
+        title={t('inProgress')}
         value={data.inProgress}
-        description="Chờ phản hồi chuyên viên"
+        description={t('inProgressDesc')}
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
@@ -88,9 +91,9 @@ export function StatsCardGrid({ data }: { data: StatsData }) {
       />
       <StatCard
         variant="green"
-        title="Đã hoàn tất"
+        title={t('completed')}
         value={data.completed}
-        description="Đúng SLA xử lý"
+        description={t('completedDesc')}
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M20 6 9 17l-5-5" />
@@ -99,9 +102,9 @@ export function StatsCardGrid({ data }: { data: StatsData }) {
       />
       <StatCard
         variant="purple"
-        title="Tài liệu vault"
+        title={t('vaultDocs')}
         value={data.vaultDocs}
-        description="Được phân quyền an toàn"
+        description={t('vaultDocsDesc')}
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 7h18v13H3z" />

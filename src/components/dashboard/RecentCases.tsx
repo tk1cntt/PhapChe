@@ -28,7 +28,7 @@ export default function RecentCases({ cases }: RecentCasesProps) {
           </svg>
           <span>{t('title')}</span>
         </div>
-        <a className="small-link" href="#">{t('seeAll')}</a>
+        <a className="small-link" href="/requests">{t('seeAll')}</a>
       </div>
 
       <div className="case-list">
@@ -44,7 +44,7 @@ export default function RecentCases({ cases }: RecentCasesProps) {
                   <span>{c.title}</span>
                 </div>
               </div>
-              <div className="case-assignee">
+              <div className="stack">
                 <strong>{c.assignee}</strong>
                 <span>{c.assigneeRole}</span>
               </div>
@@ -54,7 +54,7 @@ export default function RecentCases({ cases }: RecentCasesProps) {
                 </span>
               </div>
               <div>
-                <a className="action-link" href="#">{t('open')}</a>
+                <a className="action-link" href={`/requests/${c.id}`}>{t('open')}</a>
               </div>
             </div>
           ))

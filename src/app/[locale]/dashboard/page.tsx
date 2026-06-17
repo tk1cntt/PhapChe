@@ -48,14 +48,15 @@ export default async function DashboardPage() {
     prisma.legalRequest.count({
       where: { workspaceId: activeWorkspaceId ?? '', status: { in: ['approved', 'delivered', 'closed'] } },
     }),
-    // Requests with relations
+    // Requests with relations - filter for processing status
     prisma.legalRequest.findMany({
       where: { workspaceId: activeWorkspaceId ?? '' },
       include: {
-        assignedSpecialist: { select: { name: true } },
-        assignedReviewer: { select: { name: true } },
+        assignedSpecialist: { select: { id: true, name: true } },
+        assignedReviewer: { select: { id: true, name: true } },
       },
       orderBy: { updatedAt: 'desc' },
+      take: 10,
     }),
     // Recent vault documents
     prisma.vaultFile.findMany({

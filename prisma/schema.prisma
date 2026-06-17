@@ -52,6 +52,8 @@ model User {
   createdFiles       File[]             @relation("FileCreator")
   fileVersions       FileVersion[]      @relation("FileVersionCreator")
   partnerMembers     PartnerMember[]
+  sentMessages       Message[]      @relation("MessageSender")
+  receivedMessages   Message[]      @relation("MessageRecipient")
 }
 
 model UserPreferences {
@@ -746,6 +748,8 @@ model Message {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   legalRequest     LegalRequest? @relation(fields: [legalRequestId], references: [id])
+  sender           User      @relation("MessageSender", fields: [senderId], references: [id])
+  recipient        User      @relation("MessageRecipient", fields: [recipientId], references: [id])
 
   @@index([workspaceId])
   @@index([organizationId])

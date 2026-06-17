@@ -672,7 +672,9 @@ CREATE TABLE IF NOT EXISTS "Message" (
   createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
   updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
   FOREIGN KEY (workspaceId) REFERENCES "Workspace" (id),
-  FOREIGN KEY (legalRequestId) REFERENCES "LegalRequest" (id)
+  FOREIGN KEY (legalRequestId) REFERENCES "LegalRequest" (id),
+  FOREIGN KEY (senderId) REFERENCES "User" (id),
+  FOREIGN KEY (recipientId) REFERENCES "User" (id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_message_workspaceId ON "Message" (workspaceId);

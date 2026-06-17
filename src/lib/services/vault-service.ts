@@ -233,15 +233,18 @@ export async function getVaultFileDownloadUrl(vaultFileId: string): Promise<stri
 
   if (isEnabled('DB_MIGRATION_PHASE4')) {
     // New: Use File.objectKey
-    if (vaultFile.file?.objectKey) {
-      return `/api/files/${vaultFile.file.id}/download`;
+    // Cast to include file relation
+    const vf = vaultFile as Awaited<ReturnType<typeof getVaultFileById>> & { file?: { id: string; objectKey: string } | null };
+    if (vf.file?.objectKey) {
+      return `/api/files/${vf.file.id}/download`;
     }
     return null;
   }
 
   // Old: Use VaultFile.storageKey directly
-  if (vaultFile.storageKey) {
-    return `/api/files/download?key=${vaultFile.storageKey}`;
+  const vf = vaultFile as { storageKey?: string | null };
+  if (vf.storageKey) {
+    return `/api/files/download?key=${vf.storageKey}`;
   }
 
   return null;
@@ -259,13 +262,21 @@ export async function getVaultFileMetadata(vaultFileId: string) {
 
   if (isEnabled('DB_MIGRATION_PHASE4')) {
     // New: Prefer File record
+    // Cast to include file relation
+    const vf = vaultFile as Awaited<ReturnType<typeof getVaultFileById>> & {
+      file?: { originalName: string; size: number; mimeType: string; objectKey: string; storageDriver: string } | null;
+      filename?: string | null;
+      size?: number | null;
+      contentType?: string | null;
+      storageKey?: string | null;
+    };
     return {
       id: vaultFile.id,
-      filename: vaultFile.file?.originalName || vaultFile.filename,
-      size: vaultFile.file?.size || vaultFile.size,
-      contentType: vaultFile.file?.mimeType || vaultFile.contentType,
-      objectKey: vaultFile.file?.objectKey || vaultFile.storageKey,
-      storageDriver: vaultFile.file?.storageDriver || 'local',
+      filename: vf.file?.originalName || vf.filename,
+      size: vf.file?.size || vf.size,
+      contentType: vf.file?.mimeType || vf.contentType,
+      objectKey: vf.file?.objectKey || vf.storageKey,
+      storageDriver: vf.file?.storageDriver || 'local',
       createdAt: vaultFile.createdAt,
     };
   }
@@ -294,16 +305,26 @@ export async function deleteVaultFile(id: string) {
 
 /**
  * Add tags to a vault file
+ * Note: SQLite doesn't support skipDuplicates, so we handle duplicates in application code
  */
 export async function addVaultFileTags(vaultFileId: string, tagIds: string[]) {
-  const tagConnections = tagIds.map((tagId) => ({
+  // Filter out existing tags first
+  const existingTags = await prisma.vaultFileTag.findMany({
+    where: { vaultFileId },
+    select: { tagId: true },
+  });
+  const existingTagIds = new Set(existingTags.map((t) => t.tagId));
+  const newTagIds = tagIds.filter((id) => !existingTagIds.has(id));
+
+  if (newTagIds.length === 0) return { count: 0 };
+
+  const tagConnections = newTagIds.map((tagId) => ({
     vaultFileId,
     tagId,
   }));
 
   return prisma.vaultFileTag.createMany({
     data: tagConnections,
-    skipDuplicates: true,
   });
 }
 

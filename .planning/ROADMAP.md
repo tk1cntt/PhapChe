@@ -558,6 +558,30 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 11. Admin can create tags
 12. Security badges display
 
+### Phase 85: Database Schema Improvement
+
+**Goal**: Improve database schema based on architecture review - fix duplication, add FK constraints, implement 2-tier vault
+**Depends on**: Phase 72
+**Reference**: `prisma/DB_IMPROVEMENT_PLAN.md`, `prisma/DB_ARCHITECTURE_REVIEW.md`
+**Plans:** Pending
+
+**Success Criteria:**
+1. All missing FK constraints added (Message, FileAccessLog, DocumentVersion)
+2. CHECK constraints for enum fields added
+3. SQLite NULL unique issues fixed
+4. LegalRequest.matterTypeId added and backfilled
+5. RequestAssignment.isCurrent/endedAt added and backfilled
+6. VaultItem.fileId added and backfilled (2-tier vault)
+7. Old duplicate columns dropped
+8. All tests pass with new schema
+9. Data integrity verified
+
+**Waves:**
+- Wave 1: Safety First (NON-BREAKING) - FK + CHECK + indexes
+- Wave 2: Expand - New columns (backward compatible)
+- Wave 3: Backfill & Verify - Data migration
+- Wave 4: Contract (BREAKING) - Code update + drop old columns
+
 ---
 
 ## Progress
@@ -609,6 +633,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 | 83 | Workspace Management (Admin) | 8 | ❌ New | Pending |
 | 84 | Vault (Admin) | 12 | ✅ Enhanced | Pending |
 
+### Infrastructure
+
+| Phase | Name | Requirements | Status |
+|-------|------|--------------|--------|
+| 85 | Database Schema Improvement | 9 | Pending |
+
 ---
 
-_Last updated: 2026-06-14_
+_Last updated: 2026-06-17_

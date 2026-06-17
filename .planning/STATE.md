@@ -167,6 +167,7 @@ Phase 58 will create:
 |---|-------------|------|--------|-----------|
 | 260615-q1w | Update admin requests page with all-in-one mock UI | 2026-06-15 | aa89767 | [260615-q1w-admin-requests-all-in-one](./quick/260615-q1w-admin-requests-all-in-one/) |
 | 260615-q2x | Update admin requests with real database data | 2026-06-15 | 5794a4d | [260615-q2x-admin-requests-real-data](./quick/260615-q2x-admin-requests-real-data/) |
+| QT20260616-001 | Admin user detail page + user activity dashboard | 2026-06-16 | caf4173 | [QT20260616-001-PLAN.md](./quick/QT20260616-001-PLAN.md) |
 
 ---
-*Last updated: 2026-06-15*
+*Last updated: 2026-06-17*

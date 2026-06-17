@@ -59,7 +59,6 @@ export async function GET(
         name: true,
         phone: true,
         title: true,
-        role: true,
         isActive: true,
         emailVerified: true,
         createdAt: true,
@@ -99,7 +98,7 @@ export async function GET(
       // Count audit events (active workspaces)
       prisma.auditEvent.count({
         where: {
-          userId: id,
+          actorId: id,
           createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
         },
       }),
@@ -107,7 +106,6 @@ export async function GET(
       prisma.requestAssignment.count({
         where: {
           userId: id,
-          isActive: true,
           request: {
             status: { notIn: ['completed', 'cancelled', 'draft', 'draft_intake'] },
           },
@@ -225,7 +223,6 @@ export async function GET(
     const pendingActions = await prisma.requestAssignment.count({
       where: {
         userId: id,
-        isActive: true,
         request: {
           status: { in: ['submitted', 'assigned', 'in_progress'] },
           slaDeadline: { lt: new Date(Date.now() + 24 * 60 * 60 * 1000) },
@@ -236,7 +233,6 @@ export async function GET(
     const totalAssignments = await prisma.requestAssignment.count({
       where: {
         userId: id,
-        isActive: true,
         request: {
           status: { notIn: ['draft', 'draft_intake'] },
         },
@@ -248,20 +244,20 @@ export async function GET(
     // Get timeline (last 7 days)
     const timelineEvents = await prisma.auditEvent.findMany({
       where: {
-        userId: id,
+        actorId: id,
         createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
       },
       orderBy: { createdAt: 'desc' },
       take: 4,
       select: {
         action: true,
-        metadata: true,
+        metadataSummary: true,
         createdAt: true,
       },
     });
 
     const timeline = timelineEvents.map((event, index) => {
-      const meta = event.metadata as Record<string, unknown> || {};
+      const meta = event.metadataSummary ? JSON.parse(event.metadataSummary) as Record<string, unknown> : {};
       return {
         step: index + 1,
         title: getActionTitle(event.action),
@@ -291,7 +287,6 @@ export async function GET(
         email: user.email,
         phone: user.phone,
         title: user.title,
-        role: user.role,
         status,
         isActive: user.isActive,
         emailVerified: user.emailVerified,

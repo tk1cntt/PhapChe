@@ -210,7 +210,13 @@
 **Goal:** Implement partner request list and detail views
 **Depends on:** Phase 66
 **Requirements:** P-REQ-01 to P-REQ-08
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 
 **Success Criteria:**
 1. ✅ API lists assigned requests
@@ -339,7 +345,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: User settings with profile, password, notifications, language
 **Depends on**: Phase 72
 **Requirements**: SET-01 to SET-06
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
@@ -355,7 +367,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: Admin user management with organization filtering
 **Depends on**: Phase 73
 **Requirements**: ADM-USER-01 to ADM-USER-09
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
@@ -374,7 +392,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: Create Request wizard with 4 steps, intake questions, document upload, submit to database
 **Depends on**: Phase 74
 **Requirements**: CREQ-01 to CREQ-10
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ❌ Not implemented (new implementation)
 
 **Success Criteria:**
@@ -394,7 +418,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: My Cases screen with case list, search, filter, pagination
 **Depends on**: Phase 75
 **Requirements**: MYCASE-01 to MYCASE-09
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
@@ -413,7 +443,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: User Dashboard with real data from database, clickable navigation
 **Depends on**: Phase 76
 **Requirements**: U-DASH-01 to U-DASH-08
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
@@ -431,7 +467,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: Admin Request Management with list, assign, status change
 **Depends on**: Phase 77
 **Requirements**: ADM-REQ-01 to ADM-REQ-09
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
@@ -450,7 +492,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: Admin Dashboard with real stats, clickable navigation
 **Depends on**: Phase 78
 **Requirements**: ADM-DASH-01 to ADM-DASH-08
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
@@ -468,7 +516,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: Operations screen with workload, SLA bars, audit timeline
 **Depends on**: Phase 79
 **Requirements**: ADM-OPS-01 to ADM-OPS-07
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
@@ -485,7 +539,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: Messages screen with thread list, chat, info panel
 **Depends on**: Phase 80
 **Requirements**: MSG-01 to MSG-08
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
@@ -503,7 +563,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: Admin Audit with security logs, search, filter, pagination
 **Depends on**: Phase 81
 **Requirements**: ADM-AUD-01 to ADM-AUD-10
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
@@ -523,7 +589,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: Admin Workspace Management with CRUD, member invites, role changes
 **Depends on**: Phase 82
 **Requirements**: ADM-WS-01 to ADM-WS-08
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ❌ Not implemented (new implementation)
 
 **Success Criteria:**
@@ -541,7 +613,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: Admin Vault with file management, upload, download, folders, tags
 **Depends on**: Phase 83
 **Requirements**: VAULT-01 to VAULT-12
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
@@ -563,7 +641,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: Improve database schema based on architecture review - fix duplication, add FK constraints, implement 2-tier vault
 **Depends on**: Phase 72
 **Reference**: `prisma/DB_IMPROVEMENT_PLAN.md`, `prisma/DB_ARCHITECTURE_REVIEW.md`
-**Plans:** Pending
+**Plans:** 4/4 planned
+
+**Plan list:**
+- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
+- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
+- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
+- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 
 **Success Criteria:**
 1. All missing FK constraints added (Message, FileAccessLog, DocumentVersion)

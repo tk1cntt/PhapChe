@@ -24,10 +24,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `58-01-PLAN.md` -- Tenant, Organization models; Workspace FK; TypeScript types; seed data
 - [x] `58-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ tenants table created with all required fields
 2. ✅ organizations table created with tenant FK
 3. ✅ workspaces.organization_id added (nullable FK)
@@ -45,10 +47,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `59-01-PLAN.md` -- Partner, PartnerMember models; TypeScript types; seed data
 - [x] `59-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ partners table created
 2. ✅ partner_members table created
 3. ✅ User.partnerMembers relation added
@@ -66,10 +70,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `60-01-PLAN.md` -- ServiceType, Engagement, EngagementServiceScope models; TypeScript types; seed data
 - [x] `60-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ service_types table created
 2. ✅ engagements table created
 3. ✅ engagement_service_scopes table created
@@ -87,10 +93,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `61-01-PLAN.md` -- LegalRequest and RequestAssignment schema updates
 - [x] `61-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ legal_requests.engagement_id added
 2. ✅ legal_requests.assigned_partner_id added
 3. ✅ request_assignments has partner_id and engagement_id
@@ -108,10 +116,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `62-01-PLAN.md` -- RequestContext types, services, middleware
 - [x] `62-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ RequestContext type defined
 2. ✅ RequestContextBuilder service implemented
 3. ✅ Tenant middleware implemented
@@ -129,10 +139,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `63-01-PLAN.md` -- PermissionService with canRead/canWrite methods
 - [x] `63-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ PermissionService with canRead/canWrite methods
 2. ✅ Platform role checks implemented
 3. ✅ Organization role checks implemented
@@ -150,10 +162,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `64-01-PLAN.md` -- Base repository, Organization, Workspace, LegalRequest repositories
 - [x] `64-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ Base Repository class created
 2. ✅ OrganizationRepository implemented
 3. ✅ WorkspaceRepository implemented
@@ -171,10 +185,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `65-01-PLAN.md` -- Migration script for workspace-organization linking
 - [x] `65-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ Migration script for default organizations
 2. ✅ Workspace migration to link with organizations
 3. ✅ tenant_id backfill script
@@ -192,10 +208,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `66-01-PLAN.md` -- Partner dashboard and engagements APIs
 - [x] `66-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ Partner login API endpoint working
 2. ✅ Partner JWT token with partner context
 3. ⏳ Partner logout endpoint (deferred)
@@ -213,12 +231,14 @@
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 
 **Success Criteria:**
+
 1. ✅ API lists assigned requests
 2. ✅ API returns request details with permission check
 3. ✅ API lists requests by engagement/service type
@@ -236,11 +256,13 @@
 **Plans:** 2/2 complete ✅
 
 **Plans:**
+
 - [x] `68-01-PLAN.md` -- Status update, comments, document upload APIs
 - [x] `68-02-UI-PLAN.md` -- Partner UI components (StatusUpdateForm, CommentList, CommentForm, DocumentList, DocumentUpload)
 - [x] `68-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ API for partner status update working
 2. ✅ API for partner comments working
 3. ✅ API for partner document upload working
@@ -258,10 +280,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `69-01-PLAN.md` -- Organization CRUD APIs
 - [x] `69-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ API lists organizations (platform admin)
 2. ✅ API returns organization details
 3. ✅ API creates organization
@@ -279,10 +303,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `70-01-PLAN.md` -- User CRUD APIs with organization context
 - [x] `70-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ API lists users with organization filter
 2. ✅ API creates user with organization context
 3. ✅ API updates user with organization context
@@ -300,10 +326,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `71-01-PLAN.md` -- Service types and request creation APIs
 - [x] `71-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ API lists available service types
 2. ✅ API submits request with organization context
 3. ⏳ Service type selection UI - deferred
@@ -321,10 +349,12 @@
 **Plans:** 1/1 complete ✅
 
 **Plans:**
+
 - [x] `72-01-PLAN.md` -- Workspace CRUD APIs with organization filter
 - [x] `72-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
+
 1. ✅ API lists workspaces with organization filter
 2. ✅ API creates workspace within organization
 3. ✅ API updates workspace
@@ -348,13 +378,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
+
 1. User can view and edit profile (name, email, phone, title)
 2. User can change password with current password verification
 3. User can toggle notifications (emailOnReply, slaReminder, weeklySummary)
@@ -370,13 +403,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
+
 1. Admin sees paginated list of all users
 2. Admin can search users by name/email
 3. Admin can filter users by role
@@ -395,13 +431,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ❌ Not implemented (new implementation)
 
 **Success Criteria:**
+
 1. User can select service type from 5 options
 2. Service cards display with descriptions and tags
 3. Wizard shows 4-step progress indicator
@@ -421,13 +460,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
+
 1. Summary banner shows total cases count
 2. Stat cards show correct counts
 3. Search filters cases by code/type
@@ -446,13 +488,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
+
 1. Stat cards show real counts
 2. Welcome banner shows workspace name
 3. Recent cases panel shows 5 cases
@@ -470,13 +515,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
+
 1. Admin sees all requests with workspace filter
 2. Search works by code
 3. Status filter works
@@ -495,13 +543,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
+
 1. Stat cards show real counts
 2. Workload panel shows specialists
 3. Alert panel shows system alerts
@@ -519,13 +570,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
+
 1. Stat cards show real counts
 2. Workload panel shows assignments
 3. Audit timeline shows events
@@ -542,13 +596,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
+
 1. 3-column layout displays
 2. Thread list shows all threads
 3. Selecting thread shows messages
@@ -566,13 +623,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
+
 1. Stat cards show audit counts
 2. Security notice displays
 3. Control alerts show metrics
@@ -592,13 +652,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ❌ Not implemented (new implementation)
 
 **Success Criteria:**
+
 1. Admin sees all workspaces with member counts
 2. Admin can search workspaces
 3. Admin can view workspace details
@@ -616,13 +679,16 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Plans:** 4/4 planned
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+
 **UI Status:** ✅ Implemented UI only (v2.0)
 
 **Success Criteria:**
+
 1. Stat cards show vault counts
 2. Folder panel shows tree
 3. Tag panel shows tags with counts
@@ -641,15 +707,17 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 **Goal**: Improve database schema based on architecture review - fix duplication, add FK constraints, implement 2-tier vault
 **Depends on**: Phase 72
 **Reference**: `prisma/DB_IMPROVEMENT_PLAN.md`, `prisma/DB_ARCHITECTURE_REVIEW.md`
-**Plans:** 4/4 planned
+**Plans:** 4/4 plans complete
 
 **Plan list:**
+
 - [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
 - [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
 - [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
 - [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
 
 **Success Criteria:**
+
 1. All missing FK constraints added (Message, FileAccessLog, DocumentVersion)
 2. CHECK constraints for enum fields added
 3. SQLite NULL unique issues fixed
@@ -661,6 +729,7 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 9. Data integrity verified
 
 **Waves:**
+
 - Wave 1: Safety First (NON-BREAKING) - FK + CHECK + indexes
 - Wave 2: Expand - New columns (backward compatible)
 - Wave 3: Backfill & Verify - Data migration
@@ -721,7 +790,7 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 85 | Database Schema Improvement | 9 | Pending |
+| 85 | 4/4 | Complete   | 2026-06-17 |
 
 ---
 

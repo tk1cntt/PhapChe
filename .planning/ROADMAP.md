@@ -790,7 +790,7 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 85 | 4/4 | Complete   | 2026-06-17 |
+| 85 | 4/4 | Complete    | 2026-06-17 |
 
 ---
 

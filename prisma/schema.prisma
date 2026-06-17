@@ -54,6 +54,7 @@ model User {
   partnerMembers     PartnerMember[]
   sentMessages       Message[]      @relation("MessageSender")
   receivedMessages   Message[]      @relation("MessageRecipient")
+  fileAccessLogs     FileAccessLog[]
 }
 
 model UserPreferences {
@@ -729,6 +730,7 @@ model FileAccessLog {
   createdAt  DateTime @default(now())
 
   file       File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([fileId])
   @@index([userId])

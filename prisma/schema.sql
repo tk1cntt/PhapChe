@@ -651,7 +651,8 @@ CREATE TABLE IF NOT EXISTS "FileAccessLog" (
   ipAddress TEXT,
   userAgent TEXT,
   createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-  FOREIGN KEY (fileId) REFERENCES "File" (id) ON DELETE CASCADE
+  FOREIGN KEY (fileId) REFERENCES "File" (id) ON DELETE CASCADE,
+  FOREIGN KEY (userId) REFERENCES "User" (id) ON DELETE SET NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_fileAccessLog_fileId ON "FileAccessLog" (fileId);

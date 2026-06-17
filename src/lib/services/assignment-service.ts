@@ -304,5 +304,15 @@ export async function validateAssignment(
     return { valid: false, error: `User is not a ${kind} in this workspace` };
   }
 
+  // Check user account is active
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { isActive: true },
+  });
+
+  if (!user?.isActive) {
+    return { valid: false, error: 'User account is deactivated' };
+  }
+
   return { valid: true };
 }

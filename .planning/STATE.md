@@ -4,7 +4,7 @@ milestone: v2.1
 milestone_name: Shared Tenant Architecture
 status: completed
 last_updated: "2026-06-17T17:08:08.446Z"
-last_activity: 2026-06-14 -- Phase 72 Workspace Management v2 completed
+last_activity: 2026-18 -- Phase 85-04 Database Schema Improvement Contract Phase completed
 progress:
   total_phases: 28
   completed_phases: 15
@@ -13,21 +13,29 @@ progress:
   percent: 54
 ---
 
-# State: v2.1 Shared Tenant Architecture
+# State: Phase 85 - Database Schema Improvement
 
 ## Project Reference
 
 **Project:** GitNexus Legal - Legal-as-a-Service Platform
 **Core Value:** SME gửi yêu cầu pháp lý đơn giản như nhắn tin và nhận tài liệu/tư vấn đã qua kiểm soát chất lượng, có thể truy vết toàn bộ quá trình xử lý.
-**Current Milestone:** v2.1 Shared Tenant Architecture
+**Current Phase:** 85 - Database Schema Improvement
 
 ## Current Position
 
-Phase: 72 (Completed) ✅
-Plan: 1/1 complete
-Status: IMPLEMENTATION COMPLETE - Legacy Enhancement pending
-Last activity: 2026-06-14 -- Phase 72 Workspace Management v2 completed
-MILESTONE PROGRESS: 18/28 phases (64%)
+Phase: 85-04 (Completed) ✅
+Plan: 4/4 complete
+Status: CONTRACT PHASE COMPLETE - Awaiting human verification
+Last activity: 2026-06-18 -- Phase 85-04 Contract Phase completed
+
+## Phase 85 Progress
+
+| Wave | Name | Status |
+|------|------|--------|
+| Wave 1 | Schema Audit | ✅ Completed |
+| Wave 2 | Add FK Columns | ✅ Completed |
+| Wave 3 | Backfill & Constraints | ✅ Completed |
+| Wave 4 | Contract Phase | ✅ Completed (pending verification) |
 
 ## Phase Structure
 

@@ -169,6 +169,7 @@ Phase 58 will create:
 | 260615-q2x | Update admin requests with real database data | 2026-06-15 | 5794a4d | [260615-q2x-admin-requests-real-data](./quick/260615-q2x-admin-requests-real-data/) |
 | QT20260616-001 | Admin user detail page + user activity dashboard | 2026-06-16 | caf4173 | [QT20260616-001-PLAN.md](./quick/QT20260616-001-PLAN.md) |
 | QT20260617-001 | Database analysis report with ERD and optimization | 2026-06-17 | 6b6f90b | [QT20260617-001-DB-ANALYSIS.md](./quick/QT20260617-001-DB-ANALYSIS.md) |
+| QT20260617-002 | Database schema fixes - userType, orgId, soft delete | 2026-06-17 | d0abcc5 | [QT20260617-002-db-fix](./quick/QT20260617-002-db-fix/) |
 
 ---
 *Last updated: 2026-06-17*

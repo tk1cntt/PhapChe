@@ -49,7 +49,7 @@
     "@testing-library/react": "^16.3.2",
     "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
-    "@types/node": "latest",
+    "@types/node": "^25.9.3",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@vitejs/plugin-react": "^6.0.2",

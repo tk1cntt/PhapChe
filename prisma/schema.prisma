@@ -44,7 +44,7 @@ model User {
   reviews            Review[]
   workflowActions    WorkflowTransition[]
   auditEvents        AuditEvent[]
-  vaultFiles         VaultFile[]
+  vaultItems         VaultItem[]           // Renamed from vaultFiles
   routingCapabilities RoutingCapability[]
   accounts           Account[]
   sessions           Session[]
@@ -213,7 +213,7 @@ model Workspace {
   routingCapabilities RoutingCapability[]
   documents        Document[]
   reviews          Review[]
-  vaultFiles       VaultFile[]
+  vaultItems       VaultItem[]           // Renamed from vaultFiles
   auditEvents      AuditEvent[]
   documentTemplates DocumentTemplate[]
   folders          Folder[]
@@ -270,7 +270,7 @@ model LegalRequest {
   assignments          RequestAssignment[]
   documents            Document[]
   reviews              Review[]
-  vaultFiles           VaultFile[]
+  vaultItems           VaultItem[]          // Renamed from vaultFiles
   files                File[]
   intakeSubmission     IntakeSubmission?
   workflowTransitions  WorkflowTransition[]
@@ -507,7 +507,7 @@ model DocumentTemplate {
   @@index([workspaceId, status])
 }
 
-model VaultFile {
+model VaultItem {
   id                String       @id @default(cuid())
   requestId         String
   workspaceId       String
@@ -524,12 +524,14 @@ model VaultFile {
   size              Int?
   contentType       String?
   deletedAt         DateTime?   // Soft delete
+  fileId            String?      // FK to File.id for 2-tier vault architecture
   createdAt         DateTime     @default(now())
   request           LegalRequest @relation(fields: [requestId], references: [id])
   workspace         Workspace    @relation(fields: [workspaceId], references: [id])
   actor             User         @relation(fields: [actorId], references: [id])
-  vaultFileFolders  VaultFileFolder[]
-  vaultFileTags     VaultFileTag[]
+  file              File?        @relation(fields: [fileId], references: [id])
+  vaultItemFolders  VaultItemFolder[]
+  vaultItemTags     VaultItemTag[]
 
   @@index([requestId])
   @@index([workspaceId])
@@ -538,6 +540,7 @@ model VaultFile {
   @@index([fileKind])
   @@index([documentVersionId])
   @@index([deletedAt])
+  @@index([fileId])
 }
 
 model Folder {
@@ -554,7 +557,7 @@ model Folder {
   workspace       Workspace        @relation(fields: [workspaceId], references: [id])
   parent          Folder?          @relation("FolderHierarchy", fields: [parentId], references: [id])
   children        Folder[]         @relation("FolderHierarchy")
-  vaultFileFolders VaultFileFolder[]
+  vaultItemFolders VaultItemFolder[]
 
   @@unique([workspaceId, parentId, name_vi])
   @@index([workspaceId])
@@ -572,31 +575,31 @@ model Tag {
   label_ja     String?
   createdAt    DateTime       @default(now())
   workspace    Workspace      @relation(fields: [workspaceId], references: [id])
-  vaultFileTags VaultFileTag[]
+  vaultItemTags VaultItemTag[]
 
   @@unique([workspaceId, key])
   @@index([workspaceId])
 }
 
-model VaultFileFolder {
-  vaultFileId  String
+model VaultItemFolder {
+  vaultItemId  String
   folderId     String
   createdAt    DateTime   @default(now())
-  vaultFile    VaultFile  @relation(fields: [vaultFileId], references: [id])
+  vaultItem    VaultItem  @relation(fields: [vaultItemId], references: [id])
   folder       Folder     @relation(fields: [folderId], references: [id])
 
-  @@id([vaultFileId, folderId])
+  @@id([vaultItemId, folderId])
   @@index([folderId])
 }
 
-model VaultFileTag {
-  vaultFileId  String
+model VaultItemTag {
+  vaultItemId  String
   tagId        String
   createdAt    DateTime   @default(now())
-  vaultFile    VaultFile  @relation(fields: [vaultFileId], references: [id])
+  vaultItem    VaultItem  @relation(fields: [vaultItemId], references: [id])
   tag          Tag        @relation(fields: [tagId], references: [id])
 
-  @@id([vaultFileId, tagId])
+  @@id([vaultItemId, tagId])
   @@index([tagId])
 }
 
@@ -698,6 +701,7 @@ model File {
   creator         User            @relation("FileCreator", fields: [createdById], references: [id])
   versions        FileVersion[]
   accessLogs      FileAccessLog[]
+  vaultItems      VaultItem[]     // Inverse relation for 2-tier vault
 
   @@index([workspaceId])
   @@index([requestId])

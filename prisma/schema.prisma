@@ -249,6 +249,7 @@ model LegalRequest {
   description          String?
   priority             String?
   matterType           String?
+  matterTypeId         String?              // FK to MatterType (added in Wave 2)
   status               String               @default("draft_intake")
   slaDeadline          DateTime?
   createdById          String
@@ -265,6 +266,7 @@ model LegalRequest {
   assignedReviewer     User?                @relation("AssignedReviewer", fields: [assignedReviewerId], references: [id])
   engagement           Engagement?          @relation(fields: [engagementId], references: [id])
   assignedPartner      Partner?              @relation(fields: [assignedPartnerId], references: [id], name: "AssignedPartnerRelation")
+  matterTypeRef        MatterType?          @relation(fields: [matterTypeId], references: [id])
   assignments          RequestAssignment[]
   documents            Document[]
   reviews              Review[]
@@ -307,6 +309,7 @@ model MatterType {
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
   workspace           Workspace?          @relation(fields: [workspaceId], references: [id])
+  legalRequestsRef   LegalRequest[]     // FK from LegalRequest
   submissions         IntakeSubmission[]
   routingCapabilities RoutingCapability[]
 
@@ -341,6 +344,8 @@ model RequestAssignment {
   reason      String?
   partnerId   String?      // FK to Partner
   engagementId String?     // FK to Engagement
+  isCurrent   Boolean      @default(true)    // Only one per (requestId, kind) should be true
+  endedAt     DateTime?                       // Set when another assignment becomes current
   createdAt   DateTime     @default(now())
   createdById String
   request     LegalRequest @relation(fields: [requestId], references: [id])
@@ -507,6 +512,7 @@ model VaultFile {
   actorId           String
   filename          String?
   storageKey        String?
+  fileId            String?                          // FK to File (added in Wave 2)
   fileKind          String?
   source            String?
   documentVersionId String?
@@ -520,6 +526,7 @@ model VaultFile {
   request           LegalRequest @relation(fields: [requestId], references: [id])
   workspace         Workspace    @relation(fields: [workspaceId], references: [id])
   actor             User         @relation(fields: [actorId], references: [id])
+  file              File?        @relation(fields: [fileId], references: [id])
   vaultFileFolders  VaultFileFolder[]
   vaultFileTags     VaultFileTag[]
 
@@ -690,6 +697,7 @@ model File {
   creator         User            @relation("FileCreator", fields: [createdById], references: [id])
   versions        FileVersion[]
   accessLogs      FileAccessLog[]
+  vaultFiles      VaultFile[]
 
   @@index([workspaceId])
   @@index([requestId])

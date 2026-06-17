@@ -7,9 +7,9 @@ function isAdmin(session: AppSession | null | undefined) {
   return session?.roles.includes('coordinator_admin') || session?.roles.includes('super_admin') || false;
 }
 
-type CreateFolderInput = { workspaceId: string; name: string; parentId?: string | null };
+type CreateFolderInput = { workspaceId: string; name: string; name_vi?: string; name_en?: string; name_zh?: string; name_ja?: string; parentId?: string | null };
 type MoveFileToFolderInput = { vaultFileId: string; folderId: string };
-type CreateTagInput = { workspaceId: string; key: string; label: string };
+type CreateTagInput = { workspaceId: string; key: string; label: string; label_vi?: string; label_en?: string; label_zh?: string; label_ja?: string };
 type TagFileInput = { vaultFileId: string; tagId: string };
 type UntagFileInput = { vaultFileId: string; tagId: string };
 
@@ -29,11 +29,15 @@ export async function listFolders(session: AppSession, workspaceId: string, pare
 // createFolder: admin creates folder, optionally nested under parentId
 export async function createFolder(session: AppSession, input: CreateFolderInput) {
   if (!isAdmin(session)) throw new Error('FORBIDDEN');
-  if (!input.name || input.name.length === 0) throw new Error('FOLDER_NAME_REQUIRED');
-  if (input.name.length > 80) throw new Error('FOLDER_NAME_TOO_LONG');
+  // Validate at least one label exists (multilingual support)
+  if (!input.name && !input.name_vi && !input.name_en && !input.name_zh && !input.name_ja) {
+    throw new Error('FOLDER_NAME_REQUIRED');
+  }
+  const nameLength = (input.name || input.name_vi || input.name_en || '').length;
+  if (nameLength > 80) throw new Error('FOLDER_NAME_TOO_LONG');
 
   const existing = await prisma.folder.findFirst({
-    where: { workspaceId: input.workspaceId, parentId: input.parentId ?? null, name: input.name },
+    where: { workspaceId: input.workspaceId, parentId: input.parentId ?? null, name_vi: input.name_vi ?? null },
     select: { id: true },
   });
   if (existing) throw new Error('FOLDER_DUPLICATE');
@@ -49,7 +53,11 @@ export async function createFolder(session: AppSession, input: CreateFolderInput
   const folder = await prisma.folder.create({
     data: {
       workspaceId: input.workspaceId,
-      name: input.name,
+      name: input.name || input.name_vi || '',
+      name_vi: input.name_vi,
+      name_en: input.name_en,
+      name_zh: input.name_zh,
+      name_ja: input.name_ja,
       parentId: input.parentId ?? null,
     },
   });
@@ -116,8 +124,12 @@ export async function listTags(session: AppSession, workspaceId: string) {
 export async function createTag(session: AppSession, input: CreateTagInput) {
   if (!isAdmin(session)) throw new Error('FORBIDDEN');
   if (!input.key || !/^[a-z0-9_-]{1,32}$/.test(input.key)) throw new Error('TAG_KEY_INVALID');
-  if (!input.label || input.label.length === 0) throw new Error('TAG_LABEL_REQUIRED');
-  if (input.label.length > 80) throw new Error('TAG_LABEL_TOO_LONG');
+  // Validate at least one label exists (multilingual support)
+  if (!input.label && !input.label_vi && !input.label_en && !input.label_zh && !input.label_ja) {
+    throw new Error('TAG_LABEL_REQUIRED');
+  }
+  const labelLength = (input.label || input.label_vi || input.label_en || '').length;
+  if (labelLength > 80) throw new Error('TAG_LABEL_TOO_LONG');
 
   const existing = await prisma.tag.findFirst({
     where: { workspaceId: input.workspaceId, key: input.key },
@@ -126,7 +138,14 @@ export async function createTag(session: AppSession, input: CreateTagInput) {
   if (existing) throw new Error('TAG_DUPLICATE');
 
   const tag = await prisma.tag.create({
-    data: { workspaceId: input.workspaceId, key: input.key, label: input.label },
+    data: {
+      workspaceId: input.workspaceId,
+      key: input.key,
+      label_vi: input.label_vi || input.label || '',
+      label_en: input.label_en,
+      label_zh: input.label_zh,
+      label_ja: input.label_ja,
+    },
   });
 
   await recordAuditEvent({

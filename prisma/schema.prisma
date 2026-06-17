@@ -313,6 +313,10 @@ model MatterType {
   submissions         IntakeSubmission[]
   routingCapabilities RoutingCapability[]
 
+  // NOTE: SQLite/PostgreSQL treat NULL as distinct values in unique constraints.
+  // Multiple global matter types (workspaceId=NULL) with the same key would NOT
+  // violate this constraint. For global types, use application-level validation
+  // or ensure workspaceId is always set.
   @@unique([workspaceId, key])
   @@index([workspaceId])
   @@index([isActive])
@@ -599,6 +603,9 @@ model VaultFileTag {
   @@index([tagId])
 }
 
+// AuditEvent retention policy: Implement scheduled cleanup via cleanupOldAuditEvents()
+// in a maintenance script. Default retention: 365 days.
+// Run periodically (e.g., weekly) to prevent unbounded table growth.
 model AuditEvent {
   id              String      @id @default(cuid())
   actorId         String?

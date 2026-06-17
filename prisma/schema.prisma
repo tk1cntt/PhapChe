@@ -390,6 +390,7 @@ model DocumentVersion {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   document           Document @relation(fields: [documentId], references: [id])
+  template           DocumentTemplate @relation(fields: [templateId], references: [id])
 
   @@index([documentId])
   @@index([templateId])
@@ -496,6 +497,7 @@ model DocumentTemplate {
   workspace         Workspace      @relation(fields: [workspaceId], references: [id])
   previousVersion   DocumentTemplate? @relation("TemplateVersion", fields: [previousVersionId], references: [id])
   nextVersions      DocumentTemplate[] @relation("TemplateVersion")
+  documentVersions  DocumentVersion[]
 
   @@unique([workspaceId, matterTypeKey, version])
   @@index([workspaceId, matterTypeKey])

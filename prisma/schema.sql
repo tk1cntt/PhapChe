@@ -336,7 +336,8 @@ CREATE TABLE IF NOT EXISTS "DocumentVersion" (
   generatedContent TEXT NOT NULL,
   createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
   updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
-  FOREIGN KEY (documentId) REFERENCES "Document" (id)
+  FOREIGN KEY (documentId) REFERENCES "Document" (id),
+  FOREIGN KEY (templateId) REFERENCES "DocumentTemplate" (id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_documentVersion_documentId ON "DocumentVersion" (documentId);

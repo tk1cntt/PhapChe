@@ -339,6 +339,61 @@ prisma/migrations/
 
 ---
 
+## 9. Expert Architecture Review (2026-06-17)
+
+Đã thực hiện review độc lập theo 4 bước. Xem chi tiết: `prisma/DB_ARCHITECTURE_REVIEW.md`
+
+### Updated Recommendations
+
+| Issue | Original | Expert Rec | Rationale |
+|-------|----------|------------|-----------|
+| Assignment | Option B | **Option B + Race Handling** | Thêm locking mechanism để tránh concurrent assignment race condition |
+| Vault/File | Option C (complex) | **Option B + Simple VaultItem** | Giảm complexity, Option C overkill cho MVP |
+| Review FK | Option A | **Option A** | Không đổi |
+| MatterType | Option A | **Option A** | Không đổi |
+
+### Critical Risks Identified (Devil's Advocate)
+
+1. **Race Condition** - Concurrent assignment có thể set sai isCurrent flag
+   - **Mitigation:** Dùng `BEGIN EXCLUSIVE` transaction hoặc row-level locking
+
+2. **Query Performance** - JOIN thay vì direct query có thể chậm
+   - **Mitigation:** Index trên (requestId, kind, isCurrent), materialized view cho dashboard
+
+3. **Orphan FileAssets** - Khi VaultItem bị xóa, FileAsset vẫn tồn tại
+   - **Mitigation:** `ON DELETE CASCADE` hoặc background cleanup job
+
+### Revised Migration Priority
+
+```
+Phase 1: Safety First (NON-BREAKING)
+  1.1. Add missing FK constraints (Message.senderId, recipientId, FileAccessLog.userId)
+  1.2. Add CHECK constraints cho enum fields
+  1.3. Fix SQLite NULL unique issues
+
+Phase 2: Expand (ADD new columns - backward compatible)
+  2.1. LegalRequest.matterTypeId
+  2.2. RequestAssignment.isCurrent, endedAt
+  2.3. VaultItem.fileAssetId (rename VaultFile → VaultItem)
+
+Phase 3: Backfill & Verify
+  3.1. Backfill data từ old columns sang new columns
+  3.2. Verify data consistency
+
+Phase 4: Contract (BREAKING - requires feature flag)
+  4.1. Update code đọc từ new columns
+  4.2. Add constraints không cho NULL
+  4.3. Drop old columns
+```
+
+---
+
 ## Status: CHƯA IMPLEMENT
 
 Document này chỉ là planning. Cần user xác nhận trước khi bắt đầu implementation.
+
+### Next Steps
+1. User review và approve recommendations
+2. Backup production database
+3. Implement Phase 1 (Safety First)
+4. Test kỹ trước khi qua Phase 2

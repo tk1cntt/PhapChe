@@ -112,82 +112,98 @@ export default async function DashboardPage() {
     relativeTime: formatRelativeTime(doc.createdAt),
   }));
 
-  // Transform recent activities - generate detailed Vietnamese descriptions
+  // Transform recent activities - parse metadata and generate detailed Vietnamese descriptions
   const transformedActivities = recentActivities.map((activity) => {
     const action = activity.action;
     const targetType = activity.targetType;
     const actorName = activity.actor?.name || 'System';
-    const requestCode = activity.request?.code;
+    const requestCode = activity.request?.code || activity.request?.title;
+    const metadata = parseMetadata(activity.metadataSummary);
 
-    // Generate detailed description based on action and target
+    // Generate action text and description based on action pattern
     let actionText = '';
     let descriptionText = '';
 
-    if (targetType === 'Request' || targetType === 'LegalRequest') {
-      if (action === 'CREATE') {
-        actionText = 'Hồ sơ mới được tạo';
-        descriptionText = requestCode
-          ? `${actorName} đã tạo hồ sơ ${requestCode}.`
-          : `${actorName} đã tạo một hồ sơ pháp lý mới.`;
-      } else if (action === 'UPDATE') {
-        actionText = 'Hồ sơ được cập nhật';
-        descriptionText = requestCode
-          ? `${actorName} đã cập nhật thông tin hồ sơ ${requestCode}.`
-          : `${actorName} đã cập nhật thông tin hồ sơ.`;
-      } else if (action === 'ASSIGN') {
-        actionText = 'Hồ sơ được phân công';
-        descriptionText = requestCode
-          ? `${actorName} đã phân công chuyên viên xử lý hồ sơ ${requestCode}.`
-          : `${actorName} đã phân công chuyên viên xử lý.`;
-      } else if (action === 'APPROVE') {
-        actionText = 'Hồ sơ được duyệt';
-        descriptionText = requestCode
-          ? `Coordinator đã xác nhận hoàn tất hồ sơ ${requestCode}.`
-          : `Coordinator đã duyệt hồ sơ.`;
-      } else if (action === 'REJECT') {
-        actionText = 'Hồ sơ bị từ chối';
-        descriptionText = requestCode
-          ? `${actorName} đã từ chối hồ sơ ${requestCode}.`
-          : `${actorName} đã từ chối hồ sơ.`;
-      } else if (action === 'SUBMIT') {
-        actionText = 'Hồ sơ được gửi';
-        descriptionText = requestCode
-          ? `${actorName} đã gửi hồ sơ ${requestCode} để xem xét.`
-          : `${actorName} đã gửi hồ sơ để xem xét.`;
-      } else if (action === 'REPLY') {
-        actionText = 'Chuyên viên đã phản hồi';
-        descriptionText = requestCode
-          ? `${actorName} đã phản hồi hồ sơ ${requestCode}.`
-          : `${actorName} đã gửi phản hồi.`;
-      } else {
-        actionText = formatActivityAction(action);
-        descriptionText = activity.metadataSummary || `${actorName} đã thao tác trên hồ sơ.`;
+    // Handle action patterns like "request.updated", "document.downloaded", "partner.comment_added"
+    if (action.startsWith('request.')) {
+      const subAction = action.replace('request.', '');
+      switch (subAction) {
+        case 'created':
+          actionText = 'Hồ sơ mới được tạo';
+          descriptionText = `${actorName} đã tạo hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
+          break;
+        case 'updated':
+          actionText = 'Hồ sơ được cập nhật';
+          descriptionText = `${actorName} đã cập nhật thông tin hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
+          break;
+        case 'assigned':
+          actionText = 'Hồ sơ được phân công';
+          descriptionText = `${actorName} đã phân công chuyên viên xử lý hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
+          break;
+        case 'approved':
+          actionText = 'Hồ sơ được duyệt';
+          descriptionText = `Coordinator đã xác nhận hoàn tất hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
+          break;
+        case 'rejected':
+          actionText = 'Hồ sơ bị từ chối';
+          descriptionText = `${actorName} đã từ chối hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
+          break;
+        case 'submitted':
+          actionText = 'Hồ sơ được gửi';
+          descriptionText = `${actorName} đã gửi hồ sơ ${requestCode || metadata.requestTitle || ''} để xem xét.`.trim();
+          break;
+        case 'replied':
+          actionText = 'Chuyên viên đã phản hồi';
+          descriptionText = `${actorName} đã phản hồi hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
+          break;
+        default:
+          actionText = formatActivityAction(subAction.toUpperCase());
+          descriptionText = metadata.details || `${actorName} đã thao tác trên hồ sơ ${requestCode || ''}.`;
       }
-    } else if (targetType === 'Document' || targetType === 'VaultFile') {
-      if (action === 'UPLOAD') {
-        actionText = 'Tài liệu mới được thêm vào vault';
-        descriptionText = `${actorName} đã tải lên tài liệu mới.`;
-      } else if (action === 'DOWNLOAD') {
-        actionText = 'Tài liệu được tải xuống';
-        descriptionText = `${actorName} đã tải xuống tài liệu.`;
-      } else if (action === 'DELETE') {
-        actionText = 'Tài liệu bị xóa';
-        descriptionText = `${actorName} đã xóa tài liệu khỏi vault.`;
-      } else {
-        actionText = formatActivityAction(action);
-        descriptionText = activity.metadataSummary || `${actorName} đã thao tác trên tài liệu.`;
+    } else if (action.startsWith('document.')) {
+      const subAction = action.replace('document.', '');
+      switch (subAction) {
+        case 'uploaded':
+          actionText = 'Tài liệu mới được thêm vào vault';
+          descriptionText = `${actorName} đã tải lên tài liệu ${metadata.documentName || ''}`.trim() + '.';
+          break;
+        case 'downloaded':
+          actionText = 'Tài liệu được tải xuống';
+          descriptionText = `${actorName} đã tải xuống tài liệu ${metadata.documentName || ''}`.trim() + '.';
+          break;
+        case 'deleted':
+          actionText = 'Tài liệu bị xóa';
+          descriptionText = `${actorName} đã xóa tài liệu khỏi vault.`;
+          break;
+        default:
+          actionText = formatActivityAction(subAction.toUpperCase());
+          descriptionText = metadata.details || `${actorName} đã thao tác trên tài liệu.`;
       }
-    } else if (targetType === 'Workspace') {
-      if (action === 'VIEW') {
-        actionText = 'Workspace scope được kiểm tra';
-        descriptionText = 'Hệ thống xác nhận quyền truy cập workspace.';
-      } else {
-        actionText = formatActivityAction(action);
-        descriptionText = activity.metadataSummary || `${actorName} đã cập nhật workspace.`;
+    } else if (action.startsWith('partner.')) {
+      const subAction = action.replace('partner.', '');
+      switch (subAction) {
+        case 'comment_added':
+          actionText = 'Partner đã bình luận';
+          descriptionText = `${actorName} đã bình luận trên yêu cầu ${metadata.partnerName || ''}`.trim() + '.';
+          break;
+        case 'request_sent':
+          actionText = 'Yêu cầu được gửi đến partner';
+          descriptionText = `${actorName} đã gửi yêu cầu đến ${metadata.partnerName || 'partner'}.`;
+          break;
+        default:
+          actionText = formatActivityAction(subAction.toUpperCase());
+          descriptionText = metadata.details || `${actorName} đã tương tác với partner.`;
       }
+    } else if (action.startsWith('workspace.')) {
+      actionText = 'Workspace được cập nhật';
+      descriptionText = metadata.details || 'Workspace đã được cập nhật.';
+    } else if (action.startsWith('user.')) {
+      actionText = 'Người dùng được cập nhật';
+      descriptionText = metadata.details || `${actorName} đã cập nhật thông tin người dùng.`;
     } else {
+      // Fallback for simple actions like CREATE, UPDATE, etc.
       actionText = formatActivityAction(action);
-      descriptionText = activity.metadataSummary || `${targetType} đã được ${action.toLowerCase()}.`;
+      descriptionText = metadata.details || `${targetType} đã được ${action.toLowerCase()}.`;
     }
 
     return {
@@ -199,6 +215,26 @@ export default async function DashboardPage() {
       relativeTime: formatRelativeTime(activity.createdAt),
     };
   });
+
+  // Helper function to parse metadata JSON
+  function parseMetadata(summary: string | null): Record<string, string | null> {
+    if (!summary) return {};
+    try {
+      // Handle both JSON string and already-parsed object
+      if (typeof summary === 'string') {
+        // Try to parse if it's a JSON string
+        if (summary.startsWith('{')) {
+          return JSON.parse(summary);
+        }
+        // If it's a plain text details field
+        return { details: summary };
+      }
+      return summary;
+    } catch {
+      // If parsing fails, treat as plain text
+      return { details: summary };
+    }
+  }
 
   // Stats data
   const stats = {

@@ -30,7 +30,7 @@ async function main() {
 
   // Create membership
   await prisma.workspaceMembership.upsert({
-    where: { userId_workspaceId_role: { userId: customer.id, workspaceId: workspace.id, role: 'customer' } },
+    where: { userId_workspaceId: { userId: customer.id, workspaceId: workspace.id } },
     update: {},
     create: {
       userId: customer.id,
@@ -57,7 +57,7 @@ async function main() {
     specialists.push(user.id);
 
     await prisma.workspaceMembership.upsert({
-      where: { userId_workspaceId_role: { userId: user.id, workspaceId: workspace.id, role: 'specialist' } },
+      where: { userId_workspaceId: { userId: user.id, workspaceId: workspace.id } },
       update: {},
       create: {
         userId: user.id,

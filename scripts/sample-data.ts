@@ -226,10 +226,9 @@ async function seedOrganizationData(config: OrgConfig) {
       const user = await createOrFindUser(memberConfig.email, memberConfig.name);
       const membership = await prisma.workspaceMembership.upsert({
         where: {
-          userId_workspaceId_role: {
+          userId_workspaceId: {
             userId: user.id,
             workspaceId: workspace.id,
-            role: memberConfig.role,
           },
         },
         update: { isActive: true },

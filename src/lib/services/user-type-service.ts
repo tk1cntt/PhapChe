@@ -6,7 +6,7 @@
  * - workspace memberships and roles
  */
 
-import type { AccountType } from '@/lib/types';
+import type { AccountType } from '@/lib/types/user';
 import type { WorkspaceMembership, Workspace } from '@prisma/client';
 
 export interface UserTypeInfo {
@@ -46,19 +46,11 @@ export function getUserTypeInfo(
   const isStaff = accountType === 'staff' || hasStaffRole;
   const isCustomer = !isStaff;
 
-  // Get organization ID from first workspace that has one
-  let organizationId: string | null = null;
-  for (const membership of activeMemberships) {
-    // This would need workspace data - see getOrganizationIdFromMemberships
-    // For now, return null and use the extended version
-    break;
-  }
-
   return {
     accountType,
     isStaff,
     isCustomer,
-    organizationId,
+    organizationId: null,
     primaryRole: allRoles[0] || 'none',
     allRoles: [...new Set(allRoles)],
   };
@@ -80,9 +72,11 @@ export function getUserTypeInfoWithOrg(
   const isCustomer = !isStaff;
 
   // Get first non-null organizationId
-  const organizationId = activeMemberships
-    .find(m => m.workspace?.organizationId)?
-    .workspace?.organizationId || null;
+  let organizationId: string | null = null;
+  const memberWithOrg = activeMemberships.find(m => m.workspace && m.workspace.organizationId);
+  if (memberWithOrg && memberWithOrg.workspace) {
+    organizationId = memberWithOrg.workspace.organizationId;
+  }
 
   return {
     accountType,

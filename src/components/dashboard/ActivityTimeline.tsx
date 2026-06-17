@@ -26,12 +26,12 @@ export default function ActivityTimeline({ activities }: ActivityTimelineProps) 
         {activities.length === 0 ? (
           <div className="empty-state">{t('empty')}</div>
         ) : (
-          activities.map((a) => (
+          activities.map((a, index) => (
             <div key={a.id} className="timeline-item">
               <div className="timeline-dot" />
               <strong>{a.action}</strong>
               <p>{a.description}</p>
-              <span className="timeline-time">{a.relativeTime}</span>
+              <div className="timeline-time">{a.relativeTime}</div>
             </div>
           ))
         )}

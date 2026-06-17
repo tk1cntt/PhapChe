@@ -123,10 +123,9 @@ export async function updateAdminUserRole({ actor, input, db = prisma }: UserMut
 
     const membership = await tx.workspaceMembership.upsert({
       where: {
-        userId_workspaceId_role: {
+        userId_workspaceId: {
           userId: input.userId,
           workspaceId: input.workspaceId,
-          role: input.role,
         },
       },
       update: { isActive: true },
@@ -187,10 +186,9 @@ export async function assignUserToWorkspace({ actor, input, db = prisma }: UserM
 
     const membership = await tx.workspaceMembership.upsert({
       where: {
-        userId_workspaceId_role: {
+        userId_workspaceId: {
           userId: input.userId,
           workspaceId: input.workspaceId,
-          role: input.role,
         },
       },
       update: { isActive: true },

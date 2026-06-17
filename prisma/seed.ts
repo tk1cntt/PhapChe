@@ -2,6 +2,7 @@ import { SEED_MATTER_TYPES, SEED_FOLDERS, SEED_TAGS, SEED_VERSION, SEED_METADATA
 import { auth } from '../src/auth';
 import { seedMessages } from './seed-messages';
 import { prisma } from '../src/lib/prisma';
+import { hashPassword } from '@better-auth/utils/password';
 
 // NOTE: For seed scripts, using the singleton prisma is acceptable.
 // Seed scripts are short-lived processes that run standalone.
@@ -43,8 +44,7 @@ async function ensureUser(email: string, name: string, password: string) {
     });
     if (!existingAccount) {
       // Create Account directly with hashed password for better-auth
-      const bcrypt = await import('bcrypt');
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await hashPassword(password);
       await prisma.account.create({
         data: {
           userId: existing.id,
@@ -66,9 +66,8 @@ async function ensureUser(email: string, name: string, password: string) {
     },
   });
 
-  // Create Account with hashed password
-  const bcrypt = await import('bcrypt');
-  const hashedPassword = await bcrypt.hash(password, 10);
+  // Create Account with hashed password using better-auth's hashPassword
+  const hashedPassword = await hashPassword(password);
   await prisma.account.create({
     data: {
       userId: user.id,

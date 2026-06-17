@@ -8,7 +8,7 @@ datasource db {
 }
 
 // Note: SQLite doesn't support enums, using String fields instead
-// Role values: customer, specialist, reviewer, coordinator_admin, super_admin
+// Role values: customer, specialist, reviewer, coordinator, super_admin
 // RequestStatus values: draft_intake, intake_submitted, triage, assigned, in_progress, pending_review, revision_required, approved, delivered, closed, cancelled
 // AssignmentKind values: specialist, reviewer
 // AuditTargetType values: user, workspace, membership, request, matter_type, intake_submission, assignment, document, review, vault_file, workflow_transition
@@ -16,6 +16,9 @@ datasource db {
 // TemplateStatus values: draft, approved, published, deprecated
 // ReviewStatus values: in_progress, approved, rejected
 // ReviewDecision values: approve, reject
+// AccountType values: staff, customer
+// Staff roles: super_admin, coordinator, specialist, reviewer
+// Customer roles: customer (access org workspace or individual)
 
 model User {
   id                 String               @id @default(cuid())
@@ -26,7 +29,7 @@ model User {
   timezone           String?              @default("Asia/Ho_Chi_Minh")
   locale             String?              @default("vi")
   avatarUrl          String?
-  userType           String               @default("customer")  // "staff" or "customer"
+  accountType        String               @default("customer")  // "staff" or "customer"
   lastActiveAt       DateTime?
   isActive           Boolean              @default(true)
   emailVerified      Boolean              @default(false)
@@ -231,9 +234,11 @@ model WorkspaceMembership {
   user        User      @relation(fields: [userId], references: [id])
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
 
-  @@unique([userId, workspaceId, role])
+  @@unique([userId, workspaceId])
   @@index([workspaceId])
   @@index([role])
+  @@index([workspaceId, role])
+  @@index([role, isActive])
 }
 
 model LegalRequest {

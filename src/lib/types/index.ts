@@ -45,3 +45,6 @@ export type {
   VersionStatus,
   AppRole,
 } from '@/lib/types';
+
+// Re-export user types
+export type { AccountType } from './user';

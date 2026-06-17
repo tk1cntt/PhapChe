@@ -5,9 +5,11 @@
 import type { Role } from '@/lib/types';
 
 /**
- * User type enumeration
+ * Account type enumeration
+ * - staff: Platform employees (admin, coordinator, specialist)
+ * - customer: External users (corporate or individual)
  */
-export type UserType = 'staff' | 'customer';
+export type AccountType = 'staff' | 'customer';
 
 /**
  * User entity representing a platform user
@@ -18,7 +20,7 @@ export interface User {
   name: string;
   phone?: string;
   title?: string;
-  userType: UserType;
+  accountType: AccountType;
   role: Role;
   workspaceId?: string;
   language?: string;

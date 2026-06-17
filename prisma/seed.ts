@@ -224,7 +224,7 @@ async function seedAnPhatWorkspace() {
     const isActive = userData.role !== 'customer'; // 'customer' role means invited (not active yet)
     await prisma.workspaceMembership.upsert({
       where: {
-        userId_workspaceId_role: { userId: user.id, workspaceId: anPhatWorkspace.id, role: userData.role },
+        userId_workspaceId: { userId: user.id, workspaceId: anPhatWorkspace.id },
       },
       update: { isActive },
       create: {
@@ -399,7 +399,7 @@ async function main() {
     const user = await ensureUser(userData.email, userData.name, userData.password);
 
     await prisma.workspaceMembership.upsert({
-      where: { userId_workspaceId_role: { userId: user.id, workspaceId: workspace.id, role: userData.role } },
+      where: { userId_workspaceId: { userId: user.id, workspaceId: workspace.id } },
       update: { isActive: true },
       create: { userId: user.id, workspaceId: workspace.id, role: userData.role, isActive: true },
     });

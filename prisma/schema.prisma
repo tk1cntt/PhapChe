@@ -345,6 +345,8 @@ model RequestAssignment {
   reason      String?
   partnerId   String?      // FK to Partner
   engagementId String?     // FK to Engagement
+  isCurrent   Boolean      @default(true)  // Source of truth flag
+  endedAt     DateTime?                    // When assignment ended
   createdAt   DateTime     @default(now())
   createdById String
   request     LegalRequest @relation(fields: [requestId], references: [id])
@@ -360,6 +362,8 @@ model RequestAssignment {
   @@index([engagementId])
   @@index([userId, kind])
   @@index([requestId, kind])
+  @@index([requestId, kind, isCurrent])
+  @@index([isCurrent])
 }
 
 model RoutingCapability {

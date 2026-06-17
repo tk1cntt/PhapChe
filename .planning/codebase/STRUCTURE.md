@@ -1,152 +1,156 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-06-14
+**Analysis Date:** 2026-06-17
 
 ## Directory Layout
 
 ```
-D:\PhapChe/
-├── prisma/                    # Database schema and seeds
-│   ├── schema.prisma         # Prisma schema (SQLite)
-│   └── seed*.ts              # Database seed scripts
-├── src/                      # Main application source
-│   ├── app/                  # Next.js App Router
-│   ├── components/          # React components
-│   ├── hooks/                # Custom React hooks
-│   ├── lib/                  # Service layer and utilities
-│   ├── constants/            # Static constants
-│   ├── middleware.ts         # Request middleware
-│   ├── auth.ts               # Better-Auth configuration
-│   ├── routing.ts            # i18n routing config
-│   └── i18n.ts               # i18n configuration
-├── .planning/                # GSD planning documents
-└── package.json
+D:\PhapChe\
+├── src/
+│   ├── app/               # Next.js App Router pages and API routes
+│   ├── components/        # React components (shared and domain-specific)
+│   ├── lib/               # Service layer, utilities, types
+│   ├── hooks/             # Custom React hooks
+│   ├── auth.ts            # Better-auth configuration
+│   ├── middleware.ts      # Next.js middleware
+│   ├── i18n.ts            # Internationalization config
+│   └── routing.ts         # Locale routing config
+├── prisma/
+│   └── schema.prisma      # Database schema
+├── tests/                 # Vitest unit tests
+│   ├── setup.ts           # Test setup
+│   ├── dashboard/         # Dashboard tests
+│   └── api/               # API route tests
+├── e2e/                   # Playwright E2E tests
+├── .planning/codebase/    # This directory - codebase mapping
+├── .storybook/            # Storybook configuration
+├── docs/                  # Architecture documentation
+├── scripts/               # Utility scripts
+└── [config files]        # package.json, tsconfig.json, etc.
 ```
 
 ## Directory Purposes
 
-**`src/app/`:**
-- Purpose: Next.js App Router pages and API routes
+**src/app/:**
+- Purpose: Next.js App Router structure
 - Contains: `[locale]/` pages, `api/` routes, layouts
 - Key files: `src/app/layout.tsx`, `src/app/middleware.ts`
 
-**`src/components/`:**
+**src/components/:**
 - Purpose: React UI components
-- Contains: Admin, auth, create-request, layout, messages, my-cases, settings, ui
-- Key files: Component subdirectories with `index.ts` barrel exports
+- Contains: `shared/` (reusable), domain-specific folders
+- Key files: `StatCard.tsx`, `DataTable.tsx`, domain components
 
-**`src/lib/`:**
-- Purpose: Business logic, services, utilities
-- Contains: audit, documents, intake, ops, reviews, security, workflow, hooks
-- Key files: `src/lib/prisma.ts`, `src/lib/types.ts`, `src/lib/security/session.ts`
+**src/lib/:**
+- Purpose: Business logic and services
+- Contains: `api/` (client), `workflow/` (state machines), domain services
+- Key files: `prisma.ts`, `types/`, service modules
 
-**`src/hooks/`:**
-- Purpose: Custom React hooks for data fetching
-- Contains: `useRequests.ts`, `useUsers.ts`, `useAuditEvents.ts`
-- Note: Lowercase directory, different from `src/lib/hooks/`
+**prisma/:**
+- Purpose: Database schema and migrations
+- Contains: `schema.prisma`, seed files
+- Key files: `seed.ts`, `seed-unified.ts`
 
-**`src/lib/hooks/`:**
-- Purpose: Utility hooks (not data fetching)
-- Contains: `usePaginationParams.ts`, `useDebounce.ts`
+**tests/:**
+- Purpose: Unit and integration tests
+- Contains: Vitest setup and test files
+- Key files: `setup.ts`, `*.test.ts` files
 
-**`prisma/`:**
-- Purpose: Database schema and seed data
-- Contains: `schema.prisma`, seed files for different datasets
+**e2e/:**
+- Purpose: End-to-end browser tests
+- Contains: Playwright test files
+- Key files: `*.spec.ts`, `helpers/` directory
 
 ## Key File Locations
 
 **Entry Points:**
-- `src/app/layout.tsx`: Root layout with AntdRegistry
-- `src/middleware.ts`: Request middleware (i18n + auth)
-- `src/routing.ts`: Locale routing configuration
+- `src/app/[locale]/layout.tsx`: Root locale layout with providers
+- `src/app/[locale]/page.tsx`: Landing page (if exists)
+- `src/middleware.ts`: Request middleware
 
 **Configuration:**
-- `src/auth.ts`: Better-Auth setup with Prisma adapter
-- `src/lib/prisma.ts`: Prisma client singleton
-- `src/lib/types.ts`: Type constants and enums
+- `package.json`: Dependencies and scripts
+- `tsconfig.json`: TypeScript configuration
+- `vitest.config.ts`: Unit test configuration
+- `playwright.config.ts`: E2E test configuration
 - `prisma/schema.prisma`: Database schema
 
 **Core Logic:**
+- `src/lib/api/client.ts`: Central API client
 - `src/lib/workflow/request-workflow.ts`: Request state machine
-- `src/lib/intake/intake-service.ts`: Intake form handling
-- `src/lib/documents/vault-service.ts`: File vault operations
-- `src/lib/security/rbac.ts`: Access control
-- `src/lib/security/session.ts`: Session management
-- `src/lib/audit/audit.ts`: Audit event recording
+- `src/lib/security/rbac.ts`: Role-based access control
+- `src/lib/audit/audit.ts`: Audit logging
 
-**API Routes:**
-- `src/app/api/intake/create-draft/route.ts`
-- `src/app/api/intake/submit/route.ts`
-- `src/app/api/intake/attach-file/route.ts`
-- `src/app/api/vault/[vaultFileId]/download/route.ts`
-- `src/app/api/admin/requests/[id]/assign/route.ts`
+**Authentication:**
+- `src/auth.ts`: Better-auth configuration
+- `src/lib/security/session.ts`: Session management
 
 **Testing:**
-- `src/**/*.test.ts`: Unit tests
-- `src/**/*.test.tsx`: Component tests
-- `src/**/*.e2e.test.ts`: E2E tests
-- `src/lib/foundation.e2e.test.ts`: Core functionality E2E
+- `tests/setup.ts`: Test environment setup
+- `tests/dashboard/Dashboard.test.ts`: Example test suite
 
 ## Naming Conventions
 
 **Files:**
-- PascalCase for React components: `AdminDashboardClient.tsx`
-- kebab-case for utilities: `audit-service.ts`, `vault-service.ts`
-- snake_case for seed files: `seed-customers.ts`, `seed-messages.ts`
+- React components: PascalCase.tsx (e.g., `StatCard.tsx`)
+- Services/Utilities: kebab-case.ts (e.g., `audit-service.ts`)
+- Types: PascalCase.ts (e.g., `types/user.ts`)
+- Tests: *.test.ts or *.spec.ts
 
 **Directories:**
-- kebab-case for feature directories: `src/lib/documents/`, `src/app/api/intake/`
-- kebab-case for component directories: `src/components/admin/`, `src/components/my-cases/`
-- lowercase for hooks directories: `src/hooks/`, `src/lib/hooks/`
+- General: kebab-case (e.g., `my-cases/`)
+- Domain modules: kebab-case (e.g., `audit/`)
+- Component folders: kebab-case matching component name
 
-**TypeScript/React:**
-- camelCase for functions and variables
-- PascalCase for types and components
-- UPPER_SNAKE_CASE for constants: `REQUEST_STATUS`, `ROLE`
+**Functions & Variables:**
+- camelCase: `getUserById`, `isActive`
+- PascalCase: React components, TypeScript types
+- UPPER_SNAKE_CASE: Constants (e.g., `REQUEST_STATUS`)
 
 ## Where to Add New Code
 
-**New Feature Service:**
-- Primary code: `src/lib/[feature]/[feature]-service.ts`
-- Tests: `src/lib/[feature]/[feature]-service.test.ts`
-- Example: `src/lib/delivery/delivery-service.ts`
-
-**New API Route:**
-- Location: `src/app/api/[domain]/[action]/route.ts`
-- Example: `src/app/api/admin/users/route.ts` for GET/POST users
+**New Feature (Full Stack):**
+1. Database model: `prisma/schema.prisma`
+2. Service layer: `src/lib/[domain]/[service].ts`
+3. API routes: `src/app/api/[domain]/route.ts`
+4. Page component: `src/app/[locale]/[feature]/page.tsx`
+5. Components: `src/components/[domain]/`
+6. Tests: `tests/[domain]/[feature].test.ts`
 
 **New Component:**
-- Primary: `src/components/[domain]/[ComponentName].tsx`
-- Tests: `src/components/[domain]/[ComponentName].test.tsx`
-- Index: `src/components/[domain]/index.ts` (barrel export)
+1. Shared component: `src/components/shared/ui/`
+2. Domain component: `src/components/[domain]/`
+3. Export from barrel: `src/components/[domain]/index.ts`
+4. Test: `src/components/[domain]/[Component].test.tsx`
 
-**New Database Model:**
-- Schema: `prisma/schema.prisma`
-- After edit: Run `npx prisma generate`
+**New API Endpoint:**
+1. Route handler: `src/app/api/[domain]/[action]/route.ts`
+2. Service delegation: `src/lib/[domain]/[service].ts`
+3. Types: `src/lib/types/[domain].ts`
+4. Test: `tests/api/[domain]/[action].test.ts`
 
-**Utilities/Helpers:**
-- Feature-specific: `src/lib/[feature]/[helper].ts`
-- Shared: `src/lib/utils/` (create if not exists)
+**Utilities:**
+- Shared utilities: `src/lib/utils/`
+- Domain utilities: `src/lib/[domain]/utils/`
 
 ## Special Directories
 
-**`src/app/[locale]/`:**
-- Purpose: Locale-prefixed pages
-- Generated: No (Next-intl routing)
+**.storybook/:**
+- Purpose: Storybook visual documentation
+- Generated: No
 - Committed: Yes
 
-**`src/lib/intake/`:**
-- Purpose: Intake form logic
-- Contains: `intake-service.ts`, `catalog.ts`, `actions.ts`, upload service
+**.planning/codebase/:**
+- Purpose: GSD codebase mapping documents
+- Generated: Yes (by this process)
+- Committed: Yes
 
-**`src/lib/documents/`:**
-- Purpose: Document and vault management
-- Contains: `vault-service.ts`, `template-service.ts`, `draft-service.ts`, `classification-service.ts`
-
-**`src/components/layout/`:**
-- Purpose: Layout components
-- Contains: `AdminLayout.tsx`, `UserLayout.tsx`
+**docs/:**
+- Purpose: Architecture documentation
+- Contains: `DOMAIN_STRUCTURE.md`, `API_STANDARDS.md`, etc.
+- Generated: No
+- Committed: Yes
 
 ---
 
-*Structure analysis: 2026-06-14*
+*Structure analysis: 2026-06-17*

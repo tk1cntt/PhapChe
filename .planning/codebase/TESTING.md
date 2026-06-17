@@ -1,6 +1,6 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-06-14
+**Analysis Date:** 2026-06-17
 
 ## Test Framework
 
@@ -24,19 +24,18 @@
 
 **Run Commands:**
 ```bash
-npm run dev                    # Run development server
 npx vitest                     # Run unit/integration tests
 npx vitest --watch             # Watch mode
 npm run test:e2e               # Run E2E tests
 npm run test:e2e:ui           # Run E2E with UI
+npm run typecheck              # Type checking
 ```
 
 ## Test File Organization
 
 **Location:**
-- Unit/Integration tests: Co-located with source files (e.g., `src/lib/admin/users.test.ts`)
+- Unit/Integration tests: Co-located with source files (e.g., `src/lib/admin/users.test.ts`) or in `tests/` directory
 - E2E tests: Separate `tests/e2e/` directory
-- Component tests: `tests/` directory at root
 
 **Naming:**
 - Unit tests: `.test.ts` or `.test.tsx` suffix
@@ -45,22 +44,29 @@ npm run test:e2e:ui           # Run E2E with UI
 
 **Structure:**
 ```
-src/
-├── lib/
-│   ├── admin/
-│   │   ├── users.ts
-│   │   └── users.test.ts      # Co-located unit tests
-│   └── ...
-tests/
-├── e2e/
-│   └── dashboard.spec.ts      # E2E tests
-├── customer-dashboard/
-│   └── 01-components.spec.tsx # Component specs
-├── my-cases/
-│   ├── my-cases-client.test.tsx
-│   ├── my-cases-stats.test.tsx
-│   └── my-cases-integration.spec.tsx
-└── setup.ts                   # Vitest setup
+D:\PhapChe\
+├── src/
+│   ├── lib/
+│   │   ├── admin/
+│   │   │   └── users.test.ts      # Co-located unit tests
+│   │   └── workflow/
+│   │       └── request-workflow.test.ts
+│   └── components/
+│       └── admin/
+│           └── AdminVaultClient.test.tsx
+├── tests/
+│   ├── setup.ts                   # Vitest setup
+│   ├── dashboard/
+│   │   └── Dashboard.test.ts      # Dashboard component tests
+│   ├── e2e/
+│   │   ├── dashboard.spec.ts      # Dashboard E2E
+│   │   ├── partners/
+│   │   │   └── partner-actions.e2e.ts
+│   │   └── helpers/
+│   │       └── auth.ts
+│   └── api/
+│       └── dashboard.route.test.ts
+└── e2e/                          # Playwright E2E tests
 ```
 
 ## Test Structure
@@ -205,7 +211,7 @@ async function cleanup(seed: ReviewSeed | null) {
 npx vitest --coverage
 ```
 
-**Note:** No coverage threshold currently set. Project guidelines suggest 90% minimum.
+**Note:** Project guidelines suggest 90% minimum coverage (from CLAUDE.md)
 
 ## Test Types
 
@@ -333,10 +339,10 @@ function assertSafeDatabaseUrl() {
 ## Test Data Constraints
 
 **From CLAUDE.md:**
-- All test data should come from database inserts
-- No hardcoded test data except in isolated unit tests
+- All UI features need: whitebox testcase, blackbox testcase, abnormal testcase, error testcase
+- All bug fixes need e2e testcase
 - Coverage must be minimum 90%
 
 ---
 
-*Testing analysis: 2026-06-14*
+*Testing analysis: 2026-06-17*

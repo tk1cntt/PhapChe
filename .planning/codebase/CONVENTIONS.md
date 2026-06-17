@@ -1,6 +1,6 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-06-14
+**Analysis Date:** 2026-06-17
 
 ## Naming Patterns
 
@@ -11,7 +11,7 @@
 - E2E tests: Separate `tests/` directory with spec pattern (e.g., `tests/e2e/dashboard.spec.ts`)
 
 **Directories:**
-- Feature modules: Lowercase, hyphenated (e.g., `src/lib/intake/`, `src/lib/reviews/`)
+- Feature modules: lowercase, hyphenated (e.g., `src/lib/intake/`, `src/lib/reviews/`)
 - Component groups: kebab-case (e.g., `components/my-cases/`, `components/admin/`)
 
 **Functions:**
@@ -21,7 +21,7 @@
 
 **Variables:**
 - camelCase for local variables and function parameters
-- UPPERCASE_WITH_UNDERSCORES for constants (e.g., `ADMIN_ROLES`, `ROLE_PRIORITY`)
+- UPPERCASE_WITH_UNDERSCORES for constants (e.g., `ADMIN_ROLES`, `ROLE`)
 - Hungarian notation avoided
 
 **Types:**
@@ -31,15 +31,16 @@
 ## Code Style
 
 **Formatting:**
-- Tool: Prettier (default settings from `@ant-design/icons`)
+- Tool: ESLint with `prefer-const`, `no-var` rules
 - Tab width: 2 spaces (standard)
 - Single quotes for strings
 - Trailing commas in multiline
 
 **Linting:**
 - Tool: ESLint via `eslint-config-next`
-- Configuration: Flat config format (`.eslintrc.mjs` or `eslint.config.*`)
+- Configuration: `.eslintrc.js` with custom rules
 - Import sorting: Grouped by type with `@/` path alias
+- Custom rule: `no-duplicate-component` for component naming
 
 **TypeScript:**
 - Strict mode enabled via Next.js defaults
@@ -128,7 +129,7 @@ export async function createAdminUser({ actor, input, db = prisma }) {
 **Return Values:**
 - Explicit return types for public functions
 - Async functions return Promises
-- Use `as const` for literal type narrowing (e.g., `targetType: 'USER' as const`)
+- Use `as const` for literal type narrowing (e.g., `targetType: 'REQUEST' as const`)
 
 ## Module Design
 
@@ -200,4 +201,4 @@ type AppSession = {
 
 ---
 
-*Convention analysis: 2026-06-14*
+*Convention analysis: 2026-06-17*

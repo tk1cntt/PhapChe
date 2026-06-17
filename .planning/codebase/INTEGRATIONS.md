@@ -1,111 +1,99 @@
 # External Integrations
 
-**Analysis Date:** 2026-06-14
+**Analysis Date:** 2026-06-17
 
-## APIs & External Services
+## Database
 
-**Email:**
-- Stub email provider (development) - `src/lib/delivery/notification-service.ts`
-  - Currently returns stub responses
-  - Ready for integration with SendGrid, Resend, or similar
-  - No production email service configured
+**SQLite (Development):**
+- Provider: SQLite via Prisma
+- Connection: `DATABASE_URL` in `.env`
+- ORM: Prisma Client
 
-**AI/Claude (Development Setup):**
-- Anthropic Claude API - `D:\PhapChe\.env.local`
-  - Base URL: `http://172.21.80.1:20128/v1` (internal development proxy)
-  - API Key configured for development
-  - Used by Claude Code Telegram Bot (separate service)
+**PostgreSQL (Production):**
+- Provider: PostgreSQL via Prisma
+- Connection: `DATABASE_URL` in `.env`
+- ORM: Prisma Client
 
-## Data Storage
-
-**Databases:**
-- SQLite (development) - `file:./prisma/data/legal_service_dev.db`
-  - Prisma Client ORM
-  - Connection via `DATABASE_URL` environment variable
-- PostgreSQL (production) - Connection string format: `postgresql://user:password@host:5432/dbname`
-  - Same Prisma Client ORM
-  - Schema defined in `prisma/schema.prisma`
-
-**File Storage:**
-- Local filesystem - No external cloud storage service detected
-  - Vault files stored with `storageKey` reference
-  - File uploads handled locally
-
-**Caching:**
-- None - No Redis or in-memory cache service detected
-
-## Authentication & Identity
+## Authentication
 
 **Auth Provider:**
-- better-auth v1.6.14 - `src/auth.ts`, `src/lib/auth-client.ts`
-  - Email/password authentication enabled
-  - Session-based with 7-day expiry
-  - Session refresh every 24 hours
-  - Prisma adapter with multi-database support (SQLite/PostgreSQL)
+- Self-hosted using better-auth
+- Database adapter: Prisma adapter
+- Session management: Cookie-based with nextCookies plugin
+- Supported providers: Email/Password
 
-**Client Auth:**
-- `createAuthClient` from `better-auth/react` - `src/lib/auth-client.ts`
-- `signIn`, `signUp`, `signOut`, `useSession` hooks exposed
-- Session management via server-side `requireAppSession()` - `src/lib/security/session.ts`
+**Configuration:**
+- `BETTER_AUTH_URL` - Base URL for auth endpoints
+- `NODE_ENV` - Switches between SQLite (dev) and PostgreSQL (prod)
 
-**Role-based Access:**
-- Workspace-scoped roles: `customer`, `specialist`, `reviewer`, `coordinator_admin`, `super_admin`
-- RBAC implementation in `src/lib/security/rbac.ts`
+## Storage
+
+**Local Storage (Current):**
+- Provider: Local filesystem
+- Service: `LocalStorageProvider` in `src/lib/storage/providers/`
+- Location: Configured via `STORAGE_DRIVER=local`
+
+**S3 Storage (Planned):**
+- Provider: S3-compatible storage
+- Status: Migration command exists but S3 provider not implemented
+- See: `src/lib/storage/commands/migrate.ts`
+
+## API Integrations
+
+**Swagger/OpenAPI:**
+- Endpoint: `/api/swagger`
+- Auto-generated documentation
+- Package: `next-swagger-doc`
+
+**External API Clients:**
+- Central API Client: `src/lib/api/client.ts`
+- Domain-specific API modules: `src/lib/api/index.ts`
+
+## Email & Notifications
+
+**Email:**
+- Status: Not fully configured
+- Notification service: `src/lib/delivery/notification-service.ts`
+
+## Environment Configuration
+
+**Required Environment Variables:**
+- `DATABASE_URL` - Database connection string
+- `BETTER_AUTH_URL` - Authentication base URL
+- `NODE_ENV` - Development/Production mode
+
+**Optional Variables:**
+- `STORAGE_DRIVER` - local or s3
+- `S3_*` - S3 configuration (when applicable)
+
+**Secrets Location:**
+- `.env` file (git-ignored)
+- `.env.example` (template, committed)
+- `.env.local` (local overrides)
+- `.env.test` (test environment)
 
 ## Monitoring & Observability
 
 **Error Tracking:**
-- None - No Sentry, LogRocket, or similar services configured
+- Not configured - Console logging via `console.error/warn`
+- Error boundary: `src/components/ui/ErrorFallback.tsx`
 
-**Logs:**
-- Console-based logging via `console.log/error`
-- Audit events stored in database (`AuditEvent` model)
-
-**Development Debug:**
-- `/api/debug-session` route for debugging authentication - `src/app/api/debug-session/route.ts`
+**Logging:**
+- Console-based logging
+- Audit events recorded in database via `AuditEvent` model
 
 ## CI/CD & Deployment
 
-**Hosting:**
-- Self-hosted / custom deployment
-- Next.js standard deployment targets (Vercel, Node.js server, Docker)
+**Testing Pipeline:**
+- Playwright E2E tests: `npm run test:e2e`
+- Vitest unit tests: Via vitest
+- Type checking: `npm run typecheck`
 
-**CI Pipeline:**
-- None detected - No GitHub Actions, CircleCI, or similar configured
-
-## Environment Configuration
-
-**Required env vars:**
-- `DATABASE_URL` - Database connection string (SQLite file path or PostgreSQL)
-- `BETTER_AUTH_SECRET` - 64-character hex string for authentication signing
-- `BETTER_AUTH_URL` - Base URL for authentication (default: `http://localhost:3000`)
-
-**Secrets location:**
-- `.env.local` - Local development secrets (NOT committed)
-- `.env.example` - Template with placeholder values
-- `.env.test` - Test environment configuration
-
-## Webhooks & Callbacks
-
-**Incoming:**
-- None - No webhook endpoints detected
-
-**Outgoing:**
-- Email notifications (stubbed, ready for provider integration)
-- Delivery ready notifications via email stub
-
-## Project Structure
-
-**Database Schema (`prisma/schema.prisma`):**
-- User & Authentication: `User`, `Account`, `Session`, `Verification`, `UserPreferences`
-- Workspace & Multi-tenancy: `Workspace`, `WorkspaceMembership`
-- Legal Requests: `LegalRequest`, `IntakeSubmission`, `RequestAssignment`, `MatterType`
-- Documents: `Document`, `DocumentVersion`, `DocumentTemplate`, `Review`, `ReviewChecklistAnswer`
-- Vault & Storage: `VaultFile`, `Folder`, `Tag`, `VaultFileFolder`, `VaultFileTag`
-- Workflow: `WorkflowTransition`, `RoutingCapability`
-- Messaging: `Message`
-- Audit: `AuditEvent`
+**Deployment:**
+- Platform: Next.js (can deploy to Vercel, AWS, etc.)
+- Database migrations: `prisma migrate`
+- Seed data: `npm run seed`
 
 ---
 
-*Integration audit: 2026-06-14*
+*Integration audit: 2026-06-17*

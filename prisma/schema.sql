@@ -435,7 +435,8 @@ CREATE TABLE IF NOT EXISTS "VaultFile" (
   createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
   FOREIGN KEY (requestId) REFERENCES "LegalRequest" (id),
   FOREIGN KEY (workspaceId) REFERENCES "Workspace" (id),
-  FOREIGN KEY (actorId) REFERENCES "User" (id)
+  FOREIGN KEY (actorId) REFERENCES "User" (id),
+  FOREIGN KEY (organizationId) REFERENCES "Organization" (id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_vaultFile_requestId ON "VaultFile" (requestId);

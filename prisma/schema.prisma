@@ -100,6 +100,7 @@ model Organization {
   tenant     Tenant      @relation(fields: [tenantId], references: [id])
   workspaces Workspace[]
   engagements Engagement[]
+  vaultFiles VaultFile[]
 
   @@index([tenantId])
   @@index([status])
@@ -525,6 +526,7 @@ model VaultFile {
   request           LegalRequest @relation(fields: [requestId], references: [id])
   workspace         Workspace    @relation(fields: [workspaceId], references: [id])
   actor             User         @relation(fields: [actorId], references: [id])
+  organization      Organization? @relation(fields: [organizationId], references: [id])
   vaultFileFolders  VaultFileFolder[]
   vaultFileTags     VaultFileTag[]
 

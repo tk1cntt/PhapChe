@@ -11,6 +11,19 @@ export type AppSession = {
   roles: AppRole[];
 };
 
+/**
+ * Role priority (higher = more privileged).
+ * When a user has multiple workspace memberships, we pick the most privileged one.
+ */
+const ROLE_PRIORITY: Record<string, number> = {
+  super_admin: 100,
+  coordinator_admin: 90,
+  audit_admin: 80,
+  reviewer: 50,
+  specialist: 40,
+  customer: 10,
+};
+
 export async function requireAppSession(): Promise<AppSession> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) throw new Error('UNAUTHENTICATED');
@@ -23,18 +36,25 @@ export async function requireAppSession(): Promise<AppSession> {
       memberships: {
         where: { isActive: true, workspace: { isActive: true } },
         select: { workspaceId: true, role: true },
-        orderBy: { createdAt: 'asc' },
-        take: 1,
       },
     },
   });
 
-  const membership = user?.memberships[0];
-  if (!user || !membership) throw new Error('UNAUTHENTICATED');
+  if (!user || user.memberships.length === 0) throw new Error('UNAUTHENTICATED');
+
+  // Collect all unique roles from all memberships
+  const allRoles = Array.from(new Set(user.memberships.map((m) => m.role as AppRole)));
+
+  // Pick the membership with the highest privilege role for activeWorkspaceId
+  const bestMembership = user.memberships.reduce((best, m) => {
+    const bestPriority = ROLE_PRIORITY[best.role] ?? 0;
+    const mPriority = ROLE_PRIORITY[m.role] ?? 0;
+    return mPriority > bestPriority ? m : best;
+  }, user.memberships[0]);
 
   return {
     userId: user.id,
-    activeWorkspaceId: membership.workspaceId,
-    roles: [membership.role as import('@/lib/types').AppRole],
+    activeWorkspaceId: bestMembership.workspaceId,
+    roles: allRoles,
   };
 }

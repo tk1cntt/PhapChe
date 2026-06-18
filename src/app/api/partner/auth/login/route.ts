@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
 
     // Generate session token (using better-auth session)
     const session = await auth.api.getSession({
-      headers: new Headers({ 'x-user-id': user.id }),
+      headers: req.headers,
     });
 
     // Calculate expiry (7 days from now)

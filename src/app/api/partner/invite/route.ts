@@ -13,9 +13,9 @@ import { hasPermission } from '@/lib/services/partner-auth-service';
 
 export async function GET(req: NextRequest) {
   try {
-    // Get session
+    // Get session from request headers (better-auth reads from cookie)
     const session = await auth.api.getSession({
-      headers: new Headers({ 'x-user-id': req.headers.get('x-user-id') || '' }),
+      headers: req.headers,
     });
 
     if (!session?.user?.id) {
@@ -60,9 +60,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    // Get session
+    // Get session from request headers (better-auth reads from cookie)
     const session = await auth.api.getSession({
-      headers: new Headers({ 'x-user-id': req.headers.get('x-user-id') || '' }),
+      headers: req.headers,
     });
 
     if (!session?.user?.id) {

@@ -17,9 +17,9 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
-    // Get session
+    // Get session from request headers
     const session = await auth.api.getSession({
-      headers: new Headers({ 'x-user-id': req.headers.get('x-user-id') || '' }),
+      headers: req.headers,
     });
 
     if (!session?.user?.id) {
@@ -115,9 +115,9 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
-    // Get session
+    // Get session from request headers
     const session = await auth.api.getSession({
-      headers: new Headers({ 'x-user-id': req.headers.get('x-user-id') || '' }),
+      headers: req.headers,
     });
 
     if (!session?.user?.id) {

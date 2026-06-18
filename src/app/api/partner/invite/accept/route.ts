@@ -12,9 +12,9 @@ import { partnerInviteService } from '@/lib/services/partner-invite-service';
 
 export async function POST(req: NextRequest) {
   try {
-    // Get session - user must be logged in
+    // Get session from request headers
     const session = await auth.api.getSession({
-      headers: new Headers({ 'x-user-id': req.headers.get('x-user-id') || '' }),
+      headers: req.headers,
     });
 
     if (!session?.user?.id) {

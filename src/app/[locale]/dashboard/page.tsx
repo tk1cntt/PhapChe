@@ -1,6 +1,7 @@
 import { UserLayout } from '@/components/layout/UserLayout';
 import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
+import { isEnabled } from '@/lib/config/feature-flags';
 import DashboardClient from '@/components/dashboard/DashboardClient';
 
 function formatRelativeTime(date: Date): string {
@@ -54,6 +55,12 @@ export default async function DashboardPage() {
       include: {
         assignedSpecialist: { select: { id: true, name: true } },
         assignedReviewer: { select: { id: true, name: true } },
+        // Include matterTypeRef for new FK-based approach
+        ...(isEnabled('DB_MIGRATION_PHASE4') ? {
+          matterTypeRef: {
+            select: { id: true, key: true, label_vi: true, label_en: true },
+          },
+        } : {}),
       },
       orderBy: { updatedAt: 'desc' },
       take: 10,
@@ -87,11 +94,18 @@ export default async function DashboardPage() {
     const statusVariant = getStatusVariant(req.status);
     const statusText = getStatusText(req.status);
 
+    // Matter type display: use FK relation if available, else text field
+    const matterTypeDisplay = (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_vi
+      || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_en
+      || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.key
+      || req.matterType
+      || 'Legal Request';
+
     return {
       id: req.id,
       code: req.code || `REQ-${req.createdAt.getFullYear()}-${String(req.id.slice(-3)).toUpperCase()}`,
       title: req.title,
-      matterType: req.matterType || 'Legal Request',
+      matterType: matterTypeDisplay,
       status: req.status,
       statusVariant,
       statusText,

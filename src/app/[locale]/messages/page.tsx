@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import { getTranslations } from 'next-intl/server';
+import { isEnabled } from '@/lib/config/feature-flags';
 import UserLayout from '@/components/layout/UserLayout';
 import StatCard from '@/components/my-cases/StatCard';
 import MessagesClient from '@/components/messages/MessagesClient';
@@ -73,6 +74,12 @@ export default async function MessagesPage({
       include: {
         createdBy: { select: { name: true } },
         assignedSpecialist: { select: { name: true } },
+        // Include matterTypeRef for new FK-based approach
+        ...(isEnabled('DB_MIGRATION_PHASE4') ? {
+          matterTypeRef: {
+            select: { id: true, key: true, label_vi: true, label_en: true },
+          },
+        } : {}),
       },
       orderBy: { updatedAt: 'desc' },
       take: 20,
@@ -157,15 +164,22 @@ export default async function MessagesPage({
       ? `${Math.max(0, Math.floor((req.slaDeadline.getTime() - Date.now()) / 3600000))}h`
       : t('noSla');
 
+    // Matter type display: use FK relation if available, else text field
+    const matterTypeDisplay = (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_vi
+      || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_en
+      || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.key
+      || req.matterType
+      || 'Legal Request';
+
     dbCaseInfo[req.id] = {
-      caseCode: `${req.code || 'REQ'} · ${req.matterType}`,
+      caseCode: `${req.code || 'REQ'} · ${matterTypeDisplay}`,
       slaRemaining,
       slaDetail: req.slaDeadline
         ? `${t('slaDeadline')}: ${req.slaDeadline.toLocaleDateString('vi-VN')}`
         : t('noSlaSet'),
       documents: t('noDocuments'),
       participants: req.assignedSpecialist?.name || t('notAssigned'),
-      matterType: req.matterType,
+      matterType: matterTypeDisplay,
       createdAt: req.createdAt.toLocaleDateString('vi-VN'),
       status: req.status,
       assignedSpecialist: req.assignedSpecialist?.name || t('notAssigned'),

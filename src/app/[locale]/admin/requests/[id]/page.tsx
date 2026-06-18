@@ -14,7 +14,8 @@ interface RequestDetail {
   status: string;
   statusNote: string | null;
   priority: string | null;
-  matterType: string | null;
+  matterType: string | null; // Legacy field (when flag disabled)
+  matterTypeDisplay?: string | null; // New field (when flag enabled)
   slaDeadline: string | null;
   assignedPartner: { id: string; name: string } | null;
   engagement: {
@@ -294,10 +295,10 @@ export default function AdminRequestDetailPage() {
                     <div className="info-label">{t('colWorkspace') || 'Workspace'}</div>
                     <div className="info-value">{request.workspace?.name || '—'}</div>
                   </div>
-                  {request.matterType && (
+                  {(request.matterType || request.matterTypeDisplay) && (
                     <div className="info-item">
                       <div className="info-label">Loại yêu cầu</div>
-                      <div className="info-value">{request.matterType}</div>
+                      <div className="info-value">{request.matterTypeDisplay || request.matterType}</div>
                     </div>
                   )}
                   {request.priority && (

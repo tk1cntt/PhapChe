@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { isEnabled } from '@/lib/config/feature-flags';
 
 // Valid admin roles per schema
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -69,6 +70,12 @@ export async function GET(
         },
         createdBy: { select: { id: true, name: true, email: true } },
         workspace: { select: { id: true, name: true } },
+        // Include matterTypeRef for new FK-based approach
+        ...(isEnabled('DB_MIGRATION_PHASE4') ? {
+          matterTypeRef: {
+            select: { id: true, key: true, label_vi: true, label_en: true },
+          },
+        } : {}),
       },
     });
 
@@ -79,7 +86,20 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ data: request });
+    // Transform matterTypeDisplay
+    const matterTypeDisplay = isEnabled('DB_MIGRATION_PHASE4')
+      ? (request as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_vi
+        || (request as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_en
+        || (request as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.key
+        || request.matterType
+      : request.matterType;
+
+    return NextResponse.json({
+      data: {
+        ...request,
+        matterTypeDisplay
+      }
+    });
   } catch (error: any) {
     if (error?.status) {
       return NextResponse.json({ error: error.error }, { status: error.status });

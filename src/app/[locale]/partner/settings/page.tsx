@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation';
-import { getServerSession } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import UserLayout from '@/components/layout/UserLayout';
 import { PartnerSettingsClient } from '@/components/partner/PartnerSettingsClient';
+import { requireAppSession } from '@/lib/security/session';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -10,16 +10,12 @@ interface PageProps {
 
 export default async function PartnerSettingsPage({ params }: PageProps) {
   const { locale } = await params;
-  const session = await getServerSession();
-
-  if (!session?.user?.id) {
-    redirect(`/${locale}/login`);
-  }
+  const session = await requireAppSession();
 
   // Get partner context
   const member = await prisma.partnerMember.findFirst({
     where: {
-      userId: session.user.id,
+      userId: session.userId,
       isActive: true,
       partner: { status: 'active' },
     },
@@ -32,14 +28,14 @@ export default async function PartnerSettingsPage({ params }: PageProps) {
 
   // Get user info
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: session.userId },
     select: { name: true, email: true },
   });
 
   return (
     <UserLayout userName={user?.name ?? 'User'} userRole="partner" workspaceName={member.partner.name} workspaceSlug="partner">
       <PartnerSettingsClient
-        currentUserId={session.user.id}
+        currentUserId={session.userId}
         currentUserRole={member.role}
       />
     </UserLayout>

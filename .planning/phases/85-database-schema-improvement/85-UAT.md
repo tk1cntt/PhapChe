@@ -118,10 +118,35 @@ notes: |
   - scripts/backfill-request-assignment.ts (2.6K)
   - scripts/backfill-vault-item-file-id.ts (2.0K)
 
+### 14. API Routes - /api/requests
+expected: API uses matterTypeId FK instead of serviceTypeId
+result: passed
+notes: |
+  - File: src/app/api/requests/route.ts
+  - Changed serviceTypeId → matterTypeId in GET/POST
+  - Uses matterTypeRef relation for display
+  - Added matterTypeDisplay transformation
+
+### 15. API Routes - /api/admin/requests
+expected: Admin API includes matterTypeRef relation
+result: passed
+notes: |
+  - File: src/app/api/admin/requests/route.ts
+  - Added matterTypeRef include conditionally based on feature flag
+  - Transforms matterTypeDisplay for UI
+
+### 16. API Routes - /api/intake/create-draft
+expected: Intake API uses matterTypeId FK when flag enabled
+result: passed
+notes: |
+  - File: src/app/api/intake/create-draft/route.ts
+  - Uses feature flag to choose matterTypeId FK or matterType text
+  - Looks up MatterType by key before creating
+
 ## Summary
 
-total: 13
-passed: 13
+total: 16
+passed: 16
 issues: 0
 pending: 0
 skipped: 0
@@ -131,7 +156,7 @@ blocked: 0
 
 **STATUS: ALL TESTS PASSED**
 
-All 13 UAT tests for Phase 85 Database Schema Improvement have passed:
+All 16 UAT tests for Phase 85 Database Schema Improvement have passed:
 
 1. ✅ FK Constraint - Message.senderId
 2. ✅ FK Constraint - Message.recipientId
@@ -146,6 +171,9 @@ All 13 UAT tests for Phase 85 Database Schema Improvement have passed:
 11. ✅ Service Layer - AssignmentService
 12. ✅ Service Layer - VaultService
 13. ✅ Backfill Scripts
+14. ✅ API Routes - /api/requests
+15. ✅ API Routes - /api/admin/requests
+16. ✅ API Routes - /api/intake/create-draft
 
 ## Notes
 

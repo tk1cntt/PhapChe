@@ -14,7 +14,8 @@
 | Feature Flag | ✅ PASS | DB_MIGRATION_PHASE4 defined and used |
 | Services | ✅ PASS | RequestService, AssignmentService, VaultService |
 | Backfill Scripts | ✅ PASS | 3 scripts exist |
-| Git Commit | ✅ PASS | 084221d |
+| API Routes | ✅ PASS | /api/requests, /api/admin/requests, /api/intake/create-draft |
+| Git Commits | ✅ PASS | 084221d, b70523e |
 
 ## FK Constraints Verified
 
@@ -61,7 +62,8 @@
 | Hash | Description |
 |------|-------------|
 | (prior waves) | Wave 1-4 execution |
-| 084221d | fix: Add missing FK relations |
+| 084221d | fix: Add missing FK relations for Message and DocumentVersion |
+| b70523e | fix: Update API routes to use matterTypeId FK |
 
 ## Post-Deploy Actions
 
@@ -79,4 +81,4 @@
 
 **✅ PHASE 85 COMPLETE**
 
-All UAT tests passed (13/13). Schema validates correctly. Ready for deployment.
+All UAT tests passed (16/16). Schema validates correctly. API routes updated. Ready for deployment.

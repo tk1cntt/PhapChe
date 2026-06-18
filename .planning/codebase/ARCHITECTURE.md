@@ -1,22 +1,43 @@
+<!-- refreshed: 2026-06-18 -->
 # Architecture
 
-**Analysis Date:** 2026-06-17
+**Analysis Date:** 2026-06-18
 
 ## System Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Next.js App Router                     │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
-│  │   Page Routes   │  │   API Routes    │  │  Middleware  │ │
-│  │ src/app/[locale]│  │  src/app/api/    │  │ src/middleware│ │
-│  └────────┬────────┘  └────────┬────────┘  └──────────────┘ │
-├───────────┼────────────────────┼───────────────────────────┤
-│  ┌────────▼────────┐  ┌────────▼────────┐  ┌──────────────┐ │
-│  │  React Components│  │  Service Layer │  │   Prisma     │ │
-│  │  src/components/ │  │   src/lib/     │  │  Database    │ │
-│  └──────────────────┘  └─────────────────┘  └──────────────┘ │
+│                    Next.js App Router                        │
+│                  `[src/app]` (Pages)                         │
+├──────────────────┬──────────────────┬───────────────────────┤
+│  [locale] pages  │   admin pages    │    API routes        │
+│  `/[locale]/*`   │  `/[locale]/`    │  `/api/*`            │
+└────────┬─────────┴────────┬─────────┴──────────┬──────────┘
+         │                   │                     │
+         ▼                   ▼                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Component Layer                           │
+│   `[src/components]` - Shared UI, Admin, Messages, etc.      │
+└─────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Service Layer                              │
+│   `[src/lib]` - Core business logic, workflow, RBAC          │
+│   ├── workflow/    - Request state machine                   │
+│   ├── routing/     - Specialist/reviewer assignment          │
+│   ├── documents/   - Vault, drafts, templates                │
+│   ├── reviews/     - Quality control checklist              │
+│   ├── delivery/    - Document delivery & notifications       │
+│   ├── audit/       - Event logging                          │
+│   └── security/    - RBAC, session management               │
+└─────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Data Layer                                 │
+│           Prisma ORM + SQLite/PostgreSQL                     │
+│                    `[prisma/schema.prisma]`                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -24,155 +45,178 @@
 
 | Component | Responsibility | File |
 |-----------|----------------|------|
-| LocaleLayout | i18n provider, React Query wrapper | `src/app/[locale]/layout.tsx` |
-| DashboardClient | Main dashboard UI | `src/components/dashboard/DashboardClient.tsx` |
-| ApiClient | Central HTTP client | `src/lib/api/client.ts` |
-| Auth | Authentication config | `src/auth.ts` |
-| RequestWorkflow | State machine for request status | `src/lib/workflow/request-workflow.ts` |
+| RequestWorkflow | State machine for request lifecycle | `src/lib/workflow/request-workflow.ts` |
+| RoutingService | Specialist/reviewer assignment logic | `src/lib/routing/routing-service.ts` |
+| VaultService | Secure file storage with signed URLs | `src/lib/documents/vault-service.ts` |
+| ReviewService | Quality control checklist review | `src/lib/reviews/review-service.ts` |
+| DeliveryService | Document delivery and notifications | `src/lib/delivery/delivery-service.ts` |
+| RBAC | Role-based access control | `src/lib/security/rbac.ts` |
+| Audit | Event logging for all operations | `src/lib/audit/audit.ts` |
 
 ## Pattern Overview
 
-**Overall:** Next.js App Router with Service Layer + Prisma ORM
+**Overall:** Layered Next.js with Service-Oriented Business Logic
 
 **Key Characteristics:**
-- Server Components by default, Client Components for interactivity
-- API Routes as thin HTTP layer delegating to Service Layer
-- Prisma ORM for type-safe database access
-- i18n routing via next-intl with locale prefix
-- Authentication via better-auth with Prisma adapter
+- Next.js App Router with locale-based routing (`/[locale]`)
+- Better Auth for authentication with Prisma adapter
+- Service layer isolation from API routes
+- Prisma ORM for database access
+- State machine for request workflow
+- RBAC-based authorization
+- Audit event logging for all mutations
 
 ## Layers
 
-**App Layer (Next.js App Router):**
-- Purpose: HTTP endpoints and page rendering
-- Location: `src/app/`
-- Contains: Pages (`.tsx`), API routes (`.ts`), layouts
-- Depends on: Service layer
-- Used by: Browser clients
+**UI Layer (Next.js Pages):**
+- Purpose: Render pages with locale support
+- Location: `src/app/[locale]/*`
+- Contains: Page components, layouts
+- Depends on: API routes, client hooks
+- Used by: Browser
 
-**Component Layer:**
-- Purpose: Reusable UI components
-- Location: `src/components/`
-- Contains: Atoms, molecules, organisms, templates
-- Depends on: UI libraries, types
-- Used by: Pages, other components
+**API Layer (Next.js Route Handlers):**
+- Purpose: HTTP endpoints for client communication
+- Location: `src/app/api/*`
+- Contains: Route handlers (GET, POST, etc.)
+- Depends on: Service layer
+- Used by: Client hooks, external clients
 
 **Service Layer:**
-- Purpose: Business logic encapsulation
-- Location: `src/lib/`
-- Contains: Workflows, services, types, utilities
-- Depends on: Prisma, database
+- Purpose: Business logic, state management, authorization
+- Location: `src/lib/*`
+- Contains: Workflow, routing, vault, reviews, delivery, audit, security
+- Depends on: Prisma, types
 - Used by: API routes
 
 **Data Layer:**
-- Purpose: Database access and schema
+- Purpose: Database schema, ORM operations
 - Location: `prisma/schema.prisma`
-- Contains: Models, relations, indexes
-- Depends on: Database engine
+- Contains: All data models
+- Depends on: Database (SQLite/PostgreSQL)
 - Used by: Service layer
 
 ## Data Flow
 
-### Primary Request Path
+### Primary Request Lifecycle
 
-1. **Entry** - User accesses `/[locale]/cases` page
-2. **API Call** - Page component calls `/api/dashboard`
-3. **API Route** - `src/app/api/dashboard/route.ts` receives request
-4. **Service** - Delegates to service function in `src/lib/`
-5. **Database** - Prisma queries database
-6. **Response** - Data flows back to client
+1. **Intake** - Customer submits request via `/api/intake/submit` route
+   - `src/app/api/intake/submit/route.ts`
+2. **Triage** - Coordinator triages via `/api/admin/requests/triage` route
+   - `src/lib/routing/routing-service.ts:assignRequest()`
+3. **Assignment** - Specialist/reviewer assigned with routing capability check
+   - `src/lib/routing/routing-service.ts:assignRequest()`
+4. **Progress** - Specialist works on document, creates draft versions
+   - `src/lib/documents/draft-service.ts`
+5. **Review** - Reviewer quality-checks with checklist
+   - `src/lib/reviews/review-service.ts:approveReview()`
+6. **Delivery** - Coordinator marks delivered, sends notification
+   - `src/lib/delivery/delivery-service.ts:markRequestDelivered()`
+7. **Closure** - Customer receives final documents, request closed
+   - `src/lib/delivery/delivery-service.ts:closeDeliveredRequest()`
 
-### Authentication Flow
+### Status Transition Flow
 
-1. **Login** - User submits credentials via `/api/auth/sign-in/email`
-2. **Auth Handler** - `better-auth` validates credentials
-3. **Session** - Creates session, stores in database, sets cookie
-4. **Middleware** - `src/middleware.ts` validates session on protected routes
+```
+draft_intake → intake_submitted → triage → assigned → in_progress
+                                                    ↓
+                                          pending_review → approved → delivered → closed
+                                                    ↓
+                                          revision_required → in_progress
+```
 
-### Workflow Transition Flow
+### Vault File Access Flow
 
-1. **User Action** - Specialist clicks "Mark for Review"
-2. **API Call** - POST to `/api/admin/requests/[id]/status`
-3. **RBAC Check** - `canAccessRequest()` validates permissions
-4. **Transition Check** - `canTransitionRequestStatus()` validates state change
-5. **Database** - Prisma updates request status, creates audit event
-6. **Response** - Updated request returned
+1. User requests file access via `/api/vault/route.ts`
+2. `requestVaultFileAccess()` generates signed URL with HMAC signature
+3. `verifyVaultFileAccessSignature()` validates signature on download
+4. Storage key never exposed to client
 
 ## Key Abstractions
 
-**ApiClient:**
-- Purpose: Centralized HTTP client with typed responses
-- Examples: `src/lib/api/client.ts`
-- Pattern: Singleton with domain-specific methods
-
-**RequestWorkflow:**
-- Purpose: State machine for LegalRequest status transitions
+**Request Workflow State Machine:**
+- Purpose: Enforce valid status transitions
 - Examples: `src/lib/workflow/request-workflow.ts`
-- Pattern: Role-based transition validation with audit trail
+- Pattern: Transition function validates actor permissions before change
 
-**Better-Auth:**
-- Purpose: Authentication with session management
-- Examples: `src/auth.ts`
-- Pattern: Prisma adapter with nextCookies plugin
+**RBAC Authorization:**
+- Purpose: Check if user can access resources
+- Examples: `src/lib/security/rbac.ts`
+- Pattern: Functions like `canAccessRequest()`, `canAccessVaultFile()`
+
+**Audit Event Recording:**
+- Purpose: Log all significant operations
+- Examples: `src/lib/audit/audit.ts`
+- Pattern: Service functions call `recordAuditEvent()` with action, target, metadata
+
+**Session Management:**
+- Purpose: Provide authenticated user context
+- Examples: `src/lib/security/session.ts`
+- Pattern: `requireAppSession()` extracts user, workspace, roles
 
 ## Entry Points
 
-**Web Application:**
-- Location: `src/app/[locale]/`
-- Triggers: Browser navigation
-- Responsibilities: Page rendering, layouts, i18n
-
-**API Routes:**
-- Location: `src/app/api/`
-- Triggers: HTTP requests from client
-- Responsibilities: Request validation, service delegation, response formatting
+**Auth Handler:**
+- Location: `src/app/api/auth/[...all]/route.ts`
+- Triggers: All auth API calls (sign-in, sign-out, session)
+- Responsibilities: Delegate to better-auth
 
 **Middleware:**
 - Location: `src/middleware.ts`
 - Triggers: Every request
-- Responsibilities: Auth validation, locale detection
+- Responsibilities: i18n routing, auth protection for non-API routes
+
+**API Routes:**
+- Location: `src/app/api/*/route.ts`
+- Triggers: Client HTTP requests
+- Responsibilities: Request validation, call service, return response
 
 ## Architectural Constraints
 
-**Threading:** Single-threaded Node.js event loop (Next.js default)
-
-**Global State:** None detected - state managed via React Query or Context
-
-**Circular Imports:** Not detected in codebase structure
+- **Threading:** Node.js single-threaded event loop (Next.js standard)
+- **Global state:** Prisma client singleton at `src/lib/prisma.ts`
+- **Circular imports:** Service layer has no circular dependencies (verified via architecture)
+- **Database:** SQLite dev / PostgreSQL production via Prisma adapter
+- **i18n:** next-intl with locale prefix on all routes
 
 ## Anti-Patterns
 
-### Direct API Calls in Components
+### Direct Prisma in API Routes
 
-**What happens:** Components make direct fetch calls instead of using ApiClient
-**Why it's wrong:** Inconsistent error handling, no centralized logging, harder to test
-**Do this instead:** Use `src/lib/api/client.ts` for all API calls
+**What happens:** Some API routes query Prisma directly instead of using services
+**Why it's wrong:** Bypasses service layer authorization, audit logging
+**Do this instead:** Use service functions like `routingService.assignRequest()`
 
-### Mixing Service Logic in API Routes
+```typescript
+// Anti-pattern in src/app/api/requests/route.ts:42
+prisma.legalRequest.findMany({ where })
 
-**What happens:** Complex business logic directly in API route handlers
-**Why it's wrong:** Hard to test, violates single responsibility
-**Do this instead:** Keep routes thin, delegate to service functions in `src/lib/`
+// Correct: src/lib/routing/routing-service.ts:223
+export async function assignRequest(input: AssignRequestInput)
+```
+
+### Status Hardcoding in API Routes
+
+**What happens:** Some routes set request status directly
+**Why it's wrong:** Bypasses workflow state machine validation
+**Do this instead:** Use `transitionRequestStatus()` from workflow service
 
 ## Error Handling
 
-**Strategy:** Centralized error boundaries + try-catch in API routes
+**Strategy:** Service functions throw typed errors, routes catch and return HTTP responses
 
 **Patterns:**
-- Error boundaries in React components (`ErrorFallback.tsx`)
-- Thrown errors in services caught by API routes
-- Typed error responses via `ErrorResponse` type
+- Service throws: `throw new Error('REQUEST_NOT_FOUND')`
+- Route catches: `try { ... } catch { return NextResponse.json({ error: ... }, { status: 400 }) }`
 
 ## Cross-Cutting Concerns
 
-**Logging:** Console-based, audit events recorded in database
-
-**Validation:** Schema validation in API routes, type guards in services
-
-**Authentication:** better-auth middleware with session cookies
-
-**i18n:** next-intl with locale routing and message providers
+**Logging:** Audit events via `recordAuditEvent()` for all mutations
+**Validation:** Input validation in service layer (requireText pattern)
+**Authentication:** Better Auth with Prisma adapter at `src/auth.ts`
+**Authorization:** RBAC functions in `src/lib/security/rbac.ts`
+**i18n:** Locale prefix routing via next-intl middleware
 
 ---
 
-*Architecture analysis: 2026-06-17*
+*Architecture analysis: 2026-06-18*

@@ -1,156 +1,225 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-06-17
+**Analysis Date:** 2026-06-18
 
 ## Directory Layout
 
 ```
-D:\PhapChe\
+D:/PhapChe/
 ├── src/
-│   ├── app/               # Next.js App Router pages and API routes
-│   ├── components/        # React components (shared and domain-specific)
-│   ├── lib/               # Service layer, utilities, types
-│   ├── hooks/             # Custom React hooks
-│   ├── auth.ts            # Better-auth configuration
-│   ├── middleware.ts      # Next.js middleware
-│   ├── i18n.ts            # Internationalization config
-│   └── routing.ts         # Locale routing config
+│   ├── app/                    # Next.js App Router pages
+│   │   ├── [locale]/          # Locale-prefixed pages (vi, en, zh, ja)
+│   │   │   ├── admin/         # Admin dashboard pages
+│   │   │   ├── cases/         # Customer cases pages
+│   │   │   ├── create/        # Create request pages
+│   │   │   ├── dashboard/     # User dashboard
+│   │   │   ├── messages/      # Messaging pages
+│   │   │   ├── settings/      # User settings
+│   │   │   ├── sign-in/       # Sign-in page
+│   │   │   └── workspace/     # Workspace pages
+│   │   ├── api/               # API routes
+│   │   │   ├── admin/         # Admin API (partners, users, workspaces, audit)
+│   │   │   ├── intake/        # Intake submission API
+│   │   │   ├── messages/      # Messaging API
+│   │   │   ├── partner/       # Partner API
+│   │   │   ├── requests/      # Request API
+│   │   │   ├── service-types/ # Service types API
+│   │   │   ├── settings/      # Settings API
+│   │   │   ├── swagger/        # OpenAPI docs
+│   │   │   ├── vault/          # Vault file API
+│   │   │   ├── workspace/      # Workspace API
+│   │   │   └── workspaces/    # Workspaces API
+│   │   ├── (auth)/            # Auth pages (sign-in, etc.)
+│   │   ├── layout.tsx         # Root layout
+│   │   └── globals.css        # Global styles
+│   ├── components/            # React components
+│   │   ├── admin/            # Admin-specific components
+│   │   ├── auth/             # Auth components
+│   │   ├── create-request/   # Request creation UI
+│   │   ├── dashboard/         # Dashboard components
+│   │   ├── layout/           # Layout components
+│   │   ├── messages/         # Messaging UI
+│   │   ├── my-cases/         # Customer case components
+│   │   ├── partners/         # Partner components
+│   │   ├── providers/        # React providers
+│   │   ├── settings/         # Settings components
+│   │   ├── shared/           # Shared UI components
+│   │   ├── ui/               # Base UI components
+│   │   ├── workspace/        # Workspace components
+│   │   └── COMPONENT_REGISTRY.md
+│   ├── lib/                  # Business logic
+│   │   ├── admin/            # Admin operations
+│   │   ├── api/              # API client utilities
+│   │   ├── audit/            # Audit logging
+│   │   ├── config/           # Configuration
+│   │   ├── constants/        # App constants
+│   │   ├── delivery/         # Document delivery
+│   │   ├── documents/        # Document/vault management
+│   │   ├── hooks/            # Custom React hooks
+│   │   ├── i18n/             # Internationalization
+│   │   ├── intake/           # Intake processing
+│   │   ├── middleware/       # Middleware utilities
+│   │   ├── navigation/       # Navigation helpers
+│   │   ├── ops/              # Operations utilities
+│   │   ├── repositories/     # Data access
+│   │   ├── reviews/          # Quality review
+│   │   ├── routing/          # Assignment routing
+│   │   ├── rules/            # ESLint rules
+│   │   ├── security/         # Auth & RBAC
+│   │   ├── services/         # Service layer
+│   │   ├── storage/          # File storage
+│   │   ├── types/            # TypeScript types
+│   │   ├── workflow/         # Workflow state machine
+│   │   ├── prisma.ts         # Prisma client singleton
+│   │   ├── types.ts          # Shared type constants
+│   │   └── utils.ts          # Utilities
+│   ├── hooks/                # Client hooks
+│   │   ├── useAuditEvents.ts
+│   │   ├── useRequests.ts
+│   │   └── useUsers.ts
+│   ├── stories/              # Storybook stories
+│   ├── auth.ts               # Better Auth configuration
+│   ├── i18n.ts               # i18n configuration
+│   ├── middleware.ts         # Next.js middleware
+│   ├── routing.ts            # Locale routing config
+│   └── constants/            # App constants
 ├── prisma/
-│   └── schema.prisma      # Database schema
-├── tests/                 # Vitest unit tests
-│   ├── setup.ts           # Test setup
-│   ├── dashboard/         # Dashboard tests
-│   └── api/               # API route tests
-├── e2e/                   # Playwright E2E tests
-├── .planning/codebase/    # This directory - codebase mapping
-├── .storybook/            # Storybook configuration
-├── docs/                  # Architecture documentation
-├── scripts/               # Utility scripts
-└── [config files]        # package.json, tsconfig.json, etc.
+│   └── schema.prisma         # Database schema
+├── .claude/                  # Agent configuration
+├── .storybook/               # Storybook config
+└── package.json
 ```
 
 ## Directory Purposes
 
-**src/app/:**
-- Purpose: Next.js App Router structure
-- Contains: `[locale]/` pages, `api/` routes, layouts
-- Key files: `src/app/layout.tsx`, `src/app/middleware.ts`
+**`src/app/`:**
+- Purpose: Next.js App Router pages and layouts
+- Contains: Page components, route handlers, layouts
+- Key files: `layout.tsx`, `globals.css`
 
-**src/components/:**
+**`src/app/[locale]/`:**
+- Purpose: Locale-prefixed page routes
+- Contains: Dashboard, admin, cases, settings, messages, create pages
+- Key files: `layout.tsx` (locale-aware layout)
+
+**`src/app/api/`:**
+- Purpose: API route handlers (HTTP endpoints)
+- Contains: REST API routes organized by domain
+- Key files: `route.ts` files in each domain folder
+
+**`src/components/`:**
 - Purpose: React UI components
-- Contains: `shared/` (reusable), domain-specific folders
-- Key files: `StatCard.tsx`, `DataTable.tsx`, domain components
+- Contains: Shared components, domain-specific components
+- Key files: `COMPONENT_REGISTRY.md`
 
-**src/lib/:**
-- Purpose: Business logic and services
-- Contains: `api/` (client), `workflow/` (state machines), domain services
-- Key files: `prisma.ts`, `types/`, service modules
+**`src/lib/`:**
+- Purpose: Business logic, services, utilities
+- Contains: Core application logic
+- Key files: `prisma.ts`, `types.ts`, `audit/`, `workflow/`, `security/`
 
-**prisma/:**
+**`src/lib/types/`:**
+- Purpose: TypeScript type definitions
+- Contains: Domain types (user, request, workspace, audit, vault, review, workflow)
+- Key files: `index.ts` (barrel export)
+
+**`prisma/`:**
 - Purpose: Database schema and migrations
-- Contains: `schema.prisma`, seed files
-- Key files: `seed.ts`, `seed-unified.ts`
-
-**tests/:**
-- Purpose: Unit and integration tests
-- Contains: Vitest setup and test files
-- Key files: `setup.ts`, `*.test.ts` files
-
-**e2e/:**
-- Purpose: End-to-end browser tests
-- Contains: Playwright test files
-- Key files: `*.spec.ts`, `helpers/` directory
+- Contains: `schema.prisma`, migrations folder
+- Key files: `schema.prisma`
 
 ## Key File Locations
 
 **Entry Points:**
-- `src/app/[locale]/layout.tsx`: Root locale layout with providers
-- `src/app/[locale]/page.tsx`: Landing page (if exists)
-- `src/middleware.ts`: Request middleware
+- `src/auth.ts`: Better Auth configuration
+- `src/middleware.ts`: Request middleware (i18n, auth)
+- `src/routing.ts`: Locale routing configuration
+- `src/app/[locale]/layout.tsx`: Locale layout wrapper
 
 **Configuration:**
-- `package.json`: Dependencies and scripts
-- `tsconfig.json`: TypeScript configuration
-- `vitest.config.ts`: Unit test configuration
-- `playwright.config.ts`: E2E test configuration
+- `src/i18n.ts`: i18n configuration
 - `prisma/schema.prisma`: Database schema
+- `.storybook/main.ts`: Storybook configuration
 
 **Core Logic:**
-- `src/lib/api/client.ts`: Central API client
 - `src/lib/workflow/request-workflow.ts`: Request state machine
-- `src/lib/security/rbac.ts`: Role-based access control
-- `src/lib/audit/audit.ts`: Audit logging
-
-**Authentication:**
-- `src/auth.ts`: Better-auth configuration
+- `src/lib/routing/routing-service.ts`: Assignment logic
+- `src/lib/security/rbac.ts`: Authorization checks
 - `src/lib/security/session.ts`: Session management
+- `src/lib/audit/audit.ts`: Audit event recording
+
+**API Routes:**
+- `src/app/api/requests/route.ts`: Request CRUD
+- `src/app/api/intake/submit/route.ts`: Intake submission
+- `src/app/api/vault/route.ts`: Vault file operations
+- `src/app/api/admin/requests/[id]/assign/route.ts`: Request assignment
 
 **Testing:**
-- `tests/setup.ts`: Test environment setup
-- `tests/dashboard/Dashboard.test.ts`: Example test suite
+- `src/lib/foundation.e2e.test.ts`: E2E tests
+- `src/lib/*/*.test.ts`: Unit tests co-located with source
 
 ## Naming Conventions
 
 **Files:**
-- React components: PascalCase.tsx (e.g., `StatCard.tsx`)
-- Services/Utilities: kebab-case.ts (e.g., `audit-service.ts`)
-- Types: PascalCase.ts (e.g., `types/user.ts`)
-- Tests: *.test.ts or *.spec.ts
+- PascalCase for components: `StatCard.tsx`, `ReviewService.ts`
+- kebab-case for routes: `route.ts`, `use-requests.ts`
+- camelCase for utilities: `audit.ts`, `rbac.ts`
 
 **Directories:**
-- General: kebab-case (e.g., `my-cases/`)
-- Domain modules: kebab-case (e.g., `audit/`)
-- Component folders: kebab-case matching component name
+- kebab-case: `create-request/`, `my-cases/`, `vault-service.ts`
 
-**Functions & Variables:**
-- camelCase: `getUserById`, `isActive`
-- PascalCase: React components, TypeScript types
-- UPPER_SNAKE_CASE: Constants (e.g., `REQUEST_STATUS`)
+**Types/Constants:**
+- SCREAMING_SNAKE_CASE for constants: `REQUEST_STATUS`, `ROLE`
+- PascalCase for types: `AppSession`, `RequestStatus`
 
 ## Where to Add New Code
 
-**New Feature (Full Stack):**
-1. Database model: `prisma/schema.prisma`
-2. Service layer: `src/lib/[domain]/[service].ts`
-3. API routes: `src/app/api/[domain]/route.ts`
-4. Page component: `src/app/[locale]/[feature]/page.tsx`
-5. Components: `src/components/[domain]/`
-6. Tests: `tests/[domain]/[feature].test.ts`
+**New API Endpoint:**
+1. Create route file: `src/app/api/{domain}/{action}/route.ts`
+2. Import services from `src/lib/{domain}/`
+3. Return NextResponse with proper status codes
+
+**New Service:**
+1. Create service file: `src/lib/{domain}/{service-name}-service.ts`
+2. Export functions for business logic
+3. Import types from `src/lib/types/`
+4. Use Prisma via `import { prisma } from '@/lib/prisma'`
 
 **New Component:**
-1. Shared component: `src/components/shared/ui/`
-2. Domain component: `src/components/[domain]/`
-3. Export from barrel: `src/components/[domain]/index.ts`
-4. Test: `src/components/[domain]/[Component].test.tsx`
+1. Create component file: `src/components/{domain}/{ComponentName}.tsx`
+2. Follow component naming in `src/components/COMPONENT_REGISTRY.md`
+3. Export from barrel file if applicable
 
-**New API Endpoint:**
-1. Route handler: `src/app/api/[domain]/[action]/route.ts`
-2. Service delegation: `src/lib/[domain]/[service].ts`
-3. Types: `src/lib/types/[domain].ts`
-4. Test: `tests/api/[domain]/[action].test.ts`
+**New Type:**
+1. Add to existing file in `src/lib/types/` or create new domain file
+2. Export via `src/lib/types/index.ts` barrel
 
-**Utilities:**
-- Shared utilities: `src/lib/utils/`
-- Domain utilities: `src/lib/[domain]/utils/`
+**New Database Model:**
+1. Add model to `prisma/schema.prisma`
+2. Run `prisma generate` to regenerate types
+3. Add type exports if needed
 
 ## Special Directories
 
-**.storybook/:**
-- Purpose: Storybook visual documentation
-- Generated: No
+**`.claude/`:**
+- Purpose: Claude agent configuration, skills, workflows
+- Generated: Yes (by GSD framework)
+- Committed: Yes (version controlled)
+
+**`.storybook/`:**
+- Purpose: Storybook configuration and stories
+- Generated: Partially
 - Committed: Yes
 
-**.planning/codebase/:**
-- Purpose: GSD codebase mapping documents
-- Generated: Yes (by this process)
+**`src/stories/`:**
+- Purpose: Component documentation via Storybook
+- Generated: Yes (manual stories)
 - Committed: Yes
 
-**docs/:**
-- Purpose: Architecture documentation
-- Contains: `DOMAIN_STRUCTURE.md`, `API_STANDARDS.md`, etc.
-- Generated: No
-- Committed: Yes
+**`prisma/`:**
+- Purpose: Database schema
+- Generated: Migrations created by Prisma
+- Committed: Schema yes, migrations optional
 
 ---
 
-*Structure analysis: 2026-06-17*
+*Structure analysis: 2026-06-18*

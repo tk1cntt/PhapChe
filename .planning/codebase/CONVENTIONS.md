@@ -1,204 +1,244 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-06-17
+**Analysis Date:** 2026-06-18
 
 ## Naming Patterns
 
-**Files:**
-- React components: PascalCase (e.g., `MyCasesClient.tsx`, `StatusBadge.tsx`)
-- Services/utilities: kebab-case with descriptive suffix (e.g., `intake-service.ts`, `rbac.ts`)
-- Tests: Co-located with source, same name with `.test` or `.spec` suffix
-- E2E tests: Separate `tests/` directory with spec pattern (e.g., `tests/e2e/dashboard.spec.ts`)
+### Files
 
-**Directories:**
-- Feature modules: lowercase, hyphenated (e.g., `src/lib/intake/`, `src/lib/reviews/`)
-- Component groups: kebab-case (e.g., `components/my-cases/`, `components/admin/`)
+- **Components:** PascalCase (e.g., `StatCard.tsx`, `Button.tsx`)
+- **Utilities/Services:** camelCase (e.g., `utils.ts`, `vault-service.ts`)
+- **Types/Constants:** PascalCase (e.g., `types.ts`, `session.ts`)
+- **Tests:** Same as source + `.test.ts` suffix (e.g., `vault-service.test.ts`)
 
-**Functions:**
-- Service functions: camelCase, action verbs (e.g., `createAdminUser`, `submitIntake`, `transitionRequestStatus`)
-- Hooks: camelCase with `use` prefix (e.g., `useDebounce`, `usePaginationParams`)
-- Utility functions: camelCase (e.g., `assertAdmin`, `cleanAnswers`)
+### Functions
 
-**Variables:**
-- camelCase for local variables and function parameters
-- UPPERCASE_WITH_UNDERSCORES for constants (e.g., `ADMIN_ROLES`, `ROLE`)
-- Hungarian notation avoided
+- **Service functions:** camelCase, descriptive verbs (e.g., `getMatterType`, `recordAuditEvent`, `createAdminUser`)
+- **Helper functions:** camelCase (e.g., `assertAdmin`, `assertSafeDatabaseUrl`)
+- **Private/internal:** Prefix with underscore for unused parameters: `_` (e.g., `_tx`)
 
-**Types:**
-- PascalCase for interfaces and types (e.g., `AppSession`, `AdminDb`, `CreateDraftInput`)
-- Type imports from Prisma use `import type` syntax
+### Variables
+
+- **Session objects:** `actor`, `session` (e.g., `actor: AppSession`)
+- **Database references:** `db`, `tx` (e.g., `db = prisma`)
+- **Correlation IDs:** `correlationId` (for audit tracking)
+- **Workspace context:** `workspaceId`, `activeWorkspaceId`
+
+### Types
+
+- **Enum-like constants:** UPPER_SNAKE_CASE with `as const` assertion (e.g., `REQUEST_STATUS`, `ROLE`)
+- **Type aliases:** PascalCase (e.g., `type RequestStatus`, `type AppSession`)
+- **Database types:** Prisma namespace (e.g., `Prisma.TransactionClient`)
+
+```typescript
+// Example from src/lib/types.ts
+export const REQUEST_STATUS = {
+  DRAFT_INTAKE: 'draft_intake',
+  INTAKE_SUBMITTED: 'intake_submitted',
+  // ...
+} as const;
+export type RequestStatus = typeof REQUEST_STATUS[keyof typeof REQUEST_STATUS];
+```
 
 ## Code Style
 
-**Formatting:**
-- Tool: ESLint with `prefer-const`, `no-var` rules
-- Tab width: 2 spaces (standard)
-- Single quotes for strings
-- Trailing commas in multiline
+### Formatting
 
-**Linting:**
-- Tool: ESLint via `eslint-config-next`
-- Configuration: `.eslintrc.js` with custom rules
-- Import sorting: Grouped by type with `@/` path alias
-- Custom rule: `no-duplicate-component` for component naming
+- **Tool:** ESLint + Prettier (via `next lint`)
+- **Configuration:** `.eslintrc.js` with Next.js TypeScript rules
 
-**TypeScript:**
-- Strict mode enabled via Next.js defaults
-- Explicit return types for service functions
-- `import type` for type-only imports to avoid runtime overhead
+### Linting
 
-## Import Organization
+**Key rules from `.eslintrc.js`:**
 
-**Order:**
-1. React and Next.js core (e.g., `import React from 'react'`, `import { NextRequest, NextResponse } from 'next/server'`)
-2. Third-party libraries (e.g., `import { prisma } from '@prisma/client'`)
-3. Internal path aliases (e.g., `import { canAccessRequest } from '@/lib/security/rbac'`)
-4. Relative imports (e.g., `import { CHECKLIST_ITEMS } from './checklist'`)
+```javascript
+{
+  '@typescript-eslint/no-explicit-any': 'warn',
+  '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+  '@typescript-eslint/consistent-type-imports': ['warn', { prefer: 'type-imports' }],
+  'import/order': ['warn', {
+    groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+    'newlines-between': 'always',
+    alphabetize: { order: 'asc' }
+  }],
+  'no-console': ['warn', { allow: ['warn', 'error'] }],
+  'prefer-const': 'warn',
+  'no-var': 'error'
+}
+```
 
-**Path Aliases:**
-- `@/` maps to `src/` root
-- Configured in `tsconfig.json` and `vitest.config.ts`
+### Import Organization
+
+Order (groups):
+1. `builtin` - Node.js built-ins
+2. `external` - npm packages
+3. `internal` - `@/` path aliases
+4. `parent` - `../` imports
+5. `sibling` - `./` imports
+6. `index` - `./index` barrel exports
 
 ```typescript
-// Example import order
-import React, { useState, useCallback } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import { recordAuditEvent } from '@/lib/audit/audit';
+// Example from src/lib/admin/users.ts
+import type { Prisma } from '@prisma/client';         // external
+import type { Role } from '@/lib/types';               // internal
+import { prisma } from '@/lib/prisma';                  // internal
+import { recordAuditEvent } from '@/lib/audit/audit';  // internal
 import type { AppSession } from '@/lib/security/session';
 ```
 
+### Path Aliases
+
+- `@/` maps to `./src/` (configured in `tsconfig.json` and `vitest.config.ts`)
+
 ## Error Handling
 
-**Service Layer:**
-- Throw errors with string codes for validation/authorization (e.g., `throw new Error('FORBIDDEN')`, `throw new Error('INVALID_ROLE')`)
-- Error codes in UPPERCASE_WITH_UNDERSCORES
-- Use regex matching in tests: `assert.rejects(..., /FORBIDDEN/)`
+### Error Code Pattern
 
-**API Routes:**
-- Try-catch with `console.error` for logging
-- Return `NextResponse.json` with appropriate HTTP status codes
-- Include error details in 500 responses for debugging (strip in production)
+Service functions throw errors with string codes (not Error subclasses):
 
 ```typescript
-// Service error pattern
-export async function createAdminUser({ actor, input, db = prisma }) {
-  assertAdmin(actor);
-  assertAllowedRole(input.role);
-  // ...
-}
+// Example from src/lib/security/session.ts
+if (!session?.user?.id) throw new Error('UNAUTHENTICATED');
 
-// API route error pattern
-} catch (error) {
-  console.error('Admin users list error:', error);
-  const message = error instanceof Error ? error.message : 'Unknown error';
-  return NextResponse.json({ error: 'Internal server error', detail: message }, { status: 500 });
+// Example from src/lib/admin/users.ts
+if (!actor.roles.some((role) => adminRoles.includes(role as ...))) {
+  throw new Error('FORBIDDEN');
 }
 ```
 
-## Logging
+**Common error codes:**
+- `UNAUTHENTICATED` - No valid session
+- `FORBIDDEN` - Insufficient permissions
+- `INVALID_ROLE` - Role not in allowlist
+- `REQUEST_NOT_FOUND` - Resource not found
+- `FINAL_DOCUMENT_REQUIRED` - Delivery validation
+- `CLOSE_REASON_REQUIRED` - Missing required field
 
-**Framework:** console.log/console.error (no external logging library detected)
+### Error Testing
 
-**Patterns:**
-- API routes: Log errors with context before returning
-- Services: No logging in business logic (audit events used instead)
-- Avoid logging sensitive data (credentials, personal information)
+```typescript
+// Example from src/lib/admin/users.test.ts
+await assert.rejects(
+  createAdminUser({ actor: customer, input: {...}, db }),
+  /FORBIDDEN/,
+);
+```
 
 ## Comments
 
-**When to Comment:**
-- Complex business logic requires explanation
-- Non-obvious workarounds or hacks
-- Test structure comments (e.g., `// --- Tests ---`)
+### JSDoc Style
 
-**JSDoc/TSDoc:**
-- Not consistently used
-- Prefer inline comments for clarity
-- Function signatures are self-documenting with descriptive names
-
-## Function Design
-
-**Size:** Small, focused functions preferred. Complex logic broken into helper functions.
-
-**Parameters:**
-- Use object destructuring for options/config patterns
-- Typed parameters with interfaces when complex
-- Default values for optional parameters (e.g., `db = prisma`)
-
-**Return Values:**
-- Explicit return types for public functions
-- Async functions return Promises
-- Use `as const` for literal type narrowing (e.g., `targetType: 'REQUEST' as const`)
-
-## Module Design
-
-**Exports:**
-- Named exports for utilities and services
-- Default exports for React page components
-- Barrel files (`index.ts`) for component groups
-
-**Barrel Files:**
-- Used in `src/components/*/index.ts` for re-exporting
-- Not used in `src/lib/` (direct imports preferred)
-
-## State Management
-
-**Client State:** React hooks (`useState`, `useCallback`, `useMemo`)
-**Server State:** TanStack Query (`@tanstack/react-query`)
-**URL State:** Next.js `useSearchParams`, `useRouter`
-
-## Transaction Patterns
-
-**Prisma Transactions:**
 ```typescript
-return db.$transaction(async (tx) => {
-  // Operations within transaction
-  await tx.user.create({ data: {...} });
-  await recordAuditEvent(auditInput, tx);
-  return result;
-});
-```
-
-**Injectable Dependencies:**
-- Allow passing `db` parameter for testing (default: `prisma`)
-
-## RBAC Implementation
-
-**Session Pattern:**
-```typescript
-type AppSession = {
-  userId: string;
-  activeWorkspaceId: string;
-  roles: Role[];
+/**
+ * Matter type catalog for intake form
+ * Backward compatibility layer using seed-multilingual data
+ */
+export type MatterCatalogItem = {
+  key: string;
+  // ...
 };
 ```
 
-**Authorization Pattern:**
-- Check roles first (e.g., `hasRole(session, 'super_admin')`)
-- Check workspace membership
-- Check resource ownership/assignment
+### Inline Comments
 
-## Anti-Patterns
+- Minimal inline comments; code should be self-documenting
+- Complex logic gets brief explanation (1-2 lines)
 
-### Using `any` type
+## Function Design
 
-**What happens:** `input: any` or `const x: any = ...`
-**Why it's wrong:** Bypasses TypeScript safety, introduces runtime errors
-**Do this instead:** Use proper types or `unknown` with type guards
+### Parameters
 
-### Mutating Shared State
+- **Session as first parameter:** `{ session: AppSession }` or `{ actor: AppSession }`
+- **Input data:** `{ input: SomeInput }` pattern for mutations
+- **Database:** `db = prisma` default for testability
 
-**What happens:** Module-level variables that change state
-**Why it's wrong:** Causes unpredictable behavior across requests
-**Do this instead:** Use function parameters and return values
+```typescript
+// Example from src/lib/documents/vault-service.ts
+export async function requestVaultFileAccess(
+  session: AppSession,
+  vaultFileId: string,
+  correlationId: string
+): Promise<VaultAccessResult>
+```
 
-### Synchronous DB Operations
+### Return Values
 
-**What happens:** Prisma queries without await
-**Why it's wrong:** Unhandled promises, undefined results
-**Do this instead:** Always await Prisma operations
+- Return full objects for reads (not partial)
+- Throw on errors rather than returning null
+- Async/await preferred over raw promises
+
+### Function Size
+
+- Target: <50 lines per function
+- Complex functions should be split into helper functions
+- State mutations isolated to dedicated mutation functions
+
+## Module Design
+
+### Exports
+
+- Named exports preferred for utilities
+- Type exports via `export type { ... }`
+- Barrel exports in `index.ts` files for domains
+
+```typescript
+// Example from src/lib/intake/catalog.ts
+export function getMatterType(matterTypeKey: string): MatterCatalogItem | null
+export function getMatterQuestions(matterTypeKey: string): IntakeQuestion[]
+export { SEED_MATTER_TYPES } from '../i18n/seed-multilingual';
+```
+
+### Barrel Files
+
+- `src/lib/types/index.ts` - Type constants and exports
+- `src/lib/api/index.ts` - API client exports
+- `src/lib/intake/catalog.ts` - Re-exports multilingual data
+
+## Component Conventions
+
+### Naming
+
+Custom ESLint rule (`src/lib/rules/no-duplicate-component.js`) enforces:
+
+1. No duplicate names with shared components
+2. No generic names (Card, Table, Form, etc.)
+3. Shared components should be in `src/components/shared/ui/`
+
+**Shared component hierarchy:**
+- **Atoms:** Button, Input, Select, Badge, Avatar, Icon, Tooltip, Tag
+- **Molecules:** StatCard, StatusBadge, EmptyState, LoadingSkeleton, Pagination
+- **Organisms:** DataTable, AuditTimeline, RequestTable, VaultFileTable
+
+### File Location
+
+- **Shared UI:** `src/components/shared/ui/`
+- **Feature components:** `src/components/{feature}/`
+- **Layouts:** `src/components/layout/`
+
+## Security Patterns
+
+### Input Validation
+
+- Validate inputs at API route boundary
+- Service functions assert preconditions
+
+```typescript
+// API route validates before calling service
+export async function GET() {
+  try {
+    const session = await requireAppSession();
+    // service call
+  } catch {
+    return NextResponse.json({ error: '...' }, { status: 500 });
+  }
+}
+```
+
+### Authorization
+
+- Roles checked via session: `session.roles.includes('role_name')`
+- Workspace-specific: Query with workspace filter
 
 ---
 
-*Convention analysis: 2026-06-17*
+*Convention analysis: 2026-06-18*

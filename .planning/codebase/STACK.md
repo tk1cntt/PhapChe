@@ -1,132 +1,130 @@
 # Technology Stack
 
-**Analysis Date:** 2026-06-17
+**Analysis Date:** 2026-06-18
 
 ## Languages
 
 **Primary:**
-- TypeScript 5.x - Full-stack type safety across Next.js app
+- TypeScript (latest) - Full-stack type safety across Next.js app
+- JavaScript - Legacy files and test configurations
 
 **Secondary:**
-- JavaScript (ESNext) - Configuration files and scripts
+- SQL - Database queries via Prisma ORM
 
 ## Runtime
 
 **Environment:**
-- Node.js (latest) - Server-side execution
-- React (latest) - UI framework
-- Next.js (latest) - Full-stack framework with App Router
+- Node.js (latest) - Server runtime for Next.js
 
 **Package Manager:**
-- npm (Node Package Manager)
-- Lockfile: `package-lock.json` present
+- npm - Node package management
+- Lockfile: `package-lock.json` (implicit)
 
 ## Frameworks
 
 **Core:**
-- Next.js - App Router, Server Components, API Routes
-- React 19 - UI library with Server Components
-- Ant Design 6.x - Enterprise UI component library
-- Tailwind CSS 4.x - Utility-first CSS
+- Next.js (latest) - Full-stack React framework with App Router
+- React (latest) - UI library
 
-**State Management:**
-- TanStack Query (React Query) 5.x - Server state management
-- React Context - Client-side state
-
-**Authentication:**
-- better-auth 1.6.x - Authentication with Prisma adapter
-- Session-based auth with cookie handling
+**UI Component Libraries:**
+- Ant Design 6.x - Enterprise UI components
+- shadcn/ui 4.x - Headless Radix-based components
+- Radix UI 1.5.x - Unstyled accessible primitives
+- Tailwind CSS (latest) - Utility-first CSS framework
+- Lucide React - Icon library
 
 **Internationalization:**
-- next-intl 4.x - i18n routing and translations
+- next-intl 4.x - Internationalization for Next.js
 
 **API Documentation:**
-- swagger-ui-react - OpenAPI documentation
-- next-swagger-doc - Auto-generated API docs
+- swagger-ui-react 5.x - API documentation UI
+- next-swagger-doc 0.4.x - OpenAPI spec generation
 
-## Database
+**State Management:**
+- TanStack React Query 5.x - Server state management
 
-**ORM:**
-- Prisma 6.x - Type-safe database access
-- Database: SQLite (development), PostgreSQL (production)
+**Authentication:**
+- better-auth 1.6.x - Authentication framework
+- bcryptjs 3.x - Password hashing
+
+**Security:**
+- @noble/hashes 2.x - Cryptographic hashing (SHA-256)
 
 ## Testing
 
 **Unit Testing:**
-- Vitest 4.x - Vite-native test runner
-- @testing-library/react 16.x - React component testing
+- Vitest 4.x - Vite-native testing framework
+- @testing-library/react 16.x - Component testing
 - @testing-library/dom 10.x - DOM testing utilities
-- jsdom 29.x - DOM environment for Node.js
+- jsdom - DOM environment for Node.js
 
 **E2E Testing:**
-- Playwright 1.60.x - End-to-end browser testing
-- @playwright/test - Test runner
+- Playwright 1.60.x - End-to-end testing
+- @playwright/test - Playwright test runner
 
-**Test Configuration:**
-- `vitest.config.ts` - Unit test configuration
-- `playwright.config.ts` - E2E configuration
+**Test Utilities:**
+- @testing-library/jest-dom 6.x - Custom Jest matchers
 
-## Build & Development
+## Build/Dev
 
-**Bundler:**
-- Next.js built-in (Turbopack/Vite)
+**Build:**
+- Next.js build pipeline (esbuild, SWC)
 - TypeScript compiler (tsc)
 
-**Linting:**
-- ESLint (latest) - Code linting
-- next/core-web-vitals - Next.js ESLint rules
-- Custom `no-duplicate-component` rule
+**Code Quality:**
+- ESLint (latest) - Linting with Next.js config
+- TypeScript - Static type checking
 
-**Formatting:**
-- ESLint `prefer-const`, `no-var` rules
+**Database:**
+- Prisma 6.x - Next-generation ORM
+- SQLite (dev) - Local development database
+- PostgreSQL (prod) - Production database
 
-## Styling
+**Utilities:**
+- tsx 4.x - TypeScript execution for scripts
+- postcss - CSS processing
+- autoprefixer - Vendor prefixing
 
-**CSS Framework:**
-- Tailwind CSS (latest) - Utility classes
-- PostCSS - CSS processing
-- Autoprefixer - Vendor prefixes
-- shadcn/ui - Component primitives
-- radix-ui - Headless UI components
-- class-variance-authority - Variant management
-- tw-animate-css - Animation utilities
+## Key Dependencies
 
-**UI Components:**
-- Ant Design - Enterprise components
-- Lucide React - Icon library
-- @ant-design/icons - Additional icons
+**Critical:**
+- `next` (latest) - Framework core
+- `react` / `react-dom` (latest) - UI library
+- `antd` 6.x - Enterprise components
+- `prisma` / `@prisma/client` 6.x - Database ORM
 
-## Security
+**Infrastructure:**
+- `better-auth` 1.6.x - Auth framework
+- `@tanstack/react-query` 5.x - State management
+- `next-intl` 4.x - i18n
 
-**Password Hashing:**
-- bcryptjs 3.x - Password hashing
-- @noble/hashes 2.x - Cryptographic hashing
-- better-auth hashPassword - Auth-specific hashing
+## Configuration
 
-## Configuration Files
+**Environment:**
+- `.env` / `.env.local` / `.env.example` - Environment variables
+- Key vars: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`
+- `STORAGE_DRIVER` - File storage backend (local/S3)
 
-**Key Config Files:**
-- `tsconfig.json` - TypeScript configuration
+**Build:**
 - `next.config.ts` - Next.js configuration with next-intl plugin
-- `.eslintrc.js` - ESLint configuration
-- `vitest.config.ts` - Vitest configuration
-- `playwright.config.ts` - Playwright configuration
 - `tailwind.config.ts` - Tailwind CSS configuration
-- `postcss.config.mjs` - PostCSS configuration
-- `components.json` - shadcn/ui configuration
+- `tsconfig.json` - TypeScript configuration
+- `vitest.config.ts` - Vitest configuration with path aliases
+- `playwright.config.ts` - E2E test configuration
+- `.eslintrc.js` - ESLint rules
 
 ## Platform Requirements
 
 **Development:**
-- Node.js (latest)
-- npm or yarn
-- SQLite or PostgreSQL
+- Node.js latest
+- npm or compatible package manager
+- SQLite (via Prisma) for local dev
 
 **Production:**
-- Node.js server or serverless deployment
-- PostgreSQL recommended
-- S3-compatible storage (optional)
+- Node.js runtime
+- PostgreSQL database
+- File storage (local filesystem or S3)
 
 ---
 
-*Stack analysis: 2026-06-17*
+*Stack analysis: 2026-06-18*

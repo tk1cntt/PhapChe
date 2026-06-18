@@ -1,348 +1,352 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-06-17
+**Analysis Date:** 2026-06-18
 
-## Test Framework
+## Test Frameworks
 
-**Unit & Integration Tests:**
-- Framework: Vitest v4.1.8
-- Config: `vitest.config.ts`
-- Environment: jsdom
-- Globals: enabled
-- Setup: `tests/setup.ts`
+### Unit Testing
 
-**E2E Tests:**
-- Framework: Playwright v1.60.0
-- Config: `playwright.config.ts`
-- Test dir: `./e2e`
-- Browser: Chromium
+**Framework:** Vitest v4.1.8
+- **Config:** `vitest.config.ts`
+- **Environment:** jsdom
+- **Globals:** Enabled
+- **Setup:** `tests/setup.ts`
 
-**Assertion Libraries:**
-- Vitest: `expect` (built-in)
-- Node tests: `assert` from `node:assert/strict`
-- React Testing Library: `@testing-library/react`
+```typescript
+// vitest.config.ts
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
-**Run Commands:**
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./tests/setup.ts'],
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});
+```
+
+### Node Test Runner
+
+Some tests use Node.js built-in `node:test`:
+
+```typescript
+import { describe, it, mock } from 'node:test';
+import assert from 'node:assert/strict';
+```
+
+### E2E Testing
+
+**Framework:** Playwright v1.60.0
+- **Config:** `playwright.config.ts`
+- **TestDir:** `./e2e`
+- **Browser:** Chromium (Desktop Chrome)
+- **Reporter:** list
+
+```typescript
+// playwright.config.ts
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: 'list',
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
+});
+```
+
+## Run Commands
+
 ```bash
-npx vitest                     # Run unit/integration tests
-npx vitest --watch             # Watch mode
-npm run test:e2e               # Run E2E tests
-npm run test:e2e:ui           # Run E2E with UI
-npm run typecheck              # Type checking
+npm run test:e2e              # Run all E2E tests
+npm run test:e2e:ui          # Run with Playwright UI
+npm run lint                 # ESLint
+npm run typecheck           # TypeScript checking
 ```
 
 ## Test File Organization
 
-**Location:**
-- Unit/Integration tests: Co-located with source files (e.g., `src/lib/admin/users.test.ts`) or in `tests/` directory
-- E2E tests: Separate `tests/e2e/` directory
+### Location Pattern
 
-**Naming:**
-- Unit tests: `.test.ts` or `.test.tsx` suffix
-- Integration/E2E specs: `.spec.ts` or `.spec.tsx` suffix
-- Pattern: `[module]-[feature].test.ts` (e.g., `audit.test.ts`, `my-cases-client.test.tsx`)
+Tests are co-located with source files:
 
-**Structure:**
 ```
-D:\PhapChe\
-├── src/
-│   ├── lib/
-│   │   ├── admin/
-│   │   │   └── users.test.ts      # Co-located unit tests
-│   │   └── workflow/
-│   │       └── request-workflow.test.ts
-│   └── components/
-│       └── admin/
-│           └── AdminVaultClient.test.tsx
-├── tests/
-│   ├── setup.ts                   # Vitest setup
-│   ├── dashboard/
-│   │   └── Dashboard.test.ts      # Dashboard component tests
-│   ├── e2e/
-│   │   ├── dashboard.spec.ts      # Dashboard E2E
-│   │   ├── partners/
-│   │   │   └── partner-actions.e2e.ts
-│   │   └── helpers/
-│   │       └── auth.ts
-│   └── api/
-│       └── dashboard.route.test.ts
-└── e2e/                          # Playwright E2E tests
+src/lib/
+  admin/
+    users.ts
+    users.test.ts          # Unit tests
+  documents/
+    vault-service.ts
+    vault-service.test.ts   # Integration tests
+  workflow/
+    request-workflow.ts
+    request-workflow.test.ts # Type tests
+
+e2e/
+  admin.spec.ts            # E2E tests
+  intake.spec.ts
+  helpers.ts               # Shared helpers
 ```
+
+### Naming
+
+- Unit/Integration: `*.test.ts`
+- E2E: `*.spec.ts`
+- Helpers: `helpers.ts`
 
 ## Test Structure
 
-**Suite Organization (Vitest):**
+### Unit Tests (Vitest)
+
 ```typescript
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
-describe('ModuleName', () => {
-  describe('Feature Name', () => {
-    it('Test 1: description of expected behavior', async () => {
-      // Arrange
-      const input = {};
+describe('ServiceName', () => {
+  it('does expected behavior', () => {
+    const result = someFunction(input);
+    expect(result).toBe(expected);
+  });
+});
+```
 
-      // Act
-      const result = await functionUnderTest(input);
+### Node Test Pattern
 
-      // Assert
-      expect(result).toBe(expected);
+```typescript
+import { describe, it, mock } from 'node:test';
+import assert from 'node:assert/strict';
+
+describe('feature name', () => {
+  it('test description in Vietnamese', async () => {
+    const result = await someFunction(input);
+    assert.equal(result.property, 'expected');
+  });
+});
+```
+
+### E2E Test Categories
+
+Per CLAUDE.md requirements, E2E tests follow 4 categories:
+
+```typescript
+// From src/components/admin/AdminVaultClient.e2e.test.ts
+
+test.describe('Whitebox: Page structure', () => {
+  test('page has correct page header', async () => {
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Phân loại vault');
+  });
+});
+
+test.describe('Blackbox: Data display', () => {
+  test('displays folders from API', async () => {
+    await page.waitForResponse((response) =>
+      response.url().includes('/api/vault') && response.status() === 200
+    );
+  });
+});
+
+test.describe('Abnormal: Edge cases', () => {
+  test('handles empty data gracefully', async () => {
+    // ...
+  });
+});
+
+test.describe('Error: Error handling', () => {
+  test('displays error message when API fails', async ({ page }) => {
+    await page.route('/api/vault', (route) => {
+      route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Internal Server Error' }),
+      });
     });
   });
 });
 ```
 
-**Suite Organization (Node Test):**
-```typescript
-import test from 'node:test';
-import assert from 'node:assert/strict';
-
-test('description of expected behavior', async () => {
-  const result = await functionUnderTest();
-  assert.equal(result, expected);
-});
-```
-
-**Patterns:**
-- Describe blocks for grouping related tests
-- Test descriptions in Vietnamese for domain-specific tests
-- Clear Arrange/Act/Assert structure
-- `beforeEach` for setup that resets between tests
-
 ## Mocking
 
-**Framework:** Vitest's `vi` (mock functions)
+### Node Test Mocking
 
-**Patterns:**
 ```typescript
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+// From src/lib/admin/users.test.ts
+const tx = {
+  user: {
+    create: mock.fn(async () => ({ id: 'user-2', email: 'new@example.com', ... })),
+    update: mock.fn(async () => ({ id: 'user-2', role: 'reviewer', isActive: true })),
+  },
+  workspaceMembership: { upsert: mock.fn(async () => ({ id: 'membership-1' })) },
+  auditEvent: { create: mock.fn(async () => ({ id: 'audit-1' })) },
+};
 
-// Mock global fetch
-const mockFetch = vi.fn();
-global.fetch = mockFetch;
+const transactionMock = mock.fn((callback: (tx: Tx) => unknown) => callback(tx));
+```
 
-// Mock function
-const mockFn = vi.fn(async () => ({ id: 'user-1' }));
+### Playwright Route Interception
 
-// Spy on object method
-const spy = vi.spyOn(db, 'user').mockResolvedValue({ id: 'user-1' });
-
-// Reset between tests
-beforeEach(() => {
-  mockFn.mockReset();
+```typescript
+await page.route('/api/vault', (route) => {
+  route.fulfill({
+    status: 500,
+    contentType: 'application/json',
+    body: JSON.stringify({ error: 'Server Error' }),
+  });
 });
 ```
 
-**Database Mocking:**
-```typescript
-// For service tests with injectable db
-function createTx() {
-  return {
-    user: {
-      create: mock.fn(async () => ({ id: 'user-2' })),
-      update: mock.fn(async () => ({ id: 'user-2' })),
-    },
-    workspaceMembership: { upsert: mock.fn(async () => ({ id: 'membership-1' })) },
-    auditEvent: { create: mock.fn(async () => ({ id: 'audit-1' })) },
-  };
-}
+### Mocking Rules
 
-function createDb(tx = createTx()): TestDb {
-  return {
-    $transaction: mock.fn((callback: (tx: Tx) => unknown) => callback(tx)) as never,
-    tx,
-  };
-}
-```
-
-**What to Mock:**
-- Global fetch in component tests
-- Prisma client in unit tests
-- Time-dependent functions (use fake timers)
-- External APIs
-
-**What NOT to Mock:**
-- Internal business logic (test it directly)
-- Simple pure functions
-- Third-party libraries with simple interfaces
+- **Mock external services:** Database, file storage, email
+- **Mock Prisma client:** For unit tests isolating business logic
+- **Do NOT mock:** Simple pure functions
+- **Do NOT mock:** Test utilities (assert, describe)
 
 ## Fixtures and Factories
 
-**Test Data Pattern:**
-```typescript
-const mockRequests = [
-  {
-    id: 'req-1',
-    code: 'REQ-2026-001',
-    statusText: 'Đang xem xét',
-    type: 'Rà soát hợp đồng',
-    statusBadge: 'review' as const,
-    // ... minimal required fields
-  },
-];
-```
+### Test Database Fixtures
 
-**Seed Data for E2E:**
+Integration tests use real database with seed/cleanup pattern:
+
 ```typescript
-async function seedReviewTest(): Promise<ReviewSeed> {
-  const workspace = await prisma.workspace.create({
-    data: { name: `Test ${suffix}`, slug: `test-${suffix}` },
-  });
-  // ... create users, requests, documents
-  return { workspaceId: workspace.id, ... };
+// From src/lib/delivery/delivery-service.test.ts
+const VAULT_E2E_PREFIX = 'delivery_service_e2e';
+
+async function seedDeliveryTest(): Promise<DeliverySeed> {
+  const suffix = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+  const [workspace, otherWorkspace] = await Promise.all([
+    prisma.workspace.create({ data: { name: `Delivery Service ${suffix}`, slug: `...` } }),
+    // ...
+  ]);
+  // Return seed data
+}
+
+async function cleanupDeliveryTest(seed: DeliverySeed | null) {
+  if (!seed) return;
+  await prisma.reviewChecklistAnswer.deleteMany({ where: { ... } });
+  await prisma.review.deleteMany({ where: { ... } });
+  // ... cascade delete
+}
+
+async function withDeliverySeed(run: (seed: DeliverySeed) => Promise<void>) {
+  assertSafeDatabaseUrl();
+  let seed: DeliverySeed | null = null;
+  try {
+    seed = await seedDeliveryTest();
+    await run(seed);
+  } finally {
+    await cleanupDeliveryTest(seed);
+  }
 }
 ```
 
-**Cleanup Pattern:**
+### Safety Checks
+
 ```typescript
-async function cleanup(seed: ReviewSeed | null) {
-  if (!seed) return;
-  await prisma.auditEvent.deleteMany({ where: { workspaceId: seed.workspaceId } });
-  // ... delete in correct order (respecting foreign keys)
-  await prisma.workspace.delete({ where: { id: seed.workspaceId } });
+// From src/lib/delivery/delivery-service.test.ts
+function assertSafeDatabaseUrl() {
+  const databaseUrl = process.env.DATABASE_URL;
+  assert.ok(databaseUrl, 'DATABASE_URL is required');
+
+  const url = new URL(databaseUrl);
+  const safe =
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    databaseName.includes('dev') ||
+    databaseName.includes('test') ||
+    databaseName.includes('local');
+
+  assert.ok(safe, `Refusing to run against unsafe DATABASE_URL: ${url.hostname}`);
+}
+```
+
+## Type Testing
+
+Type correctness is tested via TypeScript type checking:
+
+```typescript
+// From src/lib/workflow/request-workflow.test.ts
+type Assert<T extends true> = T;
+type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
+
+type TransitionStatus = keyof typeof REQUEST_TRANSITIONS;
+type _AllStatusesCovered = Assert<Equal<TransitionStatus, RequestStatus>>;
+```
+
+## E2E Test Helpers
+
+```typescript
+// From e2e/helpers.ts
+export const CREDENTIALS = {
+  specialist: { email: 'specialist.demo@example.test', password: 'Demo@123456' },
+  reviewer: { email: 'reviewer.demo@example.test', password: 'Demo@123456' },
+  admin: { email: 'admin.demo@example.test', password: 'Demo@123456' },
+  customer: { email: 'customer.demo@example.test', password: 'Demo@123456' },
+};
+
+export async function loginAs(page: Page, role: keyof typeof CREDENTIALS) {
+  await page.context().clearCookies();
+  await page.goto('/vi/sign-in', { waitUntil: 'networkidle', timeout: 30000 });
+  // Fill credentials and submit
 }
 ```
 
 ## Coverage
 
-**Requirements:** Not explicitly enforced in package.json
+**Not enforced** - No coverage threshold configured.
 
-**View Coverage:**
-```bash
-npx vitest --coverage
-```
+## Test Types Summary
 
-**Note:** Project guidelines suggest 90% minimum coverage (from CLAUDE.md)
-
-## Test Types
-
-**Whitebox Tests (Unit):**
-- Test internal implementation details
-- Mock dependencies
-- Verify specific function behavior
-
-```typescript
-describe('Whitebox Tests - Unit', () => {
-  it('renders stat cards with correct values', async () => {
-    mockFetch.mockResolvedValueOnce({ json: async () => mockData });
-    render(<DashboardClient />);
-    await waitFor(() => {
-      expect(screen.getByText('25')).toBeTruthy();
-    });
-  });
-});
-```
-
-**Blackbox Tests (Integration):**
-- Test component/API behavior without internal details
-- Use full component rendering
-- Verify user-facing functionality
-
-```typescript
-describe('Blackbox Tests - Integration', () => {
-  it('fetches data from /api/dashboard on mount', async () => {
-    mockFetch.mockResolvedValueOnce({ json: async () => mockData });
-    render(<DashboardClient />);
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith('/api/dashboard');
-    });
-  });
-});
-```
-
-**Abnormal Tests (Edge Cases):**
-- Empty data states
-- Zero/null values
-- Boundary conditions
-
-```typescript
-describe('Abnormal Tests - Edge Cases', () => {
-  it('handles empty recent cases list', async () => {
-    mockFetch.mockResolvedValueOnce({ json: async () => ({ ...mockData, recentCases: [] }) });
-    render(<DashboardClient />);
-    await waitFor(() => {
-      expect(screen.getByText('Không có hồ sơ nào đang xử lý')).toBeTruthy();
-    });
-  });
-});
-```
-
-**Error Tests:**
-- API failures
-- Invalid responses
-- Error recovery
-
-```typescript
-describe('Error Tests', () => {
-  it('shows error message on API failure', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('Network error'));
-    render(<DashboardClient />);
-    await waitFor(() => {
-      expect(screen.getByText('Network error')).toBeTruthy();
-    });
-  });
-});
-```
-
-**E2E Tests:**
-- Full browser automation with Playwright
-- Test complete user flows
-
-```typescript
-import { test, expect } from '@playwright/test';
-
-test('dashboard displays workspace stats', async ({ page }) => {
-  await page.goto('/dashboard');
-  await expect(page.locator('.stats-grid')).toBeVisible();
-});
-```
+| Type | Framework | Location | Characteristics |
+|------|-----------|----------|-----------------|
+| Unit | Vitest/Node | `src/lib/**/*.test.ts` | Mocked dependencies |
+| Integration | Node + Prisma | `src/lib/**/*.test.ts` | Real DB, seed/cleanup |
+| Type | TypeScript | `src/lib/**/*.test.ts` | Compile-time checks |
+| E2E | Playwright | `e2e/*.spec.ts` | Full browser, real app |
+| Component E2E | Playwright | `src/components/**/*.e2e.test.ts` | Component UI tests |
 
 ## Common Patterns
 
-**Async Testing:**
+### Async Testing
+
 ```typescript
-it('renders after data loads', async () => {
-  render(<Component />);
-  await waitFor(() => {
-    expect(screen.getByText('Expected')).toBeInTheDocument();
-  });
+it('creates audit event', async () => {
+  await recordAuditEvent({ ... }, db);
+  assert.equal(calls.length, 1);
 });
 ```
 
-**Error Rejection Testing:**
+### Error Testing
+
 ```typescript
-it('throws FORBIDDEN for non-admin', async () => {
+it('rejects invalid input', async () => {
   await assert.rejects(
-    createAdminUser({ actor: customer, input: {...} }),
-    /FORBIDDEN/,
+    serviceFunction({ input: invalidData }),
+    /ERROR_CODE/
   );
 });
 ```
 
-**Transaction Verification:**
+### Security Testing
+
 ```typescript
-it('audit event created in same transaction', async () => {
-  await createAdminUser({ actor, input: {...} });
-  assert.equal(db.$transactionMock.mock.callCount(), 1);
-  assert.equal(tx.auditEvent.create.mock.callCount(), 1);
+it('excludes sensitive fields', async () => {
+  const json = JSON.stringify(result);
+  assert.doesNotMatch(json, /storageKey/);
+  assert.doesNotMatch(json, /password/);
 });
 ```
 
-**Database Safety Guard:**
-```typescript
-function assertSafeDatabaseUrl() {
-  const url = new URL(databaseUrl);
-  const safe = hostname === 'localhost' || databaseName.includes('test');
-  assert.ok(safe, 'Refusing to run against unsafe database');
-}
-```
-
-## Test Data Constraints
-
-**From CLAUDE.md:**
-- All UI features need: whitebox testcase, blackbox testcase, abnormal testcase, error testcase
-- All bug fixes need e2e testcase
-- Coverage must be minimum 90%
-
 ---
 
-*Testing analysis: 2026-06-17*
+*Testing analysis: 2026-06-18*

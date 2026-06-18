@@ -1,99 +1,105 @@
 # External Integrations
 
-**Analysis Date:** 2026-06-17
+**Analysis Date:** 2026-06-18
 
-## Database
+## APIs & External Services
 
-**SQLite (Development):**
-- Provider: SQLite via Prisma
-- Connection: `DATABASE_URL` in `.env`
-- ORM: Prisma Client
+**No external API integrations detected.**
 
-**PostgreSQL (Production):**
-- Provider: PostgreSQL via Prisma
-- Connection: `DATABASE_URL` in `.env`
-- ORM: Prisma Client
+The platform currently operates without third-party API integrations, relying on internal services for all functionality.
 
-## Authentication
+## Data Storage
+
+**Primary Database:**
+- SQLite (development)
+- PostgreSQL (production)
+  - Connection: `DATABASE_URL` env var
+  - Client: Prisma ORM 6.x
+  - Models: User, Workspace, LegalRequest, Document, Review, VaultFile, etc.
+
+**File Storage:**
+- Local filesystem (default, development)
+  - Provider: `src/lib/storage/providers/local-storage.provider.ts`
+  - Path: `STORAGE_BASE_PATH` or default uploads directory
+- S3 (planned/infrastructure ready)
+  - Driver: `STORAGE_DRIVER=s3` (configured but not implemented)
+  - Migration command: `npm run storage:migrate`
+
+## Authentication & Identity
 
 **Auth Provider:**
-- Self-hosted using better-auth
-- Database adapter: Prisma adapter
-- Session management: Cookie-based with nextCookies plugin
-- Supported providers: Email/Password
+- better-auth 1.6.x (self-hosted)
+  - Prisma adapter with session management
+  - Cookie-based sessions (7-day expiry)
+  - Email/password authentication enabled
+  - Config: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`
 
-**Configuration:**
-- `BETTER_AUTH_URL` - Base URL for auth endpoints
-- `NODE_ENV` - Switches between SQLite (dev) and PostgreSQL (prod)
+**Session Configuration:**
+- Expires: 7 days
+- Update age: 24 hours
+- Storage: Prisma Session model
 
-## Storage
-
-**Local Storage (Current):**
-- Provider: Local filesystem
-- Service: `LocalStorageProvider` in `src/lib/storage/providers/`
-- Location: Configured via `STORAGE_DRIVER=local`
-
-**S3 Storage (Planned):**
-- Provider: S3-compatible storage
-- Status: Migration command exists but S3 provider not implemented
-- See: `src/lib/storage/commands/migrate.ts`
-
-## API Integrations
-
-**Swagger/OpenAPI:**
-- Endpoint: `/api/swagger`
-- Auto-generated documentation
-- Package: `next-swagger-doc`
-
-**External API Clients:**
-- Central API Client: `src/lib/api/client.ts`
-- Domain-specific API modules: `src/lib/api/index.ts`
-
-## Email & Notifications
-
-**Email:**
-- Status: Not fully configured
-- Notification service: `src/lib/delivery/notification-service.ts`
-
-## Environment Configuration
-
-**Required Environment Variables:**
-- `DATABASE_URL` - Database connection string
-- `BETTER_AUTH_URL` - Authentication base URL
-- `NODE_ENV` - Development/Production mode
-
-**Optional Variables:**
-- `STORAGE_DRIVER` - local or s3
-- `S3_*` - S3 configuration (when applicable)
-
-**Secrets Location:**
-- `.env` file (git-ignored)
-- `.env.example` (template, committed)
-- `.env.local` (local overrides)
-- `.env.test` (test environment)
+**User Account Types:**
+- `staff` - Internal users (super_admin, coordinator, specialist, reviewer)
+- `customer` - External clients
 
 ## Monitoring & Observability
 
 **Error Tracking:**
-- Not configured - Console logging via `console.error/warn`
-- Error boundary: `src/components/ui/ErrorFallback.tsx`
+- None detected (no Sentry, LogRocket, etc.)
 
-**Logging:**
-- Console-based logging
-- Audit events recorded in database via `AuditEvent` model
+**Logs:**
+- Console logging via Next.js
+- Audit events stored in database (`AuditEvent` model)
 
 ## CI/CD & Deployment
 
-**Testing Pipeline:**
-- Playwright E2E tests: `npm run test:e2e`
-- Vitest unit tests: Via vitest
-- Type checking: `npm run typecheck`
+**Hosting:**
+- Self-hosted / On-premise deployment
+- No specific hosting platform detected (Vercel, AWS, etc.)
 
-**Deployment:**
-- Platform: Next.js (can deploy to Vercel, AWS, etc.)
-- Database migrations: `prisma migrate`
-- Seed data: `npm run seed`
+**CI Pipeline:**
+- None detected (no GitHub Actions, CircleCI, etc.)
+
+## Environment Configuration
+
+**Required env vars:**
+| Variable | Purpose | Example |
+|----------|---------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:5432/db` |
+| `BETTER_AUTH_SECRET` | Auth encryption key | 64-char hex string |
+| `BETTER_AUTH_URL` | Auth base URL | `http://localhost:3000` |
+| `STORAGE_DRIVER` | File storage backend | `local` or `s3` |
+| `STORAGE_BASE_PATH` | Local storage root | `./storage` (optional) |
+
+**Secrets location:**
+- `.env` (gitignored, local secrets)
+- `.env.local` (local overrides)
+- `.env.example` (template, committed)
+
+## Webhooks & Callbacks
+
+**Incoming:**
+- None detected
+
+**Outgoing:**
+- None detected
+
+## Internal Service Architecture
+
+**Service Layer:**
+- `src/lib/storage/storage.service.ts` - File operations
+- `src/lib/audit/audit-service.ts` - Audit logging
+- `src/lib/documents/draft-service.ts` - Document management
+- `src/lib/documents/vault-service.ts` - Legal vault
+- `src/lib/documents/template-service.ts` - Template rendering
+- `src/lib/delivery/delivery-service.ts` - Document delivery
+- `src/lib/intake/upload-service.ts` - Intake file uploads
+
+**API Client:**
+- `src/lib/api/client.ts` - Central API client with typed responses
+- Domain modules: requests, users, workspaces, messages, vault, settings, admin, intake, workflows, templates
 
 ---
 
-*Integration audit: 2026-06-17*
+*Integration audit: 2026-06-18*

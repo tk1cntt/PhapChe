@@ -1,218 +1,230 @@
 # Codebase Concerns
 
-**Analysis Date:** 2026-06-17
+**Analysis Date:** 2026-06-18
 
 ## Tech Debt
 
-**Dual Database Provider Abstraction:**
-- Issue: `src/auth.ts:9` uses `process.env.NODE_ENV === "production"` to switch between SQLite and PostgreSQL providers at runtime
-- Files: `src/auth.ts`
-- Impact: Code paths differ between dev/prod without compile-time safety. SQLite lacks enum support (schema uses String fields with comments as pseudo-enums)
-- Fix approach: Standardize on PostgreSQL for all environments, or use a proper multi-tenant migration strategy
-
-**Type Safety Bypass in Routing Service:**
-- Issue: `src/lib/routing/routing-service.ts` defines `RoutingPrisma` type with untyped `unknown` parameters
-- Files: `src/lib/routing/routing-service.ts`
-- Impact: No compile-time validation of Prisma query parameters
-- Fix approach: Use proper Prisma types or generate typed client methods
-
-**Hardcoded Review Comments:**
-- Issue: `src/lib/reviews/review-service.ts` has Vietnamese hardcoded strings for transition reasons
-- Files: `src/lib/reviews/review-service.ts`
-- Impact: Not localizable, inconsistent with i18n architecture
-- Fix approach: Extract to i18n keys or make reason parameter required
-
-**Console Logging in Production Code:**
-- Issue: 58 console.log/console.error statements found across 42 files
-- Files: Multiple files in `src/components/admin/*.tsx`, `src/app/api/**/*.ts`
-- Impact: Pollutes server logs, potential information leakage
-- Fix approach: Replace with structured logging (e.g., pino, winston) with appropriate log levels
-
-**Dev-Only Fallback Secrets:**
-- Issue: `src/lib/documents/vault-service.ts` falls back to `'dev-vault-download-secret'` in development/test
-- Files: `src/lib/documents/vault-service.ts`
-- Impact: Weak HMAC secret in dev could be exploited if NODE_ENV is misconfigured
-- Fix approach: Fail fast if secret is missing in non-test environments
-
-**Debug Route Present:**
-- Issue: `src/app/api/debug-session/route.ts` exists - debug-only endpoint
-- Files: `src/app/api/debug-session/route.ts`
-- Impact: Could expose session data if deployed to production
-- Fix approach: Remove or protect with environment check
-
-**S3 Storage Not Implemented:**
-- Issue: Migration command exists but S3StorageProvider not implemented
+**Incomplete S3 Storage Migration:**
+- Issue: `S3StorageProvider` not implemented - migration command cannot actually upload files to S3
 - Files: `src/lib/storage/commands/migrate.ts:205`
-- Impact: Cannot move from local storage to cloud
-- Fix approach: Implement S3 provider following the existing `LocalStorageProvider` pattern
+- Impact: Storage migration script runs but only updates database, files stay on local storage
+- Fix approach: Implement `S3StorageProvider` class in `src/lib/storage/providers/`
+
+**Type Safety - Excessive `any` Usage:**
+- Issue: 231 occurrences of `any` type across 61 files weakens TypeScript guarantees
+- Key files with heavy `any` usage:
+  - `src/lib/documents/vault-service.test.ts` (7 instances)
+  - `src/lib/delivery/delivery-service.test.ts` (9 instances)
+  - `src/lib/documents/draft-service.test.ts` (31 instances)
+  - `src/app/api/admin/users/[id]/route.ts` (8 instances)
+  - `src/app/api/admin/organizations/[id]/route.ts` (6 instances)
+- Impact: Runtime errors more likely, IDE assistance limited
+- Fix approach: Replace with proper types, use `unknown` with type guards where necessary
+
+**Type Casting with `as never`:**
+- Issue: RBAC `hasRole` function casts to `as never` bypassing type safety
+- Files: `src/lib/security/rbac.ts:5`
+- Code:
+  ```typescript
+  function hasRole(session: AppSession | null | undefined, role: string) {
+    return session?.roles.includes(role as never) ?? false;
+  }
+  ```
+- Impact: Any string passes type check, no compile-time protection
+- Fix approach: Use proper role union type with `includes(role as Role)`
+
+**Error Handling Pattern Inconsistency:**
+- Issue: Some routes use `error: any` and `console.error`, others have different patterns
+- Files: Multiple API routes in `src/app/api/admin/` and `src/app/api/`
+- Impact: Inconsistent error response formats, potential information leakage via console
+- Fix approach: Standardize error handling with centralized error utilities
 
 ## Known Bugs
 
-**Role Definition Inconsistency:**
-- Issue: `src/app/api/admin/users/route.ts` defines `ADMIN_ROLES` including 'audit_admin', but `src/app/api/admin/requests/route.ts` only has 'super_admin', 'coordinator_admin'
-- Files: `src/app/api/admin/users/route.ts`, `src/app/api/admin/requests/route.ts`
-- Trigger: Users with 'audit_admin' role can access user endpoints but not request endpoints
-- Workaround: Ensure only 'super_admin' and 'coordinator_admin' are assigned in practice
+**Storage Permission Check Uses Wrong Field:**
+- Issue: `checkWorkspacePermission` checks `organizationId` instead of `workspaceId`
+- Files: `src/lib/storage/storage.service.ts:95`
+- Code:
+  ```typescript
+  const hasPermission = await this.checkWorkspacePermission(input.organizationId, input.createdBy);
+  ```
+- But `checkWorkspacePermission` queries `workspaceMembership` with `workspaceId`
+- Trigger: Upload files with workspace-scoped permissions
+- Impact: Permission check always fails or checks wrong workspace
+- Workaround: None
+- Fix approach: Pass correct `workspaceId` field
 
-**Duplicate Workflow Logic:**
-- Issue: `src/lib/routing/routing-service.ts` replicates `REQUEST_TRANSITIONS` logic from `src/lib/workflow/request-workflow.ts`
-- Files: `src/lib/routing/routing-service.ts`, `src/lib/workflow/request-workflow.ts`
-- Trigger: Adding new statuses requires updates in two places
-- Workaround: Import and reuse `getAllowedTransitions` from workflow module
-
-**Empty Return Patterns:**
-- Issue: Some services return empty arrays on empty results; others return null
-- Files: Multiple
-- Impact: Inconsistent handling of empty states
-- Workaround: Document expected return types consistently
+**Test Setup File Nearly Empty:**
+- Issue: Vitest config references `./tests/setup.ts` but file has only 36 bytes
+- Files: `vitest.config.ts:10`, `tests/setup.ts`
+- Impact: Tests may not have proper mocks/fixtures configured
+- Fix approach: Add proper test setup with test-specific database cleanup
 
 ## Security Considerations
 
-**HMAC Signature Timing Attack Protection:**
-- Positive: `src/lib/documents/vault-service.ts` uses `timingSafeEqual` for signature verification
-- Risk: But fallback to `false` on any exception could mask other security issues
+**RBAC Role Type Safety Bypass:**
+- Risk: Role checking uses loose string comparison without type enforcement
+- Files: `src/lib/security/rbac.ts`
+- Current mitigation: Runtime checks via Prisma queries
+- Recommendations:
+  - Define `Role` as a strict union type: `type Role = 'customer' | 'specialist' | 'reviewer' | 'coordinator_admin' | 'super_admin'`
+  - Use `includes(role)` with proper type guard
+  - Add role validation middleware
 
-**Workspace Isolation in RBAC:**
-- Positive: `src/lib/security/rbac.ts` properly checks workspace membership
-- Risk: Multiple database queries per authorization check
-- Recommendations: Consider caching active memberships
+**No API Rate Limiting Detected:**
+- Risk: DoS attacks, brute force login attempts
+- Files: All API routes in `src/app/api/`
+- Current mitigation: None visible
+- Recommendations: Implement rate limiting middleware for authentication endpoints
 
-**Trusted Origins Not Environment-Based:**
-- Issue: `src/auth.ts` hardcodes localhost ports 3000-3005 plus baseURL
-- Files: `src/auth.ts`
-- Risk: In production, these localhost origins may be ignored
-- Recommendations: Move trusted origins to environment configuration
+**Console Error Logging in Production:**
+- Risk: Sensitive information may leak through `console.error` calls
+- Files: Multiple API routes log errors directly
+- Current mitigation: None visible
+- Recommendations:
+  - Replace `console.error` with structured logging (e.g., Winston, Pino)
+  - Ensure error messages don't expose stack traces or internal paths in production
 
-**Session Duration:**
-- Positive: `src/auth.ts` sets 7-day sessions with daily refresh
-- Risk: Long-lived sessions increase window of compromise
-- Recommendations: Consider shorter session duration or re-authentication for sensitive operations
+**SQLite for Production Data:**
+- Risk: SQLite has limited concurrency, no network access, single-writer lock
+- Files: `prisma/schema.prisma:6-8`
+- Current mitigation: `better-auth.ts` uses `sqlite` for dev, expects `postgresql` for production
+- Recommendations:
+  - Use PostgreSQL in all environments for consistency
+  - Add database connection pooling configuration
+  - Plan migration path from SQLite
 
 ## Performance Bottlenecks
 
-**N+1 Query Pattern in RBAC:**
-- Issue: `src/lib/security/rbac.ts` `canAccessRequest` performs 3 sequential database queries
-- Files: `src/lib/security/rbac.ts`
-- Cause: Each authorization check touches the database multiple times
-- Improvement path: Combine queries using Prisma `include`
+**N+1 Query Pattern in Routing Service:**
+- Problem: `getRoutingSuggestions` calls Prisma twice sequentially for specialists and reviewers
+- Files: `src/lib/routing/routing-service.ts:215-218`
+- Code:
+  ```typescript
+  const [specialists, reviewers] = await Promise.all([
+    suggestionsFor(scopedInput, submission.matterTypeKey, 'specialist'),
+    suggestionsFor(scopedInput, submission.matterTypeKey, 'reviewer'),
+  ]);
+  ```
+- Cause: Each `suggestionsFor` call does separate database queries
+- Improvement path: Batch queries or use single query with GROUP BY
 
-**No Connection Pooling Configuration:**
-- Issue: `src/lib/prisma.ts` creates PrismaClient without explicit connection pool settings
-- Files: `src/lib/prisma.ts`
-- Impact: Default pool settings may not be optimal for production
-- Improvement path: Configure `datasourceUrl` with pool settings for PostgreSQL production
-
-**Vault File Listing Without Pagination:**
-- Issue: `src/lib/documents/vault-service.ts` `listVaultFiles` returns all files without pagination
-- Files: `src/lib/documents/vault-service.ts`
-- Impact: Requests with many attachments will load slowly
-- Improvement path: Add pagination options
+**Missing Database Index Considerations:**
+- Problem: Some queries may lack proper indexes
+- Files: `prisma/schema.prisma` - various `@index` declarations
+- Areas to verify:
+  - Composite indexes for common query patterns
+  - Partial indexes for soft-delete queries
+- Improvement path: Analyze slow queries with EXPLAIN QUERY PLAN
 
 ## Fragile Areas
 
-**Intake Questions Form:**
-- Files: `src/components/create-request/IntakeQuestionsForm.tsx`
-- Why fragile: `useImperativeHandle` with `isValid()` and `getAnswers()` exposes internal state
-- Safe modification: Test wizard flow end-to-end after any changes
+**RBAC Implementation with Multiple Role Checks:**
+- Files: `src/lib/security/rbac.ts`
+- Why fragile: Role checking scattered across multiple functions, easy to miss a case
+- Safe modification: Add test coverage for each role combination
+- Test coverage: Unit tests for RBAC logic recommended
 
-**Create Request Form State Machine:**
-- Files: `src/components/create-request/CreateRequestForm.tsx`
-- Why fragile: Manual step management with `currentStep` state (1-4), side effects in `handleNext`
-- Safe modification: Add integration tests for step progression
+**Workflow State Machine Logic:**
+- Files: `src/lib/workflow/request-workflow.ts`
+- Why fragile: Status transitions defined in multiple places (`REQUEST_TRANSITIONS`, `canTransitionRequestStatus`)
+- Safe modification: Ensure both definitions stay in sync, add transition validation tests
+- Test coverage: Verify all status combinations covered
 
-**Message Polling Endpoint:**
-- Files: `src/app/api/messages/poll/route.ts`
-- Why fragile: Long-polling pattern with error handling that could leave clients hanging
-- Safe modification: Test timeout behavior and connection cleanup
-
-**Admin Dashboard Client Components:**
-- Files: `src/components/admin/*.tsx`
-- Why fragile: Multiple `console.log` stubs indicate incomplete functionality
-- Safe modification: Implement missing handlers before production use
+**Intake Submission FK Relation:**
+- Files: `prisma/schema.prisma:339`
+- Code:
+  ```prisma
+  matterType        MatterType?  @relation(fields: [workspaceId, matterTypeKey], references: [workspaceId, key])
+  ```
+- Why fragile: Composite foreign key with optional workspaceId - NULL values may not match
+- Safe modification: Ensure workspaceId is always set for MatterType lookups
 
 ## Scaling Limits
 
-**Workspace-Based Multi-Tenancy:**
-- Current capacity: Single workspace per session (enforced by `activeWorkspaceId` in session)
-- Limit: Users cannot easily switch workspaces or view cross-workspace data
-- Scaling path: Add workspace switcher UI, implement cross-workspace queries for super_admin
+**Audit Event Retention:**
+- Current: No automatic cleanup configured
+- Files: `prisma/schema.prisma:610-612` (comment only)
+- Comment: "Run periodically (e.g., weekly) to prevent unbounded table growth"
+- Limit: AuditEvent table will grow indefinitely
+- Scaling path: Implement `cleanupOldAuditEvents()` scheduled job
 
-**SQLite Development Constraint:**
-- Current capacity: SQLite for dev, PostgreSQL for production
-- Limit: Dev environment may not catch PostgreSQL-specific bugs
-- Scaling path: Use Docker Compose PostgreSQL for all local development
+**Session Storage in SQLite:**
+- Current capacity: SQLite handles ~100-1000 concurrent connections poorly
+- Files: `prisma/schema.prisma:659-670`
+- Limit: Session table becomes bottleneck under load
+- Scaling path: Move sessions to Redis or PostgreSQL with connection pooling
 
 ## Dependencies at Risk
 
-**better-auth:**
-- Risk: Newer library with evolving API
-- Impact: Auth.ts relies on specific adapter patterns that may break on major updates
-- Migration plan: Pin to minor version, review migration guide before upgrading
+**Better Auth Plugin:**
+- Risk: Version `1.6.14` - verify stability and security updates
+- Impact: Authentication failure breaks entire application
+- Migration plan: Test with newer versions, monitor changelog for breaking changes
 
-**next-intl:**
-- Risk: Active development with breaking changes between versions
-- Impact: Translation keys and locale routing depend on specific version API
-- Migration plan: Test i18n thoroughly after version upgrades
+**Prisma Client:**
+- Risk: Version `6.19.0` - ensure compatibility with SQLite and PostgreSQL
+- Impact: Database operations fail
+- Migration plan: Test migrations in staging before production
 
-**Prisma:**
-- Risk: Schema uses String fields as pseudo-enums due to SQLite limitation
-- Impact: Production PostgreSQL could use native enums, but migration path unclear
-- Migration plan: Document enum migration strategy before PostgreSQL deployment
+**Next.js (latest):**
+- Risk: Using `latest` tag - may introduce breaking changes
+- Files: `package.json:33,37`
+- Impact: Build failures on dependency update
+- Migration plan: Pin to specific version, test updates in CI
 
 ## Missing Critical Features
 
-**File Upload Validation:**
-- Problem: No file type validation, size limits enforced client-side only
-- Blocks: Malicious file uploads
+**File Encryption at Rest:**
+- Problem: Files stored without encryption
+- Blocks: Compliance requirements for sensitive legal documents
 - Priority: High
 
-**Rate Limiting:**
-- Problem: No rate limiting on API endpoints
-- Blocks: DDoS protection, brute force prevention
+**Webhook System for External Integrations:**
+- Problem: No outbound webhook capability
+- Blocks: Third-party system notifications
+- Priority: Medium
+
+**Backup/Restore Strategy:**
+- Problem: No documented backup procedure
+- Blocks: Disaster recovery readiness
 - Priority: High
-
-**Input Sanitization:**
-- Problem: Rich text content stored without sanitization
-- Blocks: XSS prevention for displayed content
-- Priority: Medium
-
-**Audit Log Retention:**
-- Problem: No defined retention policy for audit events
-- Blocks: Compliance requirements, storage planning
-- Priority: Medium
 
 ## Test Coverage Gaps
 
-**Workflow Tests:**
-- What's not tested: Complete workflow transitions with actual role combinations
-- Files: `src/lib/workflow/request-workflow.ts`
-- Risk: Authorization bypass if role logic changes
+**Unit Test Coverage Missing:**
+- What's not tested: Service layer authorization logic, complex business rules
+- Files:
+  - `src/lib/security/rbac.ts` - no dedicated tests
+  - `src/lib/storage/storage.service.ts` - no unit tests
+  - `src/lib/delivery/delivery-service.ts` - partial coverage
+- Risk: Authorization bypasses may go undetected
 - Priority: High
 
-**RBAC Tests:**
-- What's not tested: Cross-workspace access attempts, edge cases in role inheritance
-- Files: `src/lib/security/rbac.ts`
-- Risk: Security vulnerabilities in authorization logic
-- Priority: High
-
-**Intake Flow Integration:**
-- What's not tested: End-to-end from form submission to request creation with file attachments
-- Files: `src/app/api/intake/**/*.ts`, `src/components/create-request/**/*.tsx`
-- Risk: Broken onboarding flow
-- Priority: High
-
-**Review Service:**
-- What's not tested: Checklist validation with various answer combinations
-- Files: `src/lib/reviews/review-service.ts`
-- Risk: Incorrect review decisions
+**Integration Test Gaps:**
+- What's not tested: Partner API routes, organization management workflows
+- Files:
+  - `src/app/api/admin/partners/[id]/route.ts` - no tests
+  - `src/app/api/admin/organizations/route.ts` - no tests
+- Risk: Data integrity issues in partner workflows
 - Priority: Medium
 
-**Vault Service:**
-- What's not tested: Download URL expiration and regeneration
-- Files: `src/lib/documents/vault-service.ts`
-- Risk: File access leakage
+**E2E Test Coverage:**
+- Current: 17 Playwright specs, most focus on login/dashboard
+- Missing:
+  - Complete intake flow with file uploads
+  - Document review and approval workflow
+  - Vault file management end-to-end
+  - Multi-user concurrent editing scenarios
+- Risk: User-facing workflows may break silently
+- Priority: High
+
+**Coverage Enforcement:**
+- Problem: No minimum coverage threshold configured
+- Files: `vitest.config.ts` has no coverage configuration
+- Risk: Coverage may decrease without CI failure
 - Priority: Medium
 
 ---
 
-*Concerns audit: 2026-06-17*
+*Concerns audit: 2026-06-18*

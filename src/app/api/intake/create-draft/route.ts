@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
+import { isEnabled } from '@/lib/config/feature-flags';
 
 export async function POST(request: Request) {
   try {
@@ -12,31 +13,56 @@ export async function POST(request: Request) {
     const resolvedMatterType = matterTypeKey || 'general';
     const resolvedAnswers = answers || {};
 
-    // Create draft legal request WITH intake submission in a transaction
-    const draft = await prisma.legalRequest.create({
-      data: {
-        workspaceId,
-        createdById: session.userId,
-        status: 'draft_intake',
-        matterType: resolvedMatterType,
-        title: title || 'Yêu cầu mới',
-        priority: 'normal',
-        description: '',
-        // Create the intake submission alongside the request with answers
-        intakeSubmission: {
-          create: {
-            workspaceId,
-            matterTypeKey: resolvedMatterType,
-            schemaVersion: '1.0',
-            answers: resolvedAnswers,
-            answerLabels: [],
-          },
+    // Build create data based on feature flag
+    const createData: Parameters<typeof prisma.legalRequest.create>[0]['data'] = {
+      workspaceId,
+      createdById: session.userId,
+      status: 'draft_intake',
+      title: title || 'Yêu cầu mới',
+      priority: 'normal',
+      description: '',
+      intakeSubmission: {
+        create: {
+          workspaceId,
+          matterTypeKey: resolvedMatterType,
+          schemaVersion: '1.0',
+          answers: resolvedAnswers,
+          answerLabels: [],
         },
       },
+    };
+
+    // Set matterType based on feature flag
+    if (isEnabled('DB_MIGRATION_PHASE4')) {
+      // New: Find MatterType by key and use FK
+      const matterType = await prisma.matterType.findFirst({
+        where: {
+          key: resolvedMatterType,
+          OR: [
+            { workspaceId },
+            { workspaceId: null }, // Global matter types
+          ],
+        },
+        orderBy: { workspaceId: 'desc' }, // Prefer workspace-specific over global
+      });
+
+      if (matterType) {
+        createData.matterTypeId = matterType.id;
+      }
+      // matterType text field will be null
+    } else {
+      // Old: Use matterType text field
+      createData.matterType = resolvedMatterType;
+    }
+
+    // Create draft legal request WITH intake submission in a transaction
+    const draft = await prisma.legalRequest.create({
+      data: createData,
       select: {
         id: true,
         status: true,
         matterType: true,
+        matterTypeId: true,
         title: true,
         createdAt: true,
       },
@@ -46,6 +72,7 @@ export async function POST(request: Request) {
       id: draft.id,
       status: draft.status,
       matterType: draft.matterType,
+      matterTypeId: draft.matterTypeId,
       title: draft.title,
       createdAt: draft.createdAt,
     });

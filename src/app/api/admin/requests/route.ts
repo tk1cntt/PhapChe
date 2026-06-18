@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
+import { isEnabled } from '@/lib/config/feature-flags';
 
 // Valid admin roles per schema: coordinator_admin, super_admin (removed audit_admin - not in schema)
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -91,6 +92,12 @@ export async function GET(request: NextRequest) {
           assignedReviewer: {
             select: { id: true, name: true },
           },
+          // Include matterTypeRef for new FK-based approach
+          ...(isEnabled('DB_MIGRATION_PHASE4') ? {
+            matterTypeRef: {
+              select: { id: true, key: true, label_vi: true, label_en: true },
+            },
+          } : {}),
         },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -120,6 +127,13 @@ export async function GET(request: NextRequest) {
       // SLA calculation per D-07
       const slaInfo = getSLAStatus(req.slaDeadline);
 
+      // Matter type display: use FK relation if available, else text field
+      const matterTypeDisplay = (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_vi
+        || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_en
+        || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.key
+        || req.matterType
+        || 'Legal Request';
+
       // Determine action text
       let actionText = 'Điều phối';
       if (req.assignedSpecialist || req.assignedReviewer) {
@@ -133,7 +147,7 @@ export async function GET(request: NextRequest) {
       return {
         id: req.code ?? req.id.slice(-10),
         fullId: req.id,
-        type: req.matterType ?? 'Legal Request',
+        type: matterTypeDisplay,
         workspace: req.workspace.name,
         workspaceSlug: req.workspace.slug,
         customer: req.createdBy.name,

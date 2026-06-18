@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get('status');
-  const serviceTypeId = searchParams.get('serviceTypeId');
+  const matterTypeId = searchParams.get('matterTypeId');
   const skip = parseInt(searchParams.get('skip') || '0', 10);
   const take = parseInt(searchParams.get('take') || '20', 10);
 
@@ -34,8 +34,8 @@ export async function GET(req: NextRequest) {
   if (status) {
     where.status = status;
   }
-  if (serviceTypeId) {
-    where.serviceTypeId = serviceTypeId;
+  if (matterTypeId) {
+    where.matterTypeId = matterTypeId;
   }
 
   const [requests, total] = await Promise.all([
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         workspace: { select: { id: true, name: true, slug: true } },
-        serviceType: { select: { id: true, name: true } },
+        matterTypeRef: { select: { id: true, key: true, label_vi: true, label_en: true } },
         assignedSpecialist: { select: { id: true, name: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -53,8 +53,14 @@ export async function GET(req: NextRequest) {
     prisma.legalRequest.count({ where }),
   ]);
 
+  // Transform to include matterType display
+  const transformedRequests = requests.map((req) => ({
+    ...req,
+    matterTypeDisplay: req.matterTypeRef?.label_vi || req.matterTypeRef?.label_en || req.matterTypeRef?.key || 'Unknown',
+  }));
+
   return NextResponse.json({
-    data: requests,
+    data: transformedRequests,
     pagination: { total, skip, take, hasMore: skip + take < total },
   });
 }
@@ -69,7 +75,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
     workspaceId,
-    serviceTypeId,
+    matterTypeId,
     engagementId,
     title,
     description,
@@ -81,9 +87,9 @@ export async function POST(req: NextRequest) {
   } = body;
 
   // Validate required fields
-  if (!workspaceId || !serviceTypeId || !title) {
+  if (!workspaceId || !matterTypeId || !title) {
     return NextResponse.json(
-      { error: 'VALIDATION_ERROR', detail: 'workspaceId, serviceTypeId, and title are required', field: 'workspaceId' },
+      { error: 'VALIDATION_ERROR', detail: 'workspaceId, matterTypeId, and title are required', field: 'workspaceId' },
       { status: 400 }
     );
   }
@@ -97,13 +103,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'FORBIDDEN', detail: 'Not a member of this workspace' }, { status: 403 });
   }
 
-  // Verify service type exists
-  const serviceType = await prisma.serviceType.findUnique({
-    where: { id: serviceTypeId },
+  // Verify matter type exists
+  const matterType = await prisma.matterType.findUnique({
+    where: { id: matterTypeId },
   });
 
-  if (!serviceType || !serviceType.isActive) {
-    return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Invalid service type', field: 'serviceTypeId' }, { status: 400 });
+  if (!matterType) {
+    return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Invalid matter type', field: 'matterTypeId' }, { status: 400 });
   }
 
   // Generate request code
@@ -114,7 +120,7 @@ export async function POST(req: NextRequest) {
     data: {
       code,
       workspaceId,
-      serviceTypeId,
+      matterTypeId,
       engagementId: engagementId || null,
       title,
       description: description || null,
@@ -128,7 +134,7 @@ export async function POST(req: NextRequest) {
     },
     include: {
       workspace: { select: { id: true, name: true, slug: true } },
-      serviceType: { select: { id: true, name: true } },
+      matterTypeRef: { select: { id: true, key: true, label_vi: true, label_en: true } },
     },
   });
 
@@ -141,7 +147,7 @@ export async function POST(req: NextRequest) {
       targetType: 'request',
       targetId: request.id,
       requestId: request.id,
-      metadataSummary: JSON.stringify({ code, title, serviceTypeId }),
+      metadataSummary: JSON.stringify({ code, title, matterTypeId }),
     },
   });
 

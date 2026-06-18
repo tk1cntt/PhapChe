@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Shared Tenant Architecture
-current_phase: 85
-status: complete
-last_updated: "2026-06-18T07:35:00Z"
-last_activity: 2026-06-18
+current_phase: 66
+status: executing
+last_updated: "2026-06-18T12:41:25.110Z"
+last_activity: 2026-06-18 -- Phase 66 execution started
 progress:
   total_phases: 28
-  completed_phases: 16
-  total_plans: 21
+  completed_phases: 15
+  total_plans: 22
   completed_plans: 23
-  percent: 57
+  percent: 54
 ---
 
 # State: Phase 85 - Database Schema Improvement
@@ -20,14 +20,14 @@ progress:
 
 **Project:** GitNexus Legal - Legal-as-a-Service Platform
 **Core Value:** SME gửi yêu cầu pháp lý đơn giản như nhắn tin và nhận tài liệu/tư vấn đã qua kiểm soát chất lượng, có thể truy vết toàn bộ quá trình xử lý.
-**Current Phase:** 85
+**Current Phase:** 66
 
 ## Current Position
 
-Phase: 85 (Completed) ✅
-Plan: 85-01, 85-02, 85-03, 85-04
-Status: ALL TESTS PASSED - UAT Complete
-Last activity: 2026-06-18
+Phase: 66 (partner-auth) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 66
+Last activity: 2026-06-18 -- Phase 66 execution started
 
 ## Phase 85 Progress
 

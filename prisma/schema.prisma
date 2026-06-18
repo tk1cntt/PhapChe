@@ -120,6 +120,7 @@ model Partner {
   updatedAt    DateTime @updatedAt
 
   members      PartnerMember[]
+  invites      PartnerInvite[]
   engagements  Engagement[]
   assignedRequests LegalRequest[] @relation("AssignedPartnerRelation")
   requestAssignments RequestAssignment[] @relation("AssignmentPartnerRelation")
@@ -131,7 +132,7 @@ model PartnerMember {
   id        String   @id @default(cuid())
   partnerId String
   userId    String
-  role      String   @default("member")  // admin, member
+  role      String   @default("member")  // admin, specialist, viewer
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -143,6 +144,27 @@ model PartnerMember {
   @@index([partnerId])
   @@index([userId])
   @@map("partner_members")
+}
+
+model PartnerInvite {
+  id         String   @id @default(cuid())
+  partnerId  String
+  email      String
+  role       String   @default("viewer")  // admin, specialist, viewer
+  token      String   @unique
+  status     String   @default("pending")  // pending, accepted, revoked
+  invitedBy  String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  partner    Partner  @relation(fields: [partnerId], references: [id])
+
+  @@index([partnerId])
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@map("partner_invites")
 }
 
 // ===== ENGAGEMENT MODELS =====

@@ -183,14 +183,14 @@ Mỗi phase phải có đầy đủ test coverage:
 
 **Goal:** Implement partner login and dashboard overview
 
-- [ ] **P-AUTH-01**: Create partner login API endpoint with email/password
+- [x] **P-AUTH-01**: Create partner login API endpoint with email/password
 - [ ] **P-AUTH-02**: Create partner JWT token generation with partner context
 - [ ] **P-AUTH-03**: Create partner logout API endpoint
 - [ ] **P-AUTH-04**: Create partner session validation endpoint
 - [ ] **P-AUTH-05**: Create partner dashboard API with engagement summary
 - [ ] **P-AUTH-06**: Build partner login UI component
 - [ ] **P-AUTH-07**: Build partner dashboard UI component
-- [ ] **P-AUTH-08**: Write E2E tests for partner authentication flow
+- [x] **P-AUTH-08**: Write E2E tests for partner authentication flow
 
 ### Phase 67: Partner Requests
 

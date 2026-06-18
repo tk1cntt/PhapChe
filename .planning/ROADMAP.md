@@ -205,7 +205,7 @@
 **Goal:** Implement partner login and dashboard overview
 **Depends on:** Phase 65
 **Requirements:** P-AUTH-01 to P-AUTH-08
-**Plans:** 1/1 complete ✅
+**Plans:** 2/2 plans complete
 
 **Plans:**
 
@@ -761,7 +761,7 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 | 63 | Permission Service | 8 | ✅ Complete |
 | 64 | Repository Pattern | 8 | ✅ Complete |
 | 65 | Data Migration | 8 | ✅ Complete |
-| 66 | Partner Auth | 8 | ✅ Complete |
+| 66 | 2/2 | Complete    | 2026-06-18 |
 | 67 | Partner Requests | 8 | ✅ Complete |
 | 68 | Partner Actions | 8 | ✅ Complete |
 | 69 | Organization Management | 8 | ✅ Complete |

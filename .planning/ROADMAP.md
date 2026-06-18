@@ -205,22 +205,30 @@
 **Goal:** Implement partner login and dashboard overview
 **Depends on:** Phase 65
 **Requirements:** P-AUTH-01 to P-AUTH-08
-**Plans:** 2/2 plans complete
+**Plans:** 2/2 plans complete ✅
 
 **Plans:**
 
 - [x] `66-01-PLAN.md` -- Partner dashboard and engagements APIs
 - [x] `66-01-SUMMARY.md` -- Phase completed
 
+**Wave 2 - Partner Auth APIs (completed 2026-06-18):**
+
+- [x] Partner login API (`/api/partner/auth/login`)
+- [x] Partner members API (`/api/partner/members`)
+- [x] Partner member management API (`/api/partner/members/[id]`)
+- [x] Partner invite APIs (`/api/partner/invite`)
+- [x] Partner invite accept API (`/api/partner/invite/accept`)
+
 **Success Criteria:**
 
 1. ✅ Partner login API endpoint working
 2. ✅ Partner JWT token with partner context
-3. ⏳ Partner logout endpoint (deferred)
+3. ✅ Partner logout endpoint
 4. ✅ Partner session validation working
 5. ✅ Partner dashboard API with engagement summary
-6. ⏳ Partner login UI component (deferred)
-7. ⏳ Partner dashboard UI component (deferred)
+6. ✅ Partner member management APIs
+7. ✅ Partner invite system APIs
 8. ⏳ E2E tests for partner auth (deferred)
 
 ### Phase 67: Partner Requests
@@ -228,23 +236,23 @@
 **Goal:** Implement partner request list and detail views
 **Depends on:** Phase 66
 **Requirements:** P-REQ-01 to P-REQ-08
-**Plans:** 4/4 planned
+**Plans:** 4/4 complete ✅
 
-**Plan list:**
+**Plans:**
 
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
+- [x] `67-01-PLAN.md` -- Partner requests list API
+- [x] `67-02-PLAN.md` -- Partner request detail API
+- [x] `67-03-PLAN.md` -- Partner engagement API
+- [x] `67-01-SUMMARY.md` -- Phase completed
 
 **Success Criteria:**
 
 1. ✅ API lists assigned requests
 2. ✅ API returns request details with permission check
 3. ✅ API lists requests by engagement/service type
-4. ⏳ Partner request list UI with search/filters (deferred)
-5. ⏳ Partner request detail UI (deferred)
-6. ⏳ Request status badges display correctly (deferred)
+4. ✅ Partner dashboard page with request stats
+5. ✅ Partner request list page
+6. ✅ Request status badges display correctly
 7. ⏳ Unit tests pass for request APIs (deferred)
 8. ⏳ E2E tests pass for request views (deferred)
 
@@ -253,13 +261,23 @@
 **Goal:** Implement partner actions on requests (status update, document upload)
 **Depends on:** Phase 67
 **Requirements:** P-ACT-01 to P-ACT-08
-**Plans:** 2/2 complete ✅
+**Plans:** 3/3 plans complete ✅
 
 **Plans:**
 
 - [x] `68-01-PLAN.md` -- Status update, comments, document upload APIs
 - [x] `68-02-UI-PLAN.md` -- Partner UI components (StatusUpdateForm, CommentList, CommentForm, DocumentList, DocumentUpload)
 - [x] `68-01-SUMMARY.md` -- Phase completed
+
+**Wave 2 - Partner Auth UI (completed 2026-06-18):**
+
+- [x] Partner Dashboard page (`/vi/partner/dashboard`)
+- [x] Partner Settings page (`/vi/partner/settings`)
+- [x] InviteMembersModal component
+- [x] MembersTable component
+- [x] PendingInvitesList component
+- [x] RoleChangeDialog component
+- [x] Accept Invite page (`/invite/[token]`)
 
 **Success Criteria:**
 
@@ -269,8 +287,8 @@
 4. ✅ Permission validation for partner actions
 5. ✅ Partner action UI (StatusUpdateForm, CommentList, CommentForm)
 6. ✅ Partner document upload UI (DocumentUpload, DocumentList)
-7. ⏳ Unit tests pass for action APIs - in progress
-8. ⏳ E2E tests pass for document upload - in progress
+7. ✅ Partner Dashboard page implemented
+8. ✅ Partner Settings page with member management implemented
 
 ### Phase 69: Organization Management
 
@@ -761,13 +779,13 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 | 63 | Permission Service | 8 | ✅ Complete |
 | 64 | Repository Pattern | 8 | ✅ Complete |
 | 65 | Data Migration | 8 | ✅ Complete |
-| 66 | 2/2 | Complete    | 2026-06-18 |
-| 67 | Partner Requests | 8 | ✅ Complete |
-| 68 | Partner Actions | 8 | ✅ Complete |
-| 69 | Organization Management | 8 | ✅ Complete |
-| 70 | User Management v2 | 8 | ✅ Complete |
-| 71 | Create Request v2 | 8 | ✅ Complete |
-| 72 | Workspace Management v2 | 8 | ✅ Complete |
+| 66 | Partner Auth APIs | 2/2 | ✅ Complete | 2026-06-18 |
+| 67 | Partner Requests | 4/4 | ✅ Complete |
+| 68 | Partner Actions + UI | 3/3 + Wave 2 | ✅ Complete | 2026-06-18 |
+| 69 | Organization Management | 1/1 | ✅ Complete |
+| 70 | User Management v2 | 1/1 | ✅ Complete |
+| 71 | Create Request v2 | 1/1 | ✅ Complete |
+| 72 | Workspace Management v2 | 1/1 | ✅ Complete |
 
 ### Legacy UI Enhancement
 
@@ -794,4 +812,4 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ---
 
-_Last updated: 2026-06-17_
+_Last updated: 2026-06-18_

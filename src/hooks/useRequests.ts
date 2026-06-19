@@ -1,64 +1,55 @@
-import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useQuery } from '@tanstack/react-query';
+import { requestsApi } from '@/lib/api';
+import { queryKeys } from '@/lib/query-keys';
 
-// Query key convention: ['entity', workspaceId?, options]
-export const queryKeys = {
-  requests: (workspaceId?: string, options?: PaginationOptions) =>
-    ["requests", workspaceId, options] as const,
-};
-
-export interface PaginationOptions {
+interface RequestListParams {
   page?: number;
   pageSize?: number;
+  status?: string;
+  type?: string;
   search?: string;
-  filters?: Record<string, string>;
-}
-
-interface Request {
-  id: string;
-  title: string;
-  status: string;
-  createdAt: string;
-  workspaceName: string;
-  customerName: string;
-  customerEmail: string;
 }
 
 interface PaginatedResponse {
-  data: Request[];
-  total: number;
-  page: number;
-  pageSize: number;
+  data: unknown[];
+  meta?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages?: number;
+  };
 }
 
-async function fetchRequests(
-  workspaceId?: string,
-  options?: PaginationOptions
-): Promise<PaginatedResponse> {
-  const params = new URLSearchParams();
-  if (workspaceId) params.set("workspaceId", workspaceId);
-  if (options?.page) params.set("page", String(options.page));
-  if (options?.pageSize) params.set("pageSize", String(options.pageSize));
-  if (options?.search) params.set("search", options.search);
-  if (options?.filters?.status) params.set("status", options.filters.status);
-
-  const queryString = params.toString();
-  const url = `/api/requests${queryString ? `?${queryString}` : ""}`;
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error("Failed to fetch requests");
-  }
-  return response.json();
-}
-
-export function useRequests(
-  workspaceId?: string,
-  options?: PaginationOptions
-) {
+/**
+ * Hook to fetch paginated requests list
+ *
+ * @param params - Optional filter parameters (page, pageSize, status, type, search)
+ * @returns Query result with requests data and pagination metadata
+ *
+ * @example
+ * ```tsx
+ * const { data, isLoading } = useRequests({ page: 1, pageSize: 20, status: 'pending' });
+ * ```
+ */
+export function useRequests(params?: RequestListParams) {
   return useQuery({
-    queryKey: queryKeys.requests(workspaceId, options),
-    queryFn: () => fetchRequests(workspaceId, options),
-    staleTime: 30 * 1000, // 30 seconds
+    queryKey: queryKeys.requests.list(params as Record<string, unknown>),
+    queryFn: () => requestsApi.list(params) as Promise<PaginatedResponse>,
+    staleTime: 2 * 60 * 1000, // 2 minutes - requests change frequently
+  });
+}
+
+/**
+ * Hook to fetch a single request by ID
+ *
+ * @param id - Request ID
+ * @returns Query result with request details
+ */
+export function useRequestById(id: string) {
+  return useQuery({
+    queryKey: queryKeys.requests.detail(id),
+    queryFn: () => requestsApi.get(id),
+    staleTime: 2 * 60 * 1000,
+    enabled: !!id,
   });
 }

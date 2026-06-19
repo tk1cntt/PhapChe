@@ -1,56 +1,39 @@
-import { useQuery } from "@tanstack/react-query";
-import { PaginationOptions } from "./useRequests";
+import { useQuery } from '@tanstack/react-query';
+import { adminApi } from '@/lib/api';
+import { queryKeys } from '@/lib/query-keys';
 
-// Query key convention: ['entity', options]
-export const queryKeys = {
-  auditEvents: (options?: PaginationOptions) =>
-    ["auditEvents", options] as const,
-};
-
-export interface AuditEventRecord {
-  id: string;
-  actorId: string | null;
-  workspaceId: string;
-  action: string;
-  targetType: string;
-  targetId: string;
-  correlationId: string | null;
-  metadataSummary: string | null;
-  createdAt: string;
-  actor: { email: string | null; name: string | null } | null;
-  workspace: { name: string };
+interface AuditEventParams {
+  page?: number;
+  pageSize?: number;
+  actor?: string;
+  action?: string;
 }
 
 interface PaginatedResponse {
-  data: AuditEventRecord[];
-  total: number;
-  page: number;
-  pageSize: number;
+  data: unknown[];
+  meta?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages?: number;
+  };
 }
 
-async function fetchAuditEvents(
-  options?: PaginationOptions
-): Promise<PaginatedResponse> {
-  const params = new URLSearchParams();
-  if (options?.page) params.set("page", String(options.page));
-  if (options?.pageSize) params.set("pageSize", String(options.pageSize));
-  if (options?.search) params.set("search", options.search);
-  if (options?.filters?.action) params.set("action", options.filters.action);
-
-  const queryString = params.toString();
-  const url = `/api/audit/events${queryString ? `?${queryString}` : ""}`;
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error("Failed to fetch audit events");
-  }
-  return response.json();
-}
-
-export function useAuditEvents(options?: PaginationOptions) {
+/**
+ * Hook to fetch paginated audit events list
+ *
+ * @param params - Optional filter parameters (page, pageSize, actor, action)
+ * @returns Query result with audit events data and pagination metadata
+ *
+ * @example
+ * ```tsx
+ * const { data, isLoading } = useAuditEvents({ page: 1, pageSize: 20, actor: 'admin' });
+ * ```
+ */
+export function useAuditEvents(params?: AuditEventParams) {
   return useQuery({
-    queryKey: queryKeys.auditEvents(options),
-    queryFn: () => fetchAuditEvents(options),
-    staleTime: 30 * 1000, // 30 seconds
+    queryKey: queryKeys.auditEvents.list(params as Record<string, unknown>),
+    queryFn: () => adminApi.getAuditLog(params) as Promise<PaginatedResponse>,
+    staleTime: 60 * 1000, // 1 minute - audit events need fresh data
   });
 }

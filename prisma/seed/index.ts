@@ -35,10 +35,10 @@ export async function seedAll(prisma: PrismaClient) {
     console.log(`  - Organizations: ${foundation.counts.organizations}`);
     console.log(`  - Users: ${foundation.counts.users}`);
     console.log(`  - Workspaces: ${foundation.counts.workspaces}`);
-    console.log(`  - Workspace memberships: ${foundation.counts.workspaceMemberships}`);
+    console.log(`  - Workspace memberships: ${foundation.counts.memberships}`);
     console.log(`  - Partners: ${partners.counts.partners}`);
     console.log(`  - Service types: ${partners.counts.serviceTypes}`);
-    console.log(`  - Legal requests: ${operations.counts.legalRequests}`);
+    console.log(`  - Legal requests: ${operations.counts.requests}`);
     console.log(`  - Audit events: ${operations.counts.auditEvents}`);
     console.log(`  - Vault files: ${operations.counts.vaultFiles}`);
     console.log(`  - Messages: ${operations.counts.messages}`);

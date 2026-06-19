@@ -1,6 +1,7 @@
 import { SEED_MATTER_TYPES, SEED_FOLDERS, SEED_TAGS, SEED_VERSION, SEED_METADATA } from '../src/lib/i18n/seed-multilingual';
 import { auth } from '../src/auth';
 import { seedMessages } from './seed-messages';
+import { seedAll } from './seed/index';
 import { prisma } from '../src/lib/prisma';
 import { hashPassword } from '@better-auth/utils/password';
 
@@ -273,6 +274,9 @@ async function seedAnPhatWorkspace() {
 }
 
 async function main() {
+  // Seed foundation data (Plan 73-01)
+  await seedAll(prisma);
+
   // Seed multi-tenant data (Phase 58)
   await seedMultiTenantData();
 

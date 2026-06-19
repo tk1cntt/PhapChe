@@ -498,7 +498,7 @@
     "taggedWith": "タグ付き：",
     "removeTag": "クリックしてタグを削除",
     "unnamed": "（名前なし）",
-    "statTotalFiles": "ファイル総数",
+    "statTotalFiles": "法務ファイル",
     "statFolders": "フォルダ",
     "statTags": "タグ",
     "statUniqueUsers": "ユニークユーザー",
@@ -531,15 +531,12 @@
     "columnsBtn": "表示列",
     "statTotalFolders": "フォルダ総数",
     "statTotalFoldersDesc": "ワークスペース別",
-    "statTotalFiles": "法務ファイル",
     "statTotalFilesDesc": "分類済み",
     "statTotalTags": "タグ",
     "statTotalTagsDesc": "契約、NDA、コンプライアンス...",
     "folderColumn": "フォルダ",
     "folderPath": "folder",
     "workspaceColumn": "ワークスペース",
-    "owner": "所有者",
-    "security": "セキュリティ",
     "actions": "アクション",
     "untitled": "（無題）",
     "filter": "フィルター",
@@ -1293,5 +1290,25 @@
     "status_delivered": "納品済み",
     "status_closed": "クローズ",
     "status_cancelled": "キャンセル"
+  },
+  "shared": {
+    "errorBoundary": {
+      "title": "エラーが発生しました",
+      "retry": "再試行"
+    },
+    "loadingSkeleton": {
+      "loading": "読み込み中..."
+    },
+    "emptyState": {
+      "noData": "データがありません",
+      "create": "新規作成"
+    },
+    "toast": {
+      "success": "成功",
+      "error": "エラー",
+      "info": "情報",
+      "warning": "警告",
+      "retry": "再試行"
+    }
   }
 }

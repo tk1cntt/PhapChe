@@ -704,7 +704,7 @@
     "fileName": "Tên tệp",
     "fileSize": "Kích thước",
     "encryption": "Mã hóa",
-    "statTotalFiles": "Tổng số tệp",
+    "statTotalFiles": "Tệp pháp lý",
     "statFolders": "Thư mục",
     "statTags": "Thẻ phân loại",
     "statUniqueUsers": "Người dùng duy nhất",
@@ -757,15 +757,12 @@
     "retry": "Thử lại",
     "statTotalFolders": "Tổng thư mục",
     "statTotalFoldersDesc": "Theo workspace",
-    "statTotalFiles": "Tệp pháp lý",
     "statTotalFilesDesc": "Đã phân loại",
     "statTotalTags": "Thẻ phân loại",
     "statTotalTagsDesc": "Contract, NDA, Compliance...",
     "folderColumn": "Thư mục",
     "folderPath": "folder",
     "workspaceColumn": "Workspace",
-    "owner": "Chủ sở hữu",
-    "security": "Bảo mật",
     "actions": "Thao tác",
     "untitled": "(không tên)",
     "filter": "Lọc",
@@ -1547,6 +1544,26 @@
       "descriptionPlaceholder": "Mô tả tài liệu (tùy chọn)",
       "empty": "Chưa có tài liệu nào",
       "download": "Tải về"
+    }
+  },
+  "shared": {
+    "errorBoundary": {
+      "title": "Đã xảy ra lỗi",
+      "retry": "Thử lại"
+    },
+    "loadingSkeleton": {
+      "loading": "Đang tải..."
+    },
+    "emptyState": {
+      "noData": "Không có dữ liệu",
+      "create": "Tạo mới"
+    },
+    "toast": {
+      "success": "Thành công",
+      "error": "Lỗi",
+      "info": "Thông tin",
+      "warning": "Cảnh báo",
+      "retry": "Thử lại"
     }
   }
 }

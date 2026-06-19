@@ -498,7 +498,7 @@
     "taggedWith": "已标记：",
     "removeTag": "点击移除标签",
     "unnamed": "（未命名）",
-    "statTotalFiles": "文件总数",
+    "statTotalFiles": "法律文件",
     "statFolders": "文件夹",
     "statTags": "标签",
     "statUniqueUsers": "独立用户",
@@ -531,15 +531,12 @@
     "columnsBtn": "显示列",
     "statTotalFolders": "文件夹总数",
     "statTotalFoldersDesc": "按工作区",
-    "statTotalFiles": "法律文件",
     "statTotalFilesDesc": "已分类",
     "statTotalTags": "标签",
     "statTotalTagsDesc": "合同、NDA、合规...",
     "folderColumn": "文件夹",
     "folderPath": "folder",
     "workspaceColumn": "工作区",
-    "owner": "所有者",
-    "security": "安全",
     "actions": "操作",
     "untitled": "（无标题）",
     "filter": "筛选",
@@ -1293,5 +1290,25 @@
     "status_delivered": "已交付",
     "status_closed": "已关闭",
     "status_cancelled": "已取消"
+  },
+  "shared": {
+    "errorBoundary": {
+      "title": "发生错误",
+      "retry": "重试"
+    },
+    "loadingSkeleton": {
+      "loading": "加载中..."
+    },
+    "emptyState": {
+      "noData": "暂无数据",
+      "create": "新建"
+    },
+    "toast": {
+      "success": "成功",
+      "error": "错误",
+      "info": "信息",
+      "warning": "警告",
+      "retry": "重试"
+    }
   }
 }

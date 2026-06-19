@@ -9,7 +9,7 @@
 ## Quick Start
 
 ### Architecture Standards (src/docs/)
-All development MUST follow these 9 core documents:
+All development MUST follow these 12 core documents:
 
 1. **[DOMAIN_STRUCTURE.md](../src/docs/DOMAIN_STRUCTURE.md)** - Folder organization, component granularity (4 levels), domain modules
 2. **[API_STANDARDS.md](../src/docs/API_STANDARDS.md)** - Response envelope, HTTP status codes, pagination, error handling
@@ -20,6 +20,9 @@ All development MUST follow these 9 core documents:
 7. **[FORM_DEFINITION.md](../src/docs/FORM_DEFINITION.md)** - Dynamic form schema, FormRenderer, validation flow
 8. **[WORKFLOW_DEFINITION.md](../src/docs/WORKFLOW_DEFINITION.md)** - State machine pattern, transitions, role-based permissions
 9. **[TEMPLATE_ENGINE.md](../src/docs/TEMPLATE_ENGINE.md)** - {{variable}} syntax, render API, versioning
+10. **[SEED_DATA.md](../src/docs/SEED_DATA.md)** - Seed data organization, transaction rollback, cascade delete, topological sort
+11. **[REACT_QUERY.md](../src/docs/REACT_QUERY.md)** - React Query patterns, per-entity staleTime, query key conventions, cache invalidation
+12. **[SHARED_COMPONENTS.md](../src/docs/SHARED_COMPONENTS.md)** - Shared UI components, pure Tailwind CSS, react-hot-toast, i18n namespace
 
 ---
 

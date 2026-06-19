@@ -52,6 +52,71 @@ All APIs follow consistent conventions for request/response format, naming, and 
 }
 ```
 
+## API Client Error Handling
+
+Central API client (`src/lib/api/client.ts`) provides automatic error handling:
+
+### Auto-Retry with Exponential Backoff
+
+```typescript
+// Automatic retry on network failures (3 attempts)
+const response = await apiClient.get('/api/requests');
+// Retry delays: 500ms → 1s → 2s
+```
+
+### Toast Notifications
+
+```typescript
+import toast from 'react-hot-toast';
+
+// Success
+toast.success('Request created successfully');
+
+// Error
+toast.error('Failed to load requests');
+
+// Info
+toast('Processing your request...');
+```
+
+### 401 Unauthorized Redirect
+
+```typescript
+// Automatic redirect to /login on 401
+apiClient.get('/api/protected-resource')
+  .catch(error => {
+    // 401 → auto redirect to /login
+  });
+```
+
+## Hook Error Handling Pattern
+
+React Query hooks **throw errors** - components decide how to handle:
+
+```typescript
+// Hook throws errors (src/hooks/useRequests.ts)
+export function useRequests() {
+  return useQuery({
+    queryKey: ['requests'],
+    queryFn: () => requestsApi.list(),
+    // Errors propagate to component
+  });
+}
+
+// Component catches and handles
+function RequestsPage() {
+  const { data, error } = useRequests();
+
+  if (error) {
+    // Component decides: toast, error UI, or retry
+    toast.error(`Failed to load: ${error.message}`);
+    return <ErrorState onRetry={() => window.location.reload()} />;
+  }
+
+  return <RequestList requests={data} />;
+}
+```
+
 ## HTTP Status Codes
 
 | Code | Usage | When to Use |

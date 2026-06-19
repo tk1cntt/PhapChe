@@ -235,7 +235,142 @@ try {
 - Single quotes for strings
 - Trailing commas in multiline
 
+## Auth Access Pattern
+
+Wrap next-auth's `useSession()` hook, tách riêng permissions:
+
+```typescript
+// src/hooks/useAuth.ts
+import { useSession } from 'next-auth/react';
+
+export function useAuth() {
+  const { data: session, status } = useSession();
+
+  return {
+    user: session?.user ?? null,
+    isLoading: status === 'loading',
+    isAuthenticated: status === 'authenticated',
+  };
+}
+
+// src/hooks/usePermissions.ts
+import { useAuth } from './useAuth';
+
+export function usePermissions() {
+  const { user } = useAuth();
+
+  return {
+    canEdit: user?.role === 'admin' || user?.role === 'specialist',
+    canDelete: user?.role === 'admin',
+    canView: !!user,
+  };
+}
+```
+
+**Usage:**
+```typescript
+function UserManagement() {
+  const { user, isLoading } = useAuth();
+  const { canDelete } = usePermissions();
+
+  if (isLoading) return <LoadingSkeleton />;
+  if (!user) return <LoginPage />;
+
+  return (
+    <div>
+      {canDelete && <DeleteButton />}
+    </div>
+  );
+}
+```
+
+## Migration Safety
+
+Khi refactor hoặc migrate code, tuân thủ quy tắc an toàn:
+
+### Non-Breaking Changes
+
+```typescript
+// ✅ GOOD: Refactor in place, giữ nguyên API surface
+export function useRequests(filters?: Filters) {
+  // Old: return await fetchRequests(filters);
+  // New: Use React Query internally
+  return useQuery({
+    queryKey: ['requests', filters],
+    queryFn: () => requestsApi.list(filters),
+  });
+}
+
+// ❌ BAD: Breaking change, thay đổi API signature
+export function useRequests({ filters, options }: UseRequestsOptions) {
+  // Components phải update lại code
+}
+```
+
+### Unit Tests Before Refactor
+
+```typescript
+// 1. Write tests FIRST
+describe('useRequests', () => {
+  it('should fetch requests with filters', async () => {
+    const { result } = renderHook(() => useRequests({ status: 'pending' }));
+    await waitFor(() => expect(result.current.data).toBeDefined());
+  });
+});
+
+// 2. Then refactor implementation
+// 3. Run tests to verify behavior unchanged
+```
+
+### Git Revert Rollback
+
+```bash
+# Nếu refactor gây issues
+git revert <commit-hash>
+
+# Hoặc reset về trước refactor
+git reset --hard HEAD~1
+```
+
+## UI Component Library
+
+**KHÔNG sử dụng Ant Design** - chỉ dùng Tailwind CSS và custom components:
+
+```typescript
+// ✅ GOOD: Tailwind CSS
+export function Button({ children, onClick }: ButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+    >
+      {children}
+    </button>
+  );
+}
+
+// ❌ BAD: Ant Design
+import { Button as AntButton } from 'antd';
+
+export function Button({ children, onClick }: ButtonProps) {
+  return <AntButton onClick={onClick}>{children}</AntButton>;
+}
+```
+
+**Thay thế Ant Design components:**
+- `Modal` → Custom modal với Tailwind
+- `Form` → React Hook Form + Tailwind
+- `Table` → Custom table component
+- `Select` → Custom dropdown hoặc `react-select`
+- `Message/Notification` → `react-hot-toast`
+
+**Migration strategy:**
+1. Refactor existing Ant Design components dần dần
+2. Mỗi component refactor = 1 atomic commit
+3. Viết tests trước khi refactor
+4. Verify UI không thay đổi sau refactor
+
 ---
 
 *Document: CODE_STANDARDS.md*
-*Part of: Phase 55 - Architecture Standards*
+*Last Updated: 2026-06-19*

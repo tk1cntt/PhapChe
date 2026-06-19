@@ -115,7 +115,8 @@ Thiết lập shared infrastructure cho v2.2 bằng cách tạo organized seed d
 - **Locale support:** Shared components phải support 4 languages (VI/EN/ZH/JA) từ đầu
 - **Auth access strategy:** Strict hook-only — components use `useAuth()` hook for client-side, `auth.api.getSession()` for server-side. No direct session storage access from components
 - **i18n scope:** 100% translation coverage — all user-visible text (UI labels, error messages, toast notifications, empty states) must be translated in all 4 languages (VI/EN/ZH/JA)
-- **Toast styling:** Custom Tailwind CSS component (not Ant Design) — project uses extensive custom CSS, Tailwind toast is more flexible and consistent with existing patterns
+- **UI framework:** **Remove Ant Design dependency** — project sẽ chuyển hoàn toàn sang custom Tailwind CSS components. Tất cả shared components mới phải dùng Tailwind, không dùng Ant Design components. Existing Ant Design imports sẽ được refactor dần trong các phases sau
+- **Toast styling:** Custom Tailwind CSS component (not Ant Design) — consistent with the decision to remove Ant Design from project
 - **Cache strategy:** Conservative defaults — staleTime: 5 minutes, cacheTime: 30 minutes (balance between performance and data freshness)
 
 ## Acceptance Criteria
@@ -142,6 +143,7 @@ Thiết lập shared infrastructure cho v2.2 bằng cách tạo organized seed d
 - [ ] Cache strategy uses conservative defaults (staleTime: 5min, cacheTime: 30min)
 - [ ] Unit tests exist with ≥90% coverage for all new code
 - [ ] No breaking changes to existing API client consumers
+- [ ] **KHÔNG sử dụng Ant Design components** — tất cả shared components dùng custom Tailwind CSS
 
 ## Edge Coverage
 

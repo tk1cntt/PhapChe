@@ -3,6 +3,8 @@
  * Single client for all API calls - reuse instead of duplicate
  */
 
+import { toastError } from './toast';
+
 type RequestOptions = {
   params?: Record<string, string | number | boolean | undefined>;
   headers?: Record<string, string>;
@@ -24,6 +26,21 @@ type ErrorResponse = {
   detail?: string;
   field?: string;
 };
+
+/**
+ * Handle error side-effects (toast, 401 redirect) before re-throwing.
+ * Toast calls only execute on client-side (guarded in toast.ts).
+ */
+function handleError(status: number, error: Error): never {
+  if (status === 401 && typeof window !== 'undefined') {
+    window.location.href = '/login';
+  } else if (status === 403) {
+    toastError('Không có quyền truy cập');
+  } else if (status === 500) {
+    toastError('Lỗi máy chủ, vui lòng thử lại');
+  }
+  throw error;
+}
 
 /**
  * Central API client class for making HTTP requests
@@ -78,7 +95,8 @@ class ApiClient {
             continue;
           }
 
-          throw new Error(errorData.error || errorData.detail || `HTTP ${response.status}`);
+          const error = new Error(errorData.error || errorData.detail || `HTTP ${response.status}`);
+          handleError(response.status, error);
         }
 
         return data as T;
@@ -91,6 +109,7 @@ class ApiClient {
           continue;
         }
 
+        // Re-throw non-API errors (e.g. already-handled errors from handleError)
         throw error;
       }
     }

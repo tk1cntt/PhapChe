@@ -2,410 +2,106 @@
 
 ## Milestones
 
-- ✅ **v1.0 MVP** — Phases 01-14 (shipped 2026-05-15)
-- ✅ **v1.1 Auth & i18n** — Phases 15-25 (shipped 2026-06-09)
-- ✅ **v2.0 Admin Portal + User Dashboard** — Phases 50-68 (shipped 2026-06-14)
-- 🚧 **v2.1 Shared Tenant Architecture** — Phases 55-84 (in progress)
-- 📋 **v2.2 AI Features** — Phases TBD
-
-## v2.1 Shared Tenant Architecture
-
-### Foundation (Completed)
-
-- [x] **Phase 55: Architecture & Standards** — Component audit, API patterns, shared components, service layer (completed 2026-06-14)
-- [x] **Phase 56: Storage Infrastructure** — Local-first storage, S3-ready, StorageService abstraction (completed 2026-06-14)
-- [x] **Phase 57: Shared Tenant Architecture** — Domain models, schema definitions, phase breakdown (completed 2026-06-14)
-
-### Phase 58: Core Tables
-
-**Goal:** Create tenants, organizations tables and update workspaces with organization_id
-**Depends on:** Phase 57
-**Requirements:** CORE-01 to CORE-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `58-01-PLAN.md` -- Tenant, Organization models; Workspace FK; TypeScript types; seed data
-- [x] `58-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ tenants table created with all required fields
-2. ✅ organizations table created with tenant FK
-3. ✅ workspaces.organization_id added (nullable FK)
-4. ✅ is_default flag on organizations
-5. ✅ Seed data for platform tenant
-6. ✅ Prisma schema updated
-7. ⏳ Prisma client generated (requires dev server restart on Windows)
-8. ✅ Migration pushed successfully
-
-### Phase 59: Partner Model
-
-**Goal:** Create partners and partner_members tables for partner organization management
-**Depends on:** Phase 58
-**Requirements:** PARTNER-01 to PARTNER-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `59-01-PLAN.md` -- Partner, PartnerMember models; TypeScript types; seed data
-- [x] `59-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ partners table created
-2. ✅ partner_members table created
-3. ✅ User.partnerMembers relation added
-4. ⏳ PartnerService implemented (deferred to later phase)
-5. ⏳ PartnerMemberService implemented (deferred to later phase)
-6. ✅ Partner seed data created
-7. ⏳ Unit tests pass for PartnerService (deferred)
-8. ⏳ Unit tests pass for PartnerMemberService (deferred)
-
-### Phase 60: Engagement System
-
-**Goal:** Create engagements, service_types, service_scopes for partner-organization relationships
-**Depends on:** Phase 59
-**Requirements:** ENGAGE-01 to ENGAGE-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `60-01-PLAN.md` -- ServiceType, Engagement, EngagementServiceScope models; TypeScript types; seed data
-- [x] `60-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ service_types table created
-2. ✅ engagements table created
-3. ✅ engagement_service_scopes table created
-4. ⏳ ServiceTypeService implemented (deferred)
-5. ⏳ EngagementService implemented (deferred)
-6. ✅ Default service types seeded
-7. ⏳ Unit tests pass for EngagementService (deferred)
-8. ⏳ Unit tests pass for ServiceTypeService (deferred)
-
-### Phase 61: Request Enhancement
-
-**Goal:** Add engagement_id, assigned_partner_id to requests and create request_assignments
-**Depends on:** Phase 60
-**Requirements:** REQ-01 to REQ-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `61-01-PLAN.md` -- LegalRequest and RequestAssignment schema updates
-- [x] `61-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ legal_requests.engagement_id added
-2. ✅ legal_requests.assigned_partner_id added
-3. ✅ request_assignments has partner_id and engagement_id
-4. ✅ Prisma schema updated
-5. ⏳ RequestAssignmentService implemented (deferred)
-6. ⏳ Request creation flow updated (deferred)
-7. ⏳ Unit tests pass (deferred)
-8. ⏳ Existing request APIs handle new fields (deferred)
-
-### Phase 62: RequestContext & Middleware
-
-**Goal:** Create tenant-aware RequestContext and middleware for permission context building
-**Depends on:** Phase 61
-**Requirements:** CTX-01 to CTX-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `62-01-PLAN.md` -- RequestContext types, services, middleware
-- [x] `62-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ RequestContext type defined
-2. ✅ RequestContextBuilder service implemented
-3. ✅ Tenant middleware implemented
-4. ✅ Auth middleware implemented
-5. ✅ Organization context middleware implemented
-6. ✅ Partner context middleware implemented
-7. ⏳ Unit tests pass (deferred)
-8. ⏳ Unit tests pass for middleware chain (deferred)
-
-### Phase 63: Permission Service
-
-**Goal:** Implement permission checking functions for resource access control
-**Depends on:** Phase 62
-**Requirements:** PERM-01 to PERM-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `63-01-PLAN.md` -- PermissionService with canRead/canWrite methods
-- [x] `63-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ PermissionService with canRead/canWrite methods
-2. ✅ Platform role checks implemented
-3. ✅ Organization role checks implemented
-4. ✅ Partner permission level checks implemented
-5. ✅ Request assignment checks for partners
-6. ⏳ PermissionMiddleware implemented (deferred)
-7. ⏳ Unit tests pass (deferred)
-8. ⏳ Integration tests pass (deferred)
-
-### Phase 64: Repository Pattern
-
-**Goal:** Implement tenant-aware repositories for all domain entities
-**Depends on:** Phase 63
-**Requirements:** REPO-01 to REPO-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `64-01-PLAN.md` -- Base repository, Organization, Workspace, LegalRequest repositories
-- [x] `64-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ Base Repository class created
-2. ✅ OrganizationRepository implemented
-3. ✅ WorkspaceRepository implemented
-4. ✅ LegalRequestRepository implemented
-5. ⏳ FileRepository implemented (deferred)
-6. ⏳ PartnerRepository implemented (deferred)
-7. ⏳ All APIs updated to use repositories (deferred)
-8. ⏳ Unit tests pass for repositories (deferred)
-
-### Phase 65: Data Migration
-
-**Goal:** Migrate existing data to new multi-tenant model
-**Depends on:** Phase 64
-**Requirements:** MIGR-01 to MIGR-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `65-01-PLAN.md` -- Migration script for workspace-organization linking
-- [x] `65-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ Migration script for default organizations
-2. ✅ Workspace migration to link with organizations
-3. ✅ tenant_id backfill script
-4. ✅ Migration validation with count checks
-5. ✅ Rollback script created
-6. ⏳ Production migration documentation (deferred)
-7. ⏳ Integration tests for migration (deferred)
-8. ⏳ Multi-tenant seed scripts updated (deferred)
-
-### Phase 66: Partner Auth
-
-**Goal:** Implement partner login and dashboard overview
-**Depends on:** Phase 65
-**Requirements:** P-AUTH-01 to P-AUTH-08
-**Plans:** 2/2 plans complete ✅
-
-**Plans:**
-
-- [x] `66-01-PLAN.md` -- Partner dashboard and engagements APIs
-- [x] `66-01-SUMMARY.md` -- Phase completed
-
-**Wave 2 - Partner Auth APIs (completed 2026-06-18):**
-
-- [x] Partner login API (`/api/partner/auth/login`)
-- [x] Partner members API (`/api/partner/members`)
-- [x] Partner member management API (`/api/partner/members/[id]`)
-- [x] Partner invite APIs (`/api/partner/invite`)
-- [x] Partner invite accept API (`/api/partner/invite/accept`)
-
-**Success Criteria:**
-
-1. ✅ Partner login API endpoint working
-2. ✅ Partner JWT token with partner context
-3. ✅ Partner logout endpoint
-4. ✅ Partner session validation working
-5. ✅ Partner dashboard API with engagement summary
-6. ✅ Partner member management APIs
-7. ✅ Partner invite system APIs
-8. ⏳ E2E tests for partner auth (deferred)
-
-### Phase 67: Partner Requests
-
-**Goal:** Implement partner request list and detail views
-**Depends on:** Phase 66
-**Requirements:** P-REQ-01 to P-REQ-08
-**Plans:** 4/4 complete ✅
-
-**Plans:**
-
-- [x] `67-01-PLAN.md` -- Partner requests list API
-- [x] `67-02-PLAN.md` -- Partner request detail API
-- [x] `67-03-PLAN.md` -- Partner engagement API
-- [x] `67-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ API lists assigned requests
-2. ✅ API returns request details with permission check
-3. ✅ API lists requests by engagement/service type
-4. ✅ Partner dashboard page with request stats
-5. ✅ Partner request list page
-6. ✅ Request status badges display correctly
-7. ⏳ Unit tests pass for request APIs (deferred)
-8. ⏳ E2E tests pass for request views (deferred)
-
-### Phase 68: Partner Actions
-
-**Goal:** Implement partner actions on requests (status update, document upload)
-**Depends on:** Phase 67
-**Requirements:** P-ACT-01 to P-ACT-08
-**Plans:** 3/3 plans complete ✅
-
-**Plans:**
-
-- [x] `68-01-PLAN.md` -- Status update, comments, document upload APIs
-- [x] `68-02-UI-PLAN.md` -- Partner UI components (StatusUpdateForm, CommentList, CommentForm, DocumentList, DocumentUpload)
-- [x] `68-01-SUMMARY.md` -- Phase completed
-
-**Wave 2 - Partner Auth UI (completed 2026-06-18):**
-
-- [x] Partner Dashboard page (`/vi/partner/dashboard`)
-- [x] Partner Settings page (`/vi/partner/settings`)
-- [x] InviteMembersModal component
-- [x] MembersTable component
-- [x] PendingInvitesList component
-- [x] RoleChangeDialog component
-- [x] Accept Invite page (`/invite/[token]`)
-
-**Success Criteria:**
-
-1. ✅ API for partner status update working
-2. ✅ API for partner comments working
-3. ✅ API for partner document upload working
-4. ✅ Permission validation for partner actions
-5. ✅ Partner action UI (StatusUpdateForm, CommentList, CommentForm)
-6. ✅ Partner document upload UI (DocumentUpload, DocumentList)
-7. ✅ Partner Dashboard page implemented
-8. ✅ Partner Settings page with member management implemented
-
-### Phase 69: Organization Management
-
-**Goal:** Create organization management UI for organization admins
-**Depends on:** Phase 65
-**Requirements:** ORG-01 to ORG-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `69-01-PLAN.md` -- Organization CRUD APIs
-- [x] `69-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ API lists organizations (platform admin)
-2. ✅ API returns organization details
-3. ✅ API creates organization
-4. ✅ API updates organization
-5. ⏳ Organization list UI for platform admin - deferred
-6. ⏳ Organization form UI (create/edit) - deferred
-7. ⏳ Organization settings UI - deferred
-8. ⏳ Unit tests pass for organization APIs - deferred
-
-### Phase 70: User Management v2
-
-**Goal:** Enhanced user management with organization context
-**Depends on:** Phase 69
-**Requirements:** USER-01 to USER-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `70-01-PLAN.md` -- User CRUD APIs with organization context
-- [x] `70-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ API lists users with organization filter
-2. ✅ API creates user with organization context
-3. ✅ API updates user with organization context
-4. ⏳ User list UI with organization filter - deferred
-5. ⏳ User form UI with organization selector - deferred
-6. ⏳ User profile UI with membership display - deferred
-7. ⏳ Organization context in user session - deferred
-8. ⏳ Unit tests pass for user APIs - deferred
-
-### Phase 71: Create Request v2
-
-**Goal:** New request creation API with organization and engagement context
-**Depends on:** Phase 70
-**Requirements:** CREQ-01 to CREQ-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `71-01-PLAN.md` -- Service types and request creation APIs
-- [x] `71-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ API lists available service types
-2. ✅ API submits request with organization context
-3. ⏳ Service type selection UI - deferred
-4. ⏳ Request wizard UI (4 steps) - deferred
-5. ✅ Request submission with engagement tracking
-6. ⏳ Request confirmation UI - deferred
-7. ⏳ Unit tests pass for request creation - deferred
-8. ⏳ E2E tests pass for request flow - deferred
-
-### Phase 72: Workspace Management v2
-
-**Goal:** Enhanced workspace management with organization hierarchy
-**Depends on:** Phase 71
-**Requirements:** WS-01 to WS-08
-**Plans:** 1/1 complete ✅
-
-**Plans:**
-
-- [x] `72-01-PLAN.md` -- Workspace CRUD APIs with organization filter
-- [x] `72-01-SUMMARY.md` -- Phase completed
-
-**Success Criteria:**
-
-1. ✅ API lists workspaces with organization filter
-2. ✅ API creates workspace within organization
-3. ✅ API updates workspace
-4. ⏳ Workspace list UI with organization grouping - deferred
-5. ⏳ Workspace form UI with organization selector - deferred
-6. ⏳ Workspace settings UI with member management - deferred
-7. ⏳ Workspace member invitation flow - deferred
-8. ⏳ Unit tests pass for workspace APIs - deferred
+- ✅ **v1.0 MVP** — Phases 01-14 (shipped 2026-06-05)
+- ✅ **v1.1 Auth & i18n** — Phases 15-25 (shipped 2026-06-10)
+- ✅ **v2.0 Admin Portal + User Dashboard** — Phases 50-54 (shipped 2026-06-14)
+- ✅ **v2.1 Shared Tenant Architecture** — Phases 55-72, 85 (shipped 2026-06-19)
+- 🚧 **v2.2 Legacy UI Enhancement** — Phases 73-84 (in progress)
+- 📋 **v2.3 AI Features** — Phases TBD
+
+## Phases
+
+<details>
+<summary>✅ v1.0 MVP (Phases 01-14) — SHIPPED 2026-06-05</summary>
+
+- [x] Phase 01: Foundation (RBAC, audit, workspace isolation)
+- [x] Phase 02: Intake catalog (schema-versioned answers, backend validation)
+- [x] Phase 03: Customer intake flow (chat/form hybrid, file upload)
+- [x] Phase 04: Routing capability matrix (coordinator assignment)
+- [x] Phase 05: Specialist workbench (draft generation, version history)
+- [x] Phase 06: Reviewer portal (split-view QC, approve/reject)
+- [x] Phase 07: Customer delivery (signed URL downloads)
+- [x] Phase 08: Operations dashboard (filters, workload, SLA)
+- [x] Phase 09: Folder/Tag (vault file classification)
+- [x] Phase 10: Ant Design UI migration
+- [x] Phase 11-14: Gap-closure phases (audit, broken routes, auth, delivery)
+
+[Details](.planning/milestones/v1.0-ROADMAP.md)
+
+</details>
+
+<details>
+<summary>✅ v1.1 Auth & i18n (Phases 15-25) — SHIPPED 2026-06-10</summary>
+
+- [x] Phase 15: Better Auth integration (login, session management)
+- [x] Phase 16-25: Broken routes fix, E2E tests, customer dashboard, i18n infrastructure
+
+[Details](.planning/milestones/v1.1-ROADMAP.md)
+
+</details>
+
+<details>
+<summary>✅ v2.0 Admin Portal + User Dashboard (Phases 50-54) — SHIPPED 2026-06-14</summary>
+
+- [x] Phase 49: Operations Real Data Integration
+- [x] Phase 50: Audit Real Data Integration
+- [x] Phase 51: Vault Real Data Integration
+- [x] Phase 52: Workspace Real Data Integration
+- [x] Phase 53: User Dashboard Real Data
+- [x] Phase 54: i18n Comprehensive Migration
+
+[Details](.planning/milestones/v2.0-ROADMAP.md)
+
+</details>
+
+<details>
+<summary>✅ v2.1 Shared Tenant Architecture (Phases 55-72, 85) — SHIPPED 2026-06-19</summary>
+
+**Foundation:**
+- [x] Phase 55: Architecture & Standards (1/1 plans)
+- [x] Phase 56: Storage Infrastructure (1/1 plans)
+- [x] Phase 57: Shared Tenant Architecture (1/1 plans)
+
+**Core Implementation:**
+- [x] Phase 58: Core Tables (1/1 plans)
+- [x] Phase 59: Partner Model (1/1 plans)
+- [x] Phase 60: Engagement System (1/1 plans)
+- [x] Phase 61: Request Enhancement (1/1 plans)
+- [x] Phase 62: RequestContext & Middleware (1/1 plans)
+- [x] Phase 63: Permission Service (1/1 plans)
+- [x] Phase 64: Repository Pattern (1/1 plans)
+- [x] Phase 65: Data Migration (1/1 plans)
+- [x] Phase 66: Partner Auth (2/2 plans)
+- [x] Phase 67: Partner Requests (4/4 plans)
+- [x] Phase 68: Partner Actions + UI (3/3 plans)
+- [x] Phase 69: Organization Management (1/1 plans)
+- [x] Phase 70: User Management v2 (1/1 plans)
+- [x] Phase 71: Create Request v2 (1/1 plans)
+- [x] Phase 72: Workspace Management v2 (1/1 plans)
+
+**Infrastructure:**
+- [x] Phase 85: Database Schema Improvement (4/4 plans)
+
+[Details](.planning/milestones/v2.1-ROADMAP.md)
+
+</details>
 
 ---
 
-## Legacy UI Enhancement Phases
+## v2.2 Legacy UI Enhancement
 
-These phases enhance existing UIs with organization/partner context from v2.0 implementation.
+UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend integration following specification-first methodology and `src/docs/` architecture standards.
+
+**Methodology:** Mỗi phase phải qua Discovery → UI Analysis → Gap Analysis → System Design → API Design → Frontend Architecture → Implementation Plan → Implementation (DB → Backend → API → Frontend → Tests).
 
 ### Phase 73: Settings (User)
 
-**Goal**: User settings with profile, password, notifications, language
-**Depends on**: Phase 72
-**Requirements**: SET-01 to SET-06
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ✅ Implemented UI only (v2.0)
+**Goal:** User settings with profile, password, notifications, language
+**Depends on:** Phase 72
+**Requirements:** SET-01 to SET-06
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. User can view and edit profile (name, email, phone, title)
 2. User can change password with current password verification
 3. User can toggle notifications (emailOnReply, slaReminder, weeklySummary)
@@ -415,22 +111,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ### Phase 74: User Management (Admin)
 
-**Goal**: Admin user management with organization filtering
-**Depends on**: Phase 73
-**Requirements**: ADM-USER-01 to ADM-USER-09
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ✅ Implemented UI only (v2.0)
+**Goal:** Admin user management with organization filtering
+**Depends on:** Phase 73
+**Requirements:** ADM-USER-01 to ADM-USER-09
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. Admin sees paginated list of all users
 2. Admin can search users by name/email
 3. Admin can filter users by role
@@ -443,22 +129,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ### Phase 75: Create Request (User)
 
-**Goal**: Create Request wizard with 4 steps, intake questions, document upload, submit to database
-**Depends on**: Phase 74
-**Requirements**: CREQ-01 to CREQ-10
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ❌ Not implemented (new implementation)
+**Goal:** Create Request wizard with 4 steps, intake questions, document upload, submit to database
+**Depends on:** Phase 74
+**Requirements:** CREQ-01 to CREQ-10
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. User can select service type from 5 options
 2. Service cards display with descriptions and tags
 3. Wizard shows 4-step progress indicator
@@ -472,22 +148,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ### Phase 76: My Cases (User)
 
-**Goal**: My Cases screen with case list, search, filter, pagination
-**Depends on**: Phase 75
-**Requirements**: MYCASE-01 to MYCASE-09
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ✅ Implemented UI only (v2.0)
+**Goal:** My Cases screen with case list, search, filter, pagination
+**Depends on:** Phase 75
+**Requirements:** MYCASE-01 to MYCASE-09
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. Summary banner shows total cases count
 2. Stat cards show correct counts
 3. Search filters cases by code/type
@@ -500,22 +166,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ### Phase 77: Dashboard (User)
 
-**Goal**: User Dashboard with real data from database, clickable navigation
-**Depends on**: Phase 76
-**Requirements**: U-DASH-01 to U-DASH-08
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ✅ Implemented UI only (v2.0)
+**Goal:** User Dashboard with real data from database, clickable navigation
+**Depends on:** Phase 76
+**Requirements:** U-DASH-01 to U-DASH-08
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. Stat cards show real counts
 2. Welcome banner shows workspace name
 3. Recent cases panel shows 5 cases
@@ -527,22 +183,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ### Phase 78: Request Management (Admin)
 
-**Goal**: Admin Request Management with list, assign, status change
-**Depends on**: Phase 77
-**Requirements**: ADM-REQ-01 to ADM-REQ-09
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ✅ Implemented UI only (v2.0)
+**Goal:** Admin Request Management with list, assign, status change
+**Depends on:** Phase 77
+**Requirements:** ADM-REQ-01 to ADM-REQ-09
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. Admin sees all requests with workspace filter
 2. Search works by code
 3. Status filter works
@@ -555,22 +201,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ### Phase 79: Admin Dashboard
 
-**Goal**: Admin Dashboard with real stats, clickable navigation
-**Depends on**: Phase 78
-**Requirements**: ADM-DASH-01 to ADM-DASH-08
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ✅ Implemented UI only (v2.0)
+**Goal:** Admin Dashboard with real stats, clickable navigation
+**Depends on:** Phase 78
+**Requirements:** ADM-DASH-01 to ADM-DASH-08
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. Stat cards show real counts
 2. Workload panel shows specialists
 3. Alert panel shows system alerts
@@ -582,22 +218,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ### Phase 80: Operations (Admin)
 
-**Goal**: Operations screen with workload, SLA bars, audit timeline
-**Depends on**: Phase 79
-**Requirements**: ADM-OPS-01 to ADM-OPS-07
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ✅ Implemented UI only (v2.0)
+**Goal:** Operations screen with workload, SLA bars, audit timeline
+**Depends on:** Phase 79
+**Requirements:** ADM-OPS-01 to ADM-OPS-07
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. Stat cards show real counts
 2. Workload panel shows assignments
 3. Audit timeline shows events
@@ -608,22 +234,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ### Phase 81: Messages (User)
 
-**Goal**: Messages screen with thread list, chat, info panel
-**Depends on**: Phase 80
-**Requirements**: MSG-01 to MSG-08
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ✅ Implemented UI only (v2.0)
+**Goal:** Messages screen with thread list, chat, info panel
+**Depends on:** Phase 80
+**Requirements:** MSG-01 to MSG-08
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. 3-column layout displays
 2. Thread list shows all threads
 3. Selecting thread shows messages
@@ -635,22 +251,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ### Phase 82: Audit (Admin)
 
-**Goal**: Admin Audit with security logs, search, filter, pagination
-**Depends on**: Phase 81
-**Requirements**: ADM-AUD-01 to ADM-AUD-10
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ✅ Implemented UI only (v2.0)
+**Goal:** Admin Audit with security logs, search, filter, pagination
+**Depends on:** Phase 81
+**Requirements:** ADM-AUD-01 to ADM-AUD-10
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. Stat cards show audit counts
 2. Security notice displays
 3. Control alerts show metrics
@@ -664,22 +270,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ### Phase 83: Workspace Management (Admin)
 
-**Goal**: Admin Workspace Management with CRUD, member invites, role changes
-**Depends on**: Phase 82
-**Requirements**: ADM-WS-01 to ADM-WS-08
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ❌ Not implemented (new implementation)
+**Goal:** Admin Workspace Management with CRUD, member invites, role changes
+**Depends on:** Phase 82
+**Requirements:** ADM-WS-01 to ADM-WS-08
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. Admin sees all workspaces with member counts
 2. Admin can search workspaces
 3. Admin can view workspace details
@@ -691,22 +287,12 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 
 ### Phase 84: Vault (Admin)
 
-**Goal**: Admin Vault with file management, upload, download, folders, tags
-**Depends on**: Phase 83
-**Requirements**: VAULT-01 to VAULT-12
-**Plans:** 4/4 planned
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**UI Status:** ✅ Implemented UI only (v2.0)
+**Goal:** Admin Vault with file management, upload, download, folders, tags
+**Depends on:** Phase 83
+**Requirements:** VAULT-01 to VAULT-12
+**Plans:** TBD
 
 **Success Criteria:**
-
 1. Stat cards show vault counts
 2. Folder panel shows tree
 3. Tag panel shows tags with counts
@@ -720,96 +306,27 @@ These phases enhance existing UIs with organization/partner context from v2.0 im
 11. Admin can create tags
 12. Security badges display
 
-### Phase 85: Database Schema Improvement
-
-**Goal**: Improve database schema based on architecture review - fix duplication, add FK constraints, implement 2-tier vault
-**Depends on**: Phase 72
-**Reference**: `prisma/DB_IMPROVEMENT_PLAN.md`, `prisma/DB_ARCHITECTURE_REVIEW.md`
-**Plans:** 4/4 plans complete
-
-**Plan list:**
-
-- [ ] `85-01-PLAN.md` -- Wave 1: Safety First (FK + CHECK constraints)
-- [ ] `85-02-PLAN.md` -- Wave 2: Expand (New columns)
-- [ ] `85-03-PLAN.md` -- Wave 3: Backfill & Verify (Data migration)
-- [ ] `85-04-PLAN.md` -- Wave 4: Contract (Code update + drop old columns)
-
-**Success Criteria:**
-
-1. All missing FK constraints added (Message, FileAccessLog, DocumentVersion)
-2. CHECK constraints for enum fields added
-3. SQLite NULL unique issues fixed
-4. LegalRequest.matterTypeId added and backfilled
-5. RequestAssignment.isCurrent/endedAt added and backfilled
-6. VaultItem.fileId added and backfilled (2-tier vault)
-7. Old duplicate columns dropped
-8. All tests pass with new schema
-9. Data integrity verified
-
-**Waves:**
-
-- Wave 1: Safety First (NON-BREAKING) - FK + CHECK + indexes
-- Wave 2: Expand - New columns (backward compatible)
-- Wave 3: Backfill & Verify - Data migration
-- Wave 4: Contract (BREAKING) - Code update + drop old columns
-
----
-
 ## Progress
 
-### Foundation (Completed)
-
-| Phase | Name | Plans | Status | Date |
-|-------|------|-------|--------|------|
-| 55 | Architecture & Standards | 1/1 | ✅ Complete | 2026-06-14 |
-| 56 | Storage Infrastructure | 1/1 | ✅ Complete | 2026-06-14 |
-| 57 | Shared Tenant Architecture | 1/1 | ✅ Complete | 2026-06-14 |
-
-**15/15 Implementation phases completed! Moving to Legacy Enhancement...**
-
-### Shared Tenant Implementation
-
-| Phase | Name | Requirements | Status |
-|-------|------|--------------|--------|
-| 58 | Core Tables | 8 | ✅ Complete |
-| 59 | Partner Model | 8 | ✅ Complete |
-| 60 | Engagement System | 8 | ✅ Complete |
-| 61 | Request Enhancement | 8 | ✅ Complete |
-| 62 | RequestContext & Middleware | 8 | ✅ Complete |
-| 63 | Permission Service | 8 | ✅ Complete |
-| 64 | Repository Pattern | 8 | ✅ Complete |
-| 65 | Data Migration | 8 | ✅ Complete |
-| 66 | Partner Auth APIs | 2/2 | ✅ Complete | 2026-06-18 |
-| 67 | Partner Requests | 4/4 | ✅ Complete |
-| 68 | Partner Actions + UI | 3/3 + Wave 2 | ✅ Complete | 2026-06-18 |
-| 69 | Organization Management | 1/1 | ✅ Complete |
-| 70 | User Management v2 | 1/1 | ✅ Complete |
-| 71 | Create Request v2 | 1/1 | ✅ Complete |
-| 72 | Workspace Management v2 | 1/1 | ✅ Complete |
-
-### Legacy UI Enhancement
-
-| Phase | Name | Requirements | UI Status | Status |
-|-------|------|--------------|-----------|--------|
-| 73 | Settings (User) | 6 | ✅ Enhanced | Pending |
-| 74 | User Management (Admin) | 9 | ✅ Enhanced | Pending |
-| 75 | Create Request (User) | 10 | ❌ New | Pending |
-| 76 | My Cases (User) | 9 | ✅ Enhanced | Pending |
-| 77 | Dashboard (User) | 8 | ✅ Enhanced | Pending |
-| 78 | Request Management (Admin) | 9 | ✅ Enhanced | Pending |
-| 79 | Admin Dashboard | 8 | ✅ Enhanced | Pending |
-| 80 | Operations (Admin) | 7 | ✅ Enhanced | Pending |
-| 81 | Messages (User) | 8 | ✅ Enhanced | Pending |
-| 82 | Audit (Admin) | 10 | ✅ Enhanced | Pending |
-| 83 | Workspace Management (Admin) | 8 | ❌ New | Pending |
-| 84 | Vault (Admin) | 12 | ✅ Enhanced | Pending |
-
-### Infrastructure
-
-| Phase | Name | Requirements | Status |
-|-------|------|--------------|--------|
-| 85 | 4/4 | Complete    | 2026-06-17 |
+| Phase | Milestone | Plans | Status | Completed |
+|-------|-----------|-------|--------|-----------|
+| 01-14 | v1.0 | Various | Complete | 2026-06-05 |
+| 15-25 | v1.1 | Various | Complete | 2026-06-10 |
+| 39-54 | v2.0 | Various | Complete | 2026-06-14 |
+| 55-72, 85 | v2.1 | ~20 | Complete | 2026-06-19 |
+| 73 | v2.2 | TBD | Not started | - |
+| 74 | v2.2 | TBD | Not started | - |
+| 75 | v2.2 | TBD | Not started | - |
+| 76 | v2.2 | TBD | Not started | - |
+| 77 | v2.2 | TBD | Not started | - |
+| 78 | v2.2 | TBD | Not started | - |
+| 79 | v2.2 | TBD | Not started | - |
+| 80 | v2.2 | TBD | Not started | - |
+| 81 | v2.2 | TBD | Not started | - |
+| 82 | v2.2 | TBD | Not started | - |
+| 83 | v2.2 | TBD | Not started | - |
+| 84 | v2.2 | TBD | Not started | - |
 
 ---
 
-_Last updated: 2026-06-18_
+_Last updated: 2026-06-19 after v2.2 milestone initialization_

@@ -1,14 +1,38 @@
 # Legal-as-a-Service Platform
 
-## Current State (v2.0 SHIPPED — 2026-06-14)
+## Current Milestone: v2.2 Legacy UI Enhancement
 
-**GitNexus Legal** đã hoàn thành milestone v2.0 với:
-- Admin Portal kết nối Prisma database (Audit, Vault, Workspace, Operations, Users, Requests)
-- User Dashboard với real data từ database
-- i18n comprehensive: 43 components, 200+ keys, 4 languages
-- Cookie-based language persistence
+**Goal:** Hoàn thiện backend integration cho 12 phases (73-84) đã có UI từ v2.0, biến mock UI thành production-ready với đầy đủ business logic, workflow, permissions và data model.
 
-**Total to date:** v1.0 + v1.1 + v2.0 = 29 phases, 92 plans, 240+ tasks
+**Critical Constraint:** Tuân thủ nghiêm ngặt 9 tài liệu trong `src/docs/` (DOMAIN_STRUCTURE, API_STANDARDS, API_REGISTRY, SERVICE_LAYER, CODE_STANDARDS, I18N_RULES, FORM_DEFINITION, WORKFLOW_DEFINITION, TEMPLATE_ENGINE).
+
+**Methodology:** Specification-first — mỗi phase phải qua System Discovery → UI Analysis → Gap Analysis → Target System Design → API Design → Frontend Architecture → Implementation Plan → Implementation.
+
+**Target features:**
+- User Settings: Profile, password, notifications, language preferences
+- User Management (Admin): CRUD with organization context
+- Create Request Wizard: 4-step form with service type, intake questions, document upload
+- My Cases: Case list, search, filter, pagination
+- User Dashboard: Real data with 6 panels
+- Request Management (Admin): Assign specialist, change status, view details
+- Admin Dashboard: Stats, workload, alerts, audit timeline
+- Operations (Admin): Workload monitoring, SLA tracking
+- Messages: Thread list, chat, info panel
+- Audit (Admin): Security logs, search, filter, pagination
+- Workspace Management (Admin): CRUD, member invites, role changes
+- Vault (Admin): File management, folders, tags, upload/download
+
+---
+
+## Current State (v2.1 SHIPPED — 2026-06-19)
+
+**GitNexus Legal** đã hoàn thành milestone v2.1 với:
+- Multi-tenant architecture (Tenant → Organization → Workspace → Partner)
+- 19 phases shipped (55-72, 85), 359 commits, +114K LOC
+- Partner portal (auth, dashboard, request management, member management)
+- Database schema improvements (4-wave migration)
+
+**Total to date:** v1.0 + v1.1 + v2.0 + v2.1 = 48 phases, ~112 plans, 340+ tasks
 
 **Tech stack:** Next.js 14 (App Router), TypeScript, Prisma + SQLite, Ant Design 6, Tailwind CSS, Better Auth, next-intl
 
@@ -59,24 +83,28 @@ SME gửi yêu cầu pháp lý theo cách đơn giản như nhắn tin và nhậ
 - ✅ User Dashboard Real Data — 6 panels with real Prisma queries
 - ✅ i18n Comprehensive — 43 components, 200+ keys, cookie-based persistence
 
-### Active (v2.1 Architecture Refactor)
+### Active (v2.2 Legacy UI Enhancement)
 
-**Phase 1: Type Safety**
-- [ ] **ARCH-01**: Remove `as any` casts throughout codebase
-- [ ] **ARCH-02**: Proper TypeScript interfaces for all components
-- [ ] **ARCH-03**: Type-safe Prisma queries
+**User-facing:**
+- [ ] **SET-01 to SET-06**: User Settings (profile, password, notifications, language, audit log)
+- [ ] **CREQ-01 to CREQ-10**: Create Request Wizard (4-step form, service types, document upload)
+- [ ] **MYCASE-01 to MYCASE-09**: My Cases (list, search, filter, pagination)
+- [ ] **U-DASH-01 to U-DASH-08**: User Dashboard (real data, 6 panels, clickable stats)
+- [ ] **MSG-01 to MSG-08**: Messages (3-column layout, thread list, chat, info panel)
 
-**Phase 2: Error Handling**
-- [ ] **ARCH-04**: Error boundaries on all pages
-- [ ] **ARCH-05**: Consistent API error responses
-- [ ] **ARCH-06**: Loading states and skeletons
+**Admin-facing:**
+- [ ] **ADM-USER-01 to ADM-USER-09**: User Management (CRUD, search, filter, org context)
+- [ ] **ADM-REQ-01 to ADM-REQ-09**: Request Management (assign, status change, filters)
+- [ ] **ADM-DASH-01 to ADM-DASH-08**: Admin Dashboard (stats, workload, alerts, audit)
+- [ ] **ADM-OPS-01 to ADM-OPS-07**: Operations (workload, SLA bars, audit timeline)
+- [ ] **ADM-AUD-01 to ADM-AUD-10**: Audit (security logs, search, filter, pagination)
+- [ ] **ADM-WS-01 to ADM-WS-08**: Workspace Management (CRUD, invites, role changes)
+- [ ] **VAULT-01 to VAULT-12**: Vault (file management, folders, tags, signed URLs)
 
-**Phase 3: Performance**
-- [ ] **ARCH-07**: API response caching
-- [ ] **ARCH-08**: Lazy loading for heavy components
-- [ ] **ARCH-09**: Database query optimization
+**Architecture (deferred from v2.1):**
+- [ ] **ARCH-01 to ARCH-09**: Type safety, error handling, performance optimization
 
-### Future (v2.2 AI Features)
+### Future (v2.3 AI Features)
 
 - [ ] **AI-01**: AI Intake Assistant — chatbot-style guidance
 - [ ] **AI-02**: Document Analysis (OCR) — auto-extract from uploads
@@ -164,6 +192,8 @@ Key entities:
 | Mock UI Pattern cho v2.0 | UI đẹp đã có, chỉ cần connect backend | ✅ Good |
 | Cookie-based locale persistence | No flash on navigation, server-side redirect | ✅ Good |
 | Parallel Prisma queries for dashboard | Optimize performance with Promise.all() | ✅ Good |
+| Multi-tenant architecture v2.1 | Separate Tenant → Organization → Workspace → Partner hierarchy | ✅ Good |
+| Specification-first approach for v2.2 | Tuân thủ nghiêm ngặt 9 tài liệu trong src/docs/ để AI agent hiểu đúng business logic | — Pending |
 
 ---
 

@@ -77,3 +77,29 @@
 - Customer delivery page
 - Created reviewer route group layout and migrated all 4 reviewer files from hand-rolled ui.tsx components to antd. The reviewer layout uses a compact Sider with a single queue nav item, matching the specialist layout pattern. All page-level Badge/PageHeader/Button/Card/Table imports replaced with antd Tag/Typography/Button/Card/Table equivalents.
 - Deleted `ui.tsx` and `admin-shell.tsx` after verifying zero remaining consumers in the project
+
+---
+
+## v2.1 Shared Tenant Architecture (Shipped: 2026-06-19)
+
+**Phases completed:** 19 phases (55-72, 85), ~20 plans, 100+ tasks
+
+**Key accomplishments:**
+
+- Architecture & Standards — 17 documentation files, 8 TypeScript type modules, 30+ component registry, StatCard unified, Storybook setup, Swagger/OpenAPI, Central API Client
+- Storage Infrastructure — StorageProvider interface, LocalStorageAdapter, tenant-isolated file storage with S3-ready migration path
+- Shared Tenant Architecture — Domain models (Organization, Workspace, Partner, Engagement), schema design with 15-phase implementation plan
+- Core Implementation (15 phases) — Multi-tenant backend: Core Tables, Partner Model, Engagement System, Request Enhancement, RequestContext & Middleware, Permission Service, Repository Pattern, Data Migration, Partner Auth/Requests/Actions UI, Organization/User/Request/Workspace Management v2
+- Database Schema Improvement — 4-wave migration: FK constraints, new columns (matterTypeId, isCurrent, endedAt, fileId), data backfill, schema contract with feature flags
+- Partner Portal — Partner auth UI, dashboard, request list/detail pages, action forms (status update, comments, document upload), member management
+
+**Stats:**
+- Timeline: 6 days (2026-06-13 → 2026-06-18)
+- Commits: 359
+- Files changed: 724
+- LOC: +114,819 / -27,088
+
+**Known Gaps:**
+- 12 phases deferred (73-84 Legacy UI Enhancement) — UI exists, needs backend integration with new multi-tenant APIs
+- Unit test coverage incomplete for new services
+- Some services deferred (PartnerService, PartnerMemberService, EngagementService, etc.)

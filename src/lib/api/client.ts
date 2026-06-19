@@ -51,25 +51,51 @@ class ApiClient {
       });
     }
 
-    const response = await fetch(url.toString(), {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-      signal: options?.signal,
-      credentials: 'include',
-    });
+    const maxRetries = 3;
+    const retryDelays = [500, 1000, 2000]; // Exponential backoff: 500ms, 1s, 2s
 
-    const data = await response.json() as T | ErrorResponse;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fetch(url.toString(), {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            ...options?.headers,
+          },
+          body: body ? JSON.stringify(body) : undefined,
+          signal: options?.signal,
+          credentials: 'include',
+        });
 
-    if (!response.ok) {
-      const errorData = data as ErrorResponse;
-      throw new Error(errorData.error || errorData.detail || `HTTP ${response.status}`);
+        const data = await response.json() as T | ErrorResponse;
+
+        if (!response.ok) {
+          const errorData = data as ErrorResponse;
+
+          // Retry ONLY on HTTP 502/503/504
+          if (attempt < maxRetries && [502, 503, 504].includes(response.status)) {
+            await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
+            continue;
+          }
+
+          throw new Error(errorData.error || errorData.detail || `HTTP ${response.status}`);
+        }
+
+        return data as T;
+      } catch (error) {
+        // Retry on network errors only (TypeError from fetch failure)
+        const isNetworkError = error instanceof TypeError && error.message.includes('fetch');
+
+        if (isNetworkError && attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
+          continue;
+        }
+
+        throw error;
+      }
     }
 
-    return data as T;
+    throw new Error('Request failed after retries');
   }
 
   /**

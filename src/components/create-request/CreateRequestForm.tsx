@@ -1,211 +1,253 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { AlertCircle } from 'lucide-react';
+import { WizardProvider, useWizard } from './WizardProvider';
 import WizardSteps from './WizardSteps';
-import ServiceTypeSelector from './ServiceTypeSelector';
-import IntakeQuestionsForm, { IntakeQuestionsFormHandle } from './IntakeQuestionsForm';
+import LegalDomainSelector from './LegalDomainSelector';
+import ServiceTypeList from './ServiceTypeList';
+import IntakeQuestionsFormEnhanced, { validateQuestionsForm } from './IntakeQuestionsFormEnhanced';
+import FileUploadZone from './FileUploadZone';
+import ReviewStep from './ReviewStep';
 import SummaryPanel from './SummaryPanel';
 import ChecklistPanel from './ChecklistPanel';
-
-interface UploadedFile {
-  vaultFileId: string;
-  filename: string;
-  size: number;
-}
-
-interface IntakeAnswers {
-  [key: string]: string;
-}
+import type { WizardState } from '@/lib/types/wizard';
 
 interface CreateRequestFormProps {
   workspaces?: Array<{ id: string; name: string; slug: string }>;
   workspaceName?: string;
   locale?: string;
+  userContactInfo?: {
+    email?: string;
+    phone?: string;
+    companyName?: string;
+    taxCode?: string;
+  };
 }
 
-export default function CreateRequestForm({ workspaces = [], workspaceName = '', locale = 'vi' }: CreateRequestFormProps) {
-  const t = useTranslations('UserCreateRequest');
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedService, setSelectedService] = useState('agency_contract');
+/**
+ * Inner wizard form component that uses WizardContext
+ */
+function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: CreateRequestFormProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { state, actions } = useWizard();
 
-  // Draft state
-  const [requestId, setRequestId] = useState<string | null>(null);
-  const [isCreatingDraft, setIsCreatingDraft] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [stepErrors, setStepErrors] = useState<Record<number, boolean>>({});
+  const [isFetchingDraft, setIsFetchingDraft] = useState(false);
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
 
-  // Step 3: Document upload state
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  // Calculate completed steps
+  const completedSteps: number[] = [];
+  if (state.domainId) completedSteps.push(1);
+  if (state.serviceType) completedSteps.push(2);
+  if (Object.keys(state.answers).length > 0) completedSteps.push(3);
+  if (state.files.length > 0) completedSteps.push(4);
 
-  // Step 4: Submit state
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  // Resume draft from URL query param
+  useEffect(() => {
+    const draftId = searchParams.get('draftId');
+    if (draftId && !state.draftId) {
+      setIsFetchingDraft(true);
+      fetch(`/api/intake/draft/${draftId}`)
+        .then((res) => {
+          if (res.ok) return res.json();
+          throw new Error('Draft not found');
+        })
+        .then((data) => {
+          if (data.data) {
+            actions.setDomain(data.data.domainId || '');
+            actions.setService(data.data.serviceType || '');
+            Object.entries(data.data.answers || {}).forEach(([key, value]) => {
+              actions.setAnswer(key, value as string);
+            });
+            actions.setPriority(data.data.priority || 'normal');
+            if (data.data.contactInfo) {
+              actions.setContact(data.data.contactInfo);
+            }
+            actions.setDraftId(draftId);
+            setShowDraftBanner(true);
+          }
+        })
+        .catch(() => {
+          // Draft not found, continue with empty form
+        })
+        .finally(() => {
+          setIsFetchingDraft(false);
+        });
+    }
+  }, [searchParams, state.draftId, actions]);
 
-  // Error state
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  // Update URL query params when step changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set('step', state.step.toString());
+    if (state.draftId) {
+      params.set('draftId', state.draftId);
+    }
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [state.step, state.draftId, router]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const questionsFormRef = useRef<IntakeQuestionsFormHandle>(null);
+  // Validate current step before navigation
+  const validateCurrentStep = (): boolean => {
+    const errors: Record<string, string> = {};
 
-  const createDraft = async (answersToSave: IntakeAnswers) => {
-    setIsCreatingDraft(true);
+    if (state.step === 1) {
+      if (!state.domainId) {
+        errors.domainId = 'Vui lòng chọn lĩnh vực pháp lý';
+      }
+    } else if (state.step === 2) {
+      if (!state.serviceType) {
+        errors.serviceType = 'Vui lòng chọn dịch vụ';
+      }
+    } else if (state.step === 3) {
+      if (state.serviceType) {
+        const questionErrors = validateQuestionsForm(state.serviceType, state.answers);
+        Object.assign(errors, questionErrors);
+      }
+    }
+
+    setValidationErrors(errors);
+    const hasErrors = Object.keys(errors).length > 0;
+    setStepErrors((prev) => ({ ...prev, [state.step]: hasErrors }));
+    return !hasErrors;
+  };
+
+  // Save draft to backend
+  const saveDraft = async () => {
+    if (!state.domainId || !state.serviceType) return;
+
     try {
-      const response = await fetch('/api/intake/create-draft', {
+      const response = await fetch('/api/intake/draft/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          matterTypeKey: selectedService === 'trademark' ? 'trademark_registration' : selectedService,
-          answers: answersToSave,
+          draftId: state.draftId,
+          domainId: state.domainId,
+          serviceType: state.serviceType,
+          answers: state.answers,
+          files: state.files,
+          priority: state.priority,
+          contactInfo: state.contactInfo,
         }),
       });
 
-      if (!response.ok) {
+      if (response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to create draft');
+        actions.setDraftId(data.draftId);
       }
-
-      const data = await response.json();
-      setRequestId(data.id);
-      return true;
     } catch (error) {
-      console.error('Failed to create draft:', error);
-      setErrors({ draft: 'Failed to create draft. Please try again.' });
-      return false;
-    } finally {
-      setIsCreatingDraft(false);
+      console.error('Failed to save draft:', error);
     }
   };
 
+  // Handle next step with validation and auto-save
   const handleNext = async () => {
-    setErrors({});
-
-    if (currentStep === 1) {
-      // Step 1 → 2: User hasn't filled answers yet, just go to step 2
-      setCurrentStep(2);
+    if (!validateCurrentStep()) {
       return;
     }
 
-    if (currentStep === 2) {
-      // Step 2 → 3: Validate and create draft with answers from form
-      if (!questionsFormRef.current?.isValid()) {
-        setErrors({ answers: 'Vui lòng điền đầy đủ thông tin bắt buộc' });
-        return;
-      }
-      const answersFromForm = questionsFormRef.current?.getAnswers() || {};
-      const success = await createDraft(answersFromForm);
-      if (success) {
-        setCurrentStep(3);
-      }
-      return;
-    }
+    // Auto-save draft before moving to next step
+    await saveDraft();
 
-    if (currentStep === 3) {
-      setCurrentStep(4);
+    if (state.step < 5) {
+      actions.nextStep();
     }
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setUploadError(null);
-    setIsUploading(true);
-
-    try {
-      // Create draft if needed (user hasn't filled form yet, use empty answers)
-      if (!requestId) {
-        const success = await createDraft({});
-        if (!success) return;
-      }
-
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('requestId', requestId!);
-
-      const response = await fetch('/api/intake/attach-file', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || data.error || 'Upload failed');
-      }
-
-      setUploadedFiles((prev) => [
-        ...prev,
-        {
-          vaultFileId: data.vaultFileId,
-          filename: data.filename,
-          size: data.size,
-        },
-      ]);
-    } catch (error) {
-      console.error('Upload failed:', error);
-      setUploadError(error instanceof Error ? error.message : 'Upload failed');
-      setErrors({ upload: error instanceof Error ? error.message : 'Upload failed' });
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+  // Handle previous step
+  const handlePrev = () => {
+    if (state.step > 1) {
+      actions.prevStep();
     }
   };
 
-  const handleRemoveFile = (vaultFileId: string) => {
-    setUploadedFiles((prev) => prev.filter((f) => f.vaultFileId !== vaultFileId));
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
+  // Handle submit
   const handleSubmit = async () => {
-    if (!requestId) {
-      setSubmitError('No request to submit');
-      return;
+    if (!state.domainId || !state.serviceType) {
+      throw new Error('Thiếu thông tin bắt buộc');
     }
 
-    setSubmitError(null);
-    setIsSubmitting(true);
+    const response = await fetch('/api/intake/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        draftId: state.draftId,
+        domainId: state.domainId,
+        serviceType: state.serviceType,
+        answers: state.answers,
+        files: state.files,
+        priority: state.priority,
+        contactInfo: state.contactInfo,
+      }),
+    });
 
-    try {
-      const response = await fetch('/api/intake/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requestId }),
-      });
-
+    if (!response.ok) {
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || data.error || 'Submit failed');
-      }
-
-      setSubmitSuccess(true);
-
-      setTimeout(() => {
-        window.location.href = `/${locale}/dashboard`;
-      }, 2000);
-    } catch (error) {
-      console.error('Submit failed:', error);
-      setSubmitError(error instanceof Error ? error.message : 'Submit failed');
-      setErrors({ submit: error instanceof Error ? error.message : 'Submit failed' });
-    } finally {
-      setIsSubmitting(false);
+      throw new Error(data.message || 'Gửi yêu cầu thất bại');
     }
   };
+
+  // Delete draft and start over
+  const handleDeleteDraft = async () => {
+    if (state.draftId) {
+      try {
+        await fetch(`/api/intake/draft/${state.draftId}`, {
+          method: 'DELETE',
+        });
+      } catch (error) {
+        console.error('Failed to delete draft:', error);
+      }
+    }
+    actions.reset();
+    router.replace('/create', { scroll: false });
+    setShowDraftBanner(false);
+  };
+
+  // Loading state for draft fetch
+  if (isFetchingDraft) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="create-request-container">
+      {/* Draft Resume Banner */}
+      {showDraftBanner && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-blue-900">Đang tiếp tục từ bản nháp</p>
+                <p className="text-sm text-blue-700 mt-1">
+                  Bạn có thể tiếp tục chỉnh sửa hoặc xóa để bắt đầu lại từ đầu.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleDeleteDraft}
+              className="text-sm text-red-600 hover:text-red-700 font-medium"
+            >
+              Xóa và bắt đầu mới
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Wizard Steps */}
       <div className="wizard-steps-wrapper">
-        <WizardSteps currentStep={currentStep} />
+        <WizardSteps
+          currentStep={state.step}
+          totalSteps={5}
+          completedSteps={completedSteps}
+          validationErrors={stepErrors}
+        />
       </div>
 
       {/* Main Grid Layout */}
@@ -213,237 +255,109 @@ export default function CreateRequestForm({ workspaces = [], workspaceName = '',
         {/* Left Column - Form */}
         <div className="form-column">
           <div className="form-card">
-            <div className="card-header">
-              <h2 className="card-title">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <path d="M14 2v6h6"/>
-                  <path d="M9 13h6"/>
-                </svg>
-                {t('formTitle')}
-              </h2>
-              <span className="step-badge">{t('stepBadge', { current: currentStep, total: 4 })}</span>
-            </div>
-
             <div className="card-body">
-              {/* Error Display */}
-              {errors.answers && (
-                <div className="text-red-500 text-sm mb-4">{errors.answers}</div>
-              )}
-              {errors.draft && (
-                <div className="text-red-500 text-sm mb-4">{errors.draft}</div>
-              )}
-
-              {/* Step 1: Service Selection */}
-              {currentStep === 1 && (
-                <ServiceTypeSelector
-                  selectedId={selectedService}
-                  onSelect={setSelectedService}
+              {/* Step 1: Domain Selection */}
+              {state.step === 1 && (
+                <LegalDomainSelector
+                  selectedDomainId={state.domainId}
+                  onSelect={actions.setDomain}
                   locale={locale}
                 />
               )}
 
-              {/* Step 2: Questions */}
-              {currentStep === 2 && (
-                <IntakeQuestionsForm
-                  ref={questionsFormRef}
-                  selectedService={selectedService}
+              {/* Step 2: Service Type Selection */}
+              {state.step === 2 && state.domainId && (
+                <ServiceTypeList
+                  domainId={state.domainId}
+                  selectedServiceType={state.serviceType}
+                  onSelect={actions.setService}
                   locale={locale}
                 />
               )}
 
-              {/* Step 3: Upload */}
-              {currentStep === 3 && (
-                <div className="documents-step">
-                  <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '18px' }}>
-                    Tải lên tài liệu liên quan để hỗ trợ yêu cầu của bạn
-                  </p>
+              {/* Step 3: Questions */}
+              {state.step === 3 && state.serviceType && (
+                <IntakeQuestionsFormEnhanced
+                  serviceType={state.serviceType}
+                  answers={state.answers}
+                  onAnswerChange={actions.setAnswer}
+                  errors={validationErrors}
+                  locale={locale}
+                />
+              )}
 
-                  <div
-                    className="upload-zone"
-                    onClick={() => fileInputRef.current?.click()}
-                    style={{
-                      border: '2px dashed #cbd5e1',
-                      borderRadius: '12px',
-                      padding: '32px',
-                      textAlign: 'center',
-                      cursor: 'pointer',
-                      backgroundColor: '#f8fafc',
-                      marginBottom: '16px',
-                    }}
+              {/* Step 4: File Upload */}
+              {state.step === 4 && (
+                <FileUploadZone
+                  files={state.files}
+                  onFileAdd={actions.addFile}
+                  onFileRemove={actions.removeFile}
+                  locale={locale}
+                />
+              )}
+
+              {/* Step 5: Review */}
+              {state.step === 5 && (
+                <ReviewStep
+                  state={state}
+                  onEdit={actions.goToStep}
+                  onSubmit={handleSubmit}
+                  locale={locale}
+                  userContactInfo={userContactInfo}
+                />
+              )}
+
+              {/* Navigation Buttons */}
+              {state.step < 5 && (
+                <div className="form-actions">
+                  <button
+                    type="button"
+                    className="ghost-btn"
+                    onClick={handlePrev}
+                    disabled={state.step === 1}
                   >
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      style={{ display: 'none' }}
-                      onChange={handleFileSelect}
-                      disabled={isUploading}
-                    />
-                    {isUploading ? (
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-                        <p style={{ color: '#64748b' }}>Đang tải lên...</p>
-                      </div>
-                    ) : (
-                      <>
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" style={{ margin: '0 auto 12px' }}>
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                          <polyline points="17 8 12 3 7 8"/>
-                          <line x1="12" y1="3" x2="12" y2="15"/>
-                        </svg>
-                        <p style={{ color: '#64748b', marginBottom: '4px' }}>
-                          Kéo thả file vào đây hoặc <span style={{ color: '#0d9488', fontWeight: 600 }}>chọn file</span>
-                        </p>
-                        <p style={{ color: '#94a3b8', fontSize: '12px' }}>PDF, DOC, DOCX, JPG, PNG (tối đa 50MB)</p>
-                      </>
-                    )}
-                  </div>
-
-                  {uploadError && (
-                    <div className="text-red-500 text-sm mb-4">{uploadError}</div>
-                  )}
-
-                  {uploadedFiles.length > 0 && (
-                    <div className="uploaded-files-list">
-                      <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>
-                        Đã tải lên ({uploadedFiles.length})
-                      </p>
-                      {uploadedFiles.map((file) => (
-                        <div
-                          key={file.vaultFileId}
-                          className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
-                          style={{ marginBottom: '8px' }}
-                        >
-                          <div className="flex items-center gap-3">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2">
-                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                              <path d="M14 2v6h6"/>
-                            </svg>
-                            <div>
-                              <p style={{ fontSize: '14px', fontWeight: 500 }}>{file.filename}</p>
-                              <p style={{ fontSize: '12px', color: '#64748b' }}>{formatFileSize(file.size)}</p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleRemoveFile(file.vaultFileId)}
-                            className="text-slate-400 hover:text-red-500 transition-colors"
-                          >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <line x1="18" y1="6" x2="6" y2="18"/>
-                              <line x1="6" y1="6" x2="18" y2="18"/>
-                            </svg>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                    Quay lại
+                  </button>
+                  <button
+                    type="button"
+                    className="create-btn"
+                    onClick={handleNext}
+                  >
+                    Tiếp tục
+                  </button>
                 </div>
               )}
-
-              {/* Step 4: Review & Submit */}
-              {currentStep === 4 && (
-                <div className="review-step">
-                  {submitSuccess ? (
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
-                          <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                      </div>
-                      <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>Yêu cầu đã được gửi thành công!</h3>
-                      <p style={{ color: '#64748b' }}>Bạn sẽ được chuyển hướng đến trang chủ trong giây lát...</p>
-                    </div>
-                  ) : (
-                    <>
-                      <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '18px' }}>
-                        Kiểm tra thông tin trước khi gửi yêu cầu
-                      </p>
-
-                      <div className="bg-slate-50 rounded-lg p-4 mb-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span style={{ fontSize: '14px', color: '#64748b' }}>Loại dịch vụ</span>
-                          <span style={{ fontSize: '14px', fontWeight: 600 }}>{selectedService}</span>
-                        </div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span style={{ fontSize: '14px', color: '#64748b' }}>Tài liệu đính kèm</span>
-                          <span style={{ fontSize: '14px', fontWeight: 600 }}>{uploadedFiles.length} file(s)</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span style={{ fontSize: '14px', color: '#64748b' }}>Trạng thái</span>
-                          <span style={{ fontSize: '14px', fontWeight: 600, color: '#0d9488' }}>Sẵn sàng gửi</span>
-                        </div>
-                      </div>
-
-                      {submitError && (
-                        <div className="text-red-500 text-sm mb-4">{submitError}</div>
-                      )}
-
-                      <button
-                        type="button"
-                        className="w-full create-btn"
-                        onClick={handleSubmit}
-                        disabled={isSubmitting}
-                        style={{ marginTop: '16px' }}
-                      >
-                        {isSubmitting ? (
-                          <span className="flex items-center justify-center gap-2">
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                            Đang gửi...
-                          </span>
-                        ) : (
-                          t('submit')
-                        )}
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="form-actions">
-                <button
-                  type="button"
-                  className="ghost-btn"
-                  onClick={() => window.history.back()}
-                >
-                  {t('backToDashboard')}
-                </button>
-                <div className="action-buttons-right">
-                  {currentStep < 4 && (
-                    <button
-                      type="button"
-                      className="create-btn"
-                      onClick={handleNext}
-                      disabled={isCreatingDraft}
-                    >
-                      {isCreatingDraft ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                          Đang xử lý...
-                        </span>
-                      ) : (
-                        <>
-                          {t('continue')}
-                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                            <path d="M5 12h14"/>
-                            <path d="m12 5 7 7-7 7"/>
-                          </svg>
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
         {/* Right Column - Side Panels */}
         <div className="side-panels">
-          <SummaryPanel selectedService={selectedService} workspaceName={workspaceName} />
+          <SummaryPanel
+            selectedService={state.serviceType || ''}
+            workspaceName={workspaceName}
+          />
           <ChecklistPanel />
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Main CreateRequestForm component wrapped with WizardProvider
+ */
+export default function CreateRequestForm(props: CreateRequestFormProps) {
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const initialStep = searchParams?.get('step') ? parseInt(searchParams.get('step')!) as 1 | 2 | 3 | 4 | 5 : undefined;
+
+  const initialDraft: Partial<WizardState> | undefined = initialStep
+    ? { step: initialStep }
+    : undefined;
+
+  return (
+    <WizardProvider initialDraft={initialDraft}>
+      <WizardForm {...props} />
+    </WizardProvider>
   );
 }

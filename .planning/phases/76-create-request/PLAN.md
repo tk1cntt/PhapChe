@@ -4,6 +4,7 @@ depends_on: []
 files_modified:
   - src/lib/i18n/seed-legal-domains.ts (NEW)
   - src/lib/types/wizard.ts (NEW)
+  - prisma/schema.prisma (MODIFY)
   - src/app/api/intake/draft/save/route.ts (NEW)
   - src/app/api/intake/draft/[id]/route.ts (NEW)
   - src/app/api/intake/submit/route.ts (MODIFY)
@@ -23,11 +24,14 @@ files_modified:
   - src/messages/zh.json (MODIFY)
   - src/messages/ja.json (MODIFY)
   - src/components/create-request/__tests__/LegalDomainSelector.test.tsx (NEW)
+  - src/components/create-request/__tests__/ServiceTypeList.test.tsx (NEW)
   - src/components/create-request/__tests__/WizardProvider.test.tsx (NEW)
   - src/components/create-request/__tests__/IntakeQuestionsFormEnhanced.test.tsx (NEW)
+  - src/components/create-request/__tests__/FileUploadZone.test.tsx (NEW)
   - src/components/create-request/__tests__/ReviewStep.test.tsx (NEW)
   - src/app/api/intake/draft/save/__tests__/route.test.ts (NEW)
   - src/app/api/intake/draft/[id]/__tests__/route.test.ts (NEW)
+  - src/app/api/intake/submit/__tests__/route.test.ts (NEW)
   - e2e/076-wizard-flow.spec.ts (NEW)
   - e2e/076-draft-save-resume.spec.ts (NEW)
   - e2e/076-file-upload-submit.spec.ts (NEW)
@@ -277,17 +281,25 @@ Thêm Draft model vào prisma/schema.prisma:
 3. Add relation to User model:
    - drafts: Draft[]
 
-4. Create migration:
-   - Run: npx prisma migrate dev --name add_draft_table
+4. Add fields to Request model (for submit enhancement):
+   - priority: String @default("normal") (enum: normal, urgent)
+   - contactInfo: Json? (nullable, lưu email/phone/companyName/taxCode)
+   - submittedAt: DateTime? (nullable, timestamp khi submit)
+   - Add relation to User model nếu cần
+
+5. Create migrations:
+   - Run: npx prisma migrate dev --name add_draft_and_request_fields
    - Verify migration file created in prisma/migrations/
+   - Migration phải tạo cả Draft table VÀ add fields vào Request table
 </action>
 
 <acceptance_criteria>
   <criterion>prisma/schema.prisma chứa Draft model với tất cả fields: id, userId, domainId, serviceType, answers, files, priority, contactInfo, status, createdAt, updatedAt</criterion>
+  <criterion>prisma/schema.prisma Request model có 3 fields mới: priority (String @default("normal")), contactInfo (Json?), submittedAt (DateTime?)</criterion>
   <criterion>Draft model có userId foreign key và User relation</criterion>
-  <criterion>Indexes tạo trên [userId, status] và [updatedAt]</criterion>
-  <criterion>Migration file tạo trong prisma/migrations/ với tên add_draft_table</criterion>
-  <criterion>Test command: npx prisma migrate dev --create-only --name add_draft_table tạo migration thành công</criterion>
+  <criterion>Indexes tạo trên [userId, status] và [updatedAt] cho Draft model</criterion>
+  <criterion>Migration file tạo trong prisma/migrations/ với tên add_draft_and_request_fields</criterion>
+  <criterion>Test command: npx prisma migrate dev --create-only --name add_draft_and_request_fields tạo migration thành công (bao gồm cả Draft table VÀ Request fields)</criterion>
   <criterion>Test command: npx prisma generate không lỗi</criterion>
 </acceptance_criteria>
 </task>
@@ -365,8 +377,8 @@ Tạo file src/app/api/intake/draft/save/route.ts:
 
 <task>
 <id>76-05-draft-load-api</id>
-<name>Draft Load API Endpoint</name>
-<description>Tạo GET endpoint /api/intake/draft/:id để load draft data với user ownership validation.</description>
+<name>Draft Load and Delete API Endpoints</name>
+<description>Tạo GET và DELETE endpoints /api/intake/draft/:id để load và xóa draft data với user ownership validation.</description>
 
 <requirements>
   <req_id>CREQ-11</req_id>
@@ -404,17 +416,33 @@ Tạo file src/app/api/intake/draft/[id]/route.ts:
    - Không expose internal fields (createdAt, userId)
    - Sanitize output (escape HTML in strings)
    - Log audit event: 'draft.load' với draftId, userId
+
+6. DELETE handler (trong cùng file):
+   - Extract userId từ session (requireAppSession)
+   - Query draft từ database by id
+   - Validate draft.userId matches session.userId (prevent IDOR)
+   - Update draft.status: 'deleted' (soft delete, không xóa hẳn)
+   - Response: { success: true, message: 'Draft deleted successfully' }
+   - Error 401: Unauthorized (no session)
+   - Error 403: Forbidden (draft belongs to another user)
+   - Error 404: Draft not found
+   - Log audit event: 'draft.delete' với draftId, userId
 </action>
 
 <acceptance_criteria>
-  <criterion>File src/app/api/intake/draft/[id]/route.ts tồn tại với GET handler</criterion>
-  <criterion>API trả 400 nếu draftId format invalid (not cuid)</criterion>
-  <criterion>API trả 401 nếu không có session</criterion>
-  <criterion>API trả 403 nếu draft.userId không match session.userId</criterion>
-  <criterion>API trả 404 nếu draft không tồn tại hoặc status !== 'draft'</criterion>
-  <criterion>API trả draft data đầy đủ: draftId, domainId, serviceType, answers, files, priority, contactInfo, updatedAt</criterion>
-  <criterion>Response không expose internal fields (createdAt, userId)</criterion>
-  <criterion>Test command: npx vitest run src/app/api/intake/draft/[id]/__tests__/route.test.ts - tất cả 6 tests pass (load success, not found, unauthorized, forbidden, invalid id, deleted draft)</criterion>
+  <criterion>File src/app/api/intake/draft/[id]/route.ts tồn tại với GET và DELETE handlers</criterion>
+  <criterion>GET API trả 400 nếu draftId format invalid (not cuid)</criterion>
+  <criterion>GET API trả 401 nếu không có session</criterion>
+  <criterion>GET API trả 403 nếu draft.userId không match session.userId</criterion>
+  <criterion>GET API trả 404 nếu draft không tồn tại hoặc status !== 'draft'</criterion>
+  <criterion>GET API trả draft data đầy đủ: draftId, domainId, serviceType, answers, files, priority, contactInfo, updatedAt</criterion>
+  <criterion>GET API response không expose internal fields (createdAt, userId)</criterion>
+  <criterion>DELETE API trả 401 nếu không có session</criterion>
+  <criterion>DELETE API trả 403 nếu draft.userId không match session.userId</criterion>
+  <criterion>DELETE API trả 404 nếu draft không tồn tại</criterion>
+  <criterion>DELETE API soft-delete draft (set status = 'deleted')</criterion>
+  <criterion>DELETE API trả { success: true, message: 'Draft deleted successfully' }</criterion>
+  <criterion>Test command: npx vitest run src/app/api/intake/draft/[id]/__tests__/route.test.ts - tất cả 10 tests pass (GET: load success, not found, unauthorized, forbidden, invalid id, deleted draft + DELETE: success, unauthorized, forbidden, not found)</criterion>
 </acceptance_criteria>
 </task>
 
@@ -829,14 +857,16 @@ Tạo file src/components/create-request/FileUploadZone.tsx:
    - Accept: .pdf,.doc,.docx,.jpg,.jpeg,.png
    - Click zone: trigger input.click()
 
-4. Upload logic:
+4. Upload logic (XMLHttpRequest, KHÔNG dùng fetch):
    - onFileSelect(files): Validate và upload từng file
    - Validate file size: <= 50MB, else show error toast
    - Validate file type: whitelist, else show error toast
-   - Call POST /api/intake/attach-file với FormData
+   - Dùng XMLHttpRequest để track upload progress (fetch API không support upload progress events)
+   - POST /api/intake/attach-file với FormData
+   - xhr.upload.onprogress: update uploadProgress state (0-100%)
+   - xhr.onload: dispatch ADD_FILE action nếu success
+   - xhr.onerror: show error toast
    - Track upload progress: uploadProgress state (0-100%)
-   - On success: dispatch ADD_FILE action
-   - On error: show error toast
 
 5. Progress bar:
    - Hiển thị khi uploading
@@ -938,7 +968,7 @@ Tạo file src/components/create-request/ReviewStep.tsx:
       - Company name: input (editable)
       - Tax code: input (editable)
       - onChange: dispatch SET_CONTACT
-      - Pre-fill từ user profile (fetch GET /api/users/me nếu chưa có)
+      - Read user data from props (passed from page.tsx server component)
 
 4. Actions column:
    - Submit button: "Gửi yêu cầu" (bg-blue-500, hover: blue-600, disabled nếu chưa đủ data)
@@ -967,7 +997,7 @@ Tạo file src/components/create-request/ReviewStep.tsx:
   <criterion>Mỗi section có Edit button gọi onEdit(step)</criterion>
   <criterion>Priority radio group: Normal (gray), Urgent (red với AlertCircle icon)</criterion>
   <criterion>Contact info inputs: email, phone, companyName, taxCode (editable)</criterion>
-  <criterion>Contact info pre-fill từ user profile (fetch GET /api/users/me)</criterion>
+  <criterion>Contact info pre-fill từ props (server component truyền xuống, không fetch từ client)</criterion>
   <criterion>Submit button disabled nếu thiếu domain/service/required answers</criterion>
   <criterion>Loading state: spinner khi submitting</criterion>
   <criterion>Success modal: overlay, modal 480x320px, CheckCircle icon, title, message, button</criterion>

@@ -65,7 +65,7 @@ export function LoadingSkeleton({ variant, count = 1, className }: LoadingSkelet
     <div className="flex flex-col gap-4" role="status">
       <span className="sr-only">Đang tải...</span>
       {Array.from({ length: count }, (_, i) => (
-        <SkeletonComponent key={i} className={className} />
+        <SkeletonComponent key={`${variant}-${i}`} className={className} />
       ))}
     </div>
   );

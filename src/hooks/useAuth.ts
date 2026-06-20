@@ -1,12 +1,24 @@
 import { useSession } from '@/lib/auth-client';
 
 /**
- * useAuth — hook để truy cập thông tin user và session hiện tại.
+ * useAuth — Hook để truy cập thông tin user và session hiện tại.
  * Wrap Better Auth's useSession hook.
  *
- * @returns user - Thông tin user hiện tại hoặc null nếu chưa đăng nhập
- * @returns isLoading - Đang tải session
- * @returns isAuthenticated - User đã đăng nhập hay chưa
+ * Returns authentication state including current user, loading status, and login state.
+ *
+ * @returns user - Current user object or null if not authenticated
+ * @returns isLoading - true while fetching session from server
+ * @returns isAuthenticated - true if user has valid authentication
+ *
+ * @example
+ * ```tsx
+ * const { user, isLoading, isAuthenticated } = useAuth();
+ *
+ * if (isLoading) return <LoadingSpinner />;
+ * if (!isAuthenticated) return <LoginPage />;
+ *
+ * return <WelcomeUser name={user.name} />;
+ * ```
  */
 export function useAuth() {
   const { data: session, isPending } = useSession();

@@ -78,6 +78,41 @@
   display: contents;
 }
 
+/* Back Button */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #087f78;
+  font-size: 14px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  margin-bottom: 16px;
+  transition: color 0.2s;
+}
+
+.back-btn:hover {
+  color: #0f766e;
+}
+
+/* Domain Header */
+.domain-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.domain-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+
 .wizard-steps-wrapper .step {
   display: flex;
   align-items: center;

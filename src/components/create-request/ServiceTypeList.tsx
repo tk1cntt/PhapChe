@@ -26,9 +26,9 @@ export default function ServiceTypeList({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
+          className="back-btn"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={18} />
           Quay lại
         </button>
         <p className="text-gray-600">Không tìm thấy lĩnh vực</p>
@@ -49,16 +49,16 @@ export default function ServiceTypeList({
       <button
         type="button"
         onClick={onBack}
-        className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
+        className="back-btn"
       >
-        <ArrowLeft size={20} />
+        <ArrowLeft size={18} />
         Quay lại
       </button>
 
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">{domainLabel}</h2>
-      <p className="text-gray-600 mb-6">Chọn loại dịch vụ bạn cần</p>
+      <h2 className="domain-title">{domainLabel}</h2>
+      <p className="domain-subtitle">Chọn loại dịch vụ bạn cần</p>
 
-      <div className="space-y-3">
+      <div className="service-list">
         {serviceTypes.map((serviceType) => {
           const isSelected = selectedServiceType === serviceType.key;
           const label = serviceType.label[locale as keyof typeof serviceType.label] || serviceType.label.vi;
@@ -69,19 +69,16 @@ export default function ServiceTypeList({
               key={serviceType.key}
               type="button"
               onClick={() => onSelect(serviceType.key)}
-              className={`w-full p-5 rounded-xl border-2 transition-all duration-200 text-left hover:border-blue-300 ${
-                isSelected
-                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500'
-                  : 'border-gray-200 bg-white hover:bg-gray-50'
-              }`}
+              className={`service-option ${isSelected ? 'selected' : ''}`}
             >
-              <h3 className="font-semibold text-lg text-gray-900 mb-2">{label}</h3>
-              <p className="text-sm text-gray-600 mb-3">{description}</p>
-              <div className="flex items-center gap-4 text-xs text-gray-500">
-                <span>{serviceType.questions.length} câu hỏi</span>
-                <span className="flex items-center gap-1">
-                  {serviceType.questions.filter((q) => q.required).length} bắt buộc
-                </span>
+              <div className="radio"></div>
+              <div className="service-info">
+                <strong>{label}</strong>
+                <span>{description}</span>
+              </div>
+              <div className="service-meta">
+                <span className="tag blue">{serviceType.questions.length} câu</span>
+                <span className="tag green">{serviceType.questions.filter((q) => q.required).length} bắt buộc</span>
               </div>
             </button>
           );

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { Toaster } from 'react-hot-toast';
 import { QueryProvider } from '@/lib/react-query';
+import { ErrorBoundaryWrapper } from '@/components/shared/ui/ErrorBoundary';
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -21,12 +22,14 @@ export default function RootLayout({
   return (
     <html lang="vi" className={cn("font-sans", geist.variable)}>
       <body>
-        <AntdRegistry>
-          <QueryProvider>
-            {children}
-            <Toaster position="top-right" />
-          </QueryProvider>
-        </AntdRegistry>
+        <ErrorBoundaryWrapper>
+          <AntdRegistry>
+            <QueryProvider>
+              {children}
+              <Toaster position="top-right" />
+            </QueryProvider>
+          </AntdRegistry>
+        </ErrorBoundaryWrapper>
       </body>
     </html>
   );

@@ -3,7 +3,7 @@
  * Single client for all API calls - reuse instead of duplicate
  */
 
-import { toastError } from './toast';
+import { toastError } from '../toast';
 
 type RequestOptions = {
   params?: Record<string, string | number | boolean | undefined>;
@@ -33,7 +33,11 @@ type ErrorResponse = {
  */
 function handleError(status: number, error: Error): never {
   if (status === 401 && typeof window !== 'undefined') {
-    window.location.href = '/login';
+    // Avoid redirect loop if already on login page
+    if (!window.location.pathname.startsWith('/login')) {
+      const returnPath = window.location.pathname + window.location.search;
+      window.location.href = `/login?returnUrl=${encodeURIComponent(returnPath)}`;
+    }
   } else if (status === 403) {
     toastError('Không có quyền truy cập');
   } else if (status === 500) {

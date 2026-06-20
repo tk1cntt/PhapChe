@@ -48,8 +48,8 @@ export default function LegalDomainSelector({
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Chọn lĩnh vực pháp lý</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <h2 className="domain-title">Chọn lĩnh vực pháp lý</h2>
+      <div className="domain-grid">
         {domains.map((domain) => {
           const Icon = ICON_MAP[domain.icon] || Briefcase;
           const isSelected = selectedDomainId === domain.key;
@@ -62,18 +62,14 @@ export default function LegalDomainSelector({
               key={domain.key}
               type="button"
               onClick={() => onSelect(domain.key)}
-              className={`relative h-40 p-5 rounded-xl border-2 transition-all duration-200 text-left hover:scale-[1.02] ${
-                isSelected
-                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}
+              className={`domain-card ${isSelected ? 'selected' : ''}`}
             >
-              <Icon size={40} className="text-blue-500 mb-3" />
-              <h3 className="font-semibold text-base text-gray-900 mb-1">{label}</h3>
-              <p className="text-sm text-gray-600 line-clamp-2 mb-2">{description}</p>
-              <span className="absolute bottom-3 right-3 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                {serviceCount} dịch vụ
-              </span>
+              <div className="domain-icon">
+                <Icon size={36} />
+              </div>
+              <h3 className="domain-name">{label}</h3>
+              <p className="domain-desc">{description}</p>
+              <span className="domain-count">{serviceCount} dịch vụ</span>
             </button>
           );
         })}

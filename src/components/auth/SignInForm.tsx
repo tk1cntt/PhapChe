@@ -9,6 +9,15 @@ import toast from 'react-hot-toast';
 const DEFAULT_EMAIL = 'customer.demo@example.test';
 const DEFAULT_PASSWORD = 'Demo@123456';
 
+// Test users from seed data (for quick selection in dev)
+const SEED_USERS = [
+  { email: 'superadmin.demo@example.test', password: 'Demo@123456', role: 'super_admin', label: '👑 Super Admin' },
+  { email: 'admin.demo@example.test', password: 'Demo@123456', role: 'coordinator_admin', label: '⚙️ Admin' },
+  { email: 'reviewer.demo@example.test', password: 'Demo@123456', role: 'reviewer', label: '🔍 Reviewer' },
+  { email: 'specialist.demo@example.test', password: 'Demo@123456', role: 'specialist', label: '📋 Specialist' },
+  { email: 'customer.demo@example.test', password: 'Demo@123456', role: 'customer', label: '👤 Customer' },
+];
+
 const ROLE_ROUTES: Record<string, string> = {
   customer: '/dashboard',
   specialist: '/specialist',
@@ -222,6 +231,13 @@ export default function SignInForm() {
       setPassword(DEFAULT_PASSWORD);
     }
   }, []);
+
+  // Quick user selection (dev only)
+  function selectUser(user: typeof SEED_USERS[0]) {
+    setEmail(user.email);
+    setPassword(user.password);
+    setErrors({});
+  }
 
   function validateEmail(value: string): string | undefined {
     if (!value) return T.emailRequired;
@@ -443,6 +459,35 @@ export default function SignInForm() {
 
       {/* Version */}
       <p style={S.version}>{T.version}</p>
+
+      {/* Dev user selector */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{ marginTop: 20, padding: 12, background: '#f0fdfa', borderRadius: 12, border: '1px solid #99f6e4' }}>
+          <p style={{ fontSize: 12, fontWeight: 600, color: '#0f766e', marginBottom: 8 }}>
+            🧪 Quick Login (Dev)
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {SEED_USERS.map((user) => (
+              <button
+                key={user.role}
+                type="button"
+                onClick={() => selectUser(user)}
+                style={{
+                  padding: '4px 10px',
+                  fontSize: 12,
+                  background: email === user.email ? '#14b8a6' : '#fff',
+                  color: email === user.email ? '#fff' : '#334155',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                }}
+              >
+                {user.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

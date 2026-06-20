@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Legacy UI Enhancement
 status: active
-stopped_at: Phase 74 context gathered
-last_updated: "2026-06-20T01:38:45.058Z"
+stopped_at: Phase 74 context updated (no Ant Design)
+last_updated: "2026-06-20T10:45:00.000Z"
 progress:
   total_phases: 24
   completed_phases: 1
@@ -17,18 +17,20 @@ progress:
 
 ## Current Position
 
-**Phase 73: Shared Foundation — IN PROGRESS**
+**Phase 74: Sign-In — CONTEXT.md Updated**
 
-Plan 73-01 (seed-data-framework) đã hoàn thành và commit (c8fbdd2).
+CONTEXT.md đã update để phản ánh constraint Phase 73: KHÔNG sử dụng Ant Design.
 
-**Kết quả:**
+**Các quyết định đã lock:**
+- ✅ Migrate from Ant Design → custom Tailwind components (per Phase 73)
+- ✅ Use `react-hot-toast` for notifications (already installed)
+- ✅ Build custom Input component following shadcn/ui pattern
+- ✅ Inline validation with React state (no react-hook-form)
+- ✅ Conditional demo credentials pre-fill (dev only)
+- ✅ Dynamic role-based redirect with `useLocale()` hook
+- ✅ Strict returnUrl validation (no open redirect)
 
-- ✓ Tạo cấu trúc seed data mới trong `prisma/seed/` với 4 files
-- ✓ Implement wipe strategy với transaction rollback
-- ✓ Consolidate 7 scattered seed files thành 3 domain modules
-- ✓ Seed data: 1 tenant, 3 orgs, 10 users, 5 workspaces, 50 requests, 100 audit events, 30 messages, 5 partners
-
-**Next:** Plan 73-02 (shared-components) hoặc chuyển sang phase 74
+**Next:** Plan phase để implement
 
 ---
 
@@ -89,10 +91,10 @@ Plan 73-01 (seed-data-framework) đã hoàn thành và commit (c8fbdd2).
 | QT20260617-004 | Database architecture review (4-step expert analysis) | 2026-06-17 | 87beca1 |
 
 ---
-*Last updated: 2026-06-20 after plan 73-01 completion*
+*Last updated: 2026-06-20 after Phase 74 context update*
 
 ## Session
 
-**Last session:** 2026-06-20T01:38:45.046Z
-**Stopped at:** Phase 74 context gathered
+**Last session:** 2026-06-20T10:45:00.000Z
+**Stopped at:** Phase 74 context updated (no Ant Design)
 **Resume file:** .planning/phases/74-sign-in/74-CONTEXT.md

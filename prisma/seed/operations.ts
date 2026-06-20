@@ -162,7 +162,8 @@ export default async function seedOperations(tx: Prisma.TransactionClient, conte
     const assignedSpecialistId = i % 3 === 0 ? userIds[i % 2 + 3] : null; // Specialists
     const assignedReviewerId = i % 4 === 0 ? userIds[i % 2 + 5] : null; // Reviewers
 
-    const slaDays = i % 5 === 0 ? -5 : (i % 10) + 5; // Some overdue, some upcoming
+    // Use realistic SLA ranges (3, 5, 7, 10, 14 days)
+    const slaDays = [3, 5, 7, 10, 14][i % 5];
     const slaDeadline = new Date();
     slaDeadline.setDate(slaDeadline.getDate() + slaDays);
 

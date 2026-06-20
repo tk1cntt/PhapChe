@@ -3,34 +3,39 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Legacy UI Enhancement
 status: active
-stopped_at: Phase 74 context updated (no Ant Design)
-last_updated: "2026-06-20T10:45:00.000Z"
+stopped_at: Phase 74 completed
+last_updated: "2026-06-20T12:00:00.000Z"
 progress:
   total_phases: 24
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
-  percent: 4
+  completed_phases: 2
+  total_plans: 5
+  completed_plans: 5
+  percent: 8
 ---
 
 # STATE.md — Project State Tracker
 
 ## Current Position
 
-**Phase 74: Sign-In — CONTEXT.md Updated**
+**Phase 74: Sign-In — ✅ COMPLETED**
 
-CONTEXT.md đã update để phản ánh constraint Phase 73: KHÔNG sử dụng Ant Design.
+Migrated SignInForm from Ant Design to custom Tailwind CSS components with role-based redirects, locale preservation, and comprehensive security hardening.
 
-**Các quyết định đã lock:**
-- ✅ Migrate from Ant Design → custom Tailwind components (per Phase 73)
-- ✅ Use `react-hot-toast` for notifications (already installed)
-- ✅ Build custom Input component following shadcn/ui pattern
-- ✅ Inline validation with React state (no react-hook-form)
-- ✅ Conditional demo credentials pre-fill (dev only)
-- ✅ Dynamic role-based redirect with `useLocale()` hook
-- ✅ Strict returnUrl validation (no open redirect)
+**Commit:** `1f58e57`  
+**Date:** 2026-06-20  
+**Test Results:** 27/27 tests passed ✅
 
-**Next:** Plan phase để implement
+**Delivered:**
+- ✅ Custom Input component (src/components/ui/input.tsx)
+- ✅ SignInForm rewrite with controlled inputs and inline validation
+- ✅ Role-based redirect mapping (5 roles)
+- ✅ Open redirect protection (strict returnUrl validation)
+- ✅ Locale preservation using useLocale() hook
+- ✅ Demo credentials pre-fill (development only)
+- ✅ Comprehensive test suite (27 tests)
+- ✅ i18n key added (loginSuccess)
+
+**Next:** Phase 75 or continue with Phase 73 plans 73-02 through 73-04
 
 ---
 
@@ -67,6 +72,24 @@ CONTEXT.md đã update để phản ánh constraint Phase 73: KHÔNG sử dụng
 
 ---
 
+## Phase 74 Progress
+
+### 74-01: Sign-In Migration ✅ COMPLETE
+
+- **Commit:** 1f58e57
+- **Date:** 2026-06-20
+- **Files:**
+  - `src/components/ui/input.tsx` - custom Input component (shadcn/ui pattern)
+  - `src/components/auth/SignInForm.tsx` - rewritten form (Ant Design → Tailwind)
+  - `src/components/auth/SignInForm.test.tsx` - comprehensive test suite (27 tests)
+  - `src/app/[locale]/sign-in/page.tsx` - updated page wrapper
+  - `src/messages/vi.json` - added loginSuccess key
+- **Requirements:** AUTH-01 through AUTH-06 ✓
+- **Security:** Open redirect protection implemented
+- **Test Coverage:** ~90% (27 tests: validation, auth flow, role redirects, locale, security, accessibility)
+
+---
+
 ## Milestone v2.1 Summary (Completed 2026-06-19)
 
 **Milestone:** v2.1 Shared Tenant Architecture — SHIPPED
@@ -91,10 +114,10 @@ CONTEXT.md đã update để phản ánh constraint Phase 73: KHÔNG sử dụng
 | QT20260617-004 | Database architecture review (4-step expert analysis) | 2026-06-17 | 87beca1 |
 
 ---
-*Last updated: 2026-06-20 after Phase 74 context update*
+*Last updated: 2026-06-20 after Phase 74 completion*
 
 ## Session
 
-**Last session:** 2026-06-20T10:45:00.000Z
-**Stopped at:** Phase 74 context updated (no Ant Design)
-**Resume file:** .planning/phases/74-sign-in/74-CONTEXT.md
+**Last session:** 2026-06-20T12:00:00.000Z
+**Stopped at:** Phase 74 completed
+**Resume file:** .planning/phases/74-sign-in/SUMMARY.md

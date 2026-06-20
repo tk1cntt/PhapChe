@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const validationResult = submitSchema.safeParse(body);
 
     if (!validationResult.success) {
-      const errors = validationResult.error.errors.map((err) => ({
+      const errors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }));
@@ -126,6 +126,12 @@ export async function POST(request: Request) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Submit intake failed:', message);
 
+    if (message === 'UNAUTHENTICATED') {
+      return NextResponse.json(
+        { error: 'UNAUTHENTICATED', message: 'Please login to continue' },
+        { status: 401 }
+      );
+    }
     if (message === 'FORBIDDEN') {
       return NextResponse.json(
         { error: 'FORBIDDEN', message: 'Access denied' },

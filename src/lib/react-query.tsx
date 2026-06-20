@@ -12,6 +12,9 @@ import { ReactNode } from 'react';
  * - gcTime: 30 minutes (unused data garbage collected after 30 min)
  * - retry: 3 attempts on failure
  * - refetchOnWindowFocus: false (prevent unnecessary refetches)
+ *
+ * Note: These values are reasonable defaults. For environment-specific tuning,
+ * consider making them configurable via NEXT_PUBLIC_QUERY_* env variables.
  */
 export const queryClient = new QueryClient({
   defaultOptions: {

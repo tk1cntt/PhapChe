@@ -1,7 +1,6 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { useTranslations } from 'next-intl';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -99,18 +98,18 @@ interface ErrorBoundaryWrapperProps {
 }
 
 /**
- * Functional wrapper for ErrorBoundary that provides i18n translations.
+ * Functional wrapper for ErrorBoundary.
  * Class components cannot use hooks directly, so this wrapper passes translations.
+ * Note: Renders in root layout (outside NextIntlClientProvider), so uses hardcoded fallbacks.
  */
 function ErrorBoundaryWrapper({
   children,
   fallback,
   onError,
 }: ErrorBoundaryWrapperProps): ReactNode {
-  const t = useTranslations('shared.errorBoundary');
   const translations = {
-    title: t('title'),
-    retry: t('retry'),
+    title: 'Đã xảy ra lỗi',
+    retry: 'Thử lại',
   };
 
   return (

@@ -1193,6 +1193,67 @@
     "contactPlaceholder": "Nhập tên người liên hệ",
     "descriptionPlaceholder": "Ví dụ: Cần soạn hợp đồng đại lý cho đối tác phân phối khu vực miền Bắc."
   },
+  "CreateRequest": {
+    "wizard": {
+      "step1": "Lĩnh vực",
+      "step2": "Dịch vụ",
+      "step3": "Thông tin",
+      "step4": "Tài liệu",
+      "step5": "Xác nhận"
+    },
+    "domain": {
+      "commercial-legal": "Thương mại",
+      "corporate-legal": "Doanh nghiệp",
+      "employment-legal": "Lao động",
+      "privacy-legal": "Bảo mật dữ liệu",
+      "product-legal": "Sản phẩm",
+      "regulatory-legal": "Tuân thủ",
+      "ai-governance-legal": "Quản trị AI",
+      "ip-legal": "Sở hữu trí tuệ",
+      "litigation-legal": "Tranh tụng",
+      "legal-clinic": "Phòng pháp chế",
+      "law-student": "Sinh viên luật",
+      "legal-builder-hub": "Xây dựng pháp lý",
+      "external-plugins": "Plugin bên ngoài"
+    },
+    "button": {
+      "next": "Tiếp tục",
+      "back": "Quay lại",
+      "saveDraft": "Lưu nháp",
+      "submit": "Gửi yêu cầu",
+      "edit": "Chỉnh sửa",
+      "viewCases": "Xem hồ sơ của tôi",
+      "startOver": "Xóa và bắt đầu mới"
+    },
+    "message": {
+      "draftSaved": "Đã lưu nháp",
+      "submitSuccess": "Yêu cầu đã được gửi thành công!",
+      "resumeDraft": "Đang tiếp tục từ bản nháp",
+      "uploadProgress": "Đang tải lên...",
+      "uploadSuccess": "Tải lên thành công",
+      "redirecting": "Chuyển hướng sau {seconds} giây..."
+    },
+    "error": {
+      "required": "Trường này là bắt buộc",
+      "invalidEmail": "Email không hợp lệ",
+      "fileTooLarge": "File vượt quá 50MB",
+      "uploadFailed": "Không thể tải lên",
+      "draftSaveFailed": "Không thể lưu nháp",
+      "submitFailed": "Không thể gửi yêu cầu",
+      "selectDomain": "Vui lòng chọn lĩnh vực",
+      "selectService": "Vui lòng chọn dịch vụ"
+    },
+    "label": {
+      "priority": "Mức độ ưu tiên",
+      "normal": "Bình thường",
+      "urgent": "Khẩn cấp",
+      "contactInfo": "Thông tin liên hệ",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "companyName": "Tên công ty",
+      "taxCode": "Mã số thuế"
+    }
+  },
   "AdminDashboard": {
     "consoleTitle": "Bảng điều khiển quản trị",
     "consoleDesc": "Quản trị hệ thống GitNexus Legal",

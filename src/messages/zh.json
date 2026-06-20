@@ -964,6 +964,67 @@
     "contactPlaceholder": "输入联系人姓名",
     "descriptionPlaceholder": "例如：需要为北方分销合作伙伴起草代理合同。"
   },
+  "CreateRequest": {
+    "wizard": {
+      "step1": "领域",
+      "step2": "服务",
+      "step3": "信息",
+      "step4": "文档",
+      "step5": "确认"
+    },
+    "domain": {
+      "commercial-legal": "商业",
+      "corporate-legal": "企业",
+      "employment-legal": "劳动",
+      "privacy-legal": "数据隐私",
+      "product-legal": "产品",
+      "regulatory-legal": "合规",
+      "ai-governance-legal": "AI治理",
+      "ip-legal": "知识产权",
+      "litigation-legal": "诉讼",
+      "legal-clinic": "法务诊所",
+      "law-student": "法学生",
+      "legal-builder-hub": "法律构建中心",
+      "external-plugins": "外部插件"
+    },
+    "button": {
+      "next": "下一步",
+      "back": "返回",
+      "saveDraft": "保存草稿",
+      "submit": "提交请求",
+      "edit": "编辑",
+      "viewCases": "查看我的案件",
+      "startOver": "删除并重新开始"
+    },
+    "message": {
+      "draftSaved": "草稿已保存",
+      "submitSuccess": "请求已成功提交！",
+      "resumeDraft": "从草稿继续",
+      "uploadProgress": "上传中...",
+      "uploadSuccess": "上传成功",
+      "redirecting": "{seconds}秒后重定向..."
+    },
+    "error": {
+      "required": "此字段为必填项",
+      "invalidEmail": "无效的邮箱",
+      "fileTooLarge": "文件超过50MB",
+      "uploadFailed": "上传失败",
+      "draftSaveFailed": "保存草稿失败",
+      "submitFailed": "提交请求失败",
+      "selectDomain": "请选择领域",
+      "selectService": "请选择服务"
+    },
+    "label": {
+      "priority": "优先级",
+      "normal": "普通",
+      "urgent": "紧急",
+      "contactInfo": "联系信息",
+      "email": "邮箱",
+      "phone": "电话",
+      "companyName": "公司名称",
+      "taxCode": "税番号"
+    }
+  },
   "AdminDashboard": {
     "consoleTitle": "管理控制台",
     "consoleDesc": "GitNexus 法律系统管理",

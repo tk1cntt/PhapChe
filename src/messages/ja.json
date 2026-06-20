@@ -964,6 +964,67 @@
     "contactPlaceholder": "担当者名を入力",
     "descriptionPlaceholder": "例：北区流通パートナー向けの代理契約の作成が必要です。"
   },
+  "CreateRequest": {
+    "wizard": {
+      "step1": "ドメイン",
+      "step2": "サービス",
+      "step3": "情報",
+      "step4": "ドキュメント",
+      "step5": "確認"
+    },
+    "domain": {
+      "commercial-legal": "商事",
+      "corporate-legal": "企業",
+      "employment-legal": "労働",
+      "privacy-legal": "データプライバシー",
+      "product-legal": "製品",
+      "regulatory-legal": "コンプライアンス",
+      "ai-governance-legal": "AIガバナンス",
+      "ip-legal": "知的財産",
+      "litigation-legal": "訴訟",
+      "legal-clinic": "法務クリニック",
+      "law-student": "法学生",
+      "legal-builder-hub": "法律ビルダーハブ",
+      "external-plugins": "外部プラグイン"
+    },
+    "button": {
+      "next": "次へ",
+      "back": "戻る",
+      "saveDraft": "下書き保存",
+      "submit": "リクエスト送信",
+      "edit": "編集",
+      "viewCases": "私の案件を見る",
+      "startOver": "削除してやり直す"
+    },
+    "message": {
+      "draftSaved": "下書きを保存しました",
+      "submitSuccess": "リクエストが正常に送信されました！",
+      "resumeDraft": "下書きから再開",
+      "uploadProgress": "アップロード中...",
+      "uploadSuccess": "アップロード成功",
+      "redirecting": "{seconds}秒後にリダイレクト..."
+    },
+    "error": {
+      "required": "この項目は必須です",
+      "invalidEmail": "無効なメール",
+      "fileTooLarge": "ファイルが50MBを超えています",
+      "uploadFailed": "アップロード失敗",
+      "draftSaveFailed": "下書きの保存に失敗しました",
+      "submitFailed": "リクエストの送信に失敗しました",
+      "selectDomain": "ドメインを選択してください",
+      "selectService": "サービスを選択してください"
+    },
+    "label": {
+      "priority": "優先度",
+      "normal": "通常",
+      "urgent": "緊急",
+      "contactInfo": "連絡先情報",
+      "email": "メール",
+      "phone": "電話",
+      "companyName": "会社名",
+      "taxCode": "税番号"
+    }
+  },
   "AdminDashboard": {
     "consoleTitle": "管理コンソール",
     "consoleDesc": "GitNexus 法務システム管理",

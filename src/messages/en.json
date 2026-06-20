@@ -1180,6 +1180,67 @@
     "contactPlaceholder": "Enter contact name",
     "descriptionPlaceholder": "Example: Draft agency contract for Northern region partner with volume discounts."
   },
+  "CreateRequest": {
+    "wizard": {
+      "step1": "Domain",
+      "step2": "Service",
+      "step3": "Information",
+      "step4": "Documents",
+      "step5": "Review"
+    },
+    "domain": {
+      "commercial-legal": "Commercial",
+      "corporate-legal": "Corporate",
+      "employment-legal": "Employment",
+      "privacy-legal": "Data Privacy",
+      "product-legal": "Product",
+      "regulatory-legal": "Compliance",
+      "ai-governance-legal": "AI Governance",
+      "ip-legal": "Intellectual Property",
+      "litigation-legal": "Litigation",
+      "legal-clinic": "Legal Clinic",
+      "law-student": "Law Student",
+      "legal-builder-hub": "Legal Builder Hub",
+      "external-plugins": "External Plugins"
+    },
+    "button": {
+      "next": "Next",
+      "back": "Back",
+      "saveDraft": "Save Draft",
+      "submit": "Submit Request",
+      "edit": "Edit",
+      "viewCases": "View My Cases",
+      "startOver": "Delete and Start Over"
+    },
+    "message": {
+      "draftSaved": "Draft saved",
+      "submitSuccess": "Request submitted successfully!",
+      "resumeDraft": "Resuming from draft",
+      "uploadProgress": "Uploading...",
+      "uploadSuccess": "Upload successful",
+      "redirecting": "Redirecting in {seconds} seconds..."
+    },
+    "error": {
+      "required": "This field is required",
+      "invalidEmail": "Invalid email",
+      "fileTooLarge": "File exceeds 50MB",
+      "uploadFailed": "Upload failed",
+      "draftSaveFailed": "Failed to save draft",
+      "submitFailed": "Failed to submit request",
+      "selectDomain": "Please select a domain",
+      "selectService": "Please select a service"
+    },
+    "label": {
+      "priority": "Priority",
+      "normal": "Normal",
+      "urgent": "Urgent",
+      "contactInfo": "Contact Information",
+      "email": "Email",
+      "phone": "Phone",
+      "companyName": "Company Name",
+      "taxCode": "Tax Code"
+    }
+  },
   "AdminDashboard": {
     "consoleTitle": "Admin Console",
     "consoleDesc": "GitNexus Legal System Administration",

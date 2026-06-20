@@ -1,6 +1,5 @@
 import { SEED_MATTER_TYPES, SEED_FOLDERS, SEED_TAGS, SEED_VERSION, SEED_METADATA } from '../src/lib/i18n/seed-multilingual';
 import { auth } from '../src/auth';
-import { seedMessages } from './seed-messages';
 import { seedAll } from './seed/index';
 import { prisma } from '../src/lib/prisma';
 import { hashPassword } from '@better-auth/utils/password';
@@ -500,8 +499,6 @@ async function main() {
     }
   }
 
-  // Seed sample message threads (Phase 29)
-  await seedMessages();
 }
 
 main()

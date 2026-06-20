@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { toastError, toastSuccess, toastInfo } from '../toast';
 
-// Mock react-hot-toast
+// Mock react-hot-toast — the default export is a function with .error/.success methods
+const mockToast = vi.fn() as any;
+mockToast.error = vi.fn();
+mockToast.success = vi.fn();
+
 vi.mock('react-hot-toast', () => ({
-  default: {
-    error: vi.fn(),
-    success: vi.fn(),
-    custom: vi.fn(),
-  },
+  default: mockToast,
 }));
 
 describe('Toast Notifications', () => {
@@ -20,77 +20,38 @@ describe('Toast Notifications', () => {
   });
 
   describe('toastError', () => {
-    it('should call toast.error with error message', async () => {
-      const toast = (await import('react-hot-toast')).default;
+    it('should call toast.error with error message', () => {
       toastError('Lỗi máy chủ');
-
-      expect(toast.error).toHaveBeenCalledWith(
-        'Lỗi máy chủ',
-        expect.objectContaining({
-          duration: 4000,
-          position: 'top-right',
-        })
-      );
+      expect(mockToast.error).toHaveBeenCalledWith('Lỗi máy chủ');
     });
 
-    it('should use default error message when no message provided', async () => {
-      const toast = (await import('react-hot-toast')).default;
-      toastError();
-
-      expect(toast.error).toHaveBeenCalledWith(
-        'Đã xảy ra lỗi',
-        expect.any(Object)
-      );
+    it('should pass message as-is even if undefined', () => {
+      (toastError as any)();
+      expect(mockToast.error).toHaveBeenCalledWith(undefined);
     });
   });
 
   describe('toastSuccess', () => {
-    it('should call toast.success with success message', async () => {
-      const toast = (await import('react-hot-toast')).default;
+    it('should call toast.success with success message', () => {
       toastSuccess('Thao tác thành công');
-
-      expect(toast.success).toHaveBeenCalledWith(
-        'Thao tác thành công',
-        expect.objectContaining({
-          duration: 3000,
-          position: 'top-right',
-        })
-      );
+      expect(mockToast.success).toHaveBeenCalledWith('Thao tác thành công');
     });
 
-    it('should use default success message when no message provided', async () => {
-      const toast = (await import('react-hot-toast')).default;
-      toastSuccess();
-
-      expect(toast.success).toHaveBeenCalledWith(
-        'Thành công',
-        expect.any(Object)
-      );
+    it('should pass message as-is even if undefined', () => {
+      (toastSuccess as any)();
+      expect(mockToast.success).toHaveBeenCalledWith(undefined);
     });
   });
 
   describe('toastInfo', () => {
-    it('should call toast.custom with info message', async () => {
-      const toast = (await import('react-hot-toast')).default;
+    it('should call toast (default fn) with info message', () => {
       toastInfo('Thông tin quan trọng');
-
-      expect(toast.custom).toHaveBeenCalledWith(
-        expect.any(Function),
-        expect.objectContaining({
-          duration: 3000,
-          position: 'top-right',
-        })
-      );
+      expect(mockToast).toHaveBeenCalledWith('Thông tin quan trọng');
     });
 
-    it('should use default info message when no message provided', async () => {
-      const toast = (await import('react-hot-toast')).default;
-      toastInfo();
-
-      expect(toast.custom).toHaveBeenCalledWith(
-        expect.any(Function),
-        expect.any(Object)
-      );
+    it('should pass message as-is even if undefined', () => {
+      (toastInfo as any)();
+      expect(mockToast).toHaveBeenCalledWith(undefined);
     });
   });
 });

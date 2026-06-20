@@ -18,6 +18,7 @@ export * from './service-type';
 export * from './engagement';
 export * from './engagement-service-scope';
 export * from './request-context';
+export * from './wizard';
 
 // Re-export constants from existing types.ts
 export {

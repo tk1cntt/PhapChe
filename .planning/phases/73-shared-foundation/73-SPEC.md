@@ -144,6 +144,7 @@ Thiết lập shared infrastructure cho v2.2 bằng cách tạo organized seed d
 - [ ] Unit tests exist with ≥90% coverage for all new code
 - [ ] No breaking changes to existing API client consumers
 - [ ] **KHÔNG sử dụng Ant Design components** — tất cả shared components dùng custom Tailwind CSS
+- [ ] **KHÔNG sử dụng Ant Design components** — tất cả shared components dùng custom Tailwind CSS
 
 ## Edge Coverage
 

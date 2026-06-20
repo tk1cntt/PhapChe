@@ -58,7 +58,7 @@ describe('useMessages Hook', () => {
 
       expect(result.current.data).toEqual(mockData);
       expect(result.current.isLoading).toBe(false);
-      expect(messagesApi.getThreads).toHaveBeenCalledWith({ requestId: undefined });
+      expect(messagesApi.getThreads).toHaveBeenCalledWith(undefined);
     });
 
     it('should handle fetch error', async () => {
@@ -87,7 +87,7 @@ describe('useMessages Hook', () => {
 
       renderHook(() => useMessages(), { wrapper });
 
-      await waitFor(() => expect(messagesApi.getThreads).toHaveBeenCalledWith({ requestId: undefined }));
+      await waitFor(() => expect(messagesApi.getThreads).toHaveBeenCalledWith(undefined));
     });
   });
 

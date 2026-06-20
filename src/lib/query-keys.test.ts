@@ -50,10 +50,11 @@ describe('Query Key Factories', () => {
     expect(queryKeys.messages).toBeDefined();
   });
 
-  it('filters objects are passed by reference (not cloned)', () => {
+  it('filters objects are cloned to prevent mutation', () => {
     const filters = { page: 1 };
     const key = queryKeys.users.list(filters);
-    expect(key[2]).toBe(filters);
+    expect(key[2]).not.toBe(filters);
+    expect(key[2]).toEqual(filters);
   });
 
   it('empty filters object works correctly', () => {

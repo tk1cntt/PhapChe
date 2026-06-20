@@ -17,7 +17,7 @@ describe('useAuth Hook', () => {
   });
 
   describe('Authenticated State', () => {
-    it('should return user data when session exists', async () => {
+    it('should return user data when session exists', () => {
       const mockUser = { id: '1', name: 'John Doe', email: 'john@example.com' };
       mockUseSession.mockReturnValue({
         data: { user: mockUser },
@@ -26,14 +26,12 @@ describe('useAuth Hook', () => {
 
       const { result } = renderHook(() => useAuth());
 
-      await waitFor(() => expect(result.current.isAuthenticated).toBe(true));
-
       expect(result.current.user).toEqual(mockUser);
       expect(result.current.isLoading).toBe(false);
       expect(result.current.isAuthenticated).toBe(true);
     });
 
-    it('should return correct user properties', async () => {
+    it('should return correct user properties', () => {
       const mockUser = { id: '123', name: 'Test User', email: 'test@example.com' };
       mockUseSession.mockReturnValue({
         data: { user: mockUser },
@@ -42,8 +40,6 @@ describe('useAuth Hook', () => {
 
       const { result } = renderHook(() => useAuth());
 
-      await waitFor(() => expect(result.current.isAuthenticated).toBe(true));
-
       expect(result.current.user?.id).toBe('123');
       expect(result.current.user?.name).toBe('Test User');
       expect(result.current.user?.email).toBe('test@example.com');
@@ -51,30 +47,26 @@ describe('useAuth Hook', () => {
   });
 
   describe('Unauthenticated State', () => {
-    it('should return null user when no session', async () => {
+    it('should return null user when no session', () => {
       mockUseSession.mockReturnValue({
         data: null,
         isPending: false,
       } as any);
 
       const { result } = renderHook(() => useAuth());
-
-      await waitFor(() => expect(result.current.isAuthenticated).toBe(false));
 
       expect(result.current.user).toBeNull();
       expect(result.current.isLoading).toBe(false);
       expect(result.current.isAuthenticated).toBe(false);
     });
 
-    it('should show authenticated as false with null session', async () => {
+    it('should show authenticated as false with null session', () => {
       mockUseSession.mockReturnValue({
         data: null,
         isPending: false,
       } as any);
 
       const { result } = renderHook(() => useAuth());
-
-      await waitFor(() => expect(result.current.isAuthenticated).toBe(false));
 
       expect(result.current.isAuthenticated).toBe(false);
     });
@@ -96,7 +88,7 @@ describe('useAuth Hook', () => {
   });
 
   describe('Return Type', () => {
-    it('should return object with user, isLoading, isAuthenticated properties', async () => {
+    it('should return object with user, isLoading, isAuthenticated properties', () => {
       mockUseSession.mockReturnValue({
         data: { user: { id: '1' } },
         isPending: false,
@@ -104,9 +96,9 @@ describe('useAuth Hook', () => {
 
       const { result } = renderHook(() => useAuth());
 
-      await waitFor(() => expect(result.current).toHaveProperty('user'));
-      await waitFor(() => expect(result.current).toHaveProperty('isLoading'));
-      await waitFor(() => expect(result.current).toHaveProperty('isAuthenticated'));
+      expect(result.current).toHaveProperty('user');
+      expect(result.current).toHaveProperty('isLoading');
+      expect(result.current).toHaveProperty('isAuthenticated');
     });
   });
 });

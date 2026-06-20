@@ -83,8 +83,6 @@ export default function IntakeQuestionsFormEnhanced({
       setTouched((prev) => ({ ...prev, [question.key]: true }));
       const value = answers[question.key] || '';
       const error = validateField(question, value);
-      // We don't directly set errors here - the parent component manages errors
-      // But we trigger re-validation through the onAnswerChange with same value
       if (touched[question.key]) {
         onAnswerChange(question.key, value);
       }
@@ -94,7 +92,7 @@ export default function IntakeQuestionsFormEnhanced({
 
   if (questions.length === 0) {
     return (
-      <p className="text-gray-500 text-center py-8">
+      <p className="placeholder-content">
         Không có câu hỏi cho dịch vụ này.
       </p>
     );
@@ -102,23 +100,20 @@ export default function IntakeQuestionsFormEnhanced({
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">Thông tin chi tiết</h2>
-      <p className="text-sm text-gray-600 mb-6">{descText}</p>
+      <h2 className="step-title">Thông tin chi tiết</h2>
+      <p className="step-desc">{descText}</p>
 
-      <div className="space-y-5">
+      <div className="questions-list">
         {questions.map((question, index) => {
           const value = answers[question.key] || '';
           const error = touched[question.key] ? errors[question.key] : undefined;
           const hasError = !!error;
 
           return (
-            <div key={question.key}>
-              <label
-                htmlFor={`q-${question.key}`}
-                className="block text-sm font-semibold text-gray-700 mb-1.5"
-              >
+            <div key={question.key} className="question-field">
+              <label htmlFor={`q-${question.key}`} className="question-label">
                 Câu hỏi {index + 1}: {question.label}
-                {question.required && <span className="text-red-500 ml-0.5">*</span>}
+                {question.required && <span className="required-star">*</span>}
               </label>
 
               {question.type === 'textarea' ? (
@@ -129,11 +124,7 @@ export default function IntakeQuestionsFormEnhanced({
                   onChange={(e) => onAnswerChange(question.key, e.target.value)}
                   onBlur={() => handleBlur(question)}
                   placeholder={`Nhập ${question.label.toLowerCase()}...`}
-                  className={`w-full border rounded-lg px-3 py-2.5 text-sm text-gray-700 focus:ring-2 outline-none resize-y ${
-                    hasError
-                      ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'
-                  }`}
+                  className={`question-textarea ${hasError ? 'has-error' : ''}`}
                 />
               ) : (
                 <input
@@ -143,18 +134,14 @@ export default function IntakeQuestionsFormEnhanced({
                   onChange={(e) => onAnswerChange(question.key, e.target.value)}
                   onBlur={() => handleBlur(question)}
                   placeholder={`Nhập ${question.label.toLowerCase()}...`}
-                  className={`h-11 w-full border rounded-lg px-3 text-sm text-gray-700 focus:ring-2 outline-none ${
-                    hasError
-                      ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
-                      : 'border-gray-200 focus:border-blue-500 focus:ring-blue-200'
-                  }`}
+                  className={`question-input ${hasError ? 'has-error' : ''}`}
                 />
               )}
 
               {hasError && (
-                <div className="flex items-center gap-1 mt-1">
-                  <AlertCircle size={14} className="text-red-500" />
-                  <span className="text-sm text-red-500">{error}</span>
+                <div className="field-error">
+                  <AlertCircle size={14} />
+                  <span>{error}</span>
                 </div>
               )}
             </div>
@@ -162,8 +149,8 @@ export default function IntakeQuestionsFormEnhanced({
         })}
       </div>
 
-      <p className="text-xs text-gray-500 mt-4">
-        <span className="text-red-500">*</span> Thông tin bắt buộc
+      <p className="required-note">
+        <span className="required-star">*</span> Thông tin bắt buộc
       </p>
     </div>
   );

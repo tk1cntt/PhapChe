@@ -83,7 +83,6 @@ export default function FileUploadZone({
     if (file.size > MAX_FILE_SIZE) {
       return 'File vượt quá 50MB';
     }
-    // Validate by MIME type or extension
     const ext = '.' + (file.name.split('.').pop()?.toLowerCase() || '');
     if (!ALLOWED_TYPES.includes(file.type) && !ALLOWED_EXTENSIONS.includes(ext)) {
       return 'Loại file không được hỗ trợ';
@@ -91,7 +90,6 @@ export default function FileUploadZone({
     return null;
   }, []);
 
-  /** Simulate a progress bar for visual feedback, then add file to wizard state */
   const handleFileAdd = useCallback(
     (file: File) => {
       setSimulatingProgress(true);
@@ -105,7 +103,6 @@ export default function FileUploadZone({
         return;
       }
 
-      // Simulate upload progress for visual feedback (no real server call)
       let progress = 0;
       const interval = setInterval(() => {
         progress += Math.random() * 30 + 10;
@@ -114,7 +111,6 @@ export default function FileUploadZone({
           clearInterval(interval);
           setSimulatedProgress(100);
 
-          // Short delay to show 100% before adding
           setTimeout(() => {
             onFileAdd({
               vaultFileId: generateTempFileId(),
@@ -153,7 +149,6 @@ export default function FileUploadZone({
           handleFileAdd(selectedFiles[i]);
         }
       }
-      // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -178,8 +173,8 @@ export default function FileUploadZone({
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">Tài liệu đính kèm</h2>
-      <p className="text-sm text-gray-600 mb-6">
+      <h2 className="step-title">Tài liệu đính kèm</h2>
+      <p className="step-desc">
         Tải lên các tài liệu liên quan (không bắt buộc)
       </p>
 
@@ -190,11 +185,7 @@ export default function FileUploadZone({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-          isDragging
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
-        } ${simulatingProgress ? 'pointer-events-none opacity-60' : ''}`}
+        className={`upload-zone ${isDragging ? 'dragging' : ''} ${simulatingProgress ? 'uploading' : ''}`}
       >
         <input
           ref={fileInputRef}
@@ -204,25 +195,25 @@ export default function FileUploadZone({
           className="hidden"
         />
 
-        <Upload size={48} className="mx-auto text-gray-400 mb-4" />
-        <p className="text-sm text-gray-700 mb-2">
+        <Upload size={48} className="upload-icon" />
+        <p className="upload-text">
           Kéo thả file vào đây hoặc click để chọn
         </p>
-        <p className="text-xs text-gray-500">
+        <p className="upload-hint">
           Hỗ trợ: PDF, DOC, DOCX, JPG, PNG (tối đa 50MB)
         </p>
       </div>
 
       {/* Simulated Progress */}
       {simulatingProgress && (
-        <div className="mt-4">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+        <div className="upload-progress">
+          <div className="progress-info">
             <span>Đang tải lên...</span>
             <span>{Math.round(simulatedProgress)}%</span>
           </div>
-          <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div className="progress-bar">
             <div
-              className="h-full bg-blue-500 transition-all duration-300"
+              className="progress-fill"
               style={{ width: `${simulatedProgress}%` }}
             />
           </div>
@@ -231,38 +222,37 @@ export default function FileUploadZone({
 
       {/* Error Message */}
       {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <div className="upload-error">
           {error}
         </div>
       )}
 
       {/* File List */}
       {files.length > 0 && (
-        <div className="mt-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
-            {files.length} file đã tải lên
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="uploaded-files-list">
+          <h3 className="files-count">{files.length} file đã tải lên</h3>
+          <div className="files-grid">
             {files.map((file) => {
               const FileIcon = getFileIcon(file.filename);
               return (
-                <div
-                  key={file.vaultFileId}
-                  className="relative border border-gray-200 rounded-lg p-4 bg-white"
-                >
+                <div key={file.vaultFileId} className="uploaded-file-item">
+                  <div className="file-info">
+                    <div className="file-icon">
+                      <FileIcon size={24} />
+                    </div>
+                    <div className="file-details">
+                      <p>{file.filename}</p>
+                      <span>{formatFileSize(file.size)}</span>
+                    </div>
+                  </div>
                   <button
                     type="button"
                     onClick={() => handleRemoveFile(file.vaultFileId)}
-                    className="absolute top-2 right-2 p-1 hover:bg-red-50 rounded-full transition-colors"
+                    className="remove-btn"
                     aria-label="Xóa file"
                   >
-                    <X size={16} className="text-red-500" />
+                    <X size={16} />
                   </button>
-                  <FileIcon size={32} className="text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-900 font-medium line-clamp-2 mb-1">
-                    {file.filename}
-                  </p>
-                  <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
                 </div>
               );
             })}
@@ -271,9 +261,7 @@ export default function FileUploadZone({
       )}
 
       {files.length === 0 && !simulatingProgress && (
-        <p className="text-sm text-gray-500 text-center mt-4">
-          Chưa có file nào được tải lên
-        </p>
+        <p className="no-files">Chưa có file nào được tải lên</p>
       )}
     </div>
   );

@@ -847,7 +847,7 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 | 73 | Shared Foundation | 4/4 | Complete   | 2026-06-20 |
 | 74 | Sign-In | `[locale]/sign-in` | Complete   | 2026-06-20 |
 | 75 | User Dashboard | `[locale]/dashboard` | Not started | - |
-| 76 | Create Request | `[locale]/create` | Not started | - |
+| 76 | Create Request | `[locale]/create` | Complete   | 2026-06-20 |
 | 77 | My Cases | `[locale]/cases` | Not started | - |
 | 78 | Messages | `[locale]/messages` | Not started | - |
 | 79 | User Workspace | `[locale]/workspace` | Not started | - |
@@ -871,4 +871,4 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 
 ---
 
-_Last updated: 2026-06-19 after v2.2 milestone restructure — 24 phases (73-96), data-first approach_
+_Last updated: 2026-06-20 after Phase 76 completion — 24 phases (73-96), 4 completed, data-first approach_

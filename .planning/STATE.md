@@ -3,40 +3,113 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Legacy UI Enhancement
 status: active
-stopped_at: Phase 76 context gathered
-last_updated: "2026-06-20T10:01:19.243Z"
+stopped_at: Phase 76 completed
+last_updated: "2026-06-20T15:14:00.000Z"
 progress:
   total_phases: 24
-  completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 8
+  completed_phases: 4
+  total_plans: 6
+  completed_plans: 6
+  percent: 17
 ---
 
 # STATE.md — Project State Tracker
 
 ## Current Position
 
-**Phase 74: Sign-In — ✅ COMPLETED**
+**Phase 76: Create Request Wizard — ✅ COMPLETED**
 
-Migrated SignInForm from Ant Design to custom Tailwind CSS components with role-based redirects, locale preservation, and comprehensive security hardening.
+Xây dựng Create Request Wizard 5 bước: chọn lĩnh vực pháp lý → dịch vụ → câu hỏi → upload → review & submit.
 
-**Commit:** `1f58e57`  
+**Commit:** `e40c547`  
 **Date:** 2026-06-20  
-**Test Results:** 27/27 tests passed ✅
+**Test Results:** 125/125 unit tests passed ✅ (91 component + 34 API), 20 E2E test cases
 
 **Delivered:**
 
-- ✅ Custom Input component (src/components/ui/input.tsx)
-- ✅ SignInForm rewrite with controlled inputs and inline validation
-- ✅ Role-based redirect mapping (5 roles)
-- ✅ Open redirect protection (strict returnUrl validation)
-- ✅ Locale preservation using useLocale() hook
-- ✅ Demo credentials pre-fill (development only)
-- ✅ Comprehensive test suite (27 tests)
-- ✅ i18n key added (loginSuccess)
+- ✅ 13 legal domains, 32 service types với multilingual support (VI/EN/ZH/JA)
+- ✅ WizardProvider với React Context + useReducer + auto-save + debounce
+- ✅ LegalDomainSelector grid (13 domain cards, icons, responsive 4/3/2 cols)
+- ✅ ServiceTypeList với search/filter + keyboard navigation
+- ✅ IntakeQuestionsFormEnhanced với dynamic questions + validation on blur
+- ✅ FileUploadZone với drag-drop + progress bar + file preview
+- ✅ ReviewStep với 5 summary sections + submit + success modal
+- ✅ Draft save/load/delete APIs với IDOR protection
+- ✅ Enhanced submit API (priority=urgent→24h SLA, normal→72h SLA)
+- ✅ 50+ i18n keys (4 locales)
+- ✅ 125 unit tests + 20 E2E tests
 
-**Next:** Phase 75 or continue with Phase 73 plans 73-02 through 73-04
+**Next:** Phase 77 — tiếp tục theo ROADMAP.md
+
+---
+
+## Phase 76 Progress
+
+### 76-01: Legal Domain Taxonomy Seed Data ✅ COMPLETE
+- 13 domains, 32 service types với multilingual labels
+- Helper functions: getLegalDomains(), getDomainByServiceType(), getServiceTypesByDomain()
+
+### 76-02: Wizard State Type Definitions ✅ COMPLETE
+- WizardState, WizardAction (11 types), initial state, validation types
+
+### 76-03: Database Schema ✅ COMPLETE
+- Draft model (id, userId, domainId, serviceType, answers, files, priority, contactInfo, status)
+- Request fields extended (priority, contactInfo, submittedAt)
+
+### 76-04: Draft Save API ✅ COMPLETE
+- POST /api/intake/draft/save với Zod validation + IDOR protection + audit log
+- Schema relaxed: nullable domainId/serviceType, optional email (partial saves)
+
+### 76-05: Draft Load/Delete API ✅ COMPLETE
+- GET + DELETE /api/intake/draft/[id] với ownership validation
+
+### 76-06: Submit Enhancement ✅ COMPLETE
+- priority (urgent=24h SLA, normal=72h SLA) + contactInfo + audit log
+
+### 76-07: WizardProvider ✅ COMPLETE
+- React Context + useReducer + auto-save với debounce 500ms
+
+### 76-08: Wizard Steps Enhanced ✅ COMPLETE
+- 5-step progress indicator với completed/current/upcoming/error states
+
+### 76-09: LegalDomainSelector ✅ COMPLETE
+- 13 domain cards trong responsive grid (4/3/2 columns)
+
+### 76-10: ServiceTypeList ✅ COMPLETE
+- Service list với search/filter + keyboard navigation
+
+### 76-11: IntakeQuestionsFormEnhanced ✅ COMPLETE
+- Dynamic questions + validation on blur + error display
+
+### 76-12: FileUploadZone ✅ COMPLETE
+- Drag-drop upload + progress bar + file preview + remove
+
+### 76-13: ReviewStep ✅ COMPLETE
+- 5 summary sections + submit button + success modal + redirect
+
+### 76-14: CreateRequestForm Integration ✅ COMPLETE
+- Tích hợp tất cả components + step navigation + draft resume
+
+### 76-15: Page Integration ✅ COMPLETE
+- auth check + user data + layout + metadata + breadcrumb
+
+### 76-16: i18n Translations ✅ COMPLETE
+- 50+ keys trong 4 locales (vi/en/zh/ja)
+
+### 76-17: Unit Tests Components ✅ COMPLETE
+- 91 tests (WizardProvider, LegalDomainSelector, ServiceTypeList, IntakeQuestionsFormEnhanced, FileUploadZone, ReviewStep)
+
+### 76-18: Unit Tests API ✅ COMPLETE
+- 34 tests (draft save: 11, draft load: 12, submit: 11)
+
+### 76-19: E2E Wizard Flow ✅ COMPLETE
+- 6 tests (complete flow, navigation, validation, edit, priority, contact info)
+
+### 76-20: E2E Draft Persistence ✅ COMPLETE
+- 6 tests (auto-save, manual save, resume, delete, save failure, load failure)
+
+### 76-21: E2E File Upload & Submit ✅ COMPLETE
+- 8 tests (upload via click, drag-drop, multiple, size validation, type validation, remove, submit with/without files)
 
 ---
 
@@ -115,10 +188,10 @@ Migrated SignInForm from Ant Design to custom Tailwind CSS components with role-
 | QT20260617-004 | Database architecture review (4-step expert analysis) | 2026-06-17 | 87beca1 |
 
 ---
-*Last updated: 2026-06-20 after Phase 74 completion*
+*Last updated: 2026-06-20 after Phase 76 completion*
 
 ## Session
 
-**Last session:** 2026-06-20T10:01:19.156Z
-**Stopped at:** Phase 76 context gathered
-**Resume file:** .planning/phases/76-create-request/76-CONTEXT.md
+**Last session:** 2026-06-20T15:14:00.000Z
+**Stopped at:** Phase 76 completed
+**Resume file:** .planning/phases/76-create-request/SUMMARY.md

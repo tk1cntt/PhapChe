@@ -346,4 +346,100 @@ describe('POST /api/intake/draft/save', () => {
       });
     });
   });
+
+  /**
+   * Regression tests — exact payload từ wizard auto-save (production bugs)
+   */
+  describe('Regression: wizard auto-save payloads', () => {
+    it('accepts exact payload from step 2 auto-save (domainId=null, serviceType set)', async () => {
+      // Wizard gửi body này khi user chọn service nhưng chưa chọn domain
+      vi.mocked(requireAppSession).mockResolvedValue({ userId: 'user-123' });
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-123' });
+      vi.mocked(prisma.draft.create).mockResolvedValue({
+        id: 'draft-step2',
+        updatedAt: new Date('2024-01-01'),
+      });
+      vi.mocked(prisma.auditEvent.create).mockResolvedValue({});
+
+      const request = new Request('http://localhost/api/intake/draft/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          domainId: null,           // ← chưa chọn domain
+          serviceType: null,        // ← có thể chưa chọn service
+          answers: {},
+          files: [],
+          priority: 'normal',
+          contactInfo: { email: '' }, // ← initial state, email rỗng
+        }),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      // Bug cũ: trả 400 VALIDATION_ERROR. Phải fix thành 200.
+      expect(response.status).toBe(200);
+      expect(data.data.draftId).toBe('draft-step2');
+    });
+
+    it('accepts partial draft: domainId set, serviceType=null (step 2 before service selection)', async () => {
+      vi.mocked(requireAppSession).mockResolvedValue({ userId: 'user-123' });
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-123' });
+      vi.mocked(prisma.draft.create).mockResolvedValue({
+        id: 'draft-partial',
+        updatedAt: new Date('2024-01-01'),
+      });
+      vi.mocked(prisma.auditEvent.create).mockResolvedValue({});
+
+      const request = new Request('http://localhost/api/intake/draft/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          domainId: 'commercial-legal',
+          serviceType: null,
+          answers: {},
+          files: [],
+          priority: 'normal',
+          contactInfo: { email: '', phone: undefined },
+        }),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.data.draftId).toBe('draft-partial');
+    });
+
+    it('response format: { data: { draftId, updatedAt } } (đúng contract)', async () => {
+      vi.mocked(requireAppSession).mockResolvedValue({ userId: 'user-123' });
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-123' });
+      vi.mocked(prisma.draft.create).mockResolvedValue({
+        id: 'draft-format-test',
+        updatedAt: new Date('2024-06-20T12:00:00Z'),
+      });
+      vi.mocked(prisma.auditEvent.create).mockResolvedValue({});
+
+      const request = new Request('http://localhost/api/intake/draft/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          domainId: 'commercial-legal',
+          serviceType: 'agency_contract',
+          answers: {},
+          contactInfo: { email: 'test@example.com' },
+        }),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      // Contract: { data: { draftId, updatedAt } }
+      expect(data).toHaveProperty('data');
+      expect(data.data).toHaveProperty('draftId');
+      expect(data.data).toHaveProperty('updatedAt');
+      expect(data.data.draftId).toBe('draft-format-test');
+      expect(data.data.updatedAt).toBeTruthy();
+    });
+  });
 });

@@ -10,12 +10,24 @@ import type { WizardState, WizardAction } from '@/lib/types/wizard';
 import { initialWizardState } from '@/lib/types/wizard';
 
 // Mock fetch cho draft auto-save
-global.fetch = vi.fn(() =>
-  Promise.resolve({
-    ok: true,
-    json: () => Promise.resolve({ draftId: 'draft-123' }),
-  })
-) as any;
+// Phản ánh đúng API thật: response format { data: { draftId, updatedAt } }
+// và validate body gửi lên
+let lastSaveBody: any = null;
+global.fetch = vi.fn(async (url, init) => {
+  if (typeof url === 'string' && url.includes('/api/intake/draft/save')) {
+    lastSaveBody = JSON.parse((init as any)?.body || '{}');
+    return Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({
+        data: {
+          draftId: lastSaveBody.draftId || 'draft-new',
+          updatedAt: new Date().toISOString(),
+        },
+      }),
+    }) as any;
+  }
+  return Promise.resolve({ ok: true, json: () => Promise.resolve({}) }) as any;
+}) as any;
 
 // Mock useRouter và useSearchParams
 vi.mock('next/navigation', () => ({
@@ -276,5 +288,146 @@ describe('useWizard error handling', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => render(<InvalidConsumer />)).toThrow('useWizard must be used within a WizardProvider');
     consoleSpy.mockRestore();
+  });
+});
+
+/**
+ * Real-world edge case tests — các bug đã phát hiện trong production
+ * Những test này phải FAIL với code cũ, PASS với code đã fix
+ */
+describe('real-world edge cases (regression)', () => {
+  beforeEach(() => {
+    lastSaveBody = null;
+    global.fetch = vi.fn(async (url, init) => {
+      if (typeof url === 'string' && url.includes('/api/intake/draft/save')) {
+        lastSaveBody = JSON.parse((init as any)?.body || '{}');
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            data: {
+              draftId: 'draft-new',
+              updatedAt: new Date().toISOString(),
+            },
+          }),
+        }) as any;
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) }) as any;
+    });
+  });
+
+  function EdgeCaseConsumer() {
+    const { state, actions } = useWizard();
+    return (
+      <div>
+        <div data-testid="step">{state.step}</div>
+        <div data-testid="domain">{state.domainId || 'null'}</div>
+        <div data-testid="draftId">{state.draftId || 'null'}</div>
+        <div data-testid="dirty">{state.isDirty ? 'true' : 'false'}</div>
+        <div data-testid="contactEmail">{state.contactInfo.email}</div>
+        <button onClick={() => { actions.setDomain('commercial-legal'); actions.nextStep(); }}>
+          Pick Domain & Next
+        </button>
+        <button onClick={() => { actions.setService('agency_contract'); actions.nextStep(); }}>
+          Pick Service & Next
+        </button>
+      </div>
+    );
+  }
+
+  it('auto-save gửi domainId là null khi user mới chọn service (step 2)', async () => {
+    // Bug: domainId=null trong body gây Zod validation error
+    render(
+      <WizardProvider>
+        <EdgeCaseConsumer />
+      </WizardProvider>
+    );
+
+    // Domain là null (chưa chọn) → chọn service trước
+    await act(async () => {
+      fireEvent.click(screen.getByText('Pick Service & Next'));
+    });
+
+    // Wait for debounced auto-save (500ms)
+    await act(async () => { await new Promise(r => setTimeout(r, 600)); });
+
+    // Kiểm tra body gửi lên có domainId=null (chấp nhận được với schema mới)
+    expect(lastSaveBody).toBeTruthy();
+    expect(lastSaveBody.domainId).toBeNull();
+    // ServiceType phải là giá trị đã chọn
+    expect(lastSaveBody.serviceType).toBe('agency_contract');
+  });
+
+  it('auto-save gửi contactInfo.email="" từ initial state', async () => {
+    // Bug: email="" trong contactInfo gây Zod .email() validation error
+    render(
+      <WizardProvider>
+        <EdgeCaseConsumer />
+      </WizardProvider>
+    );
+
+    // Initial state có email=""
+    expect(screen.getByTestId('contactEmail')).toHaveTextContent('');
+
+    // Trigger auto-save: chọn domain rồi next step
+    await act(async () => {
+      fireEvent.click(screen.getByText('Pick Domain & Next'));
+    });
+    await act(async () => { await new Promise(r => setTimeout(r, 600)); });
+
+    // Kiểm tra body gửi lên có email="" (chấp nhận được với schema mới)
+    expect(lastSaveBody).toBeTruthy();
+    expect(lastSaveBody.contactInfo.email).toBe('');
+  });
+
+  it('response format: draftId nằm trong data.draftId (đúng API thật)', async () => {
+    // Bug: code parse sai format response (data.draftId vs result.data?.draftId)
+    render(
+      <WizardProvider>
+        <EdgeCaseConsumer />
+      </WizardProvider>
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Pick Domain & Next'));
+    });
+    await act(async () => { await new Promise(r => setTimeout(r, 600)); });
+
+    // draftId phải được set từ response.data.draftId
+    expect(screen.getByTestId('draftId')).not.toHaveTextContent('null');
+    expect(screen.getByTestId('draftId').textContent).toBeTruthy();
+  });
+
+  it('serviceType là null khi user mới chọn domain (step 1→2)', async () => {
+    // Bug tương tự domainId: serviceType=null khi auto-save ở step 2
+    render(
+      <WizardProvider>
+        <EdgeCaseConsumer />
+      </WizardProvider>
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Pick Domain & Next'));
+    });
+    await act(async () => { await new Promise(r => setTimeout(r, 600)); });
+
+    expect(lastSaveBody).toBeTruthy();
+    expect(lastSaveBody.domainId).toBe('commercial-legal');
+    // serviceType vẫn null vì user chưa chọn
+    expect(lastSaveBody.serviceType).toBeNull();
+  });
+
+  it('auto-save không gửi khi step === 1 (chưa có gì để save)', async () => {
+    lastSaveBody = null;
+    render(
+      <WizardProvider>
+        <EdgeCaseConsumer />
+      </WizardProvider>
+    );
+
+    // Không làm gì, step vẫn là 1
+    await act(async () => { await new Promise(r => setTimeout(r, 600)); });
+
+    // Không có API call vì step=1 và không dirty
+    expect(lastSaveBody).toBeNull();
   });
 });

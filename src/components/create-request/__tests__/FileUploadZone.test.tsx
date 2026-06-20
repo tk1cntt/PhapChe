@@ -133,7 +133,7 @@ describe('FileUploadZone', () => {
 
   // Error tests
   describe('error handling', () => {
-    it('renders error message when error state is set', async () => {
+    it('renders error message when file exceeds size limit', async () => {
       render(
         <FileUploadZone files={[]} onFileAdd={vi.fn()} onFileRemove={vi.fn()} />
       );
@@ -163,6 +163,96 @@ describe('FileUploadZone', () => {
       await waitFor(() => {
         expect(screen.getByText('Loại file không được hỗ trợ')).toBeInTheDocument();
       });
+    });
+  });
+
+  // Regression: real-world bugs đã gặp
+  describe('regression — no server call in wizard', () => {
+    it('does NOT make HTTP request when adding file (wizard has no requestId)', async () => {
+      // Bug: FileUploadZone gọi POST /api/intake/attach-file mà không có requestId
+      const fetchSpy = vi.spyOn(globalThis, 'fetch');
+      const onFileAdd = vi.fn();
+
+      render(
+        <FileUploadZone files={[]} onFileAdd={onFileAdd} onFileRemove={vi.fn()} />
+      );
+
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const validFile = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+
+      fireEvent.change(fileInput, { target: { files: [validFile] } });
+
+      // Wait for simulated progress to complete
+      await waitFor(() => {
+        expect(onFileAdd).toHaveBeenCalled();
+      }, { timeout: 3000 });
+
+      // Không được gọi fetch/XHR đến server
+      expect(fetchSpy).not.toHaveBeenCalled();
+      fetchSpy.mockRestore();
+    });
+
+    it('adds file with generated temp vaultFileId (not from server response)', async () => {
+      const onFileAdd = vi.fn();
+
+      render(
+        <FileUploadZone files={[]} onFileAdd={onFileAdd} onFileRemove={vi.fn()} />
+      );
+
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const validFile = new File(['content'], 'contract.pdf', { type: 'application/pdf' });
+
+      fireEvent.change(fileInput, { target: { files: [validFile] } });
+
+      await waitFor(() => {
+        expect(onFileAdd).toHaveBeenCalled();
+      }, { timeout: 3000 });
+
+      const addedFile = onFileAdd.mock.calls[0][0];
+      // vaultFileId phải là temp ID (bắt đầu bằng wip-)
+      expect(addedFile.vaultFileId).toMatch(/^wip-/);
+      expect(addedFile.filename).toBe('contract.pdf');
+      expect(addedFile.size).toBe(7); // 'content' = 7 bytes
+    });
+
+    it('accepts valid file with known extension even if MIME type is empty', async () => {
+      // Edge case: một số browser/os gửi MIME type rỗng
+      const onFileAdd = vi.fn();
+
+      render(
+        <FileUploadZone files={[]} onFileAdd={onFileAdd} onFileRemove={vi.fn()} />
+      );
+
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      // File có extension .pdf nhưng MIME type rỗng
+      const oddFile = new File(['pdfcontent'], 'important.pdf', { type: '' });
+
+      fireEvent.change(fileInput, { target: { files: [oddFile] } });
+
+      await waitFor(() => {
+        expect(onFileAdd).toHaveBeenCalled();
+      }, { timeout: 3000 });
+
+      expect(onFileAdd).toHaveBeenCalled();
+    });
+
+    it('adds multiple files when multiple are selected', async () => {
+      const onFileAdd = vi.fn();
+
+      render(
+        <FileUploadZone files={[]} onFileAdd={onFileAdd} onFileRemove={vi.fn()} />
+      );
+
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const file1 = new File(['a'], 'a.pdf', { type: 'application/pdf' });
+      const file2 = new File(['bb'], 'b.jpg', { type: 'image/jpeg' });
+      const file3 = new File(['ccc'], 'c.docx', { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+
+      fireEvent.change(fileInput, { target: { files: [file1, file2, file3] } });
+
+      await waitFor(() => {
+        expect(onFileAdd).toHaveBeenCalledTimes(3);
+      }, { timeout: 5000 });
     });
   });
 });

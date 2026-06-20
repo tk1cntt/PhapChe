@@ -78,6 +78,104 @@
   display: contents;
 }
 
+/* Wizard Steps - Match Mock UI */
+.wizard-steps {
+  width: 100%;
+}
+
+.wizard-steps-row {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  align-items: center;
+}
+
+.wizard-step-item {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.wizard-step-item:not(:last-child) {
+  flex: 1;
+}
+
+.wizard-step-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
+  transition: all 0.2s;
+  background: #eef2f7;
+  color: #64748b;
+  border: none;
+  cursor: default;
+  flex-shrink: 0;
+}
+
+.wizard-step-btn.completed {
+  background: #10b981;
+  color: #fff;
+  cursor: pointer;
+}
+
+.wizard-step-btn.completed:hover {
+  background: #059669;
+  transform: scale(1.05);
+}
+
+.wizard-step-btn.current {
+  background: #10b981;
+  color: #fff;
+}
+
+.wizard-step-btn.error {
+  background: #ef4444;
+  color: #fff;
+}
+
+.wizard-step-btn.pending {
+  background: #eef2f7;
+  color: #64748b;
+}
+
+.step-num {
+  font-size: 13px;
+}
+
+.wizard-step-label {
+  margin-left: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.wizard-step-label.current {
+  color: #0f172a;
+}
+
+.wizard-step-label.completed {
+  color: #0f172a;
+}
+
+.wizard-step-connector {
+  flex: 1;
+  height: 2px;
+  background: #dbe3ec;
+  border-radius: 999px;
+  margin: 0 12px;
+  transition: background 0.2s;
+}
+
+.wizard-step-connector.completed {
+  background: #10b981;
+}
+
 /* Back Button */
 .back-btn {
   display: inline-flex;

@@ -845,7 +845,7 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 | Phase | Name | Screen | Status | Completed |
 |-------|------|--------|--------|-----------|
 | 73 | Shared Foundation | 4/4 | Complete   | 2026-06-20 |
-| 74 | Sign-In | `[locale]/sign-in` | Not started | - |
+| 74 | Sign-In | `[locale]/sign-in` | Complete   | 2026-06-20 |
 | 75 | User Dashboard | `[locale]/dashboard` | Not started | - |
 | 76 | Create Request | `[locale]/create` | Not started | - |
 | 77 | My Cases | `[locale]/cases` | Not started | - |

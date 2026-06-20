@@ -12,12 +12,15 @@ const DEFAULT_EMAIL = 'customer.demo@example.test';
 const DEFAULT_PASSWORD = 'Demo@123456';
 
 // Role-based redirect mapping (moved to module scope — IN-01 fix)
+// Keys match DB role values from WorkspaceMembership.role (lowercase)
 const ROLE_ROUTES: Record<string, string> = {
-  Customer: '/dashboard',
-  Specialist: '/specialist',
-  Reviewer: '/reviewer',
-  Coordinator: '/admin/dashboard',
-  Partner: '/partner/dashboard',
+  customer: '/dashboard',
+  specialist: '/specialist',
+  reviewer: '/reviewer',
+  coordinator_admin: '/admin/dashboard',
+  super_admin: '/admin/dashboard',
+  audit_admin: '/admin/audit',
+  partner: '/partner/dashboard',
 };
 
 export default function SignInForm() {
@@ -108,9 +111,17 @@ export default function SignInForm() {
 
       toast.success(t('loginSuccess'));
 
-      // Fetch session to get user role
-      const { data: session } = await authClient.getSession();
-      const userRole = session?.user?.role || 'Customer';
+      // Fetch user role from workspace membership API
+      let userRole = 'customer';
+      try {
+        const res = await fetch('/api/auth/session-role');
+        if (res.ok) {
+          const data = await res.json();
+          userRole = data.role || 'customer';
+        }
+      } catch {
+        // Fallback to customer if role fetch fails
+      }
 
       const redirectPath = getRedirectPath(userRole);
       router.push(redirectPath);
@@ -123,14 +134,14 @@ export default function SignInForm() {
   }
 
   return (
-    <div className="w-full max-w-md space-y-6">
+    <div className="w-full max-w-md space-y-8">
       <div className="text-center">
-        <h1 className="text-2xl font-bold">{t('appName')}</h1>
+        <h1 className="text-3xl font-bold text-[color:var(--text)]">{t('appName')}</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="text-sm font-semibold text-[color:var(--text)]">
             {t('email')}
           </label>
           <Input
@@ -143,17 +154,17 @@ export default function SignInForm() {
             disabled={loading}
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? 'email-error' : undefined}
-            className={errors.email ? 'border-red-500' : ''}
+            className={errors.email ? 'border-destructive' : ''}
           />
           {errors.email && (
-            <p id="email-error" className="text-sm text-red-500" role="alert">
+            <p id="email-error" className="text-sm text-destructive" role="alert">
               {errors.email}
             </p>
           )}
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium text-gray-700">
+          <label htmlFor="password" className="text-sm font-semibold text-[color:var(--text)]">
             {t('password')}
           </label>
           <Input
@@ -166,17 +177,21 @@ export default function SignInForm() {
             disabled={loading}
             aria-invalid={!!errors.password}
             aria-describedby={errors.password ? 'password-error' : undefined}
-            className={errors.password ? 'border-red-500' : ''}
+            className={errors.password ? 'border-destructive' : ''}
           />
           {errors.password && (
-            <p id="password-error" className="text-sm text-red-500" role="alert">
+            <p id="password-error" className="text-sm text-destructive" role="alert">
               {errors.password}
             </p>
           )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? '⏳' : null} {t('signIn')}
+        <Button
+          type="submit"
+          className="w-full h-11 bg-[color:var(--teal)] text-white font-semibold hover:bg-[color:var(--teal-dark)]"
+          disabled={loading}
+        >
+          {loading ? '⏳ ' : ''}{t('signIn')}
         </Button>
       </form>
     </div>

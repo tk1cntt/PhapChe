@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import SignInForm from './SignInForm';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
@@ -18,13 +18,12 @@ vi.mock('next-intl', () => ({
   useLocale: vi.fn(),
 }));
 
-// Mock auth client
+// Mock auth client (signIn.email only — role is fetched via API)
 vi.mock('@/lib/auth-client', () => ({
   authClient: {
     signIn: {
       email: vi.fn(),
     },
-    getSession: vi.fn(),
   },
 }));
 
@@ -67,7 +66,17 @@ describe('SignInForm', () => {
     (useLocale as any).mockReturnValue('vi');
     mockSearchParams.get.mockReturnValue(null);
 
+    // Mock fetch for session-role API
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ role: 'customer' }),
+    });
+
     process.env.NODE_ENV = 'test';
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('Rendering', () => {
@@ -174,8 +183,9 @@ describe('SignInForm', () => {
   describe('Authentication Flow - Blackbox Tests', () => {
     it('should successfully sign in and redirect to role-based path', async () => {
       (authClient.signIn.email as any).mockResolvedValue({ error: null });
-      (authClient.getSession as any).mockResolvedValue({
-        data: { user: { role: 'Customer' } },
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ role: 'customer' }),
       });
 
       render(<SignInForm />);
@@ -262,19 +272,63 @@ describe('SignInForm', () => {
         expect(submitButton.disabled).toBe(true);
       });
     });
+
+    it('should fallback to customer role when session-role API fails', async () => {
+      (authClient.signIn.email as any).mockResolvedValue({ error: null });
+      (global.fetch as any).mockRejectedValue(new Error('Network error'));
+
+      render(<SignInForm />);
+
+      const emailInput = screen.getByLabelText('Email');
+      const passwordInput = screen.getByLabelText('Password');
+      const submitButton = screen.getByRole('button', { name: /sign in/i });
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password123' } });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(mockRouter.push).toHaveBeenCalledWith('/vi/dashboard');
+      });
+    });
+
+    it('should fetch role from /api/auth/session-role after successful login', async () => {
+      (authClient.signIn.email as any).mockResolvedValue({ error: null });
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ role: 'specialist' }),
+      });
+
+      render(<SignInForm />);
+
+      const emailInput = screen.getByLabelText('Email');
+      const passwordInput = screen.getByLabelText('Password');
+      const submitButton = screen.getByRole('button', { name: /sign in/i });
+
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password123' } });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith('/api/auth/session-role');
+      });
+    });
   });
 
   describe('Role-Based Redirects - Blackbox Tests', () => {
     it.each([
-      ['Customer', '/vi/dashboard'],
-      ['Specialist', '/vi/specialist'],
-      ['Reviewer', '/vi/reviewer'],
-      ['Coordinator', '/vi/admin/dashboard'],
-      ['Partner', '/vi/partner/dashboard'],
+      ['customer', '/vi/dashboard'],
+      ['specialist', '/vi/specialist'],
+      ['reviewer', '/vi/reviewer'],
+      ['coordinator_admin', '/vi/admin/dashboard'],
+      ['super_admin', '/vi/admin/dashboard'],
+      ['audit_admin', '/vi/admin/audit'],
+      ['partner', '/vi/partner/dashboard'],
     ])('should redirect %s to %s', async (role, expectedPath) => {
       (authClient.signIn.email as any).mockResolvedValue({ error: null });
-      (authClient.getSession as any).mockResolvedValue({
-        data: { user: { role } },
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ role }),
       });
 
       render(<SignInForm />);
@@ -294,8 +348,9 @@ describe('SignInForm', () => {
 
     it('should default to /dashboard for unknown role', async () => {
       (authClient.signIn.email as any).mockResolvedValue({ error: null });
-      (authClient.getSession as any).mockResolvedValue({
-        data: { user: { role: 'UnknownRole' } },
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ role: 'unknown_role' }),
       });
 
       render(<SignInForm />);
@@ -322,8 +377,9 @@ describe('SignInForm', () => {
     ])('should preserve locale %s in redirect', async (locale, expectedPath) => {
       (useLocale as any).mockReturnValue(locale);
       (authClient.signIn.email as any).mockResolvedValue({ error: null });
-      (authClient.getSession as any).mockResolvedValue({
-        data: { user: { role: 'Customer' } },
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ role: 'customer' }),
       });
 
       render(<SignInForm />);
@@ -346,8 +402,9 @@ describe('SignInForm', () => {
     it('should redirect to returnUrl when valid internal path', async () => {
       mockSearchParams.get.mockReturnValue('/profile');
       (authClient.signIn.email as any).mockResolvedValue({ error: null });
-      (authClient.getSession as any).mockResolvedValue({
-        data: { user: { role: 'Customer' } },
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ role: 'customer' }),
       });
 
       render(<SignInForm />);
@@ -368,8 +425,9 @@ describe('SignInForm', () => {
     it('should reject external returnUrl and use role-based redirect', async () => {
       mockSearchParams.get.mockReturnValue('https://evil.com');
       (authClient.signIn.email as any).mockResolvedValue({ error: null });
-      (authClient.getSession as any).mockResolvedValue({
-        data: { user: { role: 'Customer' } },
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ role: 'customer' }),
       });
 
       render(<SignInForm />);
@@ -391,8 +449,9 @@ describe('SignInForm', () => {
     it('should reject protocol-relative returnUrl (//evil.com)', async () => {
       mockSearchParams.get.mockReturnValue('//evil.com');
       (authClient.signIn.email as any).mockResolvedValue({ error: null });
-      (authClient.getSession as any).mockResolvedValue({
-        data: { user: { role: 'Customer' } },
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ role: 'customer' }),
       });
 
       render(<SignInForm />);
@@ -414,8 +473,9 @@ describe('SignInForm', () => {
     it('should reject returnUrl with protocol in middle', async () => {
       mockSearchParams.get.mockReturnValue('/path?redirect=://evil.com');
       (authClient.signIn.email as any).mockResolvedValue({ error: null });
-      (authClient.getSession as any).mockResolvedValue({
-        data: { user: { role: 'Customer' } },
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ role: 'customer' }),
       });
 
       render(<SignInForm />);

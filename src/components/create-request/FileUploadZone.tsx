@@ -19,6 +19,7 @@ const ALLOWED_TYPES = [
   'image/jpeg',
   'image/png',
 ];
+const ALLOWED_EXTENSIONS = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png'];
 
 /**
  * Get icon based on file type
@@ -39,8 +40,15 @@ function formatFileSize(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
+/** Generate a temporary vaultFileId for wizard-stage files */
+function generateTempFileId(): string {
+  return `wip-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
 /**
- * File upload zone with drag-and-drop support and progress tracking
+ * File upload zone with drag-and-drop support.
+ * Files are stored locally in wizard state during creation (no server upload).
+ * Actual server upload happens at submit time.
  */
 export default function FileUploadZone({
   files,
@@ -49,8 +57,8 @@ export default function FileUploadZone({
   locale = 'vi',
 }: FileUploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [simulatingProgress, setSimulatingProgress] = useState(false);
+  const [simulatedProgress, setSimulatedProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,68 +83,50 @@ export default function FileUploadZone({
     if (file.size > MAX_FILE_SIZE) {
       return 'File vượt quá 50MB';
     }
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    // Validate by MIME type or extension
+    const ext = '.' + (file.name.split('.').pop()?.toLowerCase() || '');
+    if (!ALLOWED_TYPES.includes(file.type) && !ALLOWED_EXTENSIONS.includes(ext)) {
       return 'Loại file không được hỗ trợ';
     }
     return null;
   }, []);
 
-  const uploadFile = useCallback(
-    async (file: File) => {
-      setUploading(true);
-      setUploadProgress(0);
+  /** Simulate a progress bar for visual feedback, then add file to wizard state */
+  const handleFileAdd = useCallback(
+    (file: File) => {
+      setSimulatingProgress(true);
+      setSimulatedProgress(0);
       setError(null);
 
       const validationError = validateFile(file);
       if (validationError) {
         setError(validationError);
-        setUploading(false);
+        setSimulatingProgress(false);
         return;
       }
 
-      const formData = new FormData();
-      formData.append('file', file);
+      // Simulate upload progress for visual feedback (no real server call)
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 30 + 10;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          setSimulatedProgress(100);
 
-      try {
-        const xhr = new XMLHttpRequest();
-
-        xhr.upload.addEventListener('progress', (event) => {
-          if (event.lengthComputable) {
-            const percentComplete = (event.loaded / event.total) * 100;
-            setUploadProgress(percentComplete);
-          }
-        });
-
-        xhr.addEventListener('load', () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const response = JSON.parse(xhr.responseText);
-              onFileAdd({
-                vaultFileId: response.id || response.fileId || `temp-${Date.now()}`,
-                filename: file.name,
-                size: file.size,
-              });
-              setUploadProgress(0);
-            } catch {
-              setError('Không thể xử lý phản hồi từ server');
-            }
-          } else {
-            setError('Không thể tải lên file');
-          }
-          setUploading(false);
-        });
-
-        xhr.addEventListener('error', () => {
-          setError('Lỗi mạng khi tải lên file');
-          setUploading(false);
-        });
-
-        xhr.open('POST', '/api/intake/attach-file');
-        xhr.send(formData);
-      } catch {
-        setError('Không thể tải lên file');
-        setUploading(false);
-      }
+          // Short delay to show 100% before adding
+          setTimeout(() => {
+            onFileAdd({
+              vaultFileId: generateTempFileId(),
+              filename: file.name,
+              size: file.size,
+            });
+            setSimulatingProgress(false);
+            setSimulatedProgress(0);
+          }, 200);
+        }
+        setSimulatedProgress(Math.min(progress, 100));
+      }, 150);
     },
     [onFileAdd, validateFile]
   );
@@ -148,25 +138,27 @@ export default function FileUploadZone({
       setIsDragging(false);
 
       const droppedFiles = Array.from(e.dataTransfer.files);
-      if (droppedFiles.length > 0) {
-        uploadFile(droppedFiles[0]);
+      for (const file of droppedFiles) {
+        handleFileAdd(file);
       }
     },
-    [uploadFile]
+    [handleFileAdd]
   );
 
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFiles = e.target.files;
       if (selectedFiles && selectedFiles.length > 0) {
-        uploadFile(selectedFiles[0]);
+        for (let i = 0; i < selectedFiles.length; i++) {
+          handleFileAdd(selectedFiles[i]);
+        }
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     },
-    [uploadFile]
+    [handleFileAdd]
   );
 
   const handleRemoveFile = useCallback(
@@ -179,10 +171,10 @@ export default function FileUploadZone({
   );
 
   const handleZoneClick = useCallback(() => {
-    if (!uploading && fileInputRef.current) {
+    if (!simulatingProgress && fileInputRef.current) {
       fileInputRef.current.click();
     }
-  }, [uploading]);
+  }, [simulatingProgress]);
 
   return (
     <div className="w-full">
@@ -202,7 +194,7 @@ export default function FileUploadZone({
           isDragging
             ? 'border-blue-500 bg-blue-50'
             : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
-        } ${uploading ? 'pointer-events-none opacity-60' : ''}`}
+        } ${simulatingProgress ? 'pointer-events-none opacity-60' : ''}`}
       >
         <input
           ref={fileInputRef}
@@ -221,17 +213,17 @@ export default function FileUploadZone({
         </p>
       </div>
 
-      {/* Upload Progress */}
-      {uploading && (
+      {/* Simulated Progress */}
+      {simulatingProgress && (
         <div className="mt-4">
           <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
             <span>Đang tải lên...</span>
-            <span>{Math.round(uploadProgress)}%</span>
+            <span>{Math.round(simulatedProgress)}%</span>
           </div>
           <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
             <div
               className="h-full bg-blue-500 transition-all duration-300"
-              style={{ width: `${uploadProgress}%` }}
+              style={{ width: `${simulatedProgress}%` }}
             />
           </div>
         </div>
@@ -278,7 +270,7 @@ export default function FileUploadZone({
         </div>
       )}
 
-      {files.length === 0 && !uploading && (
+      {files.length === 0 && !simulatingProgress && (
         <p className="text-sm text-gray-500 text-center mt-4">
           Chưa có file nào được tải lên
         </p>

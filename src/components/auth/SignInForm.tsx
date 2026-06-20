@@ -11,6 +11,15 @@ import toast from 'react-hot-toast';
 const DEFAULT_EMAIL = 'customer.demo@example.test';
 const DEFAULT_PASSWORD = 'Demo@123456';
 
+// Role-based redirect mapping (moved to module scope — IN-01 fix)
+const ROLE_ROUTES: Record<string, string> = {
+  Customer: '/dashboard',
+  Specialist: '/specialist',
+  Reviewer: '/reviewer',
+  Coordinator: '/admin/dashboard',
+  Partner: '/partner/dashboard',
+};
+
 export default function SignInForm() {
   const t = useTranslations('Auth');
   const locale = useLocale();
@@ -44,27 +53,22 @@ export default function SignInForm() {
     return undefined;
   }
 
-  // Open redirect protection
+  // Open redirect protection (try-catch added — WR-01 fix)
   function isValidReturnUrl(url: string): boolean {
-    const decoded = decodeURIComponent(url);
-    if (!decoded.startsWith('/')) return false;
-    if (decoded.startsWith('//')) return false;
-    if (decoded.includes('://')) return false;
-    return true;
+    try {
+      const decoded = decodeURIComponent(url);
+      if (!decoded.startsWith('/')) return false;
+      if (decoded.startsWith('//')) return false;
+      if (decoded.includes('://')) return false;
+      return true;
+    } catch {
+      return false;
+    }
   }
-
-  // Role-based redirect mapping
-  const ROLE_ROUTES: Record<string, string> = {
-    Customer: '/dashboard',
-    Specialist: '/specialist',
-    Reviewer: '/reviewer',
-    Coordinator: '/admin/dashboard',
-    Partner: '/partner/dashboard',
-  };
 
   function getRedirectPath(userRole: string): string {
     if (returnUrl && isValidReturnUrl(returnUrl)) {
-      return decodeURIComponent(returnUrl);
+      return returnUrl; // already decoded by searchParams.get() — WR-02 fix
     }
     const rolePath = ROLE_ROUTES[userRole] || '/dashboard';
     return `/${locale}${rolePath}`;

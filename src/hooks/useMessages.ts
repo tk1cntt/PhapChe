@@ -15,8 +15,10 @@ import { queryKeys } from '@/lib/query-keys';
  */
 export function useMessages(requestId?: string) {
   return useQuery({
-    queryKey: queryKeys.messages.list({ requestId }),
-    queryFn: () => messagesApi.getThreads({ requestId }),
+    queryKey: requestId
+      ? queryKeys.messages.list({ requestId })
+      : queryKeys.messages.list(),
+    queryFn: () => messagesApi.getThreads(requestId ? { requestId } : undefined),
     staleTime: 30 * 1000, // 30 seconds - messages are real-time
   });
 }

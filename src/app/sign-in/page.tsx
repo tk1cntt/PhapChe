@@ -1,17 +1,16 @@
-import { SignInForm } from "@/components/auth/SignInForm";
+import SignInForm from '@/components/auth/SignInForm';
 
 export const dynamic = 'force-dynamic';
 
 export default function SignInPage() {
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      background: '#F0F2F5'
-    }}>
-      <SignInForm />
+    <div className="min-h-screen flex">
+      {/* Right: Form panel */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12"
+        style={{ background: '#f8fafc' }}
+      >
+        <SignInForm />
+      </div>
     </div>
   );
 }

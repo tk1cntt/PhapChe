@@ -134,66 +134,94 @@ export default function SignInForm() {
   }
 
   return (
-    <div className="w-full max-w-md space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-[color:var(--text)]">{t('appName')}</h1>
+    <div className="w-full max-w-[420px]">
+      {/* Card */}
+      <div className="bg-white rounded-2xl shadow-lg border border-[color:var(--border-soft)] p-8 sm:p-10"
+        style={{ boxShadow: '0 20px 60px rgba(15, 23, 42, 0.08), 0 4px 16px rgba(15, 23, 42, 0.04)' }}
+      >
+        {/* Header */}
+        <div className="text-center mb-8">
+          {/* Brand mark — mobile only, hidden on lg+ where brand panel shows */}
+          <div className="lg:hidden flex justify-center mb-5">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-extrabold text-2xl"
+              style={{ background: 'linear-gradient(135deg, #0a8f87, #06716b)' }}
+            >
+              G
+            </div>
+          </div>
+          <h1 className="text-2xl font-bold text-[color:var(--text)] mb-1">
+            {t('appName')}
+          </h1>
+          <p className="text-sm text-[#64748b]">
+            Đăng nhập để truy cập workspace của bạn
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-semibold text-[color:var(--text)]">
+              {t('email')}
+            </label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onBlur={handleEmailBlur}
+              placeholder="you@company.com"
+              disabled={loading}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'email-error' : undefined}
+              className={`h-11 text-base ${errors.email ? 'border-destructive' : ''}`}
+            />
+            {errors.email && (
+              <p id="email-error" className="text-sm text-destructive" role="alert">
+                {errors.email}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="password" className="text-sm font-semibold text-[color:var(--text)]">
+              {t('password')}
+            </label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={handlePasswordBlur}
+              placeholder="••••••••"
+              disabled={loading}
+              aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? 'password-error' : undefined}
+              className={`h-11 text-base ${errors.password ? 'border-destructive' : ''}`}
+            />
+            {errors.password && (
+              <p id="password-error" className="text-sm text-destructive" role="alert">
+                {errors.password}
+              </p>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full h-11 text-white font-semibold rounded-lg transition-all duration-200"
+            style={{
+              background: loading ? '#94a3b8' : 'linear-gradient(180deg, #0b8f86, #087970)',
+              boxShadow: loading ? 'none' : '0 4px 14px rgba(8, 127, 120, 0.35)',
+            }}
+            disabled={loading}
+          >
+            {loading ? '⏳ ' : ''}{t('signIn')}
+          </Button>
+        </form>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-semibold text-[color:var(--text)]">
-            {t('email')}
-          </label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onBlur={handleEmailBlur}
-            placeholder={t('email')}
-            disabled={loading}
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? 'email-error' : undefined}
-            className={errors.email ? 'border-destructive' : ''}
-          />
-          {errors.email && (
-            <p id="email-error" className="text-sm text-destructive" role="alert">
-              {errors.email}
-            </p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-semibold text-[color:var(--text)]">
-            {t('password')}
-          </label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onBlur={handlePasswordBlur}
-            placeholder={t('password')}
-            disabled={loading}
-            aria-invalid={!!errors.password}
-            aria-describedby={errors.password ? 'password-error' : undefined}
-            className={errors.password ? 'border-destructive' : ''}
-          />
-          {errors.password && (
-            <p id="password-error" className="text-sm text-destructive" role="alert">
-              {errors.password}
-            </p>
-          )}
-        </div>
-
-        <Button
-          type="submit"
-          className="w-full h-11 bg-[color:var(--teal)] text-white font-semibold hover:bg-[color:var(--teal-dark)]"
-          disabled={loading}
-        >
-          {loading ? '⏳ ' : ''}{t('signIn')}
-        </Button>
-      </form>
+      {/* Footer hint */}
+      <p className="text-center text-xs text-[#94a3b8] mt-6">
+        Liên hệ admin nếu bạn cần hỗ trợ đăng nhập
+      </p>
     </div>
   );
 }

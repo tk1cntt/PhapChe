@@ -78,6 +78,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             </p>
           )}
           <button
+            type="button"
             onClick={this.handleReset}
             className="mt-6 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >

@@ -1,7 +1,17 @@
 import { useAuth } from './useAuth';
 
 /**
- * usePermissions - Hook để kiểm tra quyền của user hiện tại
+ * WARNING: This hook is for UI visibility only.
+ * Backend MUST validate all permissions on API endpoints.
+ * Client-side checks can be bypassed by modifying client code or making direct API calls.
+ */
+
+/**
+ * usePermissions - Hook để kiểm tra quyền của user hiện tại (UI only)
+ *
+ * IMPORTANT: This is a convenience hook for hiding/showing UI elements.
+ * It does NOT enforce security - backend must validate all permissions.
+ *
  * @returns {Object} { can, cannot } - Functions để kiểm tra quyền
  */
 export function usePermissions() {
@@ -19,7 +29,7 @@ export function usePermissions() {
     const role = user.role;
     if (!role) return false;
 
-    // Permission matrix theo role
+    // UI-only permission matrix - backend must enforce actual access control
     const permissions: Record<string, string[]> = {
       super_admin: ['*'], // Tất cả quyền
       coordinator_admin: [

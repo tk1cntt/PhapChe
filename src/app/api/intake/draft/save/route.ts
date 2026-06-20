@@ -24,7 +24,7 @@ const draftSaveSchema = z.object({
     .default([]),
   priority: z.enum(['normal', 'urgent']).default('normal'),
   contactInfo: z.object({
-    email: z.string().email('Invalid email format'),
+    email: z.string().optional().default(''),
     phone: z.string().optional(),
     companyName: z.string().optional(),
     taxCode: z.string().optional(),

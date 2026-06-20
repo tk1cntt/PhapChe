@@ -1,121 +1,134 @@
----
-phase: 74
-phase_name: Sign-In
-status: complete
-date: 2026-06-20
----
-
 # Phase 74: Sign-In — Context
 
-## Domain Boundary
+**Created:** 2026-06-20  
+**Discussed with:** --auto mode  
+**Ambiguity resolved:** All gray areas auto-selected
 
-Authentication entry point for all user roles (Customer, Specialist, Reviewer, Coordinator Admin, Partner). Form hiện đã tồn tại và hoạt động, cần enhance để đạt full production readiness với role-based routing và locale preservation.
+## Domain
 
-## Prior Decisions (from Phase 73)
+Authentication entry point for all user roles (Customer, Specialist, Reviewer, Coordinator Admin, Partner). Form hiện tại dùng Ant Design cần được rewrite sang custom Tailwind CSS components (per Phase 73 constraint) với role-based redirect và locale preservation.
 
-- Error handling: API client có auto-retry 3x với exponential backoff
-- Toast notifications: sử dụng `react-hot-toast` library
-- 401 errors: tự động redirect về `/login`
-- i18n: 4 ngôn ngữ (VI/EN/ZH/JA) với next-intl
-- Better Auth: session management với `useSession()` hook
-- Ant Design: UI component library chính cho toàn bộ project
+## Locked Requirements (from SPEC.md)
 
-## Requirements Coverage
+- **AUTH-01**: Form displays email/password fields with validation
+- **AUTH-02**: User signs in via Better Auth `authClient.signIn.email()`
+- **AUTH-03**: Error message displays for invalid credentials
+- **AUTH-04**: Role-based redirect after login (Customer→dashboard, Specialist→specialist, Reviewer→reviewer, Coordinator→admin, Partner→partner)
+- **AUTH-05**: Inline form validation on blur/submit
+- **AUTH-06**: Locale prefix preserved in all redirects using `useLocale()` hook
 
-**AUTH-01 đến AUTH-06** — 6 requirements từ REQUIREMENTS.md:
+**Spec file:** `.planning/phases/74-sign-in/74-SPEC.md` (locked requirements — MUST read before planning)
 
-1. **AUTH-01** ✅ Sign-in form displays email and password fields with validation
-2. **AUTH-02** ✅ User can sign in via POST /api/auth/sign-in with email/password  
-3. **AUTH-03** ✅ Error message displays for invalid credentials
-4. **AUTH-04** ⚠️ Redirect to dashboard after successful login **based on role** (gap)
-5. **AUTH-05** ✅ Form validates email format and password length inline
-6. **AUTH-06** ⚠️ Locale prefix preserved after redirect (gap)
+## Prior Decisions (Carried Forward)
 
-**Analysis:** Form hiện tại đã implement 4/6 requirements. Hai gaps chính:
-- Role-based redirect logic (AUTH-04)
-- Locale prefix preservation (AUTH-06)
+### From Phase 73: Shared Foundation
 
-## Gray Areas Identified
+- ✅ **UI Framework**: Remove Ant Design dependency — project chuyển hoàn toàn sang custom Tailwind CSS components
+- ✅ **Toast Notifications**: Custom Tailwind component (`react-hot-toast` library), NOT Ant Design `message.error()`
+- ✅ **i18n**: 4 languages (VI/EN/ZH/JA) via next-intl
+- ✅ **Better Auth**: Session management với `useSession()` hook
+- ✅ **API Client**: Auto-retry 3x with exponential backoff
+- ✅ **Error Handling**: Automatic redirect to `/login` on 401 responses
+- ✅ **React Query**: Centralized QueryClientProvider with array-based query keys
 
-### 1. Error Message Display Strategy
+### From Codebase Discovery
 
-**Current State:** 
-- Sử dụng `message.error()` từ Ant Design (toast notification ở góc trên màn hình)
-- Đã hoạt động ổn định trong implementation hiện tại
+- ✅ **shadcn/ui button**: Already exists at `src/components/ui/button.tsx` — Radix UI + CVA pattern
+- ✅ **Shared Skeletons**: ErrorBoundary, LoadingSkeleton, EmptyState exist in `src/components/shared/`
+- ✅ **useAuth hook**: Exists at `src/hooks/useAuth.ts`
+- ✅ **react-hot-toast**: Library already installed and ready for toast notifications
+- ✅ **next-intl routing**: Configured with locales [vi, en, zh, ja], defaultLocale 'vi'
+- ✅ **Middleware**: Auth guard already implemented in `src/middleware.ts`
 
-**Decision:** ✅ **Giữ nguyên Ant Design message.error()**
+## Canonical References
 
-**Rationale:**
-- Consistent với Ant Design migration (Phase 10+)
-- Non-intrusive UX — user không bị block bởi modal
-- Đã test và working trong codebase
-- Phù hợp với Vietnamese user preference (quick feedback, không chiếm screen real estate)
+- `.planning/phases/74-sign-in/74-SPEC.md` — Locked requirements
+- `.planning/phases/73-shared-foundation/73-SPEC.md` — Constraint: no Ant Design
+- `.planning/phases/73-shared-foundation/73-CONTEXT.md` — Toast strategy, shared components
+- `src/components/ui/button.tsx` — shadcn/ui button component (Radix + CVA)
+- `src/components/shared/ErrorBoundary.tsx` — Error boundary implementation
+- `src/components/shared/LoadingSkeleton.tsx` — Loading skeletons
+- `src/components/shared/EmptyState.tsx` — Empty state template
+- `src/hooks/useAuth.ts` — useAuth hook implementation
+- `src/lib/auth-client.ts` — Better Auth client wrapper
+- `src/middleware.ts` — i18n routing + auth guard
+- `src/routing.ts` — next-intl routing configuration
 
-### 2. Redirect After Login
+## Gray Areas Resolved (--auto Selected)
 
-**Current State:**
-- Hardcode redirect về `/vi/dashboard` 
-- Hoặc dùng `returnUrl` từ query params (cho deep linking)
-- Không có role-based logic
+### 1. Form Component Strategy
 
-**Decision:** ⚠️ **Implement role-based routing với locale preservation**
+**Question:** Should the sign-in form continue using Ant Design or migrate to custom Tailwind components?
 
-**Mapping (from codebase analysis):**
-```
-Customer     → /vi/dashboard (hoặc /[locale]/dashboard)
-Specialist   → /vi/specialist (route path cần verify)
-Reviewer     → /vi/reviewer (route path cần verify)  
-Coordinator  → /vi/admin/dashboard
-Partner      → /vi/partner/dashboard
-```
-
-**Implementation Strategy:**
-1. Sau khi `authClient.signIn.email()` thành công, lấy user từ `useSession()`
-2. Check `user.role` và map đến destination route
-3. Preserve locale prefix (`/vi/`, `/en/`, `/zh/`, `/ja/`) trong tất cả redirects
-4. Nếu có `returnUrl` query param, ưu tiên redirect về đó (deep linking support)
-
-### 3. Form Validation Rules
-
-**Current State:**
-- Ant Design Form rules với real-time validation
-- Email: required + email format
-- Password: required
-
-**Decision:** ✅ **Giữ nguyên Ant Design Form validation**
+**Auto-selection:** ✅ Migrate to custom Tailwind components
 
 **Rationale:**
-- Standard pattern cho Ant Design projects
-- Real-time validation (validate khi blur field)
-- User-friendly: error messages hiện ngay dưới field
-- Đã cover tất cả validation needs (required, email format, password length)
+- Phase 73 lock: "Remove Ant Design dependency — project sẽ chuyển hoàn toàn sang custom Tailwind CSS components"
+- Ant Design imports in context.md are outdated per Phase 73 SPEC constraint
+- Codebase already has shadcn/ui pattern working (`button.tsx` using Radix + CVA)
+- Consistency goal: All v2.2 phases must use same UI system
 
-**Enhancement (optional):**
-- Thêm password strength validation (minimum 8 chars, có số, có chữ hoa) nếu cần security hardening
+**Implementation Notes:**
+- Reuse shadcn/ui `button.tsx` pattern for form submission button
+- Build custom Input component following same Radix + CVA pattern
+- Form validation rules can stay same structure but implement without Ant Design Form
 
-### 4. Loading State Management
+### 2. Toast/Notification Library
 
-**Current State:**
-- Button với `loading={loading}` prop
-- Spinner hiện trong button khi authenticate
-- Form fields remain enabled nhưng không clickable khi loading
+**Question:** Which toast library should be used for error/success messages?
 
-**Decision:** ✅ **Giữ nguyên Button loading prop**
+**Auto-selection:** ✅ `react-hot-toast` (already installed)
 
 **Rationale:**
-- Simple, non-blocking UX
-- User có thể thấy form nhưng biết đang processing
-- Ant Design Button đã handle accessibility (aria-disabled, focus management)
-- Phù hợp với fast authentication flow (< 1 second typical)
+- Installed in package.json (`react-hot-toast@^2.6.0`)
+- Phased 73 CONTEXT.md documented this choice
+- No need to add new dependency
 
-### 5. Demo Credentials Handling
+**Implementation Notes:**
+- Use `toast.error()`, `toast.success()` from react-hot-toast
+- Position: top-right (default react-hot-toast behavior)
+- Types: success, error, info, warning (all supported by library)
 
-**Current State:**
-- Hardcode default credentials: `customer.demo@example.test` / `Demo@123456`
-- Pre-fill form fields on mount
-- Phù hợp cho development/testing nhưng không ideal cho production
+### 3. Input Component Replacement
 
-**Decision:** ⚠️ **Conditionally pre-fill only in development mode**
+**Question:** How to replace Ant Design Input components for email/password fields?
+
+**Auto-selection:** ✅ Custom input components using Radix UI primitives + Tailwind
+
+**Rationale:**
+- Ant Design Input must be replaced per Phase 73 constraint
+- shadcn/ui provides proven Radix pattern (see `button.tsx`)
+- Follow domain-probe: Input component needs accessible, styled wrapper
+
+**Implementation Notes:**
+- Create `src/components/ui/Input.tsx` following button.tsx pattern
+- Use Radix UI slots (Slot component) for flexibility
+- Apply CVA variants for size/variant states
+- Support error state styling (aria-invalid)
+
+### 4. Form Validation Library
+
+**Question:** Should form validation continue with inline rules or adopt a form library like react-hook-form?
+
+**Auto-selection:** ⚠️ Keep simple inline validation (no react-hook-form needed yet)
+
+**Rationale:**
+- Simple form: only 2 fields (email, password)
+- Adding react-hook-form would over-engineer for minimal complexity
+- Inline validation with React state is sufficient
+- Future complex forms (create request wizard) may benefit from react-hook-form then
+
+**Implementation Notes:**
+- Use controlled inputs with `useState` for each field
+- Validate on blur event for immediate feedback
+- Validate on submit for final check
+- Store errors in object: `{ email?: string, password?: string }`
+
+### 5. Demo Credentials Pre-fill
+
+**Question:** Should demo credentials pre-fill the form on mount?
+
+**Auto-selection:** ✅ Conditional pre-fill in development only
 
 **Implementation:**
 ```typescript
@@ -123,102 +136,101 @@ const isDev = process.env.NODE_ENV === 'development';
 
 useEffect(() => {
   if (isDev) {
-    form.setFieldsValue({
-      email: 'customer.demo@example.test',
-      password: 'Demo@123456',
-    });
+    setEmail('customer.demo@example.test');
+    setPassword('Demo@123456');
   }
-}, [form]);
+}, []);
 ```
 
 **Rationale:**
-- Production: form trống, user tự nhập credentials
-- Development: tiện lợi cho testing
-- Security: không expose demo credentials trong production builds
+- Development: convenient for quick testing
+- Production: security best practice — don't hardcode credentials
+- Matches requirement AUTH-05 acceptance criteria
 
-### 6. Locale Detection and Preservation
+### 6. Redirect After Login
 
-**Current State:**
-- Không có locale detection logic
-- Hardcode `/vi/` prefix trong redirect
+**Question:** How to implement role-based redirect with locale preservation?
 
-**Decision:** ⚠️ **Implement dynamic locale detection**
+**Auto-selection:** ✅ Dynamic role map + useLocale() hook
 
-**Implementation Strategy:**
-1. Detect current locale từ URL path (`/[locale]/...`)
-2. Use `next-intl`'s `useLocale()` hook để lấy current locale
-3. Preserve locale khi redirect: `/${locale}/dashboard`
+**Mapping:**
+| Role | Destination Pattern |
+|------|---------------------|
+| Customer | `/{locale}/dashboard` |
+| Specialist | `/{locale}/specialist` |
+| Reviewer | `/{locale}/reviewer` |
+| Coordinator Admin | `/{locale}/admin/dashboard` |
+| Partner | `/{locale}/partner/dashboard` |
 
-**Example:**
+**Implementation Notes:**
+- Import `useLocale()` from `next-intl`
+- Get current user from `useSession()` after signIn success
+- Map `user.role` → destination using lookup object
+- Fallback to `/vi/dashboard` if role not recognized
+- If `returnUrl` query param exists AND starts with `/` (not `//`), prioritize that
+
+### 7. returnUrl Open-Redirect Protection
+
+**Question:** How to safely handle returnUrl from query params?
+
+**Auto-selection:** ✅ Strict whitelist: internal paths starting with `/` but NOT `//`
+
+**Implementation:**
 ```typescript
-import { useLocale } from 'next-intl';
-
-const locale = useLocale(); // 'vi', 'en', 'zh', 'ja'
-router.push(`/${locale}/dashboard`);
+if (returnUrl?.startsWith('/') && !returnUrl.startsWith('//')) {
+  return router.push(returnUrl);
+} else {
+  // fallback to role-based redirect
+}
 ```
 
-## Codebase Context
+**Rationale:**
+- `//example.com` is valid URL path that browsers interpret as external
+- Must reject any external redirect attempts
+- Only allow relative internal paths
 
-**Existing Implementation:**
-- File: `src/components/auth/SignInForm.tsx` (98 lines)
-- Uses: Ant Design Form, Better Auth, next-intl
-- Status: Working nhưng cần enhancement cho AUTH-04 và AUTH-06
+## Implementation Gaps (to be addressed in plan-phase)
 
-**Key Integration Points:**
-- `authClient` từ `@/lib/auth-client` — Better Auth client wrapper
-- `useSession()` hook — get current user after login
-- `useLocale()` hook từ `next-intl` — get current locale
-- `useRouter()` và `useSearchParams()` từ `next/navigation` — navigation
+1. **Form Component Creation**: Build custom Input component following shadcn/ui pattern
+2. **Validation Logic**: Convert Ant Design Form rules to inline validation
+3. **Role Map Definition**: Create role-to-destination mapping object
+4. **ReturnUrl Validation**: Implement open redirect protection logic
+5. **Testing Strategy**: Test all 5 roles × 4 locales = 20 redirect scenarios
 
-**Role Route Mapping (needs verification):**
-```
-src/app/[locale]/dashboard/         → Customer dashboard
-src/app/[locale]/specialist/        → Specialist workbench (verify exists)
-src/app/[locale]/reviewer/          → Reviewer portal (verify exists)
-src/app/[locale]/admin/dashboard/   → Coordinator admin
-src/app/[locale]/partner/dashboard/ → Partner portal (exists in v2.1)
-```
+## Deferred Ideas (Scope Creep)
 
-## Decisions Summary
+The following were mentioned but OUT OF SCOPE for Phase 74:
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Error Display | Ant Design `message.error()` | Consistent, non-intrusive, already working |
-| Redirect Logic | Role-based routing + locale preservation | Meets AUTH-04 and AUTH-06 requirements |
-| Form Validation | Ant Design Form rules | Standard pattern, real-time validation |
-| Loading State | Button loading prop | Simple, non-blocking UX |
-| Demo Credentials | Conditional pre-fill (dev only) | Security for production |
-| Locale Handling | Dynamic detection via `useLocale()` | Supports all 4 languages |
+- **Forgot Password Link**: Would require password reset flow — separate phase
+- **Social Login (Google/GitHub)**: OAuth providers — separate backlog item
+- **Password Strength Meter**: Security enhancement — defer to future phase
+- **"Remember Me" Checkbox**: Persistent session preference — separate concern
 
-## Implementation Gaps
+## Code Context Summary
 
-**Critical (must fix for production):**
-1. Role-based redirect mapping — needs implementation và testing
-2. Locale prefix preservation — needs `useLocale()` integration
+### Existing Files to Leverage
 
-**Nice-to-have (can defer):**
-1. Password strength validation — security hardening
-2. "Forgot password" link — feature chưa có trong requirements
-3. Social login (Google/GitHub) — out of scope cho v2.2
+- `src/components/ui/button.tsx` — Pattern for custom components
+- `src/components/shared/ErrorFallback.tsx` — Error display pattern
+- `src/hooks/useAuth.ts` — Auth state access pattern
+- `src/lib/auth-client.ts` — Better Auth integration
+- `src/middleware.ts` — Auth guard patterns
 
-## Success Criteria
+### Patterns to Avoid
 
-Phase 74 hoàn thành khi:
-- ✅ AUTH-01 đến AUTH-06 đều pass verification
-- ✅ Role-based redirect hoạt động cho tất cả 5 roles
-- ✅ Locale prefix preserved sau redirect (test với 4 languages)
-- ✅ Demo credentials chỉ pre-fill trong development mode
-- ✅ Error messages hiển thị đúng cho invalid credentials
-- ✅ Form validation working với Ant Design rules
-- ✅ Loading state rõ ràng khi authenticate
+- ❌ Ant Design components (`import { ... } from 'antd'`)
+- ❌ Direct session storage access from components
+- ❌ Hardcoded locale strings (always use `useLocale()`)
+- ❌ Unvalidated returnUrl redirects (open redirect risk)
 
 ## Next Steps
 
-1. **Research:** Verify role route paths trong codebase (Specialist, Reviewer)
-2. **Plan:** Tạo PLAN.md với task breakdown cho implementation
-3. **Execute:** Implement role-based redirect và locale preservation
-4. **Verify:** Test tất cả 6 requirements với 5 roles và 4 locales
+1. **Plan-phase**: Break down into tasks (form creation, validation, redirect logic, tests)
+2. **Execute**: Implement custom Tailwind form components
+3. **Test**: Verify all 6 requirements pass, including edge cases
 
 ---
 
-**Phase 74 là enhancement phase, không phải new build.** Form hiện tại đã 80% complete, chỉ cần polish và complete 2 gaps (AUTH-04, AUTH-06) để đạt production readiness.
+*Phase: 74-sign-in*  
+*Context created: 2026-06-20 (auto-discuss mode)*  
+*Next step: /gsd-plan-phase 74*

@@ -1,169 +1,140 @@
-# Phase 74: Sign-In — Discussion Log
+# Phase 74: Sign-In - Discussion Log
 
-**Date:** 2026-06-20
-**Mode:** discuss (with auto-recommendations)
+> **Audit trail only.** Do not use as input to planning, research, or execution agents.
+> Decisions are captured in CONTEXT.md — this log preserves the alternatives considered.
 
----
-
-## Gray Areas Discussed
-
-### 1. Error Message Display Strategy
-
-**Options Presented:**
-- A. Toast notification (Ant Design message.error)
-- B. Inline validation dưới mỗi field
-- C. Summary banner ở đầu form
-- D. Hybrid approach
-
-**Decision:** A — Ant Design `message.error()`
-
-**Rationale:**
-- Already implemented trong code hiện tại
-- Consistent với Ant Design migration (Phase 10)
-- Non-intrusive UX phù hợp Vietnamese users
-- No rework needed
+**Date:** 2026-06-20  
+**Phase:** 74-sign-in  
+**Areas discussed:** Form component strategy, Toast library, Input component, Form validation, Demo credentials, Redirect logic, returnUrl protection
 
 ---
 
-### 2. Redirect After Login
+## Form Component Strategy
 
-**Options Presented:**
-- A. Single destination (hardcode /dashboard)
-- B. Role-based routing (different destinations per role)
-- C. Let user choose destination
-- D. Always use returnUrl query param
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Migrate to custom Tailwind | Replace Ant Design Form with custom components following shadcn/ui pattern | ✓ |
+| Keep Ant Design Form | Continue using Ant Design for form handling | |
 
-**Decision:** B — Role-based routing + locale preservation
+**User's choice:** Auto-selected "Migrate to custom Tailwind" (recommended default)
 
-**Mapping:**
-- Customer → `/[locale]/dashboard`
-- Specialist → `/[locale]/specialist` (verify route exists)
-- Reviewer → `/[locale]/reviewer` (verify route exists)
-- Coordinator Admin → `/[locale]/admin/dashboard`
-- Partner → `/[locale]/partner/dashboard`
-
-**Rationale:**
-- Meets AUTH-04 requirement (role-based redirect)
-- Meets AUTH-06 requirement (locale prefix)
-- Better UX — user lands on relevant dashboard immediately
-- returnUrl query param vẫn được ưu tiên nếu có (deep linking)
+**Notes:**
+- Phase 73 SPEC locked constraint: "Remove Ant Design dependency — project sẽ chuyển hoàn toàn sang custom Tailwind CSS components"
+- Old CONTEXT.md incorrectly stated "Ant Design: UI component library chính" — this contradicts Phase 73
+- Codebase already has working shadcn/ui pattern (`button.tsx` with Radix + CVA)
+- Migration necessary for consistency across all v2.2 phases
 
 ---
 
-### 3. Form Validation Rules
+## Toast/Notification Library
 
-**Options Presented:**
-- A. Real-time validation (onBlur)
-- B. Submit-only validation
-- C. Hybrid approach
+| Option | Description | Selected |
+|--------|-------------|----------|
+| react-hot-toast | Already installed, documented in Phase 73 | ✓ |
+| sonner | Modern alternative, not installed | |
+| react-toastify | Popular library, not installed | |
 
-**Decision:** A — Ant Design Form rules (real-time)
+**User's choice:** Auto-selected "react-hot-toast" (recommended default)
 
-**Rationale:**
-- Already implemented với Ant Design Form
-- Standard pattern cho form validation
-- User-friendly: errors hiện ngay dưới field
-- Covers required + email format + password length
-
----
-
-### 4. Loading State Management
-
-**Options Presented:**
-- A. Button spinner (loading prop)
-- B. Full-page overlay
-- C. Skeleton card
-- D. No explicit loading
-
-**Decision:** A — Button loading prop
-
-**Rationale:**
-- Already implemented trong SignInForm
-- Simple, non-blocking UX
-- Ant Design Button handles accessibility
-- Fast auth flow (< 1s typical)
+**Notes:**
+- Library already in package.json: `react-hot-toast@^2.6.0`
+- Phase 73 CONTEXT.md explicitly chose this library
+- No additional dependencies needed
 
 ---
 
-### 5. Demo Credentials Handling
+## Input Component Replacement
 
-**Options Presented:**
-- A. Always pre-fill (current behavior)
-- B. Never pre-fill
-- C. Conditional pre-fill (dev mode only)
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Custom Radix + Tailwind | Build Input component following button.tsx pattern | ✓ |
+| shadcn/ui Input | Use existing shadcn/ui Input if available | |
+| Native HTML input | Simple native input with Tailwind styling | |
 
-**Decision:** C — Conditional pre-fill
+**User's choice:** Auto-selected "Custom Radix + Tailwind" (recommended default)
 
-**Rationale:**
-- Development: tiện lợi cho testing với seed data
-- Production: security, không expose demo credentials
-- Standard practice cho authentication forms
+**Notes:**
+- Follows established pattern from `src/components/ui/button.tsx`
+- Radix UI provides accessible primitives (focus management, keyboard navigation)
+- CVA (class-variance-authority) enables consistent variant management
+
+---
+
+## Form Validation Library
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Inline validation with React state | Simple useState-based validation for 2 fields | ✓ |
+| react-hook-form | Full-featured form library, not installed | |
+| Formik | Another popular form library, not installed | |
+
+**User's choice:** Auto-selected "Inline validation with React state" (recommended default)
+
+**Notes:**
+- Simple form with only email + password fields
+- Adding react-hook-form would over-engineer for minimal complexity
 
 ---
 
-### 6. Locale Detection and Preservation
+## Demo Credentials Pre-fill
 
-**Options Presented:**
-- A. Hardcode /vi/ prefix
-- B. Dynamic detection via useLocale()
-- C. Browser language detection
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Conditional (dev only) | Pre-fill only in NODE_ENV === 'development' | ✓ |
+| Always pre-fill | Pre-fill in all environments | |
+| Never pre-fill | Never auto-fill credentials | |
 
-**Decision:** B — Dynamic detection via `useLocale()` hook
-
-**Rationale:**
-- Supports all 4 languages (VI/EN/ZH/JA)
-- Leverages next-intl infrastructure
-- Locale preserved throughout user journey
-- Meets AUTH-06 requirement
+**User's choice:** Auto-selected "Conditional (dev only)" (recommended default)
 
 ---
+
+## Redirect After Login
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Dynamic role map + useLocale() | Build role→destination map, use useLocale() hook | ✓ |
+| Separate API endpoint | Create GET /api/auth/redirect-destination endpoint | |
+| Hardcoded paths | Keep current hardcoded redirect logic | |
+
+**User's choice:** Auto-selected "Dynamic role map + useLocale()" (recommended default)
+
+**Notes:**
+- Clean separation: role mapping logic in component, locale from hook
+- No additional API call needed
+- Follows requirement AUTH-04 and AUTH-06 specifications
+
+---
+
+## returnUrl Open-Redirect Protection
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Strict whitelist | Only allow paths starting with `/` (not `//`) | ✓ |
+| No returnUrl support | Remove returnUrl handling entirely | |
+| Full URL validation | Parse and validate against allowed domains | |
+
+**User's choice:** Auto-selected "Strict whitelist" (recommended default)
+
+**Notes:**
+- `//example.com` is valid path that browsers treat as external
+- Must prevent open redirect attacks
+
+---
+
+## Claude's Discretion
+
+All decisions were auto-selected by --auto mode using recommended defaults. No user-provided clarifications.
 
 ## Deferred Ideas
 
-**Noted for future phases:**
-- Password strength validation — security hardening có thể thêm sau
-- "Forgot password" link — feature chưa có trong v2.2 requirements
-- Social login (Google/GitHub) — out of scope, defer to v2.3+
-- Remember me checkbox — nice-to-have, defer if scope creeps
+The following were identified as scope creep and deferred to future phases:
+
+- **Forgot Password Link**: Requires password reset flow with email verification — separate phase
+- **Social Login (Google/GitHub)**: OAuth integration with multiple providers — separate backlog item  
+- **Password Strength Meter**: Security enhancement with real-time feedback — defer to security hardening phase
+- **"Remember Me" Checkbox**: Persistent session preference across browser sessions — separate UX enhancement
 
 ---
 
-## Codebase Findings
-
-**Existing Implementation (98 lines):**
-- File: `src/components/auth/SignInForm.tsx`
-- Uses Ant Design Form, Better Auth, next-intl
-- Status: 80% complete, working but needs polish
-
-**Integration Points:**
-- `authClient` từ `@/lib/auth-client`
-- `useSession()` hook from Better Auth
-- `useLocale()` hook from next-intl
-- `useRouter()` and `useSearchParams()` from next/navigation
-
-**Role Routes (needs verification in planning):**
-- Customer dashboard: ✅ exists
-- Specialist workbench: ⚠️ verify path
-- Reviewer portal: ⚠️ verify path
-- Admin dashboard: ✅ exists
-- Partner dashboard: ✅ exists (v2.1)
-
----
-
-## Summary
-
-**Phase 74 là enhancement phase, không phải new build.**
-
-**Completed:**
-- 4/6 requirements đã working (AUTH-01, 02, 03, 05)
-- Form validation, error handling, loading state
-
-**Gaps to fix:**
-- AUTH-04: Role-based redirect logic
-- AUTH-06: Locale prefix preservation
-
-**Additional improvements:**
-- Demo credentials: conditional pre-fill (dev only)
-- Better integration với next-intl locale system
-
-**Estimated effort:** Small — mostly adding logic to existing implementation
+*Discussion log created: 2026-06-20*  
+*Mode: --auto (fully autonomous, all gray areas auto-selected)*

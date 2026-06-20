@@ -7,10 +7,21 @@ import '@/components/create-request/create-request.css';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ draftId?: string }>;
 }
 
-export default async function CreateRequestPage({ params }: PageProps) {
+export async function generateMetadata({ params }: PageProps) {
   const { locale } = await params;
+  const t = await getTranslations('UserCreateRequest');
+  return {
+    title: t('pageTitle'),
+    description: t('pageDesc'),
+  };
+}
+
+export default async function CreateRequestPage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
+  const { draftId } = await searchParams;
   const session = await requireAppSession();
   const { userId, activeWorkspaceId } = session;
   const t = await getTranslations('UserCreateRequest');
@@ -20,6 +31,7 @@ export default async function CreateRequestPage({ params }: PageProps) {
     select: {
       name: true,
       email: true,
+      phone: true,
       memberships: {
         where: { workspaceId: activeWorkspaceId ?? undefined },
         select: { workspace: { select: { name: true, slug: true } } },
@@ -41,6 +53,13 @@ export default async function CreateRequestPage({ params }: PageProps) {
     select: { id: true, name: true, slug: true },
   });
 
+  const userContactInfo = {
+    email: user?.email ?? '',
+    phone: user?.phone ?? '',
+    companyName: workspaceName,
+    taxCode: '',
+  };
+
   return (
     <UserLayout userName={userName} userRole="customer" workspaceName={workspaceName} workspaceSlug={workspaceSlug}>
       <div className="page-header">
@@ -60,7 +79,12 @@ export default async function CreateRequestPage({ params }: PageProps) {
         </div>
       </div>
 
-      <CreateRequestForm workspaces={workspaces} workspaceName={workspaceName} locale={locale} />
+      <CreateRequestForm
+        workspaces={workspaces}
+        workspaceName={workspaceName}
+        locale={locale}
+        userContactInfo={userContactInfo}
+      />
     </UserLayout>
   );
 }

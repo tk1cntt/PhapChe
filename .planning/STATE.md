@@ -1,60 +1,82 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.1
-milestone_name: Shared Tenant Architecture
-current_phase: complete
-status: shipped
-last_updated: "2026-06-19T00:00:00.000Z"
-last_activity: 2026-06-19
+milestone: v2.2
+milestone_name: Legacy UI Enhancement
+status: active
+last_updated: "2026-06-20T00:50:32.716Z"
 progress:
-  total_phases: 19
-  completed_phases: 19
-  total_plans: 20
-  completed_plans: 20
-  percent: 100
+  total_phases: 24
+  completed_phases: 0
+  total_plans: 4
+  completed_plans: 3
+  percent: 0
 ---
 
-# State: v2.1 Shared Tenant Architecture — SHIPPED
+# STATE.md — Project State Tracker
 
-## Project Reference
+## Current Position
 
-**Project:** GitNexus Legal - Legal-as-a-Service Platform
-**Core Value:** SME gửi yêu cầu pháp lý đơn giản như nhắn tin và nhận tài liệu/tư vấn đã qua kiểm soát chất lượng, có thể truy vết toàn bộ quá trình xử lý.
-**Current Focus:** Planning next milestone (v2.2 AI Features or Legacy UI Enhancement)
+**Phase 73: Shared Foundation — IN PROGRESS**
 
-## Milestones
+Plan 73-01 (seed-data-framework) đã hoàn thành và commit (c8fbdd2).
 
-| Version | Name | Status | Shipped |
-|---------|------|--------|---------|
-| v1.0 | MVP | ✅ Complete | 2026-06-05 |
-| v1.1 | Auth & i18n | ✅ Complete | 2026-06-10 |
-| v2.0 | Admin Portal + User Dashboard | ✅ Complete | 2026-06-14 |
-| v2.1 | Shared Tenant Architecture | ✅ Complete | 2026-06-19 |
-| v2.2 | AI Features / Legacy UI | 📋 Planned | - |
+**Kết quả:**
 
-## Deferred Items
+- ✓ Tạo cấu trúc seed data mới trong `prisma/seed/` với 4 files
+- ✓ Implement wipe strategy với transaction rollback
+- ✓ Consolidate 7 scattered seed files thành 3 domain modules
+- ✓ Seed data: 1 tenant, 3 orgs, 10 users, 5 workspaces, 50 requests, 100 audit events, 30 messages, 5 partners
 
-Items acknowledged and deferred at v2.1 milestone close on 2026-06-19:
+**Next:** Plan 73-02 (shared-components) hoặc chuyển sang phase 74
 
-| Category | Phase | Status |
-|----------|-------|--------|
-| Legacy UI Enhancement | 73: Settings (User) | Pending |
-| Legacy UI Enhancement | 74: User Management (Admin) | Pending |
-| Legacy UI Enhancement | 75: Create Request (User) | Pending |
-| Legacy UI Enhancement | 76: My Cases (User) | Pending |
-| Legacy UI Enhancement | 77: Dashboard (User) | Pending |
-| Legacy UI Enhancement | 78: Request Management (Admin) | Pending |
-| Legacy UI Enhancement | 79: Admin Dashboard | Pending |
-| Legacy UI Enhancement | 80: Operations (Admin) | Pending |
-| Legacy UI Enhancement | 81: Messages (User) | Pending |
-| Legacy UI Enhancement | 82: Audit (Admin) | Pending |
-| Legacy UI Enhancement | 83: Workspace Management (Admin) | Pending |
-| Legacy UI Enhancement | 84: Vault (Admin) | Pending |
-| Unit Tests | Various services | Incomplete |
-| E2E Tests | Partner flows | Incomplete |
+---
 
-## Quick Tasks Completed
+## Phase 73 Progress
 
+### 73-01: Seed Data Framework ✅ COMPLETE
+
+- **Commit:** c8fbdd2
+- **Date:** 2026-06-20
+- **Files:**
+  - `prisma/seed/index.ts` - orchestrator với wipe + transaction
+  - `prisma/seed/foundation.ts` - tenant, orgs, users, workspaces
+  - `prisma/seed/operations.ts` - requests, audit events, messages
+  - `prisma/seed/partners.ts` - partners, service types
+- **Deleted:** 7 old seed-*.ts files
+- **Requirements:** FOUND-01, FOUND-02 ✓
+
+### 73-02: Shared Components ⏳ NOT STARTED
+
+- Tạo shared UI components: ErrorBoundary, LoadingSkeleton, EmptyState
+- Requirements: FOUND-03, FOUND-04
+
+### 73-03: API Client & Hooks ⏳ NOT STARTED
+
+- Central API client với React Query
+- Custom hooks: useAuth, usePermissions, useWorkspace
+- Requirements: FOUND-05, FOUND-06
+
+### 73-04: i18n & Tests ⏳ NOT STARTED
+
+- i18n translations cho shared components
+- Unit tests cho seed framework và components
+- Requirements: FOUND-07, FOUND-08
+
+---
+
+## Milestone v2.1 Summary (Completed 2026-06-19)
+
+**Milestone:** v2.1 Shared Tenant Architecture — SHIPPED
+
+**Progress:**
+
+- Total phases: 26
+- Completed phases: 21
+- Total plans: 47
+- Completed plans: 43
+- Percent: 81%
+
+**Quick Tasks Completed:**
 | # | Description | Date | Commit |
 |---|-------------|------|--------|
 | 260615-q1w | Update admin requests page with all-in-one mock UI | 2026-06-15 | aa89767 |
@@ -66,4 +88,4 @@ Items acknowledged and deferred at v2.1 milestone close on 2026-06-19:
 | QT20260617-004 | Database architecture review (4-step expert analysis) | 2026-06-17 | 87beca1 |
 
 ---
-*Last updated: 2026-06-19 after v2.1 milestone completion*
+*Last updated: 2026-06-20 after plan 73-01 completion*

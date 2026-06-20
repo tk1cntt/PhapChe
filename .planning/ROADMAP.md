@@ -58,11 +58,13 @@
 <summary>✅ v2.1 Shared Tenant Architecture (Phases 55-72, 85) — SHIPPED 2026-06-19</summary>
 
 **Foundation:**
+
 - [x] Phase 55: Architecture & Standards (1/1 plans)
 - [x] Phase 56: Storage Infrastructure (1/1 plans)
 - [x] Phase 57: Shared Tenant Architecture (1/1 plans)
 
 **Core Implementation:**
+
 - [x] Phase 58: Core Tables (1/1 plans)
 - [x] Phase 59: Partner Model (1/1 plans)
 - [x] Phase 60: Engagement System (1/1 plans)
@@ -80,6 +82,7 @@
 - [x] Phase 72: Workspace Management v2 (1/1 plans)
 
 **Infrastructure:**
+
 - [x] Phase 85: Database Schema Improvement (4/4 plans)
 
 [Details](.planning/milestones/v2.1-ROADMAP.md)
@@ -93,12 +96,14 @@
 UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend integration following specification-first methodology and `src/docs/` architecture standards.
 
 **Methodology:** Data-First Development — mỗi phase phải hoàn thành full data flow:
+
 1. **API/Service Layer** — tạo endpoints + business logic theo `src/docs/SERVICE_LAYER.md`
 2. **Data Seeding** — tạo seed data cho screen đó qua Prisma seed scripts
 3. **Frontend Integration** — kết nối UI với real API (React Query hooks)
 4. **Tests** — whitebox, blackbox, abnormal, error, E2E (≥90% coverage)
 
 **Per-Phase Done Definition:**
+
 - ✅ API endpoints exist và working
 - ✅ Seed data exists cho screen đó
 - ✅ UI connected to real APIs (no mock data)
@@ -118,9 +123,15 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 
 **Depends on:** None
 **Requirements:** FOUND-01 to FOUND-12
-**Plans:** TBD
+**Plans:** 4/4 plans complete
+
+- [x] 73-01-PLAN.md
+- [x] 73-02-PLAN.md
+- [x] 73-03-PLAN.md
+- [x] 73-04-PLAN.md
 
 **Deliverables:**
+
 - `prisma/seed/` — seed data framework với realistic Vietnamese data
 - `src/lib/api/client.ts` — central API client với React Query providers
 - `src/components/shared/` — ErrorBoundary, LoadingSkeleton, EmptyState components
@@ -128,6 +139,7 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 - Sample data: 10 users, 3 orgs, 5 workspaces, 50 requests, 100 audit events, 20 vault files, 30 messages, 5 partners
 
 **Success Criteria:**
+
 1. `npm run seed` populates database với realistic Vietnamese data
 2. Central API client supports GET/POST/PATCH/DELETE với error handling
 3. React Query providers configured và available globally
@@ -154,12 +166,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `POST /api/auth/sign-in` (Better Auth)
 - Seed: Test users (customer, specialist, reviewer, admin, partner)
 - UI: Connect SignInForm to real auth API
 - Tests: Valid login, invalid credentials, role-based redirect, locale preservation
 
 **Success Criteria:**
+
 1. Sign-in form displays email and password fields with validation
 2. User can sign in via `POST /api/auth/sign-in` with email/password
 3. Error message displays for invalid credentials
@@ -180,12 +194,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/requests?pageSize=5`, `GET /api/vault?pageSize=5`, `GET /api/audit?actorId=me`
 - Seed: Requests với various statuses, vault files, audit events, messages
 - UI: 4 stat cards + 6 panels connected to real APIs via React Query
 - Tests: Real counts, panel data, navigation, empty states
 
 **Success Criteria:**
+
 1. Dashboard shows 4 stat cards with real counts from Prisma (total, in-progress, completed, overdue)
 2. Welcome banner shows user name, organization and workspace
 3. Recent cases panel shows 5 most recent cases via `GET /api/requests?pageSize=5`
@@ -208,12 +224,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/intake/forms`, `POST /api/intake/submit`, `POST /api/requests/:id/documents`
 - Seed: 5 service types with form definitions, intake questions
 - UI: 4-step wizard connected to form engine + upload API
 - Tests: All 4 steps, validation, upload progress, draft save, submit confirmation
 
 **Success Criteria:**
+
 1. User sees summary banner with available service types from `GET /api/intake/forms`
 2. Service cards display with descriptions and tags
 3. Wizard shows 4-step progress indicator
@@ -239,12 +257,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/requests?page=&pageSize=10&search=&status=&type=`
 - Seed: 50 requests với various statuses, types, priorities, SLA deadlines
 - UI: Table connected to real API với search/filter/pagination
 - Tests: Filter combinations, pagination, empty state, navigation
 
 **Success Criteria:**
+
 1. Summary banner shows total cases count from `GET /api/requests`
 2. Stat cards show correct counts (Tổng, Đang xử lý, Hoàn tất, Quá hạn)
 3. Search filters cases by code or type via `?search=`
@@ -268,12 +288,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/messages?requestId=`, `GET /api/messages/:threadId`, `POST /api/messages/send`, `PUT /api/messages/:id/read`
 - Seed: 30 messages across 5 threads, linked to requests
 - UI: 3-column layout connected to real message APIs
 - Tests: Thread list, send message, unread badge, info panel toggle
 
 **Success Criteria:**
+
 1. Messages page shows 3-column layout (threads, chat, info)
 2. Thread list shows all message threads via `GET /api/messages?requestId=`
 3. User can select thread to view messages via `GET /api/messages/:threadId`
@@ -296,12 +318,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/workspaces/:id/members`, workspace stats, vault files
 - Seed: Workspace với 5 members, 20 cases, 15 documents
 - UI: Members panel + stats + resources connected to real APIs
 - Tests: Member list, stats accuracy, resource display, role permissions
 
 **Success Criteria:**
+
 1. Workspace page shows workspace info (name, organization, settings)
 2. Members panel shows all workspace members with roles via `GET /api/workspaces/:id/members`
 3. Stats panel shows workspace metrics (cases, documents, members)
@@ -322,12 +346,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `PUT /api/settings/profile`, `PUT /api/settings/password`, `PUT /api/settings/notifications`, `GET /api/settings/audit`
 - Seed: User profile data, notification preferences, audit entries
 - UI: Settings form connected to real APIs
 - Tests: Profile update, password change, notification toggle, language switch, validation
 
 **Success Criteria:**
+
 1. User can view and edit profile (name, email, phone, title) via `PUT /api/settings/profile`
 2. User can change password with current password verification via `PUT /api/settings/password`
 3. User can toggle notifications (emailOnReply, slaReminder, weeklySummary) via `PUT /api/settings/notifications`
@@ -348,12 +374,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/partner/invite/:token`, `POST /api/partner/invite/accept`
 - Seed: 5 pending invites với valid tokens, expired tokens
 - UI: Invite page connected to real token validation API
 - Tests: Valid token, expired token, invalid token, accept flow, auth redirect
 
 **Success Criteria:**
+
 1. Invite page validates token via `GET /api/partner/invite/:token` on load
 2. Page shows invite info (email, role, partner/org name) from real API
 3. Role-based UI shows different permissions for admin/specialist/viewer
@@ -375,12 +403,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: Aggregation endpoints for stats, workload, alerts, audit timeline
 - Seed: Data across 3 orgs, 5 workspaces, 50 requests, specialists with assignments
 - UI: 4 stat cards + 6 panels connected to real APIs
 - Tests: Stat accuracy, workload display, alert conditions, navigation
 
 **Success Criteria:**
+
 1. Admin sees 4 stat cards with real counts by organization
 2. Workload panel shows specialist workloads from assignments
 3. Alert panel shows system alerts (SLA breaches, pending reviews)
@@ -403,12 +433,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/admin/users`, `POST /api/admin/users`, `PATCH /api/admin/users/:id`, `DELETE /api/admin/users/:id`
 - Seed: 10 users across 3 orgs with various roles
 - UI: User table connected to real CRUD APIs
 - Tests: List, search, filter, create, edit, deactivate, bulk actions
 
 **Success Criteria:**
+
 1. Admin sees paginated list of all users via `GET /api/admin/users?page=&pageSize=`
 2. Admin can search users by name/email via `?search=`
 3. Admin can filter users by role via `?role=`
@@ -432,12 +464,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/admin/users/:id`, audit log for user, assignment history
 - Seed: User profile, 20 audit events, 10 assignments
 - UI: Detail page connected to real APIs
 - Tests: Profile display, activity timeline, permissions, navigation
 
 **Success Criteria:**
+
 1. Admin sees user profile (name, email, role, org, workspace)
 2. Activity timeline shows user's recent actions from audit log
 3. Permissions panel shows user's effective permissions
@@ -458,12 +492,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/requests`, `PATCH /api/requests/:id`, `POST /api/requests/:id/workflow/transition`
 - Seed: 50 requests với various statuses, types, priorities, assignees
 - UI: Request table connected to real APIs với workflow transitions
 - Tests: List, search, filter, assign, status change, navigation
 
 **Success Criteria:**
+
 1. Admin sees all requests with organization filtering via `GET /api/requests`
 2. Admin can search requests by code via `?search=`
 3. Admin can filter requests by status via `?status=`
@@ -487,12 +523,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/requests/:id`, SLA calculation, partner info, audit metadata
 - Seed: Request với full detail, SLA deadline, partner assignment, audit trail
 - UI: Detail page connected to real APIs
 - Tests: Hero section, SLA display, partner card, navigation, error handling
 
 **Success Criteria:**
+
 1. Detail page shows hero section (title, code, status badge, workspace)
 2. Stat grid shows customer, workspace, created, updated dates
 3. SLA card shows deadline with remaining/overdue calculation
@@ -514,12 +552,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/admin/partner/requests`, export endpoint
 - Seed: 5 partners with engagements, 20 partner requests
 - UI: Partner request table connected to real APIs
 - Tests: List, search, filter, pagination, export, navigation
 
 **Success Criteria:**
+
 1. Admin sees partner request list via `GET /api/admin/partner/requests`
 2. Stat grid shows total, in-progress, pending-review, completed counts
 3. Search filters by partner name or request code
@@ -542,12 +582,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/admin/partner/:id`, engagement info, request history
 - Seed: Partner với engagement, 10 requests, audit events
 - UI: Detail page connected to real APIs
 - Tests: Engagement display, request history, navigation, activity feed
 
 **Success Criteria:**
+
 1. Detail page shows partner engagement info
 2. Request history shows all requests for this partner
 3. Engagement scope and service types display
@@ -567,12 +609,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/admin/organizations`, `POST /api/admin/organizations`
 - Seed: 3 organizations with various business types, workspace counts
 - UI: Org table connected to real CRUD APIs
 - Tests: List, search, create form, validation, pagination, navigation
 
 **Success Criteria:**
+
 1. Admin sees organization list via `GET /api/admin/organizations`
 2. Stat grid shows total, active, inactive counts
 3. Admin can create organization via `POST /api/admin/organizations` with form validation
@@ -595,12 +639,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: Parallel Prisma queries for org detail (10+ queries)
 - Seed: Org với 3 workspaces, 15 requests, 2 partners, 10 documents, 8 members, 15 audit events
 - UI: Detail page with 8 panels connected to real APIs
 - Tests: All panels, data accuracy, navigation, loading states
 
 **Success Criteria:**
+
 1. Detail page shows org info with parallel Prisma queries
 2. Workspaces panel shows all org workspaces with per-workspace stats
 3. Requests panel shows open, in-progress, SLA-at-risk counts
@@ -623,12 +669,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: Operations aggregation, workload by specialist, SLA calculations
 - Seed: 5 specialists with assignments, requests with SLA deadlines
 - UI: Operations table with SLA bars connected to real APIs
 - Tests: SLA calculations, color coding, filter by specialist, sort by SLA
 
 **Success Criteria:**
+
 1. Operations page shows stat cards (total requests, active, overdue, completed)
 2. Workload panel shows specialist assignments with counts
 3. Audit timeline shows recent operations
@@ -650,12 +698,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/admin/audit?page=&search=&action=&from=&to=`
 - Seed: 100 audit events (security, operations, access types)
 - UI: Audit table connected to real API với search/filter/pagination
 - Tests: Stat cards, search, filter, date range, pagination, monospace correlation IDs
 
 **Success Criteria:**
+
 1. Audit page shows 4 stat cards (total, security, operations, access)
 2. Security notice explains safe display of sensitive data
 3. Control alerts show security metrics (failed logins, permission denials)
@@ -680,12 +730,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/vault`, `POST /api/vault/upload`, `GET /api/vault/:id/download`, folder/tag CRUD
 - Seed: 20 vault files, 5 folders, 10 tags with counts
 - UI: Vault table + folder tree + tag panel connected to real APIs
 - Tests: File list, upload, download (signed URL), folder CRUD, tag CRUD, filters
 
 **Success Criteria:**
+
 1. Vault page shows stat cards (total files, folders, tags)
 2. Folder panel shows folder tree via `GET /api/vault/folders`
 3. Tag panel shows classification tags with counts
@@ -712,12 +764,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/workspaces`, `POST /api/workspaces`, `POST /api/workspaces/:id/invite`, member CRUD
 - Seed: 5 workspaces across 3 orgs, 15 members with various roles
 - UI: Workspace table connected to real CRUD APIs
 - Tests: List, search, create, invite member, change role, remove member, deactivate
 
 **Success Criteria:**
+
 1. Admin sees all workspaces with organization grouping via `GET /api/workspaces`
 2. Admin can search workspaces by name via `?search=`
 3. Admin can view workspace details via `GET /api/workspaces/:id`
@@ -740,12 +794,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `GET /api/partner/requests`, `GET /api/partner/members` (existing from v2.1)
 - Seed: Partner với 10 assigned requests, 3 members, engagement data
 - UI: Dashboard connected to existing partner APIs — verify completeness
 - Tests: Request list, stat accuracy, member panel, session validation
 
 **Success Criteria:**
+
 1. Partner sees assigned requests list from `GET /api/partner/requests`
 2. Stat cards show correct counts (total, in-progress, pending-review, completed)
 3. Member management panel shows partner members with roles via `GET /api/partner/members`
@@ -767,12 +823,14 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 **Plans:** TBD
 
 **Data Flow:**
+
 - API: `PUT /api/partner/settings`, `POST /api/partner/invite` (existing from v2.1)
 - Seed: Partner profile, member roles, notification preferences
 - UI: Settings form connected to existing partner APIs — verify completeness
 - Tests: Profile edit, member role management, invite, notification toggle
 
 **Success Criteria:**
+
 1. Partner can view organization profile (name, business type, contact info)
 2. Partner can edit organization profile via `PUT /api/partner/settings`
 3. Partner can manage member roles (admin, specialist, viewer)
@@ -786,7 +844,7 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 
 | Phase | Name | Screen | Status | Completed |
 |-------|------|--------|--------|-----------|
-| 73 | Shared Foundation | — | Not started | - |
+| 73 | Shared Foundation | 4/4 | Complete   | 2026-06-20 |
 | 74 | Sign-In | `[locale]/sign-in` | Not started | - |
 | 75 | User Dashboard | `[locale]/dashboard` | Not started | - |
 | 76 | Create Request | `[locale]/create` | Not started | - |

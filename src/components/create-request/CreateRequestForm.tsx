@@ -268,9 +268,10 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
               {/* Step 2: Service Type Selection */}
               {state.step === 2 && state.domainId && (
                 <ServiceTypeList
-                  domainId={state.domainId}
+                  selectedDomainId={state.domainId}
                   selectedServiceType={state.serviceType}
                   onSelect={actions.setService}
+                  onBack={actions.prevStep}
                   locale={locale}
                 />
               )}

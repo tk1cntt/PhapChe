@@ -67,9 +67,14 @@ describe('POST /api/intake/draft/save', () => {
   });
 
   describe('Validation', () => {
-    it('returns 400 when domainId is missing', async () => {
+    it('returns 200 when domainId is null (optional for partial drafts)', async () => {
       vi.mocked(requireAppSession).mockResolvedValue({ userId: 'user-123' });
       vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-123' });
+      vi.mocked(prisma.draft.create).mockResolvedValue({
+        id: 'draft-new',
+        updatedAt: new Date('2024-01-01'),
+      });
+      vi.mocked(prisma.auditEvent.create).mockResolvedValue({});
 
       const request = new Request('http://localhost/api/intake/draft/save', {
         method: 'POST',
@@ -84,13 +89,19 @@ describe('POST /api/intake/draft/save', () => {
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(400);
-      expect(data.error).toBe('VALIDATION_ERROR');
+      // Schema now allows nullable domainId for partial draft saves
+      expect(response.status).toBe(200);
+      expect(data.data.draftId).toBeDefined();
     });
 
-    it('returns 400 when serviceType is missing', async () => {
+    it('returns 200 when serviceType is null (optional for partial drafts)', async () => {
       vi.mocked(requireAppSession).mockResolvedValue({ userId: 'user-123' });
       vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-123' });
+      vi.mocked(prisma.draft.create).mockResolvedValue({
+        id: 'draft-new',
+        updatedAt: new Date('2024-01-01'),
+      });
+      vi.mocked(prisma.auditEvent.create).mockResolvedValue({});
 
       const request = new Request('http://localhost/api/intake/draft/save', {
         method: 'POST',
@@ -105,13 +116,19 @@ describe('POST /api/intake/draft/save', () => {
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(400);
-      expect(data.error).toBe('VALIDATION_ERROR');
+      // Schema now allows nullable serviceType for partial draft saves
+      expect(response.status).toBe(200);
+      expect(data.data.draftId).toBeDefined();
     });
 
-    it('returns 400 when contactInfo email is invalid', async () => {
+    it('returns 200 when contactInfo email is empty (optional for partial drafts)', async () => {
       vi.mocked(requireAppSession).mockResolvedValue({ userId: 'user-123' });
       vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-123' });
+      vi.mocked(prisma.draft.create).mockResolvedValue({
+        id: 'draft-new',
+        updatedAt: new Date('2024-01-01'),
+      });
+      vi.mocked(prisma.auditEvent.create).mockResolvedValue({});
 
       const request = new Request('http://localhost/api/intake/draft/save', {
         method: 'POST',
@@ -120,15 +137,16 @@ describe('POST /api/intake/draft/save', () => {
           domainId: 'commercial-legal',
           serviceType: 'agency_contract',
           answers: {},
-          contactInfo: { email: 'invalid-email' },
+          contactInfo: { email: '' },
         }),
       });
 
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(400);
-      expect(data.error).toBe('VALIDATION_ERROR');
+      // Schema now allows empty email for partial draft saves
+      expect(response.status).toBe(200);
+      expect(data.data.draftId).toBeDefined();
     });
 
     it('returns 400 when more than 20 files are provided', async () => {

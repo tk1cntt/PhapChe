@@ -655,6 +655,49 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
     ],
   },
 
+  // Law Student
+  case_study: {
+    key: 'case_study',
+    label: {
+      vi: 'Nghiên cứu tình huống',
+      en: 'Case Study',
+      zh: '案例研究',
+      ja: '事例研究',
+    },
+    description: {
+      vi: 'Phân tích tình huống pháp lý thực tế cho mục đích học tập.',
+      en: 'Analyze real legal scenarios for learning purposes.',
+      zh: '分析真实法律场景用于学习。',
+      ja: '学習目的で実際の法的シナリオを分析します。',
+    },
+    questions: [
+      { key: 'case_title', label: 'Tên tình huống', required: true, type: 'text' },
+      { key: 'legal_area', label: 'Lĩnh vực pháp lý liên quan', required: true, type: 'text' },
+      { key: 'key_issues', label: 'Vấn đề chính cần phân tích', required: true, type: 'textarea' },
+      { key: 'learning_objectives', label: 'Mục tiêu học tập', required: false, type: 'textarea' },
+    ],
+  },
+  legal_research: {
+    key: 'legal_research',
+    label: {
+      vi: 'Nghiên cứu pháp luật',
+      en: 'Legal Research',
+      zh: '法律研究',
+      ja: '法律研究',
+    },
+    description: {
+      vi: 'Nghiên cứu chuyên sâu về các vấn đề pháp lý và học thuyết.',
+      en: 'In-depth research on legal issues and doctrines.',
+      zh: '对法律问题和学说的深入研究。',
+      ja: '法的問題と理論に関する詳細な研究。',
+    },
+    questions: [
+      { key: 'research_question', label: 'Câu hỏi nghiên cứu', required: true, type: 'textarea' },
+      { key: 'jurisdiction', label: 'Phạm vi pháp lý', required: true, type: 'text' },
+      { key: 'methodology', label: 'Phương pháp nghiên cứu', required: false, type: 'textarea' },
+    ],
+  },
+
   // Legal Builder Hub
   template_engine: {
     key: 'template_engine',
@@ -930,7 +973,7 @@ export const SEED_LEGAL_DOMAINS: Record<string, LegalDomainDefinition> = {
       zh: '案例研究、法律研究',
       ja: '事例研究、法律研究',
     },
-    matterTypeKeys: ['unsupported', 'unsupported'], // Placeholder - uses unsupported type
+    matterTypeKeys: ['case_study', 'legal_research'],
   },
   'legal-builder-hub': {
     key: 'legal-builder-hub',

@@ -82,6 +82,10 @@ class ApiClient {
       return baseDelay + jitter;
     };
 
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(`[API] ${method} ${url.toString()}`);
+    }
+
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         const response = await fetch(url.toString(), {

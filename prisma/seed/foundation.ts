@@ -1,17 +1,24 @@
 import { Prisma } from '@prisma/client';
 import { hashPassword } from '@better-auth/utils/password';
 
+// Security: Prevent seed script from running in production
+if (process.env.NODE_ENV === 'production') {
+  throw new Error('Seed script cannot run in production environment');
+}
+
+const defaultSeedPassword = process.env.SEED_DEFAULT_PASSWORD || 'TempPassword123!';
+
 const seedUsers = [
-  { email: 'superadmin@phapche.test', name: 'Nguyễn Văn An', password: 'Admin@123456', role: 'super_admin', accountType: 'staff' },
-  { email: 'admin@phapche.test', name: 'Trần Thị Bình', password: 'Admin@123456', role: 'coordinator_admin', accountType: 'staff' },
-  { email: 'coordinator@phapche.test', name: 'Lê Văn Cường', password: 'Admin@123456', role: 'coordinator_admin', accountType: 'staff' },
-  { email: 'specialist1@phapche.test', name: 'Phạm Thị Dung', password: 'Admin@123456', role: 'specialist', accountType: 'staff' },
-  { email: 'specialist2@phapche.test', name: 'Hoàng Văn Em', password: 'Admin@123456', role: 'specialist', accountType: 'staff' },
-  { email: 'reviewer1@phapche.test', name: 'Vũ Thị Phương', password: 'Admin@123456', role: 'reviewer', accountType: 'staff' },
-  { email: 'reviewer2@phapche.test', name: 'Đặng Văn Giang', password: 'Admin@123456', role: 'reviewer', accountType: 'staff' },
-  { email: 'customer1@phapche.test', name: 'Bùi Thị Hương', password: 'Customer@123456', role: 'customer', accountType: 'customer' },
-  { email: 'customer2@phapche.test', name: 'Đỗ Văn Ích', password: 'Customer@123456', role: 'customer', accountType: 'customer' },
-  { email: 'customer3@phapche.test', name: 'Ngô Thị Kim', password: 'Customer@123456', role: 'customer', accountType: 'customer' },
+  { email: 'superadmin@phapche.test', name: 'Nguyễn Văn An', password: defaultSeedPassword, role: 'super_admin', accountType: 'staff' },
+  { email: 'admin@phapche.test', name: 'Trần Thị Bình', password: defaultSeedPassword, role: 'coordinator_admin', accountType: 'staff' },
+  { email: 'coordinator@phapche.test', name: 'Lê Văn Cường', password: defaultSeedPassword, role: 'coordinator_admin', accountType: 'staff' },
+  { email: 'specialist1@phapche.test', name: 'Phạm Thị Dung', password: defaultSeedPassword, role: 'specialist', accountType: 'staff' },
+  { email: 'specialist2@phapche.test', name: 'Hoàng Văn Em', password: defaultSeedPassword, role: 'specialist', accountType: 'staff' },
+  { email: 'reviewer1@phapche.test', name: 'Vũ Thị Phương', password: defaultSeedPassword, role: 'reviewer', accountType: 'staff' },
+  { email: 'reviewer2@phapche.test', name: 'Đặng Văn Giang', password: defaultSeedPassword, role: 'reviewer', accountType: 'staff' },
+  { email: 'customer1@phapche.test', name: 'Bùi Thị Hương', password: defaultSeedPassword, role: 'customer', accountType: 'customer' },
+  { email: 'customer2@phapche.test', name: 'Đỗ Văn Ích', password: defaultSeedPassword, role: 'customer', accountType: 'customer' },
+  { email: 'customer3@phapche.test', name: 'Ngô Thị Kim', password: defaultSeedPassword, role: 'customer', accountType: 'customer' },
 ];
 
 const seedOrganizations = [

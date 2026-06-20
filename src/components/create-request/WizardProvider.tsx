@@ -144,9 +144,10 @@ export function WizardProvider({ children, initialDraft }: WizardProviderProps) 
         });
 
         if (response.ok) {
-          const data = await response.json();
-          if (data.draftId && data.draftId !== state.draftId) {
-            dispatch({ type: 'SET_DRAFT_ID', payload: data.draftId });
+          const result = await response.json();
+          const draftId = result.data?.draftId;
+          if (draftId && draftId !== state.draftId) {
+            dispatch({ type: 'SET_DRAFT_ID', payload: draftId });
           } else {
             dispatch({ type: 'SET_DIRTY', payload: false });
           }

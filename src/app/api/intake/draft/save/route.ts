@@ -8,9 +8,9 @@ import { requireAppSession } from '@/lib/security/session';
  */
 const draftSaveSchema = z.object({
   draftId: z.string().optional(),
-  domainId: z.string().min(1, 'Domain is required'),
-  serviceType: z.string().min(1, 'Service type is required'),
-  answers: z.record(z.string(), z.string()),
+  domainId: z.string().nullable().optional(),
+  serviceType: z.string().nullable().optional(),
+  answers: z.record(z.string(), z.string()).optional().default({}),
   files: z
     .array(
       z.object({

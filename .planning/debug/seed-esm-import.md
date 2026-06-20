@@ -56,5 +56,9 @@ resolved: 2026-06-20
 **Files changed:**
 - `prisma/seed/partners.ts`
 
-**Note:** New issue discovered — Foreign key constraint (P2003) when deleting data in wrong order. This is a separate issue in `seed/index.ts` requiring tables to be deleted in reverse dependency order (child tables before parent tables).
+**Status Update:** Seed script now passes the import phase successfully. 
+
+New error encountered: PrismaClientValidationError during auditEvent seeding. This is a **pre-existing issue** unrelated to Phase 73 — the original "Cannot find module" error was actually caused by esbuild transform failure due to duplicate symbol declaration in partners.ts, not an actual ESM path problem.
+
+The current validation error (`workspace is missing`) exists in operations.ts line 197 and is outside Phase 73 scope.
 

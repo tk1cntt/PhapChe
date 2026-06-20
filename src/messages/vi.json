@@ -8,7 +8,8 @@
     "emailInvalid": "Email không hợp lệ",
     "passwordRequired": "Mật khẩu là bắt buộc",
     "invalidCredentials": "Email hoặc mật khẩu không đúng",
-    "genericError": "Có lỗi xảy ra, vui lòng thử lại"
+    "genericError": "Có lỗi xảy ra, vui lòng thử lại",
+    "loginSuccess": "Đăng nhập thành công!"
   },
   "Nav": {
     "dashboard": "Dashboard",

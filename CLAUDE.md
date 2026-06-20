@@ -4,11 +4,13 @@ Mọi trao đổi phải dùng tiếng Việt.
 
 Cấm sử dụng lệnh taskkill //F //IM node.exe.
 
+**KHÔNG sử dụng Ant Design components** — tất cả shared components dùng custom Tailwind CSS. Ant Design sẽ được replace nếu đang được dùng.
+
 Mỗi tính năng UI cần phải có whitebox testcase, blackbox testcase, abnormal testcase, error testcase kèm theo. Fix bất kỳ một lỗi nào đều phải có e2e testcase đi kèm. Coverage phải tối thiểu 90%.
 
 Tên slug của từng phase hay quick phải là tiếng anh và ngắn gọn.
 
-
+Đọc .planning\phases\73-shared-foundation\73-SPEC.md để nắm được spec đã chốt trước khi tự quyết định làm gì đó.
 
 ## 1. Think Before Coding
 

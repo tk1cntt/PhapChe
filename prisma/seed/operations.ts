@@ -197,14 +197,11 @@ export default async function seedOperations(tx: Prisma.TransactionClient, conte
     const auditEvent = await tx.auditEvent.create({
       data: {
         actorId,
+        workspaceId: workspaceIds[i % workspaceIds.length],
         action,
         targetType,
         targetId,
-        ipAddress: `192.168.1.${(i % 255) + 1}`,
-        metadata: JSON.stringify({
-          timestamp: new Date(Date.now() - i * 3600000).toISOString(),
-          details: `Audit event ${i + 1}`,
-        }),
+        metadataSummary: `Event ${i + 1}: ${action} on ${targetType} from 192.168.1.${(i % 255) + 1}`,
       },
     });
     auditEventIds.push(auditEvent.id);
@@ -224,18 +221,17 @@ export default async function seedOperations(tx: Prisma.TransactionClient, conte
     const mimeType = mimeTypes[i % mimeTypes.length];
     const workspaceId = workspaceIds[i % workspaceIds.length];
     const uploaderId = userIds[i % userIds.length];
-    const requestId = i % 2 === 0 ? requestIds[i % requestIds.length] : null;
+    const requestId = requestIds[i % requestIds.length];
 
     const vaultFile = await tx.vaultFile.create({
       data: {
-        name: filename,
-        mimeType,
-        size: Math.floor(Math.random() * 5000000) + 100000, // 100KB to 5MB
-        workspaceId,
-        uploaderId,
-        requestId,
-        encryptedUrl: `https://storage.example.com/vault/${Date.now()}-${i}.enc`,
-        version: 1,
+        storageKey: `vault/${Date.now()}-${i}.pdf`,
+        contentType: mimeType,
+        size: Math.floor(Math.random() * 5000000) + 100000,
+        workspace: { connect: { id: workspaceId } },
+        actor: { connect: { id: uploaderId } },
+        request: { connect: { id: requestId } },
+        fileKind: 'document',
       },
     });
     vaultFileIds.push(vaultFile.id);
@@ -246,14 +242,16 @@ export default async function seedOperations(tx: Prisma.TransactionClient, conte
   const messageIds: string[] = [];
 
   for (let i = 0; i < 30; i++) {
-    const threadId = `thread-${Math.floor(i / 6) + 1}`; // 5 threads, 6 messages each
     const senderId = userIds[i % 2 === 0 ? 7 : 3]; // Alternate between customer and specialist
     const recipientId = userIds[i % 2 === 0 ? 3 : 7];
     const content = messageContents[i % messageContents.length];
+    const workspaceId = workspaceIds[i % workspaceIds.length];
+    const legalRequestId = requestIds[i % requestIds.length];
 
     const message = await tx.message.create({
       data: {
-        threadId,
+        workspaceId,
+        legalRequestId,
         senderId,
         recipientId,
         content,

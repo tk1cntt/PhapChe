@@ -1,98 +1,180 @@
 'use client';
 
-import { Form, Input, Button, Card, Typography, message } from 'antd';
-import { MailOutlined, LockOutlined } from '@ant-design/icons';
-import { authClient } from '@/lib/auth-client';
+import { useState, useEffect, FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { authClient } from '@/lib/auth-client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import toast from 'react-hot-toast';
 
-const { Title } = Typography;
-
-// Default demo credentials (from seed data)
 const DEFAULT_EMAIL = 'customer.demo@example.test';
 const DEFAULT_PASSWORD = 'Demo@123456';
 
-export function SignInForm() {
+export default function SignInForm() {
   const t = useTranslations('Auth');
-  const [loading, setLoading] = useState(false);
-  const [form] = Form.useForm();
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // Get returnUrl from query params
   const returnUrl = searchParams.get('returnUrl');
 
-  // Pre-fill default credentials on mount
-  useEffect(() => {
-    form.setFieldsValue({
-      email: DEFAULT_EMAIL,
-      password: DEFAULT_PASSWORD,
-    });
-  }, [form]);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [loading, setLoading] = useState(false);
 
-  const onFinish = async (values: { email: string; password: string }) => {
+  // Pre-fill demo credentials in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      setEmail(DEFAULT_EMAIL);
+      setPassword(DEFAULT_PASSWORD);
+    }
+  }, []);
+
+  // Validation functions
+  function validateEmail(value: string): string | undefined {
+    if (!value) return t('emailRequired');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) return t('emailInvalid');
+    return undefined;
+  }
+
+  function validatePassword(value: string): string | undefined {
+    if (!value) return t('passwordRequired');
+    return undefined;
+  }
+
+  // Open redirect protection
+  function isValidReturnUrl(url: string): boolean {
+    const decoded = decodeURIComponent(url);
+    if (!decoded.startsWith('/')) return false;
+    if (decoded.startsWith('//')) return false;
+    if (decoded.includes('://')) return false;
+    return true;
+  }
+
+  // Role-based redirect mapping
+  const ROLE_ROUTES: Record<string, string> = {
+    Customer: '/dashboard',
+    Specialist: '/specialist',
+    Reviewer: '/reviewer',
+    Coordinator: '/admin/dashboard',
+    Partner: '/partner/dashboard',
+  };
+
+  function getRedirectPath(userRole: string): string {
+    if (returnUrl && isValidReturnUrl(returnUrl)) {
+      return decodeURIComponent(returnUrl);
+    }
+    const rolePath = ROLE_ROUTES[userRole] || '/dashboard';
+    return `/${locale}${rolePath}`;
+  }
+
+  // Blur handlers
+  function handleEmailBlur() {
+    setErrors(prev => ({ ...prev, email: validateEmail(email) }));
+  }
+
+  function handlePasswordBlur() {
+    setErrors(prev => ({ ...prev, password: validatePassword(password) }));
+  }
+
+  // Form submission
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password);
+
+    setErrors({ email: emailError, password: passwordError });
+
+    if (emailError || passwordError) return;
+
     setLoading(true);
     try {
       const { error } = await authClient.signIn.email({
-        email: values.email,
-        password: values.password,
+        email,
+        password,
       });
 
       if (error) {
-        message.error(t('invalidCredentials'));
-      } else {
-        // Redirect to returnUrl if present, otherwise to dashboard
-        const redirectTo = returnUrl ? decodeURIComponent(returnUrl) : '/vi/dashboard';
-        router.push(redirectTo);
+        toast.error(t('invalidCredentials'));
+        return;
       }
-    } catch (e) {
-      message.error(t('genericError'));
-      console.error(e);
+
+      toast.success(t('loginSuccess'));
+
+      // Fetch session to get user role
+      const { data: session } = await authClient.getSession();
+      const userRole = session?.user?.role || 'Customer';
+
+      const redirectPath = getRedirectPath(userRole);
+      router.push(redirectPath);
+    } catch (error) {
+      console.error(error);
+      toast.error(t('genericError'));
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#F0F2F5' }}>
-      <Card style={{ width: 420 }}>
-        <Title level={3} style={{ textAlign: 'center', marginBottom: 32 }}>
-          {t('appName')}
-        </Title>
-        <Form
-          form={form}
-          name="signin"
-          layout="vertical"
-          onFinish={onFinish}
-          autoComplete="off"
-          initialValues={{
-            email: DEFAULT_EMAIL,
-            password: DEFAULT_PASSWORD,
-          }}
-        >
-          <Form.Item
-            name="email"
-            rules={[
-              { required: true, message: t('emailRequired') },
-              { type: 'email', message: t('emailInvalid') },
-            ]}
-          >
-            <Input prefix={<MailOutlined />} placeholder={t('email')} size="large" />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: t('passwordRequired') }]}
-          >
-            <Input.Password prefix={<LockOutlined />} placeholder={t('password')} size="large" />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block size="large">
-              {t('signIn')}
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+    <div className="w-full max-w-md space-y-6">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold">{t('appName')}</h1>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="email" className="text-sm font-medium text-gray-700">
+            {t('email')}
+          </label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={handleEmailBlur}
+            placeholder={t('email')}
+            disabled={loading}
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? 'email-error' : undefined}
+            className={errors.email ? 'border-red-500' : ''}
+          />
+          {errors.email && (
+            <p id="email-error" className="text-sm text-red-500" role="alert">
+              {errors.email}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="password" className="text-sm font-medium text-gray-700">
+            {t('password')}
+          </label>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onBlur={handlePasswordBlur}
+            placeholder={t('password')}
+            disabled={loading}
+            aria-invalid={!!errors.password}
+            aria-describedby={errors.password ? 'password-error' : undefined}
+            className={errors.password ? 'border-red-500' : ''}
+          />
+          {errors.password && (
+            <p id="password-error" className="text-sm text-red-500" role="alert">
+              {errors.password}
+            </p>
+          )}
+        </div>
+
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? '⏳' : null} {t('signIn')}
+        </Button>
+      </form>
     </div>
   );
 }

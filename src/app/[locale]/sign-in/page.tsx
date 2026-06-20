@@ -1,14 +1,8 @@
-import { SignInForm } from "@/components/auth/SignInForm";
+import SignInForm from '@/components/auth/SignInForm';
 
 export default function SignInPage() {
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      background: '#F0F2F5'
-    }}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <SignInForm />
     </div>
   );

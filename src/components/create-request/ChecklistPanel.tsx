@@ -2,41 +2,82 @@
 
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { SEED_MATTER_TYPES } from '@/lib/i18n/seed-legal-domains';
 
 interface ChecklistPanelProps {
+  selectedService?: string;
   locale?: string;
 }
 
-const CHECKLIST_ITEMS = {
+// Default checklist items (for no service selected)
+const DEFAULT_CHECKLIST = {
   vi: [
-    { title: 'Thông tin đối tác', description: 'Tên pháp lý, mã số thuế, địa chỉ, người đại diện.' },
-    { title: 'Điều khoản thương mại', description: 'Chiết khấu, hoa hồng, doanh số, kỳ thanh toán.' },
-    { title: 'Phạm vi đại lý', description: 'Khu vực, sản phẩm, quyền độc quyền hoặc không độc quyền.' },
-    { title: 'Tài liệu liên quan', description: 'Báo giá, mẫu hợp đồng cũ, chính sách bán hàng nếu có.' },
+    { title: 'Xac dinh nhu cau', description: 'Mo ta ngan gon van de phap ly can ho tro.' },
+    { title: 'Chuan bi thong tin', description: 'Thu thap thong tin lien quan den yeu cau.' },
+    { title: 'Lien he ho tro', description: 'Neu can tu van nhanh, lien he hotline.' },
   ],
   en: [
-    { title: 'Partner Information', description: 'Legal name, tax code, address, representative.' },
-    { title: 'Commercial Terms', description: 'Discounts, commissions, sales targets, payment terms.' },
-    { title: 'Agency Scope', description: 'Region, products, exclusive or non-exclusive rights.' },
-    { title: 'Related Documents', description: 'Quotations, old contracts, sales policies if any.' },
-  ],
-  zh: [
-    { title: '合作伙伴信息', description: '法律名称、税号、地址、代表。' },
-    { title: '商业条款', description: '折扣、佣金、销售目标、付款条款。' },
-    { title: '代理范围', description: '地区、产品、独家或非独家权利。' },
-    { title: '相关文件', description: '报价、旧合同、销售政策（若有）。' },
-  ],
-  ja: [
-    { title: 'パートナー情報', description: '法人名、税番号、住所、担当者。' },
-    { title: '商業条件', description: '割引、手数料、売上目標、支払条件。' },
-    { title: '代理範囲', description: '地域、製品、独占または非独占の権利。' },
-    { title: '関連書類', description: '見積書、古い契約書、販売方針（あれば）。' },
+    { title: 'Identify Needs', description: 'Briefly describe your legal support needs.' },
+    { title: 'Prepare Information', description: 'Gather relevant information for your request.' },
+    { title: 'Contact Support', description: 'For quick consultation, contact our hotline.' },
   ],
 };
 
-export default function ChecklistPanel({ locale = 'vi' }: ChecklistPanelProps) {
-  const items = CHECKLIST_ITEMS[locale as keyof typeof CHECKLIST_ITEMS] || CHECKLIST_ITEMS.vi;
+// Dynamic checklist based on service type
+const SERVICE_CHECKLISTS: Record<string, Record<string, Array<{ title: string; description: string }>>> = {
+  'agent-contract': {
+    vi: [
+      { title: 'Thong tin doi tac', description: 'Ten phap ly, ma so thue, dia chi, nguoi dai dien.' },
+      { title: 'Dieu khoan thuong mai', description: 'Chiet khau, hoa hong, doanh so, ky thanh toan.' },
+      { title: 'Pham vi dai ly', description: 'Khu vuc, san pham, quyen doc quyen hoac khong doc quyen.' },
+      { title: 'Tai lieu lien quan', description: 'Bao gia, mau hop dong cu, chinh sach ban hang neu co.' },
+    ],
+    en: [
+      { title: 'Partner Information', description: 'Legal name, tax code, address, representative.' },
+      { title: 'Commercial Terms', description: 'Discounts, commissions, sales targets, payment terms.' },
+      { title: 'Agency Scope', description: 'Region, products, exclusive or non-exclusive rights.' },
+      { title: 'Related Documents', description: 'Quotations, old contracts, sales policies if any.' },
+    ],
+  },
+  'labor-contract': {
+    vi: [
+      { title: 'Thong tin nhan vien', description: 'Ho ten, vi tri, phong ban, muc luong.' },
+      { title: 'Dieu khoan hop dong', description: 'Thoi han, che do, nghia vu cac ben.' },
+      { title: 'Tai lieu lien quan', description: 'Mo ta cong viec, thoa uoc noi bo neu co.' },
+    ],
+    en: [
+      { title: 'Employee Information', description: 'Name, position, department, salary.' },
+      { title: 'Contract Terms', description: 'Duration, benefits, obligations of parties.' },
+      { title: 'Related Documents', description: 'Job description, internal agreements if any.' },
+    ],
+  },
+  'trademark': {
+    vi: [
+      { title: 'Thong tin nhan hieu', description: 'Ten nhan hieu, loai san pham/dich vu.' },
+      { title: 'Chu so huu', description: 'Ten cong ty hoac ca nhan dung ten.' },
+      { title: 'Mau nhan hieu', description: 'Logo, hinh anh nhan hieu (neu co).' },
+      { title: 'Tai lieu lien quan', description: 'Giay phep kinh doanh, chung nhan khac.' },
+    ],
+    en: [
+      { title: 'Trademark Information', description: 'Trademark name, product/service types.' },
+      { title: 'Owner', description: 'Company or individual name.' },
+      { title: 'Trademark Sample', description: 'Logo, trademark image (if available).' },
+      { title: 'Related Documents', description: 'Business license, other certificates.' },
+    ],
+  },
+};
+
+export default function ChecklistPanel({ selectedService, locale = 'vi' }: ChecklistPanelProps) {
   const t = useTranslations('UserCreateRequest');
+
+  // Get dynamic checklist based on service
+  let items: Array<{ title: string; description: string }>;
+
+  if (selectedService && SERVICE_CHECKLISTS[selectedService]) {
+    items = SERVICE_CHECKLISTS[selectedService][locale] || SERVICE_CHECKLISTS[selectedService].vi;
+  } else {
+    items = DEFAULT_CHECKLIST[locale] || DEFAULT_CHECKLIST.vi;
+  }
 
   return (
     <div className="side-card">
@@ -52,8 +93,8 @@ export default function ChecklistPanel({ locale = 'vi' }: ChecklistPanelProps) {
 
       <div className="card-body">
         <div className="check-list">
-          {items.map((item) => (
-            <div key={item.title} className="check-item">
+          {items.map((item, index) => (
+            <div key={`${item.title}-${index}`} className="check-item">
               <div className="check-dot"><Check size={13} /></div>
               <div>
                 <strong>{item.title}</strong>

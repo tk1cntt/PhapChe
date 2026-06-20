@@ -1,29 +1,38 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { SEED_MATTER_TYPES, SEED_LEGAL_DOMAINS } from '@/lib/i18n/seed-legal-domains';
 
 interface SummaryPanelProps {
+  selectedDomainId?: string;
   selectedService: string;
   workspaceName: string;
+  locale?: string;
 }
-
-const SERVICE_NAMES = {
-  agency_contract: 'Soạn hợp đồng đại lý',
-  labor_contract: 'Soạn hợp đồng lao động',
-  trademark: 'Đăng ký nhãn hiệu',
-  unsupported: 'Dịch vụ khác / chưa rõ loại việc',
-  'agent-contract': 'Soạn hợp đồng đại lý',
-  'labor-contract': 'Soạn hợp đồng lao động',
-  other: 'Dịch vụ khác / chưa rõ loại việc',
-};
 
 function MiniIcon({ letter }: { letter: string }) {
   return <div className="mini-icon">{letter}</div>;
 }
 
-export default function SummaryPanel({ selectedService, workspaceName }: SummaryPanelProps) {
+export default function SummaryPanel({
+  selectedDomainId,
+  selectedService,
+  workspaceName,
+  locale = 'vi'
+}: SummaryPanelProps) {
   const t = useTranslations('UserCreateRequest');
-  const serviceName = SERVICE_NAMES[selectedService as keyof typeof SERVICE_NAMES] || SERVICE_NAMES.other;
+
+  // Get service info from seed data
+  const serviceInfo = selectedService ? SEED_MATTER_TYPES[selectedService] : null;
+  const domainInfo = selectedDomainId ? SEED_LEGAL_DOMAINS[selectedDomainId] : null;
+
+  const serviceName = serviceInfo
+    ? (serviceInfo.label[locale as keyof typeof serviceInfo.label] || serviceInfo.label.vi)
+    : 'Chưa chọn dịch vụ';
+
+  const domainName = domainInfo
+    ? (domainInfo.label[locale as keyof typeof domainInfo.label] || domainInfo.label.vi)
+    : '';
 
   return (
     <div className="side-card">
@@ -39,13 +48,31 @@ export default function SummaryPanel({ selectedService, workspaceName }: Summary
 
       <div className="card-body">
         <div className="summary-list">
-          <div className="summary-item">
-            <div>
-              <strong>Dịch vụ đã chọn</strong>
-              <span>{serviceName}</span>
+          {selectedService ? (
+            <div className="summary-item">
+              <div>
+                <strong>Dịch vụ đã chọn</strong>
+                <span>{serviceName}</span>
+              </div>
+              <MiniIcon letter="1" />
             </div>
-            <MiniIcon letter="1" />
-          </div>
+          ) : selectedDomainId ? (
+            <div className="summary-item">
+              <div>
+                <strong>Lĩnh vực đã chọn</strong>
+                <span>{domainName}</span>
+              </div>
+              <MiniIcon letter="1" />
+            </div>
+          ) : (
+            <div className="summary-item">
+              <div>
+                <strong>Chưa chọn dịch vụ</strong>
+                <span>Vui lòng chọn dịch vụ pháp lý</span>
+              </div>
+              <MiniIcon letter="?" />
+            </div>
+          )}
 
           <div className="summary-item">
             <div>
@@ -58,7 +85,7 @@ export default function SummaryPanel({ selectedService, workspaceName }: Summary
           <div className="summary-item">
             <div>
               <strong>Dự kiến xử lý</strong>
-              <span>2-3 ngày làm việc sau khi đủ tài liệu</span>
+              <span>{serviceInfo ? '2-3 ngày làm việc sau khi đủ tài liệu' : 'Chọn dịch vụ để biết thời gian'}</span>
             </div>
             <MiniIcon letter="S" />
           </div>

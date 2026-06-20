@@ -335,10 +335,15 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
         {/* Right Column - Side Panels */}
         <div className="side-panels">
           <SummaryPanel
+            selectedDomainId={state.domainId}
             selectedService={state.serviceType || ''}
             workspaceName={workspaceName}
+            locale={locale}
           />
-          <ChecklistPanel />
+          <ChecklistPanel
+            selectedService={state.serviceType}
+            locale={locale}
+          />
         </div>
       </div>
     </div>

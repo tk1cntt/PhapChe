@@ -28,7 +28,7 @@ const draftSaveSchema = z.object({
     phone: z.string().optional(),
     companyName: z.string().optional(),
     taxCode: z.string().optional(),
-  }),
+  }).optional().default({}),
 });
 
 /**
@@ -40,6 +40,7 @@ export async function POST(request: Request) {
     // 1. Authentication check
     const session = await requireAppSession();
     const userId = session.userId;
+    const workspaceId = session.activeWorkspaceId;
 
     // 2. Validate user exists
     const user = await prisma.user.findUnique({
@@ -139,20 +140,28 @@ export async function POST(request: Request) {
       updatedAt = newDraft.updatedAt;
     }
 
-    // 5. Log audit event
-    await prisma.auditEvent.create({
-      data: {
-        action: 'draft.save',
-        actorId: userId,
-        targetType: 'draft',
-        targetId: draftId,
-        metadata: {
-          domainId: data.domainId,
-          serviceType: data.serviceType,
-          priority: data.priority,
-        },
-      },
-    });
+    // 5. Log audit event (skip on failure - draft is saved)
+    if (workspaceId) {
+      try {
+        await prisma.auditEvent.create({
+          data: {
+            action: 'draft.save',
+            actorId: userId,
+            workspaceId,
+            targetType: 'draft',
+            targetId: draftId,
+            metadataSummary: JSON.stringify({
+              domainId: data.domainId,
+              serviceType: data.serviceType,
+              priority: data.priority,
+            }),
+          },
+        });
+      } catch (auditError) {
+        // Log but don't fail - draft is saved
+        console.error('Audit log failed:', auditError);
+      }
+    }
 
     // 6. Return success response
     return NextResponse.json({
@@ -163,6 +172,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : '';
 
     if (message === 'UNAUTHENTICATED') {
       return NextResponse.json(

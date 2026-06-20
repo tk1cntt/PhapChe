@@ -7,6 +7,8 @@
     "build": "next build",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
     "seed": "tsx prisma/seed.ts",
     "seed:partners": "tsx prisma/seed-partners.ts",
     "seed:unified": "tsx prisma/seed-unified.ts",

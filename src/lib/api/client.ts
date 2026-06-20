@@ -73,7 +73,14 @@ class ApiClient {
     }
 
     const maxRetries = 3;
-    const retryDelays = [500, 1000, 2000]; // Exponential backoff: 500ms, 1s, 2s
+    // True exponential backoff with jitter: 500ms, 1s, 2s
+    const retryDelays = [500, 1000, 2000];
+
+    const getRetryDelay = (attempt: number): number => {
+      const baseDelay = retryDelays[attempt] || retryDelays[retryDelays.length - 1];
+      const jitter = Math.random() * 0.3 * baseDelay; // 0-30% jitter to prevent thundering herd
+      return baseDelay + jitter;
+    };
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
@@ -95,7 +102,7 @@ class ApiClient {
 
           // Retry ONLY on HTTP 502/503/504
           if (attempt < maxRetries && [502, 503, 504].includes(response.status)) {
-            await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
+            await new Promise(resolve => setTimeout(resolve, getRetryDelay(attempt)));
             continue;
           }
 
@@ -109,7 +116,7 @@ class ApiClient {
         const isNetworkError = error instanceof TypeError && error.message.includes('fetch');
 
         if (isNetworkError && attempt < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
+          await new Promise(resolve => setTimeout(resolve, getRetryDelay(attempt)));
           continue;
         }
 

@@ -43,6 +43,7 @@ export function EmptyState({ icon, title, description, action, className }: Empt
       )}
       {action && (
         <button
+          type="button"
           onClick={action.onClick}
           className="mt-6 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >

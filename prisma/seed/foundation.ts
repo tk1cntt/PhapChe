@@ -8,6 +8,7 @@ if (process.env.NODE_ENV === 'production') {
 
 const defaultSeedPassword = process.env.SEED_DEFAULT_PASSWORD || 'TempPassword123!';
 
+// Seed users with Vietnamese names for realistic localization testing
 const seedUsers = [
   { email: 'superadmin@phapche.test', name: 'Nguyễn Văn An', password: defaultSeedPassword, role: 'super_admin', accountType: 'staff' },
   { email: 'admin@phapche.test', name: 'Trần Thị Bình', password: defaultSeedPassword, role: 'coordinator_admin', accountType: 'staff' },

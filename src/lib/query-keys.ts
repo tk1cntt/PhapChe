@@ -14,7 +14,7 @@ function createDomainKeys(entity: string) {
     all: [entity] as const,
     lists: () => [entity, 'list'] as const,
     list: (filters?: Record<string, unknown>) =>
-      filters ? [entity, 'list', filters] as const : [entity, 'list'] as const,
+      filters ? [entity, 'list', { ...filters }] as const : [entity, 'list'] as const,
     details: () => [entity, 'detail'] as const,
     detail: (id: string) => [entity, 'detail', id] as const,
   };

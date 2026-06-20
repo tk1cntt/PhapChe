@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-const seedPartners = [
+const partnerData = [
   { name: 'Công ty Luật Baker McKenzie Vietnam', slug: 'baker-mckenzie-vn', type: 'law_firm', contactEmail: 'hcmc@bakermckenzie.com', phone: '+84-28-3822-3000', address: 'Tầng 12, Saigon Centre, 67 Lê Lợi, Quận 1, TP.HCM' },
   { name: 'Văn phòng Luật sư Russin & Vecchi', slug: 'russin-vecchi', type: 'law_firm', contactEmail: 'hcmc@russinvecchi.com', phone: '+84-28-3823-8500', address: 'Tầng 10, Saigon Tower, 29 Lê Duẩn, Quận 1, TP.HCM' },
   { name: 'Công ty Luật TNHH LNT & Thành viên', slug: 'lnt-partners', type: 'law_firm', contactEmail: 'info@lntpartners.com', phone: '+84-28-3827-7200', address: 'Tầng 15, Bitexco Financial Tower, 2 Hải Triều, Quận 1, TP.HCM' },
@@ -21,7 +21,7 @@ export default async function seedPartners(tx: Prisma.TransactionClient) {
 
   // Create partners
   const partnerIds: string[] = [];
-  for (const p of seedPartners) {
+  for (const p of partnerData) {
     const partner = await tx.partner.create({
       data: {
         name: p.name,

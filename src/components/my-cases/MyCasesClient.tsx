@@ -108,10 +108,9 @@ export function MyCasesClient({ userName, workspaceName, workspaceSlug, stats, r
         const matches = req.code.toLowerCase().includes(query) || req.type.toLowerCase().includes(query) || req.typeEn.toLowerCase().includes(query);
         if (!matches) return false;
       }
-      // D-04: Filter by matterType
+      // D-04: Filter by matterType (match against typeEn which contains English values)
       if (selectedType) {
-        if (req.type.toLowerCase() !== selectedType.toLowerCase() &&
-            req.typeEn.toLowerCase() !== selectedType.toLowerCase()) {
+        if (req.typeEn.toLowerCase() !== selectedType.toLowerCase()) {
           return false;
         }
       }

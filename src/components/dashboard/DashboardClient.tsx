@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { StatsCardGrid } from './StatCard';
 import WelcomeBanner from './WelcomeBanner';
 import RecentCases from './RecentCases';
@@ -160,7 +162,7 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const t = useTranslations('DashboardClient');
   const [unreadCount, setUnreadCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(!welcomeData || !stats || allCases.length === 0);
 
   useEffect(() => {
     fetch('/api/messages/unread-count')
@@ -177,7 +179,7 @@ export default function DashboardClient({
           <h1>{t('greeting', { name: '' })}</h1>
           <p className="subtitle">{t('subtitle')}</p>
         </div>
-        <button className="create-btn">
+        <button className="create-btn" onClick={() => router.push('/create')}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
             <path d="M12 5v14" />
             <path d="M5 12h14" />
@@ -262,13 +264,13 @@ export default function DashboardClient({
       <CasesTable cases={allCases} />
 
       {/* Floating Chat Button */}
-      <a href="/messages" className="floating-chat">
+      <Link href="/messages" className="floating-chat">
         {unreadCount > 0 && (
           <span className="chat-icon-wrapper">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
-      </a>
+      </Link>
     </div>
   );
 }

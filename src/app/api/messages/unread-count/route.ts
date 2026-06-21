@@ -17,6 +17,9 @@ export async function GET() {
     return NextResponse.json({ unreadCount: count });
   } catch (error) {
     console.error('Failed to fetch unread count:', error);
-    return NextResponse.json({ unreadCount: 0 }, { status: 500 });
+    return NextResponse.json(
+      { unreadCount: 0, error: 'Failed to fetch unread message count. Please try again.' },
+      { status: 500 }
+    );
   }
 }

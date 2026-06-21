@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { EmptyState } from '@/components/shared/ui/EmptyState';
 import { CaseItem } from './DashboardClient';
 
@@ -31,7 +32,7 @@ export default function RecentCases({ cases }: RecentCasesProps) {
           </svg>
           <span>{t('title')}</span>
         </div>
-        <a className="small-link" href="/requests">{t('seeAll')}</a>
+        <Link className="small-link" href="/requests">{t('seeAll')}</Link>
       </div>
 
       <div className="case-list">
@@ -69,7 +70,7 @@ export default function RecentCases({ cases }: RecentCasesProps) {
                 </span>
               </div>
               <div>
-                <a className="action-link" href={`/requests/${c.id}`}>{t('open')}</a>
+                <Link className="action-link" href={`/requests/${c.id}`}>{t('open')}</Link>
               </div>
             </div>
           ))

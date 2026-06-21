@@ -92,13 +92,30 @@ export function MyCasesClient({ userName, workspaceName, workspaceSlug, stats, r
 
   const handleTypeFilter = useCallback((type: string | null) => setSelectedType(type), []);
 
+  // Debounced search value for filtering (D-09: 300ms delay)
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const filteredRequests = useMemo(() => {
     return requests.filter((req) => {
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
+      // D-08: Search filters by code and type (case-insensitive)
+      if (debouncedSearch) {
+        const query = debouncedSearch.toLowerCase();
         const matches = req.code.toLowerCase().includes(query) || req.type.toLowerCase().includes(query) || req.typeEn.toLowerCase().includes(query);
         if (!matches) return false;
       }
+      // D-04: Filter by matterType
+      if (selectedType) {
+        if (req.type.toLowerCase() !== selectedType.toLowerCase() &&
+            req.typeEn.toLowerCase() !== selectedType.toLowerCase()) {
+          return false;
+        }
+      }
+      // Filter by status
       if (selectedStatus) {
         const statusMap: Record<string, CaseRow['statusBadge']> = {
           under_review: 'review',
@@ -111,7 +128,7 @@ export function MyCasesClient({ userName, workspaceName, workspaceSlug, stats, r
       }
       return true;
     });
-  }, [requests, searchQuery, selectedStatus, selectedType]);
+  }, [requests, debouncedSearch, selectedStatus, selectedType]);
 
   return (
     <>
@@ -137,7 +154,7 @@ export function MyCasesClient({ userName, workspaceName, workspaceSlug, stats, r
         selectedType={selectedType}
       />
 
-      <MyCasesTable requests={filteredRequests} totalRequests={totalRequests} />
+      <MyCasesTable requests={filteredRequests} totalRequests={totalRequests} isFiltered={!!(searchQuery || selectedStatus || selectedType)} />
 
       <FloatingChatButton notificationCount={notificationCount} />
     </>

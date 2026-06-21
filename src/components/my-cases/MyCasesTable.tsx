@@ -28,6 +28,7 @@ export interface MyCaseRow {
 export interface MyCasesTableProps {
   requests: MyCaseRow[];
   totalRequests?: number;
+  isFiltered?: boolean; // D-05: true when filters are active
 }
 
 function getStatusBadgeVariant(status: MyCaseRow['statusBadge']): 'green' | 'orange' | 'blue' | 'red' | 'purple' {
@@ -70,7 +71,7 @@ function getSlaBadgeVariant(slaText: string, remainingHours?: number): 'green' |
   return 'green';
 }
 
-export function MyCasesTable({ requests, totalRequests }: MyCasesTableProps): React.ReactElement {
+export function MyCasesTable({ requests, totalRequests, isFiltered = false }: MyCasesTableProps): React.ReactElement {
   const t = useTranslations('UserCases');
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -98,7 +99,8 @@ export function MyCasesTable({ requests, totalRequests }: MyCasesTableProps): Re
           <div className="th">{t('colSla')}</div>
           <div className="th">{t('colAction')}</div>
         </div>
-        <div className="table-empty">{t('noData')}</div>
+        {/* D-05: Different message for filtered vs empty list */}
+        <div className="table-empty">{isFiltered ? t('noDataFiltered') : t('noData')}</div>
       </div>
     );
   }

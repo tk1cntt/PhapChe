@@ -929,6 +929,7 @@
     "colSla": "SLA",
     "colAction": "Thao tác",
     "noData": "Không có hồ sơ nào",
+    "noDataFiltered": "Không có hồ sơ nào phù hợp với bộ lọc",
     "statusUnderReview": "Đang review",
     "statusNeedsResponse": "Cần phản hồi",
     "statusApproved": "Đã duyệt",

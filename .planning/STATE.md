@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Legacy UI Enhancement
 status: active
-stopped_at: Phase 76 completed
-last_updated: "2026-06-20T15:14:00.000Z"
+stopped_at: Phase 75 context gathered
+last_updated: "2026-06-21T00:00:00.000Z"
 progress:
   total_phases: 24
   completed_phases: 4
@@ -40,6 +40,31 @@ Xây dựng Create Request Wizard 5 bước: chọn lĩnh vực pháp lý → d�
 - ✅ 125 unit tests + 20 E2E tests
 
 **Next:** Phase 77 — tiếp tục theo ROADMAP.md
+
+---
+
+## Phase 75 Progress
+
+### 75-01: SPEC.md Created ✅ COMPLETE
+- **Commit:** `79038af`
+- **Date:** 2026-06-21
+- **Ambiguity:** 0.16 (gate: ≤ 0.20)
+- **Requirements:** 8 locked
+
+### 75-02: CONTEXT.md Created ✅ COMPLETE
+- **Commit:** `a5d1c4c`
+- **Date:** 2026-06-21
+- **Decisions:** 24 implementation decisions captured
+- **Auto-resolved:** All gray areas resolved via --auto mode
+
+**Key Decisions:**
+- StatCard nhận href prop cho Next.js Link navigation
+- Floating chat: Client-side fetch unread count on mount
+- Loading: Skeleton components từ phase 73
+- Error: Retry button với tiếng Việt message
+- Pagination: Client-side với 10 items per page
+
+**Next:** /gsd-plan-phase 75
 
 ---
 
@@ -193,6 +218,6 @@ Xây dựng Create Request Wizard 5 bước: chọn lĩnh vực pháp lý → d�
 
 ## Session
 
-**Last session:** 2026-06-20T15:14:00.000Z
-**Stopped at:** Phase 76 completed
-**Resume file:** .planning/phases/76-create-request/SUMMARY.md
+**Last session:** 2026-06-21T00:00:00.000Z
+**Stopped at:** Phase 75 context gathered
+**Resume file:** .planning/phases/75-user-dashboard/75-CONTEXT.md

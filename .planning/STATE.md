@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Legacy UI Enhancement
-status: active
-stopped_at: Phase 75-01 complete
-last_updated: "2026-06-21T07:52:00Z"
+status: Ready to plan
+stopped_at: Phase 75 planned
+last_updated: "2026-06-21T07:45:21.177Z"
 progress:
   total_phases: 24
-  completed_phases: 5
-  planned_phases: 0
+  completed_phases: 3
   total_plans: 8
   completed_plans: 7
-  percent: 25
+  percent: 13
 ---
 
 # STATE.md — Project State Tracker
@@ -44,24 +43,28 @@ Enhanced User Dashboard với clickable stat cards, floating chat badge, loading
 ## Phase 75 Progress
 
 ### 75-01: SPEC.md Created ✅ COMPLETE
+
 - **Commit:** `79038af`
 - **Date:** 2026-06-21
 - **Ambiguity:** 0.16 (gate: ≤ 0.20)
 - **Requirements:** 8 locked
 
 ### 75-02: CONTEXT.md Created ✅ COMPLETE
+
 - **Commit:** `a5d1c4c`
 - **Date:** 2026-06-21
 - **Decisions:** 24 implementation decisions captured
 - **Auto-resolved:** All gray areas resolved via --auto mode
 
 ### 75-03: PLAN.md Created ✅ COMPLETE
+
 - **Commit:** `a92ef07`
 - **Date:** 2026-06-21
-- **Plan:** 75-01 (8 tasks in 1 wave)
+- **Plan:** Not started
 - **Tasks:** Stat cards clickable, floating chat badge, loading states, empty states, error states, pagination, CSS matching, i18n verification
 
 ### 75-01: EXECUTION COMPLETE ✅
+
 - **Commit:** `15fee7b`
 - **Date:** 2026-06-21
 - **Tasks Completed:** 8/8
@@ -91,69 +94,90 @@ Enhanced User Dashboard với clickable stat cards, floating chat badge, loading
 ## Phase 76 Progress
 
 ### 76-01: Legal Domain Taxonomy Seed Data ✅ COMPLETE
+
 - 13 domains, 32 service types với multilingual labels
 - Helper functions: getLegalDomains(), getDomainByServiceType(), getServiceTypesByDomain()
 
 ### 76-02: Wizard State Type Definitions ✅ COMPLETE
+
 - WizardState, WizardAction (11 types), initial state, validation types
 
 ### 76-03: Database Schema ✅ COMPLETE
+
 - Draft model (id, userId, domainId, serviceType, answers, files, priority, contactInfo, status)
 - Request fields extended (priority, contactInfo, submittedAt)
 
 ### 76-04: Draft Save API ✅ COMPLETE
+
 - POST /api/intake/draft/save với Zod validation + IDOR protection + audit log
 - Schema relaxed: nullable domainId/serviceType, optional email (partial saves)
 
 ### 76-05: Draft Load/Delete API ✅ COMPLETE
+
 - GET + DELETE /api/intake/draft/[id] với ownership validation
 
 ### 76-06: Submit Enhancement ✅ COMPLETE
+
 - priority (urgent=24h SLA, normal=72h SLA) + contactInfo + audit log
 
 ### 76-07: WizardProvider ✅ COMPLETE
+
 - React Context + useReducer + auto-save với debounce 500ms
 
 ### 76-08: Wizard Steps Enhanced ✅ COMPLETE
+
 - 5-step progress indicator với completed/current/upcoming/error states
 
 ### 76-09: LegalDomainSelector ✅ COMPLETE
+
 - 13 domain cards trong responsive grid (4/3/2 columns)
 
 ### 76-10: ServiceTypeList ✅ COMPLETE
+
 - Service list với search/filter + keyboard navigation
 
 ### 76-11: IntakeQuestionsFormEnhanced ✅ COMPLETE
+
 - Dynamic questions + validation on blur + error display
 
 ### 76-12: FileUploadZone ✅ COMPLETE
+
 - Drag-drop upload + progress bar + file preview + remove
 
 ### 76-13: ReviewStep ✅ COMPLETE
+
 - 5 summary sections + submit button + success modal + redirect
 
 ### 76-14: CreateRequestForm Integration ✅ COMPLETE
+
 - Tích hợp tất cả components + step navigation + draft resume
 
 ### 76-15: Page Integration ✅ COMPLETE
+
 - auth check + user data + layout + metadata + breadcrumb
 
 ### 76-16: i18n Translations ✅ COMPLETE
+
 - 50+ keys trong 4 locales (vi/en/zh/ja)
 
 ### 76-17: Unit Tests Components ✅ COMPLETE
+
 - 91 tests (WizardProvider, LegalDomainSelector, ServiceTypeList, IntakeQuestionsFormEnhanced, FileUploadZone, ReviewStep)
 
 ### 76-18: Unit Tests API ✅ COMPLETE
+
 - 34 tests (draft save: 11, draft load: 12, submit: 11)
 
 ### 76-19: E2E Wizard Flow ✅ COMPLETE
+
 - 6 tests (complete flow, navigation, validation, edit, priority, contact info)
 
 ### 76-20: E2E Draft Persistence ✅ COMPLETE
+
 - 6 tests (auto-save, manual save, resume, delete, save failure, load failure)
 
 ### 76-21: E2E File Upload & Submit ✅ COMPLETE
+
 - 8 tests (upload via click, drag-drop, multiple, size validation, type validation, remove, submit with/without files)
 
 ---

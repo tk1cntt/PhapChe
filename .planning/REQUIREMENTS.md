@@ -114,14 +114,14 @@ Mỗi phase phải tuân thủ nghiêm ngặt 9 tài liệu trong `src/docs/`:
 
 **Goal:** User Dashboard với real data từ database, 6 panels, clickable stats
 
-- [ ] **U-DASH-01**: Dashboard shows 4 stat cards with real counts from Prisma (total, in-progress, completed, overdue)
+- [x] **U-DASH-01**: Dashboard shows 4 stat cards with real counts from Prisma (total, in-progress, completed, overdue)
 - [ ] **U-DASH-02**: Welcome banner shows user name, organization and workspace
 - [ ] **U-DASH-03**: Recent cases panel shows 5 most recent cases via `GET /api/requests?pageSize=5`
 - [ ] **U-DASH-04**: Deadline/SLA panel shows upcoming deadlines with color-coded progress bars
 - [ ] **U-DASH-05**: Recent documents panel shows latest vault files via `GET /api/vault?pageSize=5`
 - [ ] **U-DASH-06**: Activity timeline shows recent actions from audit log via `GET /api/audit?actorId=me`
 - [ ] **U-DASH-07**: Floating chat button shows unread message count
-- [ ] **U-DASH-08**: Clicking stat cards navigates to relevant page (cases, create, etc.)
+- [x] **U-DASH-08**: Clicking stat cards navigates to relevant page (cases, create, etc.)
 
 ---
 
@@ -529,6 +529,7 @@ Mỗi phase phải tuân thủ nghiêm ngặt 9 tài liệu trong `src/docs/`:
 | P-SET-01 to P-SET-06 | Phase 95 | Partner Settings | Pending |
 
 **Coverage:**
+
 - v2.2 requirements: 173 total
 - Mapped to phases: 23 (73-95)
 - Mapped to screens: 23 UI files

@@ -191,8 +191,9 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 
 **Depends on:** Phase 74
 **Requirements:** U-DASH-01 to U-DASH-08
-**Plans:** 1 plan
-- [ ] 75-01-PLAN.md — User Dashboard Enhancement (8 tasks)
+**Plans:** 1/1 plans complete
+
+- [x] 75-01-PLAN.md — User Dashboard Enhancement (8 tasks)
 
 **Data Flow:**
 
@@ -847,7 +848,7 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 |-------|------|--------|--------|-----------|
 | 73 | Shared Foundation | 4/4 | Complete   | 2026-06-20 |
 | 74 | Sign-In | `[locale]/sign-in` | Complete   | 2026-06-20 |
-| 75 | User Dashboard | `[locale]/dashboard` | Not started | - |
+| 75 | User Dashboard | 1/1 | Complete    | 2026-06-21 |
 | 76 | Create Request | `[locale]/create` | Complete   | 2026-06-20 |
 | 77 | My Cases | `[locale]/cases` | Not started | - |
 | 78 | Messages | `[locale]/messages` | Not started | - |

@@ -191,7 +191,8 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 
 **Depends on:** Phase 74
 **Requirements:** U-DASH-01 to U-DASH-08
-**Plans:** TBD
+**Plans:** 1 plan
+- [ ] 75-01-PLAN.md — User Dashboard Enhancement (8 tasks)
 
 **Data Flow:**
 

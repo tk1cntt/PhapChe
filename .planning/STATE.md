@@ -3,44 +3,41 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Legacy UI Enhancement
 status: active
-stopped_at: Phase 75 planned
-last_updated: "2026-06-21T00:00:00.000Z"
+stopped_at: Phase 75-01 complete
+last_updated: "2026-06-21T07:52:00Z"
 progress:
   total_phases: 24
-  completed_phases: 4
-  planned_phases: 1
-  total_plans: 7
-  completed_plans: 6
-  percent: 17
+  completed_phases: 5
+  planned_phases: 0
+  total_plans: 8
+  completed_plans: 7
+  percent: 25
 ---
 
 # STATE.md — Project State Tracker
 
 ## Current Position
 
-**Phase 76: Create Request Wizard — ✅ COMPLETED**
+**Phase 75: User Dashboard Enhancement — ✅ COMPLETED**
 
-Xây dựng Create Request Wizard 5 bước: chọn lĩnh vực pháp lý → dịch vụ → câu hỏi → upload → review & submit.
+Enhanced User Dashboard với clickable stat cards, floating chat badge, loading/error/empty states.
 
-**Commit:** `e40c547`  
-**Date:** 2026-06-20  
-**Test Results:** 125/125 unit tests passed ✅ (91 component + 34 API), 20 E2E test cases
+**Commit:** `15fee7b`  
+**Date:** 2026-06-21  
+**Tasks:** 8/8 completed
 
 **Delivered:**
 
-- ✅ 13 legal domains, 32 service types với multilingual support (VI/EN/ZH/JA)
-- ✅ WizardProvider với React Context + useReducer + auto-save + debounce
-- ✅ LegalDomainSelector grid (13 domain cards, icons, responsive 4/3/2 cols)
-- ✅ ServiceTypeList với search/filter + keyboard navigation
-- ✅ IntakeQuestionsFormEnhanced với dynamic questions + validation on blur
-- ✅ FileUploadZone với drag-drop + progress bar + file preview
-- ✅ ReviewStep với 5 summary sections + submit + success modal
-- ✅ Draft save/load/delete APIs với IDOR protection
-- ✅ Enhanced submit API (priority=urgent→24h SLA, normal→72h SLA)
-- ✅ 50+ i18n keys (4 locales)
-- ✅ 125 unit tests + 20 E2E tests
+- ✅ Clickable stat cards with href prop (navigate to /cases, /cases?status=*, /vault)
+- ✅ Floating chat badge with dynamic unread count from API
+- ✅ Loading skeleton states for each panel
+- ✅ EmptyState component for RecentCases, RecentDocuments, ActivityTimeline
+- ✅ ErrorBoundaryWrapper for error handling with retry
+- ✅ Pagination verified (already implemented: 10 items/page)
+- ✅ CSS verified (#087f78 teal color)
+- ✅ i18n verified (all 4 locales)
 
-**Next:** Phase 77 — tiếp tục theo ROADMAP.md
+**Next:** Phase 76 or Phase 77 — tiếp tục theo ROADMAP.md
 
 ---
 
@@ -64,14 +61,30 @@ Xây dựng Create Request Wizard 5 bước: chọn lĩnh vực pháp lý → d�
 - **Plan:** 75-01 (8 tasks in 1 wave)
 - **Tasks:** Stat cards clickable, floating chat badge, loading states, empty states, error states, pagination, CSS matching, i18n verification
 
-**Key Decisions:**
-- StatCard nhận href prop cho Next.js Link navigation
-- Floating chat: Client-side fetch unread count on mount
-- Loading: Skeleton components từ phase 73
-- Error: Retry button với tiếng Việt message
-- Pagination: Client-side với 10 items per page
+### 75-01: EXECUTION COMPLETE ✅
+- **Commit:** `15fee7b`
+- **Date:** 2026-06-21
+- **Tasks Completed:** 8/8
+- **Commits:**
+  - `b7e20a9`: feat(75): make stat cards clickable with href prop
+  - `0e45a2f`: feat(75): floating chat badge with dynamic unread count
+  - `eee2dd0`: feat(75): add loading states for dashboard panels
+  - `a54f77b`: feat(75): add empty states for dashboard panels
+  - `3412649`: feat(75): add error boundaries with retry for dashboard panels
+  - `eed00f0`: feat(75): verify pagination in cases table
+  - `78a1775`: feat(75): verify CSS and enhancement
+  - `7eba660`: feat(75): verify i18n for dashboard
+- **Files Created:**
+  - `src/app/api/messages/unread-count/route.ts`
+- **Files Modified:**
+  - `src/components/dashboard/StatCard.tsx`
+  - `src/components/dashboard/DashboardClient.tsx`
+  - `src/components/dashboard/dashboard.css`
+  - `src/components/dashboard/RecentCases.tsx`
+  - `src/components/dashboard/RecentDocuments.tsx`
+  - `src/components/dashboard/ActivityTimeline.tsx`
 
-**Next:** /gsd-execute-phase 75
+**Next:** Phase 76 continue or Phase 77
 
 ---
 

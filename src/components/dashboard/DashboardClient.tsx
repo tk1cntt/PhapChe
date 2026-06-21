@@ -9,6 +9,7 @@ import DeadlineSLA from './DeadlineSLA';
 import RecentDocuments from './RecentDocuments';
 import ActivityTimeline from './ActivityTimeline';
 import CasesTable from './CasesTable';
+import { ErrorBoundaryWrapper } from '@/components/shared/ui/ErrorBoundary';
 import './dashboard.css';
 
 // Panel skeleton components
@@ -189,30 +190,72 @@ export default function DashboardClient({
       <WelcomeBanner data={welcomeData} />
 
       {/* Stats Grid */}
-      {isLoading ? <StatCardsSkeleton /> : <StatsCardGrid data={stats} />}
+      <ErrorBoundaryWrapper
+        fallback={
+          <div className="stats-grid">
+            <div className="panel" style={{ padding: 24, textAlign: 'center', color: '#dc2626' }}>
+              Không thể tải dữ liệu. Vui lòng thử lại.
+            </div>
+          </div>
+        }
+      >
+        {isLoading ? <StatCardsSkeleton /> : <StatsCardGrid data={stats} />}
+      </ErrorBoundaryWrapper>
 
       {/* Grid 2: Recent Cases + Deadline */}
       <div className="grid-2">
-        {isLoading ? (
-          <RecentCasesSkeleton />
-        ) : (
-          <RecentCases cases={allCases.slice(0, 5)} />
-        )}
-        <DeadlineSLA cases={allCases} />
+        <ErrorBoundaryWrapper
+          fallback={
+            <div className="panel" style={{ padding: 24, textAlign: 'center', color: '#dc2626' }}>
+              Không thể tải dữ liệu. Vui lòng thử lại.
+            </div>
+          }
+        >
+          {isLoading ? (
+            <RecentCasesSkeleton />
+          ) : (
+            <RecentCases cases={allCases.slice(0, 5)} />
+          )}
+        </ErrorBoundaryWrapper>
+        <ErrorBoundaryWrapper
+          fallback={
+            <div className="panel" style={{ padding: 24, textAlign: 'center', color: '#dc2626' }}>
+              Không thể tải dữ liệu. Vui lòng thử lại.
+            </div>
+          }
+        >
+          <DeadlineSLA cases={allCases} />
+        </ErrorBoundaryWrapper>
       </div>
 
       {/* Grid: Recent Docs + Activity */}
       <div className="dashboard-grid">
-        {isLoading ? (
-          <RecentDocumentsSkeleton />
-        ) : (
-          <RecentDocuments documents={recentDocuments} />
-        )}
-        {isLoading ? (
-          <ActivityTimelineSkeleton />
-        ) : (
-          <ActivityTimeline activities={recentActivities} />
-        )}
+        <ErrorBoundaryWrapper
+          fallback={
+            <div className="panel" style={{ padding: 24, textAlign: 'center', color: '#dc2626' }}>
+              Không thể tải dữ liệu. Vui lòng thử lại.
+            </div>
+          }
+        >
+          {isLoading ? (
+            <RecentDocumentsSkeleton />
+          ) : (
+            <RecentDocuments documents={recentDocuments} />
+          )}
+        </ErrorBoundaryWrapper>
+        <ErrorBoundaryWrapper
+          fallback={
+            <div className="panel" style={{ padding: 24, textAlign: 'center', color: '#dc2626' }}>
+              Không thể tải dữ liệu. Vui lòng thử lại.
+            </div>
+          }
+        >
+          {isLoading ? (
+            <ActivityTimelineSkeleton />
+          ) : (
+            <ActivityTimeline activities={recentActivities} />
+          )}
+        </ErrorBoundaryWrapper>
       </div>
 
       {/* Table Card - All Cases with Paging */}

@@ -133,6 +133,12 @@
   transform: translateY(-1px);
 }
 
+.stat-card-link {
+  cursor: pointer;
+  display: block;
+  text-decoration: none;
+}
+
 .stat-icon {
   width: 48px;
   height: 48px;

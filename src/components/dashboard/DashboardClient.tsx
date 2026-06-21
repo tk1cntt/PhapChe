@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { StatsCardGrid } from './StatCard';
 import WelcomeBanner from './WelcomeBanner';
@@ -74,6 +75,14 @@ export default function DashboardClient({
   recentActivities = [],
 }: DashboardClientProps) {
   const t = useTranslations('DashboardClient');
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    fetch('/api/messages/unread-count')
+      .then((res) => res.json())
+      .then((data) => setUnreadCount(data.unreadCount))
+      .catch(() => setUnreadCount(0));
+  }, []);
 
   return (
     <div className="dashboard-page">
@@ -115,7 +124,11 @@ export default function DashboardClient({
 
       {/* Floating Chat Button */}
       <a href="/messages" className="floating-chat">
-        <span className="chat-icon-wrapper">N</span>
+        {unreadCount > 0 && (
+          <span className="chat-icon-wrapper">
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
+        )}
       </a>
     </div>
   );

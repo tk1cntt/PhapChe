@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { FileText } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
@@ -75,6 +75,11 @@ export function MyCasesTable({ requests, totalRequests, isFiltered = false }: My
   const t = useTranslations('UserCases');
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  // Reset pagination when requests change (e.g., when filters are applied)
+  useEffect(() => {
+    setCurrent(1);
+  }, [requests.length]);
 
   const total = totalRequests ?? requests.length;
   const totalPages = Math.ceil(total / pageSize);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { EmptyState } from '@/components/shared/ui/EmptyState';
 import { ActivityItem } from './DashboardClient';
 
 interface ActivityTimelineProps {
@@ -24,7 +25,14 @@ export default function ActivityTimeline({ activities }: ActivityTimelineProps) 
 
       <div className="timeline">
         {activities.length === 0 ? (
-          <div className="empty-state">{t('empty')}</div>
+          <EmptyState
+            icon={
+              <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+            title="Chưa có hoạt động nào"
+          />
         ) : (
           activities.map((a, index) => (
             <div key={a.id} className="timeline-item">

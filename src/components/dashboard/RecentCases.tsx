@@ -1,6 +1,8 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { EmptyState } from '@/components/shared/ui/EmptyState';
 import { CaseItem } from './DashboardClient';
 
 interface RecentCasesProps {
@@ -17,6 +19,7 @@ const statusBadgeClass: Record<string, string> = {
 
 export default function RecentCases({ cases }: RecentCasesProps) {
   const t = useTranslations('RecentCases');
+  const router = useRouter();
 
   return (
     <div className="panel">
@@ -33,7 +36,19 @@ export default function RecentCases({ cases }: RecentCasesProps) {
 
       <div className="case-list">
         {cases.length === 0 ? (
-          <div className="empty-state">{t('empty')}</div>
+          <EmptyState
+            icon={
+              <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7h18v13H3zM3 7l3-4h12l3 4" />
+              </svg>
+            }
+            title="Chưa có hồ sơ nào"
+            description="Tạo hồ sơ mới để bắt đầu"
+            action={{
+              label: t('open').replace(' →', ''),
+              onClick: () => router.push('/create'),
+            }}
+          />
         ) : (
           cases.map((c) => (
             <div key={c.id} className="case-item">

@@ -256,7 +256,9 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 
 **Depends on:** Phase 76
 **Requirements:** MYCASE-01 to MYCASE-09
-**Plans:** TBD
+**Plans:** 1/1 plans complete
+
+- [x] 77-01-PLAN.md — My Cases enhancement (3 tasks: type filter wiring, debounce, empty state)
 
 **Data Flow:**
 

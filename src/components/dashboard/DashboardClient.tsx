@@ -11,6 +11,89 @@ import ActivityTimeline from './ActivityTimeline';
 import CasesTable from './CasesTable';
 import './dashboard.css';
 
+// Panel skeleton components
+function StatCardsSkeleton() {
+  return (
+    <div className="stats-grid">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="stat-card loading-stat">
+          <div className="loading-icon" />
+          <div className="loading-text">
+            <div className="loading-line short" />
+            <div className="loading-line medium" />
+            <div className="loading-line short" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RecentCasesSkeleton() {
+  return (
+    <div className="panel loading-panel">
+      <div className="panel-title">
+        <div className="panel-title-left">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <path d="M14 2v6h6" />
+          </svg>
+          <span>Đang tải...</span>
+        </div>
+      </div>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div key={i} className="case-item">
+          <div className="loading-line medium" style={{ height: 20 }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RecentDocumentsSkeleton() {
+  return (
+    <div className="panel loading-panel">
+      <div className="panel-title">
+        <div className="panel-title-left">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 7h18v13H3z" />
+            <path d="M3 7l3-4h12l3 4" />
+          </svg>
+          <span>Đang tải...</span>
+        </div>
+      </div>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div key={i} className="document-item" style={{ minHeight: 72 }}>
+          <div className="loading-line medium" style={{ height: 20 }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ActivityTimelineSkeleton() {
+  return (
+    <div className="panel loading-panel">
+      <div className="panel-title">
+        <div className="panel-title-left">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg>
+          <span>Đang tải...</span>
+        </div>
+      </div>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div key={i} className="timeline-item">
+          <div className="timeline-dot" style={{ background: '#e5e7eb', border: '4px solid #f3f4f6' }} />
+          <div className="loading-line medium" style={{ height: 16, marginBottom: 8 }} />
+          <div className="loading-line short" style={{ height: 12 }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export interface CaseItem {
   id: string;
   code: string;
@@ -76,6 +159,7 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const t = useTranslations('DashboardClient');
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetch('/api/messages/unread-count')
@@ -105,18 +189,30 @@ export default function DashboardClient({
       <WelcomeBanner data={welcomeData} />
 
       {/* Stats Grid */}
-      <StatsCardGrid data={stats} />
+      {isLoading ? <StatCardsSkeleton /> : <StatsCardGrid data={stats} />}
 
       {/* Grid 2: Recent Cases + Deadline */}
       <div className="grid-2">
-        <RecentCases cases={allCases.slice(0, 5)} />
+        {isLoading ? (
+          <RecentCasesSkeleton />
+        ) : (
+          <RecentCases cases={allCases.slice(0, 5)} />
+        )}
         <DeadlineSLA cases={allCases} />
       </div>
 
       {/* Grid: Recent Docs + Activity */}
       <div className="dashboard-grid">
-        <RecentDocuments documents={recentDocuments} />
-        <ActivityTimeline activities={recentActivities} />
+        {isLoading ? (
+          <RecentDocumentsSkeleton />
+        ) : (
+          <RecentDocuments documents={recentDocuments} />
+        )}
+        {isLoading ? (
+          <ActivityTimelineSkeleton />
+        ) : (
+          <ActivityTimeline activities={recentActivities} />
+        )}
       </div>
 
       {/* Table Card - All Cases with Paging */}

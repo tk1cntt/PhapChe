@@ -275,6 +275,27 @@ export default async function DashboardPage() {
           actionText = formatActivityAction(subAction.toUpperCase());
           descriptionText = metadata.details || `${actorName} đã thao tác trên tin nhắn.`;
       }
+    } else if (action.startsWith('draft.')) {
+      // Handle draft actions - treat as request type
+      activityType = 'request';
+      const subAction = action.replace('draft.', '');
+      switch (subAction) {
+        case 'created':
+          actionText = 'Bản nháp được tạo';
+          descriptionText = `${actorName} đã tạo bản nháp yêu cầu pháp lý mới.`;
+          break;
+        case 'updated':
+          actionText = 'Bản nháp được cập nhật';
+          descriptionText = `${actorName} đã cập nhật bản nháp yêu cầu.`;
+          break;
+        case 'submitted':
+          actionText = 'Bản nháp được gửi';
+          descriptionText = `${actorName} đã gửi bản nháp để xem xét.`;
+          break;
+        default:
+          actionText = formatActivityAction(subAction.toUpperCase());
+          descriptionText = metadata.details || `${actorName} đã thao tác trên bản nháp.`;
+      }
     } else {
       // Fallback for simple actions like CREATE, UPDATE, etc.
       activityType = 'system';

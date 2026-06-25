@@ -138,11 +138,17 @@ export interface DocumentItem {
 
 export interface ActivityItem {
   id: string;
+  type: 'user' | 'workspace' | 'request' | 'document' | 'review' | 'message' | 'vault' | 'partner' | 'system';
   action: string;
   description: string;
   actor: string;
+  actorAvatar?: string;
+  targetType?: string;
+  targetLabel?: string;
+  targetId?: string;
   timestamp: string;
   relativeTime: string;
+  metadata?: Record<string, unknown>;
 }
 
 interface DashboardClientProps {

@@ -852,7 +852,7 @@ UI screens exist from v2.0 (mock, 30-50%). These phases implement full backend i
 | 74 | Sign-In | `[locale]/sign-in` | Complete   | 2026-06-20 |
 | 75 | User Dashboard | 1/1 | Complete    | 2026-06-21 |
 | 76 | Create Request | `[locale]/create` | Complete   | 2026-06-20 |
-| 77 | My Cases | `[locale]/cases` | Not started | - |
+| 77 | My Cases | 1/1 | Complete    | 2026-06-21 |
 | 78 | Messages | `[locale]/messages` | Not started | - |
 | 79 | User Workspace | `[locale]/workspace` | Not started | - |
 | 80 | User Settings | `[locale]/settings` | Not started | - |

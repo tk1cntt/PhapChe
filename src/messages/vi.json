@@ -202,7 +202,18 @@
   "ActivityTimeline": {
     "title": "Hoạt động gần đây",
     "empty": "Không có hoạt động nào",
-    "loading": "Đang tải..."
+    "loading": "Đang tải...",
+    "types": {
+      "user": "Người dùng",
+      "workspace": "Workspace",
+      "request": "Hồ sơ",
+      "document": "Tài liệu",
+      "review": "Review",
+      "message": "Tin nhắn",
+      "vault": "Kho tài liệu",
+      "partner": "Đối tác",
+      "system": "Hệ thống"
+    }
   },
   "ToolbarCard": {
     "searchPlaceholder": "Tìm kiếm hồ sơ của bạn...",

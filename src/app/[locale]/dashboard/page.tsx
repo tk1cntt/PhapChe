@@ -135,12 +135,16 @@ export default async function DashboardPage() {
     const requestCode = activity.request?.code || activity.request?.title;
     const metadata = parseMetadata(activity.metadataSummary);
 
+    // Determine activity type from action pattern
+    let activityType: 'user' | 'workspace' | 'request' | 'document' | 'review' | 'message' | 'vault' | 'partner' | 'system' = 'system';
+
     // Generate action text and description based on action pattern
     let actionText = '';
     let descriptionText = '';
 
     // Handle action patterns like "request.updated", "document.downloaded", "partner.comment_added"
     if (action.startsWith('request.')) {
+      activityType = 'request';
       const subAction = action.replace('request.', '');
       switch (subAction) {
         case 'created':
@@ -176,6 +180,7 @@ export default async function DashboardPage() {
           descriptionText = metadata.details || `${actorName} đã thao tác trên hồ sơ ${requestCode || ''}.`;
       }
     } else if (action.startsWith('document.')) {
+      activityType = 'document';
       const subAction = action.replace('document.', '');
       switch (subAction) {
         case 'uploaded':
@@ -195,6 +200,7 @@ export default async function DashboardPage() {
           descriptionText = metadata.details || `${actorName} đã thao tác trên tài liệu.`;
       }
     } else if (action.startsWith('partner.')) {
+      activityType = 'partner';
       const subAction = action.replace('partner.', '');
       switch (subAction) {
         case 'comment_added':
@@ -210,19 +216,75 @@ export default async function DashboardPage() {
           descriptionText = metadata.details || `${actorName} đã tương tác với partner.`;
       }
     } else if (action.startsWith('workspace.')) {
+      activityType = 'workspace';
       actionText = 'Workspace được cập nhật';
       descriptionText = metadata.details || 'Workspace đã được cập nhật.';
     } else if (action.startsWith('user.')) {
+      activityType = 'user';
       actionText = 'Người dùng được cập nhật';
       descriptionText = metadata.details || `${actorName} đã cập nhật thông tin người dùng.`;
+    } else if (action.startsWith('review.')) {
+      activityType = 'review';
+      const subAction = action.replace('review.', '');
+      switch (subAction) {
+        case 'started':
+          actionText = 'Review được bắt đầu';
+          descriptionText = `${actorName} đã bắt đầu review hồ sơ ${requestCode || ''}.`;
+          break;
+        case 'approved':
+          actionText = 'Review được duyệt';
+          descriptionText = `${actorName} đã duyệt review hồ sơ ${requestCode || ''}.`;
+          break;
+        case 'rejected':
+          actionText = 'Review bị từ chối';
+          descriptionText = `${actorName} đã từ chối review hồ sơ ${requestCode || ''}.`;
+          break;
+        default:
+          actionText = formatActivityAction(subAction.toUpperCase());
+          descriptionText = metadata.details || `${actorName} đã thao tác trên review.`;
+      }
+    } else if (action.startsWith('vault.')) {
+      activityType = 'vault';
+      const subAction = action.replace('vault.', '');
+      switch (subAction) {
+        case 'file_added':
+          actionText = 'File được thêm vào vault';
+          descriptionText = `${actorName} đã thêm file ${metadata.fileName || ''} vào vault.`;
+          break;
+        case 'folder_created':
+          actionText = 'Folder được tạo trong vault';
+          descriptionText = `${actorName} đã tạo folder ${metadata.folderName || ''}.`;
+          break;
+        default:
+          actionText = formatActivityAction(subAction.toUpperCase());
+          descriptionText = metadata.details || `${actorName} đã thao tác trên vault.`;
+      }
+    } else if (action.startsWith('message.')) {
+      activityType = 'message';
+      const subAction = action.replace('message.', '');
+      switch (subAction) {
+        case 'sent':
+          actionText = 'Tin nhắn được gửi';
+          descriptionText = `${actorName} đã gửi tin nhắn mới.`;
+          break;
+        case 'received':
+          actionText = 'Tin nhắn mới';
+          descriptionText = `${actorName} đã nhận được tin nhắn.`;
+          break;
+        default:
+          actionText = formatActivityAction(subAction.toUpperCase());
+          descriptionText = metadata.details || `${actorName} đã thao tác trên tin nhắn.`;
+      }
     } else {
       // Fallback for simple actions like CREATE, UPDATE, etc.
+      activityType = 'system';
       actionText = formatActivityAction(action);
       descriptionText = metadata.details || `${targetType} đã được ${action.toLowerCase()}.`;
     }
 
     return {
       id: activity.id,
+      type: activityType,
       action: actionText,
       description: descriptionText,
       actor: actorName,

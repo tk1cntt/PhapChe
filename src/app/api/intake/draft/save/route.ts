@@ -143,9 +143,10 @@ export async function POST(request: Request) {
     // 5. Log audit event (skip on failure - draft is saved)
     if (workspaceId) {
       try {
+        const action = data.draftId ? 'draft.updated' : 'draft.created';
         await prisma.auditEvent.create({
           data: {
-            action: 'draft.save',
+            action,
             actorId: userId,
             workspaceId,
             targetType: 'draft',

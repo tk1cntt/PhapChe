@@ -201,7 +201,18 @@
   "ActivityTimeline": {
     "title": "最近活动",
     "empty": "暂无最近活动",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "types": {
+      "user": "用户",
+      "workspace": "工作区",
+      "request": "案件",
+      "document": "文档",
+      "review": "审核",
+      "message": "消息",
+      "vault": "保险库",
+      "partner": "合作伙伴",
+      "system": "系统"
+    }
   },
   "ToolbarCard": {
     "searchPlaceholder": "搜索您的案件...",

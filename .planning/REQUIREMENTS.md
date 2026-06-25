@@ -151,7 +151,7 @@ Mỗi phase phải tuân thủ nghiêm ngặt 9 tài liệu trong `src/docs/`:
 
 **Goal:** My Cases với case list, search, filter, pagination, detail navigation
 
-- [ ] **MYCASE-01**: Summary banner shows total cases count from `GET /api/requests`
+- [x] **MYCASE-01**: Summary banner shows total cases count from `GET /api/requests`
 - [ ] **MYCASE-02**: Stat cards show correct counts (Tổng, Đang xử lý, Hoàn tất, Quá hạn)
 - [ ] **MYCASE-03**: Search filters cases by code or type via `?search=`
 - [ ] **MYCASE-04**: Status filter works via `?status=`
@@ -159,7 +159,7 @@ Mỗi phase phải tuân thủ nghiêm ngặt 9 tài liệu trong `src/docs/`:
 - [ ] **MYCASE-06**: Table shows 7 columns (code, type, status, priority, assignee, SLA, actions)
 - [ ] **MYCASE-07**: Clicking case navigates to detail page
 - [ ] **MYCASE-08**: Pagination works with page size of 10
-- [ ] **MYCASE-09**: Empty state shows when no cases match filter
+- [x] **MYCASE-09**: Empty state shows when no cases match filter
 
 ---
 

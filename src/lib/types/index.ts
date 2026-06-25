@@ -49,3 +49,6 @@ export type {
 
 // Re-export user types
 export type { AccountType } from './user';
+
+// Re-export activity types
+export * from './activity';

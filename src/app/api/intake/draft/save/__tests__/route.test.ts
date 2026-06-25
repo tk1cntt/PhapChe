@@ -310,7 +310,7 @@ describe('POST /api/intake/draft/save', () => {
 
   describe('Audit logging', () => {
     it('logs audit event when draft is saved', async () => {
-      vi.mocked(requireAppSession).mockResolvedValue({ userId: 'user-123' });
+      vi.mocked(requireAppSession).mockResolvedValue({ userId: 'user-123', activeWorkspaceId: 'ws-123' });
       vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-123' });
       vi.mocked(prisma.draft.create).mockResolvedValue({
         id: 'draft-new',
@@ -333,15 +333,16 @@ describe('POST /api/intake/draft/save', () => {
 
       expect(prisma.auditEvent.create).toHaveBeenCalledWith({
         data: {
-          action: 'draft.save',
+          action: 'draft.created',
           actorId: 'user-123',
+          workspaceId: 'ws-123',
           targetType: 'draft',
           targetId: 'draft-new',
-          metadata: {
+          metadataSummary: JSON.stringify({
             domainId: 'commercial-legal',
             serviceType: 'agency_contract',
             priority: 'normal',
-          },
+          }),
         },
       });
     });

@@ -201,7 +201,18 @@
   "ActivityTimeline": {
     "title": "Recent Activity",
     "empty": "No recent activity",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "types": {
+      "user": "User",
+      "workspace": "Workspace",
+      "request": "Request",
+      "document": "Document",
+      "review": "Review",
+      "message": "Message",
+      "vault": "Vault",
+      "partner": "Partner",
+      "system": "System"
+    }
   },
   "ToolbarCard": {
     "searchPlaceholder": "Search your cases...",

@@ -292,8 +292,16 @@ export default async function DashboardPage() {
           actionText = 'Bản nháp được gửi';
           descriptionText = `${actorName} đã gửi bản nháp để xem xét.`;
           break;
+        case 'save':
+          actionText = 'Bản nháp được lưu';
+          descriptionText = `${actorName} đã lưu bản nháp yêu cầu pháp lý.`;
+          break;
+        case 'deleted':
+          actionText = 'Bản nháp bị xóa';
+          descriptionText = `${actorName} đã xóa bản nháp.`;
+          break;
         default:
-          actionText = formatActivityAction(subAction.toUpperCase());
+          actionText = `Bản nháp: ${subAction}`;
           descriptionText = metadata.details || `${actorName} đã thao tác trên bản nháp.`;
       }
     } else {

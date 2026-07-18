@@ -24,8 +24,9 @@ const ROLE_PRIORITY: Record<string, number> = {
   customer: 10,
 };
 
-export async function requireAppSession(): Promise<AppSession> {
-  const session = await auth.api.getSession({ headers: await headers() });
+export async function requireAppSession(reqHeaders?: Headers): Promise<AppSession> {
+  const h = reqHeaders ?? await headers();
+  const session = await auth.api.getSession({ headers: h });
   if (!session?.user?.id) throw new Error('UNAUTHENTICATED');
 
   const userId = session.user.id;

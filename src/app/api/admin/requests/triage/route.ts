@@ -16,7 +16,7 @@ const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await requireAppSession();
+    const session = await requireAppSession(request.headers);
 
     // Authorization check
     const hasAdminRole = session.roles?.some((role) => (ADMIN_ROLES as readonly string[]).includes(role));

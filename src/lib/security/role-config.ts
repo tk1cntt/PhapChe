@@ -84,3 +84,15 @@ export function canSeeTab(tabKey: string, userRoles: readonly string[]): boolean
   if (!required) return false;
   return hasAnyRole(userRoles, required);
 }
+
+/**
+ * Kiểm tra user có quyền truy cập một admin route cụ thể không.
+ * Dùng trong page-level guard (Node.js server component).
+ *
+ * Ví dụ: canAccessRoute('users', session.roles) → true/false
+ */
+export function canAccessRoute(routeKey: string, userRoles: readonly string[]): boolean {
+  const required = ADMIN_ROUTE_GUARDS[routeKey];
+  if (!required) return true; // Route chưa config → allow (sẽ được thêm sau)
+  return hasAnyRole(userRoles, required);
+}

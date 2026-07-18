@@ -91,6 +91,9 @@ export default async function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value;
   const isAdmin = isAdminPath(pathname);
 
+  // Pass pathname to downstream server components via header
+  response.headers.set('x-pathname', pathname);
+
   // Break redirect loop: if already showing the forbidden error page, pass through
   if (isAdmin && request.nextUrl.searchParams.get('error') === 'forbidden') {
     return response;

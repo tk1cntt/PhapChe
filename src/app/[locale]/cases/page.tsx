@@ -43,11 +43,15 @@ export default async function CasesPage({ params }: PageProps) {
   const processingStatusFilter = { status: { in: ['in_progress', 'pending_review', 'triage', 'assigned'] } };
   const completedStatusFilter = { status: { in: ['approved', 'delivered', 'closed'] } };
 
-  const [baseWhere, processingWhere, completedWhere, requestsWhere, overdueCount, requests, unreadMessages] = await Promise.all([
+  // Tạo where clauses trước (cần cho cả count và findMany)
+  const [baseWhere, processingWhere, completedWhere, requestsWhere] = await Promise.all([
     getWorkspaceRequestWhere(wsId, userId),
     getWorkspaceRequestWhere(wsId, userId, processingStatusFilter),
     getWorkspaceRequestWhere(wsId, userId, completedStatusFilter),
     getWorkspaceRequestWhere(wsId, userId),
+  ]);
+
+  const [overdueCount, requests, unreadMessages] = await Promise.all([
     // Overdue count dùng Prisma count với role filter
     (async () => {
       const overdueBase = {

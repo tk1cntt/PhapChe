@@ -1,7 +1,6 @@
 'use client';
 
-import { Modal, Alert, Space } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { AlertTriangle } from 'lucide-react';
 
 interface RoleChangeDialogProps {
   isOpen: boolean;
@@ -34,55 +33,65 @@ export function RoleChangeDialog({
   onCancel,
   isLoading,
 }: RoleChangeDialogProps) {
+  if (!isOpen) return null;
+
   return (
-    <Modal
-      title={
-        <Space>
-          <ExclamationCircleOutlined style={{ color: '#faad14' }} />
-          Xác nhận đổi vai trò
-        </Space>
-      }
-      open={isOpen}
-      onCancel={onCancel}
-      onOk={onConfirm}
-      okText="Xác nhận"
-      cancelText="Hủy"
-      confirmLoading={isLoading}
-      okButtonProps={{ danger: currentRole === 'admin' && newRole !== 'admin' }}
-    >
-      <div className="py-4">
-        <p className="mb-4">
+    <div className="modal-overlay" onClick={onCancel}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <AlertTriangle size={20} style={{ color: 'var(--color-warning)' }} />
+          <h3 style={{ margin: 0, fontSize: 'var(--text-lg)', fontWeight: 800 }}>Xác nhận đổi vai trò</h3>
+        </div>
+
+        <p style={{ marginBottom: 16 }}>
           Bạn có chắc chắn muốn đổi vai trò của <strong>{memberName}</strong>?
         </p>
 
-        <div className="bg-gray-50 rounded-lg p-4 mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-500">Vai trò hiện tại:</span>
-            <span className="font-medium">{roleLabels[currentRole]}</span>
+        <div style={{
+          background: 'var(--color-surface-hover)',
+          borderRadius: 'var(--radius-md)',
+          padding: 16,
+          marginBottom: 16,
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+            <span style={{ color: 'var(--color-text-muted)' }}>Vai trò hiện tại:</span>
+            <span style={{ fontWeight: 600 }}>{roleLabels[currentRole]}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-gray-500">Vai trò mới:</span>
-            <span className="font-medium text-blue-600">{roleLabels[newRole]}</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: 'var(--color-text-muted)' }}>Vai trò mới:</span>
+            <span style={{ fontWeight: 600, color: 'var(--color-info)' }}>{roleLabels[newRole]}</span>
           </div>
         </div>
 
-        <Alert
-          type="warning"
-          showIcon
-          message="Thay đổi quyền hạn"
-          description={
-            <div className="mt-2">
-              <p className="mb-2">
-                Sau khi đổi vai trò, {memberName} sẽ{' '}
-                {newRole === 'viewer' ? 'mất quyền quản lý yêu cầu và thành viên' : 'có thêm quyền quản lý'}
-              </p>
-              <p className="text-sm text-gray-600">
-                <strong>Quyền mới:</strong> {roleDescriptions[newRole]}
-              </p>
-            </div>
-          }
-        />
+        <div style={{
+          background: 'var(--color-warning-muted)',
+          border: '1px solid var(--color-warning)',
+          borderRadius: 'var(--radius-md)',
+          padding: 14,
+          marginBottom: 20,
+        }}>
+          <p style={{ fontWeight: 700, margin: '0 0 8px', fontSize: 'var(--text-sm)' }}>Thay đổi quyền hạn</p>
+          <p style={{ margin: '0 0 8px', fontSize: 'var(--text-sm)' }}>
+            Sau khi đổi vai trò, {memberName} sẽ{' '}
+            {newRole === 'viewer' ? 'mất quyền quản lý yêu cầu và thành viên' : 'có thêm quyền quản lý'}
+          </p>
+          <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>
+            <strong>Quyền mới:</strong> {roleDescriptions[newRole]}
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+          <button className="btn-ghost" onClick={onCancel} disabled={isLoading}>Hủy</button>
+          <button
+            className="btn-primary"
+            onClick={onConfirm}
+            disabled={isLoading}
+            style={currentRole === 'admin' && newRole !== 'admin' ? { background: 'var(--color-danger)' } : undefined}
+          >
+            {isLoading ? 'Đang xử lý...' : 'Xác nhận'}
+          </button>
+        </div>
       </div>
-    </Modal>
+    </div>
   );
 }

@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { List, Tag, Button, message, Popconfirm, Empty, Space } from 'antd';
-import { MailOutlined, DeleteOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Mail, Trash2, Clock } from 'lucide-react';
 
 export interface PendingInvite {
   id: string;
@@ -28,6 +27,7 @@ const roleLabels: Record<string, string> = {
 
 export function PendingInvitesList({ invites, onRevoke, onRefresh, loading }: PendingInvitesListProps) {
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [confirmRevoke, setConfirmRevoke] = useState<string | null>(null);
 
   const getDaysUntilExpiry = (expiresAt: string): number => {
     const now = new Date();
@@ -38,12 +38,12 @@ export function PendingInvitesList({ invites, onRevoke, onRefresh, loading }: Pe
 
   const handleRevoke = async (inviteId: string) => {
     setRevokingId(inviteId);
+    setConfirmRevoke(null);
     try {
       await onRevoke(inviteId);
-      message.success('Đã thu hồi lời mời');
       onRefresh();
     } catch {
-      message.error('Không thể thu hồi lời mời');
+      // error handled by parent
     } finally {
       setRevokingId(null);
     }
@@ -51,66 +51,66 @@ export function PendingInvitesList({ invites, onRevoke, onRefresh, loading }: Pe
 
   if (invites.length === 0) {
     return (
-      <Empty
-        image={Empty.PRESENTED_IMAGE_SIMPLE}
-        description="Không có lời mời nào đang chờ"
-      />
+      <div style={{ textAlign: 'center', padding: 48 }}>
+        <Mail size={32} style={{ color: 'var(--color-text-muted)', marginBottom: 12 }} />
+        <p style={{ color: 'var(--color-text-muted)' }}>Không có lời mời nào đang chờ</p>
+      </div>
     );
   }
 
   return (
-    <List
-      loading={loading}
-      dataSource={invites}
-      renderItem={(invite) => {
-        const daysLeft = getDaysUntilExpiry(invite.expiresAt);
-        const isExpiringSoon = daysLeft <= 2;
+    <>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {invites.map((invite) => {
+          const daysLeft = getDaysUntilExpiry(invite.expiresAt);
+          const isExpiringSoon = daysLeft <= 2;
 
-        return (
-          <List.Item
-            actions={[
-              <Popconfirm
-                key="revoke"
-                title="Thu hồi lời mời?"
-                description="Thao tác này không thể hoàn tác."
-                onConfirm={() => handleRevoke(invite.id)}
-                okText="Thu hồi"
-                cancelText="Hủy"
-                okButtonProps={{ danger: true }}
-              >
-                <Button
-                  type="text"
-                  danger
-                  icon={<DeleteOutlined />}
-                  loading={revokingId === invite.id}
-                >
-                  Thu hồi
-                </Button>
-              </Popconfirm>,
-            ]}
-          >
-            <List.Item.Meta
-              avatar={<MailOutlined style={{ fontSize: 24, color: '#1890ff' }} />}
-              title={
-                <Space>
-                  <span>{invite.email}</span>
-                  <Tag color="blue">{roleLabels[invite.role]}</Tag>
-                </Space>
-              }
-              description={
-                <Space size="large">
-                  <span>
-                    <ClockCircleOutlined /> {daysLeft > 0 ? `Còn ${daysLeft} ngày` : 'Đã hết hạn'}
-                  </span>
-                  <span className={isExpiringSoon ? 'text-red-500' : ''}>
-                    {isExpiringSoon && daysLeft > 0 ? 'Sắp hết hạn!' : ''}
-                  </span>
-                </Space>
-              }
-            />
-          </List.Item>
-        );
-      }}
-    />
+          return (
+            <div
+              key={invite.id}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: 14, border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)', background: 'var(--color-surface)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Mail size={20} style={{ color: 'var(--color-info)' }} />
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <strong style={{ fontSize: 'var(--text-sm)' }}>{invite.email}</strong>
+                    <span className="badge badge-blue">{roleLabels[invite.role]}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4, fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
+                    <span><Clock size={12} style={{ verticalAlign: 'middle', marginRight: 4 }} />{daysLeft > 0 ? `Còn ${daysLeft} ngày` : 'Đã hết hạn'}</span>
+                    {isExpiringSoon && daysLeft > 0 && (
+                      <span style={{ color: 'var(--color-danger)', fontWeight: 600 }}>Sắp hết hạn!</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div>
+                {confirmRevoke === invite.id ? (
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="action-btn danger" onClick={() => handleRevoke(invite.id)} disabled={revokingId === invite.id}>
+                      {revokingId === invite.id ? '...' : 'Xác nhận'}
+                    </button>
+                    <button className="action-btn" onClick={() => setConfirmRevoke(null)}>Hủy</button>
+                  </div>
+                ) : (
+                  <button
+                    className="action-btn danger"
+                    onClick={() => setConfirmRevoke(invite.id)}
+                  >
+                    <Trash2 size={14} />
+                    Thu hồi
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }

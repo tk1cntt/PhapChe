@@ -125,7 +125,6 @@ export type OpsTimelineItemDto = {
 
 const requestStatuses: RequestStatus[] = [
   'draft_intake',
-  'intake_submitted',
   'triage',
   'assigned',
   'in_progress',
@@ -137,7 +136,7 @@ const requestStatuses: RequestStatus[] = [
   'cancelled',
 ];
 
-const activeStatuses: RequestStatus[] = ['intake_submitted', 'triage', 'assigned', 'in_progress', 'pending_review', 'revision_required', 'approved'];
+const activeStatuses: RequestStatus[] = ['triage', 'assigned', 'in_progress', 'pending_review', 'revision_required', 'approved'];
 
 function requireText(value: string, errorCode: string) {
   if (!value.trim()) throw new Error(errorCode);

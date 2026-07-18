@@ -4,9 +4,9 @@
  */
 
 // Request status values
+// Note: 'intake_submitted' removed in v2.3 — customer submit goes straight to 'triage'
 export const REQUEST_STATUS = {
   DRAFT_INTAKE: 'draft_intake',
-  INTAKE_SUBMITTED: 'intake_submitted',
   TRIAGE: 'triage',
   ASSIGNED: 'assigned',
   IN_PROGRESS: 'in_progress',
@@ -19,6 +19,12 @@ export const REQUEST_STATUS = {
 } as const;
 
 export type RequestStatus = typeof REQUEST_STATUS[keyof typeof REQUEST_STATUS];
+
+/** @deprecated Replaced by 'triage'. Customer submit goes directly to triage. */
+export const INTAKE_SUBMITTED_LEGACY = 'intake_submitted' as const;
+
+/** Legacy status including deprecated intake_submitted for DB compatibility */
+export type RequestStatusLegacy = RequestStatus | typeof INTAKE_SUBMITTED_LEGACY;
 
 // Role values
 export const ROLE = {

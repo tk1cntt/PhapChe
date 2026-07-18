@@ -126,7 +126,6 @@
   },
   "RequestStatus": {
     "draft_intake": "Đang nhập thông tin",
-    "intake_submitted": "Đã gửi yêu cầu",
     "submitted": "Đã gửi",
     "triage": "Cần phân loại",
     "assigned": "Đã phân công",
@@ -2076,7 +2075,6 @@
     "downloadBtn": "Tải xuống",
     "downloadNote": "Liên kết tải xuống có hiệu lực trong 15 phút.",
     "status_draft_intake": "Nháp tiếp nhận",
-    "status_intake_submitted": "Đã gửi tiếp nhận",
     "status_triage": "Đang phân loại",
     "status_assigned": "Đã phân công",
     "status_in_progress": "Đang xử lý",

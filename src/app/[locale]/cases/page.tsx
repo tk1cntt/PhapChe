@@ -120,8 +120,8 @@ export default async function CasesPage({ params }: PageProps) {
           ? 'review'
           : req.status === 'approved' || req.status === 'delivered' || req.status === 'closed'
             ? 'approved'
-            : req.status === 'submitted'
-              ? 'submitted'
+            : req.status === 'triage'
+              ? 'triage'
               : 'pending';
 
       // Get MatterType key from intakeSubmission
@@ -135,7 +135,6 @@ export default async function CasesPage({ params }: PageProps) {
           | 'delivered'
           | 'closed'
           | 'revision_required'
-          | 'intake_submitted'
           | 'draft_intake'
           | 'triage'
           | 'assigned'

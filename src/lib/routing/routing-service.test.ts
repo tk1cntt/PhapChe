@@ -25,7 +25,7 @@ mustInclude('reasonProvided=true', 'assignment audit summary must include reason
 mustInclude('metadataSummary', 'assignment audit summary required');
 mustInclude('slice(0, 160)', 'assignment audit reason must be shortened');
 mustInclude('metadata.length > 500', 'assignment audit summary must enforce safe length');
-mustInclude("['intake_submitted', 'triage', 'assigned']", 'intake_submitted assignment must progress through triage to assigned');
+mustInclude("['triage', 'assigned']", 'assignment must progress through triage to assigned');
 mustInclude("['triage', 'assigned']", 'triage assignment must progress to assigned');
 mustInclude('workflowTransition.create', 'assignment must create WorkflowTransition rows inside transaction');
 mustInclude('updateMany', 'assignment status writes must use conflict guard updateMany');
@@ -50,7 +50,7 @@ const behaviorFixtures = {
   reassignmentHistoryRows: 2,
   sensitiveAnswerText: 'Mức chiết khấu bí mật 37%',
   safeMetadata: 'kind=specialist; assignee=user_1; request=req_1; matter=agency_contract; reasonProvided=true; reason=Đủ năng lực',
-  rollbackOriginalStatus: 'intake_submitted',
+  rollbackOriginalStatus: 'triage',
   rollbackNoAssigneeField: null as string | null,
   rollbackAssignmentRows: 0,
   rollbackAuditRows: 0,
@@ -60,7 +60,7 @@ if (behaviorFixtures.requiredReasonCode !== 'ASSIGNMENT_REASON_REQUIRED') throw 
 if (behaviorFixtures.reassignmentHistoryRows < 2) throw new Error('reassignment must assert at least two RequestAssignment rows');
 if (behaviorFixtures.safeMetadata.includes(behaviorFixtures.sensitiveAnswerText)) throw new Error('metadataSummary must not contain sensitive answer fixture text');
 if (behaviorFixtures.safeMetadata.length > 500) throw new Error('metadataSummary must be <= 500 chars');
-if (behaviorFixtures.rollbackOriginalStatus !== 'intake_submitted') throw new Error('rollback must preserve original request status');
+if (behaviorFixtures.rollbackOriginalStatus !== 'triage') throw new Error('rollback must preserve original request status');
 if (behaviorFixtures.rollbackNoAssigneeField !== null) throw new Error('rollback must leave no assignee field change');
 if (behaviorFixtures.rollbackAssignmentRows !== 0) throw new Error('rollback must leave no RequestAssignment rows');
 if (behaviorFixtures.rollbackAuditRows !== 0) throw new Error('rollback must leave no AuditEvent rows');

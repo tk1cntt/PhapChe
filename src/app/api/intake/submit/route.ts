@@ -195,11 +195,11 @@ export async function POST(request: Request) {
       }
     }
 
-    // Transition to intake_submitted
+    // Transition to triage (v2.3: customer submit goes straight to triage)
     await transitionRequestStatus({
       requestId: result.id,
       actorId: session.userId,
-      toStatus: 'intake_submitted',
+      toStatus: 'triage',
       reason: 'Intake submitted via wizard',
       correlationId,
     });
@@ -215,7 +215,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       id: result.id,
-      status: 'intake_submitted',
+      status: 'triage',
       priority,
       slaDeadline: slaDeadline.toISOString(),
       submittedAt: now.toISOString(),

@@ -150,7 +150,6 @@ interface Partner {
 
 const STATUS_COLORS: Record<string, string> = {
   draft_intake: 'gray',
-  intake_submitted: 'blue',
   assigned: 'blue',
   in_progress: 'blue',
   pending_review: 'purple',
@@ -163,7 +162,6 @@ const STATUS_COLORS: Record<string, string> = {
 
 const STATUS_LABELS: Record<string, string> = {
   draft_intake: 'Nháp',
-  intake_submitted: 'Đã gửi',
   assigned: 'Đã giao',
   in_progress: 'Đang xử lý',
   pending_review: 'Chờ duyệt',

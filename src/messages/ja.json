@@ -125,7 +125,6 @@
   },
   "RequestStatus": {
     "draft_intake": "インテーク下書き",
-    "intake_submitted": "インテーク送信済み",
     "submitted": "送信済み",
     "triage": "トリアージ",
     "assigned": "割り当て済み",
@@ -1824,7 +1823,6 @@
     "downloadBtn": "ダウンロード",
     "downloadNote": "ダウンロードリンクは15分間有効です。",
     "status_draft_intake": "ドラフト取り込み",
-    "status_intake_submitted": "取り込み送信済み",
     "status_triage": "分類中",
     "status_assigned": "割り当て済み",
     "status_in_progress": "処理中",

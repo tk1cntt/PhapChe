@@ -177,7 +177,7 @@ Only for truly common text:
 // src/i18n/components/ui/StatusBadge.json
 {
   "StatusBadge.draft_intake": "Bản nháp",
-  "StatusBadge.intake_submitted": "Đã gửi",
+
   "StatusBadge.triage": "Phân loại",
   "StatusBadge.assigned": "Đã giao",
   "StatusBadge.in_progress": "Đang xử lý",

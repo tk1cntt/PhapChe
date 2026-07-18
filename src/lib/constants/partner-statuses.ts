@@ -27,7 +27,6 @@ export const PARTNER_STATUS_LABELS: Record<PartnerAllowedStatus, { vi: string; e
 // All request status labels for admin (all statuses, not just partner-allowed)
 export const REQUEST_STATUS_LABELS: Record<string, string> = {
   [REQUEST_STATUS.DRAFT_INTAKE]: 'Bản nháp',
-  [REQUEST_STATUS.INTAKE_SUBMITTED]: 'Đã nộp',
   [REQUEST_STATUS.TRIAGE]: 'Phân loại',
   [REQUEST_STATUS.ASSIGNED]: 'Đã giao',
   [REQUEST_STATUS.IN_PROGRESS]: 'Đang xử lý',

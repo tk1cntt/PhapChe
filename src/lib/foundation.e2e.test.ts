@@ -322,7 +322,7 @@ test('foundation e2e: audit writer persists safe summaries and rejects unsafe me
 
 test('foundation e2e: workflow transitions enforce allowed paths and persist audit trail', async () => {
   await withFoundationSeed(async (seed) => {
-    assert.deepEqual(getAllowedTransitions('draft_intake'), ['intake_submitted', 'cancelled']);
+    assert.deepEqual(getAllowedTransitions('draft_intake'), ['triage', 'cancelled']);
     await assert.rejects(
       transitionRequestStatus({
         requestId: seed.requestId,
@@ -338,14 +338,14 @@ test('foundation e2e: workflow transitions enforce allowed paths and persist aud
     const transitioned = await transitionRequestStatus({
       requestId: seed.requestId,
       actorId: seed.customerId,
-      toStatus: 'intake_submitted',
+      toStatus: 'triage',
       reason: 'foundation e2e transition',
       correlationId: `${seed.correlationPrefix}_workflow`,
     });
 
-    assert.equal(transitioned.status, 'intake_submitted');
-    assert.equal((await prisma.legalRequest.findUnique({ where: { id: seed.requestId } }))?.status, 'intake_submitted');
-    assert.equal(await prisma.workflowTransition.count({ where: { requestId: seed.requestId, fromStatus: 'draft_intake', toStatus: 'intake_submitted' } }), 1);
+    assert.equal(transitioned.status, 'triage');
+    assert.equal((await prisma.legalRequest.findUnique({ where: { id: seed.requestId } }))?.status, 'triage');
+    assert.equal(await prisma.workflowTransition.count({ where: { requestId: seed.requestId, fromStatus: 'draft_intake', toStatus: 'triage' } }), 1);
     assert.equal(await prisma.auditEvent.count({ where: { requestId: seed.requestId, action: 'request.status_changed', correlationId: `${seed.correlationPrefix}_workflow` } }), 1);
   });
 });
@@ -596,14 +596,14 @@ test('foundation e2e: VaultFile cleanup deletes seeded file', async () => {
 
 test('foundation e2e: WorkflowTransition can be inserted by workflow service', async () => {
   await withFoundationSeed(async (seed) => {
-    await transitionRequestStatus({ requestId: seed.requestId, actorId: seed.customerId, toStatus: 'intake_submitted', reason: 'workflow insert', correlationId: `${seed.correlationPrefix}_workflow_insert` });
+    await transitionRequestStatus({ requestId: seed.requestId, actorId: seed.customerId, toStatus: 'triage', reason: 'workflow insert', correlationId: `${seed.correlationPrefix}_workflow_insert` });
     assert.equal(await prisma.workflowTransition.count({ where: { requestId: seed.requestId } }), 1);
   });
 });
 
 test('foundation e2e: WorkflowTransition relation points to actor and request', async () => {
   await withFoundationSeed(async (seed) => {
-    await transitionRequestStatus({ requestId: seed.requestId, actorId: seed.customerId, toStatus: 'intake_submitted', reason: 'workflow relation', correlationId: `${seed.correlationPrefix}_workflow_relation` });
+    await transitionRequestStatus({ requestId: seed.requestId, actorId: seed.customerId, toStatus: 'triage', reason: 'workflow relation', correlationId: `${seed.correlationPrefix}_workflow_relation` });
     const transition = await prisma.workflowTransition.findFirstOrThrow({ where: { requestId: seed.requestId }, include: { actor: true, request: true } });
     assert.equal(transition.actor.id, seed.customerId);
     assert.equal(transition.request.id, seed.requestId);
@@ -613,7 +613,7 @@ test('foundation e2e: WorkflowTransition relation points to actor and request', 
 test('foundation e2e: WorkflowTransition cleanup deletes seeded transitions', async () => {
   assertSafeDatabaseUrl();
   const seed = await seedFoundationE2E();
-  await transitionRequestStatus({ requestId: seed.requestId, actorId: seed.customerId, toStatus: 'intake_submitted', reason: 'workflow cleanup', correlationId: `${seed.correlationPrefix}_workflow_cleanup` });
+  await transitionRequestStatus({ requestId: seed.requestId, actorId: seed.customerId, toStatus: 'triage', reason: 'workflow cleanup', correlationId: `${seed.correlationPrefix}_workflow_cleanup` });
   await cleanupFoundationE2E(seed);
   assert.equal(await prisma.workflowTransition.count({ where: { requestId: seed.requestId } }), 0);
 });

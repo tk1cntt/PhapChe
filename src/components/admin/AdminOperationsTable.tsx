@@ -22,7 +22,6 @@ export function AdminOperationsTable({ requests, loading }: AdminOperationsTable
   const tStatus = useTranslations('RequestStatus');
 
   const statusBadge: Record<string, { bg: string; color: string; label: string }> = {
-    intake_submitted: { bg: '#dbeafe', color: 'var(--color-info)', label: tStatus('intake_submitted') },
     triage: { bg: '#dbeafe', color: 'var(--color-info)', label: tStatus('triage') },
     assigned: { bg: '#ffedd5', color: '#ea580c', label: tStatus('assigned') },
     in_progress: { bg: '#ede9fe', color: '#7c3aed', label: tStatus('in_progress') },

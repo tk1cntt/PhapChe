@@ -3,13 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 // Note: SQLite doesn't support enums, using String fields instead
 // Role values: customer, specialist, reviewer, coordinator, super_admin
-// RequestStatus values: draft_intake, intake_submitted, triage, assigned, in_progress, pending_review, revision_required, approved, delivered, closed, cancelled
+// RequestStatus values: draft_intake, triage, assigned, in_progress, pending_review, revision_required, approved, delivered, closed, cancelled
+// Note: 'intake_submitted' removed in v2.3 — customer submit goes directly to 'triage'
 // AssignmentKind values: specialist, reviewer
 // AuditTargetType values: user, workspace, membership, request, matter_type, intake_submission, assignment, document, review, vault_file, workflow_transition
 // DocumentVersionStatus values: draft, submitted_for_review, final
@@ -507,7 +508,7 @@ model DocumentTemplate {
   label             String?
   description       String?
   // Language-agnostic fields
-  variableSchema    Json           @default("[]")
+  variableSchema    Json
   content           String
   previousVersionId String?
   createdAt         DateTime       @default(now())
@@ -785,10 +786,10 @@ model Draft {
   userId       String
   domainId     String?
   serviceType  String?
-  answers      Json     @default("{}")
-  files        Json     @default("[]")
+  answers      Json
+  files        Json
   priority     String   @default("normal") // normal, urgent
-  contactInfo  Json     @default("{}")
+  contactInfo  Json
   status       String   @default("draft")  // draft, submitted, deleted
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

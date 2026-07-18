@@ -215,8 +215,8 @@ export async function submitIntake(input: SubmitInput) {
   await transitionRequestStatus({
     requestId: input.requestId,
     actorId: input.session.userId,
-    toStatus: 'intake_submitted',
-    reason: 'intake submitted',
+    toStatus: 'triage',
+    reason: 'intake submitted via wizard',
     correlationId: input.correlationId,
   });
 
@@ -251,5 +251,5 @@ export async function submitIntake(input: SubmitInput) {
     });
   }
 
-  return { id: input.requestId, status: 'intake_submitted' as const };
+  return { id: input.requestId, status: 'triage' as const };
 }

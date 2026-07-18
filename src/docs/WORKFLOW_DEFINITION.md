@@ -88,19 +88,9 @@ const legalRequestWorkflow: WorkflowDefinition = {
       isTerminal: false
     },
     {
-      code: 'intake_submitted',
-      name: 'Đã gửi',
-      order: 2,
-      color: '#1677ff',
-      icon: 'send',
-      requiresAssignment: false,
-      canEdit: false,
-      isTerminal: false
-    },
-    {
       code: 'triage',
       name: 'Phân loại',
-      order: 3,
+      order: 2,
       color: '#fa8c16',
       icon: 'folder',
       requiresAssignment: false,
@@ -110,7 +100,7 @@ const legalRequestWorkflow: WorkflowDefinition = {
     {
       code: 'assigned',
       name: 'Đã giao',
-      order: 4,
+      order: 3,
       color: '#722ed1',
       icon: 'user-add',
       requiresAssignment: true,
@@ -192,19 +182,13 @@ const legalRequestWorkflow: WorkflowDefinition = {
     // Customer actions
     {
       from: 'draft_intake',
-      to: 'intake_submitted',
+      to: 'triage',
       allowedRoles: ['customer'],
       actionLabel: 'Gửi yêu cầu',
       confirmRequired: true,
       confirmMessage: 'Bạn có chắc muốn gửi yêu cầu này?'
     },
     // Coordinator actions
-    {
-      from: 'intake_submitted',
-      to: 'triage',
-      allowedRoles: ['coordinator_admin'],
-      actionLabel: 'Tiếp nhận'
-    },
     {
       from: 'triage',
       to: 'assigned',
@@ -330,7 +314,6 @@ interface WorkflowEngine {
 | State | Color | Usage |
 |-------|-------|-------|
 | draft_intake | #8c8c8c | Gray - Draft |
-| intake_submitted | #1677ff | Blue - Submitted |
 | triage | #fa8c16 | Orange - In Review |
 | assigned | #722ed1 | Purple - Assigned |
 | in_progress | #13c2c2 | Cyan - Active |

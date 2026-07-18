@@ -33,7 +33,6 @@ test('admin-i18n-fix: AdminRequests namespace includes all status keys used in U
     'approved',
     'triage',
     'draft_intake',
-    'intake_submitted',
     'assigned',
     'in_progress',
     'delivered',

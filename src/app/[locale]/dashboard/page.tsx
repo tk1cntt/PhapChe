@@ -19,7 +19,6 @@ function formatRelativeTime(date: Date, t: (key: string, values?: Record<string,
 function resolveStatusLabel(key: string, t: (k: string) => string): string {
   const lookup: Record<string, string> = {
     draft_intake: 'draft_intake',
-    intake_submitted: 'intake_submitted',
     triage: 'triage',
     assigned: 'assigned',
     in_progress: 'in_progress',

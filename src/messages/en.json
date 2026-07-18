@@ -125,7 +125,6 @@
   },
   "RequestStatus": {
     "draft_intake": "Draft Intake",
-    "intake_submitted": "Intake Submitted",
     "submitted": "Submitted",
     "triage": "Triage",
     "assigned": "Assigned",
@@ -2062,7 +2061,6 @@
     "downloadBtn": "Download",
     "downloadNote": "Download links are valid for 15 minutes.",
     "status_draft_intake": "Draft Intake",
-    "status_intake_submitted": "Intake Submitted",
     "status_triage": "Triage",
     "status_assigned": "Assigned",
     "status_in_progress": "In Progress",

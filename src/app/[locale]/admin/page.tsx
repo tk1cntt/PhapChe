@@ -244,7 +244,6 @@ export default async function AdminDashboardPage({ params }: PageProps) {
   const requestTableData = recentRequests.map((req) => {
     const statusColors: Record<string, 'orange' | 'blue' | 'green' | 'red' | 'purple'> = {
       draft_intake: 'orange',
-      intake_submitted: 'orange',
       triage: 'blue',
       assigned: 'blue',
       in_progress: 'orange',

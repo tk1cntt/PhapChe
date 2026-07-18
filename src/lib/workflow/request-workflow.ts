@@ -5,9 +5,15 @@ import { recordAuditEvent } from '@/lib/audit/audit';
 import { canAccessRequest } from '@/lib/security/rbac';
 import type { AppSession } from '@/lib/security/session';
 
+/**
+ * v2.3 Workflow — customer submit → triage → assigned → in_progress → pending_review
+ * - 'intake_submitted' removed: customer submit goes straight to 'triage'
+ * - 'approved' → 'delivered' → 'closed' with clear role boundaries
+ * - Specialist cannot deliver/close; that's coordinator's job
+ * - Customer can only cancel from draft_intake and triage
+ */
 export const REQUEST_TRANSITIONS = {
-  draft_intake: ['intake_submitted', 'cancelled'],
-  intake_submitted: ['triage', 'cancelled'],
+  draft_intake: ['triage', 'cancelled'],
   triage: ['assigned', 'cancelled'],
   assigned: ['in_progress', 'cancelled'],
   in_progress: ['pending_review', 'cancelled'],
@@ -17,7 +23,11 @@ export const REQUEST_TRANSITIONS = {
   delivered: ['closed'],
   closed: [],
   cancelled: [],
-} as const satisfies Record<RequestStatus, readonly RequestStatus[]>;
+  // Legacy compatibility: intake_submitted is mapped to triage behavior
+  intake_submitted: ['triage', 'cancelled'],
+} as const satisfies Record<string, readonly string[]>;
+
+export type TransitionMap = typeof REQUEST_TRANSITIONS;
 
 export function getAllowedTransitions(status: RequestStatus): RequestStatus[] {
   return [...REQUEST_TRANSITIONS[status]];
@@ -33,6 +43,27 @@ type TransitionInput = {
   correlationId: string;
 };
 
+/**
+ * Role-based transition permission matrix (v2.3):
+ *
+ * CUSTOMER — only on own requests:
+ *   draft_intake → triage (submit), cancelled
+ *
+ * COORDINATOR — manages pipeline:
+ *   triage → assigned (assign specialist+reviewer)
+ *   approved → delivered (hand off to customer)
+ *   delivered → closed
+ *   + cancel from any non-terminal
+ *
+ * SPECIALIST — only on assigned requests:
+ *   assigned → in_progress (accept work)
+ *   in_progress → pending_review (submit for review)
+ *   revision_required → in_progress (resubmit after fixes)
+ *
+ * REVIEWER — only on assigned reviews:
+ *   pending_review → approved (accept)
+ *   pending_review → revision_required (reject with comments)
+ */
 export function canTransitionRequestStatus(
   actor: AppSession,
   request: RequestForTransition,
@@ -45,19 +76,22 @@ export function canTransitionRequestStatus(
   const isAssignedSpecialist = request.assignedSpecialistId === actor.userId;
   const isAssignedReviewer = request.assignedReviewerId === actor.userId;
 
+  // ── CUSTOMER ── merge intake_submitted→triage
   if (hasRole('customer') && isOwnRequest) {
-    return ['intake_submitted', 'cancelled'].includes(toStatus);
+    return ['triage', 'cancelled'].includes(toStatus);
   }
 
+  // ── COORDINATOR ── pipeline manager
   if (hasRole('coordinator_admin')) {
-    // Coordinator can submit intake (for triage), triage, assign, deliver, close, or cancel
-    return ['intake_submitted', 'triage', 'assigned', 'cancelled', 'delivered', 'closed'].includes(toStatus);
+    return ['triage', 'assigned', 'cancelled', 'delivered', 'closed'].includes(toStatus);
   }
 
+  // ── SPECIALIST ── execution
   if (hasRole('specialist') && isAssignedSpecialist) {
-    return ['in_progress', 'pending_review', 'delivered', 'closed'].includes(toStatus);
+    return ['in_progress', 'pending_review', 'cancelled'].includes(toStatus);
   }
 
+  // ── REVIEWER ── quality gate
   if (hasRole('reviewer') && isAssignedReviewer) {
     return ['revision_required', 'approved'].includes(toStatus);
   }
@@ -94,7 +128,8 @@ export async function transitionRequestStatus(input: TransitionInput): Promise<{
     roles: request.workspace.memberships.map((membership) => membership.role as Role),
   };
 
-  const allowedTransitions = getAllowedTransitions(request.status as RequestStatus);
+  const currentStatus = request.status as RequestStatus;
+  const allowedTransitions = getAllowedTransitions(currentStatus);
 
   if (!allowedTransitions.includes(input.toStatus)) throw new Error('INVALID_REQUEST_TRANSITION');
   if (!(await canAccessRequest(actor, input.requestId))) throw new Error('FORBIDDEN');
@@ -102,7 +137,7 @@ export async function transitionRequestStatus(input: TransitionInput): Promise<{
 
   return prisma.$transaction(async (tx) => {
     const updated = await tx.legalRequest.updateMany({
-      where: { id: input.requestId, status: request.status as RequestStatus },
+      where: { id: input.requestId, status: currentStatus },
       data: { status: input.toStatus },
     });
 
@@ -117,7 +152,7 @@ export async function transitionRequestStatus(input: TransitionInput): Promise<{
       data: {
         requestId: input.requestId,
         actorId: input.actorId,
-        fromStatus: request.status,
+        fromStatus: currentStatus,
         toStatus: input.toStatus,
         reason: input.reason ?? null,
       },
@@ -131,7 +166,7 @@ export async function transitionRequestStatus(input: TransitionInput): Promise<{
       targetId: input.requestId,
       requestId: input.requestId,
       correlationId: input.correlationId,
-      metadataSummary: `${request.status} -> ${input.toStatus}`,
+      metadataSummary: `${currentStatus} -> ${input.toStatus}`,
     };
 
     await recordAuditEvent(auditInput, tx);

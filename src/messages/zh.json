@@ -125,7 +125,6 @@
   },
   "RequestStatus": {
     "draft_intake": "受理草稿",
-    "intake_submitted": "已提交受理",
     "submitted": "已提交",
     "triage": "分类中",
     "assigned": "已分配",
@@ -1824,7 +1823,6 @@
     "downloadBtn": "下载",
     "downloadNote": "下载链接有效期15分钟。",
     "status_draft_intake": "草稿接收",
-    "status_intake_submitted": "已提交接收",
     "status_triage": "分类中",
     "status_assigned": "已分配",
     "status_in_progress": "处理中",

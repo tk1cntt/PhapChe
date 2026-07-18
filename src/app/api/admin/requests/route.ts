@@ -10,7 +10,6 @@ type AdminRole = typeof ADMIN_ROLES[number];
 // Status mapping per D-01
 const STATUS_MAP: Record<string, { variant: 'orange' | 'blue' | 'green' | 'red' | 'purple' | 'slate' | 'teal'; text: string }> = {
   draft_intake: { variant: 'slate', text: 'Nháp' },
-  intake_submitted: { variant: 'blue', text: 'Đã gửi' },
   submitted: { variant: 'blue', text: 'Đã gửi' },
   triage: { variant: 'blue', text: 'Đang xem xét' },
   assigned: { variant: 'orange', text: 'Chờ xử lý' },

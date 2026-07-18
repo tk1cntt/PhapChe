@@ -31,7 +31,6 @@ interface RequestDetail {
 
 const STATUS_COLORS: Record<string, string> = {
   draft_intake: 'gray',
-  intake_submitted: 'blue',
   assigned: 'blue',
   in_progress: 'purple',
   pending_review: 'orange',
@@ -60,7 +59,6 @@ export default function AdminRequestDetailPage() {
 
   const statusLabels: Record<string, string> = {
     draft_intake: t('statusDraft'),
-    intake_submitted: t('statusSubmitted'),
     assigned: t('statusAssigned'),
     in_progress: t('statusInProgress'),
     pending_review: t('statusPendingReview'),

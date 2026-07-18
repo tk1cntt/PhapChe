@@ -5,7 +5,7 @@ import type { RequestStatus } from '@/lib/types';
 
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
 const VALID_STATUSES: RequestStatus[] = [
-  'draft_intake', 'intake_submitted', 'triage', 'assigned', 'in_progress',
+  'draft_intake', 'triage', 'assigned', 'in_progress',
   'pending_review', 'revision_required', 'approved', 'delivered', 'closed', 'cancelled',
 ];
 

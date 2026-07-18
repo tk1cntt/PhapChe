@@ -12,7 +12,6 @@ interface PageProps {
 
 const STATUS_LABELS: Record<string, string> = {
   draft_intake: 'Nháp',
-  intake_submitted: 'Đã gửi',
   triage: 'Đang phân loại',
   assigned: 'Đã giao',
   in_progress: 'Đang xử lý',
@@ -26,7 +25,6 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_COLORS: Record<string, string> = {
   draft_intake: 'gray',
-  intake_submitted: 'blue',
   triage: 'yellow',
   assigned: 'blue',
   in_progress: 'purple',

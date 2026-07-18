@@ -78,7 +78,6 @@ function requireRoutingKind(kind: AssignmentKind) {
 }
 
 function assignmentPath(status: RequestStatus): RequestStatus[] {
-  if (status === 'intake_submitted') return ['intake_submitted', 'triage', 'assigned'];
   if (status === 'triage') return ['triage', 'assigned'];
   if (status === 'assigned') return ['assigned'];
   throw new Error('INVALID_REQUEST_TRANSITION');

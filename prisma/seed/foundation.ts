@@ -39,12 +39,14 @@ const seedWorkspaces = [
 export default async function seedFoundation(tx: Prisma.TransactionClient) {
   console.log('Seeding foundation data...');
 
-  // Create platform tenant
+  // Create platform tenant — single shared_platform tenant for MVP
+  // See: docs/shared_customer_partner_collaboration.md §5.1
   const tenant = await tx.tenant.create({
     data: {
       id: 'platform-tenant-foundation',
       name: 'GitNexus Platform',
-      type: 'platform',
+      code: 'shared_platform',
+      mode: 'shared_platform',
       settings: JSON.stringify({
         requireMfa: false,
         defaultLanguage: 'vi',
@@ -52,7 +54,7 @@ export default async function seedFoundation(tx: Prisma.TransactionClient) {
       }),
     },
   });
-  console.log('  ✓ Tenant:', tenant.id);
+  console.log('  ✓ Tenant:', tenant.id, `(mode: ${tenant.mode})`);
 
   // Create organizations
   const orgIds: string[] = [];

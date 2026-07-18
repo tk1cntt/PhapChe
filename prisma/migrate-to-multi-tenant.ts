@@ -7,11 +7,17 @@
  * Uses Prisma client - run 'npx prisma generate' first if models changed.
  *
  * Usage: npx tsx prisma/migrate-to-multi-tenant.ts
+ *
+ * Strategy:
+ * - Tenant: 'platform_shared' mode, single record for MVP
+ * - Organization: data owner (SME customer)
+ * - Workspace: must belong to an organization (organizationId NOT NULL)
  */
 
 import { prisma } from '../src/lib/prisma';
 
 const PLATFORM_TENANT_ID = 'platform-tenant';
+const PLATFORM_TENANT_CODE = 'shared_platform';
 const DEFAULT_ORG_ID = 'platform-default-org';
 
 async function up() {

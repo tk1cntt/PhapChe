@@ -72,11 +72,24 @@ model UserPreferences {
 }
 
 // ===== MULTI-TENANT MODELS =====
+//
+// Organization model: Tenant → Organization → Workspace
+// See: docs/shared_customer_partner_collaboration.md §1-2
+//
+// Tenant: shared platform boundary (single record 'platform-tenant' for MVP)
+//   └── Organization: data owner (SME customer)
+//         └── Workspace: operational unit (department/project)
+//              └── WorkspaceMembership: user + role per workspace
+//
+// Authorization: workspace membership is primary RBAC source (v2.3)
+// Tenant isolation is reserved for future dedicated-tenant deployments.
 
 model Tenant {
   id        String         @id @default(cuid())
   name      String
-  type      String         @default("platform")  // "platform" or "customer"
+  code      String?        // unique code for future multi-tenant: "platform_shared", "customer_a", etc.
+  mode      String         @default("shared_platform")  // shared_platform | dedicated_partner | dedicated_customer
+  // Note: 'type' renamed to 'mode' in v2.3 to align with §5.1 of collaboration doc
   settings  String         @default("{}")       // JSON settings
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
@@ -229,7 +242,9 @@ model Workspace {
   name             String
   slug             String                @unique
   isActive         Boolean               @default(true)
-  organizationId   String?              // FK to Organization
+  organizationId   String                // FK to Organization — every workspace MUST belong to an org (v2.3)
+  // Note: Organization is the data owner; Workspace is the operational unit.
+  // See: docs/shared_customer_partner_collaboration.md §2.1
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
   memberships      WorkspaceMembership[]
@@ -284,7 +299,8 @@ model LegalRequest {
   assignedSpecialistId String?
   assignedReviewerId   String?
   engagementId         String?              // FK to Engagement
-  assignedPartnerId    String?              // FK to Partner (direct assignment)
+  assignedPartnerId    String?              // @deprecated FK to Partner (v2.3). Use RequestAssignment for new code.
+  // Partner assignment should go through request_assignments (see §7.2 of collaboration doc)
   deletedAt            DateTime?            // Soft delete
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt

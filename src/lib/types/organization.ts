@@ -1,22 +1,26 @@
 /**
- * Organization Type Definitions
- * Represents a customer company in the multi-tenant hierarchy
+ * Organization Type Definitions (v2.3)
+ * Organization = data owner (SME customer) in the multi-tenant hierarchy.
+ *
+ * Hierarchy: Tenant → Organization → Workspace → WorkspaceMembership
+ * See: docs/shared_customer_partner_collaboration.md §2.1, §5.3
+ *      prisma/schema.prisma line 88-108
  */
 
 export type OrganizationStatus = 'active' | 'inactive' | 'pending';
 
 /**
- * Organization entity - customer company
- * Lives under a Tenant and contains Workspaces
+ * Organization entity — customer company, the data owner.
+ * One organization can have multiple workspaces (departments/projects).
  */
 export interface Organization {
   id: string;
   tenantId: string;
   name: string;
-  businessType?: string;
-  registrationNumber?: string;
-  address?: string;
-  contactEmail?: string;
+  businessType?: string | null;
+  registrationNumber?: string | null;
+  address?: string | null;
+  contactEmail?: string | null;
   status: OrganizationStatus;
   isDefault: boolean;
   createdAt: Date;

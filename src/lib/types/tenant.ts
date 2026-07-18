@@ -1,17 +1,33 @@
 /**
- * Tenant Type Definitions
- * Represents the top-level tenant in the multi-tenant hierarchy
+ * Tenant Type Definitions (v2.3)
+ * Top-level container in the multi-tenant hierarchy.
+ *
+ * Hierarchy: Tenant → Organization → Workspace → WorkspaceMembership
+ * See: docs/shared_customer_partner_collaboration.md §1, §5.1
+ *      prisma/schema.prisma line 76-86
  */
 
-export type TenantType = 'platform' | 'customer';
+/**
+ * Tenant deployment mode (replaces old 'type')
+ * - shared_platform: single tenant shared by all customers (MVP default)
+ * - dedicated_partner: dedicated tenant for a large partner
+ * - dedicated_customer: dedicated tenant for a large customer
+ */
+export type TenantMode = 'shared_platform' | 'dedicated_partner' | 'dedicated_customer';
+
+/** @deprecated Use TenantMode instead */
+export type TenantType = TenantMode;
 
 /**
- * Tenant entity - top-level multi-tenant container
+ * Tenant entity — top-level multi-tenant container.
+ * In MVP, there is exactly ONE tenant: 'platform-tenant' with mode 'shared_platform'.
+ * Tenant isolation is reserved for future dedicated-tenant deployments.
  */
 export interface Tenant {
   id: string;
   name: string;
-  type: TenantType;
+  code?: string | null;
+  mode: TenantMode;
   settings: TenantSettings;
   createdAt: Date;
   updatedAt: Date;
@@ -32,7 +48,8 @@ export interface TenantSettings {
  */
 export interface CreateTenantInput {
   name: string;
-  type?: TenantType;
+  code?: string;
+  mode?: TenantMode;
   settings?: TenantSettings;
 }
 
@@ -41,5 +58,10 @@ export interface CreateTenantInput {
  */
 export interface UpdateTenantInput {
   name?: string;
+  mode?: TenantMode;
   settings?: Partial<TenantSettings>;
 }
+
+/** Platform tenant constant — the single tenant in MVP */
+export const PLATFORM_TENANT_ID = 'platform-tenant';
+export const PLATFORM_TENANT_CODE = 'shared_platform';

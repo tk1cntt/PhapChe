@@ -94,14 +94,16 @@ async function createSession(userId: string) {
 async function seedMultiTenantData() {
   console.log('Seeding multi-tenant data...');
 
-  // Create platform tenant
+  // Create single shared platform tenant (MVP — one tenant for all customers)
+  // See: docs/shared_customer_partner_collaboration.md §5.1
   const platformTenant = await prisma.tenant.upsert({
     where: { id: 'platform-tenant' },
     update: {},
     create: {
       id: 'platform-tenant',
       name: 'GitNexus Platform',
-      type: 'platform',
+      code: 'shared_platform',
+      mode: 'shared_platform',
       settings: JSON.stringify({
         requireMfa: false,
         defaultLanguage: 'vi',
@@ -109,7 +111,7 @@ async function seedMultiTenantData() {
       }),
     },
   });
-  console.log('  ✓ Platform tenant:', platformTenant.id);
+  console.log('  ✓ Platform tenant:', platformTenant.id, `(mode: ${platformTenant.mode})`);
 
   // Create default organization for platform
   const defaultOrg = await prisma.organization.upsert({

@@ -1,6 +1,9 @@
 /**
- * Organization Context Middleware
- * Extracts organization context from workspace
+ * Organization Context Middleware (v2.3)
+ * Extracts organization context from workspace.
+ *
+ * Workspace.organizationId is now NOT NULL — every workspace belongs to an org.
+ * See: prisma/schema.prisma line 247
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -42,9 +45,8 @@ export function organizationContextMiddleware(options: OrganizationContextMiddle
       );
     }
 
-    if (workspace.organizationId) {
-      req.headers.set('x-organization-id', workspace.organizationId);
-    }
+    // organizationId is always present (NOT NULL since v2.3)
+    req.headers.set('x-organization-id', workspace.organizationId);
 
     req.headers.set('x-workspace-id', workspace.id);
 

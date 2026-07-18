@@ -43,7 +43,7 @@ export type MultilingualText = {
 
 /**
  * Prisma-compatible type for multilingual fields
- * All locales are optional for Prisma schema compatibility
+ * @deprecated No longer used — DB stores keys, translations in src/messages/
  */
 export type PrismaMultilingualString = {
   vi: string | null;
@@ -54,6 +54,7 @@ export type PrismaMultilingualString = {
 
 /**
  * Locale to field suffix mapping
+ * @deprecated No longer used — DB uses key-based i18n
  */
 export const LOCALE_TO_SUFFIX: Record<SupportedLocale, string> = {
   vi: '_vi',
@@ -61,6 +62,14 @@ export const LOCALE_TO_SUFFIX: Record<SupportedLocale, string> = {
   zh: '_zh',
   ja: '_ja',
 };
+
+/**
+ * Convert snake_case DB key to camelCase for message lookup.
+ * e.g., "labor_contract" → "laborContract"
+ */
+export function snakeToCamel(str: string): string {
+  return str.replace(/_([a-z])/g, (_m: string, c: string) => c.toUpperCase());
+}
 
 /**
  * Check if a string is a valid locale

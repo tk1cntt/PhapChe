@@ -204,6 +204,11 @@ export class PartnerInviteService {
         },
       });
 
+      // ── B3: Auto-create WorkspaceMembership cho các workspace trong tổ chức có engagement ──
+      // Khi partner member join, họ cần workspace membership để truy cập workspace của org.
+      // See: docs/shared_customer_partner_collaboration.md §3.1, §13.3
+      await this.syncPartnerWorkspaceMemberships(userId, invite.partnerId);
+
       // Update invite status
       await this.prismaClient.partnerInvite.update({
         where: { id: invite.id },
@@ -297,6 +302,53 @@ export class PartnerInviteService {
       role: invite.role as PartnerInviteRole,
       status: invite.status as PartnerInviteStatus,
     };
+  }
+
+  /**
+   * ── B3: Partner Workspace Bridge ──
+   * Sync WorkspaceMembership cho tất cả workspace của các organization có engagement với partner.
+   * Đảm bảo partner member có quyền truy cập workspace của khách hàng đã ký engagement.
+   * See: docs/shared_customer_partner_collaboration.md §3.1, §13.3
+   */
+  private async syncPartnerWorkspaceMemberships(userId: string, partnerId: string): Promise<void> {
+    try {
+      // Lấy tất cả engagement active của partner
+      const engagements = await this.prismaClient.engagement.findMany({
+        where: { partnerId, status: 'active' },
+        select: { organizationId: true },
+      });
+
+      if (engagements.length === 0) return;
+
+      // Lấy tất cả workspace thuộc các organization có engagement
+      const orgIds = engagements.map(e => e.organizationId);
+      const workspaces = await this.prismaClient.workspace.findMany({
+        where: { organizationId: { in: orgIds }, isActive: true },
+        select: { id: true },
+      });
+
+      // Tạo WorkspaceMembership cho các workspace chưa có
+      for (const ws of workspaces) {
+        const existing = await this.prismaClient.workspaceMembership.findFirst({
+          where: { userId, workspaceId: ws.id },
+          select: { id: true },
+        });
+        if (existing) continue;
+
+        await this.prismaClient.workspaceMembership.create({
+          data: {
+            userId,
+            workspaceId: ws.id,
+            role: 'specialist', // Partner mặc định là specialist trong workspace
+            isActive: true,
+          },
+        });
+      }
+    } catch (error) {
+      // Non-fatal: partner có thể join nhưng chưa có workspace access
+      // Sẽ được sync lại khi engagement được active
+      console.error('syncPartnerWorkspaceMemberships error:', error);
+    }
   }
 
   /**

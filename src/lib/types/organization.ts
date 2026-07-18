@@ -3,11 +3,25 @@
  * Organization = data owner (SME customer) in the multi-tenant hierarchy.
  *
  * Hierarchy: Tenant → Organization → Workspace → WorkspaceMembership
- * See: docs/shared_customer_partner_collaboration.md §2.1, §5.3
+ *            Tenant → Organization → OrganizationMembership (cross-workspace)
+ * See: docs/shared_customer_partner_collaboration.md §2.1, §5.3, §5.5
  *      prisma/schema.prisma line 88-108
  */
 
 export type OrganizationStatus = 'active' | 'inactive' | 'pending';
+
+/**
+ * Organization-level role — assigned per organization_members
+ * Mirrors design doc §5.5: owner | admin | member | viewer
+ */
+export type OrganizationRole = 'owner' | 'admin' | 'member' | 'viewer';
+
+export const ORGANIZATION_ROLE = {
+  OWNER: 'owner',
+  ADMIN: 'admin',
+  MEMBER: 'member',
+  VIEWER: 'viewer',
+} as const;
 
 /**
  * Organization entity — customer company, the data owner.
@@ -38,6 +52,28 @@ export interface CreateOrganizationInput {
   address?: string;
   contactEmail?: string;
   isDefault?: boolean;
+}
+
+/**
+ * Organization membership — user's cross-workspace role within an organization.
+ * One user can be a member of one organization. Used for org-scoped authorization
+ * that spans multiple workspaces under the same org.
+ *
+ * Parallel to WorkspaceMembership (per-workspace), but at the data-owner level.
+ * See: docs/shared_customer_partner_collaboration.md §5.5, §13.2 (rule 3)
+ */
+export interface OrganizationMembership {
+  id: string;
+  tenantId: string;
+  organizationId: string;
+  userId: string;
+  role: OrganizationRole;
+  status: 'active' | 'invited' | 'suspended' | 'removed';
+  permissionsJson: Record<string, boolean>;
+  invitedByUserId?: string | null;
+  joinedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**

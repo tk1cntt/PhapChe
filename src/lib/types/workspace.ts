@@ -12,7 +12,7 @@ export interface Workspace {
   name: string;
   slug: string;
   ownerId: string;
-  organizationId?: string;  // FK to Organization
+  organizationId: string;  // FK to Organization — NOT NULL since v2.3
   settings?: WorkspaceSettings;
   memberCount: number;
   requestCount: number;

@@ -16,11 +16,12 @@ export interface UserContext {
 
 /**
  * Workspace context extracted from request
+ * Workspace.organizationId is NOT NULL since v2.3
  */
 export interface WorkspaceContext {
   id: string;
   slug: string;
-  organizationId?: string;
+  organizationId: string; // NOT NULL — every workspace belongs to an organization
   isActive: boolean;
 }
 
@@ -36,11 +37,14 @@ export interface OrganizationContext {
 }
 
 /**
- * Tenant context (platform level)
+ * Tenant context (platform level) — v2.3
+ * Single tenant 'platform-tenant' with mode='shared_platform' for MVP
+ * See docs/shared_customer_partner_collaboration.md §5.1
  */
 export interface TenantContext {
   id: string;
-  type: string;
+  mode: string; // 'shared_platform' | 'dedicated_partner' | 'dedicated_customer'
+  code?: string | null;
   name: string;
 }
 

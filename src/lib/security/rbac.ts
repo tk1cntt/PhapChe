@@ -30,10 +30,46 @@ async function hasActiveMembership(session: AppSession, workspaceId: string) {
   return Boolean(membership);
 }
 
+/**
+ * ── B4: Organization-scope access check ──
+ * Kiểm tra user có quyền truy cập workspace thông qua Organization membership.
+ * Dùng khi user là organization member nhưng chưa có WorkspaceMembership trực tiếp.
+ * See: docs/shared_customer_partner_collaboration.md §5.5, §13.2 (rule 3)
+ */
+async function hasOrganizationAccess(session: AppSession, workspaceId: string): Promise<boolean> {
+  // Lấy organizationId của workspace
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId, isActive: true },
+    select: { organizationId: true },
+  });
+  if (!workspace) return false;
+
+  // Kiểm tra OrganizationMembership — user có role trong organization đó không?
+  // Hiện tại Prisma chưa có model OrganizationMembership → fallback: nếu user có
+  // WorkspaceMembership trong BẤT KỲ workspace nào của organization, coi như có org access.
+  // Note: khi OrganizationMembership model được thêm vào Prisma, thay fallback này bằng query trực tiếp.
+  const orgWorkspaceMembership = await prisma.workspaceMembership.findFirst({
+    where: {
+      userId: session.userId,
+      isActive: true,
+      workspace: {
+        organizationId: workspace.organizationId,
+        isActive: true,
+      },
+    },
+    select: { id: true },
+  });
+
+  return Boolean(orgWorkspaceMembership);
+}
+
 export async function canAccessWorkspace(session: AppSession | null | undefined, workspaceId: string) {
   if (!workspaceId || !(await hasActiveUser(session))) return false;
   if (hasRole(session, 'super_admin')) return true;
-  return hasActiveMembership(session as AppSession, workspaceId);
+  const typedSession = session as AppSession;
+  if (await hasActiveMembership(typedSession, workspaceId)) return true;
+  // B4: Fallback to Organization scope
+  return hasOrganizationAccess(typedSession, workspaceId);
 }
 
 export async function canAccessRequest(session: AppSession | null | undefined, requestId: string): Promise<boolean> {
@@ -70,6 +106,11 @@ export async function canAccessRequest(session: AppSession | null | undefined, r
 
   // Reviewer can access requests assigned to them (if they have membership)
   if (hasMembership && hasRole(typedSession, 'reviewer') && request.assignedReviewerId === typedSession.userId) return true;
+
+  // B4: Organization-scope access — user có org membership có thể xem request
+  // trong workspace thuộc organization của họ (cross-workspace visibility)
+  const hasOrgAccess = await hasOrganizationAccess(typedSession, request.workspaceId);
+  if (hasOrgAccess) return true;
 
   return false;
 }

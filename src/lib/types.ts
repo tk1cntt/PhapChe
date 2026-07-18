@@ -26,7 +26,17 @@ export const INTAKE_SUBMITTED_LEGACY = 'intake_submitted' as const;
 /** Legacy status including deprecated intake_submitted for DB compatibility */
 export type RequestStatusLegacy = RequestStatus | typeof INTAKE_SUBMITTED_LEGACY;
 
-// Role values
+// Role values (v2.3)
+// ── Platform-level role (global, stored conceptually, not per workspace) ──
+// super_admin: full system access, bypass all workspace checks
+//
+// ── Workspace-level roles (per WorkspaceMembership) ──
+// customer: external SME user, can only access own requests
+// specialist: legal specialist, handles assigned requests
+// reviewer: quality reviewer, approves/rejects assigned requests
+// coordinator_admin: workspace manager, assigns work, delivers, closes
+//
+// See: docs/shared_customer_partner_collaboration.md §13
 export const ROLE = {
   CUSTOMER: 'customer',
   SPECIALIST: 'specialist',
@@ -37,7 +47,14 @@ export const ROLE = {
 
 export type Role = typeof ROLE[keyof typeof ROLE];
 
-export type AppRole = 'customer' | 'specialist' | 'reviewer' | 'coordinator_admin' | 'super_admin';
+/** Platform-level role — global, bypasses workspace checks */
+export type PlatformRole = 'super_admin';
+
+/** Workspace-level role — assigned per WorkspaceMembership */
+export type WorkspaceRole = 'customer' | 'specialist' | 'reviewer' | 'coordinator_admin';
+
+/** All possible roles (platform + workspace) — kept for backward compat */
+export type AppRole = Role;
 
 // Assignment kind
 export const ASSIGNMENT_KIND = {

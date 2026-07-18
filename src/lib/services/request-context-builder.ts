@@ -101,7 +101,7 @@ export class RequestContextBuilder {
     return {
       id: workspace.id,
       slug: workspace.slug,
-      organizationId: workspace.organizationId || undefined,
+      organizationId: workspace.organizationId, // NOT NULL since v2.3
       isActive: workspace.isActive,
     };
   }
@@ -122,7 +122,7 @@ export class RequestContextBuilder {
     return {
       id: workspace.id,
       slug: workspace.slug,
-      organizationId: workspace.organizationId || undefined,
+      organizationId: workspace.organizationId, // NOT NULL since v2.3
       isActive: workspace.isActive,
     };
   }
@@ -155,7 +155,8 @@ export class RequestContextBuilder {
       where: { id },
       select: {
         id: true,
-        type: true,
+        mode: true,
+        code: true,
         name: true,
       },
     });
@@ -164,7 +165,8 @@ export class RequestContextBuilder {
 
     return {
       id: tenant.id,
-      type: tenant.type,
+      mode: tenant.mode,
+      code: tenant.code,
       name: tenant.name,
     };
   }
@@ -213,7 +215,8 @@ export class RequestContextBuilder {
       user,
       tenant: {
         id: 'platform-tenant',
-        type: 'platform',
+        mode: 'shared_platform',
+        code: 'shared_platform',
         name: 'GitNexus Platform',
       },
     };

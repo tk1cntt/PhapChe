@@ -42,10 +42,10 @@ export const SEED_MATTER_TYPES = {
     } as MultilingualText,
     schemaVersion: '2026-05-27',
     questions: [
-      { key: 'employee_role', label: 'Vị trí công việc', required: true, type: 'text' },
-      { key: 'salary', label: 'Mức lương hoặc thỏa thuận lương', required: true, type: 'text' },
-      { key: 'contract_term', label: 'Thời hạn hợp đồng', required: true, type: 'text' },
-      { key: 'workplace', label: 'Địa điểm làm việc', required: false, type: 'text' },
+      { key: 'employee_role', label: { vi: 'Vị trí công việc', en: 'Job Position', zh: '职位', ja: '職位' }, required: true, type: 'text' },
+      { key: 'salary', label: { vi: 'Mức lương hoặc thỏa thuận lương', en: 'Salary or compensation agreement', zh: '薪资或薪酬协议', ja: '給与または報酬合意' }, required: true, type: 'text' },
+      { key: 'contract_term', label: { vi: 'Thời hạn hợp đồng', en: 'Contract Duration', zh: '合同期限', ja: '契約期間' }, required: true, type: 'text' },
+      { key: 'workplace', label: { vi: 'Địa điểm làm việc', en: 'Workplace Location', zh: '工作地点', ja: '勤務地' }, required: false, type: 'text' },
     ],
   },
   agency_contract: {
@@ -63,10 +63,10 @@ export const SEED_MATTER_TYPES = {
     } as MultilingualText,
     schemaVersion: '2026-05-27',
     questions: [
-      { key: 'partner_name', label: 'Tên đối tác đại lý', required: true, type: 'text' },
-      { key: 'commission_rate', label: 'Tỷ lệ hoa hồng hoặc chiết khấu', required: true, type: 'text' },
-      { key: 'contract_term', label: 'Thời hạn hợp đồng', required: true, type: 'text' },
-      { key: 'special_terms', label: 'Yêu cầu đặc biệt khác', required: false, type: 'textarea' },
+      { key: 'partner_name', label: { vi: 'Tên đối tác đại lý', en: 'Agent/Partner Name', zh: '代理/合作伙伴名称', ja: '代理パートナー名' }, required: true, type: 'text' },
+      { key: 'commission_rate', label: { vi: 'Tỷ lệ hoa hồng hoặc chiết khấu', en: 'Commission Rate or Discount', zh: '佣金率或折扣', ja: '手数料率または割引' }, required: true, type: 'text' },
+      { key: 'contract_term', label: { vi: 'Thời hạn hợp đồng', en: 'Contract Duration', zh: '合同期限', ja: '契約期間' }, required: true, type: 'text' },
+      { key: 'special_terms', label: { vi: 'Yêu cầu đặc biệt khác', en: 'Other Special Requirements', zh: '其他特殊要求', ja: 'その他特別要件' }, required: false, type: 'textarea' },
     ],
   },
   trademark_registration: {
@@ -84,10 +84,10 @@ export const SEED_MATTER_TYPES = {
     } as MultilingualText,
     schemaVersion: '2026-05-27',
     questions: [
-      { key: 'trademark_name', label: 'Tên nhãn hiệu', required: true, type: 'text' },
-      { key: 'owner_name', label: 'Tên chủ sở hữu dự kiến', required: true, type: 'text' },
-      { key: 'goods_services', label: 'Nhóm sản phẩm hoặc dịch vụ', required: true, type: 'textarea' },
-      { key: 'prior_use', label: 'Thông tin đã sử dụng nhãn hiệu', required: false, type: 'textarea' },
+      { key: 'trademark_name', label: { vi: 'Tên nhãn hiệu', en: 'Trademark Name', zh: '商标名称', ja: '商標名' }, required: true, type: 'text' },
+      { key: 'owner_name', label: { vi: 'Tên chủ sở hữu dự kiến', en: 'Prospective Owner Name', zh: '预期所有人名称', ja: '予定所有者名' }, required: true, type: 'text' },
+      { key: 'goods_services', label: { vi: 'Nhóm sản phẩm hoặc dịch vụ', en: 'Product or Service Group', zh: '产品或服务组别', ja: '製品またはサービスクラス' }, required: true, type: 'textarea' },
+      { key: 'prior_use', label: { vi: 'Thông tin đã sử dụng nhãn hiệu', en: 'Prior Trademark Use Info', zh: '在先商标使用信息', ja: '商標の先行使用情報' }, required: false, type: 'textarea' },
     ],
   },
   unsupported: {
@@ -105,8 +105,8 @@ export const SEED_MATTER_TYPES = {
     } as MultilingualText,
     schemaVersion: '2026-05-27',
     questions: [
-      { key: 'request_summary', label: 'Tóm tắt nhu cầu hỗ trợ', required: true, type: 'textarea' },
-      { key: 'desired_outcome', label: 'Kết quả mong muốn', required: false, type: 'textarea' },
+      { key: 'request_summary', label: { vi: 'Tóm tắt nhu cầu hỗ trợ', en: 'Support Request Summary', zh: '支持需求摘要', ja: 'サポート依頼概要' }, required: true, type: 'textarea' },
+      { key: 'desired_outcome', label: { vi: 'Kết quả mong muốn', en: 'Desired Outcome', zh: '期望结果', ja: '望ましい結果' }, required: false, type: 'textarea' },
     ],
   },
 } as const;

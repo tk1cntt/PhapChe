@@ -121,12 +121,13 @@ export default function IntakeQuestionsFormEnhanced({
           const value = answers[question.key] || '';
           const errorKey = touched[question.key] ? errors[question.key] : undefined;
           const hasError = !!errorKey;
-          const fieldPlaceholder = t('placeholder.enter', { field: question.label.toLowerCase() });
+          const questionLabel = question.label[locale as keyof typeof question.label] || question.label.vi;
+          const fieldPlaceholder = t('placeholder.enter', { field: questionLabel.toLowerCase() });
 
           return (
             <div key={question.key} className="question-field">
               <label htmlFor={`q-${question.key}`} className="question-label">
-                {t('questions.questionNumber', { n: index + 1 })}: {question.label}
+                {t('questions.questionNumber', { n: index + 1 })}: {questionLabel}
                 {question.required && <span className="required-star">*</span>}
               </label>
 

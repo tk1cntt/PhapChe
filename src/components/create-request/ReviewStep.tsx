@@ -125,7 +125,7 @@ export default function ReviewStep({
                 return (
                   <div key={question.key} className="review-row">
                     <span className="review-label">
-                      {question.label}
+                      {question.label[locale as keyof typeof question.label] || question.label.vi}
                       {question.required && <span className="required-star">*</span>}
                     </span>
                     <p className="review-value">

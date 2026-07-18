@@ -14,7 +14,7 @@ import type { MultilingualString, MultilingualText } from './types';
  */
 export interface QuestionDefinition {
   key: string;
-  label: string;
+  label: MultilingualString;
   required: boolean;
   type: 'text' | 'textarea';
 }
@@ -61,10 +61,10 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '役職、薪酬、契約期間、主要な勤務条件を記載します。',
     },
     questions: [
-      { key: 'employee_role', label: 'Vị trí công việc', required: true, type: 'text' },
-      { key: 'salary', label: 'Mức lương hoặc thỏa thuận lương', required: true, type: 'text' },
-      { key: 'contract_term', label: 'Thời hạn hợp đồng', required: true, type: 'text' },
-      { key: 'workplace', label: 'Địa điểm làm việc', required: false, type: 'text' },
+      { key: 'employee_role', label: { vi: 'Vị trí công việc', en: 'Job Position', zh: '职位', ja: '職位' }, required: true, type: 'text' },
+      { key: 'salary', label: { vi: 'Mức lương hoặc thỏa thuận lương', en: 'Salary or compensation agreement', zh: '薪资或薪酬协议', ja: '給与または報酬合意' }, required: true, type: 'text' },
+      { key: 'contract_term', label: { vi: 'Thời hạn hợp đồng', en: 'Contract Duration', zh: '合同期限', ja: '契約期間' }, required: true, type: 'text' },
+      { key: 'workplace', label: { vi: 'Địa điểm làm việc', en: 'Workplace Location', zh: '工作地点', ja: '勤務地' }, required: false, type: 'text' },
     ],
   },
   agency_contract: {
@@ -82,10 +82,10 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: 'パートナー情報、コミッション率、代理店契約条件を標準化します。',
     },
     questions: [
-      { key: 'partner_name', label: 'Tên đối tác đại lý', required: true, type: 'text' },
-      { key: 'commission_rate', label: 'Tỷ lệ hoa hồng hoặc chiết khấu', required: true, type: 'text' },
-      { key: 'contract_term', label: 'Thời hạn hợp đồng', required: true, type: 'text' },
-      { key: 'special_terms', label: 'Yêu cầu đặc biệt khác', required: false, type: 'textarea' },
+      { key: 'partner_name', label: { vi: 'Tên đối tác đại lý', en: 'Agent/Partner Name', zh: '代理/合作伙伴名称', ja: '代理パートナー名' }, required: true, type: 'text' },
+      { key: 'commission_rate', label: { vi: 'Tỷ lệ hoa hồng hoặc chiết khấu', en: 'Commission Rate or Discount', zh: '佣金率或折扣', ja: '手数料率または割引' }, required: true, type: 'text' },
+      { key: 'contract_term', label: { vi: 'Thời hạn hợp đồng', en: 'Contract Duration', zh: '合同期限', ja: '契約期間' }, required: true, type: 'text' },
+      { key: 'special_terms', label: { vi: 'Yêu cầu đặc biệt khác', en: 'Other Special Requirements', zh: '其他特殊要求', ja: 'その他特別要件' }, required: false, type: 'textarea' },
     ],
   },
   trademark_registration: {
@@ -103,10 +103,10 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '商标名、製品/サービスグループ、所有権情報を収集します。',
     },
     questions: [
-      { key: 'trademark_name', label: 'Tên nhãn hiệu', required: true, type: 'text' },
-      { key: 'owner_name', label: 'Tên chủ sở hữu dự kiến', required: true, type: 'text' },
-      { key: 'goods_services', label: 'Nhóm sản phẩm hoặc dịch vụ', required: true, type: 'textarea' },
-      { key: 'prior_use', label: 'Thông tin đã sử dụng nhãn hiệu', required: false, type: 'textarea' },
+      { key: 'trademark_name', label: { vi: 'Tên nhãn hiệu', en: 'Trademark Name', zh: '商标名称', ja: '商標名' }, required: true, type: 'text' },
+      { key: 'owner_name', label: { vi: 'Tên chủ sở hữu dự kiến', en: 'Prospective Owner Name', zh: '预期所有人名称', ja: '予定所有者名' }, required: true, type: 'text' },
+      { key: 'goods_services', label: { vi: 'Nhóm sản phẩm hoặc dịch vụ', en: 'Product or Service Group', zh: '产品或服务组别', ja: '製品またはサービスクラス' }, required: true, type: 'textarea' },
+      { key: 'prior_use', label: { vi: 'Thông tin đã sử dụng nhãn hiệu', en: 'Prior Trademark Use Info', zh: '在先商标使用信息', ja: '商標の先行使用情報' }, required: false, type: 'textarea' },
     ],
   },
   unsupported: {
@@ -124,8 +124,8 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: 'リクエストは処理前にスペシャリストが分類します。',
     },
     questions: [
-      { key: 'request_summary', label: 'Tóm tắt nhu cầu hỗ trợ', required: true, type: 'textarea' },
-      { key: 'desired_outcome', label: 'Kết quả mong muốn', required: false, type: 'textarea' },
+      { key: 'request_summary', label: { vi: 'Tóm tắt nhu cầu hỗ trợ', en: 'Support Request Summary', zh: '支持需求摘要', ja: 'サポート依頼概要' }, required: true, type: 'textarea' },
+      { key: 'desired_outcome', label: { vi: 'Kết quả mong muốn', en: 'Desired Outcome', zh: '期望结果', ja: '望ましい結果' }, required: false, type: 'textarea' },
     ],
   },
 
@@ -147,10 +147,10 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '製品/サービスの流通契約書を作成します。',
     },
     questions: [
-      { key: 'distributor_name', label: 'Tên nhà phân phối', required: true, type: 'text' },
-      { key: 'product_service', label: 'Sản phẩm/dịch vụ phân phối', required: true, type: 'text' },
-      { key: 'territory', label: 'Khu vực phân phối', required: true, type: 'text' },
-      { key: 'contract_term', label: 'Thời hạn hợp đồng', required: false, type: 'text' },
+      { key: 'distributor_name', label: { vi: 'Tên nhà phân phối', en: 'Distributor Name', zh: '经销商名称', ja: '販売代理店名' }, required: true, type: 'text' },
+      { key: 'product_service', label: { vi: 'Sản phẩm/dịch vụ phân phối', en: 'Distributed Product/Service', zh: '分销产品/服务', ja: '販売製品・サービス' }, required: true, type: 'text' },
+      { key: 'territory', label: { vi: 'Khu vực phân phối', en: 'Distribution Territory', zh: '分销区域', ja: '販売地域' }, required: true, type: 'text' },
+      { key: 'contract_term', label: { vi: 'Thời hạn hợp đồng', en: 'Contract Duration', zh: '合同期限', ja: '契約期間' }, required: false, type: 'text' },
     ],
   },
   nda: {
@@ -168,9 +168,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '当事者間の秘密保持契約書を作成します。',
     },
     questions: [
-      { key: 'parties', label: 'Các bên tham gia', required: true, type: 'text' },
-      { key: 'confidential_info', label: 'Loại thông tin cần bảo mật', required: true, type: 'textarea' },
-      { key: 'duration', label: 'Thời hạn bảo mật', required: true, type: 'text' },
+      { key: 'parties', label: { vi: 'Các bên tham gia', en: 'Parties/Entity Names', zh: '参与方', ja: '当事者' }, required: true, type: 'text' },
+      { key: 'confidential_info', label: { vi: 'Loại thông tin cần bảo mật', en: 'Confidential Information Type', zh: '需保密信息类型', ja: '秘密情報の種類' }, required: true, type: 'textarea' },
+      { key: 'duration', label: { vi: 'Thời hạn bảo mật', en: 'Confidentiality Duration', zh: '保密期限', ja: '秘密保持期間' }, required: true, type: 'text' },
     ],
   },
   commercial_review: {
@@ -188,9 +188,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '既存の商事契約をレビューし、アドバイスを提供します。',
     },
     questions: [
-      { key: 'contract_type', label: 'Loại hợp đồng', required: true, type: 'text' },
-      { key: 'parties', label: 'Các bên tham gia', required: true, type: 'text' },
-      { key: 'concerns', label: 'Vấn đề cần quan tâm', required: false, type: 'textarea' },
+      { key: 'contract_type', label: { vi: 'Loại hợp đồng', en: 'Contract Type', zh: '合同类型', ja: '契約タイプ' }, required: true, type: 'text' },
+      { key: 'parties', label: { vi: 'Các bên tham gia', en: 'Parties/Entity Names', zh: '参与方', ja: '当事者' }, required: true, type: 'text' },
+      { key: 'concerns', label: { vi: 'Vấn đề cần quan tâm', en: 'Concerns', zh: '关注问题', ja: '懸念事項' }, required: false, type: 'textarea' },
     ],
   },
 
@@ -210,10 +210,10 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '会社設立のアドバイスと書類作成を行います。',
     },
     questions: [
-      { key: 'company_name', label: 'Tên công ty dự kiến', required: true, type: 'text' },
-      { key: 'business_type', label: 'Loại hình doanh nghiệp', required: true, type: 'text' },
-      { key: 'capital', label: 'Vốn điều lệ', required: true, type: 'text' },
-      { key: 'founders', label: 'Thông tin sáng lập viên', required: true, type: 'textarea' },
+      { key: 'company_name', label: { vi: 'Tên công ty dự kiến', en: 'Proposed Company Name', zh: '拟定公司名称', ja: '予定会社名' }, required: true, type: 'text' },
+      { key: 'business_type', label: { vi: 'Loại hình doanh nghiệp', en: 'Business Entity Type', zh: '企业类型', ja: '法人形態' }, required: true, type: 'text' },
+      { key: 'capital', label: { vi: 'Vốn điều lệ', en: 'Charter Capital', zh: '注册资本', ja: '資本金' }, required: true, type: 'text' },
+      { key: 'founders', label: { vi: 'Thông tin sáng lập viên', en: 'Founder Information', zh: '创始人信息', ja: '発起人情報' }, required: true, type: 'textarea' },
     ],
   },
   shareholder_agreement: {
@@ -231,9 +231,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '株主間の権利と義務に関する契約書を作成します。',
     },
     questions: [
-      { key: 'shareholders', label: 'Danh sách cổ đông', required: true, type: 'textarea' },
-      { key: 'ownership_structure', label: 'Cơ cấu sở hữu', required: true, type: 'text' },
-      { key: 'voting_rights', label: 'Quyền biểu quyết', required: false, type: 'textarea' },
+      { key: 'shareholders', label: { vi: 'Danh sách cổ đông', en: 'Shareholder List', zh: '股东名单', ja: '株主一覧' }, required: true, type: 'textarea' },
+      { key: 'ownership_structure', label: { vi: 'Cơ cấu sở hữu', en: 'Ownership Structure', zh: '所有权结构', ja: '所有構造' }, required: true, type: 'text' },
+      { key: 'voting_rights', label: { vi: 'Quyền biểu quyết', en: 'Voting Rights', zh: '表决权', ja: '議決権' }, required: false, type: 'textarea' },
     ],
   },
   m_and_a: {
@@ -251,9 +251,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '企業の合併・買収取引に関する法的アドバイスを提供します。',
     },
     questions: [
-      { key: 'transaction_type', label: 'Loại giao dịch', required: true, type: 'text' },
-      { key: 'target_company', label: 'Công ty mục tiêu', required: true, type: 'text' },
-      { key: 'transaction_value', label: 'Giá trị giao dịch', required: false, type: 'text' },
+      { key: 'transaction_type', label: { vi: 'Loại giao dịch', en: 'Transaction Type', zh: '交易类型', ja: '取引タイプ' }, required: true, type: 'text' },
+      { key: 'target_company', label: { vi: 'Công ty mục tiêu', en: 'Target Company', zh: '目标公司', ja: '対象会社' }, required: true, type: 'text' },
+      { key: 'transaction_value', label: { vi: 'Giá trị giao dịch', en: 'Transaction Value', zh: '交易金额', ja: '取引金額' }, required: false, type: 'text' },
     ],
   },
 
@@ -273,9 +273,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '企業向けの社内就業規則を作成します。',
     },
     questions: [
-      { key: 'company_size', label: 'Quy mô công ty (số nhân viên)', required: true, type: 'text' },
-      { key: 'work_schedule', label: 'Chế độ làm việc', required: true, type: 'text' },
-      { key: 'discipline_rules', label: 'Quy định kỷ luật', required: false, type: 'textarea' },
+      { key: 'company_size', label: { vi: 'Quy mô công ty (số nhân viên)', en: 'Company Size (employees)', zh: '公司规模（员工数）', ja: '会社規模（従業員数）' }, required: true, type: 'text' },
+      { key: 'work_schedule', label: { vi: 'Chế độ làm việc', en: 'Work Mode', zh: '工作模式', ja: '勤務形態' }, required: true, type: 'text' },
+      { key: 'discipline_rules', label: { vi: 'Quy định kỷ luật', en: 'Disciplinary Rules', zh: '纪律规定', ja: '懲戒規定' }, required: false, type: 'textarea' },
     ],
   },
   labor_dispute: {
@@ -293,9 +293,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '労働紛争の解決についてアドバイスを提供します。',
     },
     questions: [
-      { key: 'dispute_type', label: 'Loại tranh chấp', required: true, type: 'text' },
-      { key: 'parties', label: 'Các bên liên quan', required: true, type: 'text' },
-      { key: 'desired_outcome', label: 'Kết quả mong muốn', required: true, type: 'textarea' },
+      { key: 'dispute_type', label: { vi: 'Loại tranh chấp', en: 'Dispute Type', zh: '争议类型', ja: '紛争種類' }, required: true, type: 'text' },
+      { key: 'parties', label: { vi: 'Các bên liên quan', en: 'Relevant Parties', zh: '相关方', ja: '関係者' }, required: true, type: 'text' },
+      { key: 'desired_outcome', label: { vi: 'Kết quả mong muốn', en: 'Desired Outcome', zh: '期望结果', ja: '望ましい結果' }, required: true, type: 'textarea' },
     ],
   },
 
@@ -315,9 +315,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '個人データのプライバシーポリシーを作成します。',
     },
     questions: [
-      { key: 'data_types', label: 'Loại dữ liệu thu thập', required: true, type: 'textarea' },
-      { key: 'data_subjects', label: 'Đối tượng dữ liệu', required: true, type: 'text' },
-      { key: 'third_parties', label: 'Bên thứ ba chia sẻ dữ liệu', required: false, type: 'textarea' },
+      { key: 'data_types', label: { vi: 'Loại dữ liệu thu thập', en: 'Data Categories Collected', zh: '收集的数据类别', ja: '収集データカテゴリ' }, required: true, type: 'textarea' },
+      { key: 'data_subjects', label: { vi: 'Đối tượng dữ liệu', en: 'Data Subjects', zh: '数据主体', ja: 'データ主体' }, required: true, type: 'text' },
+      { key: 'third_parties', label: { vi: 'Bên thứ ba chia sẻ dữ liệu', en: 'Third-party Data Recipients', zh: '第三方数据接收方', ja: '第三者データ受領者' }, required: false, type: 'textarea' },
     ],
   },
   dpia: {
@@ -335,9 +335,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: 'データ処理がプライバシー権に与える影響を評価します。',
     },
     questions: [
-      { key: 'processing_activity', label: 'Hoạt động xử lý dữ liệu', required: true, type: 'textarea' },
-      { key: 'data_categories', label: 'Danh mục dữ liệu', required: true, type: 'text' },
-      { key: 'risk_level', label: 'Mức độ rủi ro dự kiến', required: false, type: 'text' },
+      { key: 'processing_activity', label: { vi: 'Hoạt động xử lý dữ liệu', en: 'Data Processing Activities', zh: '数据处理活动', ja: 'データ処理活動' }, required: true, type: 'textarea' },
+      { key: 'data_categories', label: { vi: 'Danh mục dữ liệu', en: 'Data Inventory', zh: '数据清单', ja: 'データ一覧' }, required: true, type: 'text' },
+      { key: 'risk_level', label: { vi: 'Mức độ rủi ro dự kiến', en: 'Expected Risk Level', zh: '预期风险等级', ja: '想定リスクレベル' }, required: false, type: 'text' },
     ],
   },
   data_processing_agreement: {
@@ -355,9 +355,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '当事者間のデータ処理契約書を作成します。',
     },
     questions: [
-      { key: 'data_controller', label: 'Bên kiểm soát dữ liệu', required: true, type: 'text' },
-      { key: 'data_processor', label: 'Bên xử lý dữ liệu', required: true, type: 'text' },
-      { key: 'processing_purpose', label: 'Mục đích xử lý', required: true, type: 'textarea' },
+      { key: 'data_controller', label: { vi: 'Bên kiểm soát dữ liệu', en: 'Data Controller', zh: '数据控制者', ja: 'データ管理者' }, required: true, type: 'text' },
+      { key: 'data_processor', label: { vi: 'Bên xử lý dữ liệu', en: 'Data Processor', zh: '数据处理者', ja: 'データ処理者' }, required: true, type: 'text' },
+      { key: 'processing_purpose', label: { vi: 'Mục đích xử lý', en: 'Processing Purpose', zh: '处理目的', ja: '処理目的' }, required: true, type: 'textarea' },
     ],
   },
 
@@ -377,9 +377,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: 'サービス/製品の 이용약관を作成します。',
     },
     questions: [
-      { key: 'service_name', label: 'Tên dịch vụ/sản phẩm', required: true, type: 'text' },
-      { key: 'user_type', label: 'Loại người dùng', required: true, type: 'text' },
-      { key: 'payment_terms', label: 'Điều khoản thanh toán', required: false, type: 'textarea' },
+      { key: 'service_name', label: { vi: 'Tên dịch vụ/sản phẩm', en: 'Service/Product Name', zh: '服务/产品名称', ja: 'サービス・製品名' }, required: true, type: 'text' },
+      { key: 'user_type', label: { vi: 'Loại người dùng', en: 'User Type', zh: '用户类型', ja: 'ユーザータイプ' }, required: true, type: 'text' },
+      { key: 'payment_terms', label: { vi: 'Điều khoản thanh toán', en: 'Payment Terms', zh: '付款条款', ja: '支払条件' }, required: false, type: 'textarea' },
     ],
   },
   return_policy: {
@@ -397,9 +397,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '商品/サービスの返品ポリシーを作成します。',
     },
     questions: [
-      { key: 'product_type', label: 'Loại sản phẩm/dịch vụ', required: true, type: 'text' },
-      { key: 'return_period', label: 'Thời hạn đổi trả', required: true, type: 'text' },
-      { key: 'conditions', label: 'Điều kiện đổi trả', required: false, type: 'textarea' },
+      { key: 'product_type', label: { vi: 'Loại sản phẩm/dịch vụ', en: 'Product/Service Type', zh: '产品/服务类型', ja: '製品・サービス種類' }, required: true, type: 'text' },
+      { key: 'return_period', label: { vi: 'Thời hạn đổi trả', en: 'Return/Exchange Period', zh: '退换期限', ja: '返品交換期間' }, required: true, type: 'text' },
+      { key: 'conditions', label: { vi: 'Điều kiện đổi trả', en: 'Return/Exchange Conditions', zh: '退换条件', ja: '返品・交換条件' }, required: false, type: 'textarea' },
     ],
   },
   product_liability: {
@@ -417,9 +417,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '製品の法的責任についてアドバイスを提供します。',
     },
     questions: [
-      { key: 'product_name', label: 'Tên sản phẩm', required: true, type: 'text' },
-      { key: 'incident_description', label: 'Mô tả sự cố', required: true, type: 'textarea' },
-      { key: 'damages', label: 'Thiệt hại ước tính', required: false, type: 'text' },
+      { key: 'product_name', label: { vi: 'Tên sản phẩm', en: 'Product Name', zh: '产品名称', ja: '製品名' }, required: true, type: 'text' },
+      { key: 'incident_description', label: { vi: 'Mô tả sự cố', en: 'Incident Description', zh: '事件描述', ja: 'インシデント説明' }, required: true, type: 'textarea' },
+      { key: 'damages', label: { vi: 'Thiệt hại ước tính', en: 'Estimated Damages', zh: '预估损失', ja: '推定損害額' }, required: false, type: 'text' },
     ],
   },
 
@@ -439,9 +439,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '営業許可申請のアドバイスと支援を行います。',
     },
     questions: [
-      { key: 'business_type', label: 'Loại hình kinh doanh', required: true, type: 'text' },
-      { key: 'license_type', label: 'Loại giấy phép cần', required: true, type: 'text' },
-      { key: 'business_location', label: 'Địa điểm kinh doanh', required: false, type: 'text' },
+      { key: 'business_type', label: { vi: 'Loại hình kinh doanh', en: 'Business Type', zh: '业务类型', ja: '事業種類' }, required: true, type: 'text' },
+      { key: 'license_type', label: { vi: 'Loại giấy phép cần', en: 'License Type Required', zh: '所需许可类型', ja: '必要許可種類' }, required: true, type: 'text' },
+      { key: 'business_location', label: { vi: 'Địa điểm kinh doanh', en: 'Business Location', zh: '经营地点', ja: '事業所所在地' }, required: false, type: 'text' },
     ],
   },
   compliance_report: {
@@ -459,9 +459,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '法令コンプライアンス評価報告書を作成します。',
     },
     questions: [
-      { key: 'compliance_area', label: 'Lĩnh vực cần đánh giá', required: true, type: 'text' },
-      { key: 'current_status', label: 'Tình trạng hiện tại', required: true, type: 'textarea' },
-      { key: 'period', label: 'Kỳ đánh giá', required: false, type: 'text' },
+      { key: 'compliance_area', label: { vi: 'Lĩnh vực cần đánh giá', en: 'Compliance Area to Assess', zh: '需评估的合规领域', ja: '評価対象コンプライアンス分野' }, required: true, type: 'text' },
+      { key: 'current_status', label: { vi: 'Tình trạng hiện tại', en: 'Current Status', zh: '当前状况', ja: '現状' }, required: true, type: 'textarea' },
+      { key: 'period', label: { vi: 'Kỳ đánh giá', en: 'Assessment Period', zh: '评估期间', ja: '評価期間' }, required: false, type: 'text' },
     ],
   },
 
@@ -481,9 +481,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '企業向けのAIガバナンスと利用ポリシーを作成します。',
     },
     questions: [
-      { key: 'ai_use_cases', label: 'Mục đích sử dụng AI', required: true, type: 'textarea' },
-      { key: 'data_usage', label: 'Dữ liệu AI sử dụng', required: true, type: 'text' },
-      { key: 'risk_concerns', label: 'Lo ngại về rủi ro', required: false, type: 'textarea' },
+      { key: 'ai_use_cases', label: { vi: 'Mục đích sử dụng AI', en: 'AI Use Cases', zh: 'AI用例', ja: 'AI利用目的' }, required: true, type: 'textarea' },
+      { key: 'data_usage', label: { vi: 'Dữ liệu AI sử dụng', en: 'Data Used by AI', zh: 'AI使用的数据', ja: 'AI使用データ' }, required: true, type: 'text' },
+      { key: 'risk_concerns', label: { vi: 'Lo ngại về rủi ro', en: 'Risk Concerns', zh: '风险顾虑', ja: 'リスク懸念' }, required: false, type: 'textarea' },
     ],
   },
   algorithm_audit: {
@@ -501,9 +501,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: 'AIアルゴリズムの公平性と透明性を評価します。',
     },
     questions: [
-      { key: 'algorithm_type', label: 'Loại thuật toán', required: true, type: 'text' },
-      { key: 'decision_made', label: 'Quyết định thuật toán đưa ra', required: true, type: 'textarea' },
-      { key: 'affected_groups', label: 'Nhóm đối tượng bị ảnh hưởng', required: false, type: 'text' },
+      { key: 'algorithm_type', label: { vi: 'Loại thuật toán', en: 'Algorithm Type', zh: '算法类型', ja: 'アルゴリズム種類' }, required: true, type: 'text' },
+      { key: 'decision_made', label: { vi: 'Quyết định thuật toán đưa ra', en: 'Algorithmic Decisions Made', zh: '算法做出的决定', ja: 'アルゴリズムによる判断' }, required: true, type: 'textarea' },
+      { key: 'affected_groups', label: { vi: 'Nhóm đối tượng bị ảnh hưởng', en: 'Affected Groups', zh: '受影响群体', ja: '影響を受けるグループ' }, required: false, type: 'text' },
     ],
   },
 
@@ -523,9 +523,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '著作権保護を登録します。',
     },
     questions: [
-      { key: 'work_type', label: 'Loại tác phẩm', required: true, type: 'text' },
-      { key: 'author_name', label: 'Tên tác giả', required: true, type: 'text' },
-      { key: 'creation_date', label: 'Ngày sáng tạo', required: false, type: 'text' },
+      { key: 'work_type', label: { vi: 'Loại tác phẩm', en: 'Work Type', zh: '作品类型', ja: '著作物種類' }, required: true, type: 'text' },
+      { key: 'author_name', label: { vi: 'Tên tác giả', en: 'Author Name', zh: '作者姓名', ja: '著作者名' }, required: true, type: 'text' },
+      { key: 'creation_date', label: { vi: 'Ngày sáng tạo', en: 'Creation Date', zh: '创作日期', ja: '創作日' }, required: false, type: 'text' },
     ],
   },
   patent: {
@@ -543,10 +543,10 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '特許/実用新案保護を出願します。',
     },
     questions: [
-      { key: 'invention_name', label: 'Tên sáng chế', required: true, type: 'text' },
-      { key: 'inventor_name', label: 'Tên nhà sáng chế', required: true, type: 'text' },
-      { key: 'technical_field', label: 'Lĩnh vực kỹ thuật', required: true, type: 'text' },
-      { key: 'prior_art', label: 'Giải pháp hiện có', required: false, type: 'textarea' },
+      { key: 'invention_name', label: { vi: 'Tên sáng chế', en: 'Invention Name', zh: '发明名称', ja: '発明名称' }, required: true, type: 'text' },
+      { key: 'inventor_name', label: { vi: 'Tên nhà sáng chế', en: 'Inventor Name', zh: '发明人姓名', ja: '発明者名' }, required: true, type: 'text' },
+      { key: 'technical_field', label: { vi: 'Lĩnh vực kỹ thuật', en: 'Technical Field', zh: '技术领域', ja: '技術分野' }, required: true, type: 'text' },
+      { key: 'prior_art', label: { vi: 'Giải pháp hiện có', en: 'Existing Solutions', zh: '现有解决方案', ja: '既存の解決策' }, required: false, type: 'textarea' },
     ],
   },
 
@@ -566,10 +566,10 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '訴訟提起書類のアドバイスと作成を行います。',
     },
     questions: [
-      { key: 'dispute_type', label: 'Loại tranh chấp', required: true, type: 'text' },
-      { key: 'defendant', label: 'Bị đơn', required: true, type: 'text' },
-      { key: 'claims', label: 'Yêu cầu khởi kiện', required: true, type: 'textarea' },
-      { key: 'evidence', label: 'Chứng cứ hiện có', required: false, type: 'textarea' },
+      { key: 'dispute_type', label: { vi: 'Loại tranh chấp', en: 'Dispute Type', zh: '争议类型', ja: '紛争種類' }, required: true, type: 'text' },
+      { key: 'defendant', label: { vi: 'Bị đơn', en: 'Defendant', zh: '被告', ja: '被告' }, required: true, type: 'text' },
+      { key: 'claims', label: { vi: 'Yêu cầu khởi kiện', en: 'Claims Sought', zh: '诉讼请求', ja: '請求内容' }, required: true, type: 'textarea' },
+      { key: 'evidence', label: { vi: 'Chứng cứ hiện có', en: 'Available Evidence', zh: '现有证据', ja: '入手可能な証拠' }, required: false, type: 'textarea' },
     ],
   },
   settlement_agreement: {
@@ -587,9 +587,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '紛争当事者間の和解契約書を作成します。',
     },
     questions: [
-      { key: 'parties', label: 'Các bên tham gia', required: true, type: 'text' },
-      { key: 'dispute_summary', label: 'Tóm tắt tranh chấp', required: true, type: 'textarea' },
-      { key: 'settlement_terms', label: 'Điều khoản hòa giải', required: true, type: 'textarea' },
+      { key: 'parties', label: { vi: 'Các bên tham gia', en: 'Parties/Entity Names', zh: '参与方', ja: '当事者' }, required: true, type: 'text' },
+      { key: 'dispute_summary', label: { vi: 'Tóm tắt tranh chấp', en: 'Dispute Summary', zh: '争议摘要', ja: '紛争概要' }, required: true, type: 'textarea' },
+      { key: 'settlement_terms', label: { vi: 'Điều khoản hòa giải', en: 'Mediation Terms', zh: '调解条款', ja: '調停条件' }, required: true, type: 'textarea' },
     ],
   },
   litigation_consultation: {
@@ -607,9 +607,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '訴訟戦略と選択肢についてアドバイスを提供します。',
     },
     questions: [
-      { key: 'case_type', label: 'Loại vụ việc', required: true, type: 'text' },
-      { key: 'current_stage', label: 'Giai đoạn hiện tại', required: true, type: 'text' },
-      { key: 'concerns', label: 'Vấn đề cần tư vấn', required: true, type: 'textarea' },
+      { key: 'case_type', label: { vi: 'Loại vụ việc', en: 'Case Type', zh: '案件类型', ja: '案件種類' }, required: true, type: 'text' },
+      { key: 'current_stage', label: { vi: 'Giai đoạn hiện tại', en: 'Current Stage', zh: '当前阶段', ja: '現在の段階' }, required: true, type: 'text' },
+      { key: 'concerns', label: { vi: 'Vấn đề cần tư vấn', en: 'Issue Requiring Advice', zh: '需咨询的问题', ja: '相談事項' }, required: true, type: 'textarea' },
     ],
   },
 
@@ -629,9 +629,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '企業内の法的相談。',
     },
     questions: [
-      { key: 'issue_description', label: 'Mô tả vấn đề', required: true, type: 'textarea' },
-      { key: 'department', label: 'Bộ phận liên quan', required: true, type: 'text' },
-      { key: 'urgency', label: 'Mức độ khẩn cấp', required: false, type: 'text' },
+      { key: 'issue_description', label: { vi: 'Mô tả vấn đề', en: 'Problem Description', zh: '问题描述', ja: '問題の説明' }, required: true, type: 'textarea' },
+      { key: 'department', label: { vi: 'Bộ phận liên quan', en: 'Relevant Department', zh: '相关部门', ja: '関連部署' }, required: true, type: 'text' },
+      { key: 'urgency', label: { vi: 'Mức độ khẩn cấp', en: 'Urgency Level', zh: '紧急程度', ja: '緊急度' }, required: false, type: 'text' },
     ],
   },
   legal_training: {
@@ -649,9 +649,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '従業員向けの法務研修を組織します。',
     },
     questions: [
-      { key: 'topic', label: 'Chủ đề đào tạo', required: true, type: 'text' },
-      { key: 'participants', label: 'Số lượng người tham gia', required: true, type: 'text' },
-      { key: 'duration', label: 'Thời lượng dự kiến', required: false, type: 'text' },
+      { key: 'topic', label: { vi: 'Chủ đề đào tạo', en: 'Training Topic', zh: '培训主题', ja: '研修テーマ' }, required: true, type: 'text' },
+      { key: 'participants', label: { vi: 'Số lượng người tham gia', en: 'Number of Participants', zh: '参与人数', ja: '参加人数' }, required: true, type: 'text' },
+      { key: 'duration', label: { vi: 'Thời lượng dự kiến', en: 'Expected Duration', zh: '预计时长', ja: '想定時間' }, required: false, type: 'text' },
     ],
   },
 
@@ -671,10 +671,10 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '学習目的で実際の法的シナリオを分析します。',
     },
     questions: [
-      { key: 'case_title', label: 'Tên tình huống', required: true, type: 'text' },
-      { key: 'legal_area', label: 'Lĩnh vực pháp lý liên quan', required: true, type: 'text' },
-      { key: 'key_issues', label: 'Vấn đề chính cần phân tích', required: true, type: 'textarea' },
-      { key: 'learning_objectives', label: 'Mục tiêu học tập', required: false, type: 'textarea' },
+      { key: 'case_title', label: { vi: 'Tên tình huống', en: 'Scenario Name', zh: '情景名称', ja: 'シナリオ名' }, required: true, type: 'text' },
+      { key: 'legal_area', label: { vi: 'Lĩnh vực pháp lý liên quan', en: 'Related Legal Areas', zh: '相关法律领域', ja: '関連法分野' }, required: true, type: 'text' },
+      { key: 'key_issues', label: { vi: 'Vấn đề chính cần phân tích', en: 'Core Issue to Analyze', zh: '需分析的核心问题', ja: '分析すべき主要論点' }, required: true, type: 'textarea' },
+      { key: 'learning_objectives', label: { vi: 'Mục tiêu học tập', en: 'Learning Objectives', zh: '学习目标', ja: '学習目標' }, required: false, type: 'textarea' },
     ],
   },
   legal_research: {
@@ -692,9 +692,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '法的問題と理論に関する詳細な研究。',
     },
     questions: [
-      { key: 'research_question', label: 'Câu hỏi nghiên cứu', required: true, type: 'textarea' },
-      { key: 'jurisdiction', label: 'Phạm vi pháp lý', required: true, type: 'text' },
-      { key: 'methodology', label: 'Phương pháp nghiên cứu', required: false, type: 'textarea' },
+      { key: 'research_question', label: { vi: 'Câu hỏi nghiên cứu', en: 'Research Question', zh: '研究问题', ja: 'リサーチクエスチョン' }, required: true, type: 'textarea' },
+      { key: 'jurisdiction', label: { vi: 'Phạm vi pháp lý', en: 'Legal Scope', zh: '法律范围', ja: '法的範囲' }, required: true, type: 'text' },
+      { key: 'methodology', label: { vi: 'Phương pháp nghiên cứu', en: 'Research Method', zh: '研究方法', ja: '研究方法' }, required: false, type: 'textarea' },
     ],
   },
 
@@ -714,9 +714,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: 'カスタマイズされた契約テンプレートを作成します。',
     },
     questions: [
-      { key: 'contract_type', label: 'Loại hợp đồng', required: true, type: 'text' },
-      { key: 'variables', label: 'Các biến cần tùy chỉnh', required: true, type: 'textarea' },
-      { key: 'language', label: 'Ngôn ngữ hợp đồng', required: false, type: 'text' },
+      { key: 'contract_type', label: { vi: 'Loại hợp đồng', en: 'Contract Type', zh: '合同类型', ja: '契約タイプ' }, required: true, type: 'text' },
+      { key: 'variables', label: { vi: 'Các biến cần tùy chỉnh', en: 'Variables to Customize', zh: '需自定义的变量', ja: 'カスタマイズ変数' }, required: true, type: 'textarea' },
+      { key: 'language', label: { vi: 'Ngôn ngữ hợp đồng', en: 'Contract Language', zh: '合同语言', ja: '契約言語' }, required: false, type: 'text' },
     ],
   },
   workflow_builder: {
@@ -734,9 +734,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: 'カスタマイズされた法務処理ワークフローを設計します。',
     },
     questions: [
-      { key: 'process_name', label: 'Tên quy trình', required: true, type: 'text' },
-      { key: 'steps', label: 'Các bước trong quy trình', required: true, type: 'textarea' },
-      { key: 'approvers', label: 'Người phê duyệt', required: false, type: 'text' },
+      { key: 'process_name', label: { vi: 'Tên quy trình', en: 'Process Name', zh: '流程名称', ja: 'プロセス名' }, required: true, type: 'text' },
+      { key: 'steps', label: { vi: 'Các bước trong quy trình', en: 'Process Steps', zh: '流程步骤', ja: 'プロセス手順' }, required: true, type: 'textarea' },
+      { key: 'approvers', label: { vi: 'Người phê duyệt', en: 'Approver', zh: '审批人', ja: '承認者' }, required: false, type: 'text' },
     ],
   },
 
@@ -756,9 +756,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '外部弁護士と調整します。',
     },
     questions: [
-      { key: 'counsel_name', label: 'Tên luật sư/hãng luật', required: true, type: 'text' },
-      { key: 'matter', label: 'Vụ việc phối hợp', required: true, type: 'textarea' },
-      { key: 'scope', label: 'Phạm vi công việc', required: false, type: 'textarea' },
+      { key: 'counsel_name', label: { vi: 'Tên luật sư/hãng luật', en: 'Lawyer/Law Firm Name', zh: '律师/律所名称', ja: '弁護士・法律事務所名' }, required: true, type: 'text' },
+      { key: 'matter', label: { vi: 'Vụ việc phối hợp', en: 'Joint Matter', zh: '协作事项', ja: '連携案件' }, required: true, type: 'textarea' },
+      { key: 'scope', label: { vi: 'Phạm vi công việc', en: 'Scope of Work', zh: '工作范围', ja: '業務範囲' }, required: false, type: 'textarea' },
     ],
   },
   legal_research_tools: {
@@ -776,9 +776,9 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       ja: '高度な法務調査ツールを使用します。',
     },
     questions: [
-      { key: 'research_topic', label: 'Chủ đề nghiên cứu', required: true, type: 'textarea' },
-      { key: 'jurisdiction', label: 'Phạm vi pháp lý', required: true, type: 'text' },
-      { key: 'time_period', label: 'Thời gian cần nghiên cứu', required: false, type: 'text' },
+      { key: 'research_topic', label: { vi: 'Chủ đề nghiên cứu', en: 'Research Topic', zh: '研究主题', ja: '研究テーマ' }, required: true, type: 'textarea' },
+      { key: 'jurisdiction', label: { vi: 'Phạm vi pháp lý', en: 'Legal Scope', zh: '法律范围', ja: '法的範囲' }, required: true, type: 'text' },
+      { key: 'time_period', label: { vi: 'Thời gian cần nghiên cứu', en: 'Research Duration Needed', zh: '所需研究时间', ja: '必要研究期間' }, required: false, type: 'text' },
     ],
   },
 };

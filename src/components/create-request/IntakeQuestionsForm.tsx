@@ -81,21 +81,21 @@ const IntakeQuestionsForm = forwardRef<IntakeQuestionsFormHandle, IntakeQuestion
         {questions.map((question) => (
           <div key={question.key} style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
-              {question.label}
+              {question.label[locale as keyof typeof question.label] || question.label.vi}
               {question.required && <span style={{ color: 'var(--color-danger)', marginLeft: '2px' }}>*</span>}
             </label>
             {question.type === 'textarea' ? (
               <textarea
                 name={`answer.${question.key}`}
                 rows={4}
-                placeholder={t('placeholder.enter', { field: question.label.toLowerCase() })}
+                placeholder={t('placeholder.enter', { field: (question.label[locale as keyof typeof question.label] || question.label.vi).toLowerCase() })}
                 className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none resize-none"
               />
             ) : (
               <input
                 type="text"
                 name={`answer.${question.key}`}
-                placeholder={t('placeholder.enter', { field: question.label.toLowerCase() })}
+                placeholder={t('placeholder.enter', { field: (question.label[locale as keyof typeof question.label] || question.label.vi).toLowerCase() })}
                 className="h-11 w-full border border-slate-200 rounded-lg px-3 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none"
               />
             )}

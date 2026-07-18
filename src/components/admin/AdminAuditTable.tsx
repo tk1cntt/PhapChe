@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 
 export interface AuditEventRow {
   id: string;
@@ -110,14 +111,6 @@ function getActionBadgeClass(action: string): string {
   return 'badge gray';
 }
 
-function formatDateTime(dateStr: string): { date: string; time: string } {
-  const d = new Date(dateStr);
-  return {
-    date: d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-    time: d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' ICT',
-  };
-}
-
 function getInitials(name: string | null | undefined): string {
   if (!name) return '?';
   const parts = name.split(/[\s._-]+/).filter(Boolean);
@@ -213,8 +206,6 @@ export function AdminAuditTable({ events, loading }: AdminAuditTableProps) {
       </div>
 
       {events.map((event) => {
-        const { date, time } = formatDateTime(event.createdAt);
-
         // Actor: show name if available, otherwise email, otherwise system
         const actorName = event.actor?.name ?? event.actor?.email ?? 'system';
         const initials = getInitials(actorName);
@@ -231,8 +222,8 @@ export function AdminAuditTable({ events, loading }: AdminAuditTableProps) {
             {/* Thời gian */}
             <div className="audit-td">
               <div className="time-stack">
-                <strong>{date}</strong>
-                <span>{time}</span>
+                <strong><FormattedDate date={event.createdAt} variant="date" /></strong>
+                <span><FormattedDate date={event.createdAt} variant="time" timezoneSuffix=" ICT" /></span>
               </div>
             </div>
 

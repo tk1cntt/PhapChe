@@ -187,10 +187,10 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
       {/* Page header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 22 }}>
         <div>
-          <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: '#020617', marginBottom: 12 }}>
+          <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: 'var(--color-text)', marginBottom: 12 }}>
             {t('pageTitle')}
           </h1>
-          <p style={{ fontSize: 15, fontWeight: 500, color: '#5f6e83', margin: 0 }}>
+          <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-text-secondary)', margin: 0 }}>
             {t('pageDescription')}
           </p>
         </div>
@@ -228,14 +228,14 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
         {/* Workload panel */}
         <div
           style={{
-            background: '#fff',
-            border: '1px solid #dfe7f1',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: 15,
             boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)',
             padding: 24,
           }}
         >
-          <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#087f78" strokeWidth="2">
               <path d="M3 3v18h18"/>
               <path d="M7 16l4-4 3 3 6-8"/>
@@ -248,14 +248,14 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
         {/* Timeline panel */}
         <div
           style={{
-            background: '#fff',
-            border: '1px solid #dfe7f1',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: 15,
             boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)',
             padding: 24,
           }}
         >
-          <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#087f78" strokeWidth="2">
               <circle cx="12" cy="12" r="10"/>
               <path d="M12 6v6l4 2"/>
@@ -281,21 +281,21 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
       {error && (
         <div
           style={{
-            background: '#fff',
+            background: 'var(--color-surface)',
             border: '1px solid #fee2e2',
             borderRadius: 15,
             padding: 24,
             marginBottom: 20,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#dc2626', marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--color-danger)', marginBottom: 8 }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"/>
               <path d="M12 8v4m0 4h.01"/>
             </svg>
             <strong>{tCommon('error')}</strong>
           </div>
-          <p style={{ color: '#64748b', fontSize: 14, marginBottom: 12 }}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 14, marginBottom: 12 }}>
             {t('errorLoading') || 'Đã xảy ra lỗi khi lấy dữ liệu từ máy chủ. Vui lòng thử lại.'}
           </p>
           <button

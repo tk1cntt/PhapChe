@@ -13,8 +13,6 @@ import { AdminVaultFilesTable } from './AdminVaultFilesTable';
 interface FolderRow {
   id: string;
   name: string;
-  name_vi?: string | null;
-  name_en?: string | null;
   slug?: string;
   description?: string;
   _count?: { children: number; vaultFileFolders: number };
@@ -23,9 +21,7 @@ interface FolderRow {
 interface TagRow {
   id: string;
   key: string;
-  label?: string;
-  label_vi?: string | null;
-  label_en?: string | null;
+  label: string | null;
   description?: string;
   color?: string;
   _count?: { vaultFileTags: number };
@@ -40,8 +36,8 @@ interface VaultFileClassification {
     workspace?: { name: string; slug: string };
     createdBy?: { name: string; email: string };
   };
-  folders: { id: string; name: string; name_vi?: string | null }[];
-  tags: { id: string; key: string; label?: string; label_vi?: string | null }[];
+  folders: { id: string; name: string }[];
+  tags: { id: string; key: string; label: string | null }[];
 }
 
 interface VaultData {
@@ -131,7 +127,7 @@ export default function AdminVaultClient() {
     if (!debouncedSearch) return true;
     const searchLower = debouncedSearch.toLowerCase();
     const filename = c.vaultFile.filename?.toLowerCase() ?? '';
-    const folderNames = c.folders.map(f => (f.name_vi || f.name || '').toLowerCase());
+    const folderNames = c.folders.map(f => (f.name || '').toLowerCase());
     const tagKeys = c.tags.map(t => t.key.toLowerCase());
     return filename.includes(searchLower) ||
            folderNames.some(n => n.includes(searchLower)) ||

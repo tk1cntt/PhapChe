@@ -28,8 +28,8 @@ const ROLES = ['super_admin', 'audit_admin', 'coordinator_admin', 'reviewer', 's
 
 const toolBtnStyle: React.CSSProperties = {
   height: 44,
-  border: '1px solid #dfe7f1',
-  background: '#fff',
+  border: '1px solid var(--color-border)',
+  background: 'var(--color-surface)',
   borderRadius: 8,
   padding: '0 16px',
   display: 'flex',
@@ -58,8 +58,8 @@ export default function UserToolbar({
 
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid #dfe7f1',
+      background: 'var(--color-surface)',
+      border: '1px solid var(--color-border)',
       borderRadius: '15px 15px 0 0',
       boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)',
       padding: 20,
@@ -71,13 +71,13 @@ export default function UserToolbar({
           <div style={{
             width: 330,
             height: 44,
-            border: '1px solid #dfe7f1',
+            border: '1px solid var(--color-border)',
             borderRadius: 8,
             display: 'flex',
             alignItems: 'center',
             gap: 11,
             padding: '0 14px',
-            background: '#fff',
+            background: 'var(--color-surface)',
           }}>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#718096" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/>
@@ -116,8 +116,8 @@ export default function UserToolbar({
                 left: 0,
                 marginTop: 4,
                 width: 180,
-                background: '#fff',
-                border: '1px solid #dfe7f1',
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
                 borderRadius: 8,
                 boxShadow: '0 10px 25px rgba(15, 23, 42, 0.1)',
                 zIndex: 50,
@@ -172,8 +172,8 @@ export default function UserToolbar({
                 left: 0,
                 marginTop: 4,
                 width: 200,
-                background: '#fff',
-                border: '1px solid #dfe7f1',
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
                 borderRadius: 8,
                 boxShadow: '0 10px 25px rgba(15, 23, 42, 0.1)',
                 zIndex: 50,
@@ -210,8 +210,8 @@ export default function UserToolbar({
             style={{
               width: 52,
               height: 44,
-              border: '1px solid #dfe7f1',
-              background: '#fff',
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-surface)',
               borderRadius: 8,
               padding: 0,
               display: 'flex',

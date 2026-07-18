@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter, usePathname } from 'next/navigation';
-import './partner-activity-client.css';
+import '@/styles/pages/admin/partner-activity.css';
 
 interface PartnerStats {
   activeRequests: number;
@@ -691,7 +691,7 @@ export default function PartnerActivityClient() {
                     })}
                     {(!partner.recentRequests || partner.recentRequests.length === 0) && (
                       <tr>
-                        <td colSpan={7} style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>
+                        <td colSpan={7} style={{ textAlign: 'center', padding: '32px', color: 'var(--color-text-muted)' }}>
                           Chưa có hồ sơ nào
                         </td>
                       </tr>

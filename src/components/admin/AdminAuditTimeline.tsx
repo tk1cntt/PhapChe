@@ -40,7 +40,7 @@ export function AdminAuditTimeline({ events }: AdminAuditTimelineProps) {
 
   if (displayEvents.length === 0) {
     return (
-      <div style={{ color: '#64748b', fontSize: 14, textAlign: 'center', padding: '20px 0' }}>
+      <div style={{ color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', padding: '20px 0' }}>
         {t('noEvents')}
       </div>
     );

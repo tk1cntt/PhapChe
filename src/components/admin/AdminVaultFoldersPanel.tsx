@@ -7,8 +7,6 @@ import { useTranslations } from 'next-intl';
 export interface VaultFolder {
   id: string;
   name: string;
-  name_vi?: string | null;
-  name_en?: string | null;
   slug?: string;
   description?: string;
   _count?: { children: number; vaultFileFolders: number };
@@ -23,7 +21,7 @@ export function AdminVaultFoldersPanel({ folders }: AdminVaultFoldersPanelProps)
   const [search, setSearch] = useState('');
 
   const filteredFolders = folders.filter((f) => {
-    const name = f.name_vi || f.name || f.name_en || '';
+    const name = (f.name || '');
     return name.toLowerCase().includes(search.toLowerCase());
   });
 
@@ -58,7 +56,7 @@ export function AdminVaultFoldersPanel({ folders }: AdminVaultFoldersPanelProps)
               <div className="vault-item-left">
                 <div className="vault-item-icon">📁</div>
                 <div className="vault-item-info">
-                  <strong>{folder.name_vi || folder.name || folder.name_en || '—'}</strong>
+                  <strong>{folder.name || '—'}</strong>
                   <span>{folder.description ?? folder.slug ?? '—'}</span>
                 </div>
               </div>

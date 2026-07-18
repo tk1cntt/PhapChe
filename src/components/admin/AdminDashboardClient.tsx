@@ -9,7 +9,7 @@ import ApprovalPanel from '@/components/admin/ApprovalPanel';
 import AuditTimeline from '@/components/admin/AuditTimeline';
 import AdminToolbar from '@/components/admin/AdminToolbar';
 import AdminRequestsTable from '@/components/admin/AdminRequestsTable';
-import '@/components/admin/admin.css';
+import '@/styles/pages/admin/dashboard.css';
 import { Users, FolderKanban, Clock, AlertTriangle } from 'lucide-react';
 
 interface AdminDashboardClientProps {

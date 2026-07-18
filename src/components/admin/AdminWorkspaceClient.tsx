@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Building2, Plus, Users, Settings } from 'lucide-react';
-import '@/components/admin/workspace.css';
+import '@/styles/pages/admin/workspace.css';
 
 interface Workspace {
   id: string;

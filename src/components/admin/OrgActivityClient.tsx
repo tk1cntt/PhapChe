@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Building2, ArrowLeft, Download, Eye, Plus } from 'lucide-react';
-import './org-activity-client.css';
+import '@/styles/pages/admin/org-activity.css';
 
 // ── Types ──// ── Types ──// ── Types ──// ── Types ──
 interface OrgInfo {
@@ -374,7 +374,7 @@ export default function OrgActivityClient({
                   <tbody>
                     {requestRows.length === 0 ? (
                       <tr>
-                        <td colSpan={7} style={{ textAlign: 'center', padding: 32, color: '#64748b' }}>
+                        <td colSpan={7} style={{ textAlign: 'center', padding: 32, color: 'var(--color-text-muted)' }}>
                           Chưa có hồ sơ nào
                         </td>
                       </tr>

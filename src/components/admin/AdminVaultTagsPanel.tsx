@@ -7,9 +7,7 @@ import { useTranslations } from 'next-intl';
 export interface VaultTag {
   id: string;
   key: string;
-  label?: string;
-  label_vi?: string | null;
-  label_en?: string | null;
+  label: string | null;
   description?: string;
   color?: string;
   _count?: { vaultFileTags: number };
@@ -20,19 +18,19 @@ interface AdminVaultTagsPanelProps {
 }
 
 const tagColorMap: Record<string, { bg: string; color: string }> = {
-  contract: { bg: '#dbeafe', color: '#2563eb' },
-  urgent: { bg: '#ffe4e6', color: '#ef4444' },
+  contract: { bg: '#dbeafe', color: 'var(--color-info)' },
+  urgent: { bg: '#ffe4e6', color: 'var(--color-danger)' },
   internal: { bg: '#ede9fe', color: '#7c3aed' },
-  compliance: { bg: '#ccfbf1', color: '#0f766e' },
-  dpa: { bg: '#ccfbf1', color: '#0f766e' },
+  compliance: { bg: '#ccfbf1', color: 'var(--color-primary)' },
+  dpa: { bg: '#ccfbf1', color: 'var(--color-primary)' },
   nda: { bg: '#ede9fe', color: '#7c3aed' },
-  sla: { bg: '#ffe4e6', color: '#ef4444' },
+  sla: { bg: '#ffe4e6', color: 'var(--color-danger)' },
 };
 
 function getTagChipStyle(keyOrColor?: string): { bg: string; color: string } {
-  if (!keyOrColor) return { bg: '#eef2f7', color: '#334155' };
+  if (!keyOrColor) return { bg: '#eef2f7', color: 'var(--color-text-secondary)' };
   const lower = keyOrColor.toLowerCase();
-  return tagColorMap[lower] ?? { bg: '#eef2f7', color: '#334155' };
+  return tagColorMap[lower] ?? { bg: '#eef2f7', color: 'var(--color-text-secondary)' };
 }
 
 export function AdminVaultTagsPanel({ tags }: AdminVaultTagsPanelProps) {
@@ -40,7 +38,7 @@ export function AdminVaultTagsPanel({ tags }: AdminVaultTagsPanelProps) {
   const [search, setSearch] = useState('');
 
   const filteredTags = tags.filter((tg) => {
-    const label = tg.label_vi || tg.label || tg.label_en || tg.key || '';
+    const label = tg.label || tg.key || '';
     return label.toLowerCase().includes(search.toLowerCase()) ||
            tg.key.toLowerCase().includes(search.toLowerCase());
   });
@@ -78,7 +76,7 @@ export function AdminVaultTagsPanel({ tags }: AdminVaultTagsPanelProps) {
                 <div className="vault-item-left">
                   <div className="vault-item-icon tag">#</div>
                   <div className="vault-item-info">
-                    <strong>{tag.label_vi || tag.label || tag.label_en || tag.key}</strong>
+                    <strong>{tag.label || tag.key}</strong>
                     <span>{tag.description ?? tag.key}</span>
                   </div>
                 </div>

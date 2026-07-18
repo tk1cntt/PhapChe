@@ -69,7 +69,7 @@ describe('AdminVaultFilesTable', () => {
             filename: 'contract.pdf',
             createdAt: new Date(),
           },
-          folders: [{ id: '1', name: 'Contracts', name_vi: 'Hợp đồng' }],
+          folders: [{ id: '1', name: 'Hợp đồng' }],
           tags: [],
         },
       ];
@@ -93,7 +93,7 @@ describe('AdminVaultFilesTable', () => {
             createdAt: new Date(),
           },
           folders: [],
-          tags: [{ id: '1', key: 'contract', label_vi: 'Hợp đồng' }],
+          tags: [{ id: '1', key: 'contract', label: 'Hợp đồng' }],
         },
       ];
 
@@ -263,8 +263,8 @@ describe('AdminVaultFilesTable', () => {
           },
           folders: [],
           tags: [
-            { id: '1', key: 'contract', label_vi: 'Hợp đồng' },
-            { id: '2', key: 'urgent', label_vi: 'Khẩn' },
+            { id: '1', key: 'contract', label: 'Hợp đồng' },
+            { id: '2', key: 'urgent', label: 'Khẩn' },
           ],
         },
       ];

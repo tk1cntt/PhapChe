@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import Paging from '@/components/ui/Paging';
+import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 
 export type UserRow = {
   id: string;
@@ -36,16 +37,6 @@ function getInitials(name: string): string {
   return name.slice(0, 2).toUpperCase();
 }
 
-function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return '—';
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
-
 export default function UserTable({
   dataSource,
   roleColors,
@@ -57,7 +48,7 @@ export default function UserTable({
 
   if (dataSource.length === 0 && !pagination) {
     return (
-      <div style={{ padding: 48, textAlign: 'center', color: '#64748b' }}>
+      <div style={{ padding: 48, textAlign: 'center', color: 'var(--color-text-muted)' }}>
         {t('noData')}
       </div>
     );
@@ -65,8 +56,8 @@ export default function UserTable({
 
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid #dfe7f1',
+      background: 'var(--color-surface)',
+      border: '1px solid var(--color-border)',
       borderRadius: '0 0 15px 15px',
       boxShadow: '0 18px 42px rgba(15, 23, 42, 0.06)',
       overflow: 'hidden',
@@ -77,7 +68,7 @@ export default function UserTable({
           display: 'grid',
           gridTemplateColumns: '52px 1.1fr 1.3fr 0.9fr 1.05fr 0.85fr 1fr 0.8fr',
           background: 'linear-gradient(180deg, #f8fafc, #f5f7fb)',
-          borderBottom: '1px solid #dfe7f1',
+          borderBottom: '1px solid var(--color-border)',
         }}
       >
         <div style={{ minHeight: 54, display: 'flex', alignItems: 'center', padding: '0 16px' }}>
@@ -86,7 +77,7 @@ export default function UserTable({
             height: 18,
             border: '2px solid #cbd5e1',
             borderRadius: 4,
-            background: '#fff',
+            background: 'var(--color-surface)',
             display: 'block',
           }} />
         </div>
@@ -106,10 +97,10 @@ export default function UserTable({
               display: 'flex',
               alignItems: 'center',
               padding: '0 16px',
-              color: '#59687e',
+              color: 'var(--color-text-secondary)',
               fontSize: 14,
               fontWeight: 700,
-              borderRight: idx < 6 ? '1px solid #dfe7f1' : 'none',
+              borderRight: idx < 6 ? '1px solid var(--color-border)' : 'none',
             }}
           >
             {header}
@@ -119,16 +110,16 @@ export default function UserTable({
 
       {/* Table Rows */}
       {dataSource.map((row) => {
-        const rColor = roleColors?.[row.role] || { bg: '#dbeafe', color: '#2563eb' };
-        const aColor = avatarColors?.[row.role] || { bg: '#eef2f7', color: '#334155' };
+        const rColor = roleColors?.[row.role] || { bg: '#dbeafe', color: 'var(--color-info)' };
+        const aColor = avatarColors?.[row.role] || { bg: '#eef2f7', color: 'var(--color-text-secondary)' };
 
         let statusBadge: { label: string; color: string; bg: string; dot: string };
         if (row.status === 'active') {
-          statusBadge = { label: t('active'), color: '#0f766e', bg: '#ccfbf1', dot: '#10b981' };
+          statusBadge = { label: t('active'), color: 'var(--color-primary)', bg: '#ccfbf1', dot: '#10b981' };
         } else if (row.status === 'invited') {
           statusBadge = { label: t('invited'), color: '#ea580c', bg: '#ffedd5', dot: '#f97316' };
         } else {
-          statusBadge = { label: t('inactive'), color: '#ef4444', bg: '#ffe4e6', dot: '#ef4444' };
+          statusBadge = { label: t('inactive'), color: 'var(--color-danger)', bg: '#ffe4e6', dot: '#ef4444' };
         }
 
         const actionLabel = row.status === 'active'
@@ -144,8 +135,8 @@ export default function UserTable({
               display: 'grid',
               gridTemplateColumns: '52px 1.1fr 1.3fr 0.9fr 1.05fr 0.85fr 1fr 0.8fr',
               minHeight: 72,
-              borderBottom: '1px solid #dfe7f1',
-              background: '#fff',
+              borderBottom: '1px solid var(--color-border)',
+              background: 'var(--color-surface)',
               transition: '0.2s',
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = '#fbfdff')}
@@ -158,7 +149,7 @@ export default function UserTable({
                 height: 18,
                 border: '2px solid #cbd5e1',
                 borderRadius: 4,
-                background: '#fff',
+                background: 'var(--color-surface)',
                 display: 'block',
               }} />
             </div>
@@ -168,7 +159,7 @@ export default function UserTable({
               display: 'flex',
               alignItems: 'center',
               padding: '0 16px',
-              borderRight: '1px solid #dfe7f1',
+              borderRight: '1px solid var(--color-border)',
               minWidth: 0,
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
@@ -194,14 +185,14 @@ export default function UserTable({
                     fontSize: 14,
                     fontWeight: 700,
                     marginBottom: 4,
-                    color: '#0f172a',
+                    color: 'var(--color-text)',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                   }}>{row.name}</div>
                   <div style={{
                     fontSize: 12,
-                    color: '#64748b',
+                    color: 'var(--color-text-muted)',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -217,7 +208,7 @@ export default function UserTable({
               display: 'flex',
               alignItems: 'center',
               padding: '0 16px',
-              borderRight: '1px solid #dfe7f1',
+              borderRight: '1px solid var(--color-border)',
               minWidth: 0,
             }}>
               <div style={{ minWidth: 0 }}>
@@ -225,14 +216,14 @@ export default function UserTable({
                   fontSize: 14,
                   fontWeight: 700,
                   marginBottom: 4,
-                  color: '#0f172a',
+                  color: 'var(--color-text)',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                 }}>{row.email}</div>
                 <div style={{
                   fontSize: 12,
-                  color: '#64748b',
+                  color: 'var(--color-text-muted)',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -247,7 +238,7 @@ export default function UserTable({
               display: 'flex',
               alignItems: 'center',
               padding: '0 16px',
-              borderRight: '1px solid #dfe7f1',
+              borderRight: '1px solid var(--color-border)',
               minWidth: 0,
             }}>
               <span
@@ -280,7 +271,7 @@ export default function UserTable({
               display: 'flex',
               alignItems: 'center',
               padding: '0 16px',
-              borderRight: '1px solid #dfe7f1',
+              borderRight: '1px solid var(--color-border)',
               minWidth: 0,
             }}>
               <div style={{ minWidth: 0 }}>
@@ -288,14 +279,14 @@ export default function UserTable({
                   fontSize: 14,
                   fontWeight: 700,
                   marginBottom: 4,
-                  color: '#0f172a',
+                  color: 'var(--color-text)',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                 }}>{row.workspace}</div>
                 <div style={{
                   fontSize: 12,
-                  color: '#64748b',
+                  color: 'var(--color-text-muted)',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -310,7 +301,7 @@ export default function UserTable({
               display: 'flex',
               alignItems: 'center',
               padding: '0 16px',
-              borderRight: '1px solid #dfe7f1',
+              borderRight: '1px solid var(--color-border)',
               minWidth: 0,
             }}>
               <span
@@ -343,7 +334,7 @@ export default function UserTable({
               display: 'flex',
               alignItems: 'center',
               padding: '0 16px',
-              borderRight: '1px solid #dfe7f1',
+              borderRight: '1px solid var(--color-border)',
               minWidth: 0,
             }}>
               <div style={{ minWidth: 0 }}>
@@ -351,16 +342,16 @@ export default function UserTable({
                   fontSize: 14,
                   fontWeight: 700,
                   marginBottom: 4,
-                  color: '#0f172a',
+                  color: 'var(--color-text)',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                 }}>
-                  {formatDate(row.lastActive)}
+                  <FormattedDate date={row.lastActive} variant="date" />
                 </div>
                 <div style={{
                   fontSize: 12,
-                  color: '#64748b',
+                  color: 'var(--color-text-muted)',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -380,7 +371,7 @@ export default function UserTable({
               <Link
                 href={`/${locale}/admin/users/${row.id}`}
                 style={{
-                  color: '#087f78',
+                  color: 'var(--color-primary)',
                   fontWeight: 800,
                   textDecoration: 'none',
                   whiteSpace: 'nowrap',

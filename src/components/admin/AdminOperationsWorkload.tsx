@@ -41,8 +41,8 @@ function WorkloadItem({ item }: { item: OpsWorkloadRowDto }) {
             width: 38,
             height: 38,
             borderRadius: '50%',
-            background: '#eef2f7',
-            color: '#334155',
+            background: 'var(--color-surface-hover)',
+            color: 'var(--color-text-secondary)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -54,10 +54,10 @@ function WorkloadItem({ item }: { item: OpsWorkloadRowDto }) {
           {getInitials(item.name)}
         </div>
         <div>
-          <strong style={{ display: 'block', fontSize: 14, marginBottom: 4, color: '#0f172a' }}>
+          <strong style={{ display: 'block', fontSize: 14, marginBottom: 4, color: 'var(--color-text)' }}>
             {item.name}
           </strong>
-          <span style={{ fontSize: 12, color: '#64748b', textTransform: 'capitalize' }}>
+          <span style={{ fontSize: 12, color: 'var(--color-text-muted)', textTransform: 'capitalize' }}>
             {item.kind}
           </span>
         </div>
@@ -67,7 +67,7 @@ function WorkloadItem({ item }: { item: OpsWorkloadRowDto }) {
       <div
         style={{
           height: 10,
-          background: '#eaf0f6',
+          background: 'var(--color-surface-hover)',
           borderRadius: 999,
           overflow: 'hidden',
         }}
@@ -89,7 +89,7 @@ function WorkloadItem({ item }: { item: OpsWorkloadRowDto }) {
           textAlign: 'right',
           fontSize: 14,
           fontWeight: 800,
-          color: '#0f172a',
+          color: 'var(--color-text)',
         }}
       >
         {item.activeCount} hồ sơ
@@ -106,7 +106,7 @@ export function AdminOperationsWorkload({ workload }: AdminOperationsWorkloadPro
           style={{
             padding: 24,
             textAlign: 'center',
-            color: '#94a3b8',
+            color: 'var(--color-text-muted)',
             fontSize: 14,
           }}
         >

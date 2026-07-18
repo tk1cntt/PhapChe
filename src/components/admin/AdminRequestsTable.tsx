@@ -39,13 +39,13 @@ interface AdminRequestsTableProps {
 }
 
 const badgeStyles: Record<string, { bg: string; color: string; dot: string }> = {
-  blue: { bg: '#dbeafe', color: '#2563eb', dot: '#2563eb' },
+  blue: { bg: '#dbeafe', color: 'var(--color-info)', dot: '#2563eb' },
   orange: { bg: '#ffedd5', color: '#ea580c', dot: '#f97316' },
-  green: { bg: '#ccfbf1', color: '#0f766e', dot: '#10b981' },
-  red: { bg: '#ffe4e6', color: '#ef4444', dot: '#ef4444' },
+  green: { bg: '#ccfbf1', color: 'var(--color-primary)', dot: '#10b981' },
+  red: { bg: '#ffe4e6', color: 'var(--color-danger)', dot: '#ef4444' },
   purple: { bg: '#ede9fe', color: '#7c3aed', dot: '#7c3aed' },
-  slate: { bg: '#f1f5f9', color: '#64748b', dot: '#64748b' },
-  teal: { bg: '#ccfbf1', color: '#087f78', dot: '#14b8a6' },
+  slate: { bg: '#f1f5f9', color: 'var(--color-text-muted)', dot: '#64748b' },
+  teal: { bg: '#ccfbf1', color: 'var(--color-primary)', dot: '#14b8a6' },
 };
 
 function Badge({ variant, text }: { variant: string; text: string }) {
@@ -104,8 +104,8 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
         data-testid="admin-requests-table"
         className="table-card"
         style={{
-          background: '#fff',
-          border: '1px solid #dfe7f1',
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
           borderRadius: 15,
           boxShadow: '0 18px 42px rgba(15, 23, 42, 0.06)',
           overflow: 'hidden',
@@ -128,7 +128,7 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
     <div
       data-testid="admin-requests-table"
       className="bg-white border rounded-[15px] overflow-hidden"
-      style={{ borderColor: '#dfe7f1', boxShadow: '0 18px 42px rgba(15, 23, 42, 0.06)' }}
+      style={{ borderColor: 'var(--color-border)', boxShadow: '0 18px 42px rgba(15, 23, 42, 0.06)' }}
     >
       <div
         data-testid="admin-requests-table-head"
@@ -137,7 +137,7 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
           display: 'grid',
           gridTemplateColumns: '0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr',
           background: 'linear-gradient(180deg, #f8fafc, #f5f7fb)',
-          borderBottom: '1px solid #dfe7f1',
+          borderBottom: '1px solid var(--color-border)',
         }}
       >
         {[trans.code, trans.workspace, trans.customer, trans.status, trans.requestType, trans.assignee, trans.action].map(
@@ -150,10 +150,10 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
                 display: 'flex',
                 alignItems: 'center',
                 padding: '0 18px',
-                color: '#59687e',
+                color: 'var(--color-text-secondary)',
                 fontSize: 14,
                 fontWeight: 700,
-                borderRight: i === 6 ? 'none' : '1px solid #dfe7f1',
+                borderRight: i === 6 ? 'none' : '1px solid var(--color-border)',
               }}
             >
               {header}
@@ -171,17 +171,17 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
             display: 'grid',
             gridTemplateColumns: '0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr',
             minHeight: 68,
-            borderBottom: rowIndex === rows.length - 1 ? 'none' : '1px solid #dfe7f1',
-            background: '#fff',
+            borderBottom: rowIndex === rows.length - 1 ? 'none' : '1px solid var(--color-border)',
+            background: 'var(--color-surface)',
             transition: '0.2s',
           }}
           onMouseEnter={(e) => { e.currentTarget.style.background = '#fbfdff'; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = '#fff'; }}
         >
           {/* Mã hồ sơ */}
-          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
-            <div className="request-code" style={{ display: 'flex', alignItems: 'center', gap: 12, fontWeight: 800, color: '#0f172a' }}>
-              <div className="code-icon" style={{ width: 38, height: 38, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, #dbeafe, #eff6ff)', color: '#2563eb' }}>
+          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: 'var(--color-text)', fontWeight: 500, borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
+            <div className="request-code" style={{ display: 'flex', alignItems: 'center', gap: 12, fontWeight: 800, color: 'var(--color-text)' }}>
+              <div className="code-icon" style={{ width: 38, height: 38, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, var(--color-info-muted), var(--color-info-muted))', color: 'var(--color-info)' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                   <path d="M14 2v6h6"/>
@@ -192,44 +192,44 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
           </div>
 
           {/* Workspace */}
-          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: 'var(--color-text)', fontWeight: 500, borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
             <div className="workspace" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <strong style={{ fontSize: 14, color: '#0f172a' }}>{row.workspace}</strong>
-              <span style={{ fontSize: 12, color: '#64748b' }}>{row.workspaceSlug}</span>
+              <strong style={{ fontSize: 14, color: 'var(--color-text)' }}>{row.workspace}</strong>
+              <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{row.workspaceSlug}</span>
             </div>
           </div>
 
           {/* Khách hàng */}
-          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: 'var(--color-text)', fontWeight: 500, borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
             <div className="customer" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div className="mini-avatar" style={{ width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 800, fontSize: 13, background: '#eef2f7', color: '#334155' }}>
+              <div className="mini-avatar" style={{ width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 800, fontSize: 13, background: 'var(--color-surface-hover)', color: 'var(--color-text-secondary)' }}>
                 {row.customer.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
               </div>
               <div className="customer-info">
                 <strong style={{ display: 'block', fontSize: 14, marginBottom: 4 }}>{row.customer}</strong>
-                <span style={{ fontSize: 12, color: '#64748b' }}>{row.customerEmail}</span>
+                <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{row.customerEmail}</span>
               </div>
             </div>
           </div>
 
           {/* Trạng thái */}
-          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1' }}>
+          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: 'var(--color-text)', fontWeight: 500, borderRight: '1px solid var(--color-border)' }}>
             <Badge variant={row.status} text={row.statusText} />
           </div>
 
           {/* Loại yêu cầu */}
-          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: 'var(--color-text)', fontWeight: 500, borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
             <span>{row.requestType || row.type}</span>
           </div>
 
           {/* Phụ trách */}
-          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: 'var(--color-text)', fontWeight: 500, borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
             <span>{row.assignee || '—'}</span>
           </div>
 
           {/* Thao tác */}
-          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: '#0f172a', fontWeight: 500, borderRight: 'none' }}>
-            <a href="#" className="action-link" style={{ color: '#087f78', fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: 'var(--color-text)', fontWeight: 500, borderRight: 'none' }}>
+            <a href="#" className="action-link" style={{ color: 'var(--color-primary)', fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
               {row.action} →
             </a>
           </div>

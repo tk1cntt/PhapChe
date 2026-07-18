@@ -2,8 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 
-type FolderRow = { id: string; name: string; name_vi?: string | null };
-type TagRow = { id: string; key: string; label?: string; label_vi?: string | null };
+type FolderRow = { id: string; name: string };
+type TagRow = { id: string; key: string; label: string | null };
 
 type VaultFileClassification = {
   vaultFile: {
@@ -35,7 +35,7 @@ function getFileExt(filename: string | null): string {
 function getFileIconStyle(ext: string): { bg: string; color: string } {
   switch (ext) {
     case 'PDF':
-      return { bg: 'linear-gradient(135deg, #dbeafe, #eff6ff)', color: '#2563eb' };
+      return { bg: 'linear-gradient(135deg, #dbeafe, #eff6ff)', color: 'var(--color-info)' };
     case 'DOC':
     case 'DOCX':
       return { bg: 'linear-gradient(135deg, #dbeafe, #eff6ff)', color: '#1d4ed8' };
@@ -58,10 +58,10 @@ function formatFileSize(bytes?: number): string {
 }
 
 const tagChipStyles: Record<string, { bg: string; color: string }> = {
-  contract: { bg: '#dbeafe', color: '#2563eb' },
-  contract_review: { bg: '#dbeafe', color: '#2563eb' },
-  urgent: { bg: '#ffe4e6', color: '#ef4444' },
-  urgent_sla: { bg: '#ffe4e6', color: '#ef4444' },
+  contract: { bg: '#dbeafe', color: 'var(--color-info)' },
+  contract_review: { bg: '#dbeafe', color: 'var(--color-info)' },
+  urgent: { bg: '#ffe4e6', color: 'var(--color-danger)' },
+  urgent_sla: { bg: '#ffe4e6', color: 'var(--color-danger)' },
   internal: { bg: '#ede9fe', color: '#7c3aed' },
   internal_only: { bg: '#ede9fe', color: '#7c3aed' },
   compliance: { bg: '#d1fae5', color: '#059669' },
@@ -141,7 +141,7 @@ export function AdminVaultFilesTable({ classifications, loading }: AdminVaultFil
 
           // Get first folder name
           const folderName = record.folders.length > 0
-            ? record.folders[0].name_vi || record.folders[0].name
+            ? record.folders[0].name || ''
             : null;
           const folderSlug = folderName ? slugify(folderName) : null;
 
@@ -186,7 +186,7 @@ export function AdminVaultFilesTable({ classifications, loading }: AdminVaultFil
                           color: chipStyle.color,
                         }}
                       >
-                        {tag.label_vi || tag.label || tag.key}
+                        {tag.label || tag.key}
                       </span>
                     );
                   })

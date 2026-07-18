@@ -31,7 +31,7 @@ export default function AuditTimeline({ entries = [] }: AuditTimelineProps) {
       {/* Timeline */}
       <div className="timeline">
         {entries.length === 0 ? (
-          <div style={{ textAlign: 'center', color: '#94a3b8', padding: '16px 0' }}>
+          <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '16px 0' }}>
             {t('noTimeline')}
           </div>
         ) : (

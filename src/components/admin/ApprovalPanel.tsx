@@ -48,7 +48,7 @@ export function ApprovalPanel({ approvals = [] }: { approvals?: ApprovalItemProp
 
       <div className="approval-list">
         {approvals.length === 0 ? (
-          <div style={{ padding: '24px 0', textAlign: 'center', color: '#94a3b8' }}>
+          <div style={{ padding: '24px 0', textAlign: 'center', color: 'var(--color-text-muted)' }}>
             {t('noApprovals')}
           </div>
         ) : (

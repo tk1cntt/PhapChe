@@ -33,7 +33,7 @@ export function AdminOperationsTimeline({ timeline }: AdminOperationsTimelinePro
   return (
     <div style={{ position: 'relative', maxHeight: 420, overflowY: 'auto' }}>
       {timeline.length === 0 ? (
-        <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
+        <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-text-muted)', fontSize: 14 }}>
           {t('noTimelineEvents')}
         </div>
       ) : (
@@ -64,20 +64,20 @@ export function AdminOperationsTimeline({ timeline }: AdminOperationsTimelinePro
                 }}
               />
               <div>
-                <strong style={{ display: 'block', fontSize: 14, marginBottom: 5, color: '#0f172a' }}>
+                <strong style={{ display: 'block', fontSize: 14, marginBottom: 5, color: 'var(--color-text)' }}>
                   {getTimelineTitle(item, t)}
                 </strong>
                 {item.metadataSummary && (
-                  <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, margin: '0 0 5px' }}>
+                  <p style={{ fontSize: 13, color: 'var(--color-text-muted)', lineHeight: 1.5, margin: '0 0 5px' }}>
                     {item.metadataSummary}
                   </p>
                 )}
                 {item.actorName && (
-                  <p style={{ fontSize: 13, color: '#94a3b8', margin: '0 0 5px' }}>
+                  <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: '0 0 5px' }}>
                     {item.actorName}
                   </p>
                 )}
-                <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>
                   {formatRelativeTime(item.at, t)}
                 </div>
               </div>

@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import './admin-requests-client.css';
+import '@/styles/pages/admin/requests-client.css';
 
 // Type definitions
 interface TriageCase {
@@ -297,7 +297,7 @@ export default function AdminRequestsClient() {
       <div className="content">
         <div className="case-page">
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-            <div style={{ textAlign: 'center', color: '#e11d48' }}>
+            <div style={{ textAlign: 'center', color: 'var(--color-danger)' }}>
               <div style={{ fontSize: '24px', marginBottom: '8px' }}>⚠️</div>
               <div>{error}</div>
               <button
@@ -392,7 +392,7 @@ export default function AdminRequestsClient() {
                 </div>
                 <div className="triage-list">
                   {triageCases.length === 0 ? (
-                    <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
+                    <div style={{ padding: '20px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                       Không có hồ sơ nào cần phân loại
                     </div>
                   ) : (
@@ -830,7 +830,7 @@ export default function AdminRequestsClient() {
             </div>
 
             {requests.length === 0 ? (
-              <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+              <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
                 <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>Không có hồ sơ nào</div>
                 <div>Các hồ sơ sẽ xuất hiện ở đây sau khi được phân loại.</div>

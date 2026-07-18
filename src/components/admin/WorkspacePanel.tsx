@@ -50,7 +50,7 @@ export function WorkspacePanel({ workspaces = [] }: { workspaces?: WorkspaceItem
 
       <div className="workspace-list">
         {workspaces.length === 0 ? (
-          <div style={{ padding: '24px 0', textAlign: 'center', color: '#94a3b8' }}>
+          <div style={{ padding: '24px 0', textAlign: 'center', color: 'var(--color-text-muted)' }}>
             {t('noWorkspaces')}
           </div>
         ) : (

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Typography } from 'antd';
 import { useTranslations } from 'next-intl';
 import { AdminAuditStats, type AuditStats } from './AdminAuditStats';
 import { AdminAuditTimeline, type AuditEventTimeline } from './AdminAuditTimeline';
@@ -185,10 +184,10 @@ export default function AdminAuditClient() {
       {/* Page header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 22 }}>
         <div>
-          <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: '#020617', marginBottom: 12 }}>
+          <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: 'var(--color-text)', marginBottom: 12 }}>
             {t('pageTitle')}
           </h1>
-          <p style={{ fontSize: 15, fontWeight: 500, color: '#5f6e83', margin: 0 }}>
+          <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-text-secondary)', margin: 0 }}>
             {t('pageDescription')}
           </p>
         </div>
@@ -223,15 +222,7 @@ export default function AdminAuditClient() {
       <AdminAuditStats stats={stats} />
 
       {/* Security notice card */}
-      <Card
-        style={{
-          marginBottom: 24,
-          background: '#fff',
-          border: '1px solid #dfe7f1',
-          borderRadius: 15,
-          boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)',
-        }}
-      >
+      <div className="toolbar-card">
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
           <div
             style={{
@@ -239,7 +230,7 @@ export default function AdminAuditClient() {
               height: 46,
               borderRadius: 12,
               background: 'linear-gradient(135deg, #d4f4ed, #eefbf8)',
-              color: '#087f78',
+              color: 'var(--color-primary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -252,29 +243,29 @@ export default function AdminAuditClient() {
             </svg>
           </div>
           <div>
-            <Typography.Text strong style={{ fontSize: 18, color: '#0f172a', display: 'block', marginBottom: 8 }}>
+            <strong style={{ fontSize: 18, color: 'var(--color-text)', display: 'block', marginBottom: 8 }}>
               {t('securityDisplayTitle') || 'Nguyên tắc hiển thị an toàn'}
-            </Typography.Text>
-            <Typography.Text style={{ color: '#59687e', fontSize: 14, lineHeight: 1.7 }}>
+            </strong>
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1.7 }}>
               {t('securityNote')}
-            </Typography.Text>
+            </span>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Grid 2-col: control alerts + timeline */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
         {/* Control alerts panel */}
         <div
           style={{
-            background: '#fff',
-            border: '1px solid #dfe7f1',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: 15,
             boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)',
             padding: 24,
           }}
         >
-          <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#087f78" strokeWidth="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
@@ -317,14 +308,14 @@ export default function AdminAuditClient() {
         {/* Timeline panel */}
         <div
           style={{
-            background: '#fff',
-            border: '1px solid #dfe7f1',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: 15,
             boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)',
             padding: 24,
           }}
         >
-          <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-text)', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#087f78" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
               <path d="M12 6v6l4 2" />
@@ -338,8 +329,8 @@ export default function AdminAuditClient() {
       {/* Toolbar */}
       <div
         style={{
-          background: '#fff',
-          border: '1px solid #dfe7f1',
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
           borderRadius: 15,
           boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)',
           padding: 20,
@@ -352,14 +343,14 @@ export default function AdminAuditClient() {
               style={{
                 width: 360,
                 height: 44,
-                border: '1px solid #dfe7f1',
+                border: '1px solid var(--color-border)',
                 borderRadius: 8,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 11,
                 padding: '0 14px',
                 color: '#718096',
-                background: '#fff',
+                background: 'var(--color-surface)',
               }}
             >
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#718096" strokeWidth="2">
@@ -384,8 +375,8 @@ export default function AdminAuditClient() {
               onClick={handleRefresh}
               style={{
                 height: 44,
-                border: '1px solid #dfe7f1',
-                background: '#fff',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-surface)',
                 borderRadius: 8,
                 padding: '0 16px',
                 display: 'flex',
@@ -413,21 +404,21 @@ export default function AdminAuditClient() {
       {error && (
         <div
           style={{
-            background: '#fff',
+            background: 'var(--color-surface)',
             border: '1px solid #fee2e2',
             borderRadius: 15,
             padding: 24,
             marginBottom: 20,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#dc2626', marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--color-danger)', marginBottom: 8 }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
               <path d="M12 8v4m0 4h.01" />
             </svg>
             <strong>{tCommon('error')}</strong>
           </div>
-          <p style={{ color: '#64748b', fontSize: 14, marginBottom: 12 }}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 14, marginBottom: 12 }}>
             {t('errorLoading') || 'Đã xảy ra lỗi khi lấy dữ liệu từ máy chủ. Vui lòng thử lại.'}
           </p>
           <button

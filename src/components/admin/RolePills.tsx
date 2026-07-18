@@ -16,11 +16,11 @@ interface RolePillsProps {
 }
 
 const roleColors: Record<string, { bg: string; color: string }> = {
-  customer: { bg: '#dbeafe', color: '#2563eb' },
-  specialist: { bg: '#dbeafe', color: '#2563eb' },
+  customer: { bg: '#dbeafe', color: 'var(--color-info)' },
+  specialist: { bg: '#dbeafe', color: 'var(--color-info)' },
   reviewer: { bg: '#ffedd5', color: '#ea580c' },
-  coordinator_admin: { bg: '#ccfbf1', color: '#0f766e' },
-  super_admin: { bg: '#ffe4e6', color: '#ef4444' },
+  coordinator_admin: { bg: '#ccfbf1', color: 'var(--color-primary)' },
+  super_admin: { bg: '#ffe4e6', color: 'var(--color-danger)' },
   audit_admin: { bg: '#ede9fe', color: '#7c3aed' },
 };
 
@@ -29,8 +29,8 @@ const ROLES = ['customer', 'specialist', 'reviewer', 'coordinator_admin', 'super
 export default function RolePills({ roleStats, pendingCount, translations }: RolePillsProps) {
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid #dfe7f1',
+      background: 'var(--color-surface)',
+      border: '1px solid var(--color-border)',
       borderRadius: 15,
       boxShadow: '0 10px 25px rgba(15, 23, 42, 0.04)',
       padding: 24,
@@ -43,7 +43,7 @@ export default function RolePills({ roleStats, pendingCount, translations }: Rol
         fontSize: 20,
         fontWeight: 800,
         marginBottom: 18,
-        color: '#0f172a',
+        color: 'var(--color-text)',
       }}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#087f78" strokeWidth="2">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -129,7 +129,7 @@ export default function RolePills({ roleStats, pendingCount, translations }: Rol
         </div>
       </div>
 
-      <p style={{ color: '#59687e', fontSize: 14, fontWeight: 500, lineHeight: 1.7, margin: 0 }}>
+      <p style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500, lineHeight: 1.7, margin: 0 }}>
         User/role/workspace changes call createAdminUser, updateAdminUserRole, deactivateAdminUser,
         assignUserToWorkspace and are audited with actor, correlationId and metadataSummary.
       </p>

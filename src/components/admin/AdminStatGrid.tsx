@@ -9,10 +9,10 @@ export interface StatCardProps {
 }
 
 const variants = {
-  blue: { bg: 'linear-gradient(135deg, #dfe8ff, #eef4ff)', color: '#2563eb' },
-  green: { bg: 'linear-gradient(135deg, #d4f4ed, #eefbf8)', color: '#0f766e' },
+  blue: { bg: 'linear-gradient(135deg, #dfe8ff, #eef4ff)', color: 'var(--color-info)' },
+  green: { bg: 'linear-gradient(135deg, #d4f4ed, #eefbf8)', color: 'var(--color-primary)' },
   orange: { bg: 'linear-gradient(135deg, #ffe2bf, #fff1df)', color: '#f97316' },
-  red: { bg: 'linear-gradient(135deg, #fee2e2, #fef2f2)', color: '#dc2626' },
+  red: { bg: 'linear-gradient(135deg, #fee2e2, #fef2f2)', color: 'var(--color-danger)' },
   purple: { bg: 'linear-gradient(135deg, #ede9fe, #f5f3ff)', color: '#7c3aed' },
 };
 
@@ -58,8 +58,8 @@ export function StatCard({ title, value, description, icon, variant = 'blue' }: 
   return (
     <div data-testid="admin-stat-card" style={{
       height: 126,
-      background: '#fff',
-      border: '1px solid #dfe7f1',
+      background: 'var(--color-surface)',
+      border: '1px solid var(--color-border)',
       borderRadius: 15,
       display: 'flex',
       alignItems: 'center',
@@ -84,9 +84,9 @@ export function StatCard({ title, value, description, icon, variant = 'blue' }: 
         {icon ?? defaultIcons[variant] ?? defaultIcons.blue}
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 14, color: '#566579', fontWeight: 600, marginBottom: 8 }}>{title}</div>
-        <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1, marginBottom: 10, color: '#0f172a' }}>{value}</div>
-        <div style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>{description}</div>
+        <div style={{ fontSize: 14, color: 'var(--color-text-secondary)', fontWeight: 600, marginBottom: 8 }}>{title}</div>
+        <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1, marginBottom: 10, color: 'var(--color-text)' }}>{value}</div>
+        <div style={{ fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 500 }}>{description}</div>
       </div>
       <div style={{
         position: 'absolute',
@@ -96,7 +96,7 @@ export function StatCard({ title, value, description, icon, variant = 'blue' }: 
         height: 21,
         borderRadius: '50%',
         border: '2px solid #cbd5e1',
-        color: '#94a3b8',
+        color: 'var(--color-text-muted)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

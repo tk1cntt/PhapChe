@@ -113,7 +113,7 @@ describe('AdminVaultClient', () => {
         ok: true,
         json: async () => ({
           folders: [
-            { id: '1', name: 'Contracts', name_vi: 'Hợp đồng', _count: { vaultFileFolders: 5 } },
+            { id: '1', name: 'Hợp đồng', _count: { vaultFileFolders: 5 } },
           ],
           tags: [],
           classifications: [],
@@ -136,7 +136,7 @@ describe('AdminVaultClient', () => {
         json: async () => ({
           folders: [],
           tags: [
-            { id: '1', key: 'contract', label_vi: 'Hợp đồng', _count: { vaultFileTags: 10 } },
+            { id: '1', key: 'contract', label: 'Hợp đồng', _count: { vaultFileTags: 10 } },
           ],
           classifications: [],
         }),

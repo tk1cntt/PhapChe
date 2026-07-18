@@ -1,7 +1,7 @@
 'use client';
 
-import { Flex, Spin, Alert } from 'antd';
 import { useTranslations } from 'next-intl';
+import { RefreshCw } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { usePaginationParams } from '@/lib/hooks/usePaginationParams';
 import { useDebounce } from '@/lib/hooks/useDebounce';
@@ -51,27 +51,27 @@ interface UsersPageClientProps {
 }
 
 const roleColors: Record<string, { bg: string; color: string }> = {
-  customer: { bg: '#dbeafe', color: '#2563eb' },
-  specialist: { bg: '#dbeafe', color: '#2563eb' },
+  customer: { bg: '#dbeafe', color: 'var(--color-info)' },
+  specialist: { bg: '#dbeafe', color: 'var(--color-info)' },
   reviewer: { bg: '#ffedd5', color: '#ea580c' },
-  coordinator_admin: { bg: '#ccfbf1', color: '#0f766e' },
-  super_admin: { bg: '#ffe4e6', color: '#ef4444' },
+  coordinator_admin: { bg: '#ccfbf1', color: 'var(--color-primary)' },
+  super_admin: { bg: '#ffe4e6', color: 'var(--color-danger)' },
   audit_admin: { bg: '#ede9fe', color: '#7c3aed' },
 };
 
 const avatarColors: Record<string, { bg: string; color: string }> = {
-  customer: { bg: '#dbeafe', color: '#2563eb' },
-  specialist: { bg: '#dbeafe', color: '#2563eb' },
+  customer: { bg: '#dbeafe', color: 'var(--color-info)' },
+  specialist: { bg: '#dbeafe', color: 'var(--color-info)' },
   reviewer: { bg: '#ffedd5', color: '#ea580c' },
-  coordinator_admin: { bg: '#ccfbf1', color: '#0f766e' },
+  coordinator_admin: { bg: '#ccfbf1', color: 'var(--color-primary)' },
   super_admin: { bg: '#ede9fe', color: '#7c3aed' },
-  audit_admin: { bg: '#ccfbf1', color: '#0f766e' },
+  audit_admin: { bg: '#ccfbf1', color: 'var(--color-primary)' },
 };
 
 const toolBtnStyle: React.CSSProperties = {
   height: 44,
-  border: '1px solid #dfe7f1',
-  background: '#fff',
+  border: '1px solid var(--color-border)',
+  background: 'var(--color-surface)',
   borderRadius: 8,
   padding: '0 16px',
   display: 'flex',
@@ -118,18 +118,32 @@ export default function UsersPageClient({
 
   if (isLoading) {
     return (
-      <Flex justify="center" style={{ padding: 48 }}>
-        <Spin />
-      </Flex>
+      <div className="panel" style={{ textAlign: 'center', padding: 48 }}>
+        <div className="skeleton skeleton-title" style={{ margin: '0 auto' }} />
+        <div className="skeleton skeleton-row" />
+        <div className="skeleton skeleton-row" />
+        <div className="skeleton skeleton-row" />
+      </div>
     );
   }
 
-
   if (isError) {
     return (
-      <Flex justify="center" style={{ padding: 48 }}>
-        <Alert message={t('errorLoadingUsers')} type="error" showIcon />
-      </Flex>
+      <div className="panel" style={{ textAlign: 'center', padding: 48 }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: '50%',
+          background: 'var(--color-danger-muted)', color: 'var(--color-danger)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          margin: '0 auto 16px',
+        }}>
+          <RefreshCw size={24} />
+        </div>
+        <p style={{ color: 'var(--color-text-muted)', marginBottom: 16 }}>{t('errorLoadingUsers')}</p>
+        <button className="btn-primary" onClick={() => refetch()}>
+          <RefreshCw size={16} />
+          {t('refresh')}
+        </button>
+      </div>
     );
   }
   const statCards = [
@@ -175,10 +189,10 @@ export default function UsersPageClient({
       {/* Page Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 22 }}>
         <div>
-          <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: '#020617', marginBottom: 12 }}>
+          <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: 'var(--color-text)', marginBottom: 12 }}>
             {t('pageTitle')}
           </h1>
-          <p style={{ fontSize: 15, fontWeight: 500, color: '#5f6e83', margin: 0 }}>
+          <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-text-secondary)', margin: 0 }}>
             {t('pageDescription')}
           </p>
         </div>

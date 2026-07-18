@@ -85,8 +85,8 @@ export function AdminAuditStats({ stats }: AdminAuditStatsProps) {
           key={card.title}
           style={{
             height: 126,
-            background: '#fff',
-            border: '1px solid #dfe7f1',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: 15,
             display: 'flex',
             alignItems: 'center',
@@ -113,7 +113,7 @@ export function AdminAuditStats({ stats }: AdminAuditStatsProps) {
             <div
               style={{
                 fontSize: 14,
-                color: '#566579',
+                color: 'var(--color-text-secondary)',
                 fontWeight: 600,
                 marginBottom: 8,
               }}
@@ -126,7 +126,7 @@ export function AdminAuditStats({ stats }: AdminAuditStatsProps) {
                 fontWeight: 800,
                 lineHeight: 1,
                 marginBottom: 10,
-                color: '#0f172a',
+                color: 'var(--color-text)',
               }}
             >
               {card.value.toLocaleString()}
@@ -134,7 +134,7 @@ export function AdminAuditStats({ stats }: AdminAuditStatsProps) {
             <div
               style={{
                 fontSize: 13,
-                color: '#64748b',
+                color: 'var(--color-text-muted)',
                 fontWeight: 500,
               }}
             >

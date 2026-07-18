@@ -4,6 +4,7 @@ import { use, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
+import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 
 interface PageProps {
   userId: string;
@@ -125,15 +126,6 @@ function getFileIconClass(filename: string): string {
   return 'file-icon-doc';
 }
 
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
-
 export default function UserActivityClient({ userId, locale, initialUser }: PageProps) {
   const t = useTranslations('AdminUsers');
   const [activeTab, setActiveTab] = useState('all');
@@ -152,7 +144,7 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
-        <div style={{ color: '#64748b' }}>Loading...</div>
+        <div style={{ color: 'var(--color-text-muted)' }}>Loading...</div>
       </div>
     );
   }
@@ -160,7 +152,7 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
   if (error || !data) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
-        <div style={{ color: '#ef4444' }}>Error loading user data</div>
+        <div style={{ color: 'var(--color-danger)' }}>Error loading user data</div>
       </div>
     );
   }
@@ -999,14 +991,14 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
               </svg>
-              Quay lại danh sách user
+              {t('backToList')}
             </Link>
 
             <div className="ua-top-actions">
-              <button className="ua-btn">Xuất activity</button>
-              <button className="ua-btn">Xem audit</button>
-              <button className="ua-btn ua-btn-primary">Cập nhật user</button>
-              <button className="ua-btn ua-btn-danger">Khóa quyền</button>
+              <button className="ua-btn">{t('exportActivity')}</button>
+              <button className="ua-btn">{t('viewAudit')}</button>
+              <button className="ua-btn ua-btn-primary">{t('updateUser')}</button>
+              <button className="ua-btn ua-btn-danger">{t('lockPermissions')}</button>
             </div>
           </div>
 
@@ -1017,13 +1009,11 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                 <div className="ua-avatar">{getInitials(user.name)}</div>
 
                 <div className="ua-hero-title">
-                  <div className="ua-kicker">User activity dashboard</div>
+                  <div className="ua-kicker">{t('userActivityDashboard')}</div>
                   <h1>{user.name}</h1>
 
                   <p className="ua-hero-desc">
-                    Theo dõi toàn bộ hoạt động của user: đang thuộc organization/workspace nào,
-                    đang tham gia hồ sơ nào, tương tác với partner nào, tài liệu nào đã upload/review,
-                    trạng thái quyền truy cập và rủi ro vận hành liên quan đến user.
+                    {t('heroDescription')}
                   </p>
 
                   <div className="ua-chips">
@@ -1037,13 +1027,13 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
               <div className="ua-hero-right">
                 <span className={`ua-status-badge ${user.status === 'active' ? '' : user.status === 'invited' ? 'warning' : 'inactive'}`}>
                   <span className="ua-status-dot"></span>
-                  {user.status === 'active' ? 'Active user' : user.status === 'invited' ? 'Invited' : 'Inactive'}
+                  {user.status === 'active' ? t('statusActiveUser') : user.status === 'invited' ? t('statusInvited') : t('statusInactive')}
                 </span>
 
                 <div className="ua-health-card">
                   <div>
                     <strong>{user.healthScore}%</strong>
-                    <span>User activity health</span>
+                    <span>{t('userActivityHealth')}</span>
                   </div>
                 </div>
               </div>
@@ -1051,39 +1041,39 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
 
             <div className="ua-hero-stats">
               <div className="ua-stat-card">
-                <div className="ua-stat-label">Organizations</div>
+                <div className="ua-stat-label">{t('statOrganizations')}</div>
                 <div className="ua-stat-value">{user.stats.organizations}</div>
-                <div className="ua-stat-sub">Primary org</div>
+                <div className="ua-stat-sub">{t('statPrimaryOrg')}</div>
               </div>
 
               <div className="ua-stat-card">
-                <div className="ua-stat-label">Workspaces</div>
+                <div className="ua-stat-label">{t('statWorkspaces')}</div>
                 <div className="ua-stat-value">{user.stats.workspaces}</div>
-                <div className="ua-stat-sub">{user.stats.activeWorkspacesToday} active hôm nay</div>
+                <div className="ua-stat-sub">{t('statActiveToday', { count: user.stats.activeWorkspacesToday })}</div>
               </div>
 
               <div className="ua-stat-card">
-                <div className="ua-stat-label">Open cases</div>
+                <div className="ua-stat-label">{t('statOpenCases')}</div>
                 <div className="ua-stat-value">{user.stats.openCases}</div>
-                <div className="ua-stat-sub">{user.slaRisk.pendingActions} cần user phản hồi</div>
+                <div className="ua-stat-sub">{t('statNeedsResponse', { count: user.slaRisk.pendingActions })}</div>
               </div>
 
               <div className="ua-stat-card">
-                <div className="ua-stat-label">Partners</div>
+                <div className="ua-stat-label">{t('statPartners')}</div>
                 <div className="ua-stat-value">{user.stats.partners}</div>
-                <div className="ua-stat-sub">IP, Tax, Internal</div>
+                <div className="ua-stat-sub">{t('statPartnerTypes')}</div>
               </div>
 
               <div className="ua-stat-card">
-                <div className="ua-stat-label">Documents</div>
+                <div className="ua-stat-label">{t('statDocuments')}</div>
                 <div className="ua-stat-value">{user.stats.documents}</div>
-                <div className="ua-stat-sub">files uploaded</div>
+                <div className="ua-stat-sub">{t('statFilesUploaded')}</div>
               </div>
 
               <div className="ua-stat-card">
-                <div className="ua-stat-label">Risk</div>
+                <div className="ua-stat-label">{t('statRisk')}</div>
                 <div className="ua-stat-value">{user.stats.risk}</div>
-                <div className="ua-stat-sub">Quyền & SLA</div>
+                <div className="ua-stat-sub">{t('statRiskDesc')}</div>
               </div>
             </div>
           </div>
@@ -1097,14 +1087,14 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                   className={`ua-tab-btn ${activeTab === tab ? 'active' : ''}`}
                   onClick={() => setActiveTab(tab)}
                 >
-                  {tab === 'all' && 'Tất cả hoạt động'}
-                  {tab === 'requests' && 'Hồ sơ'}
-                  {tab === 'org' && 'Organization'}
-                  {tab === 'workspace' && 'Workspace'}
-                  {tab === 'partner' && 'Partner'}
-                  {tab === 'docs' && 'Tài liệu'}
-                  {tab === 'permission' && 'Permission'}
-                  {tab === 'risk' && 'Risk'}
+                  {tab === 'all' && t('tabAll')}
+                  {tab === 'requests' && t('tabRequests')}
+                  {tab === 'org' && t('tabOrg')}
+                  {tab === 'workspace' && t('tabWorkspace')}
+                  {tab === 'partner' && t('tabPartner')}
+                  {tab === 'docs' && t('tabDocs')}
+                  {tab === 'permission' && t('tabPermission')}
+                  {tab === 'risk' && t('tabRisk')}
                 </button>
               ))}
             </div>
@@ -1120,16 +1110,16 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                   <div className="ua-panel-title">
                     <div className="ua-icon ua-icon-green">A</div>
                     <div>
-                      <h2>Activity feed</h2>
-                      <div className="ua-subtitle">Dòng thời gian hoạt động gần nhất của user trên hồ sơ, partner, tài liệu và workspace.</div>
+                      <h2>{t('activityFeed')}</h2>
+                      <div className="ua-subtitle">{t('activityFeedDesc')}</div>
                     </div>
                   </div>
-                  <span className="ua-chip">24h gần nhất</span>
+                  <span className="ua-chip">{t('last24h')}</span>
                 </div>
                 <div className="ua-panel-body">
                   {user.activityFeed.length === 0 ? (
-                    <div style={{ color: '#64748b', textAlign: 'center', padding: 24 }}>
-                      Chưa có hoạt động nào
+                    <div style={{ color: 'var(--color-text-muted)', textAlign: 'center', padding: 24 }}>
+                      {t('noActivity')}
                     </div>
                   ) : (
                     <div className="ua-feed">
@@ -1171,26 +1161,26 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                   <div className="ua-panel-title">
                     <div className="ua-icon ua-icon-blue">C</div>
                     <div>
-                      <h2>Hồ sơ user đang tham gia</h2>
-                      <div className="ua-subtitle">Các hồ sơ mà user đang là owner, requester, reviewer hoặc người cần phản hồi.</div>
+                      <h2>{t('userCasesTitle')}</h2>
+                      <div className="ua-subtitle">{t('userCasesDesc')}</div>
                     </div>
                   </div>
-                  <span className="ua-chip">{user.requests.length} hồ sơ</span>
+                  <span className="ua-chip">{t('caseCount', { count: user.requests.length })}</span>
                 </div>
                 <div className="ua-table-wrap">
                   {user.requests.length === 0 ? (
-                    <div style={{ padding: 24, color: '#64748b', textAlign: 'center' }}>
-                      Chưa có hồ sơ nào
+                    <div style={{ padding: 24, color: 'var(--color-text-muted)', textAlign: 'center' }}>
+                      {t('noCases')}
                     </div>
                   ) : (
                     <table className="ua-activity-table">
                       <thead>
                         <tr>
-                          <th>Mã hồ sơ</th>
-                          <th>Workspace</th>
-                          <th>Partner</th>
-                          <th>Trạng thái</th>
-                          <th>SLA</th>
+                          <th>{t('colCaseCode')}</th>
+                          <th>{t('colWorkspace')}</th>
+                          <th>{t('colPartner')}</th>
+                          <th>{t('colStatus')}</th>
+                          <th>{t('colSla')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1212,7 +1202,7 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                             <td>
                               {req.slaDeadline ? (
                                 <span className={`ua-mini-badge ua-mini-badge-${new Date(req.slaDeadline) < new Date() ? 'red' : 'green'}`}>
-                                  {formatDate(req.slaDeadline)}
+                                  <FormattedDate date={req.slaDeadline} variant="date" />
                                 </span>
                               ) : '—'}
                             </td>
@@ -1230,11 +1220,11 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                   <div className="ua-panel-title">
                     <div className="ua-icon ua-icon-purple">O</div>
                     <div>
-                      <h2>Organization & Workspace access</h2>
-                      <div className="ua-subtitle">User đang thuộc org nào, có quyền trong workspace nào và đang active ra sao.</div>
+                      <h2>{t('orgAccessTitle')}</h2>
+                      <div className="ua-subtitle">{t('orgAccessDesc')}</div>
                     </div>
                   </div>
-                  <span className="ua-chip">{user.memberships.length} workspaces</span>
+                  <span className="ua-chip">{t('workspaceCount', { count: user.memberships.length })}</span>
                 </div>
                 <div className="ua-panel-body">
                   <div style={{ display: 'grid', gap: 14 }}>
@@ -1242,13 +1232,13 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                       <div key={membership.id} className="ua-org-card">
                         <div>
                           <strong>{membership.workspace?.name || 'Unknown Workspace'}</strong>
-                          <span>Vai trò: {membership.role}. {membership.isActive ? 'Đang hoạt động' : 'Không hoạt động'}.</span>
+                          <span>{t('roleLabel')}: {membership.role}. {membership.isActive ? t('statusActive') : t('statusNotActive')}.</span>
                           <div className="ua-metric-row">
-                            <span className="ua-metric">{membership.isActive ? 'Active' : 'Inactive'}</span>
+                            <span className="ua-metric">{membership.isActive ? t('badgeActive') : t('badgeInactive')}</span>
                           </div>
                         </div>
                         <span className={`ua-mini-badge ua-mini-badge-${membership.isActive ? 'green' : 'gray'}`}>
-                          {membership.isActive ? 'Primary' : 'Inactive'}
+                          {membership.isActive ? t('badgePrimary') : t('badgeInactive')}
                         </span>
                       </div>
                     ))}
@@ -1269,7 +1259,7 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                 <div className="ua-chips" style={{ justifyContent: 'center' }}>
                   <span className={`ua-status-badge ${user.status === 'active' ? '' : user.status === 'invited' ? 'warning' : 'inactive'}`}>
                     <span className="ua-status-dot"></span>
-                    {user.status === 'active' ? 'Active' : user.status === 'invited' ? 'Invited' : 'Inactive'}
+                    {user.status === 'active' ? t('statusActiveUser') : user.status === 'invited' ? t('statusInvited') : t('statusInactive')}
                   </span>
                 </div>
               </section>
@@ -1280,31 +1270,31 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                   <div className="ua-panel-title">
                     <div className="ua-icon ua-icon-green">U</div>
                     <div>
-                      <h2>User status</h2>
-                      <div className="ua-subtitle">Thông tin vận hành hiện tại.</div>
+                      <h2>{t('userStatusTitle')}</h2>
+                      <div className="ua-subtitle">{t('userStatusDesc')}</div>
                     </div>
                   </div>
                 </div>
                 <div className="ua-panel-body" style={{ display: 'grid', gap: 14 }}>
                   <div className="ua-side-item">
-                    <div className="ua-side-label">Trạng thái tài khoản</div>
+                    <div className="ua-side-label">{t('accountStatus')}</div>
                     <div className="ua-side-value">
-                      {user.status === 'active' ? 'Active · có thể truy cập workspace' :
-                       user.status === 'invited' ? 'Invited · đang chờ xác nhận email' : 'Inactive · bị khóa'}
+                      {user.status === 'active' ? t('statusActiveDesc') :
+                       user.status === 'invited' ? t('statusInvitedDesc') : t('statusInactiveDesc')}
                     </div>
                   </div>
                   <div className="ua-side-item">
-                    <div className="ua-side-label">Vai trò chính</div>
+                    <div className="ua-side-label">{t('primaryRole')}</div>
                     <div className="ua-side-value">{primaryMembership?.role || user.role}</div>
                   </div>
                   <div className="ua-side-item">
-                    <div className="ua-side-label">Last active</div>
+                    <div className="ua-side-label">{t('lastActive')}</div>
                     <div className="ua-side-value">
-                      {user.lastActiveAt ? formatDate(user.lastActiveAt) : 'Chưa có hoạt động'}
+                      {user.lastActiveAt ? <FormattedDate date={user.lastActiveAt} variant="date" /> : t('noActivityYet')}
                     </div>
                   </div>
                   <div className="ua-side-item">
-                    <div className="ua-side-label">Identifier</div>
+                    <div className="ua-side-label">{t('identifier')}</div>
                     <div className="ua-side-value">{user.identifier}</div>
                   </div>
                 </div>
@@ -1316,14 +1306,14 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                   <div className="ua-panel-title">
                     <div className="ua-icon ua-icon-blue">P</div>
                     <div>
-                      <h2>Partners liên quan</h2>
-                      <div className="ua-subtitle">Partner mà user đang trao đổi hoặc chia sẻ tài liệu.</div>
+                      <h2>{t('relatedPartners')}</h2>
+                      <div className="ua-subtitle">{t('relatedPartnersDesc')}</div>
                     </div>
                   </div>
                 </div>
                 <div className="ua-panel-body" style={{ display: 'grid', gap: 14 }}>
                   {user.partners.length === 0 ? (
-                    <div style={{ color: '#64748b', textAlign: 'center' }}>Chưa có partner liên quan</div>
+                    <div style={{ color: 'var(--color-text-muted)', textAlign: 'center' }}>{t('noPartners')}</div>
                   ) : (
                     user.partners.map((partner) => (
                       <div key={partner.id} className="ua-partner-card">
@@ -1344,8 +1334,8 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                   <div className="ua-panel-title">
                     <div className="ua-icon ua-icon-orange">S</div>
                     <div>
-                      <h2>SLA & Risk</h2>
-                      <div className="ua-subtitle">Rủi ro vận hành liên quan đến user.</div>
+                      <h2>{t('slaRiskTitle')}</h2>
+                      <div className="ua-subtitle">{t('slaRiskDesc')}</div>
                     </div>
                   </div>
                 </div>
@@ -1353,7 +1343,7 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                   <div className="ua-capacity">
                     <div className="ua-capacity-row">
                       <div className="ua-capacity-top">
-                        <span>Action đang chờ user</span>
+                        <span>{t('pendingActions')}</span>
                         <span>{user.slaRisk.pendingActions}</span>
                       </div>
                       <div className="ua-track">
@@ -1363,7 +1353,7 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
 
                     <div className="ua-capacity-row">
                       <div className="ua-capacity-top">
-                        <span>Phản hồi đúng hạn</span>
+                        <span>{t('onTimeResponse')}</span>
                         <span>{user.slaRisk.onTimeRate}%</span>
                       </div>
                       <div className="ua-track">
@@ -1373,8 +1363,8 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
 
                     {user.slaRisk.pendingActions > 0 && (
                       <div className="ua-risk-card">
-                        <strong>{user.slaRisk.pendingActions} hồ sơ cần user phản hồi</strong>
-                        <span>Các hồ sơ đang chờ {user.name} xác nhận thông tin trước khi tiếp tục workflow.</span>
+                        <strong>{t('casesNeedResponse', { count: user.slaRisk.pendingActions })}</strong>
+                        <span>{t('casesNeedResponseDesc', { name: user.name })}</span>
                       </div>
                     )}
                   </div>
@@ -1387,14 +1377,14 @@ export default function UserActivityClient({ userId, locale, initialUser }: Page
                   <div className="ua-panel-title">
                     <div className="ua-icon ua-icon-green">T</div>
                     <div>
-                      <h2>Timeline tuần này</h2>
-                      <div className="ua-subtitle">Các mốc hoạt động chính của user.</div>
+                      <h2>{t('timelineThisWeek')}</h2>
+                      <div className="ua-subtitle">{t('timelineDesc')}</div>
                     </div>
                   </div>
                 </div>
                 <div className="ua-panel-body" style={{ display: 'grid', gap: 14 }}>
                   {user.timeline.length === 0 ? (
-                    <div style={{ color: '#64748b', textAlign: 'center' }}>Chưa có timeline</div>
+                    <div style={{ color: 'var(--color-text-muted)', textAlign: 'center' }}>{t('noTimeline')}</div>
                   ) : (
                     user.timeline.map((item) => (
                       <div key={item.step} className="ua-timeline-item">

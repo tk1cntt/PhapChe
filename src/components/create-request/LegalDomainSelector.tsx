@@ -15,6 +15,7 @@ import {
   Hammer,
   Plug,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { SEED_LEGAL_DOMAINS } from '@/lib/i18n/seed-legal-domains';
 
 interface LegalDomainSelectorProps {
@@ -44,11 +45,12 @@ export default function LegalDomainSelector({
   onSelect,
   locale = 'vi',
 }: LegalDomainSelectorProps) {
+  const t = useTranslations('UserCreateRequest');
   const domains = Object.values(SEED_LEGAL_DOMAINS);
 
   return (
     <div className="w-full">
-      <h2 className="domain-title">Chọn lĩnh vực pháp lý</h2>
+      <h2 className="domain-title">{t('domainTitle')}</h2>
       <div className="domain-grid">
         {domains.map((domain) => {
           const Icon = ICON_MAP[domain.icon] || Briefcase;
@@ -69,7 +71,7 @@ export default function LegalDomainSelector({
               </div>
               <h3 className="domain-name">{label}</h3>
               <p className="domain-desc">{description}</p>
-              <span className="domain-count">{serviceCount} dịch vụ</span>
+              <span className="domain-count">{t('serviceCount', { count: serviceCount })}</span>
             </button>
           );
         })}

@@ -50,7 +50,7 @@ export default function ServiceTypeSelector({ selectedId, onSelect, locale = 'vi
 
   return (
     <div className="space-y-4">
-      <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '18px' }}>
+      <p style={{ fontSize: '14px', color: 'var(--color-text-muted)', lineHeight: 1.7, marginBottom: '18px' }}>
         {t('serviceSelectionDesc')}
       </p>
       {SERVICE_OPTIONS.map((service) => (

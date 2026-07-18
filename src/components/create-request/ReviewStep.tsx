@@ -7,7 +7,7 @@ import type { WizardState } from '@/lib/types/wizard';
 
 interface ReviewStepProps {
   state: WizardState;
-  onEdit: (step: number) => void;
+  onEdit: (step: 1 | 2 | 3 | 4 | 5) => void;
   onSubmit: () => Promise<void>;
   locale?: string;
   userContactInfo?: {
@@ -35,8 +35,9 @@ export default function ReviewStep({
 
   const domain = state.domainId ? SEED_LEGAL_DOMAINS[state.domainId] : null;
   const service = state.serviceType ? SEED_MATTER_TYPES[state.serviceType] : null;
-  const domainLabel = domain?.label[locale] || domain?.label.vi || 'Chưa chọn';
-  const serviceLabel = service?.label[locale] || service?.label.vi || 'Chưa chọn';
+  const tKey = (locale || 'vi') as 'vi' | 'en' | 'zh' | 'ja';
+  const domainLabel = domain?.label[tKey] || domain?.label.vi || 'Chưa chọn';
+  const serviceLabel = service?.label[tKey] || service?.label.vi || 'Chưa chọn';
 
   const isFormValid = state.domainId && state.serviceType && state.contactInfo.email;
 

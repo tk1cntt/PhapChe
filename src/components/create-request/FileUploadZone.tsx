@@ -8,6 +8,8 @@ interface FileUploadZoneProps {
   files: UploadedFile[];
   onFileAdd: (file: UploadedFile) => void;
   onFileRemove: (fileId: string) => void;
+  onFileStore?: (id: string, file: File) => void;
+  onFileUnstore?: (id: string) => void;
   locale?: string;
 }
 
@@ -54,6 +56,8 @@ export default function FileUploadZone({
   files,
   onFileAdd,
   onFileRemove,
+  onFileStore,
+  onFileUnstore,
   locale = 'vi',
 }: FileUploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
@@ -112,11 +116,13 @@ export default function FileUploadZone({
           setSimulatedProgress(100);
 
           setTimeout(() => {
+            const tempId = generateTempFileId();
             onFileAdd({
-              vaultFileId: generateTempFileId(),
+              vaultFileId: tempId,
               filename: file.name,
               size: file.size,
             });
+            onFileStore?.(tempId, file);
             setSimulatingProgress(false);
             setSimulatedProgress(0);
           }, 200);
@@ -160,9 +166,10 @@ export default function FileUploadZone({
     (fileId: string) => {
       if (window.confirm('Xóa file này?')) {
         onFileRemove(fileId);
+        onFileUnstore?.(fileId);
       }
     },
-    [onFileRemove]
+    [onFileRemove, onFileUnstore]
   );
 
   const handleZoneClick = useCallback(() => {

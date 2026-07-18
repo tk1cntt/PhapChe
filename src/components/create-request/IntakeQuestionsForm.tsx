@@ -72,15 +72,15 @@ const IntakeQuestionsForm = forwardRef<IntakeQuestionsFormHandle, IntakeQuestion
 
     return (
       <form ref={formRef}>
-        <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '18px' }}>
+        <p style={{ fontSize: '14px', color: 'var(--color-text-muted)', lineHeight: 1.7, marginBottom: '18px' }}>
           {matterType?.description?.[locale as keyof typeof matterType.description] || matterType?.description?.vi || 'Điền thông tin cần thiết'}
         </p>
 
         {questions.map((question) => (
           <div key={question.key} style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
               {question.label}
-              {question.required && <span style={{ color: '#ef4444', marginLeft: '2px' }}>*</span>}
+              {question.required && <span style={{ color: 'var(--color-danger)', marginLeft: '2px' }}>*</span>}
             </label>
             {question.type === 'textarea' ? (
               <textarea
@@ -100,8 +100,8 @@ const IntakeQuestionsForm = forwardRef<IntakeQuestionsFormHandle, IntakeQuestion
           </div>
         ))}
 
-        <p style={{ fontSize: '12px', color: '#64748b' }}>
-          <span style={{ color: '#ef4444' }}>*</span> Thông tin bắt buộc
+        <p style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+          <span style={{ color: 'var(--color-danger)' }}>*</span> Thông tin bắt buộc
         </p>
       </form>
     );

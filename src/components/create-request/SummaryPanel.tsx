@@ -22,13 +22,12 @@ export default function SummaryPanel({
 }: SummaryPanelProps) {
   const t = useTranslations('UserCreateRequest');
 
-  // Get service info from seed data
   const serviceInfo = selectedService ? SEED_MATTER_TYPES[selectedService] : null;
   const domainInfo = selectedDomainId ? SEED_LEGAL_DOMAINS[selectedDomainId] : null;
 
   const serviceName = serviceInfo
     ? (serviceInfo.label[locale as keyof typeof serviceInfo.label] || serviceInfo.label.vi)
-    : 'Chưa chọn dịch vụ';
+    : '';
 
   const domainName = domainInfo
     ? (domainInfo.label[locale as keyof typeof domainInfo.label] || domainInfo.label.vi)
@@ -51,7 +50,7 @@ export default function SummaryPanel({
           {selectedService ? (
             <div className="summary-item">
               <div>
-                <strong>Dịch vụ đã chọn</strong>
+                <strong>{t('summaryServiceSelected')}</strong>
                 <span>{serviceName}</span>
               </div>
               <MiniIcon letter="1" />
@@ -59,7 +58,7 @@ export default function SummaryPanel({
           ) : selectedDomainId ? (
             <div className="summary-item">
               <div>
-                <strong>Lĩnh vực đã chọn</strong>
+                <strong>{t('summaryDomainSelected')}</strong>
                 <span>{domainName}</span>
               </div>
               <MiniIcon letter="1" />
@@ -67,8 +66,8 @@ export default function SummaryPanel({
           ) : (
             <div className="summary-item">
               <div>
-                <strong>Chưa chọn dịch vụ</strong>
-                <span>Vui lòng chọn dịch vụ pháp lý</span>
+                <strong>{t('summaryNoService')}</strong>
+                <span>{t('summaryNoServiceHint')}</span>
               </div>
               <MiniIcon letter="?" />
             </div>
@@ -84,16 +83,16 @@ export default function SummaryPanel({
 
           <div className="summary-item">
             <div>
-              <strong>Dự kiến xử lý</strong>
-              <span>{serviceInfo ? '2-3 ngày làm việc sau khi đủ tài liệu' : 'Chọn dịch vụ để biết thời gian'}</span>
+              <strong>{t('summaryEstimated')}</strong>
+              <span>{serviceInfo ? t('summaryEstimatedTime') : t('summaryEstimatedPickService')}</span>
             </div>
             <MiniIcon letter="S" />
           </div>
 
           <div className="summary-item">
             <div>
-              <strong>Trạng thái</strong>
-              <span>Hồ sơ nháp, chưa gửi cho chuyên viên</span>
+              <strong>{t('status')}</strong>
+              <span>{t('summaryDraftStatus')}</span>
             </div>
             <MiniIcon letter="D" />
           </div>

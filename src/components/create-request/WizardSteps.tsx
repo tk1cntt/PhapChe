@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useWizard } from './WizardProvider';
 
 interface WizardStepsProps {
@@ -10,20 +11,13 @@ interface WizardStepsProps {
   validationErrors?: Record<number, boolean>;
 }
 
-const STEP_LABELS = [
-  'Lĩnh vực',
-  'Dịch vụ',
-  'Thông tin',
-  'Tài liệu',
-  'Xác nhận',
-];
-
 export default function WizardSteps({
   currentStep,
   totalSteps = 5,
   completedSteps = [],
   validationErrors = {},
 }: WizardStepsProps) {
+  const t = useTranslations('CreateRequest');
   const { actions } = useWizard();
 
   const handleStepClick = (stepNumber: number) => {
@@ -41,6 +35,7 @@ export default function WizardSteps({
           const isCurrent = stepNumber === currentStep;
           const hasError = validationErrors[stepNumber];
           const isClickable = isCompleted;
+          const label = t(`wizard.step${stepNumber}`);
 
           return (
             <div key={stepNumber} className="wizard-step-item">
@@ -50,7 +45,7 @@ export default function WizardSteps({
                 onClick={() => handleStepClick(stepNumber)}
                 disabled={!isClickable}
                 className={`wizard-step-btn ${hasError ? 'error' : ''} ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''} ${!isClickable && !isCurrent ? 'pending' : ''}`}
-                title={`Bước ${stepNumber}: ${STEP_LABELS[stepNumber - 1]}`}
+                title={t('wizard.stepTitle', { step: stepNumber, label })}
               >
                 {hasError ? (
                   <AlertCircle size={16} />
@@ -63,7 +58,7 @@ export default function WizardSteps({
 
               {/* Label */}
               <span className={`wizard-step-label ${isCurrent ? 'current' : ''} ${isCompleted ? 'completed' : ''}`}>
-                {STEP_LABELS[stepNumber - 1]}
+                {label}
               </span>
 
               {/* Connector line */}

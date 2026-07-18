@@ -36,13 +36,16 @@ export default function ServiceTypeList({
     );
   }
 
-  const domainLabel = domain.label[locale as keyof typeof domain.label] || domain.label.vi;
+  const tKey = (locale || 'vi') as 'vi' | 'en' | 'zh' | 'ja';
+  const domainLabel = domain.label[tKey] || domain.label.vi;
   const serviceTypes = domain.matterTypeKeys
-    .map((key) => ({
-      key,
-      ...SEED_MATTER_TYPES[key],
-    }))
-    .filter((st) => st !== undefined);
+    .map((k) => {
+      const entry = SEED_MATTER_TYPES[k];
+      if (!entry) return undefined;
+      const { key: _key, ...rest } = entry;
+      return { key: k, ...rest };
+    })
+    .filter((st): st is NonNullable<typeof st> => st !== undefined);
 
   return (
     <div className="w-full">

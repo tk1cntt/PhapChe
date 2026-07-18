@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { AlertCircle } from 'lucide-react';
 import { WizardProvider, useWizard } from './WizardProvider';
 import WizardSteps from './WizardSteps';
@@ -33,6 +34,9 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
   const router = useRouter();
   const searchParams = useSearchParams();
   const { state, actions } = useWizard();
+  const t = useTranslations('UserCreateRequest');
+
+  const fileMapRef = useRef<Map<string, File>>(new Map());
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [stepErrors, setStepErrors] = useState<Record<number, boolean>>({});
@@ -45,6 +49,20 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
   if (state.serviceType) completedSteps.push(2);
   if (Object.keys(state.answers).length > 0) completedSteps.push(3);
   if (state.files.length > 0) completedSteps.push(4);
+
+  // Initialize contact info from user profile
+  useEffect(() => {
+    if (userContactInfo?.email) {
+      actions.setContact({
+        email: userContactInfo.email ?? '',
+        phone: userContactInfo.phone ?? '',
+        companyName: userContactInfo.companyName ?? '',
+        taxCode: userContactInfo.taxCode ?? '',
+      });
+    }
+    // Only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Resume draft from URL query param
   useEffect(() => {
@@ -170,18 +188,25 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
       throw new Error('Thiếu thông tin bắt buộc');
     }
 
+    const formData = new FormData();
+    formData.append('data', JSON.stringify({
+      draftId: state.draftId,
+      domainId: state.domainId,
+      serviceType: state.serviceType,
+      answers: state.answers,
+      files: state.files,
+      priority: state.priority,
+      contactInfo: state.contactInfo,
+    }));
+
+    // Attach actual File objects from fileMapRef
+    for (const [vaultFileId, file] of fileMapRef.current) {
+      formData.append('files', file, file.name);
+    }
+
     const response = await fetch('/api/intake/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        draftId: state.draftId,
-        domainId: state.domainId,
-        serviceType: state.serviceType,
-        answers: state.answers,
-        files: state.files,
-        priority: state.priority,
-        contactInfo: state.contactInfo,
-      }),
+      body: formData,
     });
 
     if (!response.ok) {
@@ -293,6 +318,8 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
                   files={state.files}
                   onFileAdd={actions.addFile}
                   onFileRemove={actions.removeFile}
+                  onFileStore={(id, file) => { fileMapRef.current.set(id, file); }}
+                  onFileUnstore={(id) => { fileMapRef.current.delete(id); }}
                   locale={locale}
                 />
               )}
@@ -317,14 +344,14 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
                     onClick={handlePrev}
                     disabled={state.step === 1}
                   >
-                    Quay lại
+                    {t('back')}
                   </button>
                   <button
                     type="button"
                     className="create-btn"
                     onClick={handleNext}
                   >
-                    Tiếp tục
+                    {t('continue')}
                   </button>
                 </div>
               )}
@@ -335,13 +362,13 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
         {/* Right Column - Side Panels */}
         <div className="side-panels">
           <SummaryPanel
-            selectedDomainId={state.domainId}
+            selectedDomainId={state.domainId ?? undefined}
             selectedService={state.serviceType || ''}
             workspaceName={workspaceName}
             locale={locale}
           />
           <ChecklistPanel
-            selectedService={state.serviceType}
+            selectedService={state.serviceType ?? undefined}
             locale={locale}
           />
         </div>

@@ -125,6 +125,11 @@ export default async function middleware(request: NextRequest) {
   }
 
   // ── Step 4: Role-based guard for admin routes ──
+  // Break redirect loop: if already showing the forbidden error page, pass through
+  if (isAdminPath && request.nextUrl.searchParams.get('error') === 'forbidden') {
+    return response;
+  }
+
   if (!sessionCookie) {
     const locale = currentLocale && routing.locales.includes(currentLocale as typeof routing.locales[number])
       ? currentLocale : 'vi';

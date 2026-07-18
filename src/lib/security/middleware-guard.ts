@@ -133,3 +133,14 @@ export function checkRouteAccess(pathname: string, userRoles: AppRole[]): { allo
  */
 export { resolveGuardUser } from './middleware-resolver';
 export type { GuardUser } from './middleware-resolver';
+
+/**
+ * Kiểm tra pathname có đang hiển thị trang lỗi forbidden không.
+ * Ngăn redirect loop: /admin/dashboard → forbidden → /admin/dashboard?error=forbidden → ... (loop)
+ *
+ * Khi middleware redirect ROUTE_REQUIRED về ?error=forbidden,
+ * request tiếp theo phải được pass-through để tránh vòng lặp vô hạn.
+ */
+export function isForbiddenPage(pathname: string, searchParams: URLSearchParams): boolean {
+  return isAdminPath(pathname) && searchParams.get('error') === 'forbidden';
+}

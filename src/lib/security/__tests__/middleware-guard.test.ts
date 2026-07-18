@@ -4,6 +4,7 @@ import {
   isAdminPath,
   checkRouteAccess,
   hasAnyRole,
+  isForbiddenPage,
   ADMIN_ROUTE_GUARDS,
 } from '@/lib/security/middleware-guard';
 
@@ -181,6 +182,71 @@ describe('middleware-guard', () => {
       for (const [route, roles] of Object.entries(ADMIN_ROUTE_GUARDS)) {
         expect(roles.length, `Route "${route}" has empty roles`).toBeGreaterThan(0);
       }
+    });
+  });
+
+  // ── isForbiddenPage — redirect loop prevention ──
+  describe('isForbiddenPage — ngăn redirect loop', () => {
+    function urlSearchParams(search: string): URLSearchParams {
+      return new URLSearchParams(search);
+    }
+
+    it('returns true for /admin/dashboard?error=forbidden', () => {
+      expect(isForbiddenPage('/vi/admin/dashboard', urlSearchParams('error=forbidden'))).toBe(true);
+    });
+
+    it('returns true for /en/admin/requests?error=forbidden', () => {
+      expect(isForbiddenPage('/en/admin/requests', urlSearchParams('error=forbidden'))).toBe(true);
+    });
+
+    it('returns false for /admin/dashboard without error param', () => {
+      expect(isForbiddenPage('/vi/admin/dashboard', urlSearchParams(''))).toBe(false);
+    });
+
+    it('returns false for /admin/dashboard with different error', () => {
+      expect(isForbiddenPage('/vi/admin/dashboard', urlSearchParams('error=not-found'))).toBe(false);
+    });
+
+    it('returns false for non-admin path with error=forbidden', () => {
+      expect(isForbiddenPage('/vi/sign-in', urlSearchParams('error=forbidden'))).toBe(false);
+    });
+
+    it('returns false for customer /dashboard with error=forbidden (not admin)', () => {
+      expect(isForbiddenPage('/vi/dashboard', urlSearchParams('error=forbidden'))).toBe(false);
+    });
+
+    it('returns false when searchParams is empty (no query string)', () => {
+      expect(isForbiddenPage('/vi/admin/dashboard', urlSearchParams('').toString() === ''
+        ? urlSearchParams('')
+        : urlSearchParams(''))).toBe(false); // safe check
+    });
+
+    // e2e: simulate đúng flow redirect loop
+    it('e2e: forbidden redirect lands on a safe URL that isForbiddenPage detects', () => {
+      // Mô phỏng flow:
+      // 1. User truy cập /admin/requests → role không đủ → redirect → /admin/dashboard?error=forbidden
+      // 2. Request mới tới /admin/dashboard?error=forbidden
+      // 3. Middleware thấy isForbiddenPage = true → pass-through (không redirect nữa)
+
+      const forbiddenUrl = '/vi/admin/dashboard?error=forbidden';
+      const parsed = forbiddenUrl.split('?');
+      const pathname = parsed[0];
+      const searchParams = new URLSearchParams(parsed[1] || '');
+
+      // Bước 1: đây là admin route
+      expect(isAdminPath(pathname)).toBe(true);
+
+      // Bước 2: isForbiddenPage phát hiện và ngăn redirect loop
+      expect(isForbiddenPage(pathname, searchParams)).toBe(true);
+
+      // Bước 3: không còn redirect nữa → page render bình thường
+      // (đã verified trong middleware.ts: if isForbidden → return response)
+    });
+
+    it('e2e: URL có extra params vẫn detect forbidden đúng', () => {
+      const complexUrl = '/ja/admin/dashboard?error=forbidden&ts=' + '123';
+      const searchParams = new URLSearchParams('error=forbidden&ts=123');
+      expect(isForbiddenPage('/ja/admin/dashboard', searchParams)).toBe(true);
     });
   });
 });

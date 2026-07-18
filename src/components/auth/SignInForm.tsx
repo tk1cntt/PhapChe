@@ -55,7 +55,7 @@ const S = {
   card: {
     width: '100%',
     maxWidth: 460,
-    background: '#fff',
+    background: 'var(--color-surface)',
     border: '1px solid #e2e8f0',
     borderRadius: 28,
     padding: 40,
@@ -84,13 +84,13 @@ const S = {
     fontSize: 42,
     fontWeight: 800,
     letterSpacing: -1,
-    color: '#0f172a',
+    color: 'var(--color-text)',
     margin: 0,
   } as React.CSSProperties,
   subtitle: {
     textAlign: 'center',
     marginTop: 12,
-    color: '#64748b',
+    color: 'var(--color-text-muted)',
     lineHeight: 1.6,
     marginBottom: 32,
     fontSize: 15,
@@ -103,7 +103,7 @@ const S = {
     marginBottom: 8,
     fontSize: 14,
     fontWeight: 600,
-    color: '#334155',
+    color: 'var(--color-text-secondary)',
   } as React.CSSProperties,
   input: (hasError: boolean): React.CSSProperties => ({
     width: '100%',
@@ -115,12 +115,12 @@ const S = {
     fontFamily: 'inherit',
     outline: 'none',
     transition: '0.2s',
-    background: '#fff',
-    color: '#0f172a',
+    background: 'var(--color-surface)',
+    color: 'var(--color-text)',
   }),
   errorText: {
     fontSize: 13,
-    color: '#ef4444',
+    color: 'var(--color-danger)',
     marginTop: 6,
   } as React.CSSProperties,
   options: {
@@ -139,7 +139,7 @@ const S = {
   } as React.CSSProperties,
   forgot: {
     textDecoration: 'none',
-    color: '#0f766e',
+    color: 'var(--color-primary)',
     fontWeight: 600,
     fontSize: 14,
     cursor: 'pointer',
@@ -169,7 +169,7 @@ const S = {
     display: 'flex',
     alignItems: 'center',
     gap: 16,
-    color: '#94a3b8',
+    color: 'var(--color-text-muted)',
     fontSize: 14,
   } as React.CSSProperties,
   dividerLine: {
@@ -182,7 +182,7 @@ const S = {
     height: 52,
     border: '1px solid #e2e8f0',
     borderRadius: 14,
-    background: '#fff',
+    background: 'var(--color-surface)',
     fontWeight: 600,
     fontSize: 14,
     fontFamily: 'inherit',
@@ -192,16 +192,16 @@ const S = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    color: '#334155',
+    color: 'var(--color-text-secondary)',
   } as React.CSSProperties,
   support: {
     marginTop: 28,
     textAlign: 'center',
-    color: '#64748b',
+    color: 'var(--color-text-muted)',
     fontSize: 14,
   } as React.CSSProperties,
   supportLink: {
-    color: '#0f766e',
+    color: 'var(--color-primary)',
     textDecoration: 'none',
     fontWeight: 600,
   } as React.CSSProperties,
@@ -209,7 +209,7 @@ const S = {
     marginTop: 24,
     textAlign: 'center',
     fontSize: 12,
-    color: '#94a3b8',
+    color: 'var(--color-text-muted)',
   } as React.CSSProperties,
 };
 
@@ -409,7 +409,7 @@ export default function SignInForm() {
               type="checkbox"
               checked={remember}
               onChange={(e) => setRemember(e.target.checked)}
-              style={{ accentColor: '#0f766e' }}
+              style={{ accentColor: 'var(--color-primary)' }}
             />
             <span>{T.rememberMe}</span>
           </label>
@@ -462,8 +462,8 @@ export default function SignInForm() {
 
       {/* Dev user selector */}
       {process.env.NODE_ENV === 'development' && (
-        <div style={{ marginTop: 20, padding: 12, background: '#f0fdfa', borderRadius: 12, border: '1px solid #99f6e4' }}>
-          <p style={{ fontSize: 12, fontWeight: 600, color: '#0f766e', marginBottom: 8 }}>
+        <div style={{ marginTop: 20, padding: 12, background: 'var(--color-primary-muted)', borderRadius: 12, border: '1px solid var(--color-primary-muted)' }}>
+          <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary)', marginBottom: 8 }}>
             🧪 Quick Login (Dev)
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>

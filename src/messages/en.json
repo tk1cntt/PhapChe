@@ -1519,6 +1519,7 @@
     "summaryDraftStatus": "Draft",
     "workspace": "Workspace",
     "wizard": {
+      "stepTitle": "Step {step}: {label}",
       "step1": "Domain",
       "step2": "Service",
       "step3": "Information",

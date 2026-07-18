@@ -1281,6 +1281,7 @@
     "summaryDraftStatus": "草稿",
     "workspace": "工作区",
     "wizard": {
+      "stepTitle": "步骤{step}：{label}",
       "step1": "领域",
       "step2": "服务",
       "step3": "信息",

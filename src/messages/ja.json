@@ -1281,6 +1281,7 @@
     "summaryDraftStatus": "下書き",
     "workspace": "ワークスペース",
     "wizard": {
+      "stepTitle": "ステップ{step}：{label}",
       "step1": "ドメイン",
       "step2": "サービス",
       "step3": "情報",

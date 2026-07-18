@@ -1533,6 +1533,7 @@
     "summaryDraftStatus": "Bản nháp",
     "workspace": "Workspace",
     "wizard": {
+      "stepTitle": "Bước {step}: {label}",
       "step1": "Lĩnh vực",
       "step2": "Dịch vụ",
       "step3": "Thông tin",

@@ -48,7 +48,7 @@ export default async function CasesPage({ params }: PageProps) {
       SELECT COUNT(*) as count FROM "LegalRequest"
       WHERE "workspaceId" = ${activeWorkspaceId ?? ''}
       AND "slaDeadline" IS NOT NULL
-      AND "slaDeadline" < NOW()
+      AND "slaDeadline" < datetime('now')
       AND "status" NOT IN ('approved', 'delivered', 'closed', 'cancelled')
     `,
     // Requests with MatterType from intakeSubmission

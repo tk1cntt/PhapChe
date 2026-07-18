@@ -45,6 +45,13 @@
 }
 
 /* Vault Stats — structure from components/card.css, dimension overrides below */
+.vault-client .vault-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
 .vault-client .vault-stat-card {
   --stat-card-height: 126px;
   --stat-card-padding: 24px 22px;

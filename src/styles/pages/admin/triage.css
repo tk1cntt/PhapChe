@@ -493,6 +493,43 @@
 }
 
 /* ── Responsive ── */
+/* ── Review Console: specialist column + approve/revise buttons ── */
+.col-specialist {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.approve-btn,
+.revise-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.approve-btn:hover:not(:disabled),
+.revise-btn:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.approve-btn:disabled,
+.revise-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.status-green {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-red {
+  background: #fee2e2;
+  color: #dc2626;
+}
 @media (max-width: 1024px) {
   .triage-header-row,
   .triage-row {

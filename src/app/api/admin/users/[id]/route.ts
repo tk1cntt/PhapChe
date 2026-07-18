@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { formatDate } from '@/lib/i18n/date-format';
 
 // Valid admin roles
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -262,7 +263,7 @@ export async function GET(
         step: index + 1,
         title: getActionTitle(event.action),
         description: getTimelineDescription(event.action, meta),
-        date: event.createdAt.toLocaleDateString('vi-VN'),
+        date: formatDate(event.createdAt, 'vi'),
       };
     });
 
@@ -447,7 +448,7 @@ function getActionTitle(action: string): string {
 
 function getTimelineDescription(action: string, meta: Record<string, unknown>): string {
   if (action === 'document.uploaded' && meta.documentName) {
-    return `${meta.documentName} · ${new Date(meta.timestamp as string || Date.now()).toLocaleDateString('vi-VN')}`;
+    return `${meta.documentName} · ${formatDate(new Date(meta.timestamp as string || Date.now()), 'vi')}`;
   }
   if (action === 'partner.comment_added' && meta.requestCode) {
     return `${meta.requestCode} · ${meta.partnerName || 'Partner'}`;

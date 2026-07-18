@@ -73,7 +73,7 @@ export async function GET(
         // Include matterTypeRef for new FK-based approach
         ...(isEnabled('DB_MIGRATION_PHASE4') ? {
           matterTypeRef: {
-            select: { id: true, key: true, label_vi: true, label_en: true },
+            select: { id: true, key: true },
           },
         } : {}),
       },
@@ -86,12 +86,9 @@ export async function GET(
       );
     }
 
-    // Transform matterTypeDisplay
+    // Matter type key (clients translate)
     const matterTypeDisplay = isEnabled('DB_MIGRATION_PHASE4')
-      ? (request as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_vi
-        || (request as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_en
-        || (request as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.key
-        || request.matterType
+      ? (request as { matterTypeRef?: { key?: string | null } | null }).matterTypeRef?.key ?? request.matterType
       : request.matterType;
 
     return NextResponse.json({

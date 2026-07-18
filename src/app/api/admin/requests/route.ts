@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
           // Include matterTypeRef for new FK-based approach
           ...(isEnabled('DB_MIGRATION_PHASE4') ? {
             matterTypeRef: {
-              select: { id: true, key: true, label_vi: true, label_en: true },
+              select: { id: true, key: true },
             },
           } : {}),
         },
@@ -127,12 +127,8 @@ export async function GET(request: NextRequest) {
       // SLA calculation per D-07
       const slaInfo = getSLAStatus(req.slaDeadline);
 
-      // Matter type display: use FK relation if available, else text field
-      const matterTypeDisplay = (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_vi
-        || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_en
-        || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.key
-        || req.matterType
-        || 'Legal Request';
+      // Matter type: use FK key (clients translate)
+      const matterTypeKey = (req as { matterTypeRef?: { key?: string | null } | null }).matterTypeRef?.key ?? req.matterType ?? null;
 
       // Determine action text
       let actionText = 'Điều phối';
@@ -147,7 +143,7 @@ export async function GET(request: NextRequest) {
       return {
         id: req.code ?? req.id.slice(-10),
         fullId: req.id,
-        type: matterTypeDisplay,
+        type: matterTypeKey ?? 'Legal Request',
         workspace: req.workspace.name,
         workspaceSlug: req.workspace.slug,
         customer: req.createdBy.name,

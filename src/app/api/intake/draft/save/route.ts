@@ -28,7 +28,7 @@ const draftSaveSchema = z.object({
     phone: z.string().optional(),
     companyName: z.string().optional(),
     taxCode: z.string().optional(),
-  }).optional().default({}),
+  }).optional().default({ email: '' }),
 });
 
 /**
@@ -140,29 +140,7 @@ export async function POST(request: Request) {
       updatedAt = newDraft.updatedAt;
     }
 
-    // 5. Log audit event (skip on failure - draft is saved)
-    if (workspaceId) {
-      try {
-        const action = data.draftId ? 'draft.updated' : 'draft.created';
-        await prisma.auditEvent.create({
-          data: {
-            action,
-            actorId: userId,
-            workspaceId,
-            targetType: 'draft',
-            targetId: draftId,
-            metadataSummary: JSON.stringify({
-              domainId: data.domainId,
-              serviceType: data.serviceType,
-              priority: data.priority,
-            }),
-          },
-        });
-      } catch (auditError) {
-        // Log but don't fail - draft is saved
-        console.error('Audit log failed:', auditError);
-      }
-    }
+    // Draft save audit events intentionally skipped — drafts are ephemeral auto-saves, not auditable operations
 
     // 6. Return success response
     return NextResponse.json({

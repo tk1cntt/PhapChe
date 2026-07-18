@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         workspace: { select: { id: true, name: true, slug: true } },
-        matterTypeRef: { select: { id: true, key: true, label_vi: true, label_en: true } },
+        matterTypeRef: { select: { id: true, key: true } },
         assignedSpecialist: { select: { id: true, name: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
   // Transform to include matterType display
   const transformedRequests = requests.map((req) => ({
     ...req,
-    matterTypeDisplay: req.matterTypeRef?.label_vi || req.matterTypeRef?.label_en || req.matterTypeRef?.key || 'Unknown',
+    matterTypeKey: req.matterTypeRef?.key,
   }));
 
   return NextResponse.json({
@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
     },
     include: {
       workspace: { select: { id: true, name: true, slug: true } },
-      matterTypeRef: { select: { id: true, key: true, label_vi: true, label_en: true } },
+      matterTypeRef: { select: { id: true, key: true } },
     },
   });
 

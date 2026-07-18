@@ -14,15 +14,17 @@ const draftIdSchema = z.string().min(1, 'Draft ID is required');
  */
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: rawId } = await params;
+
     // 1. Authentication check
     const session = await requireAppSession();
     const userId = session.userId;
 
     // 2. Validate draft ID format
-    const idValidation = draftIdSchema.safeParse(params.id);
+    const idValidation = draftIdSchema.safeParse(rawId);
     if (!idValidation.success) {
       return NextResponse.json(
         { error: 'VALIDATION_ERROR', detail: 'Invalid draft ID format' },
@@ -73,21 +75,7 @@ export async function GET(
       );
     }
 
-    // 7. Log audit event
-    await prisma.auditEvent.create({
-      data: {
-        action: 'draft.load',
-        actorId: userId,
-        targetType: 'draft',
-        targetId: draftId,
-        metadata: {
-          domainId: draft.domainId,
-          serviceType: draft.serviceType,
-        },
-      },
-    });
-
-    // 8. Return success response (exclude internal fields: userId, createdAt)
+    // 7. Return success response (exclude internal fields: userId, createdAt)
     return NextResponse.json({
       data: {
         draftId: draft.id,
@@ -124,15 +112,17 @@ export async function GET(
  */
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: rawId } = await params;
+
     // 1. Authentication check
     const session = await requireAppSession();
     const userId = session.userId;
 
     // 2. Validate draft ID format
-    const idValidation = draftIdSchema.safeParse(params.id);
+    const idValidation = draftIdSchema.safeParse(rawId);
     if (!idValidation.success) {
       return NextResponse.json(
         { error: 'VALIDATION_ERROR', detail: 'Invalid draft ID format' },
@@ -170,20 +160,7 @@ export async function DELETE(
       data: { status: 'deleted' },
     });
 
-    // 7. Log audit event
-    await prisma.auditEvent.create({
-      data: {
-        action: 'draft.delete',
-        actorId: userId,
-        targetType: 'draft',
-        targetId: draftId,
-        metadata: {
-          previousStatus: draft.status,
-        },
-      },
-    });
-
-    // 8. Return success response
+    // 7. Return success response
     return NextResponse.json({
       data: {
         success: true,

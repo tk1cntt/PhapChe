@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
+import { formatDateTime } from '@/lib/i18n/date-format';
 
 // Valid admin roles
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -96,13 +97,7 @@ export async function GET(request: NextRequest) {
         title: req.title,
         description: req.description ?? 'No description provided',
         source: req.intakeSubmission?.submittedAt ? 'Intake form' : 'Manual entry',
-        date: req.createdAt.toLocaleDateString('vi-VN', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
+        date: formatDateTime(req.createdAt, 'vi'),
         missingOrg: !hasOrg,
         missingWorkspace: !hasWorkspace,
         missingUser: false,

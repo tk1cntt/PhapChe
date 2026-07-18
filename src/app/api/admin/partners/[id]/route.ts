@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { formatDate } from '@/lib/i18n/date-format';
 
 const prisma = new PrismaClient();
 
@@ -146,7 +147,7 @@ export async function GET(
       action: log.action,
       requestCode: log.requestId ? `REQ-${Date.now().toString().slice(-6)}` : undefined,
       orgName: log.workspace?.organization?.name,
-      date: new Date(log.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
+      date: formatDate(new Date(log.createdAt), 'vi'),
     }));
 
     // Build recent requests for table

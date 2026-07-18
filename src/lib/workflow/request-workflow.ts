@@ -11,6 +11,14 @@ import type { AppSession } from '@/lib/security/session';
  * - 'approved' → 'delivered' → 'closed' with clear role boundaries
  * - Specialist cannot deliver/close; that's coordinator's job
  * - Customer can only cancel from draft_intake and triage
+ *
+ * ⚠ C2 MIGRATION PATH (deferred): Replace assignedSpecialistId/assignedReviewerId
+ *    with RequestAssignment làm single source of truth.
+ *    - Migration: Migrate existing data từ LegalRequest → RequestAssignment
+ *    - Update: canTransitionRequestStatus(), ~30 files dùng old FK
+ *    - Remove: LegalRequest.assignedSpecialistId/assignedReviewerId → drop columns
+ *    - Impact: 16+ files trực tiếp, 14+ files gián tiếp
+ *    See: docs/shared_customer_partner_collaboration.md §7.2
  */
 export const REQUEST_TRANSITIONS = {
   draft_intake: ['triage', 'cancelled'],

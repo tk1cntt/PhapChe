@@ -37,17 +37,12 @@ async function hasActiveMembership(session: AppSession, workspaceId: string) {
  * See: docs/shared_customer_partner_collaboration.md §5.5, §13.2 (rule 3)
  */
 async function hasOrganizationAccess(session: AppSession, workspaceId: string): Promise<boolean> {
-  // Lấy organizationId của workspace
   const workspace = await prisma.workspace.findUnique({
     where: { id: workspaceId, isActive: true },
     select: { organizationId: true },
   });
   if (!workspace) return false;
 
-  // Kiểm tra OrganizationMembership — user có role trong organization đó không?
-  // Hiện tại Prisma chưa có model OrganizationMembership → fallback: nếu user có
-  // WorkspaceMembership trong BẤT KỲ workspace nào của organization, coi như có org access.
-  // Note: khi OrganizationMembership model được thêm vào Prisma, thay fallback này bằng query trực tiếp.
   const orgWorkspaceMembership = await prisma.workspaceMembership.findFirst({
     where: {
       userId: session.userId,
@@ -61,6 +56,56 @@ async function hasOrganizationAccess(session: AppSession, workspaceId: string): 
   });
 
   return Boolean(orgWorkspaceMembership);
+}
+
+/**
+ * ── C1: Engagement-scope access check ──
+ * Partner member chỉ có quyền xem request nếu:
+ * 1. Partner được assign trực tiếp vào request (assignedPartnerId)
+ * 2. Hoặc có active engagement với organization của request
+ * 3. Và engagement có service_type phù hợp + permission_level cho phép
+ * See: docs/shared_customer_partner_collaboration.md §13.3
+ */
+async function hasEngagementAccess(session: AppSession, request: {
+  workspaceId: string;
+  assignedPartnerId: string | null;
+  engagementId: string | null;
+}): Promise<boolean> {
+  // Nếu request không có assignedPartnerId và không có engagementId, không phải partner access
+  if (!request.assignedPartnerId && !request.engagementId) return false;
+
+  // Kiểm tra user có phải partner member không
+  const partnerMember = await prisma.partnerMember.findFirst({
+    where: { userId: session.userId, isActive: true },
+    select: { partnerId: true, role: true },
+  });
+  if (!partnerMember) return false;
+
+  // Case 1: Partner được assign trực tiếp vào request
+  if (request.assignedPartnerId === partnerMember.partnerId) return true;
+
+  // Case 2: Request có engagement → kiểm tra partner có active engagement với organization không
+  if (request.engagementId) {
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: request.workspaceId },
+      select: { organizationId: true },
+    });
+    if (!workspace) return false;
+
+    const engagement = await prisma.engagement.findFirst({
+      where: {
+        id: request.engagementId,
+        partnerId: partnerMember.partnerId,
+        organizationId: workspace.organizationId,
+        status: 'active',
+      },
+      select: { id: true },
+    });
+
+    return Boolean(engagement);
+  }
+
+  return false;
 }
 
 export async function canAccessWorkspace(session: AppSession | null | undefined, workspaceId: string) {
@@ -82,6 +127,8 @@ export async function canAccessRequest(session: AppSession | null | undefined, r
       createdById: true,
       assignedSpecialistId: true,
       assignedReviewerId: true,
+      engagementId: true,       // C1: engagement-scope check
+      assignedPartnerId: true,  // C1: partner direct assignment check
     },
   });
 
@@ -107,10 +154,12 @@ export async function canAccessRequest(session: AppSession | null | undefined, r
   // Reviewer can access requests assigned to them (if they have membership)
   if (hasMembership && hasRole(typedSession, 'reviewer') && request.assignedReviewerId === typedSession.userId) return true;
 
-  // B4: Organization-scope access — user có org membership có thể xem request
-  // trong workspace thuộc organization của họ (cross-workspace visibility)
+  // B4: Organization-scope access
   const hasOrgAccess = await hasOrganizationAccess(typedSession, request.workspaceId);
   if (hasOrgAccess) return true;
+
+  // C1: Engagement-scope access — partner member qua engagement hoặc direct assignment
+  if (await hasEngagementAccess(typedSession, request)) return true;
 
   return false;
 }

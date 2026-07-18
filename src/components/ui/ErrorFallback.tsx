@@ -1,25 +1,20 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button, Result } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 interface ErrorFallbackProps {
   error: Error & { digest?: string };
   onRetry?: () => void;
 }
 
-/**
- * Shared error fallback component for graceful error recovery.
- * Displays error message, logs to console, and provides retry/go-home actions.
- */
 export function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
   const t = useTranslations('Common');
   const router = useRouter();
 
   useEffect(() => {
-    // Log full stack trace for debugging
     if (error.stack) {
       console.error('[ErrorFallback]', error.stack);
     }
@@ -38,18 +33,31 @@ export function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
   };
 
   return (
-    <Result
-      status="error"
-      title={t('errorTitle')}
-      subTitle={error.message || t('errorMessage')}
-      extra={[
-        <Button key="retry" type="primary" onClick={handleRetry}>
+    <div className="panel" style={{ maxWidth: 480, margin: '48px auto', textAlign: 'center', padding: 48 }}>
+      <div style={{
+        width: 64, height: 64, borderRadius: '50%',
+        background: 'var(--color-danger-muted)', color: 'var(--color-danger)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        margin: '0 auto 24px',
+      }}>
+        <AlertTriangle size={32} />
+      </div>
+      <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--color-text)', marginBottom: 12 }}>
+        {t('errorTitle')}
+      </h2>
+      <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)', marginBottom: 24, lineHeight: 1.6 }}>
+        {error.message || t('errorMessage')}
+      </p>
+      <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+        <button className="btn-primary" onClick={handleRetry}>
+          <RefreshCw size={16} />
           {t('retry')}
-        </Button>,
-        <Button key="home" onClick={handleGoHome}>
+        </button>
+        <button className="btn-ghost" onClick={handleGoHome}>
+          <Home size={16} />
           {t('goHome')}
-        </Button>,
-      ]}
-    />
+        </button>
+      </div>
+    </div>
   );
 }

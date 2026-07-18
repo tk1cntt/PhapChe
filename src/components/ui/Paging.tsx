@@ -36,7 +36,7 @@ export default function Paging({
       data-testid="common-paging"
       style={{
         padding: '12px 16px',
-        background: '#f8fafc',
+        background: 'var(--color-bg)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -49,11 +49,11 @@ export default function Paging({
           onChange={(e) => onChange(1, Number(e.target.value))}
           style={{
             height: 32,
-            border: '1px solid #dfe7f1',
+            border: '1px solid var(--color-border)',
             borderRadius: 6,
             padding: '0 8px',
             fontSize: 13,
-            background: '#fff',
+            background: 'var(--color-surface)',
             cursor: 'pointer',
           }}
         >
@@ -61,7 +61,7 @@ export default function Paging({
             <option key={option} value={option}>{option}</option>
           ))}
         </select>
-        <span style={{ fontSize: 13, color: '#64748b', display: 'flex', alignItems: 'center' }}>
+        <span style={{ fontSize: 13, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center' }}>
           {totalLabel ?? t('totalItems', { count: total })}
         </span>
       </div>
@@ -73,7 +73,7 @@ export default function Paging({
           style={{
             height: 32,
             width: 32,
-            border: '1px solid #dfe7f1',
+            border: '1px solid var(--color-border)',
             borderRadius: 6,
             background: isFirst ? '#f1f5f9' : '#fff',
             color: isFirst ? '#94a3b8' : '#1e293b',
@@ -92,7 +92,7 @@ export default function Paging({
 
         {generatePageNumbers(current, totalPages).map((page, idx) => (
           page === '...' ? (
-            <span key={`ellipsis-${idx}`} style={{ minWidth: 32, textAlign: 'center', fontSize: 13, color: '#64748b' }}>...</span>
+            <span key={`ellipsis-${idx}`} style={{ minWidth: 32, textAlign: 'center', fontSize: 13, color: 'var(--color-text-muted)' }}>...</span>
           ) : (
             <button
               key={page}
@@ -101,7 +101,7 @@ export default function Paging({
                 height: 32,
                 minWidth: 32,
                 padding: '0 8px',
-                border: page === current ? 'none' : '1px solid #dfe7f1',
+                border: page === current ? 'none' : '1px solid var(--color-border)',
                 borderRadius: 6,
                 background: page === current ? 'linear-gradient(180deg, #0b8f86, #087970)' : '#fff',
                 color: page === current ? '#fff' : '#1e293b',
@@ -122,7 +122,7 @@ export default function Paging({
           style={{
             height: 32,
             width: 32,
-            border: '1px solid #dfe7f1',
+            border: '1px solid var(--color-border)',
             borderRadius: 6,
             background: isLast ? '#f1f5f9' : '#fff',
             color: isLast ? '#94a3b8' : '#1e293b',

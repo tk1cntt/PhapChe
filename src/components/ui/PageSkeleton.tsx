@@ -1,23 +1,20 @@
 'use client';
 
-import { Card, Skeleton } from 'antd';
-
 /**
  * Skeleton loader for table-based pages.
- * Displays a card with title and paragraph skeleton to match page layout.
+ * Uses CSS skeleton classes from tokens system.
  */
 interface PageSkeletonProps {
   rows?: number;
 }
 
-/**
- * PageSkeleton - Displays skeleton loading UI for table-based admin pages.
- * @param rows - Number of paragraph rows to display (default: 5)
- */
 export function PageSkeleton({ rows = 5 }: PageSkeletonProps) {
   return (
-    <Card>
-      <Skeleton active paragraph={{ rows }} title />
-    </Card>
+    <div className="table-card">
+      <div className="skeleton skeleton-title" />
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="skeleton skeleton-row" />
+      ))}
+    </div>
   );
 }

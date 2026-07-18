@@ -242,7 +242,7 @@ export async function getOpsDashboard(session: AppSession, filters: OpsFilters):
         assignedSpecialist: { select: { name: true, email: true } },
         assignedReviewerId: true,
         assignedReviewer: { select: { name: true, email: true } },
-        intakeSubmission: { select: { matterTypeKey: true, matterType: { select: { label_vi: true } } } },
+        intakeSubmission: { select: { matterTypeKey: true, matterType: { select: { key: true } } } },
       },
       orderBy: [{ updatedAt: 'desc' }],
       take: 100,
@@ -296,7 +296,7 @@ export async function getOpsDashboard(session: AppSession, filters: OpsFilters):
       status: request.status as RequestStatus,
       workspaceId: request.workspaceId,
       matterTypeKey: request.intakeSubmission?.matterTypeKey ?? null,
-      matterTypeLabel: request.intakeSubmission?.matterType?.label_vi ?? request.intakeSubmission?.matterTypeKey ?? null,
+      matterTypeLabel: request.intakeSubmission?.matterTypeKey ?? null,
       customerName: request.createdBy.name,
       customerEmail: request.createdBy.email,
       assignedSpecialistName: request.assignedSpecialist?.name ?? null,
@@ -570,7 +570,7 @@ export async function getOpsAggregate(
         assignedReviewerId: true,
         assignedReviewer: { select: { id: true, name: true } },
         workspace: { select: { name: true } },
-        intakeSubmission: { select: { matterTypeKey: true, matterType: { select: { label_vi: true } } } },
+        intakeSubmission: { select: { matterTypeKey: true, matterType: { select: { key: true } } } },
         workflowTransitions: {
           select: { toStatus: true, createdAt: true },
           orderBy: { createdAt: 'desc' },
@@ -603,7 +603,7 @@ export async function getOpsAggregate(
       code: r.code ?? null,
       priority: r.priority ?? null,
       matterTypeKey: r.intakeSubmission?.matterTypeKey ?? null,
-      matterTypeLabel: r.intakeSubmission?.matterType?.label_vi ?? r.intakeSubmission?.matterTypeKey ?? null,
+      matterTypeLabel: r.intakeSubmission?.matterTypeKey ?? null,
       customerName: r.createdBy.name,
       customerEmail: r.createdBy.email,
       workspaceName: r.workspace.name,
@@ -626,7 +626,7 @@ export async function getOpsAggregate(
   // Filter options
   const [workspaces, matterTypes, specialists, reviewers, statuses] = await Promise.all([
     prisma.workspace.findMany({ where: { isActive: true }, select: { id: true, name: true }, orderBy: { name: 'asc' } }),
-    prisma.matterType.findMany({ where: { isActive: true }, select: { key: true, label_vi: true }, orderBy: { label_vi: 'asc' } }),
+    prisma.matterType.findMany({ where: { isActive: true }, select: { key: true }, orderBy: { key: 'asc' } }),
     prisma.user.findMany({
       where: { isActive: true, memberships: { some: { role: 'specialist', isActive: true } } },
       select: { id: true, name: true },
@@ -652,7 +652,7 @@ export async function getOpsAggregate(
     requests: requestRows,
     filters: {
       workspaces: workspaces.map((w) => ({ id: w.id, name: w.name })),
-      matterTypes: matterTypes.map((m) => ({ key: m.key, label: m.label_vi ?? m.key })),
+      matterTypes: matterTypes.map((m) => ({ key: m.key, label: m.key })),
       specialists: specialists.map((s) => ({ id: s.id, name: s.name })),
       reviewers: reviewers.map((r) => ({ id: r.id, name: r.name })),
       statuses,

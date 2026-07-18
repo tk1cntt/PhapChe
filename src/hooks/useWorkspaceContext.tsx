@@ -59,7 +59,7 @@ export function WorkspaceProvider({
   });
 
   const value = useMemo<WorkspaceContextValue>(() => ({
-    workspace: (workspaceQuery.data as WorkspaceInfo) || null,
+    workspace: (workspaceQuery.data as unknown as WorkspaceInfo) || null,
     organization: null, // Organization data fetched separately when needed
     isLoading: workspaceQuery.isLoading,
     error: workspaceQuery.error as Error | null,

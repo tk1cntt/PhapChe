@@ -174,12 +174,12 @@ export async function getVaultItems(requestId: string, filters: VaultFileFilters
         actor: { select: { id: true, name: true } },
         vaultFileFolders: {
           include: {
-            folder: { select: { id: true, name_vi: true } },
+            folder: { select: { id: true, name: true } },
           },
         },
         vaultFileTags: {
           include: {
-            tag: { select: { id: true, key: true, label_vi: true } },
+            tag: { select: { id: true, key: true, label: true } },
           },
         },
       },

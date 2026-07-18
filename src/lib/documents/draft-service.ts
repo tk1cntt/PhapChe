@@ -177,7 +177,7 @@ export async function generateDraft(input: GenerateDraftInput): Promise<Generate
   return {
     documentVersionId: docVersion.id,
     generatedContent,
-    templateLabel: template.label,
+    templateLabel: template.label ?? '',
     templateVersion: template.version,
   };
 }

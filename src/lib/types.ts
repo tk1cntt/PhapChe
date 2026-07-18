@@ -97,3 +97,7 @@ export type ReviewDecision = typeof REVIEW_DECISION[keyof typeof REVIEW_DECISION
 // Version status alias for compatibility
 export type VersionStatus = DocumentVersionStatus;
 export const VERSION_STATUS = DOCUMENT_VERSION_STATUS;
+
+// Re-export activity types (barrel from types/ directory not reachable via @/lib/types)
+export type { ActivityItem, ActivityType, ActivityFilters, ActivityStats } from '@/lib/types/activity';
+export { ACTIVITY_COLORS, ACTIVITY_ICON_NAMES } from '@/lib/types/activity';

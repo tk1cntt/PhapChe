@@ -4,7 +4,15 @@ import { recordAuditEvent } from '@/lib/audit/audit';
 import { canAccessRequest, canAccessWorkspace } from '@/lib/security/rbac';
 import type { AppSession } from '@/lib/security/session';
 import { transitionRequestStatus } from '@/lib/workflow/request-workflow';
-import { getMatterType } from './catalog';
+import { SEED_MATTER_TYPES } from '../i18n/seed-multilingual';
+
+type SeedMatter = typeof SEED_MATTER_TYPES[keyof typeof SEED_MATTER_TYPES];
+
+function getSeedMatter(key: string): (SeedMatter & { key: string }) | null {
+  const entry = SEED_MATTER_TYPES[key as keyof typeof SEED_MATTER_TYPES];
+  if (!entry) return null;
+  return { ...entry, key };
+}
 
 type IntakeAnswers = Record<string, string>;
 
@@ -37,7 +45,7 @@ function cleanAnswers(answers: IntakeAnswers) {
 }
 
 function buildAnswerLabels(matterTypeKey: string, answers: IntakeAnswers) {
-  const matterType = getMatterType(matterTypeKey);
+  const matterType = getSeedMatter(matterTypeKey);
   if (!matterType) throw new Error('MATTER_TYPE_NOT_FOUND');
 
   return matterType.questions
@@ -50,10 +58,10 @@ function buildAnswerLabels(matterTypeKey: string, answers: IntakeAnswers) {
 }
 
 function validateAnswers(matterTypeKey: string, answers: IntakeAnswers): ValidationResult {
-  const matterType = getMatterType(matterTypeKey);
+  const matterType = getSeedMatter(matterTypeKey);
   if (!matterType) throw new Error('MATTER_TYPE_NOT_FOUND');
 
-  const allowedKeys = new Set(matterType.questions.map((question) => question.key));
+  const allowedKeys = new Set<string>(matterType.questions.map((question) => question.key));
   for (const key of Object.keys(answers)) {
     if (!allowedKeys.has(key)) throw new Error('UNKNOWN_INTAKE_ANSWER_KEY');
   }
@@ -72,7 +80,7 @@ function validateAnswers(matterTypeKey: string, answers: IntakeAnswers): Validat
 }
 
 export async function createDraftIntake(input: CreateDraftInput) {
-  const matterType = getMatterType(input.matterTypeKey);
+  const matterType = getSeedMatter(input.matterTypeKey);
   if (!matterType) throw new Error('MATTER_TYPE_NOT_FOUND');
   if (!input.session.activeWorkspaceId) throw new Error('WORKSPACE_REQUIRED');
   if (!(await canAccessWorkspace(input.session, input.session.activeWorkspaceId))) throw new Error('FORBIDDEN');
@@ -84,8 +92,6 @@ export async function createDraftIntake(input: CreateDraftInput) {
     await tx.matterType.upsert({
       where: { workspaceId_key: { workspaceId, key: matterType.key } },
       update: {
-        label: matterType.label,
-        description: matterType.description,
         schemaVersion: matterType.schemaVersion,
         questionSchema: matterType.questions as unknown as Prisma.InputJsonValue,
         isActive: true,
@@ -93,8 +99,6 @@ export async function createDraftIntake(input: CreateDraftInput) {
       create: {
         workspaceId,
         key: matterType.key,
-        label: matterType.label,
-        description: matterType.description,
         schemaVersion: matterType.schemaVersion,
         questionSchema: matterType.questions as unknown as Prisma.InputJsonValue,
         isActive: true,
@@ -104,7 +108,7 @@ export async function createDraftIntake(input: CreateDraftInput) {
     const request = await tx.legalRequest.create({
       data: {
         workspaceId,
-        title: matterType.label,
+        title: matterType.label?.vi ?? input.matterTypeKey,
         createdById: input.session.userId,
         intakeSubmission: {
           create: {

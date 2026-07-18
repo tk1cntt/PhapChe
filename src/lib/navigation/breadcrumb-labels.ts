@@ -13,25 +13,3 @@ export const breadcrumbLabels: Record<string, string> = {
   templates: "Mẫu văn bản",
   review: "Duyệt",
 };
-
-import type { ItemType } from 'antd/es/breadcrumb/Breadcrumb';
-
-export function getBreadcrumbItems(pathname: string): ItemType[] {
-  const segments = pathname.split("/").filter(Boolean);
-  const filteredSegments = segments.filter((s) => !s.startsWith("("));
-  const items: ItemType[] = [];
-
-  for (let i = 0; i < filteredSegments.length; i++) {
-    const segment = filteredSegments[i];
-    const label = breadcrumbLabels[segment] ?? segment;
-    const href = "/" + filteredSegments.slice(0, i + 1).join("/");
-
-    if (i === filteredSegments.length - 1) {
-      items.push({ title: label });
-    } else {
-      items.push({ title: label, href });
-    }
-  }
-
-  return items;
-}

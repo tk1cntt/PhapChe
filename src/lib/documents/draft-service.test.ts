@@ -46,7 +46,6 @@ async function seedDraftTest(): Promise<DraftSeed> {
       data: {
         workspaceId: null,
         key: 'labor_contract',
-        label: 'Hợp đồng lao động',
         schemaVersion: '1.0',
         questionSchema: [],
       },

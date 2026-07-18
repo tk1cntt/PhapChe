@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { recordAuditEvent } from '@/lib/audit/audit';
 import { canAccessWorkspace } from '@/lib/security/rbac';
@@ -69,7 +70,7 @@ export async function createTemplate(session: AppSession, input: CreateTemplateI
       workspaceId: input.workspaceId,
       matterTypeKey: input.matterTypeKey,
       label: input.label,
-      description: input.description,
+      description: input.description || null,
       variableSchema: input.variableSchema ?? [],
       content: input.content,
       version: existingCount + 1,
@@ -107,7 +108,7 @@ export async function updateTemplate(session: AppSession, templateId: string, in
     where: { id: templateId },
     data: {
       ...(input.label != null ? { label: input.label } : {}),
-      ...(input.description !== undefined ? { description: input.description } : {}),
+      ...(input.description !== undefined ? { description: input.description || null } : {}),
       ...(input.variableSchema != null ? { variableSchema: input.variableSchema } : {}),
       ...(input.content != null ? { content: input.content } : {}),
     },
@@ -229,8 +230,8 @@ export async function createNewVersion(session: AppSession, templateId: string, 
       matterTypeKey: template.matterTypeKey,
       version: newVersion,
       status: 'draft',
-      label: input?.label ?? template.label,
-      description: input?.description ?? template.description,
+      label: (input?.label ? input.label : template.label) as string | null,
+      description: (input?.description ? input.description : template.description) as string | null,
       variableSchema: (input?.variableSchema as object[]) ?? (template.variableSchema as object[]),
       content: input?.content ?? template.content,
       previousVersionId: templateId,

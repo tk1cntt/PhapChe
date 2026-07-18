@@ -26,7 +26,7 @@ export function usePermissions() {
   const can = (action: string, resource?: string): boolean => {
     if (!user) return false;
 
-    const role = user.role;
+    const role = (user as Record<string, unknown>).role as string | undefined;
     if (!role) return false;
 
     // UI-only permission matrix - backend must enforce actual access control

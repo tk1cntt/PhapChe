@@ -21,8 +21,6 @@ const suggestionReason = 'Phù hợp vai trò và năng lực với loại vụ 
 
 type UpsertMatterTypeInput = {
   key: string;
-  label: string;
-  description?: string | null;
   schemaVersion: string;
   questionSchema: Prisma.InputJsonValue;
   isActive?: boolean;
@@ -115,14 +113,11 @@ export async function requireRoutingAdmin(workspaceId: string, actorId: string) 
 export async function upsertMatterType(input: UpsertMatterTypeInput) {
   const workspaceId = requireText(input.workspaceId || '', 'WORKSPACE_REQUIRED');
   const key = requireText(input.key, 'MATTER_TYPE_KEY_REQUIRED');
-  const label = requireText(input.label, 'MATTER_TYPE_LABEL_REQUIRED');
   const schemaVersion = requireText(input.schemaVersion, 'MATTER_TYPE_SCHEMA_VERSION_REQUIRED');
 
   return db.matterType.upsert({
     where: { workspaceId_key: { workspaceId, key } },
     update: {
-      label,
-      description: input.description?.trim() || null,
       schemaVersion,
       questionSchema: input.questionSchema,
       isActive: input.isActive ?? true,
@@ -130,8 +125,6 @@ export async function upsertMatterType(input: UpsertMatterTypeInput) {
     create: {
       workspaceId,
       key,
-      label,
-      description: input.description?.trim() || null,
       schemaVersion,
       questionSchema: input.questionSchema,
       isActive: input.isActive ?? true,
@@ -167,7 +160,7 @@ export async function upsertRoutingCapability(input: UpsertRoutingCapabilityInpu
 export async function listRoutingMatterTypes(workspaceId?: string) {
   return prisma.matterType.findMany({
     where: workspaceId ? { workspaceId } : undefined,
-    orderBy: [{ label: 'asc' }, { key: 'asc' }],
+    orderBy: [{ key: 'asc' }],
   });
 }
 

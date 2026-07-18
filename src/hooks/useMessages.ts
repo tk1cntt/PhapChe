@@ -32,7 +32,7 @@ export function useMessages(requestId?: string) {
 export function useMessageById(id: string) {
   return useQuery({
     queryKey: queryKeys.messages.detail(id),
-    queryFn: () => messagesApi.get(id),
+    queryFn: () => messagesApi.getThread(id),
     staleTime: 30 * 1000,
     enabled: !!id,
   });

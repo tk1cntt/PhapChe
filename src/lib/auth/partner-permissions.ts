@@ -73,8 +73,10 @@ export function requirePartnerRole(...allowedRoles: PartnerRole[]) {
   return async (req: NextRequest & { partnerContext?: Awaited<ReturnType<typeof getPartnerContext>> }) => {
     const context = await requirePartner({ required: true })(req);
     if (!context) return context;
+    if (context instanceof NextResponse) return context;
 
-    if (!allowedRoles.includes(context.role)) {
+    const partnerRole = (context as { role: PartnerRole }).role;
+    if (!allowedRoles.includes(partnerRole)) {
       return NextResponse.json(
         { error: `Access denied. Required roles: ${allowedRoles.join(', ')}` },
         { status: 403 }
@@ -92,9 +94,9 @@ export function requirePartnerRole(...allowedRoles: PartnerRole[]) {
 export function requirePartnerPermission(permission: PartnerPermission) {
   return async (req: NextRequest & { partnerContext?: Awaited<ReturnType<typeof getPartnerContext>> }) => {
     const context = await requirePartner({ required: true })(req);
-    if (!context) return context;
+    if (!context || context instanceof NextResponse) return context;
 
-    if (!checkPermission(context.role, permission)) {
+    if (!checkPermission((context as { role: PartnerRole }).role, permission)) {
       return NextResponse.json(
         { error: `Access denied. Required permission: ${permission}` },
         { status: 403 }

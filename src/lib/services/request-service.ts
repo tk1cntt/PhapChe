@@ -51,13 +51,13 @@ const MAX_PAGE_SIZE = 100;
 function getMatterTypeDisplay(request: {
   matterType?: string | null;
   matterTypeId?: string | null;
-  matterTypeRef?: { key: string; label_vi?: string | null; label_en?: string | null } | null;
+  matterTypeRef?: { key: string } | null;
 }): string {
   if (isEnabled('DB_MIGRATION_PHASE4')) {
-    // New: Use relation
+    // New: Return key (clients translate via i18n)
     const mt = request.matterTypeRef;
     if (mt) {
-      return mt.label_vi || mt.label_en || mt.key || 'Unknown';
+      return mt.key || 'Unknown';
     }
     return 'Unknown';
   }

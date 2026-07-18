@@ -7,22 +7,6 @@ const LOCALE_COOKIE = 'preferred-locale';
 const SESSION_COOKIE = 'better-auth.session_token';
 
 /**
- * Route → role mapping.
- * Key là admin sub-route (sau /{locale}/admin/), value là các role được phép.
- */
-const ROUTE_ROLES: Record<string, readonly string[]> = {
-  requests: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
-  dashboard: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer', 'audit_admin'],
-  vault: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
-  users: ['super_admin', 'coordinator_admin'],
-  workspace: ['super_admin', 'coordinator_admin'],
-  partner: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
-  operations: ['super_admin', 'coordinator_admin'],
-  audit: ['super_admin', 'coordinator_admin', 'audit_admin'],
-  organizations: ['super_admin'],
-};
-
-/**
  * Các prefix route công khai — luôn cho phép, không cần session.
  */
 const PUBLIC_PREFIXES = [
@@ -44,11 +28,10 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PREFIXES.some(p => pathname.startsWith(p) || pathname.includes(p));
 }
 
-function extractAdminRoute(pathname: string): string | null {
+function isAdminPath(pathname: string): boolean {
   const segments = pathname.split('/').filter(Boolean);
   const adminIdx = segments.findIndex(s => s === 'admin');
-  if (adminIdx === -1 || adminIdx === segments.length - 1) return null;
-  return segments[adminIdx + 1];
+  return adminIdx !== -1 && adminIdx < segments.length - 1;
 }
 
 function buildLoginUrl(pathname: string, search: string, locale: string): string {
@@ -56,13 +39,13 @@ function buildLoginUrl(pathname: string, search: string, locale: string): string
   return `/${locale}/sign-in?returnUrl=${returnUrl}`;
 }
 
-function buildForbiddenUrl(locale: string): string {
-  return `/${locale}/admin/dashboard?error=forbidden`;
-}
-
 // ============================================================
 // Middleware
 // ============================================================
+// Strategy: Edge runtime — NO database access.
+// - Session cookie check only (Edge-safe)
+// - Role-based guard delegated to admin layout.tsx (Node.js server component)
+// - This avoids the "Edge can't use Prisma/SQLite" silent-fail → empty roles → redirect loop
 
 export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -104,92 +87,26 @@ export default async function middleware(request: NextRequest) {
     });
   }
 
-  // ── Step 3: Auth check — non-admin protected routes ──
+  // ── Step 3: Session gate (Edge-safe — cookie check only) ──
   const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value;
-  const isApiRoute = pathname.startsWith('/api/');
-  const isAdminPath = extractAdminRoute(pathname) !== null;
+  const isAdmin = isAdminPath(pathname);
 
-  // API routes handle their own auth → pass through
-  if (isApiRoute) {
-    return response;
-  }
-
-  // Customer/settings/etc routes: just need a session
-  if (!isAdminPath) {
-    if (!sessionCookie) {
-      const locale = currentLocale && routing.locales.includes(currentLocale as typeof routing.locales[number])
-        ? currentLocale : 'vi';
-      return NextResponse.redirect(new URL(buildLoginUrl(pathname, search, locale), request.url));
-    }
-    return response;
-  }
-
-  // ── Step 4: Role-based guard for admin routes ──
   // Break redirect loop: if already showing the forbidden error page, pass through
-  if (isAdminPath && request.nextUrl.searchParams.get('error') === 'forbidden') {
+  if (isAdmin && request.nextUrl.searchParams.get('error') === 'forbidden') {
     return response;
   }
 
-  if (!sessionCookie) {
+  // Admin routes require session → redirect to login if missing
+  // Role-based access is checked by admin layout.tsx (Node.js server component)
+  if (isAdmin && !sessionCookie) {
     const locale = currentLocale && routing.locales.includes(currentLocale as typeof routing.locales[number])
       ? currentLocale : 'vi';
     return NextResponse.redirect(new URL(buildLoginUrl(pathname, search, locale), request.url));
   }
 
-  // Resolve user roles from DB (via auth session)
-  const userRoles = await resolveUserRoles(request);
-  const adminRoute = extractAdminRoute(pathname)!;
-  const requiredRoles = ROUTE_ROLES[adminRoute];
-
-  // Route not in guard map → allow (new route chưa config)
-  if (!requiredRoles) {
-    console.warn(`[middleware] No role config for admin route: "${adminRoute}" — allowing`);
-    return response;
-  }
-
-  // User roles vs required roles
-  const hasAccess = userRoles.length > 0 && userRoles.some(r => requiredRoles.includes(r));
-
-  if (!hasAccess) {
-    const locale = currentLocale && routing.locales.includes(currentLocale as typeof routing.locales[number])
-      ? currentLocale : 'vi';
-    console.log(`[middleware] FORBIDDEN: user roles=[${userRoles.join(',')}] required=[${requiredRoles.join(',')}] path=${pathname}`);
-    return NextResponse.redirect(new URL(buildForbiddenUrl(locale), request.url));
-  }
-
+  // Non-admin routes with session cookie → pass through
+  // NOTE: Role guard moved to admin layout.tsx which runs on Node.js (can use Prisma)
   return response;
-}
-
-// ============================================================
-// User role resolution (imported at runtime for Edge compat)
-// ============================================================
-
-async function resolveUserRoles(request: NextRequest): Promise<string[]> {
-  try {
-    // Dynamically import to keep edge compatibility
-    const { auth } = await import('@/auth');
-    const { prisma } = await import('@/lib/prisma');
-
-    const session = await auth.api.getSession({ headers: request.headers });
-    if (!session?.user?.id) return [];
-
-    const user = await prisma.user.findFirst({
-      where: { id: session.user.id, isActive: true },
-      select: {
-        memberships: {
-          where: { isActive: true, workspace: { isActive: true } },
-          select: { role: true },
-        },
-      },
-    });
-
-    if (!user || user.memberships.length === 0) return [];
-
-    return Array.from(new Set(user.memberships.map(m => m.role)));
-  } catch (err) {
-    console.error('[middleware] Failed to resolve user roles:', err);
-    return [];
-  }
 }
 
 // ============================================================

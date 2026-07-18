@@ -27,23 +27,33 @@ function getInitials(name: string): string {
   return name.substring(0, 2).toUpperCase();
 }
 
-function getRoleBadgeVariant(role: string, isActive: boolean): 'green' | 'blue' | 'orange' {
+function getRoleBadgeVariant(role: string | null | undefined, isActive: boolean): 'green' | 'blue' | 'orange' | 'red' | 'purple' {
   if (!isActive) return 'orange';
-  switch (role.toLowerCase()) {
+  const roleKey = (role ?? '').toLowerCase();
+  switch (roleKey) {
     case 'owner':
     case 'finance':
+    case 'specialist':
       return 'green';
     case 'viewer':
     case 'customer':
+    case 'reviewer':
       return 'blue';
+    case 'coordinator_admin':
+      return 'red';
+    case 'super_admin':
+      return 'purple';
+    case 'audit_admin':
+      return 'orange';
     default:
-      return 'blue';
+      return 'orange';
   }
 }
 
-function getRoleBadgeText(role: string, isActive: boolean, t: (key: string) => string): string {
+function getRoleBadgeText(role: string | null | undefined, isActive: boolean, t: (key: string) => string): string {
   if (!isActive) return t('roleInvited');
-  switch (role.toLowerCase()) {
+  const roleKey = (role ?? '').toLowerCase();
+  switch (roleKey) {
     case 'owner':
       return t('roleOwner');
     case 'finance':
@@ -52,13 +62,24 @@ function getRoleBadgeText(role: string, isActive: boolean, t: (key: string) => s
       return t('roleViewer');
     case 'customer':
       return t('roleCustomer');
+    case 'coordinator_admin':
+      return t('roleCoordinator');
+    case 'super_admin':
+      return t('roleSuperAdmin');
+    case 'specialist':
+      return t('roleSpecialist');
+    case 'reviewer':
+      return t('roleReviewer');
+    case 'audit_admin':
+      return t('roleAuditAdmin');
     default:
-      return role;
+      return role ?? '';
   }
 }
 
-function getRoleDisplay(role: string, t: (key: string) => string): string {
-  switch (role.toLowerCase()) {
+function getRoleDisplay(role: string | null | undefined, t: (key: string) => string): string {
+  const roleKey = (role ?? '').toLowerCase();
+  switch (roleKey) {
     case 'owner':
       return t('roleOwner');
     case 'finance':
@@ -67,8 +88,18 @@ function getRoleDisplay(role: string, t: (key: string) => string): string {
       return t('roleViewer');
     case 'customer':
       return t('roleCustomer');
+    case 'coordinator_admin':
+      return t('roleCoordinator');
+    case 'super_admin':
+      return t('roleSuperAdmin');
+    case 'specialist':
+      return t('roleSpecialist');
+    case 'reviewer':
+      return t('roleReviewer');
+    case 'audit_admin':
+      return t('roleAuditAdmin');
     default:
-      return role;
+      return role ?? '';
   }
 }
 

@@ -30,90 +30,88 @@ export async function GET(request: NextRequest) {
     const pageSize = Math.min(50, Math.max(5, parseInt(searchParams.get('pageSize') || '10', 10)));
     const skip = (page - 1) * pageSize;
 
-    // Find total count
+    // Find requests pending triage: status = draft_intake or triage
+    // After v2.3: organizationId is NOT NULL, triage is about assignment, not org matching
     const total = await prisma.legalRequest.count({
       where: {
-        workspace: { organizationId: null },
+        status: { in: ['draft_intake', 'triage'] },
       },
     });
 
-    // Find requests that need triage:
-    // - Workspace exists but no organization
+    // Find requests that need triage
     const triageRequests = await prisma.legalRequest.findMany({
       where: {
-        workspace: { organizationId: null },
+        status: { in: ['draft_intake', 'triage'] },
       },
       include: {
         workspace: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            organizationId: true,
-            organization: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
+          select: { id: true, name: true, slug: true, organizationId: true },
         },
         createdBy: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+          select: { id: true, name: true, email: true },
         },
         intakeSubmission: {
-          select: {
-            id: true,
-            answers: true,
-            submittedAt: true,
-          },
+          select: { id: true, matterTypeKey: true, answers: true, submittedAt: true },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { priority: 'asc' },
       skip,
       take: pageSize,
     });
 
     // Transform to triage format
     const triageCases = triageRequests.map((req, index) => {
-      const hasOrg = req.workspace?.organizationId != null;
-      const hasWorkspace = req.workspaceId != null && req.workspace != null;
       const email = req.createdBy?.email ?? '';
-
-      // Auto-detect suggested organization from email domain
-      const suggestedOrg = email.split('@')[1]?.split('.')[0]?.toUpperCase() ?? '';
-
-      // Calculate confidence based on email domain match
-      const domainConfidence = email.includes('@') ? 75 + Math.random() * 20 : 50;
+      const matterTypeKey = req.intakeSubmission?.matterTypeKey ?? null;
 
       return {
         id: req.id,
         index: index + 1,
-        code: req.code ?? `TMP-${new Date().getFullYear()}-${String(index + 1).padStart(3, '0')}`,
+        code: req.code ?? `REQ-${new Date().getFullYear()}-${String(index + 1).padStart(3, '0')}`,
         title: req.title,
-        description: req.description ?? 'No description provided',
-        source: req.intakeSubmission?.submittedAt ? 'Intake form' : 'Manual entry',
-        date: formatDateTime(req.createdAt, 'vi'),
-        missingOrg: !hasOrg,
-        missingWorkspace: !hasWorkspace,
-        missingUser: false,
-        suggestedService: req.matterType ?? undefined,
-        matchOrg: !hasOrg && email
-          ? {
-              name: `${suggestedOrg} Organization`,
-              confidence: Math.round(domainConfidence),
-            }
-          : undefined,
+        description: req.description ?? '',
+        workspaceId: req.workspaceId,
+        workspaceName: req.workspace?.name ?? '',
+        workspaceSlug: req.workspace?.slug ?? '',
+        customerName: req.createdBy?.name ?? email,
+        customerEmail: email,
+        matterTypeKey,
+        status: req.status,
         priority: req.priority ?? 'MEDIUM',
+        date: formatDateTime(req.createdAt, 'vi'),
+        hasAnswers: req.intakeSubmission?.answers != null,
+        assignedSpecialistId: null,
+        assignedSpecialistName: null,
+        assignedReviewerId: null,
+        assignedReviewerName: null,
       };
     });
 
+    // Fetch available specialists & reviewers for the workspaces involved
+    const workspaceIds = [...new Set(triageRequests.map(r => r.workspaceId))];
+    const workspaceMembers = workspaceIds.length > 0 ? await prisma.workspaceMembership.findMany({
+      where: {
+        workspaceId: { in: workspaceIds },
+        isActive: true,
+        role: { in: ['specialist', 'reviewer'] },
+      },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        workspace: { select: { id: true, name: true } },
+      },
+    }) : [];
+
+    const specialists = workspaceMembers
+      .filter(m => m.role === 'specialist')
+      .map(m => ({ id: m.user.id, name: m.user.name, email: m.user.email, workspaceId: m.workspaceId }));
+    const reviewers = workspaceMembers
+      .filter(m => m.role === 'reviewer')
+      .map(m => ({ id: m.user.id, name: m.user.name, email: m.user.email, workspaceId: m.workspaceId }));
+
     return NextResponse.json({
       data: triageCases,
+      specialists,
+      reviewers,
       total,
       page,
       pageSize,

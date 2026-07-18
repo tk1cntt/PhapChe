@@ -2,6 +2,8 @@
 
 Mọi trao đổi phải dùng tiếng Việt.
 
+Bất cứ yêu cầu nào cần thực hiện, cần đánh giá xem có cần phải tạo /gsd-quick hay không.
+
 Cấm sử dụng lệnh taskkill //F //IM node.exe.
 
 **KHÔNG sử dụng Ant Design components** — tất cả shared components dùng custom Tailwind CSS. Ant Design sẽ được replace nếu đang được dùng.
@@ -11,6 +13,111 @@ Mỗi tính năng UI cần phải có whitebox testcase, blackbox testcase, 
 Tên slug của từng phase hay quick phải là tiếng anh và ngắn gọn.
 
 Đọc .planning\phases\73-shared-foundation\73-SPEC.md để nắm được spec đã chốt trước khi tự quyết định làm gì đó.
+
+## 0. CodeGraph + OpenMemory First — Mandatory Exploration Policy
+
+**QUY TẮC CỨNG:** Trước bất kỳ thao tác tìm hiểu code, search, grep, hay đọc file nào, PHẢI dùng CodeGraph MCP trước.
+
+### 0.1 CodeGraph MCP — Ưu tiên cao nhất
+
+**Decision order:**
+1. Cần hiểu code/trace/architecture? → Dùng `codegraph_explore` TRƯỚC.
+2. Cần shell/CLI? → Dùng `rtk <command>`.
+3. Dùng raw command CHỈ KHI không có CodeGraph/RTK path và nêu rõ lý do.
+
+**Hard enforcement:**
+- Lần tra cứu ĐẦU TIÊN cho bất kỳ câu hỏi hiểu code nào PHẢI là CodeGraph MCP (`codegraph_explore` ưu tiên).
+- KHÔNG bắt đầu với regex/text search (grep, find) trước CodeGraph.
+- KHÔNG bắt đầu với Read/file-open loops trước CodeGraph cho câu hỏi cấu trúc.
+- KHÔNG bắt đầu với file-pattern search (`Searched for files matching...`) trước CodeGraph.
+- Chỉ sau ít nhất một CodeGraph call, fallback tools mới được phép dùng.
+- Mọi fallback phải kèm một dòng giải thích (CodeGraph không cung cấp được gì).
+
+**Compliance gate:**
+1. First exploration call là CodeGraph MCP.
+2. Không text/regex search hoặc Read-first discovery trước call đó.
+3. Nếu vi phạm, tự sửa ngay: chạy CodeGraph, nêu correction, tiếp tục CodeGraph-first flow.
+
+**Tool selection by intent:**
+
+| Intent | Tool |
+|---|---|
+| "X hoạt động thế nào?", trace flow, architecture | `codegraph_explore` (DEFAULT) |
+| Tìm symbol/function tên X | `codegraph_search` |
+| "Ai gọi hàm này?" / "Hàm này gọi gì?" | `codegraph_callers` / `codegraph_callees` |
+| "Đổi X thì gì vỡ?" — refactor safety | `codegraph_impact` |
+| Một symbol cần full source | `codegraph_node` |
+| Project structure/tree | `codegraph_files` |
+| Index health check | `codegraph_status` |
+
+**Anti-patterns (cấm):**
+- Bắt đầu với regex search cho câu hỏi architecture/flow.
+- Lặp grep/file-search/Read để rediscover symbols CodeGraph đã trả về.
+- `Searched for text/regex/files matching...` trước bất kỳ CodeGraph call nào.
+
+**Allowed exceptions (hẹp):**
+1. Binary/non-code assets — CodeGraph không áp dụng.
+2. Xác nhận chính xác dòng sau khi CodeGraph đã trả về candidate symbols/files.
+3. File có staleness banner từ CodeGraph.
+4. Non-source file lookup (.conf, certs, binary artifacts) — chỉ sau một CodeGraph call xác nhận ngoài scope.
+
+### 0.2 OpenMemory — Query Before GSD
+
+**QUY TẮC CỨNG:** Trước khi thực hiện bất kỳ `/gsd-quick` hoặc `/gsd-plan-phase` nào, PHẢI query OpenMemory để lấy context.
+
+**Query bắt buộc:**
+```
+mcp__openmemory__openmemory_query({ query: "<mô tả task/phase sắp làm>", k: 10 })
+mcp__openmemory__openmemory_query({ query: "PhapChe decisions gotchas patterns CSS architecture", k: 5 })
+```
+
+**Output yêu cầu — hiển thị trước khi plan/execute:**
+```
+[OpenMemory Recall] Found N items:
+- [decision/gotcha/pattern] ...
+Áp dụng các findings này vào plan/execution.
+```
+
+Nếu DB trả về `[]`:
+```
+[OpenMemory] DB empty — chưa có memory nào. Tiếp tục với CLAUDE.md + spec docs.
+```
+
+**Trigger cụ thể:**
+
+| Khi nào | Query gì |
+|---|---|
+| `/gsd-quick` | Task description + "patterns gotchas recent" |
+| `/gsd-plan-phase` | Phase name + "architecture decisions constraints" |
+| `/gsd-quick --discuss` | Task + "gray areas assumptions tradeoffs" |
+| Bất kỳ quyết định kiến trúc nào | Area name + "decisions gotchas" |
+
+### 0.3 OpenMemory Knowledge Capture (MANDATORY)
+
+**Sau khi hoàn thành task có ý nghĩa, PHẢI lưu know-how tái sử dụng vào OpenMemory.**
+
+Khi nào store:
+1. Rule/policy mới được giới thiệu hoặc tinh chỉnh.
+2. Issue tái diễn được fix với giải pháp đã verified.
+3. Workflow optimization được xác nhận hữu ích trong repo này.
+
+Template tối thiểu:
+1. **Context**: problem/scope áp dụng.
+2. **Rule/Fix**: hướng dẫn chính xác.
+3. **Evidence**: file hoặc command đã validate.
+4. **Reuse trigger**: khi nào áp dụng lại.
+
+Tags gợi ý: `rules`, `knowhow`, `codegraph`, `openmemory`, `rtk`
+
+**Không store:** secrets (tokens, passwords, PATs, private keys, credentials).
+
+### 0.4 Commit Gate (MANDATORY trước mỗi commit)
+
+1. Chạy `codegraph status`.
+2. Nếu up to date → continue.
+3. Nếu pending/outdated → chạy `codegraph sync`.
+4. Nếu sync không fix được → `codegraph init -i`.
+5. Chạy lại `codegraph status`, chỉ commit khi index healthy.
 
 ## 1. Think Before Coding
 

@@ -6,21 +6,23 @@ import AdminRequestsClient from '@/components/admin/AdminRequestsClient';
 import { TriagePanel } from '@/components/admin/TriagePanel';
 import { SpecialistWorkbench } from '@/components/admin/SpecialistWorkbench';
 import { ReviewConsole } from '@/components/admin/ReviewConsole';
+import { DeliveryConsole } from '@/components/admin/DeliveryConsole';
 import '@/styles/pages/admin/triage.css';
 
 export default function AdminRequestsPage() {
   const t = useTranslations('AdminTriage');
-  const [activeTab, setActiveTab] = useState<'triage' | 'workbench' | 'review' | 'all'>('triage');
+  const [activeTab, setActiveTab] = useState<'triage' | 'workbench' | 'review' | 'delivery' | 'all'>('triage');
 
   return (
     <>
       {/* Tab Bar */}
       <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', borderBottom: '2px solid var(--color-border)', paddingBottom: 0 }}>
-        {(['triage', 'workbench', 'review', 'all'] as const).map(tab => {
+        {(['triage', 'workbench', 'review', 'delivery', 'all'] as const).map(tab => {
           const labels: Record<string, string> = {
             triage: '📋 Phân loại & Gán',
             workbench: '🔧 Đang xử lý',
             review: '✅ Kiểm duyệt',
+            delivery: '📦 Bàn giao',
             all: '📊 Tất cả hồ sơ',
           };
           return (
@@ -48,6 +50,7 @@ export default function AdminRequestsPage() {
       {activeTab === 'triage' && <TriagePanel />}
       {activeTab === 'workbench' && <SpecialistWorkbench />}
       {activeTab === 'review' && <ReviewConsole />}
+      {activeTab === 'delivery' && <DeliveryConsole />}
       {activeTab === 'all' && <AdminRequestsClient />}
     </>
   );

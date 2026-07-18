@@ -1,0 +1,216 @@
+/* Admin Workspace Page Styles - Match Mock UI Pattern */
+
+.workspace-client {
+  padding: 31px 36px 42px;
+}
+
+.workspace-client .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+
+.workspace-client .page-header h1 {
+  font-size: 31px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+.workspace-client .page-header .subtitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.6;
+  max-width: 700px;
+}
+
+.workspace-client .create-btn {
+  height: 45px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--color-primary), var(--color-primary-hover));
+  color: var(--color-surface);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: var(--text-sm2);
+  box-shadow: 0 8px 18px oklch(0.52 0.09 185 / 0.25);
+  cursor: pointer;
+}
+
+.workspace-client .create-btn.blue {
+  background: linear-gradient(180deg, var(--color-info), var(--color-info));
+  box-shadow: 0 8px 18px oklch(0.55 0.16 260 / 0.25);
+}
+
+/* Permission Card */
+.workspace-client .permission-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 15px;
+  box-shadow: 0 10px 25px oklch(0.15 0.01 240 / 0.04);
+  padding: 26px 25px;
+  margin-bottom: 18px;
+}
+
+.workspace-client .permission-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm2);
+  font-size: 21px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  color: var(--color-text);
+}
+
+.workspace-client .permission-card p {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm2);
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+/* Workspace Table — grid columns set via --table-columns, structure from components/table.css */
+.workspace-client .workspace-table-card {
+  --table-columns: 1.25fr 1fr 1fr 0.75fr;
+  --table-th-min-height: 52px;
+}
+
+.workspace-client .workspace-table-head,
+.workspace-client .workspace-table-row {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1fr 0.75fr;
+}
+
+.workspace-client .workspace-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+}
+
+.workspace-client .workspace-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-primary-muted), var(--color-primary-muted));
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.workspace-client .workspace-slug {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workspace-client .workspace-members {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.workspace-client .status-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: var(--color-primary-muted);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.workspace-client .status-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--color-success);
+  border-radius: 50%;
+  margin-right: 7px;
+}
+
+.workspace-client .status-badge.inactive {
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+}
+
+.workspace-client .status-badge.inactive::before {
+  background: var(--color-text-muted);
+}
+
+.workspace-client .workspace-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.workspace-client .workspace-loading,
+.workspace-client .workspace-empty {
+  padding: 48px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm2);
+}
+
+/* Error state */
+.workspace-client .workspace-error-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-danger-muted);
+  border-radius: 15px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.workspace-client .workspace-error-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-danger);
+  margin-bottom: 8px;
+}
+
+.workspace-client .workspace-error-card p {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm2);
+  margin-bottom: 12px;
+}
+
+.workspace-client .workspace-error-card button {
+  padding: 8px 16px;
+  background: var(--color-primary);
+  color: var(--color-surface);
+  border: none;
+  border-radius: 8px;
+  font-size: var(--text-sm2);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .workspace-client {
+    padding: 20px;
+  }
+
+  .workspace-client .workspace-table-card {
+    overflow-x: auto;
+  }
+
+  .workspace-client .workspace-table-head,
+  .workspace-client .workspace-table-row {
+    min-width: 800px;
+  }
+}

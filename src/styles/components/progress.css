@@ -1,0 +1,52 @@
+/* Hallmark · component: progress · genre: editorial · anchor: teal 185
+ * states: default · warn · danger · complete
+ * Shared progress bar and workload list components.
+ */
+
+/* ── Progress bar ── */
+.progress {
+  height: 10px;
+  background: oklch(0.9 0.01 240);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-success));
+  transition: width var(--dur-normal) var(--ease-out);
+}
+
+.progress span.warn {
+  background: var(--color-warning);
+}
+
+.progress span.danger {
+  background: var(--color-danger);
+}
+
+/* ── Workload list ── */
+.workload-list {
+  display: grid;
+  gap: 14px;
+}
+
+.workload-item {
+  display: grid;
+  grid-template-columns: 190px 1fr 80px;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: oklch(0.985 0.003 240);
+}
+
+.workload-count {
+  text-align: right;
+  font-size: var(--text-sm);
+  font-weight: 800;
+  color: var(--color-text);
+}

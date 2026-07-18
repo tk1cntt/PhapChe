@@ -1,0 +1,123 @@
+/* Hallmark · component: badge · genre: editorial · anchor: teal 185
+ * states: default (all variants)
+ * Shared badge/status/sla components. Single source of truth.
+ * Supports both chained (.badge.green) and dash (.badge-green) modifiers.
+ */
+
+/* ── Base badge ── */
+.badge,
+.status-badge,
+.sla-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.badge::before,
+.status-badge::before,
+.sla-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 7px;
+  flex-shrink: 0;
+}
+
+/* ── Color variants — dash-separated + chained ── */
+
+/* green */
+.badge-green, .badge.green, .status-badge-green, .status-badge.green, .sla-badge-green, .sla-badge.green {
+  background: var(--color-success-muted); color: var(--color-success);
+}
+.badge-green::before, .badge.green::before, .status-badge-green::before, .status-badge.green::before, .sla-badge-green::before, .sla-badge.green::before {
+  background: var(--color-success);
+}
+
+/* orange */
+.badge-orange, .badge.orange, .status-badge-orange, .status-badge.orange, .sla-badge-orange, .sla-badge.orange {
+  background: var(--color-warning-muted); color: var(--color-warning);
+}
+.badge-orange::before, .badge.orange::before, .status-badge-orange::before, .status-badge.orange::before, .sla-badge-orange::before, .sla-badge.orange::before {
+  background: var(--color-warning);
+}
+
+/* blue */
+.badge-blue, .badge.blue, .status-badge-blue, .status-badge.blue, .sla-badge-blue, .sla-badge.blue {
+  background: var(--color-info-muted); color: var(--color-info);
+}
+.badge-blue::before, .badge.blue::before, .status-badge-blue::before, .status-badge.blue::before, .sla-badge-blue::before, .sla-badge.blue::before {
+  background: var(--color-info);
+}
+
+/* red */
+.badge-red, .badge.red, .status-badge-red, .status-badge.red, .sla-badge-red, .sla-badge.red {
+  background: var(--color-danger-muted); color: var(--color-danger);
+}
+.badge-red::before, .badge.red::before, .status-badge-red::before, .status-badge.red::before, .sla-badge-red::before, .sla-badge.red::before {
+  background: var(--color-danger);
+}
+
+/* purple */
+.badge-purple, .badge.purple, .status-badge-purple, .status-badge.purple, .sla-badge-purple, .sla-badge.purple {
+  background: var(--color-purple-muted); color: var(--color-purple);
+}
+.badge-purple::before, .badge.purple::before, .status-badge-purple::before, .status-badge.purple::before, .sla-badge-purple::before, .sla-badge.purple::before {
+  background: var(--color-purple);
+}
+
+/* yellow */
+.badge-yellow, .badge.yellow, .status-badge-yellow, .status-badge.yellow, .sla-badge-yellow, .sla-badge.yellow {
+  background: var(--color-warning-muted); color: var(--color-warning);
+}
+.badge-yellow::before, .badge.yellow::before, .status-badge-yellow::before, .status-badge.yellow::before, .sla-badge-yellow::before, .sla-badge.yellow::before {
+  background: var(--color-warning);
+}
+
+/* cyan */
+.badge-cyan, .badge.cyan, .status-badge-cyan, .status-badge.cyan, .sla-badge-cyan, .sla-badge.cyan {
+  background: var(--color-info-muted); color: var(--color-info);
+}
+.badge-cyan::before, .badge.cyan::before, .status-badge-cyan::before, .status-badge.cyan::before, .sla-badge-cyan::before, .sla-badge.cyan::before {
+  background: var(--color-info);
+}
+
+/* gray */
+.badge-gray, .badge.gray, .status-badge-gray, .status-badge.gray, .sla-badge-gray, .sla-badge.gray {
+  background: var(--color-surface-hover); color: var(--color-text-muted);
+}
+
+/* ── Role pill ── */
+.role-pill {
+  height: 38px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm2);
+  padding: 0 15px;
+  font-size: var(--text-sm);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.role-pill b {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: oklch(1 0 0 / 0.65);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xs);
+}
+
+.role-pill.blue   { background: var(--color-info-muted);    color: var(--color-info); }
+.role-pill.orange { background: var(--color-warning-muted); color: var(--color-warning); }
+.role-pill.green  { background: var(--color-success-muted); color: var(--color-success); }
+.role-pill.red    { background: var(--color-danger-muted);  color: var(--color-danger); }
+.role-pill.purple { background: var(--color-purple-muted);  color: var(--color-purple); }

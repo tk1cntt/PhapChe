@@ -1,0 +1,34 @@
+/* Hallmark · component: empty-state · genre: editorial
+ * Shared empty state — centered message with icon and CTA.
+ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+  gap: var(--space-sm2);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.empty-state .empty-icon {
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  margin-bottom: var(--space-sm);
+}
+
+.empty-state h3 {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.empty-state p {
+  font-size: var(--text-sm2);
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}

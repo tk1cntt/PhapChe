@@ -1,0 +1,203 @@
+/* Hallmark · component: table · genre: editorial · anchor: teal 185
+ * states: default · hover · focus-visible · active · disabled · loading · empty
+ * Shared table/data-grid variants — single canonical source.
+ *
+ * Pages set --table-columns to define their unique grid layout.
+ * Optional overrides: --table-row-min-height, --table-th-min-height,
+ *   --table-cell-padding, --table-th-font-weight,
+ *   --table-row-border, --table-cell-border.
+ */
+
+/* ── Table card wrapper ── */
+.table-card,
+.vault-table-card,
+.workspace-table-card,
+.audit-table-card,
+.table-container {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 15px;
+  box-shadow: 0 18px 42px oklch(0.15 0.01 240 / 0.06);
+  overflow: hidden;
+}
+
+/* ── Table toolbar ── */
+.table-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.left-tools,
+.right-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-search {
+  width: 285px;
+  height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 14px;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+}
+
+.user-search input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: var(--text-sm);
+  background: transparent;
+}
+
+/* ── Table box ── */
+.table-box {
+  min-height: 355px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+/* ── Data table ── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.data-table thead {
+  height: 52px;
+  background: linear-gradient(180deg, var(--color-bg), var(--color-surface-hover));
+  border-bottom: 1px solid var(--color-border);
+}
+
+.data-table th {
+  text-align: left;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  padding: 0 18px;
+  border-right: 1px solid var(--color-border-soft);
+  height: 52px;
+}
+
+.data-table th:last-child {
+  border-right: none;
+}
+
+.data-table th.check {
+  width: 64px;
+  text-align: center;
+}
+
+.data-table td {
+  padding: var(--space-md) 18px;
+  border-bottom: 1px solid var(--color-border-soft);
+  font-size: var(--text-sm);
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background: var(--color-surface-hover);
+}
+
+.data-table .actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* ── Checkbox ── */
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* ===== Grid Table System ===== */
+/* Single canonical source. Pages set --table-columns.
+   Namespaced selectors keep TSX changes minimal. */
+
+.table-head, .table-row,
+.vault-table-head, .vault-table-row,
+.workspace-table-head, .workspace-table-row,
+.audit-table-head, .audit-table-row {
+  display: grid;
+  grid-template-columns: var(--table-columns, 1fr);
+}
+
+.table-head,
+.vault-table-head,
+.workspace-table-head,
+.audit-table-head {
+  background: linear-gradient(180deg, var(--color-bg), var(--color-surface-hover));
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table-row,
+.vault-table-row,
+.workspace-table-row,
+.audit-table-row {
+  min-height: var(--table-row-min-height, 72px);
+  border-bottom: var(--table-row-border, 1px solid var(--color-border));
+  background: var(--color-surface);
+  transition: background var(--dur-fast, 0.2s) var(--ease-out, ease);
+}
+
+.table-row:last-child,
+.vault-table-row:last-child,
+.workspace-table-row:last-child,
+.audit-table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover,
+.vault-table-row:hover,
+.workspace-table-row:hover,
+.audit-table-row:hover {
+  background: var(--color-bg);
+}
+
+/* Header cells */
+.th, .vault-th, .workspace-th, .audit-th {
+  min-height: var(--table-th-min-height, 54px);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--table-cell-padding, 18px);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm2);
+  font-weight: var(--table-th-font-weight, 700);
+  border-right: var(--table-cell-border, 1px solid var(--color-border));
+}
+
+/* Data cells */
+.td, .vault-td, .workspace-td, .audit-td {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--table-cell-padding, 18px);
+  font-size: var(--text-sm2);
+  color: var(--color-text);
+  font-weight: 500;
+  border-right: var(--table-cell-border, 1px solid var(--color-border));
+  min-width: 0;
+}
+
+/* last-child: no right border */
+.th:last-child, .vault-th:last-child, .workspace-th:last-child, .audit-th:last-child,
+.td:last-child, .vault-td:last-child, .workspace-td:last-child, .audit-td:last-child {
+  border-right: none;
+}

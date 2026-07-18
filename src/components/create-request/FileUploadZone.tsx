@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Upload, X, FileText, File, Image as ImageIcon } from 'lucide-react';
 import type { UploadedFile } from '@/lib/types/wizard';
 
@@ -23,9 +24,6 @@ const ALLOWED_TYPES = [
 ];
 const ALLOWED_EXTENSIONS = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png'];
 
-/**
- * Get icon based on file type
- */
 function getFileIcon(filename: string) {
   const ext = filename.split('.').pop()?.toLowerCase();
   if (ext === 'pdf') return FileText;
@@ -33,25 +31,16 @@ function getFileIcon(filename: string) {
   return File;
 }
 
-/**
- * Format file size to human-readable string
- */
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
-/** Generate a temporary vaultFileId for wizard-stage files */
 function generateTempFileId(): string {
   return `wip-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-/**
- * File upload zone with drag-and-drop support.
- * Files are stored locally in wizard state during creation (no server upload).
- * Actual server upload happens at submit time.
- */
 export default function FileUploadZone({
   files,
   onFileAdd,
@@ -60,6 +49,7 @@ export default function FileUploadZone({
   onFileUnstore,
   locale = 'vi',
 }: FileUploadZoneProps) {
+  const t = useTranslations('CreateRequest');
   const [isDragging, setIsDragging] = useState(false);
   const [simulatingProgress, setSimulatingProgress] = useState(false);
   const [simulatedProgress, setSimulatedProgress] = useState(0);
@@ -85,14 +75,14 @@ export default function FileUploadZone({
 
   const validateFile = useCallback((file: File): string | null => {
     if (file.size > MAX_FILE_SIZE) {
-      return 'File vượt quá 50MB';
+      return t('error.fileTooLarge');
     }
     const ext = '.' + (file.name.split('.').pop()?.toLowerCase() || '');
     if (!ALLOWED_TYPES.includes(file.type) && !ALLOWED_EXTENSIONS.includes(ext)) {
-      return 'Loại file không được hỗ trợ';
+      return t('error.fileTypeNotSupported');
     }
     return null;
-  }, []);
+  }, [t]);
 
   const handleFileAdd = useCallback(
     (file: File) => {
@@ -130,7 +120,7 @@ export default function FileUploadZone({
         setSimulatedProgress(Math.min(progress, 100));
       }, 150);
     },
-    [onFileAdd, validateFile]
+    [onFileAdd, validateFile, onFileStore]
   );
 
   const handleDrop = useCallback(
@@ -164,12 +154,12 @@ export default function FileUploadZone({
 
   const handleRemoveFile = useCallback(
     (fileId: string) => {
-      if (window.confirm('Xóa file này?')) {
+      if (window.confirm(t('fileUpload.confirmDelete'))) {
         onFileRemove(fileId);
         onFileUnstore?.(fileId);
       }
     },
-    [onFileRemove, onFileUnstore]
+    [onFileRemove, onFileUnstore, t]
   );
 
   const handleZoneClick = useCallback(() => {
@@ -180,9 +170,9 @@ export default function FileUploadZone({
 
   return (
     <div className="w-full">
-      <h2 className="step-title">Tài liệu đính kèm</h2>
+      <h2 className="step-title">{t('fileUpload.title')}</h2>
       <p className="step-desc">
-        Tải lên các tài liệu liên quan (không bắt buộc)
+        {t('fileUpload.desc')}
       </p>
 
       {/* Upload Zone */}
@@ -204,10 +194,10 @@ export default function FileUploadZone({
 
         <Upload size={48} className="upload-icon" />
         <p className="upload-text">
-          Kéo thả file vào đây hoặc click để chọn
+          {t('fileUpload.dropHere')}
         </p>
         <p className="upload-hint">
-          Hỗ trợ: PDF, DOC, DOCX, JPG, PNG (tối đa 50MB)
+          {t('fileUpload.supportedFormats')}
         </p>
       </div>
 
@@ -215,7 +205,7 @@ export default function FileUploadZone({
       {simulatingProgress && (
         <div className="upload-progress">
           <div className="progress-info">
-            <span>Đang tải lên...</span>
+            <span>{t('message.uploadProgress')}</span>
             <span>{Math.round(simulatedProgress)}%</span>
           </div>
           <div className="progress-bar">
@@ -237,7 +227,7 @@ export default function FileUploadZone({
       {/* File List */}
       {files.length > 0 && (
         <div className="uploaded-files-list">
-          <h3 className="files-count">{files.length} file đã tải lên</h3>
+          <h3 className="files-count">{t('fileUpload.filesCount', { count: files.length })}</h3>
           <div className="files-grid">
             {files.map((file) => {
               const FileIcon = getFileIcon(file.filename);
@@ -256,7 +246,7 @@ export default function FileUploadZone({
                     type="button"
                     onClick={() => handleRemoveFile(file.vaultFileId)}
                     className="remove-btn"
-                    aria-label="Xóa file"
+                    aria-label={t('fileUpload.confirmDelete')}
                   >
                     <X size={16} />
                   </button>
@@ -268,7 +258,7 @@ export default function FileUploadZone({
       )}
 
       {files.length === 0 && !simulatingProgress && (
-        <p className="no-files">Chưa có file nào được tải lên</p>
+        <p className="no-files">{t('fileUpload.noFiles')}</p>
       )}
     </div>
   );

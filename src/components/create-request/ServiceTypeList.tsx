@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { SEED_LEGAL_DOMAINS, SEED_MATTER_TYPES } from '@/lib/i18n/seed-legal-domains';
 
 interface ServiceTypeListProps {
@@ -18,6 +19,7 @@ export default function ServiceTypeList({
   onBack,
   locale = 'vi',
 }: ServiceTypeListProps) {
+  const t = useTranslations('CreateRequest');
   const domain = SEED_LEGAL_DOMAINS[selectedDomainId];
 
   if (!domain) {
@@ -29,9 +31,9 @@ export default function ServiceTypeList({
           className="back-btn"
         >
           <ArrowLeft size={18} />
-          Quay lại
+          {t('button.back')}
         </button>
-        <p className="text-gray-600">Không tìm thấy lĩnh vực</p>
+        <p className="text-gray-600">{t('error.domainNotFound')}</p>
       </div>
     );
   }
@@ -55,11 +57,11 @@ export default function ServiceTypeList({
         className="back-btn"
       >
         <ArrowLeft size={18} />
-        Quay lại
+        {t('button.back')}
       </button>
 
       <h2 className="domain-title">{domainLabel}</h2>
-      <p className="domain-subtitle">Chọn loại dịch vụ bạn cần</p>
+      <p className="domain-subtitle">{t('message.selectServiceType')}</p>
 
       <div className="service-list">
         {serviceTypes.map((serviceType) => {
@@ -80,8 +82,13 @@ export default function ServiceTypeList({
                 <span>{description}</span>
               </div>
               <div className="service-meta">
-                <span className="tag blue">{serviceType.questions.length} câu</span>
-                <span className="tag green">{serviceType.questions.filter((q) => q.required).length} bắt buộc</span>
+                <span className="tag blue">
+                  {serviceType.questions.length} {locale === 'ja' ? '問' : locale === 'zh' ? '问' : locale === 'en' ? 'Q' : 'câu'}
+                </span>
+                <span className="tag green">
+                  {serviceType.questions.filter((q) => q.required).length}{' '}
+                  {locale === 'ja' ? '必須' : locale === 'zh' ? '必填' : locale === 'en' ? 'required' : 'bắt buộc'}
+                </span>
               </div>
             </button>
           );

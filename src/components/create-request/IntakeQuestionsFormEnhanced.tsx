@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { AlertCircle } from 'lucide-react';
 import { SEED_MATTER_TYPES, getMatterQuestions, type QuestionDefinition } from '@/lib/i18n/seed-legal-domains';
 
@@ -15,32 +16,30 @@ interface IntakeQuestionsFormEnhancedProps {
 /**
  * Validate a single field value
  */
-function validateField(question: QuestionDefinition, value: string): string {
+function validateField(question: QuestionDefinition, value: string): { required?: string; invalidEmail?: string; invalidPhone?: string } {
   if (question.required && !value.trim()) {
-    return 'Trường này là bắt buộc';
+    return { required: 'required' };
   }
 
-  // Email validation
   if (question.key.includes('email') && value.trim()) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value.trim())) {
-      return 'Email không hợp lệ';
+      return { invalidEmail: 'invalidEmail' };
     }
   }
 
-  // Phone validation (VN format)
   if (question.key.includes('phone') && value.trim()) {
     const phoneRegex = /^(\+?84|0)\d{9,10}$/;
     if (!phoneRegex.test(value.replace(/[\s-]/g, ''))) {
-      return 'Số điện thoại không hợp lệ';
+      return { invalidPhone: 'invalidPhone' };
     }
   }
 
-  return '';
+  return {};
 }
 
 /**
- * Validate all required questions
+ * Validate all required questions — returns error keys for i18n lookup
  */
 export function validateQuestionsForm(
   serviceType: string,
@@ -50,13 +49,26 @@ export function validateQuestionsForm(
   const errors: Record<string, string> = {};
 
   for (const question of questions) {
-    const error = validateField(question, answers[question.key] || '');
-    if (error) {
-      errors[question.key] = error;
+    const result = validateField(question, answers[question.key] || '');
+    const keys = Object.values(result).filter(Boolean);
+    if (keys.length > 0) {
+      errors[question.key] = keys[0];
     }
   }
 
   return errors;
+}
+
+/**
+ * Resolve error key to i18n message
+ */
+function resolveError(key: string, t: ReturnType<typeof useTranslations<'CreateRequest'>>): string {
+  const map: Record<string, string> = {
+    required: t('error.required'),
+    invalidEmail: t('error.invalidEmail'),
+    invalidPhone: t('error.invalidPhone'),
+  };
+  return map[key] || key;
 }
 
 /**
@@ -69,6 +81,7 @@ export default function IntakeQuestionsFormEnhanced({
   errors,
   locale = 'vi',
 }: IntakeQuestionsFormEnhancedProps) {
+  const t = useTranslations('CreateRequest');
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const questions = getMatterQuestions(serviceType);
@@ -76,14 +89,14 @@ export default function IntakeQuestionsFormEnhanced({
   const description = serviceTypeInfo?.description;
   const descText = description
     ? description[locale as keyof typeof description] || description.vi
-    : 'Điền thông tin cần thiết';
+    : t('questions.fillInfo');
 
   const handleBlur = useCallback(
     (question: QuestionDefinition) => {
       setTouched((prev) => ({ ...prev, [question.key]: true }));
       const value = answers[question.key] || '';
-      const error = validateField(question, value);
-      if (touched[question.key]) {
+      const result = validateField(question, value);
+      if (touched[question.key] && Object.keys(result).length > 0) {
         onAnswerChange(question.key, value);
       }
     },
@@ -93,26 +106,27 @@ export default function IntakeQuestionsFormEnhanced({
   if (questions.length === 0) {
     return (
       <p className="placeholder-content">
-        Không có câu hỏi cho dịch vụ này.
+        {t('questions.noQuestions')}
       </p>
     );
   }
 
   return (
     <div className="w-full">
-      <h2 className="step-title">Thông tin chi tiết</h2>
+      <h2 className="step-title">{t('questions.title')}</h2>
       <p className="step-desc">{descText}</p>
 
       <div className="questions-list">
         {questions.map((question, index) => {
           const value = answers[question.key] || '';
-          const error = touched[question.key] ? errors[question.key] : undefined;
-          const hasError = !!error;
+          const errorKey = touched[question.key] ? errors[question.key] : undefined;
+          const hasError = !!errorKey;
+          const fieldPlaceholder = t('placeholder.enter', { field: question.label.toLowerCase() });
 
           return (
             <div key={question.key} className="question-field">
               <label htmlFor={`q-${question.key}`} className="question-label">
-                Câu hỏi {index + 1}: {question.label}
+                {t('questions.questionNumber', { n: index + 1 })}: {question.label}
                 {question.required && <span className="required-star">*</span>}
               </label>
 
@@ -123,7 +137,7 @@ export default function IntakeQuestionsFormEnhanced({
                   value={value}
                   onChange={(e) => onAnswerChange(question.key, e.target.value)}
                   onBlur={() => handleBlur(question)}
-                  placeholder={`Nhập ${question.label.toLowerCase()}...`}
+                  placeholder={fieldPlaceholder}
                   className={`question-textarea ${hasError ? 'has-error' : ''}`}
                 />
               ) : (
@@ -133,7 +147,7 @@ export default function IntakeQuestionsFormEnhanced({
                   value={value}
                   onChange={(e) => onAnswerChange(question.key, e.target.value)}
                   onBlur={() => handleBlur(question)}
-                  placeholder={`Nhập ${question.label.toLowerCase()}...`}
+                  placeholder={fieldPlaceholder}
                   className={`question-input ${hasError ? 'has-error' : ''}`}
                 />
               )}
@@ -141,7 +155,7 @@ export default function IntakeQuestionsFormEnhanced({
               {hasError && (
                 <div className="field-error">
                   <AlertCircle size={14} />
-                  <span>{error}</span>
+                  <span>{resolveError(errorKey, t)}</span>
                 </div>
               )}
             </div>
@@ -150,7 +164,7 @@ export default function IntakeQuestionsFormEnhanced({
       </div>
 
       <p className="required-note">
-        <span className="required-star">*</span> Thông tin bắt buộc
+        <span className="required-star">*</span> {t('label.requiredInfo')}
       </p>
     </div>
   );

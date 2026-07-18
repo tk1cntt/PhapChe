@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { CheckCircle2, AlertCircle, Edit2, Loader2 } from 'lucide-react';
 import { SEED_LEGAL_DOMAINS, SEED_MATTER_TYPES } from '@/lib/i18n/seed-legal-domains';
 import type { WizardState } from '@/lib/types/wizard';
@@ -18,10 +19,6 @@ interface ReviewStepProps {
   };
 }
 
-/**
- * Review step component displaying summary of wizard data with edit capabilities
- * Layout: 70% summary, 30% actions
- */
 export default function ReviewStep({
   state,
   onEdit,
@@ -29,6 +26,7 @@ export default function ReviewStep({
   locale = 'vi',
   userContactInfo,
 }: ReviewStepProps) {
+  const t = useTranslations('CreateRequest');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,14 +34,14 @@ export default function ReviewStep({
   const domain = state.domainId ? SEED_LEGAL_DOMAINS[state.domainId] : null;
   const service = state.serviceType ? SEED_MATTER_TYPES[state.serviceType] : null;
   const tKey = (locale || 'vi') as 'vi' | 'en' | 'zh' | 'ja';
-  const domainLabel = domain?.label[tKey] || domain?.label.vi || 'Chưa chọn';
-  const serviceLabel = service?.label[tKey] || service?.label.vi || 'Chưa chọn';
+  const domainLabel = domain?.label[tKey] || domain?.label.vi || t('label.notSelected');
+  const serviceLabel = service?.label[tKey] || service?.label.vi || t('label.notSelected');
 
   const isFormValid = state.domainId && state.serviceType && state.contactInfo.email;
 
   const handleSubmit = async () => {
     if (!isFormValid) {
-      setError('Vui lòng điền đầy đủ thông tin bắt buộc');
+      setError(t('error.fillAllRequired'));
       return;
     }
 
@@ -58,7 +56,7 @@ export default function ReviewStep({
         window.location.href = `/${locale}/cases`;
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra khi gửi yêu cầu');
+      setError(err instanceof Error ? err.message : t('error.submitGeneralError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -75,13 +73,13 @@ export default function ReviewStep({
           <div className="success-icon-large">
             <CheckCircle2 size={64} />
           </div>
-          <h2 className="success-title">Yêu cầu đã được gửi!</h2>
+          <h2 className="success-title">{t('message.submitSuccessTitle')}</h2>
           <p className="success-desc">
-            Yêu cầu của bạn đã được gửi thành công. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.
+            {t('message.submitSuccessDesc')}
           </p>
           <div className="success-redirect">
             <Loader2 size={16} className="animate-spin" />
-            <span>Đang chuyển hướng đến trang yêu cầu...</span>
+            <span>{t('review.redirectingToRequests')}</span>
           </div>
         </div>
       </div>
@@ -92,35 +90,33 @@ export default function ReviewStep({
     <div className="review-grid">
       {/* Summary Column */}
       <div className="review-summary">
-        {/* Domain & Service */}
         <div className="review-card">
           <div className="review-card-header">
-            <h3 className="review-card-title">Lĩnh vực & Dịch vụ</h3>
+            <h3 className="review-card-title">{t('review.domainAndService')}</h3>
             <button onClick={() => onEdit(1)} className="edit-btn">
               <Edit2 size={14} />
-              <span>Chỉnh sửa</span>
+              <span>{t('button.edit')}</span>
             </button>
           </div>
           <div className="review-card-content">
             <div className="review-row">
-              <span className="review-label">Lĩnh vực:</span>
+              <span className="review-label">{t('label.domain')}:</span>
               <p className="review-value">{domainLabel}</p>
             </div>
             <div className="review-row">
-              <span className="review-label">Dịch vụ:</span>
+              <span className="review-label">{t('label.service')}:</span>
               <p className="review-value">{serviceLabel}</p>
             </div>
           </div>
         </div>
 
-        {/* Questions & Answers */}
         {state.serviceType && service && (
           <div className="review-card">
             <div className="review-card-header">
-              <h3 className="review-card-title">Thông tin chi tiết</h3>
+              <h3 className="review-card-title">{t('review.details')}</h3>
               <button onClick={() => onEdit(3)} className="edit-btn">
                 <Edit2 size={14} />
-                <span>Chỉnh sửa</span>
+                <span>{t('button.edit')}</span>
               </button>
             </div>
             <div className="review-card-content">
@@ -133,7 +129,7 @@ export default function ReviewStep({
                       {question.required && <span className="required-star">*</span>}
                     </span>
                     <p className="review-value">
-                      {answer || <span className="text-gray-400 italic">Chưa nhập</span>}
+                      {answer || <span className="text-gray-400 italic">{t('label.notEntered')}</span>}
                     </p>
                   </div>
                 );
@@ -142,13 +138,12 @@ export default function ReviewStep({
           </div>
         )}
 
-        {/* Files */}
         <div className="review-card">
           <div className="review-card-header">
-            <h3 className="review-card-title">Tài liệu đính kèm</h3>
+            <h3 className="review-card-title">{t('fileUpload.title')}</h3>
             <button onClick={() => onEdit(4)} className="edit-btn">
               <Edit2 size={14} />
-              <span>Chỉnh sửa</span>
+              <span>{t('button.edit')}</span>
             </button>
           </div>
           <div className="review-card-content">
@@ -162,51 +157,49 @@ export default function ReviewStep({
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-500 text-sm">Chưa có tài liệu nào</p>
+              <p className="text-gray-500 text-sm">{t('review.noDocuments')}</p>
             )}
           </div>
         </div>
 
-        {/* Priority */}
         <div className="review-card">
-          <h3 className="review-card-title">Mức độ ưu tiên</h3>
+          <h3 className="review-card-title">{t('label.priority')}</h3>
           <div className="priority-options">
             <label className={`priority-option ${state.priority === 'normal' ? 'selected' : ''}`}>
               <input type="radio" name="priority" value="normal" checked={state.priority === 'normal'} onChange={() => {}} className="sr-only" />
               <div className="priority-content">
-                <p className="priority-label">Bình thường</p>
-                <p className="priority-desc">Xử lý trong 72 giờ</p>
+                <p className="priority-label">{t('label.normal')}</p>
+                <p className="priority-desc">{t('label.normalSla')}</p>
               </div>
             </label>
             <label className={`priority-option ${state.priority === 'urgent' ? 'selected urgent' : ''}`}>
               <input type="radio" name="priority" value="urgent" checked={state.priority === 'urgent'} onChange={() => {}} className="sr-only" />
               <div className="priority-content">
-                <p className="priority-label">Khẩn cấp</p>
-                <p className="priority-desc">Xử lý trong 24 giờ</p>
+                <p className="priority-label">{t('label.urgent')}</p>
+                <p className="priority-desc">{t('label.urgentSla')}</p>
               </div>
             </label>
           </div>
         </div>
 
-        {/* Contact Info */}
         <div className="review-card">
-          <h3 className="review-card-title">Thông tin liên hệ</h3>
+          <h3 className="review-card-title">{t('label.contactInfo')}</h3>
           <div className="contact-form">
             <div className="form-field">
-              <label className="form-label">Email <span className="required-star">*</span></label>
-              <input type="email" className="form-input" value={state.contactInfo.email || userContactInfo?.email || ''} placeholder="email@example.com" />
+              <label className="form-label">{t('label.email')} <span className="required-star">*</span></label>
+              <input type="email" className="form-input" value={state.contactInfo.email || userContactInfo?.email || ''} placeholder="email@example.com" readOnly />
             </div>
             <div className="form-field">
-              <label className="form-label">Số điện thoại</label>
-              <input type="tel" className="form-input" value={state.contactInfo.phone || userContactInfo?.phone || ''} placeholder="0123456789" />
+              <label className="form-label">{t('label.phone')}</label>
+              <input type="tel" className="form-input" value={state.contactInfo.phone || userContactInfo?.phone || ''} placeholder="0123456789" readOnly />
             </div>
             <div className="form-field">
-              <label className="form-label">Tên công ty</label>
-              <input type="text" className="form-input" value={state.contactInfo.companyName || userContactInfo?.companyName || ''} placeholder="Công ty ABC" />
+              <label className="form-label">{t('label.companyName')}</label>
+              <input type="text" className="form-input" value={state.contactInfo.companyName || userContactInfo?.companyName || ''} placeholder={t('label.companyName')} readOnly />
             </div>
             <div className="form-field">
-              <label className="form-label">Mã số thuế</label>
-              <input type="text" className="form-input" value={state.contactInfo.taxCode || userContactInfo?.taxCode || ''} placeholder="0123456789" />
+              <label className="form-label">{t('label.taxCode')}</label>
+              <input type="text" className="form-input" value={state.contactInfo.taxCode || userContactInfo?.taxCode || ''} placeholder={t('label.taxCode')} readOnly />
             </div>
           </div>
         </div>
@@ -215,27 +208,27 @@ export default function ReviewStep({
       {/* Actions Column */}
       <div className="review-actions">
         <div className="action-card">
-          <h3 className="action-title">Xác nhận & Gửi</h3>
+          <h3 className="action-title">{t('review.confirmAndSubmit')}</h3>
 
           <div className="check-list">
             <div className="check-item">
               {state.domainId ? <CheckCircle2 size={16} className="check-ok" /> : <AlertCircle size={16} className="check-no" />}
-              <span>Đã chọn lĩnh vực</span>
+              <span>{t('review.domainSelected')}</span>
             </div>
             <div className="check-item">
               {state.serviceType ? <CheckCircle2 size={16} className="check-ok" /> : <AlertCircle size={16} className="check-no" />}
-              <span>Đã chọn dịch vụ</span>
+              <span>{t('review.serviceSelected')}</span>
             </div>
             <div className="check-item">
               {state.contactInfo.email ? <CheckCircle2 size={16} className="check-ok" /> : <AlertCircle size={16} className="check-no" />}
-              <span>Đã nhập email</span>
+              <span>{t('review.emailEntered')}</span>
             </div>
           </div>
 
           {error && (
             <div className="error-box">
               <p>{error}</p>
-              <button onClick={handleRetry} className="retry-btn">Thử lại</button>
+              <button onClick={handleRetry} className="retry-btn">{t('button.back')}</button>
             </div>
           )}
 
@@ -243,14 +236,14 @@ export default function ReviewStep({
             {isSubmitting ? (
               <>
                 <Loader2 size={18} className="animate-spin" />
-                <span>Đang gửi...</span>
+                <span>{t('review.submitting')}</span>
               </>
             ) : (
-              <span>Gửi yêu cầu</span>
+              <span>{t('button.submit')}</span>
             )}
           </button>
 
-          <p className="submit-note">Vui lòng kiểm tra kỹ thông tin trước khi gửi</p>
+          <p className="submit-note">{t('review.reviewBeforeSubmit')}</p>
         </div>
       </div>
     </div>

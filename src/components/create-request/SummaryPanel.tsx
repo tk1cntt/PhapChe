@@ -20,7 +20,7 @@ export default function SummaryPanel({
   workspaceName,
   locale = 'vi'
 }: SummaryPanelProps) {
-  const t = useTranslations('UserCreateRequest');
+  const t = useTranslations('CreateRequest');
 
   const serviceInfo = selectedService ? SEED_MATTER_TYPES[selectedService] : null;
   const domainInfo = selectedDomainId ? SEED_LEGAL_DOMAINS[selectedDomainId] : null;

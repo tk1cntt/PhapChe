@@ -1266,6 +1266,20 @@
     }
   },
   "CreateRequest": {
+    "domainTitle": "选择法律领域",
+    "serviceCount": "{count} 服务",
+    "summaryPanelTitle": "请求摘要",
+    "checklistTitle": "准备清单",
+    "summaryServiceSelected": "已选服务",
+    "summaryDomainSelected": "已选领域",
+    "summaryNoService": "未选择服务",
+    "summaryNoServiceHint": "选择领域和服务以查看详情",
+    "summaryEstimated": "预计时间",
+    "summaryEstimatedTime": "5-7个工作日",
+    "summaryEstimatedPickService": "选择服务后更新",
+    "status": "状态",
+    "summaryDraftStatus": "草稿",
+    "workspace": "工作区",
     "wizard": {
       "step1": "领域",
       "step2": "服务",
@@ -1323,7 +1337,72 @@
       "email": "邮箱",
       "phone": "电话",
       "companyName": "公司名称",
-      "taxCode": "税番号"
+      "taxCode": "税番号",
+      "normalSla": "72小时内处理",
+      "urgentSla": "24小时内处理",
+      "notSelected": "未选择",
+      "notEntered": "未输入",
+      "requiredInfo": "必填信息",
+      "domain": "领域",
+      "service": "服务"
+    },
+    "error": {
+      "required": "此字段为必填项",
+      "invalidEmail": "无效的邮箱",
+      "invalidPhone": "无效的电话号码",
+      "fileTooLarge": "文件超过50MB",
+      "fileTypeNotSupported": "不支持的文件类型",
+      "uploadFailed": "上传失败",
+      "draftSaveFailed": "保存草稿失败",
+      "submitFailed": "提交请求失败",
+      "submitGeneralError": "提交时发生错误",
+      "selectDomain": "请选择领域",
+      "selectService": "请选择服务",
+      "domainNotFound": "未找到领域",
+      "fillAllRequired": "请填写所有必填字段",
+      "missingRequiredInfo": "缺少必填信息"
+    },
+    "fileUpload": {
+      "title": "附件",
+      "desc": "上传相关文件（可选）",
+      "dropHere": "将文件拖放到此处或点击选择",
+      "supportedFormats": "支持格式：PDF, DOC, DOCX, JPG, PNG（最大50MB）",
+      "noFiles": "暂无上传文件",
+      "filesCount": "已上传 {count} 个文件",
+      "confirmDelete": "删除此文件？"
+    },
+    "review": {
+      "domainAndService": "领域与服务",
+      "domainSelected": "已选择领域",
+      "serviceSelected": "已选择服务",
+      "emailEntered": "已输入邮箱",
+      "confirmAndSubmit": "确认并提交",
+      "reviewBeforeSubmit": "提交前请仔细核对信息",
+      "submitting": "提交中...",
+      "redirectingToRequests": "正在跳转到请求页面...",
+      "noDocuments": "暂无文件",
+      "details": "详细信息"
+    },
+    "questions": {
+      "title": "详细信息",
+      "noQuestions": "此服务没有问题。",
+      "questionNumber": "问题 {n}",
+      "fillInfo": "请填写必要信息"
+    },
+    "placeholder": {
+      "enter": "输入{field}..."
+    },
+    "message": {
+      "draftSaved": "草稿已保存",
+      "submitSuccess": "请求已成功提交！",
+      "submitSuccessTitle": "请求已提交！",
+      "submitSuccessDesc": "您的请求已成功提交。我们将尽快与您联系。",
+      "resumeDraft": "从草稿继续",
+      "resumeDraftDesc": "您可以继续编辑或删除后重新开始。",
+      "uploadProgress": "上传中...",
+      "uploadSuccess": "上传成功",
+      "redirecting": "{seconds}秒后重定向...",
+      "selectServiceType": "选择您需要的服务类型"
     }
   },
   "AdminDashboard": {

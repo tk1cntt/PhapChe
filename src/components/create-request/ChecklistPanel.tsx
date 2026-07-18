@@ -119,7 +119,7 @@ const SERVICE_CHECKLISTS: Record<string, Record<string, Array<{ title: string; d
 };
 
 export default function ChecklistPanel({ selectedService, locale = 'vi' }: ChecklistPanelProps) {
-  const t = useTranslations('UserCreateRequest');
+  const t = useTranslations('CreateRequest');
 
   // Get dynamic checklist based on service
   let items: Array<{ title: string; description: string }>;

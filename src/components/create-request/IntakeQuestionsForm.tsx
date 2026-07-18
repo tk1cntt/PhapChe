@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, forwardRef, useImperativeHandle } from 'react';
+import { useTranslations } from 'next-intl';
 import { SEED_MATTER_TYPES } from '@/lib/i18n/seed-multilingual';
 
 interface IntakeAnswers {
@@ -26,6 +27,7 @@ interface Question {
 
 const IntakeQuestionsForm = forwardRef<IntakeQuestionsFormHandle, IntakeQuestionsFormProps>(
   ({ selectedService, locale = 'vi' }, ref) => {
+    const t = useTranslations('CreateRequest');
     const formRef = useRef<HTMLFormElement>(null);
 
     // Map selected service to matterTypeKey
@@ -73,7 +75,7 @@ const IntakeQuestionsForm = forwardRef<IntakeQuestionsFormHandle, IntakeQuestion
     return (
       <form ref={formRef}>
         <p style={{ fontSize: '14px', color: 'var(--color-text-muted)', lineHeight: 1.7, marginBottom: '18px' }}>
-          {matterType?.description?.[locale as keyof typeof matterType.description] || matterType?.description?.vi || 'Điền thông tin cần thiết'}
+          {matterType?.description?.[locale as keyof typeof matterType.description] || matterType?.description?.vi || t('questions.fillInfo')}
         </p>
 
         {questions.map((question) => (
@@ -86,14 +88,14 @@ const IntakeQuestionsForm = forwardRef<IntakeQuestionsFormHandle, IntakeQuestion
               <textarea
                 name={`answer.${question.key}`}
                 rows={4}
-                placeholder={`Nhập ${question.label.toLowerCase()}...`}
+                placeholder={t('placeholder.enter', { field: question.label.toLowerCase() })}
                 className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none resize-none"
               />
             ) : (
               <input
                 type="text"
                 name={`answer.${question.key}`}
-                placeholder={`Nhập ${question.label.toLowerCase()}...`}
+                placeholder={t('placeholder.enter', { field: question.label.toLowerCase() })}
                 className="h-11 w-full border border-slate-200 rounded-lg px-3 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none"
               />
             )}
@@ -101,7 +103,7 @@ const IntakeQuestionsForm = forwardRef<IntakeQuestionsFormHandle, IntakeQuestion
         ))}
 
         <p style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
-          <span style={{ color: 'var(--color-danger)' }}>*</span> Thông tin bắt buộc
+          <span style={{ color: 'var(--color-danger)' }}>*</span> {t('label.requiredInfo')}
         </p>
       </form>
     );

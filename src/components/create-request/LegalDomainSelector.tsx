@@ -45,7 +45,7 @@ export default function LegalDomainSelector({
   onSelect,
   locale = 'vi',
 }: LegalDomainSelectorProps) {
-  const t = useTranslations('UserCreateRequest');
+  const t = useTranslations('CreateRequest');
   const domains = Object.values(SEED_LEGAL_DOMAINS);
 
   return (

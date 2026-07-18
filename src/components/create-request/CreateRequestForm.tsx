@@ -34,7 +34,7 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
   const router = useRouter();
   const searchParams = useSearchParams();
   const { state, actions } = useWizard();
-  const t = useTranslations('UserCreateRequest');
+  const t = useTranslations('CreateRequest');
 
   const fileMapRef = useRef<Map<string, File>>(new Map());
 
@@ -114,11 +114,11 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
 
     if (state.step === 1) {
       if (!state.domainId) {
-        errors.domainId = 'Vui lòng chọn lĩnh vực pháp lý';
+        errors.domainId = t('error.selectDomain');
       }
     } else if (state.step === 2) {
       if (!state.serviceType) {
-        errors.serviceType = 'Vui lòng chọn dịch vụ';
+        errors.serviceType = t('error.selectService');
       }
     } else if (state.step === 3) {
       if (state.serviceType) {
@@ -185,7 +185,7 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
   // Handle submit
   const handleSubmit = async () => {
     if (!state.domainId || !state.serviceType) {
-      throw new Error('Thiếu thông tin bắt buộc');
+      throw new Error(t('error.missingRequiredInfo'));
     }
 
     const formData = new FormData();
@@ -211,7 +211,7 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.message || 'Gửi yêu cầu thất bại');
+      throw new Error(data.message || t('error.submitFailed'));
     }
   };
 
@@ -249,9 +249,9 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-blue-900">Đang tiếp tục từ bản nháp</p>
+                <p className="text-sm font-medium text-blue-900">{t('message.resumeDraft')}</p>
                 <p className="text-sm text-blue-700 mt-1">
-                  Bạn có thể tiếp tục chỉnh sửa hoặc xóa để bắt đầu lại từ đầu.
+                  {t('message.resumeDraftDesc')}
                 </p>
               </div>
             </div>
@@ -259,7 +259,7 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
               onClick={handleDeleteDraft}
               className="text-sm text-red-600 hover:text-red-700 font-medium"
             >
-              Xóa và bắt đầu mới
+{t('button.startOver')}
             </button>
           </div>
         </div>
@@ -344,14 +344,14 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
                     onClick={handlePrev}
                     disabled={state.step === 1}
                   >
-                    {t('back')}
+                    {t('button.back')}
                   </button>
                   <button
                     type="button"
                     className="create-btn"
                     onClick={handleNext}
                   >
-                    {t('continue')}
+                    {t('button.next')}
                   </button>
                 </div>
               )}

@@ -1504,6 +1504,20 @@
     }
   },
   "CreateRequest": {
+    "domainTitle": "Select a legal domain",
+    "serviceCount": "{count} services",
+    "summaryPanelTitle": "Request Summary",
+    "checklistTitle": "Preparation Checklist",
+    "summaryServiceSelected": "Service selected",
+    "summaryDomainSelected": "Domain selected",
+    "summaryNoService": "No service selected",
+    "summaryNoServiceHint": "Select a domain and service to view details",
+    "summaryEstimated": "Estimated time",
+    "summaryEstimatedTime": "5-7 business days",
+    "summaryEstimatedPickService": "Updated after service selection",
+    "status": "Status",
+    "summaryDraftStatus": "Draft",
+    "workspace": "Workspace",
     "wizard": {
       "step1": "Domain",
       "step2": "Service",
@@ -1561,7 +1575,72 @@
       "email": "Email",
       "phone": "Phone",
       "companyName": "Company Name",
-      "taxCode": "Tax Code"
+      "taxCode": "Tax Code",
+      "normalSla": "Processed within 72 hours",
+      "urgentSla": "Processed within 24 hours",
+      "notSelected": "Not selected",
+      "notEntered": "Not entered",
+      "requiredInfo": "Required information",
+      "domain": "Domain",
+      "service": "Service"
+    },
+    "error": {
+      "required": "This field is required",
+      "invalidEmail": "Invalid email",
+      "invalidPhone": "Invalid phone number",
+      "fileTooLarge": "File exceeds 50MB",
+      "fileTypeNotSupported": "File type not supported",
+      "uploadFailed": "Upload failed",
+      "draftSaveFailed": "Failed to save draft",
+      "submitFailed": "Failed to submit request",
+      "submitGeneralError": "An error occurred while submitting",
+      "selectDomain": "Please select a domain",
+      "selectService": "Please select a service",
+      "domainNotFound": "Domain not found",
+      "fillAllRequired": "Please fill in all required fields",
+      "missingRequiredInfo": "Missing required information"
+    },
+    "fileUpload": {
+      "title": "Attachments",
+      "desc": "Upload relevant documents (optional)",
+      "dropHere": "Drag & drop files here or click to select",
+      "supportedFormats": "Supported: PDF, DOC, DOCX, JPG, PNG (max 50MB)",
+      "noFiles": "No files uploaded",
+      "filesCount": "{count} file(s) uploaded",
+      "confirmDelete": "Remove this file?"
+    },
+    "review": {
+      "domainAndService": "Domain & Service",
+      "domainSelected": "Domain selected",
+      "serviceSelected": "Service selected",
+      "emailEntered": "Email entered",
+      "confirmAndSubmit": "Confirm & Submit",
+      "reviewBeforeSubmit": "Please review carefully before submitting",
+      "submitting": "Submitting...",
+      "redirectingToRequests": "Redirecting to requests page...",
+      "noDocuments": "No documents",
+      "details": "Details"
+    },
+    "questions": {
+      "title": "Detailed Information",
+      "noQuestions": "No questions for this service.",
+      "questionNumber": "Question {n}",
+      "fillInfo": "Fill in required information"
+    },
+    "placeholder": {
+      "enter": "Enter {field}..."
+    },
+    "message": {
+      "draftSaved": "Draft saved",
+      "submitSuccess": "Request submitted successfully!",
+      "submitSuccessTitle": "Request Submitted!",
+      "submitSuccessDesc": "Your request has been submitted successfully. We will contact you as soon as possible.",
+      "resumeDraft": "Resuming from draft",
+      "resumeDraftDesc": "You can continue editing or delete and start over.",
+      "uploadProgress": "Uploading...",
+      "uploadSuccess": "Upload successful",
+      "redirecting": "Redirecting in {seconds} seconds...",
+      "selectServiceType": "Select the service type you need"
     }
   },
   "AdminDashboard": {

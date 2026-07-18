@@ -1266,6 +1266,20 @@
     }
   },
   "CreateRequest": {
+    "domainTitle": "法的分野を選択",
+    "serviceCount": "{count}サービス",
+    "summaryPanelTitle": "リクエスト概要",
+    "checklistTitle": "準備チェックリスト",
+    "summaryServiceSelected": "選択したサービス",
+    "summaryDomainSelected": "選択した分野",
+    "summaryNoService": "サービス未選択",
+    "summaryNoServiceHint": "分野とサービスを選択すると詳細が表示されます",
+    "summaryEstimated": "所要時間",
+    "summaryEstimatedTime": "5〜7営業日",
+    "summaryEstimatedPickService": "サービス選択後に更新されます",
+    "status": "ステータス",
+    "summaryDraftStatus": "下書き",
+    "workspace": "ワークスペース",
     "wizard": {
       "step1": "ドメイン",
       "step2": "サービス",
@@ -1323,7 +1337,72 @@
       "email": "メール",
       "phone": "電話",
       "companyName": "会社名",
-      "taxCode": "税番号"
+      "taxCode": "税番号",
+      "normalSla": "72時間以内に処理",
+      "urgentSla": "24時間以内に処理",
+      "notSelected": "未選択",
+      "notEntered": "未入力",
+      "requiredInfo": "必須情報",
+      "domain": "分野",
+      "service": "サービス"
+    },
+    "error": {
+      "required": "この項目は必須です",
+      "invalidEmail": "無効なメール",
+      "invalidPhone": "無効な電話番号",
+      "fileTooLarge": "ファイルが50MBを超えています",
+      "fileTypeNotSupported": "サポートされていないファイル形式です",
+      "uploadFailed": "アップロード失敗",
+      "draftSaveFailed": "下書きの保存に失敗しました",
+      "submitFailed": "リクエストの送信に失敗しました",
+      "submitGeneralError": "送信中にエラーが発生しました",
+      "selectDomain": "ドメインを選択してください",
+      "selectService": "サービスを選択してください",
+      "domainNotFound": "ドメインが見つかりません",
+      "fillAllRequired": "必須項目をすべて入力してください",
+      "missingRequiredInfo": "必須情報が不足しています"
+    },
+    "fileUpload": {
+      "title": "添付書類",
+      "desc": "関連書類をアップロード（任意）",
+      "dropHere": "ここにファイルをドロップするか、クリックして選択",
+      "supportedFormats": "対応形式：PDF, DOC, DOCX, JPG, PNG（最大50MB）",
+      "noFiles": "アップロードされたファイルはありません",
+      "filesCount": "{count}ファイルがアップロードされました",
+      "confirmDelete": "このファイルを削除しますか？"
+    },
+    "review": {
+      "domainAndService": "分野とサービス",
+      "domainSelected": "分野を選択済み",
+      "serviceSelected": "サービスを選択済み",
+      "emailEntered": "メールを入力済み",
+      "confirmAndSubmit": "確認して送信",
+      "reviewBeforeSubmit": "送信前に内容をよくご確認ください",
+      "submitting": "送信中...",
+      "redirectingToRequests": "リクエストページにリダイレクト中...",
+      "noDocuments": "書類はありません",
+      "details": "詳細情報"
+    },
+    "questions": {
+      "title": "詳細情報",
+      "noQuestions": "このサービスには質問がありません。",
+      "questionNumber": "質問{n}",
+      "fillInfo": "必要な情報を入力してください"
+    },
+    "placeholder": {
+      "enter": "{field}を入力..."
+    },
+    "message": {
+      "draftSaved": "下書きを保存しました",
+      "submitSuccess": "リクエストが正常に送信されました！",
+      "submitSuccessTitle": "リクエスト送信完了！",
+      "submitSuccessDesc": "リクエストが正常に送信されました。できるだけ早くご連絡いたします。",
+      "resumeDraft": "下書きから再開",
+      "resumeDraftDesc": "編集を続けるか、削除して最初からやり直すことができます。",
+      "uploadProgress": "アップロード中...",
+      "uploadSuccess": "アップロード成功",
+      "redirecting": "{seconds}秒後にリダイレクト...",
+      "selectServiceType": "必要なサービスを選択してください"
     }
   },
   "AdminDashboard": {

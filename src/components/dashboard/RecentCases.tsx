@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { EmptyState } from '@/components/shared/ui/EmptyState';
 import { CaseItem } from './DashboardClient';
@@ -20,6 +20,7 @@ const statusBadgeClass: Record<string, string> = {
 
 export default function RecentCases({ cases }: RecentCasesProps) {
   const t = useTranslations('RecentCases');
+  const locale = useLocale();
   const router = useRouter();
 
   return (
@@ -32,7 +33,7 @@ export default function RecentCases({ cases }: RecentCasesProps) {
           </svg>
           <span>{t('title')}</span>
         </div>
-        <Link className="small-link" href="/requests">{t('seeAll')}</Link>
+        <Link className="small-link" href={`/${locale}/cases`}>{t('seeAll')}</Link>
       </div>
 
       <div className="case-list">
@@ -70,7 +71,7 @@ export default function RecentCases({ cases }: RecentCasesProps) {
                 </span>
               </div>
               <div>
-                <Link className="action-link" href={`/requests/${c.id}`}>{t('open')}</Link>
+                <Link className="action-link" href={`/${locale}/cases/${c.id}`}>{t('open')}</Link>
               </div>
             </div>
           ))

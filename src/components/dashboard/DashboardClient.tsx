@@ -12,7 +12,7 @@ import RecentDocuments from './RecentDocuments';
 import ActivityTimeline from './ActivityTimeline';
 import CasesTable from './CasesTable';
 import { ErrorBoundaryWrapper } from '@/components/shared/ui/ErrorBoundary';
-import './dashboard.css';
+import '@/styles/pages/dashboard.css';
 
 // Panel skeleton components
 function StatCardsSkeleton() {
@@ -88,7 +88,7 @@ function ActivityTimelineSkeleton() {
       </div>
       {[0, 1, 2, 3, 4].map((i) => (
         <div key={i} className="timeline-item">
-          <div className="timeline-dot" style={{ background: '#e5e7eb', border: '4px solid #f3f4f6' }} />
+          <div className="timeline-dot" style={{ background: 'var(--color-border-strong)', border: '4px solid var(--color-bg)' }} />
           <div className="loading-line medium" style={{ height: 16, marginBottom: 8 }} />
           <div className="loading-line short" style={{ height: 12 }} />
         </div>
@@ -108,6 +108,7 @@ export interface CaseItem {
   assignee: string;
   assigneeRole: string;
   updatedAt: string;
+  formattedDate: string;
 }
 
 export interface StatsData {
@@ -167,6 +168,7 @@ export default function DashboardClient({
   recentActivities = [],
 }: DashboardClientProps) {
   const t = useTranslations('DashboardClient');
+  const router = useRouter();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(!welcomeData || !stats || allCases.length === 0);
 
@@ -201,7 +203,7 @@ export default function DashboardClient({
       <ErrorBoundaryWrapper
         fallback={
           <div className="stats-grid">
-            <div className="panel" style={{ padding: 24, textAlign: 'center', color: '#dc2626' }}>
+            <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
               Không thể tải dữ liệu. Vui lòng thử lại.
             </div>
           </div>
@@ -214,7 +216,7 @@ export default function DashboardClient({
       <div className="grid-2">
         <ErrorBoundaryWrapper
           fallback={
-            <div className="panel" style={{ padding: 24, textAlign: 'center', color: '#dc2626' }}>
+            <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
               Không thể tải dữ liệu. Vui lòng thử lại.
             </div>
           }
@@ -227,7 +229,7 @@ export default function DashboardClient({
         </ErrorBoundaryWrapper>
         <ErrorBoundaryWrapper
           fallback={
-            <div className="panel" style={{ padding: 24, textAlign: 'center', color: '#dc2626' }}>
+            <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
               Không thể tải dữ liệu. Vui lòng thử lại.
             </div>
           }
@@ -240,7 +242,7 @@ export default function DashboardClient({
       <div className="dashboard-grid">
         <ErrorBoundaryWrapper
           fallback={
-            <div className="panel" style={{ padding: 24, textAlign: 'center', color: '#dc2626' }}>
+            <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
               Không thể tải dữ liệu. Vui lòng thử lại.
             </div>
           }
@@ -253,7 +255,7 @@ export default function DashboardClient({
         </ErrorBoundaryWrapper>
         <ErrorBoundaryWrapper
           fallback={
-            <div className="panel" style={{ padding: 24, textAlign: 'center', color: '#dc2626' }}>
+            <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
               Không thể tải dữ liệu. Vui lòng thử lại.
             </div>
           }

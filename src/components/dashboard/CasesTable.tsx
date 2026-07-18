@@ -20,15 +20,6 @@ function getStatusBadgeClass(variant: string): string {
   return map[variant] || 'badge blue';
 }
 
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
-
 export default function CasesTable({ cases }: CasesTableProps) {
   const t = useTranslations('CasesTable');
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,7 +73,7 @@ export default function CasesTable({ cases }: CasesTableProps) {
               </div>
               <div className="td">
                 <div className="stack">
-                  <strong>{formatDate(c.updatedAt)}</strong>
+                  <strong>{c.formattedDate}</strong>
                 </div>
               </div>
               <div className="td">

@@ -91,8 +91,8 @@ export default function ActivityTimeline({
                     {t(`types.${activityType}`)}
                   </span>
                 )}
-                <strong>{activity.action}</strong>
-                <p>{activity.description}</p>
+                <strong>{activity.description}</strong>
+                <p>{activity.action}</p>
                 <div className="timeline-time">{activity.relativeTime}</div>
               </div>
             );

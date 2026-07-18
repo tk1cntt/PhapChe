@@ -9,3 +9,12 @@ export { EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 
 export { StatCard } from './StatCard';
+
+export { DropdownMenu } from './DropdownMenu';
+export type { DropdownItem } from './DropdownMenu';
+
+export { ThemeProvider, useTheme } from './ThemeProvider';
+export { ThemeToggle } from './ThemeToggle';
+
+export { FormattedDate } from './FormattedDate';
+export type { FormattedDateVariant } from './FormattedDate';

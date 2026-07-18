@@ -4,9 +4,38 @@ import { requireAppSession } from '@/lib/security/session';
 import { canAccessRoute } from '@/lib/security/role-config';
 import { AdminRoleProvider } from '@/lib/security/AdminRoleContext';
 import { AdminLayout } from '@/components/layout/AdminLayout';
+import { prisma } from '@/lib/prisma';
 
 /** Tất cả role được phép vào khu vực admin */
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin', 'audit_admin', 'specialist', 'reviewer'];
+
+/** Role priority để chọn role hiển thị cao nhất */
+const ROLE_PRIORITY: Record<string, number> = {
+  super_admin: 100,
+  coordinator_admin: 90,
+  audit_admin: 80,
+  reviewer: 50,
+  specialist: 40,
+  customer: 10,
+};
+
+/** Map role key → display label */
+const ROLE_LABEL: Record<string, string> = {
+  super_admin: 'Super Admin',
+  coordinator_admin: 'Coordinator',
+  audit_admin: 'Auditor',
+  specialist: 'Specialist',
+  reviewer: 'Reviewer',
+  customer: 'Customer',
+};
+
+function getDisplayRole(roles: string[]): string {
+  const adminRoles = roles.filter(r => ADMIN_ROLES.includes(r));
+  if (adminRoles.length === 0) return ROLE_LABEL[roles[0]] ?? roles[0] ?? '';
+  // Pick highest priority role
+  const best = adminRoles.reduce((a, b) => (ROLE_PRIORITY[a] ?? 0) > (ROLE_PRIORITY[b] ?? 0) ? a : b);
+  return ROLE_LABEL[best] ?? best;
+}
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -42,9 +71,24 @@ export default async function AdminLayoutWrapper({ children, params }: LayoutPro
       redirect(`/${locale}/admin/dashboard?error=forbidden`);
     }
 
+    // Fetch user info for sidebar profile display
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { name: true },
+    });
+    const userName = user?.name ?? '';
+    const userInitial = userName ? userName.charAt(0).toUpperCase() : 'A';
+    const userRole = getDisplayRole(session.roles ?? []);
+
     return (
       <AdminRoleProvider roles={session.roles ?? []}>
-        <AdminLayout locale={locale} userRoles={session.roles ?? []}>
+        <AdminLayout
+          locale={locale}
+          userRoles={session.roles ?? []}
+          userName={userName}
+          userRole={userRole}
+          userInitial={userInitial}
+        >
           {children}
         </AdminLayout>
       </AdminRoleProvider>

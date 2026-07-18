@@ -9,15 +9,15 @@ interface LanguageSettingsProps {
   onLocaleChange?: (locale: string) => void;
 }
 
-const LANGUAGES = [
-  { code: 'vi', name: 'Tiếng Việt', flag: 'VN' },
-  { code: 'en', name: 'English', flag: 'US' },
-  { code: 'zh', name: '中文', flag: 'CN' },
-  { code: 'ja', name: '日本語', flag: 'JP' },
-] as const;
-
 export function LanguageSettings({ currentLocale, onLocaleChange }: LanguageSettingsProps): React.ReactElement {
   const t = useTranslations('UserSettings');
+
+  const LANGUAGES = [
+    { code: 'vi', name: t('langVi'), flag: 'VN' },
+    { code: 'en', name: t('langEn'), flag: 'US' },
+    { code: 'zh', name: t('langZh'), flag: 'CN' },
+    { code: 'ja', name: t('langJa'), flag: 'JP' },
+  ] as const;
   const [selectedLocale, setSelectedLocale] = useState(currentLocale);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

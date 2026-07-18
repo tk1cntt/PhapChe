@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { FileText, Clock, User, Building2 } from 'lucide-react';
+import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 
 interface AuditEvent {
   id: string;
@@ -56,17 +57,6 @@ export function AuditSettings({ userId }: AuditSettingsProps): React.ReactElemen
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   const formatAction = (action: string) => {
     // Convert action to readable format
     return action
@@ -118,7 +108,7 @@ export function AuditSettings({ userId }: AuditSettingsProps): React.ReactElemen
                 <div className="audit-content">
                   <div className="audit-header">
                     <span className="audit-action">{formatAction(event.action)}</span>
-                    <span className="audit-time">{formatDate(event.createdAt)}</span>
+                    <span className="audit-time"><FormattedDate date={event.createdAt} variant="datetime" /></span>
                   </div>
                   <div className="audit-meta">
                     {event.workspaceName && (

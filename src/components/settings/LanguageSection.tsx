@@ -9,13 +9,18 @@ export interface LanguageSectionProps {
   onLocaleChange?: (locale: string) => void;
 }
 
-const LANGUAGES = [
-  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-];
+const LANG_NAME_MAP: Record<string, string> = {
+  vi: 'langVi',
+  en: 'langEn',
+};
 
 export function LanguageSection({ currentLocale, onLocaleChange }: LanguageSectionProps): React.ReactElement {
   const t = useTranslations('UserSettings');
+
+  const LANGUAGES = [
+    { code: 'vi', name: t('langVi'), flag: '🇻🇳' },
+    { code: 'en', name: t('langEn'), flag: '🇺🇸' },
+  ];
 
   const handleChange = (locale: string) => {
     if (onLocaleChange) {

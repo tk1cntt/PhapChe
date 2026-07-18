@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Shield, Clock, ExternalLink } from 'lucide-react';
 import Paging from '@/components/ui/Paging';
+import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 
 export interface AuditSectionProps {
   userId: string;
@@ -51,25 +52,52 @@ export function AuditSection({ userId }: AuditSectionProps): React.ReactElement 
     setPageSize(size);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   const getActionLabel = (action: string) => {
     const actionMap: Record<string, string> = {
-      'auth.login': 'Đăng nhập',
-      'auth.logout': 'Đăng xuất',
-      'profile.updated': 'Cập nhật hồ sơ',
-      'settings.changed': 'Thay đổi cài đặt',
+      'auth.login': t('auditActionLogin'),
+      'auth.logout': t('auditActionLogout'),
+      'profile.updated': t('auditActionProfileUpdated'),
+      'settings.changed': t('auditActionSettingsChanged'),
+      'request.status_changed': t('auditActionRequestStatusChanged'),
+      'intake.submitted': t('auditActionIntakeSubmitted'),
+      'document.uploaded': t('auditActionDocumentUploaded'),
+      'document.viewed': t('auditActionDocumentViewed'),
+      'request.created': t('auditActionRequestCreated'),
+      'request.updated': t('auditActionRequestUpdated'),
+      'request.assigned': t('auditActionRequestAssigned'),
+      'workflow.transition': t('auditActionWorkflowTransition'),
+      'partner.comment_added': t('auditActionPartnerComment'),
+      'login.success': t('auditActionLoginSuccess'),
     };
-    return actionMap[action] || action;
+    if (actionMap[action]) return actionMap[action];
+    return action
+      .replace(/[._]/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
+  const formatMetadata = (raw: string): string => {
+    const labelMap: Record<string, string> = {
+      domain: t('metaDomain'),
+      service: t('metaService'),
+      priority: t('metaPriority'),
+      answers: t('metaAnswers'),
+      files: t('metaFiles'),
+      requestCode: t('metaRequestCode'),
+      documentName: t('metaDocumentName'),
+      partnerName: t('metaPartnerName'),
+    };
+    // Parse "key=value; key=value" format
+    const pairs = raw.split(';').map((s) => s.trim()).filter(Boolean);
+    return pairs
+      .map((p) => {
+        const eqIdx = p.indexOf('=');
+        if (eqIdx === -1) return p;
+        const key = p.slice(0, eqIdx).trim();
+        const value = p.slice(eqIdx + 1).trim();
+        const label = labelMap[key] || key;
+        return `${label}: ${value}`;
+      })
+      .join(' · ');
   };
 
   return (
@@ -100,12 +128,12 @@ export function AuditSection({ userId }: AuditSectionProps): React.ReactElement 
                 <div className="audit-content">
                   <span className="audit-action">{getActionLabel(event.action)}</span>
                   {event.metadataSummary && (
-                    <span className="audit-meta">{event.metadataSummary}</span>
+                    <span className="audit-meta">{formatMetadata(event.metadataSummary)}</span>
                   )}
                 </div>
                 <div className="audit-time">
                   <Clock size={14} />
-                  {formatDate(event.createdAt)}
+                  <FormattedDate date={event.createdAt} variant="datetime" />
                 </div>
               </div>
             ))}
@@ -116,7 +144,7 @@ export function AuditSection({ userId }: AuditSectionProps): React.ReactElement 
             pageSize={pageSize}
             total={total}
             onChange={handlePageChange}
-            totalLabel={`${total} sự kiện`}
+            totalLabel={t('auditEventCount', { count: total })}
           />
         </>
       )}

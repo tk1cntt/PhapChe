@@ -304,14 +304,6 @@ async function main() {
     await prisma.matterType.upsert({
       where: { workspaceId_key: { workspaceId: workspace.id, key } },
       update: {
-        label_vi: matterType.label.vi,
-        label_en: matterType.label.en ?? null,
-        label_zh: matterType.label.zh ?? null,
-        label_ja: matterType.label.ja ?? null,
-        description_vi: matterType.description.vi ?? null,
-        description_en: matterType.description.en ?? null,
-        description_zh: matterType.description.zh ?? null,
-        description_ja: matterType.description.ja ?? null,
         schemaVersion: matterType.schemaVersion,
         questionSchema: matterType.questions,
         isActive: true,
@@ -319,51 +311,24 @@ async function main() {
       create: {
         workspaceId: workspace.id,
         key,
-        label_vi: matterType.label.vi,
-        label_en: matterType.label.en ?? null,
-        label_zh: matterType.label.zh ?? null,
-        label_ja: matterType.label.ja ?? null,
-        description_vi: matterType.description.vi ?? null,
-        description_en: matterType.description.en ?? null,
-        description_zh: matterType.description.zh ?? null,
-        description_ja: matterType.description.ja ?? null,
         schemaVersion: matterType.schemaVersion,
         questionSchema: matterType.questions,
         isActive: true,
       },
     });
   }
-  console.log(`  ✓ ${Object.keys(SEED_MATTER_TYPES).length} MatterTypes seeded with ${SEED_METADATA.locales.length} languages`);
+  console.log(`  ✓ ${Object.keys(SEED_MATTER_TYPES).length} MatterTypes seeded (labels in src/messages/)`);
 
   console.log('Seeding Folders...');
 
   for (const [key, folder] of Object.entries(SEED_FOLDERS)) {
-    // Use findFirst to check if folder exists, then create or update
     const existing = await prisma.folder.findFirst({
-      where: {
-        workspaceId: workspace.id,
-        name_vi: folder.name.vi,
-      },
+      where: { workspaceId: workspace.id, name: folder.name.vi },
     });
 
-    if (existing) {
-      await prisma.folder.update({
-        where: { id: existing.id },
-        data: {
-          name_en: folder.name.en ?? null,
-          name_zh: folder.name.zh ?? null,
-          name_ja: folder.name.ja ?? null,
-        },
-      });
-    } else {
+    if (!existing) {
       await prisma.folder.create({
-        data: {
-          workspaceId: workspace.id,
-          name_vi: folder.name.vi,
-          name_en: folder.name.en ?? null,
-          name_zh: folder.name.zh ?? null,
-          name_ja: folder.name.ja ?? null,
-        },
+        data: { workspaceId: workspace.id, name: folder.name.vi },
       });
     }
   }
@@ -373,20 +338,12 @@ async function main() {
 
   for (const [key, tag] of Object.entries(SEED_TAGS)) {
     await prisma.tag.upsert({
-      where: {
-        workspaceId_key: {
-          workspaceId: workspace.id,
-          key,
-        },
-      },
-      update: {},
+      where: { workspaceId_key: { workspaceId: workspace.id, key } },
+      update: { label: tag.label.vi },
       create: {
         workspaceId: workspace.id,
         key,
-        label_vi: tag.label.vi,
-        label_en: tag.label.en ?? null,
-        label_zh: tag.label.zh ?? null,
-        label_ja: tag.label.ja ?? null,
+        label: tag.label.vi,
       },
     });
   }

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -320,16 +320,7 @@ model MatterType {
   id             String             @id @default(cuid())
   workspaceId    String?
   key            String
-  // Multilingual fields
-  label_vi       String?            // Primary label
-  label_en       String?            // Optional translations
-  label_zh       String?
-  label_ja       String?
-  description_vi String?            // Primary description
-  description_en String?
-  description_zh String?
-  description_ja String?
-  // Language-agnostic fields (stay as-is)
+  // Language-agnostic fields — label/description resolved via src/messages/{locale}.json (key-based i18n)
   schemaVersion  String
   questionSchema Json
   isActive       Boolean            @default(true)
@@ -512,15 +503,9 @@ model DocumentTemplate {
   matterTypeKey     String
   version           Int      @default(1)
   status            String   @default("draft")
-  // Multilingual fields
-  label_vi         String?  // Primary label
-  label_en         String?  // Optional translations
-  label_zh         String?
-  label_ja         String?
-  description_vi   String?  // Primary description
-  description_en   String?
-  description_zh   String?
-  description_ja   String?
+  // Admin-typed content (workspace primary language)
+  label             String?
+  description       String?
   // Language-agnostic fields
   variableSchema    Json           @default("[]")
   content           String
@@ -575,11 +560,8 @@ model VaultFile {
 model Folder {
   id              String           @id @default(cuid())
   workspaceId     String
-  // Multilingual name
-  name_vi         String?          // Primary name
-  name_en         String?          // Optional translations
-  name_zh         String?
-  name_ja         String?
+  // Admin-typed name (workspace primary language)
+  name            String
   parentId        String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -588,7 +570,7 @@ model Folder {
   children        Folder[]         @relation("FolderHierarchy")
   vaultFileFolders VaultFileFolder[]
 
-  @@unique([workspaceId, parentId, name_vi])
+  @@unique([workspaceId, parentId])
   @@index([workspaceId])
   @@index([parentId])
 }
@@ -597,11 +579,8 @@ model Tag {
   id           String         @id @default(cuid())
   workspaceId  String
   key          String
-  // Multilingual label
-  label_vi     String?       // Primary label
-  label_en     String?       // Optional translations
-  label_zh     String?
-  label_ja     String?
+  // Admin-typed display label (workspace primary language)
+  label        String?
   createdAt    DateTime       @default(now())
   workspace    Workspace      @relation(fields: [workspaceId], references: [id])
   vaultFileTags VaultFileTag[]

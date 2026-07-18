@@ -1,5 +1,6 @@
 import { UserLayout } from '@/components/layout/UserLayout';
 import { requireAppSession } from '@/lib/security/session';
+import { getWorkspaceRequestWhere } from '@/lib/security/request-filter';
 import { prisma } from '@/lib/prisma';
 import { isEnabled } from '@/lib/config/feature-flags';
 import { getTranslations } from 'next-intl/server';
@@ -41,14 +42,20 @@ export default async function DashboardPage({
   const { locale } = await params;
   const session = await requireAppSession();
   const { userId, activeWorkspaceId } = session;
+  const wsId = activeWorkspaceId ?? '';
+
+  // Build where clauses with role filter
+  const processingStatusExtra = { status: { in: ['in_progress', 'pending_review', 'triage', 'assigned'] } };
+  const completedStatusExtra = { status: { in: ['approved', 'delivered', 'closed'] } };
 
   // Fetch all data needed for dashboard in parallel
   const [
     user,
     activeWorkspace,
-    totalRequests,
-    processingRequests,
-    completedRequests,
+    baseWhere,
+    processingWhere,
+    completedWhere,
+    requestsWhere,
     requests,
     recentDocuments,
     recentActivities,
@@ -63,35 +70,32 @@ export default async function DashboardPage({
           select: { id: true, name: true, slug: true },
         })
       : null,
-    // Total = all workspace requests
-    prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '' } }),
-    // Processing = in_progress + pending_review + triage + assigned
-    prisma.legalRequest.count({
-      where: { workspaceId: activeWorkspaceId ?? '', status: { in: ['in_progress', 'pending_review', 'triage', 'assigned'] } },
-    }),
-    // Completed = approved + delivered + closed
-    prisma.legalRequest.count({
-      where: { workspaceId: activeWorkspaceId ?? '', status: { in: ['approved', 'delivered', 'closed'] } },
-    }),
-    // Requests with relations - filter for processing status
-    prisma.legalRequest.findMany({
-      where: { workspaceId: activeWorkspaceId ?? '' },
-      include: {
-        assignedSpecialist: { select: { id: true, name: true } },
-        assignedReviewer: { select: { id: true, name: true } },
-        // Include matterTypeRef for new FK-based approach
-        ...(isEnabled('DB_MIGRATION_PHASE4') ? {
-          matterTypeRef: {
-            select: { id: true, key: true },
-          },
-        } : {}),
-      },
-      orderBy: { updatedAt: 'desc' },
-      take: 10,
-    }),
+    // Role-filtered where clauses
+    getWorkspaceRequestWhere(wsId, userId),
+    getWorkspaceRequestWhere(wsId, userId, processingStatusExtra),
+    getWorkspaceRequestWhere(wsId, userId, completedStatusExtra),
+    getWorkspaceRequestWhere(wsId, userId),
+    // Requests with relations - role filtered
+    (async () => {
+      const w = await getWorkspaceRequestWhere(wsId, userId);
+      return prisma.legalRequest.findMany({
+        where: w as any,
+        include: {
+          assignedSpecialist: { select: { id: true, name: true } },
+          assignedReviewer: { select: { id: true, name: true } },
+          ...(isEnabled('DB_MIGRATION_PHASE4') ? {
+            matterTypeRef: {
+              select: { id: true, key: true },
+            },
+          } : {}),
+        },
+        orderBy: { updatedAt: 'desc' },
+        take: 10,
+      });
+    })(),
     // Recent vault documents
     prisma.vaultFile.findMany({
-      where: { workspaceId: activeWorkspaceId ?? '', actorId: userId },
+      where: { workspaceId: wsId, actorId: userId },
       include: {
         actor: { select: { id: true, name: true } },
       },
@@ -100,7 +104,7 @@ export default async function DashboardPage({
     }),
     // Recent audit events
     prisma.auditEvent.findMany({
-      where: { workspaceId: activeWorkspaceId ?? '' },
+      where: { workspaceId: wsId },
       include: {
         actor: { select: { id: true, name: true } },
         request: { select: { code: true, title: true } },
@@ -109,6 +113,11 @@ export default async function DashboardPage({
       take: 10,
     }),
   ]);
+
+  // Run count queries with role filter
+  const totalRequests = await prisma.legalRequest.count({ where: baseWhere as any });
+  const processingRequests = await prisma.legalRequest.count({ where: processingWhere as any });
+  const completedRequests = await prisma.legalRequest.count({ where: completedWhere as any });
 
   const userName = user?.name ?? user?.email ?? 'User';
   const workspaceName = activeWorkspace?.name ?? 'Workspace';

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
+import { getWorkspaceRequestWhere } from '@/lib/security/request-filter';
 import { getTranslations } from 'next-intl/server';
 import { getLocaleDateCode } from '@/lib/i18n';
 import UserLayout from '@/components/layout/UserLayout';
@@ -35,25 +36,30 @@ export default async function CasesPage({ params }: PageProps) {
   const workspaceName = workspace?.name ?? 'Workspace';
   const workspaceSlug = workspace?.slug ?? 'workspace';
 
-  // Fetch data from database with correct stats aggregation
-  const [totalRequests, processingRequests, completedRequests, overdueRequests, requests, unreadMessages] = await Promise.all([
-    // Total = all workspace requests
-    prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '' } }),
-    // Processing = in_progress + pending_review + triage + assigned
-    prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '', status: { in: ['in_progress', 'pending_review', 'triage', 'assigned'] } } }),
-    // Completed = approved + delivered + closed
-    prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '', status: { in: ['approved', 'delivered', 'closed'] } } }),
-    // Overdue = slaDeadline < now AND status NOT IN (approved, delivered, closed, cancelled)
-    prisma.$queryRaw<{ count: bigint }[]>`
-      SELECT COUNT(*) as count FROM "LegalRequest"
-      WHERE "workspaceId" = ${activeWorkspaceId ?? ''}
-      AND "slaDeadline" IS NOT NULL
-      AND "slaDeadline" < datetime('now')
-      AND "status" NOT IN ('approved', 'delivered', 'closed', 'cancelled')
-    `,
+  const wsId = activeWorkspaceId ?? '';
+  const now = new Date();
+
+  // Build base where clauses with role filter
+  const processingStatusFilter = { status: { in: ['in_progress', 'pending_review', 'triage', 'assigned'] } };
+  const completedStatusFilter = { status: { in: ['approved', 'delivered', 'closed'] } };
+
+  const [baseWhere, processingWhere, completedWhere, requestsWhere, overdueCount, requests, unreadMessages] = await Promise.all([
+    getWorkspaceRequestWhere(wsId, userId),
+    getWorkspaceRequestWhere(wsId, userId, processingStatusFilter),
+    getWorkspaceRequestWhere(wsId, userId, completedStatusFilter),
+    getWorkspaceRequestWhere(wsId, userId),
+    // Overdue count dùng Prisma count với role filter
+    (async () => {
+      const overdueBase = {
+        slaDeadline: { lt: now },
+        status: { notIn: ['approved', 'delivered', 'closed', 'cancelled'] },
+      };
+      const overdueWhere = await getWorkspaceRequestWhere(wsId, userId, overdueBase as any);
+      return prisma.legalRequest.count({ where: overdueWhere as any });
+    })(),
     // Requests with MatterType from intakeSubmission
     prisma.legalRequest.findMany({
-      where: { workspaceId: activeWorkspaceId ?? '' },
+      where: requestsWhere as any,
       include: {
         assignedSpecialist: { select: { name: true } },
         assignedReviewer: { select: { name: true } },
@@ -67,21 +73,22 @@ export default async function CasesPage({ params }: PageProps) {
       orderBy: { updatedAt: 'desc' },
     }),
     prisma.message.count({
-      where: { workspaceId: activeWorkspaceId ?? '', recipientId: userId, isRead: false },
+      where: { workspaceId: wsId, recipientId: userId, isRead: false },
     }),
   ]);
 
-  // Extract overdue count from raw query result
-  const overdueCount = Number(overdueRequests[0]?.count ?? 0);
+  // Run count queries with role filter
+  const totalRequests = await prisma.legalRequest.count({ where: baseWhere as any });
+  const processingRequests = await prisma.legalRequest.count({ where: processingWhere as any });
+  const completedRequests = await prisma.legalRequest.count({ where: completedWhere as any });
 
   const stats = {
     total: Number(totalRequests),
     processing: Number(processingRequests),
     completed: Number(completedRequests),
-    overdue: overdueCount,
+    overdue: Number(overdueCount),
   };
 
-  const now = new Date();
   const mappedRequests = await Promise.all(
     requests.map(async (req) => {
       // Calculate isOverdue from slaDeadline

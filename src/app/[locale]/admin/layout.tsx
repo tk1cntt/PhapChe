@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { requireAppSession } from '@/lib/security/session';
 import { canAccessRoute } from '@/lib/security/role-config';
+import { AdminRoleProvider } from '@/lib/security/AdminRoleContext';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 
 /** Tất cả role được phép vào khu vực admin */
@@ -42,9 +43,11 @@ export default async function AdminLayoutWrapper({ children, params }: LayoutPro
     }
 
     return (
-      <AdminLayout locale={locale} userRoles={session.roles ?? []}>
-        {children}
-      </AdminLayout>
+      <AdminRoleProvider roles={session.roles ?? []}>
+        <AdminLayout locale={locale} userRoles={session.roles ?? []}>
+          {children}
+        </AdminLayout>
+      </AdminRoleProvider>
     );
   } catch {
     redirect(`/${locale}/sign-in`);

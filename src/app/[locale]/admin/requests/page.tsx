@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAdminRoles } from '@/lib/security/AdminRoleContext';
 import AdminRequestsClient from '@/components/admin/AdminRequestsClient';
 import { TriagePanel } from '@/components/admin/TriagePanel';
 import { SpecialistWorkbench } from '@/components/admin/SpecialistWorkbench';
@@ -22,22 +22,34 @@ const TAB_LABELS: Record<TabKey, string> = {
   all: '📊 Tất cả hồ sơ',
 };
 
+const PLACEHOLDER: Record<TabKey, string> = {
+  triage: 'Đang tải phân loại...',
+  workbench: 'Đang tải bàn làm việc...',
+  review: 'Đang tải kiểm duyệt...',
+  delivery: 'Đang tải bàn giao...',
+  all: 'Đang tải tất cả hồ sơ...',
+};
+
 export default function AdminRequestsPage() {
-  const { user, isLoading } = useAuth();
-  const userRoles: string[] = (user as any)?.roles ?? [];
+  const userRoles = useAdminRoles();
 
   const visibleTabs = useMemo(() => {
-    if (isLoading) return ALL_TABS;
+    if (userRoles.length === 0) return [];
     return ALL_TABS.filter(tab => canSeeTab(tab, userRoles));
-  }, [userRoles, isLoading]);
+  }, [userRoles]);
 
-  const [activeTab, setActiveTab] = useState<TabKey>(() => visibleTabs[0]);
+  const [activeTab, setActiveTab] = useState<TabKey | null>(null);
+  const firstTab = visibleTabs[0] ?? null;
 
-  // If activeTab becomes invisible (role change), switch to first visible
-  const effectiveTab = visibleTabs.includes(activeTab) ? activeTab : visibleTabs[0] ?? 'triage';
+  // Set initial tab once auth resolves
+  const effectiveTab = activeTab ?? firstTab;
 
-  if (isLoading) {
+  if (userRoles.length === 0) {
     return <div className="p-8 text-center text-gray-500">Đang tải...</div>;
+  }
+
+  if (!effectiveTab) {
+    return <div className="p-8 text-center text-red-500">Bạn không có quyền truy cập trang này.</div>;
   }
 
   return (

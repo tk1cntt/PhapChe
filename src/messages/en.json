@@ -528,8 +528,8 @@
     "export": "Export"
   },
   "AdminRequests": {
-    "pageTitle": "Case Management",
-    "pageDescription": "Route cases with model: ad-hoc cases → classify Organization / Workspace → select Dedicated or Specialist Partner → transfer to main management table.",
+    "pageTitle": "Request Management",
+    "pageDescription": "Manage the legal request workflow — triage, process, review, and deliver cases through the pipeline.",
     "createButton": "Create Request",
     "importButton": "Import Cases",
     "autoRule": "Auto Rule",
@@ -581,6 +581,12 @@
     "rule4": "Every classification action requires audit reason logging.",
     "partnerModelTitle": "Partner Model Classification",
     "partnerModelDescription": "Select the correct model so the system knows whether to route cases by service scope or by organization ownership.",
+    "tabTriage": "Triage & Assign",
+    "tabWorkbench": "In Progress",
+    "tabReview": "Review",
+    "tabDelivery": "Delivery",
+    "loading": "Loading...",
+    "errorForbidden": "You do not have permission to access this page.",
     "tabAll": "All",
     "tabSpecialist": "Specialist Partner",
     "tabDedicated": "Dedicated Partner",

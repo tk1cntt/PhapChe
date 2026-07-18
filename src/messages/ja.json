@@ -527,8 +527,14 @@
     "export": "エクスポート"
   },
   "AdminRequests": {
-    "pageTitle": "リクエスト",
-    "pageDescription": "リクエストのステータスはバックエンド管理のワークフローから表示され、ドロップダウンで直接編集できません。",
+    "pageTitle": "リクエスト管理",
+    "pageDescription": "法的リクエストのワークフローを管理 — 分類、処理、レビュー、デリバリーをパイプラインで実行します。",
+    "tabTriage": "分類と割当",
+    "tabWorkbench": "処理中",
+    "tabReview": "レビュー",
+    "tabDelivery": "デリバリー",
+    "loading": "読み込み中...",
+    "errorForbidden": "このページにアクセスする権限がありません。",
     "createButton": "リクエスト作成",
     "code": "リクエストコード",
     "workspace": "ワークスペース",

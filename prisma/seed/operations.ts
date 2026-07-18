@@ -149,9 +149,17 @@ export default async function seedOperations(tx: Prisma.TransactionClient, conte
 
   const { userIds, workspaceIds } = context;
 
-  // Create 50 legal requests
+  // Create 50 legal requests across all workflow statuses
   const requestIds: string[] = [];
-  const statuses = ['draft_intake', 'intake_submitted', 'in_progress', 'pending_review', 'approved'];
+  // Full workflow cycle: draft_intake → triage → assigned → in_progress → pending_review → revision_required → approved → delivered → closed
+  const statuses = [
+    'draft_intake', 'triage', 'triage',
+    'assigned', 'assigned', 'in_progress', 'in_progress',
+    'pending_review', 'pending_review',
+    'revision_required',
+    'approved', 'approved',
+    'delivered', 'closed',
+  ];
   const priorities = ['low', 'medium', 'high', 'urgent'];
 
   for (let i = 0; i < 50; i++) {

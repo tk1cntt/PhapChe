@@ -1,87 +1,92 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAdminRoles } from '@/lib/security/AdminRoleContext';
-import AdminRequestsClient from '@/components/admin/AdminRequestsClient';
 import { TriagePanel } from '@/components/admin/TriagePanel';
 import { SpecialistWorkbench } from '@/components/admin/SpecialistWorkbench';
 import { ReviewConsole } from '@/components/admin/ReviewConsole';
 import { DeliveryConsole } from '@/components/admin/DeliveryConsole';
 import { canSeeTab } from '@/lib/security/role-config';
-import '@/styles/pages/admin/triage.css';
+import '@/styles/pages/admin/requests.css';
 
-type TabKey = 'triage' | 'workbench' | 'review' | 'delivery' | 'all';
+type TabKey = 'triage' | 'workbench' | 'review' | 'delivery';
 
-const ALL_TABS: readonly TabKey[] = ['triage', 'workbench', 'review', 'delivery', 'all'] as const;
+const WORKFLOW_TABS: readonly TabKey[] = ['triage', 'workbench', 'review', 'delivery'] as const;
 
-const TAB_LABELS: Record<TabKey, string> = {
-  triage: '📋 Phân loại & Gán',
-  workbench: '🔧 Đang xử lý',
-  review: '✅ Kiểm duyệt',
-  delivery: '📦 Bàn giao',
-  all: '📊 Tất cả hồ sơ',
-};
-
-const PLACEHOLDER: Record<TabKey, string> = {
-  triage: 'Đang tải phân loại...',
-  workbench: 'Đang tải bàn làm việc...',
-  review: 'Đang tải kiểm duyệt...',
-  delivery: 'Đang tải bàn giao...',
-  all: 'Đang tải tất cả hồ sơ...',
+const TAB_ICONS: Record<TabKey, string> = {
+  triage: '📋',
+  workbench: '🔧',
+  review: '✅',
+  delivery: '📦',
 };
 
 export default function AdminRequestsPage() {
+  const t = useTranslations('AdminRequests');
   const userRoles = useAdminRoles();
 
   const visibleTabs = useMemo(() => {
     if (userRoles.length === 0) return [];
-    return ALL_TABS.filter(tab => canSeeTab(tab, userRoles));
+    return WORKFLOW_TABS.filter(tab => canSeeTab(tab, userRoles));
   }, [userRoles]);
 
   const [activeTab, setActiveTab] = useState<TabKey | null>(null);
   const firstTab = visibleTabs[0] ?? null;
-
-  // Set initial tab once auth resolves
   const effectiveTab = activeTab ?? firstTab;
 
   if (userRoles.length === 0) {
-    return <div className="p-8 text-center text-gray-500">Đang tải...</div>;
+    return (
+      <div className="requests-loading">
+        <div className="spinner" />
+        <span>{t('loading')}</span>
+      </div>
+    );
   }
 
   if (!effectiveTab) {
-    return <div className="p-8 text-center text-red-500">Bạn không có quyền truy cập trang này.</div>;
+    return (
+      <div className="requests-error-state">
+        <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{t('errorForbidden')}</span>
+      </div>
+    );
   }
 
   return (
-    <>
+    <div className="requests-page">
+      {/* Page Header — matching /admin/partner layout */}
+      <div className="requests-page-header">
+        <div>
+          <h1>{t('pageTitle')}</h1>
+          <p className="requests-subtitle">{t('pageDescription')}</p>
+        </div>
+      </div>
+
       {/* Tab Bar */}
-      <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', borderBottom: '2px solid var(--color-border)', paddingBottom: 0 }}>
+      <nav className="requests-tabs" role="tablist">
         {visibleTabs.map(tab => (
           <button
             key={tab}
+            role="tab"
+            aria-selected={effectiveTab === tab}
             onClick={() => setActiveTab(tab)}
-            style={{
-              padding: '10px 20px',
-              border: 'none',
-              background: 'none',
-              borderBottom: effectiveTab === tab ? '2px solid var(--color-primary)' : '2px solid transparent',
-              color: effectiveTab === tab ? 'var(--color-primary)' : 'var(--color-text-muted)',
-              fontWeight: effectiveTab === tab ? 700 : 500,
-              fontSize: '14px',
-              cursor: 'pointer',
-              marginBottom: '-2px',
-            }}
+            className={`requests-tab ${effectiveTab === tab ? 'active' : ''}`}
           >
-            {TAB_LABELS[tab]}
+            <span className="tab-icon">{TAB_ICONS[tab]}</span>
+            {t(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`)}
           </button>
         ))}
-      </div>
+      </nav>
 
-      {effectiveTab === 'triage' && <TriagePanel />}
-      {effectiveTab === 'workbench' && <SpecialistWorkbench />}
-      {effectiveTab === 'review' && <ReviewConsole />}
-      {effectiveTab === 'delivery' && <DeliveryConsole />}
-      {effectiveTab === 'all' && <AdminRequestsClient />}
-    </>
+      {/* Tab Content */}
+      <div className="requests-tab-content">
+        {effectiveTab === 'triage' && <TriagePanel />}
+        {effectiveTab === 'workbench' && <SpecialistWorkbench />}
+        {effectiveTab === 'review' && <ReviewConsole />}
+        {effectiveTab === 'delivery' && <DeliveryConsole />}
+      </div>
+    </div>
   );
 }

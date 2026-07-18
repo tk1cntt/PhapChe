@@ -530,8 +530,14 @@
     "export": "Xuất"
   },
   "AdminRequests": {
-    "pageTitle": "Quản lý hồ sơ",
-    "pageDescription": "Điều phối hồ sơ theo mô hình: hồ sơ vãng lai → phân loại Organization / Workspace → chọn Dedicated Partner hoặc Specialist Partner → chuyển sang bảng quản lý chính.",
+    "pageTitle": "Quản lý yêu cầu",
+    "pageDescription": "Quản lý quy trình yêu cầu pháp lý — phân loại, xử lý, kiểm duyệt và bàn giao hồ sơ qua pipeline.",
+    "tabTriage": "Phân loại & Gán",
+    "tabWorkbench": "Đang xử lý",
+    "tabReview": "Kiểm duyệt",
+    "tabDelivery": "Bàn giao",
+    "loading": "Đang tải...",
+    "errorForbidden": "Bạn không có quyền truy cập trang này.",
     "createButton": "Tạo hồ sơ yêu cầu",
     "importButton": "Import hồ sơ",
     "autoRule": "Rule tự động",

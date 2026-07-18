@@ -527,8 +527,14 @@
     "export": "导出"
   },
   "AdminRequests": {
-    "pageTitle": "请求",
-    "pageDescription": "请求状态由后端工作流管理，不能通过下拉菜单直接修改。",
+    "pageTitle": "请求管理",
+    "pageDescription": "管理法律请求的工作流 — 分类、处理、审核和交付通过管道执行。",
+    "tabTriage": "分类与分配",
+    "tabWorkbench": "处理中",
+    "tabReview": "审核",
+    "tabDelivery": "交付",
+    "loading": "加载中...",
+    "errorForbidden": "您没有访问此页面的权限。",
     "createButton": "创建请求",
     "code": "请求编号",
     "workspace": "工作区",

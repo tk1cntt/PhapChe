@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
+import { getWorkspaceRequestWhere } from '@/lib/security/request-filter';
 import { getTranslations } from 'next-intl/server';
 import { UserLayout } from '@/components/layout/UserLayout';
 import { WorkspaceBanner, StatsGrid, MemberGrid, ResourceTable } from '@/components/workspace';
@@ -32,26 +33,26 @@ export default async function WorkspacePage({
   const workspaceSlug = workspace?.slug ?? '';
   const wsId = workspace?.id ?? activeWorkspaceId ?? '';
 
-  // Fetch DB stats
-  const [
-    allMembers,
-    requestCount,
-    processingRequestCount,
-    vaultFileCount,
-    lastRequestUpdate,
-    lastVaultUpdate,
-    unreadMessages,
-  ] = await Promise.all([
+  // Fetch DB stats — build role-filtered where clauses for legal requests
+  const processingStatusExtra = { status: { in: ['in_progress', 'pending_review', 'revision_required'] } };
+
+  const [baseWhere, processingWhere, allMembers, vaultFileCount, lastVaultUpdate, unreadMessages] = await Promise.all([
+    getWorkspaceRequestWhere(wsId, userId),
+    getWorkspaceRequestWhere(wsId, userId, processingStatusExtra),
     prisma.workspaceMembership.findMany({
       where: { workspaceId: wsId },
       include: { user: { select: { id: true, name: true, email: true } } },
     }),
-    prisma.legalRequest.count({ where: { workspaceId: wsId } }),
-    prisma.legalRequest.count({ where: { workspaceId: wsId, status: { in: ['in_progress', 'pending_review', 'revision_required'] } } }),
     prisma.vaultFile.count({ where: { workspaceId: wsId } }),
-    prisma.legalRequest.findFirst({ where: { workspaceId: wsId }, orderBy: { updatedAt: 'desc' }, select: { updatedAt: true } }),
     prisma.vaultFile.findFirst({ where: { workspaceId: wsId }, orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
     prisma.message.count({ where: { workspaceId: wsId, recipientId: userId, isRead: false } }),
+  ]);
+
+  // Run request queries with role filter (can't be in the same Promise.all since baseWhere/processingWhere needed first)
+  const [requestCount, processingRequestCount, lastRequestUpdate] = await Promise.all([
+    prisma.legalRequest.count({ where: baseWhere as any }),
+    prisma.legalRequest.count({ where: processingWhere as any }),
+    prisma.legalRequest.findFirst({ where: baseWhere as any, orderBy: { updatedAt: 'desc' }, select: { updatedAt: true } }),
   ]);
 
   const members = allMembers.map((m) => ({

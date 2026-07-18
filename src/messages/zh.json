@@ -743,7 +743,8 @@
     "untitled": "（无标题）",
     "filter": "筛选",
     "columns": "列",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "retry": "重试"
   },
   "AdminTemplates": {
     "pageTitle": "文档模板管理",
@@ -1322,20 +1323,30 @@
     "message": {
       "draftSaved": "草稿已保存",
       "submitSuccess": "请求已成功提交！",
+      "submitSuccessTitle": "请求已提交！",
+      "submitSuccessDesc": "您的请求已成功提交。我们将尽快与您联系。",
       "resumeDraft": "从草稿继续",
+      "resumeDraftDesc": "您可以继续编辑或删除后重新开始。",
       "uploadProgress": "上传中...",
       "uploadSuccess": "上传成功",
-      "redirecting": "{seconds}秒后重定向..."
+      "redirecting": "{seconds}秒后重定向...",
+      "selectServiceType": "选择您需要的服务类型"
     },
     "error": {
       "required": "此字段为必填项",
       "invalidEmail": "无效的邮箱",
+      "invalidPhone": "无效的电话号码",
       "fileTooLarge": "文件超过50MB",
+      "fileTypeNotSupported": "不支持的文件类型",
       "uploadFailed": "上传失败",
       "draftSaveFailed": "保存草稿失败",
       "submitFailed": "提交请求失败",
+      "submitGeneralError": "提交时发生错误",
       "selectDomain": "请选择领域",
-      "selectService": "请选择服务"
+      "selectService": "请选择服务",
+      "domainNotFound": "未找到领域",
+      "fillAllRequired": "请填写所有必填字段",
+      "missingRequiredInfo": "缺少必填信息"
     },
     "label": {
       "priority": "优先级",
@@ -1353,22 +1364,6 @@
       "requiredInfo": "必填信息",
       "domain": "领域",
       "service": "服务"
-    },
-    "error": {
-      "required": "此字段为必填项",
-      "invalidEmail": "无效的邮箱",
-      "invalidPhone": "无效的电话号码",
-      "fileTooLarge": "文件超过50MB",
-      "fileTypeNotSupported": "不支持的文件类型",
-      "uploadFailed": "上传失败",
-      "draftSaveFailed": "保存草稿失败",
-      "submitFailed": "提交请求失败",
-      "submitGeneralError": "提交时发生错误",
-      "selectDomain": "请选择领域",
-      "selectService": "请选择服务",
-      "domainNotFound": "未找到领域",
-      "fillAllRequired": "请填写所有必填字段",
-      "missingRequiredInfo": "缺少必填信息"
     },
     "fileUpload": {
       "title": "附件",
@@ -1399,18 +1394,6 @@
     },
     "placeholder": {
       "enter": "输入{field}..."
-    },
-    "message": {
-      "draftSaved": "草稿已保存",
-      "submitSuccess": "请求已成功提交！",
-      "submitSuccessTitle": "请求已提交！",
-      "submitSuccessDesc": "您的请求已成功提交。我们将尽快与您联系。",
-      "resumeDraft": "从草稿继续",
-      "resumeDraftDesc": "您可以继续编辑或删除后重新开始。",
-      "uploadProgress": "上传中...",
-      "uploadSuccess": "上传成功",
-      "redirecting": "{seconds}秒后重定向...",
-      "selectServiceType": "选择您需要的服务类型"
     }
   },
   "AdminDashboard": {

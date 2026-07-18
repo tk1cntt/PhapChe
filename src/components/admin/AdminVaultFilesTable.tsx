@@ -134,7 +134,7 @@ export function AdminVaultFilesTable({ classifications, loading }: AdminVaultFil
           const date = record.vaultFile.createdAt instanceof Date
             ? record.vaultFile.createdAt
             : new Date(record.vaultFile.createdAt);
-          const dateStr = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+          const dateStr = new Intl.DateTimeFormat(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
           const sizeStr = formatFileSize(record.vaultFile.size);
           const workspace = record.vaultFile.workspace;
           const owner = record.vaultFile.createdBy;

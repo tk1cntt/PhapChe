@@ -982,7 +982,13 @@
     "columnsBtn": "Display columns",
     "filter": "Filter",
     "columns": "Columns",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "untitled": "(untitled)",
+    "folderPath": "folder",
+    "folderColumn": "Folder",
+    "workspaceColumn": "Workspace",
+    "actions": "Actions",
+    "retry": "Retry"
   },
   "AdminTemplates": {
     "pageTitle": "Document Template Management",
@@ -1563,20 +1569,30 @@
     "message": {
       "draftSaved": "Draft saved",
       "submitSuccess": "Request submitted successfully!",
+      "submitSuccessTitle": "Request Submitted!",
+      "submitSuccessDesc": "Your request has been submitted successfully. We will contact you as soon as possible.",
       "resumeDraft": "Resuming from draft",
+      "resumeDraftDesc": "You can continue editing or delete and start over.",
       "uploadProgress": "Uploading...",
       "uploadSuccess": "Upload successful",
-      "redirecting": "Redirecting in {seconds} seconds..."
+      "redirecting": "Redirecting in {seconds} seconds...",
+      "selectServiceType": "Select the service type you need"
     },
     "error": {
       "required": "This field is required",
       "invalidEmail": "Invalid email",
+      "invalidPhone": "Invalid phone number",
       "fileTooLarge": "File exceeds 50MB",
+      "fileTypeNotSupported": "File type not supported",
       "uploadFailed": "Upload failed",
       "draftSaveFailed": "Failed to save draft",
       "submitFailed": "Failed to submit request",
+      "submitGeneralError": "An error occurred while submitting",
       "selectDomain": "Please select a domain",
-      "selectService": "Please select a service"
+      "selectService": "Please select a service",
+      "domainNotFound": "Domain not found",
+      "fillAllRequired": "Please fill in all required fields",
+      "missingRequiredInfo": "Missing required information"
     },
     "label": {
       "priority": "Priority",
@@ -1594,22 +1610,6 @@
       "requiredInfo": "Required information",
       "domain": "Domain",
       "service": "Service"
-    },
-    "error": {
-      "required": "This field is required",
-      "invalidEmail": "Invalid email",
-      "invalidPhone": "Invalid phone number",
-      "fileTooLarge": "File exceeds 50MB",
-      "fileTypeNotSupported": "File type not supported",
-      "uploadFailed": "Upload failed",
-      "draftSaveFailed": "Failed to save draft",
-      "submitFailed": "Failed to submit request",
-      "submitGeneralError": "An error occurred while submitting",
-      "selectDomain": "Please select a domain",
-      "selectService": "Please select a service",
-      "domainNotFound": "Domain not found",
-      "fillAllRequired": "Please fill in all required fields",
-      "missingRequiredInfo": "Missing required information"
     },
     "fileUpload": {
       "title": "Attachments",
@@ -1640,18 +1640,6 @@
     },
     "placeholder": {
       "enter": "Enter {field}..."
-    },
-    "message": {
-      "draftSaved": "Draft saved",
-      "submitSuccess": "Request submitted successfully!",
-      "submitSuccessTitle": "Request Submitted!",
-      "submitSuccessDesc": "Your request has been submitted successfully. We will contact you as soon as possible.",
-      "resumeDraft": "Resuming from draft",
-      "resumeDraftDesc": "You can continue editing or delete and start over.",
-      "uploadProgress": "Uploading...",
-      "uploadSuccess": "Upload successful",
-      "redirecting": "Redirecting in {seconds} seconds...",
-      "selectServiceType": "Select the service type you need"
     }
   },
   "AdminDashboard": {

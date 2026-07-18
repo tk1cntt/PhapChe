@@ -743,7 +743,8 @@
     "untitled": "（無題）",
     "filter": "フィルター",
     "columns": "列",
-    "loading": "読み込み中..."
+    "loading": "読み込み中...",
+    "retry": "再試行"
   },
   "AdminTemplates": {
     "pageTitle": "ドキュメントテンプレート管理",
@@ -1322,20 +1323,30 @@
     "message": {
       "draftSaved": "下書きを保存しました",
       "submitSuccess": "リクエストが正常に送信されました！",
+      "submitSuccessTitle": "リクエスト送信完了！",
+      "submitSuccessDesc": "リクエストが正常に送信されました。できるだけ早くご連絡いたします。",
       "resumeDraft": "下書きから再開",
+      "resumeDraftDesc": "編集を続けるか、削除して最初からやり直すことができます。",
       "uploadProgress": "アップロード中...",
       "uploadSuccess": "アップロード成功",
-      "redirecting": "{seconds}秒後にリダイレクト..."
+      "redirecting": "{seconds}秒後にリダイレクト...",
+      "selectServiceType": "必要なサービスを選択してください"
     },
     "error": {
       "required": "この項目は必須です",
       "invalidEmail": "無効なメール",
+      "invalidPhone": "無効な電話番号",
       "fileTooLarge": "ファイルが50MBを超えています",
+      "fileTypeNotSupported": "サポートされていないファイル形式です",
       "uploadFailed": "アップロード失敗",
       "draftSaveFailed": "下書きの保存に失敗しました",
       "submitFailed": "リクエストの送信に失敗しました",
+      "submitGeneralError": "送信中にエラーが発生しました",
       "selectDomain": "ドメインを選択してください",
-      "selectService": "サービスを選択してください"
+      "selectService": "サービスを選択してください",
+      "domainNotFound": "ドメインが見つかりません",
+      "fillAllRequired": "必須項目をすべて入力してください",
+      "missingRequiredInfo": "必須情報が不足しています"
     },
     "label": {
       "priority": "優先度",
@@ -1353,22 +1364,6 @@
       "requiredInfo": "必須情報",
       "domain": "分野",
       "service": "サービス"
-    },
-    "error": {
-      "required": "この項目は必須です",
-      "invalidEmail": "無効なメール",
-      "invalidPhone": "無効な電話番号",
-      "fileTooLarge": "ファイルが50MBを超えています",
-      "fileTypeNotSupported": "サポートされていないファイル形式です",
-      "uploadFailed": "アップロード失敗",
-      "draftSaveFailed": "下書きの保存に失敗しました",
-      "submitFailed": "リクエストの送信に失敗しました",
-      "submitGeneralError": "送信中にエラーが発生しました",
-      "selectDomain": "ドメインを選択してください",
-      "selectService": "サービスを選択してください",
-      "domainNotFound": "ドメインが見つかりません",
-      "fillAllRequired": "必須項目をすべて入力してください",
-      "missingRequiredInfo": "必須情報が不足しています"
     },
     "fileUpload": {
       "title": "添付書類",
@@ -1399,18 +1394,6 @@
     },
     "placeholder": {
       "enter": "{field}を入力..."
-    },
-    "message": {
-      "draftSaved": "下書きを保存しました",
-      "submitSuccess": "リクエストが正常に送信されました！",
-      "submitSuccessTitle": "リクエスト送信完了！",
-      "submitSuccessDesc": "リクエストが正常に送信されました。できるだけ早くご連絡いたします。",
-      "resumeDraft": "下書きから再開",
-      "resumeDraftDesc": "編集を続けるか、削除して最初からやり直すことができます。",
-      "uploadProgress": "アップロード中...",
-      "uploadSuccess": "アップロード成功",
-      "redirecting": "{seconds}秒後にリダイレクト...",
-      "selectServiceType": "必要なサービスを選択してください"
     }
   },
   "AdminDashboard": {

@@ -186,7 +186,7 @@ export default function AdminVaultClient() {
             <strong>{tCommon('error')}</strong>
           </div>
           <p>{error}</p>
-          <button onClick={handleRefresh}>{t('retry') || 'Thử lại'}</button>
+          <button onClick={handleRefresh}>{tCommon('retry')}</button>
         </div>
       )}
 

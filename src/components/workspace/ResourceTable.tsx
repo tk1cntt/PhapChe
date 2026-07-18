@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/my-cases/Badge';
+import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 
 export interface ResourceData {
   requestCount: number;
@@ -16,18 +17,6 @@ export interface ResourceData {
 
 export interface ResourceTableProps {
   resources: ResourceData;
-}
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return '-';
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return '-';
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
 
 export function ResourceTable({ resources }: ResourceTableProps): React.ReactElement {
@@ -90,7 +79,7 @@ export function ResourceTable({ resources }: ResourceTableProps): React.ReactEle
           <div className="td">
             <Badge variant={row.statusVariant}>{row.status}</Badge>
           </div>
-          <div className="td">{formatDate(row.date)}</div>
+          <div className="td"><FormattedDate date={row.date} variant="datetime" /></div>
           <div className="td">
             {row.href.startsWith('#') ? (
               <span className="action-link">{row.action}</span>

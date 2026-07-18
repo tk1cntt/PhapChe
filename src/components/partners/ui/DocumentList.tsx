@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 
 interface Document {
   id: string;
@@ -107,7 +108,7 @@ export function DocumentList({ documents, requestId, onDelete, onDownload }: Doc
                 <div>
                   <p className="font-medium text-sm">{doc.filename}</p>
                   <p className="text-xs text-gray-500">
-                    {formatSize(doc.size)} • {new Date(doc.createdAt).toLocaleDateString('vi-VN')}
+                    {formatSize(doc.size)} • <FormattedDate date={doc.createdAt} variant="date" />
                   </p>
                   {doc.description && (
                     <p className="text-sm text-gray-600">{doc.description}</p>

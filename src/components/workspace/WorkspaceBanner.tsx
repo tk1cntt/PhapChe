@@ -76,7 +76,7 @@ export function WorkspaceBanner({ workspaceName, workspaceSlug }: WorkspaceBanne
     <>
       <div className="workspace-banner">
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--color-text)', marginBottom: '8px' }}>
             {workspaceName}
           </h2>
           <p className="subtitle">
@@ -107,7 +107,7 @@ export function WorkspaceBanner({ workspaceName, workspaceSlug }: WorkspaceBanne
                 </div>
                 <div>
                   <h3 style={{ margin: 0 }}>{t('inviteMember')}</h3>
-                  <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>{t('inviteMemberDesc')}</p>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'var(--color-text-muted)' }}>{t('inviteMemberDesc')}</p>
                 </div>
               </div>
               <button
@@ -117,7 +117,7 @@ export function WorkspaceBanner({ workspaceName, workspaceSlug }: WorkspaceBanne
                   border: 'none',
                   cursor: 'pointer',
                   padding: '4px',
-                  color: '#64748b'
+                  color: 'var(--color-text-muted)'
                 }}
               >
                 <X size={20} />

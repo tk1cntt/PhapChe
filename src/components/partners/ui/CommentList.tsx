@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 
 interface Comment {
   id: string;
@@ -42,16 +43,6 @@ export function CommentList({ comments, requestId }: CommentListProps) {
   }, [requestId, comments]);
 
   const displayComments = requestId && !comments ? commentsData : (comments || commentsData);
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   return (
     <div className="space-y-4">
@@ -94,7 +85,7 @@ export function CommentList({ comments, requestId }: CommentListProps) {
                   )}
                 </div>
                 <span className="text-xs text-gray-500">
-                  {formatDate(comment.createdAt)}
+                  <FormattedDate date={comment.createdAt} variant="datetime" />
                 </span>
               </div>
               <p className="text-sm whitespace-pre-wrap text-gray-700">{comment.content}</p>

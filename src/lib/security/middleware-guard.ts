@@ -4,29 +4,18 @@
  * Trong middleware (edge runtime), không thể dùng Prisma trực tiếp.
  * Strategy: kiểm tra session cookie → extract userId → query DB roles
  * → so khớp với route requirement.
+ *
+ * Các role map hiện được định nghĩa tập trung trong role-config.ts.
  */
-import { NextRequest } from 'next/server';
 import type { AppRole } from '@/lib/types';
+import {
+  ADMIN_ROUTE_GUARDS as _ADMIN_ROUTE_GUARDS,
+  hasAnyRole as _hasAnyRole,
+} from './role-config';
 
-/**
- * Admin route → minimum roles required.
- * Key là path segment (sau /{locale}/admin/), value là roles được phép.
- * Thứ tự ưu tiên: nếu user có ÍT NHẤT MỘT role trong list → cho phép.
- */
-export const ADMIN_ROUTE_GUARDS: Record<string, readonly AppRole[]> = {
-  // ── Coordinator pipeline ──
-  requests: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
-  dashboard: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer', 'audit_admin'],
-  vault: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
-
-  // ── Admin-only (quản lý org, users, workspace, partner) ──
-  users: ['super_admin', 'coordinator_admin'],
-  workspace: ['super_admin', 'coordinator_admin'],
-  partner: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
-  operations: ['super_admin', 'coordinator_admin'],
-  audit: ['super_admin', 'coordinator_admin', 'audit_admin'],
-  organizations: ['super_admin'],
-} as const;
+// Re-export để backward-compatible
+export { ADMIN_ROUTE_GUARDS } from './role-config';
+export { hasAnyRole } from './role-config';
 
 /**
  * Các route công khai — không cần role check.
@@ -57,7 +46,6 @@ function checkLegacyRedirect(pathname: string): string | null {
   const segments = pathname.split('/').filter(Boolean);
   for (const [oldPath, redirectTo] of Object.entries(LEGACY_REDIRECTS)) {
     const oldSegments = oldPath.split('/').filter(Boolean);
-    // oldPath phải khớp toàn bộ segment đầu tiên (sau locale)
     if (oldSegments.length === 1 && segments.length >= 1 && segments[1] === oldSegments[0]) {
       return redirectTo;
     }
@@ -73,31 +61,22 @@ function isPublicPath(pathname: string): boolean {
 }
 
 /**
- * Kiểm tra xem user có ít nhất một role trong danh sách allowed không.
- */
-export function hasAnyRole(userRoles: AppRole[], allowedRoles: readonly string[]): boolean {
-  if (userRoles.length === 0) return false;
-  return userRoles.some(r => allowedRoles.includes(r));
-}
-
-/**
  * Trích xuất admin sub-route từ pathname.
  * Ví dụ: "/vi/admin/requests/abc" → "requests"
  *         "/vi/admin/dashboard"  → "dashboard"
  */
 export function extractAdminRoute(pathname: string): string | null {
   const segments = pathname.split('/').filter(Boolean);
-  // segments: ['vi', 'admin', 'requests', ...]
   const adminIdx = segments.findIndex(s => s === 'admin');
   if (adminIdx === -1) return null;
-  return segments[adminIdx + 1] ?? null; // sub-route hoặc null nếu là /admin
+  return segments[adminIdx + 1] ?? null;
 }
 
 /**
  * Lấy required roles cho một admin sub-route.
  */
 export function getRequiredRoles(adminRoute: string): readonly AppRole[] | null {
-  return (ADMIN_ROUTE_GUARDS as Record<string, readonly AppRole[]>)[adminRoute] ?? null;
+  return (_ADMIN_ROUTE_GUARDS as Record<string, readonly AppRole[]>)[adminRoute] ?? null;
 }
 
 /**
@@ -138,7 +117,7 @@ export function checkRouteAccess(pathname: string, userRoles: AppRole[]): { allo
     return { allowed: true };
   }
 
-  if (!hasAnyRole(userRoles, requiredRoles)) {
+  if (!_hasAnyRole(userRoles, requiredRoles)) {
     return { allowed: false, reason: `ROLE_REQUIRED:${requiredRoles.join(',')}` };
   }
 

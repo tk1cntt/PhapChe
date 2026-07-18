@@ -8,6 +8,7 @@ import type { DropdownItem } from '@/components/shared/ui/DropdownMenu';
 import { signOut } from '@/lib/auth-client';
 import { ThemeToggle } from '@/components/shared/ui/ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
+import { canSeeMenu, MENU_VISIBILITY } from '@/lib/security/role-config';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ interface AdminLayoutProps {
   userRole?: string;
   userInitial?: string;
   locale?: string;
+  userRoles?: string[];
 }
 
 interface NavItem {
@@ -22,37 +24,34 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  requiredRoles?: readonly string[];
 }
 
-function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string; userRole?: string; userInitial?: string }) {
+function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { userName?: string; userRole?: string; userInitial?: string; userRoles?: string[] }) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations('AdminNav');
   const tCommon = useTranslations('Common');
   const tHelp = useTranslations('AdminNav');
 
+  const safeRoles: string[] = userRoles ?? [];
+  const hasAccess = (roles: readonly string[] | null): boolean => {
+    if (roles === null) return true;
+    return safeRoles.some(r => roles.includes(r));
+  };
+
   const navItems: NavItem[] = [
     {
-      key: 'users',
-      label: t('users'),
-      href: '/vi/admin/users',
+      key: 'dashboard',
+      label: t('dashboard'),
+      href: '/vi/admin/dashboard',
+      requiredRoles: null,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-      ),
-    },
-    {
-      key: 'workspace',
-      label: t('workspaces'),
-      href: '/vi/admin/workspace',
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
       ),
     },
@@ -60,6 +59,7 @@ function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string;
       key: 'requests',
       label: t('requests'),
       href: '/vi/admin/requests',
+      requiredRoles: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -71,9 +71,36 @@ function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string;
       ),
     },
     {
+      key: 'users',
+      label: t('users'),
+      href: '/vi/admin/users',
+      requiredRoles: ['super_admin', 'coordinator_admin'],
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      ),
+    },
+    {
+      key: 'workspace',
+      label: t('workspaces'),
+      href: '/vi/admin/workspace',
+      requiredRoles: ['super_admin', 'coordinator_admin'],
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      ),
+    },
+    {
       key: 'partner',
       label: t('partner'),
       href: '/vi/admin/partner',
+      requiredRoles: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -87,6 +114,7 @@ function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string;
       key: 'organizations',
       label: t('organizations'),
       href: '/vi/admin/organizations',
+      requiredRoles: ['super_admin'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M3 21h18"/>
@@ -101,9 +129,10 @@ function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string;
       ),
     },
     {
-      key: 'ops',
+      key: 'operations',
       label: t('ops'),
       href: '/vi/admin/operations',
+      requiredRoles: ['super_admin', 'coordinator_admin'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="9"/>
@@ -117,6 +146,7 @@ function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string;
       key: 'audit',
       label: t('audit'),
       href: '/vi/admin/audit',
+      requiredRoles: ['super_admin', 'coordinator_admin', 'audit_admin'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -128,6 +158,7 @@ function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string;
       key: 'vault',
       label: t('vault'),
       href: '/vi/admin/vault',
+      requiredRoles: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M3 7h18v13H3z"/>
@@ -136,6 +167,9 @@ function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string;
       ),
     },
   ];
+
+  // Filter nav items by role visibility
+  const visibleNavItems = navItems.filter(item => hasAccess(item.requiredRoles ?? null));
 
   const isActive = (href: string) => {
     return pathname === href || pathname.startsWith(href + '/');
@@ -184,7 +218,7 @@ function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string;
 
         {/* Navigation */}
         <nav className="nav">
-          {navItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <Link
               key={item.key}
               href={item.href}
@@ -263,10 +297,10 @@ function Topbar() {
   );
 }
 
-export function AdminLayout({ children, userName, userRole, userInitial }: AdminLayoutProps) {
+export function AdminLayout({ children, userName, userRole, userInitial, userRoles = [] }: AdminLayoutProps) {
   return (
     <div className="app">
-      <Sidebar userName={userName} userRole={userRole} userInitial={userInitial} />
+      <Sidebar userName={userName} userRole={userRole} userInitial={userInitial} userRoles={userRoles} />
       <main className="main">
         <Topbar />
         <section className="content">

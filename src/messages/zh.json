@@ -487,9 +487,12 @@
     "lastActive": "最近活跃"
   },
   "AdminNav": {
+    "dashboard": "仪表板",
     "users": "用户",
     "workspaces": "工作区",
     "requests": "请求",
+    "partner": "合作伙伴",
+    "organizations": "组织",
     "ops": "运营",
     "audit": "审计",
     "vault": "保险库",

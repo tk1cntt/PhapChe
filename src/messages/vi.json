@@ -490,6 +490,7 @@
     "lastActive": "Hoạt động cuối"
   },
   "AdminNav": {
+    "dashboard": "Dashboard",
     "users": "Người dùng",
     "workspaces": "Workspace",
     "requests": "Hồ sơ yêu cầu",

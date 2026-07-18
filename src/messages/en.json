@@ -488,6 +488,7 @@
     "lastActive": "Last Active"
   },
   "AdminNav": {
+    "dashboard": "Dashboard",
     "users": "Users",
     "workspaces": "Workspaces",
     "requests": "Requests",

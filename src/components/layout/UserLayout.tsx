@@ -4,10 +4,11 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Dropdown } from 'antd';
-import type { MenuProps } from 'antd';
+import { DropdownMenu } from '@/components/shared/ui/DropdownMenu';
+import type { DropdownItem } from '@/components/shared/ui/DropdownMenu';
 import { signOut } from '@/lib/auth-client';
-import '@/components/layout/UserLayout.css';
+import { ThemeToggle } from '@/components/shared/ui/ThemeToggle';
+import '@/styles/layout.css';
 import LanguageSwitcher from './LanguageSwitcher';
 import {
   LayoutDashboard,
@@ -65,7 +66,7 @@ export function UserLayout({
     }
   };
 
-  const userMenuItems: MenuProps['items'] = [
+  const userMenuItems: DropdownItem[] = [
     {
       key: 'logout',
       label: tCommon('signOut'),
@@ -117,7 +118,7 @@ export function UserLayout({
             </div>
           </div>
 
-          <Dropdown menu={{ items: userMenuItems }} trigger={['click']} placement="topRight">
+          <DropdownMenu items={userMenuItems} trigger={['click']} placement="topRight">
             <div className="profile">
               <div className="avatar">{getInitials(userName)}</div>
               <div className="profile-info">
@@ -125,7 +126,7 @@ export function UserLayout({
                 <span>{userRole}</span>
               </div>
             </div>
-          </Dropdown>
+          </DropdownMenu>
         </div>
       </aside>
 
@@ -144,6 +145,7 @@ export function UserLayout({
 
             {/* Language Switcher */}
             <LanguageSwitcher />
+            <ThemeToggle />
 
             <div className="circle">{getInitials(userName)}</div>
           </div>

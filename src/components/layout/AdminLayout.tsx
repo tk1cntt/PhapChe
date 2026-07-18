@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Dropdown } from 'antd';
-import type { MenuProps } from 'antd';
+import { DropdownMenu } from '@/components/shared/ui/DropdownMenu';
+import type { DropdownItem } from '@/components/shared/ui/DropdownMenu';
 import { signOut } from '@/lib/auth-client';
+import { ThemeToggle } from '@/components/shared/ui/ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
 
 interface AdminLayoutProps {
@@ -157,7 +158,7 @@ function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string;
     }
   };
 
-  const userMenuItems: MenuProps['items'] = [
+  const userMenuItems: DropdownItem[] = [
     {
       key: 'logout',
       label: tCommon('signOut'),
@@ -208,7 +209,7 @@ function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string;
         </div>
 
         {/* User Profile with Dropdown */}
-        <Dropdown menu={{ items: userMenuItems }} trigger={['click']} placement="topRight">
+        <DropdownMenu items={userMenuItems} trigger={['click']} placement="topRight">
           <div className="profile">
             <div className="avatar">{userInitial}</div>
             <div className="profile-info">
@@ -219,7 +220,7 @@ function Sidebar({ userName, userRole, userInitial = 'A' }: { userName?: string;
               <path d="m6 9 6 6 6-6"/>
             </svg>
           </div>
-        </Dropdown>
+        </DropdownMenu>
       </div>
     </aside>
   );
@@ -233,7 +234,7 @@ function Topbar() {
       {/* Left: Placeholder for breadcrumbs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#152238' }}>Admin Dashboard</h1>
+          <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--color-text)' }}>Admin Dashboard</h1>
         </div>
       </div>
 
@@ -253,6 +254,7 @@ function Topbar() {
 
         {/* Language Switcher */}
         <LanguageSwitcher />
+        <ThemeToggle />
 
         {/* Avatar */}
         <div className="circle">A</div>

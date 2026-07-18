@@ -2,10 +2,9 @@
 
 import { useLocale } from 'next-intl';
 import { routing } from '@/routing';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Dropdown, Button } from 'antd';
-import type { MenuProps } from 'antd';
+import { useRouter, usePathname } from 'next/navigation';
+import { DropdownMenu } from '@/components/shared/ui/DropdownMenu';
+import type { DropdownItem } from '@/components/shared/ui/DropdownMenu';
 
 const LABEL: Record<string, string> = {
   vi: 'Tiếng Việt',
@@ -54,23 +53,21 @@ function getLocalizedPath(pathname: string, locale: string) {
 
 export default function LanguageSwitcher() {
   const locale = useLocale();
+  const router = useRouter();
   const pathname = usePathname();
 
-  const items: MenuProps['items'] = routing.locales.map((loc) => ({
+  const items: DropdownItem[] = routing.locales.map((loc) => ({
     key: loc,
-    label: (
-      <Link href={getLocalizedPath(pathname, loc)} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 16 }}>{FLAG[loc]} {LABEL[loc]}</span>
-      </Link>
-    ),
+    label: `${FLAG[loc]} ${LABEL[loc]}`,
+    onClick: () => router.push(getLocalizedPath(pathname, loc)),
   }));
 
   return (
-    <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
-      <Button style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+    <DropdownMenu items={items} trigger={['click']} placement="bottomRight">
+      <button className="tool-btn" type="button">
         <span>{FLAG[locale] ?? '🌐'}</span>
         <span>{LABEL[locale] ?? locale}</span>
-      </Button>
-    </Dropdown>
+      </button>
+    </DropdownMenu>
   );
 }

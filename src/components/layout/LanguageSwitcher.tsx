@@ -2,8 +2,8 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { Dropdown } from 'antd';
-import type { MenuProps } from 'antd';
+import { DropdownMenu } from '@/components/shared/ui/DropdownMenu';
+import type { DropdownItem } from '@/components/shared/ui/DropdownMenu';
 
 const LOCALE_COOKIE = 'preferred-locale';
 
@@ -21,37 +21,28 @@ export default function LanguageSwitcher() {
 
   const currentLang = languages.find((l) => l.code === locale) || languages[0];
 
-  const handleSwitch = ({ key }: { key: string }) => {
-    // Save new locale to cookie for middleware to read on next request
-    document.cookie = `${LOCALE_COOKIE}=${key}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+  const handleSwitch = (langCode: string) => {
+    document.cookie = `${LOCALE_COOKIE}=${langCode}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
 
-    // Replace current locale in pathname with new locale
     const segments = pathname.split('/').filter(Boolean);
     if (segments.length > 0 && languages.some((l) => l.code === segments[0])) {
-      segments[0] = key;
+      segments[0] = langCode;
     } else {
-      segments.unshift(key);
+      segments.unshift(langCode);
     }
     const newPath = '/' + segments.join('/');
     router.push(newPath);
   };
 
-  const menuItems: MenuProps['items'] = languages.map((lang) => ({
+  const menuItems: DropdownItem[] = languages.map((lang) => ({
     key: lang.code,
-    label: (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span>{lang.flag}</span>
-        <span>{lang.label}</span>
-        {lang.code === locale && (
-          <span style={{ marginLeft: 'auto', color: '#10b981' }}>✓</span>
-        )}
-      </div>
-    ),
+    label: `${lang.flag}  ${lang.label}${lang.code === locale ? '  ✓' : ''}`,
+    onClick: () => handleSwitch(lang.code),
   }));
 
   return (
-    <Dropdown
-      menu={{ items: menuItems, onClick: handleSwitch }}
+    <DropdownMenu
+      items={menuItems}
       trigger={['click']}
       placement="bottomRight"
     >
@@ -65,7 +56,7 @@ export default function LanguageSwitcher() {
           padding: '6px 12px',
           borderRadius: '6px',
           border: '1px solid #e5e7eb',
-          background: '#fff',
+          background: 'var(--color-surface)',
           transition: 'all 0.2s',
         }}
       >
@@ -77,6 +68,6 @@ export default function LanguageSwitcher() {
         <span>{currentLang.flag}</span>
         <span style={{ fontSize: '13px', fontWeight: 500 }}>{currentLang.label}</span>
       </div>
-    </Dropdown>
+    </DropdownMenu>
   );
 }

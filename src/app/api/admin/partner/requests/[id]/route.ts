@@ -3,59 +3,26 @@
  * GET /api/admin/partner/requests/[id]
  *
  * Returns single partner request details.
- * Admin-only endpoint.
- * Platform-level admin - queries all memberships to find admin roles.
+ * Access: super_admin, coordinator_admin, specialist, reviewer (per role-config).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
-import { auth } from '@/auth';
+import { requireAppSession } from '@/lib/security/session';
+import { ADMIN_ROUTE_GUARDS } from '@/lib/security/role-config';
 import { isEnabled } from '@/lib/config/feature-flags';
-
-// Valid admin roles per schema
-const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
-
-/**
- * Get session with admin role check from database memberships
- */
-async function requireAdminSession() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user?.id) {
-    throw { status: 401, error: 'Unauthorized' };
-  }
-
-  // Query all workspace memberships to find admin roles
-  const memberships = await prisma.workspaceMembership.findMany({
-    where: { userId: session.user.id, isActive: true },
-    select: { role: true, workspaceId: true },
-  });
-
-  // Filter out null roles
-  const userRoles = memberships
-    .map((m) => m.role)
-    .filter((r): r is string => r !== null);
-
-  const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
-
-  if (!hasAdminRole) {
-    throw { status: 403, error: 'Forbidden' };
-  }
-
-  return {
-    session,
-    userId: session.user.id,
-    roles: userRoles,
-    activeWorkspaceId: memberships[0]?.workspaceId,
-  };
-}
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAdminSession();
+    const session = await requireAppSession(req.headers);
+
+    const allowed = ADMIN_ROUTE_GUARDS.partner;
+    if (!allowed || !session.roles.some(r => allowed.includes(r))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const { id } = await params;
 
@@ -98,6 +65,9 @@ export async function GET(
       }
     });
   } catch (error: any) {
+    if (error?.message === 'UNAUTHENTICATED') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     if (error?.status) {
       return NextResponse.json({ error: error.error }, { status: error.status });
     }

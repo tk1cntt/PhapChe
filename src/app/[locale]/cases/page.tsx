@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import { getTranslations } from 'next-intl/server';
+import { getLocaleDateCode } from '@/lib/i18n';
 import UserLayout from '@/components/layout/UserLayout';
 import { MyCasesClient } from '@/components/my-cases/MyCasesClient';
 
@@ -15,6 +16,7 @@ export default async function CasesPage({ params }: PageProps) {
   const t = await getTranslations('UserCases');
   const tStatus = await getTranslations('RequestStatus');
   const tActions = await getTranslations('Actions');
+  const tMatter = await getTranslations('MatterTypes');
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -43,11 +45,11 @@ export default async function CasesPage({ params }: PageProps) {
     prisma.legalRequest.count({ where: { workspaceId: activeWorkspaceId ?? '', status: { in: ['approved', 'delivered', 'closed'] } } }),
     // Overdue = slaDeadline < now AND status NOT IN (approved, delivered, closed, cancelled)
     prisma.$queryRaw<{ count: bigint }[]>`
-      SELECT COUNT(*) as count FROM LegalRequest
-      WHERE workspaceId = ${activeWorkspaceId ?? ''}
-      AND slaDeadline IS NOT NULL
-      AND slaDeadline < datetime('now')
-      AND status NOT IN ('approved', 'delivered', 'closed', 'cancelled')
+      SELECT COUNT(*) as count FROM "LegalRequest"
+      WHERE "workspaceId" = ${activeWorkspaceId ?? ''}
+      AND "slaDeadline" IS NOT NULL
+      AND "slaDeadline" < NOW()
+      AND "status" NOT IN ('approved', 'delivered', 'closed', 'cancelled')
     `,
     // Requests with MatterType from intakeSubmission
     prisma.legalRequest.findMany({
@@ -58,7 +60,7 @@ export default async function CasesPage({ params }: PageProps) {
         intakeSubmission: {
           select: {
             matterTypeKey: true,
-            matterType: { select: { label_vi: true, label_en: true } },
+            matterType: { select: { key: true } },
           },
         },
       },
@@ -93,22 +95,21 @@ export default async function CasesPage({ params }: PageProps) {
       // Check if case is completed (approved/delivered/closed)
       const isCompleted = ['approved', 'delivered', 'closed'].includes(req.status);
 
-      // SLA text and variant
+      // SLA text and variant (i18n)
       let slaText: string;
       let slaVariant: 'green' | 'orange' | 'red' | 'blue';
       if (isCompleted) {
-        // Completed cases show "Theo dõi" (monitoring)
-        slaText = 'Theo dõi';
+        slaText = t('slaMonitoring');
         slaVariant = 'blue';
       } else if (remainingHours <= 0) {
-        slaText = `Trễ ${Math.abs(Math.round(remainingHours / 24))} ngày`;
+        slaText = t('slaOverdue', { days: Math.abs(Math.round(remainingHours / 24)) });
         slaVariant = 'red';
       } else if (remainingHours < 24) {
-        slaText = `Còn ${remainingHours}h`;
+        slaText = t('slaHoursLeft', { hours: remainingHours });
         slaVariant = 'orange';
       } else {
         const days = Math.round(remainingHours / 24);
-        slaText = `Còn ${days} ngày`;
+        slaText = t('slaDaysLeft', { days });
         slaVariant = days < 3 ? 'orange' : 'green';
       }
 
@@ -123,9 +124,9 @@ export default async function CasesPage({ params }: PageProps) {
               ? 'submitted'
               : 'pending';
 
-      // Get MatterType labels from intakeSubmission
-      const matterTypeLabel =
-        req.intakeSubmission?.matterType?.label_vi ?? req.intakeSubmission?.matterType?.label_en ?? null;
+      // Get MatterType key from intakeSubmission
+      const matterTypeKey = req.intakeSubmission?.matterType?.key ?? req.intakeSubmission?.matterTypeKey ?? null;
+      const matterTypeLabel = matterTypeKey ? tMatter(matterTypeKey as any) : null;
 
       const statusText = tStatus(
         req.status as
@@ -155,17 +156,18 @@ export default async function CasesPage({ params }: PageProps) {
         id: req.id,
         code: req.code ?? `REQ-${req.createdAt.getFullYear()}-${String(req.id.slice(-3)).toUpperCase()}`,
         statusText,
-        type: matterTypeLabel ?? req.matterType ?? req.title.split(' ').slice(0, 3).join(' '),
-        typeEn: req.intakeSubmission?.matterType?.label_en ?? 'Contract Review',
+        type: matterTypeLabel ?? req.title.split(' ').slice(0, 3).join(' '),
+        typeEn: matterTypeKey ?? '',
+        matterTypeKey,
         statusBadge: statusBadge as 'review' | 'pending' | 'approved' | 'overdue' | 'submitted',
-        specialistName: req.assignedSpecialist?.name ?? req.assignedReviewer?.name ?? 'Chưa phân công',
-        specialistRole: req.assignedSpecialist ? 'Specialist' : req.assignedReviewer ? 'Reviewer' : 'Coordinator',
-        updatedDate: req.updatedAt.toLocaleDateString('vi-VN', {
+        specialistName: req.assignedSpecialist?.name ?? req.assignedReviewer?.name ?? t('unassigned'),
+        specialistRole: req.assignedSpecialist ? t('roleSpecialist') : req.assignedReviewer ? t('roleReviewer') : t('roleCoordinator'),
+        updatedDate: req.updatedAt.toLocaleDateString(getLocaleDateCode(locale), {
           day: '2-digit',
           month: '2-digit',
           year: 'numeric',
         }),
-        updatedTime: req.updatedAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ICT',
+        updatedTime: req.updatedAt.toLocaleTimeString(getLocaleDateCode(locale), { hour: '2-digit', minute: '2-digit' }) + ' ' + t('timezoneSuffix'),
         slaText,
         slaVariant: slaVariant as 'green' | 'orange' | 'red' | 'blue',
         remainingHours,

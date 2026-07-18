@@ -48,29 +48,6 @@ function getStatusBadgeVariant(status: MyCaseRow['statusBadge']): 'green' | 'ora
   }
 }
 
-function getSlaBadgeVariant(slaText: string, remainingHours?: number): 'green' | 'orange' | 'red' | 'blue' {
-  // Theo dõi (completed) → blue
-  if (slaText === 'Theo dõi') {
-    return 'blue';
-  }
-  // Trễ → red
-  if (slaText.startsWith('Trễ')) {
-    return 'red';
-  }
-  // Còn Xh (dưới 24h) → orange (sắp hết hạn)
-  if (slaText.includes('Còn') && slaText.endsWith('h')) {
-    return 'orange';
-  }
-  // Còn X ngày (dưới 3 ngày) → orange (cần chú ý)
-  if (slaText.includes('Còn') && slaText.includes('ngày')) {
-    const days = parseInt(slaText.match(/\d+/)?.[0] ?? '0', 10);
-    if (days < 3) return 'orange';
-    return 'green';
-  }
-  // Mặc định → green (đúng hạn)
-  return 'green';
-}
-
 export function MyCasesTable({ requests, totalRequests, isFiltered = false }: MyCasesTableProps): React.ReactElement {
   const t = useTranslations('UserCases');
   const [current, setCurrent] = useState(1);
@@ -158,7 +135,7 @@ export function MyCasesTable({ requests, totalRequests, isFiltered = false }: My
             </div>
           </div>
           <div className="td">
-            <SlaBadge variant={getSlaBadgeVariant(item.slaText, item.remainingHours)}>
+            <SlaBadge variant={item.slaVariant}>
               {item.slaText}
             </SlaBadge>
           </div>
@@ -175,7 +152,7 @@ export function MyCasesTable({ requests, totalRequests, isFiltered = false }: My
         pageSize={pageSize}
         total={total}
         onChange={handlePageChange}
-        totalLabel={`${total} hồ sơ`}
+        totalLabel={t('totalRecords', { total })}
       />
     </div>
   );

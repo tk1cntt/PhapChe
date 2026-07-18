@@ -8,7 +8,7 @@ import StatCard from './StatCard';
 import MyCasesToolbar from './MyCasesToolbar';
 import MyCasesTable from './MyCasesTable';
 import FloatingChatButton from './FloatingChatButton';
-import '@/components/my-cases/my-cases.css';
+import '@/styles/pages/my-cases.css';
 
 export interface CaseRow {
   id: string;

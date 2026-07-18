@@ -7,7 +7,7 @@ export default function SignInPage() {
     <div className="min-h-screen flex">
       {/* Right: Form panel */}
       <div className="flex-1 flex items-center justify-center px-6 py-12"
-        style={{ background: '#f8fafc' }}
+        style={{ background: 'var(--color-bg)' }}
       >
         <SignInForm />
       </div>

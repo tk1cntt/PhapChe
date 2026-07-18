@@ -7,7 +7,7 @@ import { X, Building2 } from 'lucide-react';
 import { AdminStatGrid } from '@/components/admin/AdminStatGrid';
 import AdminToolbar from '@/components/admin/AdminToolbar';
 import Paging from '@/components/ui/Paging';
-import './organizations.css';
+import '@/styles/pages/admin/organizations.css';
 
 interface Organization {
   id: string;
@@ -247,10 +247,10 @@ export default function AdminOrganizationsPage() {
       {/* Header */}
       <div className="mb-6 flex justify-between items-start">
         <div>
-          <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: '#020617', marginBottom: 12 }}>
+          <h1 style={{ fontSize: 31, fontWeight: 800, letterSpacing: '-0.8px', color: 'var(--color-text)', marginBottom: 12 }}>
             {t('pageTitle')}
           </h1>
-          <p style={{ fontSize: 15, fontWeight: 500, color: '#5f6e83', margin: 0 }}>
+          <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-text-muted)', margin: 0 }}>
             {t('pageDescription')}
           </p>
         </div>
@@ -301,15 +301,15 @@ export default function AdminOrganizationsPage() {
       {/* Table */}
       {loading ? (
         <div className="loading-state">
-          <div className="text-[#64748b]">{tCommon('loading')}</div>
+          <div className="text-[var(--color-text-muted)]">{tCommon('loading')}</div>
         </div>
       ) : !error ? (
         <>
           <div className="table-container">
             {/* Table Header */}
-            <div className="table-head" style={{ gridTemplateColumns: '1.5fr 1fr 0.8fr 0.8fr 0.7fr' }}>
+            <div className="table-head" style={{ gridTemplateColumns: 'var(--table-columns, 1.5fr 1fr 0.8fr 0.8fr 0.7fr)' }}>
               {[columns.name, columns.businessType, columns.workspaces, columns.status, columns.action].map((header, i) => (
-                <div key={i} className="th" style={{ borderRight: i === 4 ? 'none' : '1px solid #dfe7f1' }}>
+                <div key={i} className="th" style={{ borderRight: i === 4 ? 'none' : '1px solid var(--color-border)' }}>
                   {header}
                 </div>
               ))}
@@ -331,42 +331,42 @@ export default function AdminOrganizationsPage() {
                 <div
                   key={org.id}
                   className="table-row"
-                  style={{ gridTemplateColumns: '1.5fr 1fr 0.8fr 0.8fr 0.7fr', borderBottom: rowIndex === organizations.length - 1 ? 'none' : '1px solid #dfe7f1' }}
+                  style={{ gridTemplateColumns: 'var(--table-columns, 1.5fr 1fr 0.8fr 0.8fr 0.7fr)', borderBottom: rowIndex === organizations.length - 1 ? 'none' : '1px solid var(--color-border)' }}
                 >
                   {/* Name */}
-                  <div className="td" style={{ borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+                  <div className="td" style={{ borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
                     <div className="flex items-center gap-3">
-                      <div className="icon-badge" style={{ background: 'linear-gradient(135deg, #ccfbf1, #eefbf8)', color: '#0f766e' }}>
+                      <div className="icon-badge" style={{ background: 'linear-gradient(135deg, var(--color-primary-muted), var(--color-primary-muted))', color: 'var(--color-primary)' }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-[#0f172a]">{org.name}</span>
+                          <span className="text-sm font-bold" style={{ color: 'var(--color-text)' }}>{org.name}</span>
                           {org.isDefault && (
                             <span className="default-badge">{t('default')}</span>
                           )}
                         </div>
                         {org.contactEmail && (
-                          <span className="text-xs text-[#64748b]">{org.contactEmail}</span>
+                          <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{org.contactEmail}</span>
                         )}
                       </div>
                     </div>
                   </div>
 
                   {/* Business Type */}
-                  <div className="td" style={{ borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+                  <div className="td" style={{ borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
                     <span>{org.businessType || '—'}</span>
                   </div>
 
                   {/* Workspaces */}
-                  <div className="td" style={{ borderRight: '1px solid #dfe7f1' }}>
+                  <div className="td" style={{ borderRight: '1px solid var(--color-border)' }}>
                     <span>{org._count?.workspaces || 0}</span>
                   </div>
 
                   {/* Status */}
-                  <div className="td" style={{ borderRight: '1px solid #dfe7f1' }}>
+                  <div className="td" style={{ borderRight: '1px solid var(--color-border)' }}>
                     <StatusBadge status={org.status} />
                   </div>
 

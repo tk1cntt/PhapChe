@@ -2,19 +2,44 @@ import { UserLayout } from '@/components/layout/UserLayout';
 import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 import { isEnabled } from '@/lib/config/feature-flags';
+import { getTranslations } from 'next-intl/server';
+import { getLocaleDateCode } from '@/lib/i18n';
 import DashboardClient from '@/components/dashboard/DashboardClient';
 
-function formatRelativeTime(date: Date): string {
+function formatRelativeTime(date: Date, t: (key: string, values?: Record<string, unknown>) => string): string {
   const now = Date.now();
   const diff = now - date.getTime();
 
-  if (diff < 60000) return 'vừa xong';
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}p trước`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h trước`;
-  return `${Math.floor(diff / 86400000)}d trước`;
+  if (diff < 60000) return t('justNow');
+  if (diff < 3600000) return t('minutesAgo', { n: Math.floor(diff / 60000) });
+  if (diff < 86400000) return t('hoursAgo', { n: Math.floor(diff / 3600000) });
+  return t('daysAgo', { n: Math.floor(diff / 86400000) });
 }
 
-export default async function DashboardPage() {
+function resolveStatusLabel(key: string, t: (k: string) => string): string {
+  const lookup: Record<string, string> = {
+    draft_intake: 'draft_intake',
+    intake_submitted: 'intake_submitted',
+    triage: 'triage',
+    assigned: 'assigned',
+    in_progress: 'in_progress',
+    pending_review: 'pending_review',
+    revision_required: 'revision_required',
+    approved: 'approved',
+    delivered: 'delivered',
+    closed: 'closed',
+    cancelled: 'cancelled',
+  };
+  const i18nKey = lookup[key];
+  return i18nKey ? t(i18nKey) : key;
+}
+
+export default async function DashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const session = await requireAppSession();
   const { userId, activeWorkspaceId } = session;
 
@@ -58,7 +83,7 @@ export default async function DashboardPage() {
         // Include matterTypeRef for new FK-based approach
         ...(isEnabled('DB_MIGRATION_PHASE4') ? {
           matterTypeRef: {
-            select: { id: true, key: true, label_vi: true, label_en: true },
+            select: { id: true, key: true },
           },
         } : {}),
       },
@@ -67,9 +92,9 @@ export default async function DashboardPage() {
     }),
     // Recent vault documents
     prisma.vaultFile.findMany({
-      where: { workspaceId: activeWorkspaceId ?? '' },
+      where: { workspaceId: activeWorkspaceId ?? '', actorId: userId },
       include: {
-        actor: { select: { name: true } },
+        actor: { select: { id: true, name: true } },
       },
       orderBy: { createdAt: 'desc' },
       take: 10,
@@ -78,7 +103,7 @@ export default async function DashboardPage() {
     prisma.auditEvent.findMany({
       where: { workspaceId: activeWorkspaceId ?? '' },
       include: {
-        actor: { select: { name: true } },
+        actor: { select: { id: true, name: true } },
         request: { select: { code: true, title: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -89,17 +114,21 @@ export default async function DashboardPage() {
   const userName = user?.name ?? user?.email ?? 'User';
   const workspaceName = activeWorkspace?.name ?? 'Workspace';
 
+  const tMatter = await getTranslations('MatterTypes');
+  const tDashboard = await getTranslations('Dashboard');
+  const tReqStatus = await getTranslations('RequestStatus');
+  const tTime = (key: string, values?: Record<string, unknown>) => tDashboard(`activity.time.${key}` as any, values as any);
+  const tAction = (key: string) => tDashboard(`activity.actions.${key}` as any);
+  const tDesc = (key: string, values?: Record<string, unknown>) => tDashboard(`activity.descriptions.${key}` as any, values as any);
+
   // Transform requests for CasesTable
   const transformedRequests = requests.map((req) => {
     const statusVariant = getStatusVariant(req.status);
-    const statusText = getStatusText(req.status);
+    const statusText = resolveStatusLabel(req.status, tReqStatus);
 
-    // Matter type display: use FK relation if available, else text field
-    const matterTypeDisplay = (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_vi
-      || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_en
-      || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.key
-      || req.matterType
-      || 'Legal Request';
+    // Matter type display: use FK key with translation lookup
+    const mtKey = (req as { matterTypeRef?: { key?: string | null } | null }).matterTypeRef?.key;
+    const matterTypeDisplay = mtKey ? tMatter(mtKey as any) : (req.matterType || tDashboard('fallbackMatterType'));
 
     return {
       id: req.id,
@@ -109,9 +138,14 @@ export default async function DashboardPage() {
       status: req.status,
       statusVariant,
       statusText,
-      assignee: req.assignedSpecialist?.name || req.assignedReviewer?.name || '—',
-      assigneeRole: req.assignedSpecialist ? 'Chuyên viên' : req.assignedReviewer ? 'Reviewer' : '—',
+      assignee: req.assignedSpecialist?.name || req.assignedReviewer?.name || tDashboard('unassigned'),
+      assigneeRole: req.assignedSpecialist ? tDashboard('roleSpecialist') : req.assignedReviewer ? tDashboard('roleReviewer') : '—',
       updatedAt: req.updatedAt.toISOString(),
+      formattedDate: req.updatedAt.toLocaleDateString(getLocaleDateCode(locale), {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }),
     };
   });
 
@@ -124,7 +158,7 @@ export default async function DashboardPage() {
     status: doc.fileKind || 'ACTIVE',
     uploadedBy: doc.actor?.name || 'Unknown',
     updatedAt: doc.createdAt.toISOString(),
-    relativeTime: formatRelativeTime(doc.createdAt),
+    relativeTime: formatRelativeTime(doc.createdAt, tTime),
   }));
 
   // Transform recent activities - parse metadata and generate detailed Vietnamese descriptions
@@ -132,6 +166,8 @@ export default async function DashboardPage() {
     const action = activity.action;
     const targetType = activity.targetType;
     const actorName = activity.actor?.name || 'System';
+    const actorId = activity.actor?.id || null;
+    const actorDisplay = (actorId && actorId === userId) ? tDashboard('actorSelf') : actorName;
     const requestCode = activity.request?.code || activity.request?.title;
     const metadata = parseMetadata(activity.metadataSummary);
 
@@ -142,173 +178,157 @@ export default async function DashboardPage() {
     let actionText = '';
     let descriptionText = '';
 
+    const codeOrTitle = requestCode || metadata.requestTitle || '';
+    const docName = metadata.documentName || '';
+    const partnerName = metadata.partnerName || 'partner';
+    const fileName = metadata.fileName || '';
+    const folderName = metadata.folderName || '';
+
+    // Parse status change metadata for status_changed action
+    const parseStatus = () => {
+      const summary = activity.metadataSummary;
+      if (!summary) return { from: '?', to: '?' };
+      const parts = summary.split('->').map(s => s.trim());
+      return {
+        from: resolveStatusLabel(parts[0], tReqStatus),
+        to: resolveStatusLabel(parts[1], tReqStatus),
+      };
+    };
+
     // Handle action patterns like "request.updated", "document.downloaded", "partner.comment_added"
     if (action.startsWith('request.')) {
       activityType = 'request';
       const subAction = action.replace('request.', '');
+      const actionKey = `request.${subAction}`;
       switch (subAction) {
         case 'created':
-          actionText = 'Hồ sơ mới được tạo';
-          descriptionText = `${actorName} đã tạo hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
-          break;
         case 'updated':
-          actionText = 'Hồ sơ được cập nhật';
-          descriptionText = `${actorName} đã cập nhật thông tin hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
-          break;
         case 'assigned':
-          actionText = 'Hồ sơ được phân công';
-          descriptionText = `${actorName} đã phân công chuyên viên xử lý hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
-          break;
         case 'approved':
-          actionText = 'Hồ sơ được duyệt';
-          descriptionText = `Coordinator đã xác nhận hoàn tất hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
-          break;
         case 'rejected':
-          actionText = 'Hồ sơ bị từ chối';
-          descriptionText = `${actorName} đã từ chối hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
-          break;
         case 'submitted':
-          actionText = 'Hồ sơ được gửi';
-          descriptionText = `${actorName} đã gửi hồ sơ ${requestCode || metadata.requestTitle || ''} để xem xét.`.trim();
-          break;
         case 'replied':
-          actionText = 'Chuyên viên đã phản hồi';
-          descriptionText = `${actorName} đã phản hồi hồ sơ ${requestCode || metadata.requestTitle || ''}`.trim() + '.';
+          actionText = tAction(actionKey);
+          descriptionText = tDesc(actionKey, { actor: actorDisplay, code: codeOrTitle });
           break;
+        case 'status_changed': {
+          actionText = tAction(actionKey);
+          const sc = parseStatus();
+          descriptionText = tDesc(actionKey, { actor: actorDisplay, code: codeOrTitle, from: sc.from, to: sc.to });
+          break;
+        }
         default:
-          actionText = formatActivityAction(subAction.toUpperCase());
-          descriptionText = metadata.details || `${actorName} đã thao tác trên hồ sơ ${requestCode || ''}.`;
+          actionText = tAction(actionKey);
+          descriptionText = metadata.details || tDesc('request.fallback', { actor: actorDisplay, code: codeOrTitle });
       }
     } else if (action.startsWith('document.')) {
       activityType = 'document';
       const subAction = action.replace('document.', '');
+      const actionKey = `document.${subAction}`;
       switch (subAction) {
         case 'uploaded':
-          actionText = 'Tài liệu mới được thêm vào vault';
-          descriptionText = `${actorName} đã tải lên tài liệu ${metadata.documentName || ''}`.trim() + '.';
-          break;
         case 'downloaded':
-          actionText = 'Tài liệu được tải xuống';
-          descriptionText = `${actorName} đã tải xuống tài liệu ${metadata.documentName || ''}`.trim() + '.';
+          actionText = tAction(actionKey);
+          descriptionText = tDesc(actionKey, { actor: actorDisplay, name: docName });
           break;
         case 'deleted':
-          actionText = 'Tài liệu bị xóa';
-          descriptionText = `${actorName} đã xóa tài liệu khỏi vault.`;
+          actionText = tAction(actionKey);
+          descriptionText = tDesc(actionKey, { actor: actorDisplay });
           break;
         default:
-          actionText = formatActivityAction(subAction.toUpperCase());
-          descriptionText = metadata.details || `${actorName} đã thao tác trên tài liệu.`;
+          actionText = tAction(actionKey);
+          descriptionText = metadata.details || tDesc('document.fallback', { actor: actorDisplay });
       }
     } else if (action.startsWith('partner.')) {
       activityType = 'partner';
       const subAction = action.replace('partner.', '');
+      const actionKey = `partner.${subAction}`;
       switch (subAction) {
         case 'comment_added':
-          actionText = 'Partner đã bình luận';
-          descriptionText = `${actorName} đã bình luận trên yêu cầu ${metadata.partnerName || ''}`.trim() + '.';
-          break;
         case 'request_sent':
-          actionText = 'Yêu cầu được gửi đến partner';
-          descriptionText = `${actorName} đã gửi yêu cầu đến ${metadata.partnerName || 'partner'}.`;
+          actionText = tAction(actionKey);
+          descriptionText = tDesc(actionKey, { actor: actorDisplay, name: partnerName });
           break;
         default:
-          actionText = formatActivityAction(subAction.toUpperCase());
-          descriptionText = metadata.details || `${actorName} đã tương tác với partner.`;
+          actionText = tAction(actionKey);
+          descriptionText = metadata.details || tDesc('partner.fallback', { actor: actorDisplay });
       }
     } else if (action.startsWith('workspace.')) {
       activityType = 'workspace';
-      actionText = 'Workspace được cập nhật';
-      descriptionText = metadata.details || 'Workspace đã được cập nhật.';
+      actionText = tAction('workspace.updated');
+      descriptionText = metadata.details || tDesc('workspace.updated');
     } else if (action.startsWith('user.')) {
       activityType = 'user';
-      actionText = 'Người dùng được cập nhật';
-      descriptionText = metadata.details || `${actorName} đã cập nhật thông tin người dùng.`;
+      actionText = tAction('user.updated');
+      descriptionText = metadata.details || tDesc('user.updated', { actor: actorDisplay });
     } else if (action.startsWith('review.')) {
       activityType = 'review';
       const subAction = action.replace('review.', '');
+      const actionKey = `review.${subAction}`;
       switch (subAction) {
         case 'started':
-          actionText = 'Review được bắt đầu';
-          descriptionText = `${actorName} đã bắt đầu review hồ sơ ${requestCode || ''}.`;
-          break;
         case 'approved':
-          actionText = 'Review được duyệt';
-          descriptionText = `${actorName} đã duyệt review hồ sơ ${requestCode || ''}.`;
-          break;
         case 'rejected':
-          actionText = 'Review bị từ chối';
-          descriptionText = `${actorName} đã từ chối review hồ sơ ${requestCode || ''}.`;
+          actionText = tAction(actionKey);
+          descriptionText = tDesc(actionKey, { actor: actorDisplay, code: codeOrTitle });
           break;
         default:
-          actionText = formatActivityAction(subAction.toUpperCase());
-          descriptionText = metadata.details || `${actorName} đã thao tác trên review.`;
+          actionText = tAction(actionKey);
+          descriptionText = metadata.details || tDesc('review.fallback', { actor: actorDisplay });
       }
     } else if (action.startsWith('vault.')) {
       activityType = 'vault';
       const subAction = action.replace('vault.', '');
+      const actionKey = `vault.${subAction}`;
       switch (subAction) {
         case 'file_added':
-          actionText = 'File được thêm vào vault';
-          descriptionText = `${actorName} đã thêm file ${metadata.fileName || ''} vào vault.`;
+          actionText = tAction(actionKey);
+          descriptionText = tDesc(actionKey, { actor: actorDisplay, name: fileName });
           break;
         case 'folder_created':
-          actionText = 'Folder được tạo trong vault';
-          descriptionText = `${actorName} đã tạo folder ${metadata.folderName || ''}.`;
+          actionText = tAction(actionKey);
+          descriptionText = tDesc(actionKey, { actor: actorDisplay, name: folderName });
           break;
         default:
-          actionText = formatActivityAction(subAction.toUpperCase());
-          descriptionText = metadata.details || `${actorName} đã thao tác trên vault.`;
+          actionText = tAction(actionKey);
+          descriptionText = metadata.details || tDesc('vault.fallback', { actor: actorDisplay });
       }
     } else if (action.startsWith('message.')) {
       activityType = 'message';
       const subAction = action.replace('message.', '');
+      const actionKey = `message.${subAction}`;
       switch (subAction) {
         case 'sent':
-          actionText = 'Tin nhắn được gửi';
-          descriptionText = `${actorName} đã gửi tin nhắn mới.`;
-          break;
         case 'received':
-          actionText = 'Tin nhắn mới';
-          descriptionText = `${actorName} đã nhận được tin nhắn.`;
+          actionText = tAction(actionKey);
+          descriptionText = tDesc(actionKey, { actor: actorDisplay });
           break;
         default:
-          actionText = formatActivityAction(subAction.toUpperCase());
-          descriptionText = metadata.details || `${actorName} đã thao tác trên tin nhắn.`;
+          actionText = tAction(actionKey);
+          descriptionText = metadata.details || tDesc('message.fallback', { actor: actorDisplay });
       }
-    } else if (action.startsWith('draft.')) {
-      // Handle draft actions - treat as request type
+    } else if (action.startsWith('intake.')) {
       activityType = 'request';
-      const subAction = action.replace('draft.', '');
+      const subAction = action.replace('intake.', '');
+      const actionKey = `intake.${subAction}`;
       switch (subAction) {
-        case 'created':
-          actionText = 'Bản nháp được tạo';
-          descriptionText = `${actorName} đã tạo bản nháp yêu cầu pháp lý mới.`;
-          break;
-        case 'updated':
-          actionText = 'Bản nháp được cập nhật';
-          descriptionText = `${actorName} đã cập nhật bản nháp yêu cầu.`;
-          break;
         case 'submitted':
-          actionText = 'Bản nháp được gửi';
-          descriptionText = `${actorName} đã gửi bản nháp để xem xét.`;
-          break;
-        case 'save':
-          actionText = 'Bản nháp được lưu';
-          descriptionText = `${actorName} đã lưu bản nháp yêu cầu pháp lý.`;
-          break;
-        case 'deleted':
-          actionText = 'Bản nháp bị xóa';
-          descriptionText = `${actorName} đã xóa bản nháp.`;
+          actionText = tAction(actionKey);
+          descriptionText = tDesc(actionKey, { actor: actorDisplay, code: codeOrTitle });
           break;
         default:
-          actionText = `Bản nháp: ${subAction}`;
-          descriptionText = metadata.details || `${actorName} đã thao tác trên bản nháp.`;
+          actionText = tAction(actionKey);
+          descriptionText = metadata.details || tDesc('intake.fallback', { actor: actorDisplay });
       }
+    } else if (action === 'STATUS_CHANGED' || action === 'request.status_changed') {
+      activityType = 'request';
+      const sc = parseStatus();
+      actionText = tAction('request.status_changed');
+      descriptionText = tDesc('request.status_changed', { actor: actorDisplay, code: codeOrTitle, from: sc.from, to: sc.to });
     } else {
-      // Fallback for simple actions like CREATE, UPDATE, etc.
       activityType = 'system';
-      actionText = formatActivityAction(action);
-      descriptionText = metadata.details || `${targetType} đã được ${action.toLowerCase()}.`;
+      actionText = tDashboard('activity.fallbackAction');
+      descriptionText = metadata.details || tDesc('generic', { actor: actorDisplay, action });
     }
 
     return {
@@ -318,7 +338,7 @@ export default async function DashboardPage() {
       description: descriptionText,
       actor: actorName,
       timestamp: activity.createdAt.toISOString(),
-      relativeTime: formatRelativeTime(activity.createdAt),
+      relativeTime: formatRelativeTime(activity.createdAt, tTime),
     };
   });
 
@@ -397,43 +417,3 @@ function getStatusVariant(status: string): string {
   }
 }
 
-function getStatusText(status: string): string {
-  switch (status) {
-    case 'approved':
-      return 'Đã duyệt';
-    case 'delivered':
-      return 'Đã giao';
-    case 'closed':
-      return 'Đã đóng';
-    case 'pending_review':
-      return 'Cần phản hồi';
-    case 'revision_required':
-      return 'Cần chỉnh sửa';
-    case 'in_progress':
-      return 'Đang xử lý';
-    case 'submitted_for_review':
-      return 'Đang review';
-    case 'cancelled':
-    case 'rejected':
-      return 'Từ chối';
-    default:
-      return status;
-  }
-}
-
-function formatActivityAction(action: string): string {
-  const actionMap: Record<string, string> = {
-    'CREATE': 'Tạo mới',
-    'UPDATE': 'Cập nhật',
-    'DELETE': 'Xóa',
-    'VIEW': 'Xem',
-    'DOWNLOAD': 'Tải xuống',
-    'UPLOAD': 'Tải lên',
-    'ASSIGN': 'Phân công',
-    'APPROVE': 'Phê duyệt',
-    'REJECT': 'Từ chối',
-    'SUBMIT': 'Gửi',
-    'REPLY': 'Phản hồi',
-  };
-  return actionMap[action] || action;
-}

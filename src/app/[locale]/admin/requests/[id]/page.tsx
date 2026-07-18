@@ -3,8 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { REQUEST_STATUS_LABELS } from '@/lib/constants/partner-statuses';
-import '../requests.css';
+import { FormattedDate } from '@/components/shared/ui/FormattedDate';
+import '@/styles/pages/admin/requests.css';
 
 interface RequestDetail {
   id: string;
@@ -42,32 +42,9 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: 'red',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  draft_intake: 'Nháp',
-  intake_submitted: 'Đã gửi',
-  assigned: 'Đã giao',
-  in_progress: 'Đang xử lý',
-  pending_review: 'Chờ duyệt',
-  revision_required: 'Cần sửa',
-  approved: 'Đã duyệt',
-  delivered: 'Đã giao',
-  closed: 'Đã đóng',
-  cancelled: 'Đã hủy',
-};
-
 function getInitials(name: string): string {
   if (!name) return '--';
   return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('vi-VN', {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
 }
 
 export default function AdminRequestDetailPage() {
@@ -80,6 +57,19 @@ export default function AdminRequestDetailPage() {
   const [request, setRequest] = useState<RequestDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const statusLabels: Record<string, string> = {
+    draft_intake: t('statusDraft'),
+    intake_submitted: t('statusSubmitted'),
+    assigned: t('statusAssigned'),
+    in_progress: t('statusInProgress'),
+    pending_review: t('statusPendingReview'),
+    revision_required: t('statusRevisionRequired'),
+    approved: t('statusApproved'),
+    delivered: t('statusDelivered'),
+    closed: t('statusClosed'),
+    cancelled: t('statusCancelled'),
+  };
 
   useEffect(() => {
     fetchRequest();
@@ -175,7 +165,7 @@ export default function AdminRequestDetailPage() {
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            {t('backList') || 'Quay lại danh sách'}
+            {t('backList')}
           </button>
 
           <div className="top-actions">
@@ -183,13 +173,13 @@ export default function AdminRequestDetailPage() {
               <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              {t('viewAudit') || 'Xem audit'}
+              {t('viewAudit')}
             </button>
             <button className="ghost-btn">
               <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              {t('export') || 'Xuất thông tin'}
+              {t('export')}
             </button>
           </div>
         </div>
@@ -203,8 +193,8 @@ export default function AdminRequestDetailPage() {
               </div>
 
               <div className="request-title">
-                <div className="request-kicker">Yêu cầu pháp lý</div>
-                <h1>{request.title || t('defaultTitle') || 'Yêu cầu pháp lý'}</h1>
+                <div className="request-kicker">{t('requestKicker')}</div>
+                <h1>{request.title || t('defaultTitle')}</h1>
 
                 <div className="request-tags">
                   <span className="chip">ID: {request.id.slice(0, 20)}...</span>
@@ -233,27 +223,27 @@ export default function AdminRequestDetailPage() {
             <div className="request-status-box">
               <span className={`badge ${STATUS_COLORS[request.status] || 'gray'}`}>
                 <span className="status-dot" />
-                {STATUS_LABELS[request.status] || request.status}
+                {statusLabels[request.status] || request.status}
               </span>
             </div>
           </div>
 
           <div className="hero-stat-grid">
             <div className="hero-stat">
-              <div className="hero-stat-label">{t('colCustomer') || 'Khách hàng'}</div>
+              <div className="hero-stat-label">{t('colCustomer')}</div>
               <div className="hero-stat-value">{request.customer?.name || '—'}</div>
             </div>
             <div className="hero-stat">
-              <div className="hero-stat-label">{t('colWorkspace') || 'Workspace'}</div>
+              <div className="hero-stat-label">{t('colWorkspace')}</div>
               <div className="hero-stat-value">{request.workspace?.name || '—'}</div>
             </div>
             <div className="hero-stat">
-              <div className="hero-stat-label">{t('colCreated') || 'Ngày tạo'}</div>
-              <div className="hero-stat-value">{new Date(request.createdAt).toLocaleDateString('vi-VN')}</div>
+              <div className="hero-stat-label">{t('colCreated')}</div>
+              <div className="hero-stat-value"><FormattedDate date={request.createdAt} variant="date" /></div>
             </div>
             <div className="hero-stat">
-              <div className="hero-stat-label">{t('colUpdated') || 'Cập nhật'}</div>
-              <div className="hero-stat-value">{new Date(request.updatedAt).toLocaleDateString('vi-VN')}</div>
+              <div className="hero-stat-label">{t('colUpdated')}</div>
+              <div className="hero-stat-value"><FormattedDate date={request.updatedAt} variant="date" /></div>
             </div>
           </div>
         </div>
@@ -272,43 +262,43 @@ export default function AdminRequestDetailPage() {
                     </svg>
                   </div>
                   <div>
-                    <h2>{t('requestInfo') || 'Thông tin yêu cầu'}</h2>
-                    <div className="card-subtitle">Thông tin chi tiết về yêu cầu.</div>
+                    <h2>{t('requestInfo')}</h2>
+                    <div className="card-subtitle">{t('requestInfoSubtitle')}</div>
                   </div>
                 </div>
               </div>
               <div className="detail-card-body">
                 <div className="info-grid">
                   <div className="info-item">
-                    <div className="info-label">{t('formTitle') || 'Tiêu đề'}</div>
+                    <div className="info-label">{t('formTitle')}</div>
                     <div className="info-value">{request.title || '—'}</div>
                   </div>
                   <div className="info-item">
-                    <div className="info-label">{t('colPartner') || 'Partner'}</div>
+                    <div className="info-label">{t('colPartner')}</div>
                     <div className="info-value">{getPartnerName()}</div>
                   </div>
                   <div className="info-item">
-                    <div className="info-label">{t('colCustomer') || 'Khách hàng'}</div>
+                    <div className="info-label">{t('colCustomer')}</div>
                     <div className="info-value">{request.customer?.name || '—'}</div>
                   </div>
                   <div className="info-item">
-                    <div className="info-label">{t('colWorkspace') || 'Workspace'}</div>
+                    <div className="info-label">{t('colWorkspace')}</div>
                     <div className="info-value">{request.workspace?.name || '—'}</div>
                   </div>
                   {(request.matterType || request.matterTypeDisplay) && (
                     <div className="info-item">
-                      <div className="info-label">Loại yêu cầu</div>
+                      <div className="info-label">{t('fieldRequestType')}</div>
                       <div className="info-value">{request.matterTypeDisplay || request.matterType}</div>
                     </div>
                   )}
                   {request.priority && (
                     <div className="info-item">
-                      <div className="info-label">Ưu tiên</div>
+                      <div className="info-label">{t('fieldPriority')}</div>
                       <div className="info-value">{request.priority}</div>
                     </div>
                   )}
                   <div className="info-item full-width">
-                    <div className="info-label">{t('formDescription') || 'Mô tả'}</div>
+                    <div className="info-label">{t('formDescription')}</div>
                     <div className="info-value">{request.description || '—'}</div>
                   </div>
                 </div>
@@ -326,24 +316,24 @@ export default function AdminRequestDetailPage() {
                       </svg>
                     </div>
                     <div>
-                      <h2>Thông tin SLA</h2>
-                      <div className="card-subtitle">Hạn xử lý yêu cầu.</div>
+                      <h2>{t('slaInfo')}</h2>
+                      <div className="card-subtitle">{t('slaSubtitle')}</div>
                     </div>
                   </div>
                 </div>
                 <div className="detail-card-body">
                   <div className="info-grid">
                     <div className="info-item">
-                      <div className="info-label">Hạn chót</div>
-                      <div className="info-value">{formatDate(request.slaDeadline)}</div>
+                      <div className="info-label">{t('slaDeadline')}</div>
+                      <div className="info-value"><FormattedDate date={request.slaDeadline} variant="datetime" /></div>
                     </div>
                     <div className="info-item">
-                      <div className="info-label">Trạng thái</div>
+                      <div className="info-label">{t('slaStatus')}</div>
                       <div className="info-value">
                         {new Date(request.slaDeadline) < new Date() ? (
-                          <span className="badge red">Quá hạn</span>
+                          <span className="badge red">{t('slaOverdue')}</span>
                         ) : (
-                          <span className="badge green">Còn {Math.ceil((new Date(request.slaDeadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} ngày</span>
+                          <span className="badge green">{t('slaDaysLeft', { days: Math.ceil((new Date(request.slaDeadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) })}</span>
                         )}
                       </div>
                     </div>
@@ -367,14 +357,14 @@ export default function AdminRequestDetailPage() {
                     </div>
                     <div>
                       <h2>{t('colPartner') || 'Partner'}</h2>
-                      <div className="card-subtitle">Đơn vị xử lý yêu cầu.</div>
+                      <div className="card-subtitle">{t('partnerSubtitle')}</div>
                     </div>
                   </div>
                 </div>
                 <div className="detail-card-body">
                   <div className="side-list">
                     <div className="side-item">
-                      <div className="side-label">Tên</div>
+                      <div className="side-label">{t('labelPartnerName')}</div>
                       <div className="side-value">{request.assignedPartner.name}</div>
                     </div>
                     <button
@@ -387,7 +377,7 @@ export default function AdminRequestDetailPage() {
                         }
                       }}
                     >
-                      Xem chi tiết Partner →
+                      {t('partnerViewDetail')}
                     </button>
                   </div>
                 </div>
@@ -405,28 +395,28 @@ export default function AdminRequestDetailPage() {
                     </svg>
                   </div>
                   <div>
-                    <h2>{t('metadata') || 'Metadata hệ thống'}</h2>
-                    <div className="card-subtitle">Thông tin phục vụ quản trị và audit.</div>
+                    <h2>{t('metadata')}</h2>
+                    <div className="card-subtitle">{t('metadataSubtitle')}</div>
                   </div>
                 </div>
               </div>
               <div className="detail-card-body">
                 <div className="side-list">
                   <div className="side-item">
-                    <div className="side-label">{t('colCreated') || 'Ngày tạo'}</div>
-                    <div className="side-value">{formatDate(request.createdAt)}</div>
+                    <div className="side-label">{t('colCreated')}</div>
+                    <div className="side-value"><FormattedDate date={request.createdAt} variant="datetime" /></div>
                   </div>
                   <div className="side-item">
-                    <div className="side-label">{t('colUpdated') || 'Cập nhật lần cuối'}</div>
-                    <div className="side-value">{formatDate(request.updatedAt)}</div>
+                    <div className="side-label">{t('colUpdated')}</div>
+                    <div className="side-value"><FormattedDate date={request.updatedAt} variant="datetime" /></div>
                   </div>
                   <div className="side-item">
-                    <div className="side-label">Request ID</div>
+                    <div className="side-label">{t('labelRequestId')}</div>
                     <div className="side-value">{request.id}</div>
                   </div>
                   {request.customer?.email && (
                     <div className="side-item">
-                      <div className="side-label">Customer Email</div>
+                      <div className="side-label">{t('labelCustomerEmail')}</div>
                       <div className="side-value">{request.customer.email}</div>
                     </div>
                   )}

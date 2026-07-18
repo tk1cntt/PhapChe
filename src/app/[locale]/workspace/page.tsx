@@ -3,7 +3,7 @@ import { requireAppSession } from '@/lib/security/session';
 import { getTranslations } from 'next-intl/server';
 import { UserLayout } from '@/components/layout/UserLayout';
 import { WorkspaceBanner, StatsGrid, MemberGrid, ResourceTable } from '@/components/workspace';
-import '@/components/workspace/workspace.css';
+import '@/styles/pages/workspace.css';
 
 export default async function WorkspacePage({
   params,

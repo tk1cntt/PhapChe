@@ -7,7 +7,7 @@ import { AdminStatGrid } from '@/components/admin/AdminStatGrid';
 import AdminToolbar from '@/components/admin/AdminToolbar';
 import Paging from '@/components/ui/Paging';
 import { REQUEST_STATUS_LABELS } from '@/lib/constants/partner-statuses';
-import './partner.css';
+import '@/styles/pages/admin/partner.css';
 
 interface PartnerRequest {
   id: string;
@@ -228,9 +228,9 @@ export default function AdminPartnerPage() {
         <>
           <div className="table-container">
             {/* Table Header */}
-            <div className="table-head" style={{ gridTemplateColumns: '0.8fr 1fr 1.2fr 1fr 0.9fr 0.7fr' }}>
+            <div className="table-head" style={{ gridTemplateColumns: 'var(--table-columns, 0.8fr 1fr 1.2fr 1fr 0.9fr 0.7fr)' }}>
               {[columns.id, columns.partner, columns.customer, columns.status, columns.updated, columns.action].map((header, i) => (
-                <div key={i} className="th" style={{ borderRight: i === 5 ? 'none' : '1px solid #dfe7f1' }}>
+                <div key={i} className="th" style={{ borderRight: i === 5 ? 'none' : '1px solid var(--color-border)' }}>
                   {header}
                 </div>
               ))}
@@ -252,28 +252,28 @@ export default function AdminPartnerPage() {
                 <div
                   key={req.id}
                   className="table-row"
-                  style={{ gridTemplateColumns: '0.8fr 1fr 1.2fr 1fr 0.9fr 0.7fr', borderBottom: rowIndex === requests.length - 1 ? 'none' : '1px solid #dfe7f1' }}
+                  style={{ gridTemplateColumns: 'var(--table-columns, 0.8fr 1fr 1.2fr 1fr 0.9fr 0.7fr)', borderBottom: rowIndex === requests.length - 1 ? 'none' : '1px solid var(--color-border)' }}
                 >
                   {/* ID */}
-                  <div className="td" style={{ borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+                  <div className="td" style={{ borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
                     <div className="id-badge">
-                      <div className="icon-badge" style={{ background: 'linear-gradient(135deg, #dbeafe, #eff6ff)', color: '#2563eb' }}>
+                      <div className="icon-badge" style={{ background: 'linear-gradient(135deg, var(--color-info-muted), var(--color-info-muted))', color: 'var(--color-info)' }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                           <path d="M14 2v6h6"/>
                         </svg>
                       </div>
-                      <span className="text-sm font-bold text-[#0f172a] font-mono">{req.id.slice(0, 8)}...</span>
+                      <span className="text-sm font-bold font-mono" style={{ color: 'var(--color-text)' }}>{req.id.slice(0, 8)}...</span>
                     </div>
                   </div>
 
                   {/* Partner */}
-                  <div className="td" style={{ borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+                  <div className="td" style={{ borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
                     <span>{getPartnerName(req)}</span>
                   </div>
 
                   {/* Customer */}
-                  <div className="td" style={{ borderRight: '1px solid #dfe7f1', minWidth: 0 }}>
+                  <div className="td" style={{ borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
                     <div className="flex items-center gap-3">
                       <div className="customer-avatar">
                         {getCustomerInitials(req.customer?.name || '')}
@@ -281,19 +281,19 @@ export default function AdminPartnerPage() {
                       <div>
                         <span className="text-sm font-semibold">{req.customer?.name || '—'}</span>
                         {req.customer?.email && (
-                          <span className="text-xs text-[#64748b] block">{req.customer.email}</span>
+                          <span className="text-xs block" style={{ color: 'var(--color-text-muted)' }}>{req.customer.email}</span>
                         )}
                       </div>
                     </div>
                   </div>
 
                   {/* Status */}
-                  <div className="td" style={{ borderRight: '1px solid #dfe7f1' }}>
+                  <div className="td" style={{ borderRight: '1px solid var(--color-border)' }}>
                     <StatusBadge status={req.status} />
                   </div>
 
                   {/* Updated */}
-                  <div className="td" style={{ borderRight: '1px solid #dfe7f1', color: '#64748b' }}>
+                  <div className="td" style={{ borderRight: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}>
                     {new Date(req.updatedAt).toLocaleDateString()}
                   </div>
 

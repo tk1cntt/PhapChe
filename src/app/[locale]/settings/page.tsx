@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import UserLayout from '@/components/layout/UserLayout';
 import { SettingsClient } from './SettingsClient';
-import '@/components/settings/settings.css';
+import '@/styles/pages/settings.css';
 
 interface PageProps {
   params: Promise<{ locale: string }>;

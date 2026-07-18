@@ -1,11 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import { getTranslations } from 'next-intl/server';
+import { formatDate } from '@/lib/i18n/date-format';
 import { isEnabled } from '@/lib/config/feature-flags';
 import UserLayout from '@/components/layout/UserLayout';
 import StatCard from '@/components/my-cases/StatCard';
 import MessagesClient from '@/components/messages/MessagesClient';
-import '@/components/messages/messages.css';
+import '@/styles/pages/messages.css';
 
 function getInitials(name: string): string {
   return name
@@ -35,6 +36,7 @@ export default async function MessagesPage({
   const session = await requireAppSession();
   const { userId, activeWorkspaceId, roles } = session;
   const t = await getTranslations('UserMessages');
+  const tMatter = await getTranslations('MatterTypes');
 
   // Fetch user info
   const user = await prisma.user.findUnique({
@@ -77,7 +79,7 @@ export default async function MessagesPage({
         // Include matterTypeRef for new FK-based approach
         ...(isEnabled('DB_MIGRATION_PHASE4') ? {
           matterTypeRef: {
-            select: { id: true, key: true, label_vi: true, label_en: true },
+            select: { id: true, key: true },
           },
         } : {}),
       },
@@ -164,23 +166,20 @@ export default async function MessagesPage({
       ? `${Math.max(0, Math.floor((req.slaDeadline.getTime() - Date.now()) / 3600000))}h`
       : t('noSla');
 
-    // Matter type display: use FK relation if available, else text field
-    const matterTypeDisplay = (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_vi
-      || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.label_en
-      || (req as { matterTypeRef?: { label_vi?: string | null; label_en?: string | null; key?: string | null } | null }).matterTypeRef?.key
-      || req.matterType
-      || 'Legal Request';
+    // Matter type display: use FK key with translation lookup
+    const mtKey = (req as { matterTypeRef?: { key?: string | null } | null }).matterTypeRef?.key;
+    const matterTypeDisplay = mtKey ? tMatter(mtKey as any) : (req.matterType || 'Legal Request');
 
     dbCaseInfo[req.id] = {
       caseCode: `${req.code || 'REQ'} · ${matterTypeDisplay}`,
       slaRemaining,
       slaDetail: req.slaDeadline
-        ? `${t('slaDeadline')}: ${req.slaDeadline.toLocaleDateString('vi-VN')}`
+        ? `${t('slaDeadline')}: ${formatDate(req.slaDeadline, locale)}`
         : t('noSlaSet'),
       documents: t('noDocuments'),
       participants: req.assignedSpecialist?.name || t('notAssigned'),
       matterType: matterTypeDisplay,
-      createdAt: req.createdAt.toLocaleDateString('vi-VN'),
+      createdAt: formatDate(req.createdAt, locale),
       status: req.status,
       assignedSpecialist: req.assignedSpecialist?.name || t('notAssigned'),
     };

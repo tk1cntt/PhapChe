@@ -1,5 +1,5 @@
 import AdminVaultClient from '@/components/admin/AdminVaultClient';
-import './vault.css';
+import '@/styles/pages/admin/vault.css';
 
 export default function AdminVaultPage() {
   return <AdminVaultClient />;

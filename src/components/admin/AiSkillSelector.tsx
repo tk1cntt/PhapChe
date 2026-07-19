@@ -131,17 +131,14 @@ export function AiSkillSelector({
   }, []);
 
   return (
-    <div className="space-y-1" data-testid="ai-skill-selector">
+    <div className="ai-skill-selector" data-testid="ai-skill-selector">
       {grouped.map((group) => (
-        <div key={group.domain} className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div key={group.domain} className="ai-skill-group">
           <button
             type="button"
             disabled={disabled}
             onClick={() => handleToggle(group.domain)}
-            className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium
-              text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800
-              hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors
-              disabled:opacity-50 disabled:cursor-not-allowed"
+            className="ai-skill-domain-btn"
             data-testid={`skill-domain-${group.domain}`}
           >
             <span>{group.label}</span>
@@ -153,32 +150,27 @@ export function AiSkillSelector({
           </button>
 
           {expandedDomain === group.domain && (
-            <div className="divide-y divide-gray-100 dark:divide-gray-700" data-testid={`skill-list-${group.domain}`}>
+            <div className="ai-skill-list" data-testid={`skill-list-${group.domain}`}>
               {group.skills.map(({ skill, label, description }) => (
                 <button
                   key={skill}
                   type="button"
                   disabled={disabled || executingSkill === skill}
                   onClick={() => onSelect(skill, group.domain)}
-                  className={`w-full text-left px-3 py-2.5 transition-colors
-                    ${executingSkill === skill
-                      ? 'bg-blue-50 dark:bg-blue-900/20 cursor-wait'
-                      : 'hover:bg-blue-50 dark:hover:bg-blue-900/10'
-                    }
-                    disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`ai-skill-item${executingSkill === skill ? ' executing' : ''}`}
                   data-testid={`skill-item-${skill}`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="ai-skill-item-header">
                     {executingSkill === skill ? (
-                      <Loader2 size={14} className="animate-spin text-blue-600 shrink-0" />
+                      <Loader2 size={14} className="skill-spinner" />
                     ) : (
-                      <Sparkles size={14} className="text-purple-500 shrink-0" />
+                      <Sparkles size={14} className="skill-icon" />
                     )}
-                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    <span className="ai-skill-item-label">
                       {label}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 ml-6">
+                  <p className="ai-skill-item-desc">
                     {description}
                   </p>
                 </button>

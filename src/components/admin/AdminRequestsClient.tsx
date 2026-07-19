@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import '@/styles/pages/admin/requests-client.css';
+import '@/styles/pages/admin/ai-assistant.css';
 
 // Type definitions
 interface TriageCase {

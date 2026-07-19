@@ -9,6 +9,7 @@ import { signOut } from '@/lib/auth-client';
 import { ThemeToggle } from '@/components/shared/ui/ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
 import { canSeeMenu, MENU_VISIBILITY } from '@/lib/security/role-config';
+import '@/styles/pages/admin/ai-assistant.css';
 import { AiProvider } from '@/lib/ai/AiContext';
 import { AiStatusBadge } from '@/components/admin/AiStatusBadge';
 

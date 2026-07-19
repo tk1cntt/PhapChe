@@ -18,32 +18,32 @@ export interface AiResultCardProps {
 
 // ── Helpers ──────────────────────────────────────────────────
 
-function getRiskColor(level: string): string {
+function getRiskClass(level: string): string {
   switch (level) {
     case 'critical':
     case 'high':
-      return 'text-red-700 bg-red-50 border-red-200';
+      return 'ai-risk-critical';
     case 'medium':
     case 'moderate':
-      return 'text-orange-700 bg-orange-50 border-orange-200';
+      return 'ai-risk-medium';
     case 'low':
     case 'minor':
-      return 'text-green-700 bg-green-50 border-green-200';
+      return 'ai-risk-low';
     default:
-      return 'text-gray-700 bg-gray-50 border-gray-200';
+      return '';
   }
 }
 
-function getScoreColor(score: number): string {
-  if (score >= 80) return 'text-green-600';
-  if (score >= 50) return 'text-orange-600';
-  return 'text-red-600';
+function getScoreClass(score: number): string {
+  if (score >= 80) return 'high-score';
+  if (score >= 50) return 'mid-score';
+  return 'low-score';
 }
 
-function getConfidenceLabel(confidence: number): { label: string; color: string } {
-  if (confidence >= 0.8) return { label: 'Cao', color: 'text-green-600' };
-  if (confidence >= 0.5) return { label: 'Trung bình', color: 'text-orange-600' };
-  return { label: 'Thấp', color: 'text-red-600' };
+function getConfidenceLabel(confidence: number): { label: string; cssClass: string } {
+  if (confidence >= 0.8) return { label: 'Cao', cssClass: 'high' };
+  if (confidence >= 0.5) return { label: 'Trung bình', cssClass: 'medium' };
+  return { label: 'Thấp', cssClass: 'low' };
 }
 
 // ── Sub-components ───────────────────────────────────────────
@@ -54,19 +54,19 @@ function ContractSection({ output }: { output: Record<string, unknown> }) {
   const warnings = Array.isArray(output.warnings) ? output.warnings : [];
 
   return (
-    <div className="space-y-3 text-sm">
+    <div className="ai-result-section-sm">
       {output.contractTitle && (
-        <h4 className="font-bold text-gray-900 dark:text-gray-100 text-base">
+        <h4 className="ai-contract-title">
           {output.contractTitle as string}
         </h4>
       )}
 
       {parties.length > 0 && (
         <div>
-          <p className="font-medium text-gray-600 dark:text-gray-400 mb-1">Các bên:</p>
+          <p className="ai-sub-title">Các bên:</p>
           {parties.map((p: Record<string, unknown>, i: number) => (
-            <div key={i} className="text-gray-700 dark:text-gray-300 ml-2">
-              <span className="font-medium">{p.role as string}:</span> {p.name as string}
+            <div key={i} className="ai-party-row">
+              <span className="ai-party-role">{p.role as string}:</span> {p.name as string}
             </div>
           ))}
         </div>
@@ -74,16 +74,16 @@ function ContractSection({ output }: { output: Record<string, unknown> }) {
 
       {clauses.length > 0 && (
         <div>
-          <p className="font-medium text-gray-600 dark:text-gray-400 mb-1">
+          <p className="ai-sub-title">
             Điều khoản ({clauses.length}):
           </p>
           {clauses.slice(0, 5).map((c: Record<string, unknown>, i: number) => (
-            <div key={i} className="ml-2 py-1 border-b border-gray-100 dark:border-gray-700 last:border-0">
-              <p className="font-medium text-gray-800 dark:text-gray-200">
+            <div key={i} className="ai-detail-item">
+              <p className="ai-detail-title">
                 Điều {c.articleNumber as number}: {c.title as string}
               </p>
               {c.legalBasis && (
-                <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
+                <p className="ai-detail-sub">
                   📜 {c.legalBasis as string}
                 </p>
               )}
@@ -93,10 +93,10 @@ function ContractSection({ output }: { output: Record<string, unknown> }) {
       )}
 
       {warnings.length > 0 && (
-        <div className="p-2 rounded border border-orange-200 bg-orange-50 dark:bg-orange-900/20 dark:border-orange-800">
-          <p className="font-medium text-orange-700 dark:text-orange-400 text-xs mb-1">⚠ Cảnh báo:</p>
+        <div className="ai-warning-box">
+          <p className="ai-warning-title">⚠ Cảnh báo:</p>
           {warnings.map((w: string, i: number) => (
-            <p key={i} className="text-xs text-orange-600 dark:text-orange-400">• {w}</p>
+            <p key={i} className="ai-warning-item">• {w}</p>
           ))}
         </div>
       )}
@@ -110,13 +110,13 @@ function ReviewSection({ output }: { output: Record<string, unknown> }) {
   const score = typeof output.complianceScore === 'number' ? output.complianceScore : null;
 
   return (
-    <div className="space-y-3 text-sm">
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${getRiskColor(risk)}`}>
+    <div className="ai-result-section-sm">
+      <div className="ai-result-meta">
+        <span className={`ai-risk-badge ${getRiskClass(risk)}`}>
           Rủi ro: {risk}
         </span>
         {score !== null && (
-          <span className={`font-bold ${getScoreColor(score)}`}>
+          <span className={`ai-score ${getScoreClass(score)}`}>
             Tuân thủ: {score}/100
           </span>
         )}
@@ -124,24 +124,24 @@ function ReviewSection({ output }: { output: Record<string, unknown> }) {
 
       {findings.length > 0 && (
         <div>
-          <p className="font-medium text-gray-600 dark:text-gray-400 mb-1">
+          <p className="ai-sub-title">
             Phát hiện ({findings.length}):
           </p>
           {findings.map((f: Record<string, unknown>, i: number) => (
-            <div key={i} className="ml-2 py-1.5 border-b border-gray-100 dark:border-gray-700 last:border-0">
-              <div className="flex items-center gap-1.5">
-                <span className={`px-1.5 py-0.5 rounded text-xs font-medium border ${getRiskColor(f.severity as string)}`}>
+            <div key={i} className="ai-detail-item">
+              <div className="ai-result-meta">
+                <span className={`ai-risk-badge ${getRiskClass(f.severity as string)}`}>
                   {f.severity as string}
                 </span>
-                <span className="text-gray-800 dark:text-gray-200">{f.issue as string}</span>
+                <span className="ai-detail-title">{f.issue as string}</span>
               </div>
               {f.recommendation && (
-                <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">
+                <p className="ai-detail-sub">
                   → {f.recommendation as string}
                 </p>
               )}
               {f.legalBasis && (
-                <p className="text-xs text-blue-500 mt-0.5">📜 {f.legalBasis as string}</p>
+                <p className="ai-legal-basis">📜 {f.legalBasis as string}</p>
               )}
             </div>
           ))}
@@ -158,9 +158,9 @@ function ComplianceSection({ output }: { output: Record<string, unknown> }) {
   const score = typeof output.complianceScore === 'number' ? output.complianceScore : null;
 
   return (
-    <div className="space-y-3 text-sm">
+    <div className="ai-result-section-sm">
       {score !== null && (
-        <p className={`font-bold text-lg ${getScoreColor(score)}`}>
+        <p className={`ai-score ${getScoreClass(score)}`} style={{ fontSize: 'var(--text-lg)' }}>
           Điểm tuân thủ: {score}/100
         </p>
       )}
@@ -168,31 +168,31 @@ function ComplianceSection({ output }: { output: Record<string, unknown> }) {
       {items.length > 0 && (
         <div>
           {items.map((item: Record<string, unknown>, i: number) => (
-            <div key={i} className="py-1.5 border-b border-gray-100 dark:border-gray-700 last:border-0">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-800 dark:text-gray-200 text-xs">
+            <div key={i} className="ai-detail-item">
+              <div className="ai-result-meta" style={{ justifyContent: 'space-between' }}>
+                <span className="ai-detail-title" style={{ fontSize: 'var(--text-xs)' }}>
                   {item.category as string ?? item.area as string}
                 </span>
                 {item.status && (
-                  <span className={`px-1.5 py-0.5 rounded text-xs ${
-                    item.status === 'compliant' ? 'bg-green-100 text-green-700' :
-                    item.status === 'non_compliant' ? 'bg-red-100 text-red-700' :
-                    'bg-gray-100 text-gray-600'
+                  <span className={`ai-status-pill ${
+                    item.status === 'compliant' ? 'compliant' :
+                    item.status === 'non_compliant' ? 'non-compliant' :
+                    'partial'
                   }`}>
                     {item.status as string}
                   </span>
                 )}
                 {item.severity && (
-                  <span className={`px-1.5 py-0.5 rounded text-xs border ${getRiskColor(item.severity as string)}`}>
+                  <span className={`ai-risk-badge ${getRiskClass(item.severity as string)}`}>
                     {item.severity as string}
                   </span>
                 )}
               </div>
               {item.action && (
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{item.action as string}</p>
+                <p className="ai-detail-sub">{item.action as string}</p>
               )}
               {item.legalBasis && (
-                <p className="text-xs text-blue-500 mt-0.5">📜 {item.legalBasis as string}</p>
+                <p className="ai-legal-basis">📜 {item.legalBasis as string}</p>
               )}
             </div>
           ))}
@@ -208,30 +208,28 @@ function GeneralSection({ output }: { output: Record<string, unknown> }) {
   const nextSteps = Array.isArray(output.nextSteps) ? output.nextSteps : [];
 
   return (
-    <div className="space-y-3 text-sm">
+    <div className="ai-result-section-sm">
       {answer && (
-        <div className="prose prose-sm dark:prose-invert max-w-none">
-          <p className="text-gray-800 dark:text-gray-200 leading-relaxed">{answer}</p>
-        </div>
+        <p className="ai-summary-text">{answer}</p>
       )}
 
       {legalBasis.length > 0 && (
         <div>
-          <p className="font-medium text-gray-600 dark:text-gray-400 mb-1">Căn cứ pháp lý:</p>
+          <p className="ai-sub-title">Căn cứ pháp lý:</p>
           {legalBasis.map((lb: Record<string, unknown>, i: number) => (
-            <div key={i} className="ml-2 text-xs text-blue-600 dark:text-blue-400 py-0.5">
+            <div key={i} className="ai-legal-basis">
               📜 {lb.law as string}{lb.article ? ` — ${lb.article as string}` : ''}
-              {lb.content && <p className="text-gray-500 dark:text-gray-400 ml-4 mt-0.5">{lb.content as string}</p>}
+              {lb.content && <p className="ai-legal-basis-sub">{lb.content as string}</p>}
             </div>
           ))}
         </div>
       )}
 
       {nextSteps.length > 0 && (
-        <div className="p-2 rounded bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-          <p className="font-medium text-blue-700 dark:text-blue-400 text-xs mb-1">Các bước tiếp theo:</p>
+        <div className="ai-next-steps">
+          <p className="ai-next-steps-title">Các bước tiếp theo:</p>
           {nextSteps.map((s: string, i: number) => (
-            <p key={i} className="text-xs text-blue-600 dark:text-blue-400">• {s}</p>
+            <p key={i} className="ai-next-steps-item">• {s}</p>
           ))}
         </div>
       )}
@@ -257,15 +255,15 @@ export function AiResultCard({
 
   if (loading) {
     return (
-      <div className="rounded-lg border border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 p-4" data-testid="ai-result-loading">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-4 h-4 rounded-full bg-purple-200 animate-pulse" />
-          <div className="h-4 bg-gray-200 rounded w-1/3 animate-pulse" />
+      <div className="ai-result-loading" data-testid="ai-result-loading">
+        <div className="ai-result-loading-header">
+          <div className="ai-skeleton-circle" />
+          <div className="ai-skeleton-line w-1-3" />
         </div>
-        <div className="space-y-2">
-          <div className="h-3 bg-gray-100 rounded w-full animate-pulse" />
-          <div className="h-3 bg-gray-100 rounded w-5/6 animate-pulse" />
-          <div className="h-3 bg-gray-100 rounded w-2/3 animate-pulse" />
+        <div className="ai-skeleton-body">
+          <div className="ai-skeleton-text w-full" />
+          <div className="ai-skeleton-text w-5-6" />
+          <div className="ai-skeleton-text w-2-3" />
         </div>
       </div>
     );
@@ -273,11 +271,9 @@ export function AiResultCard({
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4" data-testid="ai-result-error">
-        <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
-          <AlertTriangle size={16} />
-          <span className="font-medium text-sm">{error}</span>
-        </div>
+      <div className="ai-result-error" data-testid="ai-result-error">
+        <AlertTriangle size={16} />
+        <span>{error}</span>
       </div>
     );
   }
@@ -286,25 +282,25 @@ export function AiResultCard({
   const confidenceInfo = getConfidenceLabel(result.confidence);
 
   return (
-    <div className="rounded-lg border border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 overflow-hidden" data-testid="ai-result-card">
+    <div className="ai-result-card" data-testid="ai-result-card">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-purple-50 dark:bg-purple-900/20 border-b border-purple-100 dark:border-purple-800">
+      <div className="ai-result-header">
         <button
           type="button"
           onClick={() => setExpandedResult(!expandedResult)}
-          className="flex items-center gap-2 text-sm font-medium text-purple-800 dark:text-purple-300"
+          className="ai-result-header-left"
           data-testid="ai-result-toggle"
         >
           {expandedResult ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
           <Sparkles size={14} />
           <span>{skillLabel ?? skill}</span>
         </button>
-        <div className="flex items-center gap-2">
-          <span className={`text-xs font-medium ${confidenceInfo.color}`} data-testid="ai-result-confidence">
+        <div className="ai-result-header-right">
+          <span className={`ai-confidence ${confidenceInfo.cssClass}`} data-testid="ai-result-confidence">
             Độ tin cậy: {confidenceInfo.label} ({(result.confidence * 100).toFixed(0)}%)
           </span>
           {result.citations.length > 0 && (
-            <span className="text-xs text-gray-400" title={`${result.citations.length} trích dẫn`}>
+            <span className="ai-citation-count" title={`${result.citations.length} trích dẫn`}>
               📜{result.citations.length}
             </span>
           )}
@@ -312,12 +308,12 @@ export function AiResultCard({
       </div>
 
       {expandedResult && (
-        <div className="p-4 space-y-3" data-testid="ai-result-body">
+        <div className="ai-result-body" data-testid="ai-result-body">
           {/* Summary */}
           {result.summary && (
-            <div className="flex gap-2">
-              <Info size={14} className="text-purple-500 mt-0.5 shrink-0" />
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{result.summary}</p>
+            <div className="ai-summary-row">
+              <Info size={14} />
+              <p className="ai-summary-text">{result.summary}</p>
             </div>
           )}
 
@@ -329,13 +325,13 @@ export function AiResultCard({
 
           {/* Citations */}
           {result.citations.length > 0 && (
-            <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <div className="ai-citations">
+              <p className="ai-citations-label">
                 Tài liệu tham khảo ({result.citations.length}):
               </p>
-              <div className="flex flex-wrap gap-1">
+              <div className="ai-citations-list">
                 {result.citations.map((c, i) => (
-                  <span key={i} className="inline-flex items-center gap-0.5 px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                  <span key={i} className="ai-citation-tag">
                     📜 {c}
                   </span>
                 ))}
@@ -345,11 +341,11 @@ export function AiResultCard({
 
           {/* Apply button */}
           {onApply && (
-            <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+            <div className="ai-apply-wrap">
               <button
                 type="button"
                 onClick={() => onApply(result)}
-                className="w-full px-3 py-1.5 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
+                className="ai-apply-btn"
                 data-testid="ai-result-apply"
               >
                 Áp dụng kết quả này

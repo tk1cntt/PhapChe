@@ -64,37 +64,36 @@ export function AiAssistantPanel({
   }, [requestId]);
 
   return (
-    <div className={`border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 ${className}`} data-testid="ai-assistant-panel">
+    <div className={`ai-panel ${className}`} data-testid="ai-assistant-panel">
       {/* Toggle header */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium
-          text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-lg"
+        className="ai-panel-toggle"
         data-testid="ai-assistant-toggle"
       >
-        <span className="flex items-center gap-2">
-          <Sparkles size={16} className="text-purple-500" />
+        <span className="ai-panel-toggle-left">
+          <Sparkles size={16} />
           AI Assistant
-          {executing && <Loader2 size={14} className="animate-spin text-purple-500" />}
+          {executing && <Loader2 size={14} className="ai-panel-spinner" />}
         </span>
-        {isOpen ? <X size={16} /> : <Bot size={16} className="text-purple-400" />}
+        {isOpen ? <X size={16} /> : <Bot size={16} className="ai-panel-toggle-icon" />}
       </button>
 
       {isOpen && (
-        <div className="px-4 pb-4 space-y-3 border-t border-gray-100 dark:border-gray-700 pt-3" data-testid="ai-assistant-body">
+        <div className="ai-panel-body" data-testid="ai-assistant-body">
+          <div className="ai-panel-body-inner">
           {/* Error */}
           {error && (
-            <div className="p-2 rounded bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800
-              text-sm text-red-700 dark:text-red-400 flex items-center gap-2" data-testid="ai-assistant-error">
-              <X size={14} className="shrink-0" />
+            <div className="ai-error" data-testid="ai-assistant-error">
+              <X size={14} />
               <span>{error}</span>
             </div>
           )}
 
           {/* Skill Selector */}
           <div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Chọn kỹ năng AI:</p>
+            <p className="ai-section-label">Chọn kỹ năng AI:</p>
             <AiSkillSelector
               defaultDomain={defaultDomain}
               onSelect={handleSelectSkill}
@@ -105,8 +104,8 @@ export function AiAssistantPanel({
 
           {/* Results */}
           {results.length > 0 && (
-            <div className="space-y-3 pt-2 border-t border-gray-100 dark:border-gray-700">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+            <div className="ai-results-section">
+              <p className="ai-results-label">
                 Kết quả ({results.length}):
               </p>
               {results.map(({ skill, result }, idx) => (
@@ -122,20 +121,21 @@ export function AiAssistantPanel({
 
           {/* Empty state */}
           {results.length === 0 && !executing && !error && (
-            <div className="text-center py-6 text-gray-400 dark:text-gray-500" data-testid="ai-assistant-empty">
-              <Bot size={32} className="mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Chọn một kỹ năng AI để bắt đầu phân tích</p>
-              <p className="text-xs mt-1">AI sẽ tra cứu luật và đưa ra đề xuất</p>
+            <div className="ai-empty" data-testid="ai-assistant-empty">
+              <Bot size={32} />
+              <p className="ai-empty-title">Chọn một kỹ năng AI để bắt đầu phân tích</p>
+              <p className="ai-empty-sub">AI sẽ tra cứu luật và đưa ra đề xuất</p>
             </div>
           )}
 
           {/* Executing indicator */}
           {executing && (
-            <div className="flex items-center justify-center gap-2 py-4 text-sm text-purple-600 dark:text-purple-400" data-testid="ai-assistant-executing">
-              <Loader2 size={16} className="animate-spin" />
+            <div className="ai-executing" data-testid="ai-assistant-executing">
+              <Loader2 size={16} />
               <span>Đang phân tích...</span>
             </div>
           )}
+          </div>
         </div>
       )}
     </div>

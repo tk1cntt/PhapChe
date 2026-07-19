@@ -5,9 +5,9 @@
  *
  * States:
  * - initializing: animated pulse (blue)
- * - ready: green dot
- * - error: red dot with tooltip
- * - unconfigured: gray dot
+ * - ready: green sparkle
+ * - error: red with retry button
+ * - unconfigured: gray idle
  */
 
 import React from 'react';
@@ -21,11 +21,11 @@ export function AiStatusBadge() {
   if (isInitializing) {
     return (
       <div
-        className="flex items-center gap-1.5 px-2 py-1 text-xs text-blue-600 dark:text-blue-400"
+        className="ai-status-badge ai-status-initializing"
         title="Đang khởi tạo AI..."
         data-testid="ai-status-initializing"
       >
-        <Loader2 size={12} className="animate-spin" />
+        <Loader2 size={12} className="ai-panel-spinner" />
         <span>AI...</span>
       </div>
     );
@@ -35,7 +35,7 @@ export function AiStatusBadge() {
   if (isReady) {
     return (
       <div
-        className="flex items-center gap-1.5 px-2 py-1 text-xs text-green-600 dark:text-green-400"
+        className="ai-status-badge ai-status-ready"
         title={`AI sẵn sàng — ${docsIndexed} tài liệu luật đã được lập chỉ mục`}
         data-testid="ai-status-ready"
       >
@@ -51,7 +51,7 @@ export function AiStatusBadge() {
       <button
         type="button"
         onClick={retryInit}
-        className="flex items-center gap-1.5 px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:underline"
+        className="ai-status-badge ai-status-error"
         title={`Lỗi AI: ${initError}. Nhấn để thử lại.`}
         data-testid="ai-status-error"
       >
@@ -64,7 +64,7 @@ export function AiStatusBadge() {
   // Not configured / not attempted
   return (
     <div
-      className="flex items-center gap-1.5 px-2 py-1 text-xs text-gray-400 dark:text-gray-500"
+      className="ai-status-badge ai-status-idle"
       title="AI chưa được khởi tạo"
       data-testid="ai-status-idle"
     >

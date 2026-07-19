@@ -116,7 +116,7 @@ describe('AiSkillSelector', () => {
       );
 
       const skillItem = screen.getByTestId('skill-item-commercial-contract-drafter');
-      expect(skillItem.querySelector('.animate-spin')).toBeTruthy();
+      expect(skillItem.querySelector('.skill-spinner')).toBeTruthy();
     });
   });
 

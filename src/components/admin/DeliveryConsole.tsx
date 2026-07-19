@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import Paging from '@/components/ui/Paging';
 import { DeliveryDialog } from './DeliveryDialog';
 
 interface DeliveryRequest {
@@ -101,15 +102,24 @@ export function DeliveryConsole() {
     <div className="workbench-panel">
       {/* Stats Row */}
       <div className="triage-stats">
-        <div className="triage-stat highlight">
+        <div
+          className={`triage-stat clickable${statusFilter === 'approved' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'approved' ? 'all' : 'approved'); setPage(1); }}
+        >
           <div className="stat-value">{s?.approved ?? 0}</div>
           <div className="stat-label">{tStatus('approved') || t('statApproved')}</div>
         </div>
-        <div className="triage-stat">
+        <div
+          className={`triage-stat clickable${statusFilter === 'delivered' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'delivered' ? 'all' : 'delivered'); setPage(1); }}
+        >
           <div className="stat-value">{s?.delivered ?? 0}</div>
           <div className="stat-label">{tStatus('delivered') || t('statDelivered')}</div>
         </div>
-        <div className="triage-stat">
+        <div
+          className={`triage-stat clickable${statusFilter === 'closed' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'closed' ? 'all' : 'closed'); setPage(1); }}
+        >
           <div className="stat-value">{s?.closed ?? 0}</div>
           <div className="stat-label">{tStatus('closed') || t('statClosed')}</div>
         </div>
@@ -238,17 +248,12 @@ export function DeliveryConsole() {
           })}
 
           {/* Pagination */}
-          {data && data.totalPages > 1 && (
-            <div className="triage-pagination">
-              <button disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))} className="page-btn">
-                {t('prev')}
-              </button>
-              <span className="page-info">{page} / {data.totalPages}</span>
-              <button disabled={page >= data.totalPages} onClick={() => setPage(p => p + 1)} className="page-btn">
-                {t('next')}
-              </button>
-            </div>
-          )}
+          <Paging
+            current={page}
+            pageSize={10}
+            total={data.total}
+            onChange={(p) => setPage(p)}
+          />
         </div>
       )}
 

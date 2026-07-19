@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import Paging from '@/components/ui/Paging';
 import { AssignmentDialog } from './AssignmentDialog';
 
 interface TriageRequest {
@@ -117,15 +118,24 @@ export function TriagePanel() {
     <div className="triage-panel">
       {/* Stats Row */}
       <div className="triage-stats">
-        <div className="triage-stat">
+        <div
+          className={`triage-stat clickable${statusFilter === 'all' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter('all'); setPage(1); }}
+        >
           <div className="stat-value">{data?.total ?? 0}</div>
           <div className="stat-label">{t('statTotal')}</div>
         </div>
-        <div className="triage-stat highlight">
+        <div
+          className={`triage-stat clickable${statusFilter === 'triage' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'triage' ? 'all' : 'triage'); setPage(1); }}
+        >
           <div className="stat-value">{triageCount}</div>
           <div className="stat-label">{t('statNeedsTriage')}</div>
         </div>
-        <div className="triage-stat">
+        <div
+          className={`triage-stat clickable${statusFilter === 'draft_intake' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'draft_intake' ? 'all' : 'draft_intake'); setPage(1); }}
+        >
           <div className="stat-value">{draftCount}</div>
           <div className="stat-label">{t('statDraft')}</div>
         </div>
@@ -241,25 +251,12 @@ export function TriagePanel() {
           })}
 
           {/* Pagination */}
-          {data && data.totalPages > 1 && (
-            <div className="triage-pagination">
-              <button
-                disabled={page <= 1}
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                className="page-btn"
-              >
-                {t('prev')}
-              </button>
-              <span className="page-info">{page} / {data.totalPages}</span>
-              <button
-                disabled={page >= data.totalPages}
-                onClick={() => setPage(p => p + 1)}
-                className="page-btn"
-              >
-                {t('next')}
-              </button>
-            </div>
-          )}
+          <Paging
+            current={page}
+            pageSize={10}
+            total={data.total}
+            onChange={(p) => setPage(p)}
+          />
         </div>
       )}
 

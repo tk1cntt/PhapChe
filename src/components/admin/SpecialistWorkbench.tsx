@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import Paging from '@/components/ui/Paging';
 import { UpdateStatusDialog } from './UpdateStatusDialog';
 
 interface WorkbenchRequest {
@@ -112,19 +113,31 @@ export function SpecialistWorkbench() {
     <div className="workbench-panel">
       {/* Stats Row */}
       <div className="triage-stats">
-        <div className="triage-stat">
+        <div
+          className={`triage-stat clickable${statusFilter === 'assigned' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'assigned' ? 'all' : 'assigned'); setPage(1); }}
+        >
           <div className="stat-value">{s?.assigned ?? 0}</div>
           <div className="stat-label">{tStatus('assigned') || t('statAssigned')}</div>
         </div>
-        <div className="triage-stat highlight">
+        <div
+          className={`triage-stat clickable${statusFilter === 'in_progress' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'in_progress' ? 'all' : 'in_progress'); setPage(1); }}
+        >
           <div className="stat-value">{s?.inProgress ?? 0}</div>
           <div className="stat-label">{tStatus('in_progress') || t('statInProgress')}</div>
         </div>
-        <div className="triage-stat">
+        <div
+          className={`triage-stat clickable${statusFilter === 'pending_review' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'pending_review' ? 'all' : 'pending_review'); setPage(1); }}
+        >
           <div className="stat-value">{s?.pendingReview ?? 0}</div>
           <div className="stat-label">{tStatus('pending_review') || t('statPendingReview')}</div>
         </div>
-        <div className="triage-stat">
+        <div
+          className={`triage-stat clickable${statusFilter === 'revision_required' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'revision_required' ? 'all' : 'revision_required'); setPage(1); }}
+        >
           <div className="stat-value">{s?.revisionRequired ?? 0}</div>
           <div className="stat-label">{tStatus('revision_required') || t('statRevision')}</div>
         </div>
@@ -250,17 +263,12 @@ export function SpecialistWorkbench() {
           })}
 
           {/* Pagination */}
-          {data && data.totalPages > 1 && (
-            <div className="triage-pagination">
-              <button disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))} className="page-btn">
-                {t('prev')}
-              </button>
-              <span className="page-info">{page} / {data.totalPages}</span>
-              <button disabled={page >= data.totalPages} onClick={() => setPage(p => p + 1)} className="page-btn">
-                {t('next')}
-              </button>
-            </div>
-          )}
+          <Paging
+            current={page}
+            pageSize={10}
+            total={data.total}
+            onChange={(p) => setPage(p)}
+          />
         </div>
       )}
 

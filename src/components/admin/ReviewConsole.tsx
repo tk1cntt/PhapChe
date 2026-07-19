@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import Paging from '@/components/ui/Paging';
 import { ReviewDialog } from './ReviewDialog';
 
 interface ReviewRequest {
@@ -50,6 +51,7 @@ export function ReviewConsole() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
   const [dialogTarget, setDialogTarget] = useState<ReviewRequest | null>(null);
 
@@ -86,21 +88,41 @@ export function ReviewConsole() {
     fetchData();
   };
 
+  const filteredData = (data?.data ?? []).filter(item => {
+    if (statusFilter !== 'all' && item.status !== statusFilter) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      return item.title.toLowerCase().includes(q)
+        || item.code.toLowerCase().includes(q)
+        || item.customerName.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
   const s = data?.stats;
 
   return (
     <div className="workbench-panel">
       {/* Stats Row */}
       <div className="triage-stats">
-        <div className="triage-stat highlight">
+        <div
+          className={`triage-stat clickable${statusFilter === 'pending_review' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'pending_review' ? 'all' : 'pending_review'); setPage(1); }}
+        >
           <div className="stat-value">{s?.pending ?? 0}</div>
           <div className="stat-label">{tStatus('pending_review') || t('statPending')}</div>
         </div>
-        <div className="triage-stat">
+        <div
+          className={`triage-stat clickable${statusFilter === 'approved' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'approved' ? 'all' : 'approved'); setPage(1); }}
+        >
           <div className="stat-value">{s?.approved ?? 0}</div>
           <div className="stat-label">{tStatus('approved') || t('statApproved')}</div>
         </div>
-        <div className="triage-stat">
+        <div
+          className={`triage-stat clickable${statusFilter === 'revision_required' ? ' highlight' : ''}`}
+          onClick={() => { setStatusFilter(p => p === 'revision_required' ? 'all' : 'revision_required'); setPage(1); }}
+        >
           <div className="stat-value">{s?.revisionRequired ?? 0}</div>
           <div className="stat-label">{tStatus('revision_required') || t('statRevision')}</div>
         </div>
@@ -142,7 +164,7 @@ export function ReviewConsole() {
       )}
 
       {/* Empty */}
-      {!loading && !error && data && data.data.length === 0 && (
+      {!loading && !error && filteredData.length === 0 && (
         <div className="triage-empty">
           <svg width="48" height="48" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -153,7 +175,7 @@ export function ReviewConsole() {
       )}
 
       {/* List */}
-      {!loading && !error && data && data.data.length > 0 && (
+      {!loading && !error && filteredData.length > 0 && (
         <div className="triage-list">
           <div className="triage-header-row">
             <span className="col-code">{t('colCode')}</span>
@@ -166,7 +188,7 @@ export function ReviewConsole() {
             <span className="col-action">{t('colAction')}</span>
           </div>
 
-          {data.data.map(req => {
+          {filteredData.map(req => {
             const pBadge = PRIORITY_STYLE[req.priority] || PRIORITY_STYLE.MEDIUM;
             const matterLabel = req.matterTypeKey ? (tMatter(req.matterTypeKey as any) as string) : '—';
 
@@ -212,17 +234,12 @@ export function ReviewConsole() {
           })}
 
           {/* Pagination */}
-          {data && data.totalPages > 1 && (
-            <div className="triage-pagination">
-              <button disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))} className="page-btn">
-                {t('prev')}
-              </button>
-              <span className="page-info">{page} / {data.totalPages}</span>
-              <button disabled={page >= data.totalPages} onClick={() => setPage(p => p + 1)} className="page-btn">
-                {t('next')}
-              </button>
-            </div>
-          )}
+          <Paging
+            current={page}
+            pageSize={10}
+            total={data.total}
+            onChange={(p) => setPage(p)}
+          />
         </div>
       )}
 

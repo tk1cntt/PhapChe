@@ -123,6 +123,30 @@
   background: var(--color-primary-light, #eef2ff);
 }
 
+.triage-stat.highlight .stat-value {
+  color: var(--color-primary);
+}
+
+.triage-stat.highlight .stat-label {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.triage-stat.clickable {
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.triage-stat.clickable:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light, #eef2ff);
+}
+
+.triage-stat.clickable:hover .stat-value {
+  color: var(--color-primary);
+}
+
 .stat-value {
   font-size: 28px;
   font-weight: 700;

@@ -281,9 +281,10 @@ export async function llmComplete(request: LlmRequest): Promise<LlmResponse> {
       const firstChoice = choices?.[0];
 
       let content: string;
-      if (firstChoice?.message?.content) {
+      // Dùng typeof check thay vì truthy — empty string "" là falsy
+      if (typeof firstChoice?.message?.content === 'string') {
         content = firstChoice.message.content;
-      } else if (firstChoice?.content) {
+      } else if (typeof firstChoice?.content === 'object' && Array.isArray(firstChoice.content)) {
         // Anthropic content block array
         content = firstChoice.content.map((c) => c.text ?? '').join('');
       } else {
@@ -291,6 +292,10 @@ export async function llmComplete(request: LlmRequest): Promise<LlmResponse> {
       }
 
       const usage = data.usage as { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | undefined;
+
+      if (!content && (usage?.total_tokens ?? 0) > 0) {
+        console.warn('[LLM Gateway] Response has tokens but empty content. Raw message:', JSON.stringify(firstChoice?.message ?? firstChoice).slice(0, 300));
+      }
 
       return {
         content,

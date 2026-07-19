@@ -269,6 +269,12 @@
   border-top: 1px solid var(--color-border);
 }
 
+.chat-activity-msg-empty-content {
+  color: var(--color-text-muted);
+  font-style: italic;
+  font-size: var(--text-sm);
+}
+
 .chat-activity-msg--system .chat-activity-msg-bubble {
   background: transparent;
   color: var(--color-text-muted);

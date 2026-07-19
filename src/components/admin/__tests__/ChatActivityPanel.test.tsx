@@ -857,5 +857,28 @@ describe('ChatActivityPanel', () => {
       const userBubble = screen.getByTestId('chat-msg-u1');
       expect(userBubble.querySelector('[data-testid="markdown-content"]')).toBeNull();
     });
+
+    it('should show fallback text for empty assistant message content', async () => {
+      const messages = [
+        makeMessage({ id: 'a1', role: 'assistant', content: '' }),
+      ];
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ requestId: 'req-test-1', requestTitle: 'Test', messages }),
+      });
+
+      render(
+        <ChatActivityPanel requestId="req-test-1" requestTitle="Test" />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('chat-msg-a1')).toBeTruthy();
+      });
+
+      // Empty assistant message should show fallback, not ReactMarkdown
+      expect(screen.getByText('(Không có nội dung phản hồi)')).toBeTruthy();
+      expect(screen.queryByTestId('markdown-content')).toBeNull();
+    });
   });
 });

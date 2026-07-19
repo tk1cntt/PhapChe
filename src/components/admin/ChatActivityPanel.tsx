@@ -465,10 +465,12 @@ function ChatMessageBubble({
       <div className="chat-activity-msg-bubble">
         {isUser ? (
           message.content
-        ) : (
+        ) : message.content ? (
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.content}
           </ReactMarkdown>
+        ) : (
+          <span className="chat-activity-msg-empty-content">(Không có nội dung phản hồi)</span>
         )}
       </div>
 

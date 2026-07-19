@@ -417,9 +417,14 @@ export async function POST(
       take: 20,
     });
 
+    // Filter out empty assistant messages (caused by parsing bug) to avoid confusing LLM
+    const validPriorMessages = priorMessages.filter(
+      (m) => m.role !== 'assistant' || (m.content && m.content.length > 0),
+    );
+
     const chatMessages: ChatMessage[] = [
       { role: 'system', content: buildSystemPrompt(skill, requestContext) },
-      ...priorMessages.map((m) => ({
+      ...validPriorMessages.map((m) => ({
         role: m.role as 'user' | 'assistant' | 'system',
         content: m.content,
       })),

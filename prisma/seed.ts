@@ -605,9 +605,6 @@ async function main() {
 
   for (let i = 0; i < demoVaultFiles.length; i++) {
     const relatedReq = allDemoRequests[i % allDemoRequests.length];
-    const uploaderIdx = i % 3;
-    const uploaderEmails = ['customer.demo@example.test', 'specialist.demo@example.test', 'customer2.demo@example.test'];
-    const uploader = await prisma.user.findUniqueOrThrow({ where: { email: uploaderEmails[uploaderIdx] } });
 
     await prisma.vaultFile.create({
       data: {
@@ -616,13 +613,38 @@ async function main() {
         size: Math.floor(Math.random() * 5000000) + 100000,
         workspaceId: workspace.id,
         requestId: relatedReq.id,
-        actorId: uploader.id,
+        actorId: demoCustomer.id,
         fileKind: fileKinds[i],
         filename: demoVaultFiles[i],
       },
     });
   }
   console.log(`  ✓ Vault files: ${demoVaultFiles.length}`);
+
+  // ── Seed audit events for demo-legal-workspace (customer.demo as actor) ──
+  const demoAuditActions = [
+    'request.create', 'document.upload', 'request.update',
+    'document.download', 'intake.submitted', 'request.create',
+    'document.upload', 'request.update', 'vault.upload',
+    'request.create', 'document.upload', 'user.login',
+    'request.update', 'vault.download', 'document.upload',
+  ];
+
+  for (let i = 0; i < demoAuditActions.length; i++) {
+    const relatedReq = allDemoRequests[i % allDemoRequests.length];
+    await prisma.auditEvent.create({
+      data: {
+        actorId: demoCustomer.id,
+        workspaceId: workspace.id,
+        action: demoAuditActions[i],
+        targetType: demoAuditActions[i].startsWith('document') ? 'document'
+          : demoAuditActions[i].startsWith('vault') ? 'vault' : 'request',
+        targetId: relatedReq.id,
+        metadataSummary: `${demoAuditActions[i]} on ${relatedReq.title}`,
+      },
+    });
+  }
+  console.log(`  ✓ Audit events: ${demoAuditActions.length}`);
 
   // Phase 16 fixtures: minimum demo legal request, document, and document version
   // so dynamic detail routes can validate with role-owned IDs.

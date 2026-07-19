@@ -3,6 +3,8 @@ import { requireAppSession } from '@/lib/security/session';
 import OrgActivityClient from '@/components/admin/OrgActivityClient';
 import { Prisma } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ locale: string; id: string }>;
 }

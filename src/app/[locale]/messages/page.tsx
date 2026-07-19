@@ -8,6 +8,8 @@ import StatCard from '@/components/my-cases/StatCard';
 import MessagesClient from '@/components/messages/MessagesClient';
 import '@/styles/pages/messages.css';
 
+export const dynamic = 'force-dynamic';
+
 function getInitials(name: string): string {
   return name
     .split(' ')

@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import UserActivityClient from '@/components/admin/UserActivityClient';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ locale: string; id: string }>;
 }

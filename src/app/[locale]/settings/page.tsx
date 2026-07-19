@@ -4,6 +4,8 @@ import UserLayout from '@/components/layout/UserLayout';
 import { SettingsClient } from './SettingsClient';
 import '@/styles/pages/settings.css';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ locale: string }>;
 }

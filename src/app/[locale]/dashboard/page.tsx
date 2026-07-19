@@ -7,6 +7,8 @@ import { getTranslations } from 'next-intl/server';
 import { getLocaleDateCode } from '@/lib/i18n';
 import DashboardClient from '@/components/dashboard/DashboardClient';
 
+export const dynamic = 'force-dynamic';
+
 function formatRelativeTime(date: Date, t: (key: string, values?: Record<string, unknown>) => string): string {
   const now = Date.now();
   const diff = now - date.getTime();

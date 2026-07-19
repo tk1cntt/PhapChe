@@ -6,6 +6,8 @@ import UserLayout from '@/components/layout/UserLayout';
 import { CaseDetailClient } from '@/components/my-cases/CaseDetailClient';
 import '@/styles/pages/case-detail.css';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ locale: string; id: string }>;
 }

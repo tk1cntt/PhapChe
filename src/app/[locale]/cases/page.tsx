@@ -6,6 +6,8 @@ import { getLocaleDateCode } from '@/lib/i18n';
 import UserLayout from '@/components/layout/UserLayout';
 import { MyCasesClient } from '@/components/my-cases/MyCasesClient';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ locale: string }>;
 }

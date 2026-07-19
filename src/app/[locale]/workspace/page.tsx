@@ -6,6 +6,8 @@ import { UserLayout } from '@/components/layout/UserLayout';
 import { WorkspaceBanner, StatsGrid, MemberGrid, ResourceTable } from '@/components/workspace';
 import '@/styles/pages/workspace.css';
 
+export const dynamic = 'force-dynamic';
+
 export default async function WorkspacePage({
   params,
 }: {

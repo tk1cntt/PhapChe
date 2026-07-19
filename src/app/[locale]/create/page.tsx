@@ -5,6 +5,8 @@ import UserLayout from '@/components/layout/UserLayout';
 import CreateRequestForm from '@/components/create-request/CreateRequestForm';
 import '@/styles/pages/create-request.css';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ draftId?: string }>;

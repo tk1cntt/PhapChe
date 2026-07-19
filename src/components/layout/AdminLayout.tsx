@@ -9,6 +9,8 @@ import { signOut } from '@/lib/auth-client';
 import { ThemeToggle } from '@/components/shared/ui/ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
 import { canSeeMenu, MENU_VISIBILITY } from '@/lib/security/role-config';
+import { AiProvider } from '@/lib/ai/AiContext';
+import { AiStatusBadge } from '@/components/admin/AiStatusBadge';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -290,6 +292,9 @@ function Topbar() {
         <LanguageSwitcher />
         <ThemeToggle />
 
+        {/* AI Status */}
+        <AiStatusBadge />
+
         {/* Avatar */}
         <div className="circle">A</div>
       </div>
@@ -299,14 +304,16 @@ function Topbar() {
 
 export function AdminLayout({ children, userName, userRole, userInitial, userRoles = [] }: AdminLayoutProps) {
   return (
-    <div className="app">
-      <Sidebar userName={userName} userRole={userRole} userInitial={userInitial} userRoles={userRoles} />
-      <main className="main">
-        <Topbar />
-        <section className="content">
-          {children}
-        </section>
-      </main>
-    </div>
+    <AiProvider>
+      <div className="app">
+        <Sidebar userName={userName} userRole={userRole} userInitial={userInitial} userRoles={userRoles} />
+        <main className="main">
+          <Topbar />
+          <section className="content">
+            {children}
+          </section>
+        </main>
+      </div>
+    </AiProvider>
   );
 }

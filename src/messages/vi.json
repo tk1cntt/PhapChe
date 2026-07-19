@@ -2213,7 +2213,8 @@
     "errorForbidden": "Bạn không có quyền thực hiện thao tác này.",
     "errorTransitionFailed": "Không thể chuyển trạng thái. Vui lòng thử lại.",
     "errorUnknown": "Đã xảy ra lỗi không xác định.",
-    "successTransitioned": "Đã chuyển sang trạng thái: {status}!"
+    "successTransitioned": "Đã chuyển sang trạng thái: {status}!",
+    "btnAiAssist": "Trợ lý AI"
   },
   "ReviewConsole": {
     "statPending": "Chờ kiểm tra",
@@ -2252,7 +2253,8 @@
     "errorForbidden": "Bạn không có quyền kiểm duyệt hồ sơ này.",
     "errorTransitionFailed": "Không thể kiểm duyệt hồ sơ. Vui lòng thử lại.",
     "errorUnknown": "Đã xảy ra lỗi không xác định.",
-    "successReviewed": "Đã kiểm duyệt: {status}!"
+    "successReviewed": "Đã kiểm duyệt: {status}!",
+    "btnAiAssist": "Trợ lý AI"
   },
   "DeliveryConsole": {
     "statApproved": "Đã duyệt",

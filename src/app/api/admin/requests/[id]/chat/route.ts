@@ -16,7 +16,7 @@ import { isVectorStoreReady } from '@/lib/ai/vector-store';
 import type { ChatMessage } from '@/lib/ai/types';
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
-const DEFAULT_MODEL_KEY = 'gpt-4o-mini';
+const DEFAULT_MODEL_KEY = 'startup-model';
 
 // ── Types ────────────────────────────────────────────────────
 

@@ -69,6 +69,14 @@ export const DEFAULT_MODELS: Record<string, LlmModelConfig> = {
     maxTokens: 4096,
     temperature: 0.3,
   },
+  'startup-model': {
+    provider: 'openai',
+    modelId: 'startup-model',
+    baseUrl: DEFAULT_OPENAI_URL,
+    apiKeyEnv: 'OPENAI_API_KEY',
+    maxTokens: 4096,
+    temperature: 0.3,
+  },
 };
 
 // ── Resolve API key ─────────────────────────────────────────

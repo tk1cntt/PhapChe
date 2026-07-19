@@ -80,6 +80,39 @@ interface RequestContext {
 
 const MAX_CONTEXT_CHARS = 12000; // Giới hạn tổng context để tránh vượt token
 const MAX_DOC_CHARS = 2500;      // Giới hạn mỗi tài liệu
+const MAX_LLM_RETRIES = 3;
+
+/**
+ * Validate LLM response content — detect tool-call format, empty, too-short truncated.
+ * Exported for testability.
+ */
+export function isValidAssistantContent(content: string | null | undefined, totalTokens = 0): {
+  valid: boolean;
+  reason: 'ok' | 'empty' | 'tool_call_format' | 'too_short' | 'length_capped';
+} {
+  const text = (content ?? '').trim();
+
+  if (text.length === 0) {
+    return { valid: false, reason: 'empty' };
+  }
+
+  // Detect tool-call format: [调用...], read_file, search_file, write_to_file, etc.
+  if (/\[调用|read_file|search_file|execute_command|list_files|write_to_file|replace_in_file|insert_file|delete_file|preview_url/.test(text)) {
+    return { valid: false, reason: 'tool_call_format' };
+  }
+
+  // Quá ngắn dù dùng nhiều tokens → model bị lỗi hoặc trả tool-call
+  if (text.length < 20 && totalTokens > 100) {
+    return { valid: false, reason: 'too_short' };
+  }
+
+  // finish_reason="length" — model bị cắt giữa chừng
+  if (text.length < 100 && totalTokens > 1000) {
+    return { valid: false, reason: 'length_capped' };
+  }
+
+  return { valid: true, reason: 'ok' };
+}
 
 /**
  * Generate 4-6 suggested questions dựa vào document content + request info.
@@ -147,6 +180,8 @@ function generateSuggestedQuestions(context: RequestContext): string[] {
 
 function buildSystemPrompt(skill?: string | null, context?: RequestContext): string {
   const base = `Bạn là trợ lý pháp lý AI cho nền tảng GitNexus Legal, phục vụ chuyên viên pháp lý (specialist) và người kiểm duyệt (reviewer).
+
+QUAN TRỌNG: Bạn KHÔNG có khả năng gọi hàm (function calling) hay công cụ (tools). Tuyệt đối KHÔNG tạo ra các lệnh như [调用...], read_file, search_file, hay bất kỳ tool call nào. Chỉ trả lời TRỰC TIẾP bằng văn bản.
 
 Nguyên tắc:
 1. Trả lời bằng tiếng Việt, chuyên nghiệp, chính xác về mặt pháp lý.
@@ -430,19 +465,74 @@ export async function POST(
       })),
     ];
 
-    // 4. Call LLM
-    const llmResponse = await llmComplete({
-      model: modelConfig,
-      messages: chatMessages,
-      temperature: 0.3,
-      maxTokens: modelConfig.maxTokens ?? 4096,
-    });
+    // 4. Call LLM with retry on empty/tool-call content
+    const TEMPERATURES = [0.3, 0.6, 0.9]; // Tăng dần để đa dạng hóa response
+    let llmResponse: import('@/lib/ai/types').LlmResponse | null = null;
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt < MAX_LLM_RETRIES; attempt++) {
+      try {
+        const temp = TEMPERATURES[attempt] ?? 0.3;
+        llmResponse = await llmComplete({
+          model: modelConfig,
+          messages: chatMessages,
+          temperature: temp,
+          maxTokens: modelConfig.maxTokens ?? 4096,
+        });
+
+        const validation = isValidAssistantContent(
+          llmResponse.content,
+          llmResponse.usage?.totalTokens ?? 0,
+        );
+
+        if (validation.valid) {
+          break; // Valid response, thoát retry loop
+        }
+
+        console.warn(
+          `[AI Chat] LLM attempt ${attempt + 1}/${MAX_LLM_RETRIES} returned invalid: ` +
+          `reason=${validation.reason} tokens=${llmResponse.usage?.totalTokens ?? 0} ` +
+          `chars=${(llmResponse.content ?? '').trim().length}` +
+          ((llmResponse.content ?? '').length > 0 ? ` preview="${(llmResponse.content ?? '').slice(0, 100)}"` : ''),
+        );
+
+        if (attempt < MAX_LLM_RETRIES - 1) {
+          // Thêm instruction nhắc LLM trả lời trực tiếp
+          chatMessages.push({
+            role: 'system' as const,
+            content: 'Hệ thống: Bạn đang chat trực tiếp với người dùng. KHÔNG gọi hàm. Chỉ trả lời bằng tiếng Việt trực tiếp vào nội dung câu hỏi pháp lý.',
+          });
+        }
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        console.error(`[AI Chat] LLM attempt ${attempt + 1} failed:`, lastError.message);
+        if (attempt < MAX_LLM_RETRIES - 1) {
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        }
+      }
+    }
+
+    if (!llmResponse || !llmResponse.content || llmResponse.content.trim().length === 0) {
+      // All retries exhausted — still no content. Return error to frontend.
+      const errMsg = lastError?.message ?? 'LLM returned empty content after retries';
+      console.error('[AI Chat] All LLM attempts failed:', errMsg);
+      return NextResponse.json(
+        {
+          error: 'AI_EXECUTION_FAILED',
+          detail: `Không nhận được phản hồi hợp lệ từ AI sau ${MAX_LLM_RETRIES} lần thử. Vui lòng thử lại.`,
+          userMessage: parseMessage(userMessage),
+          assistantMessage: null,
+        },
+        { status: 502 },
+      );
+    }
 
     // 5. Store assistant message
     const metadataJson = JSON.stringify({
       model: llmResponse.model,
       tokens: llmResponse.usage?.totalTokens ?? 0,
       latencyMs: llmResponse.latencyMs,
+      attempts: llmResponse.usage?.totalTokens ?? 0 > 0 ? 'success' : 'retry',
     });
 
     const assistantMessage = await prisma.aiChatMessage.create({

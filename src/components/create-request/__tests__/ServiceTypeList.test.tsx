@@ -7,8 +7,21 @@ import { describe, it, expect, vi } from 'vitest';
 import ServiceTypeList from '../ServiceTypeList';
 import { SEED_LEGAL_DOMAINS } from '@/lib/i18n/seed-legal-domains';
 
+const CREATE_REQUEST_VI: Record<string, string> = {
+  'button.back': 'Quay lại',
+  'error.domainNotFound': 'Không tìm thấy lĩnh vực',
+  'message.selectServiceType': 'Chọn loại dịch vụ bạn cần',
+};
+
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: (ns: string) => {
+    const map: Record<string, string> = ns === 'CreateRequest' ? CREATE_REQUEST_VI : {};
+    return (key: string, params?: Record<string, unknown>) => {
+      const val = map[key] ?? key;
+      if (params) return val.replace(/\{(\w+)\}/g, (_, k: string) => String(params[k] ?? `{${k}}`));
+      return val;
+    };
+  },
 }));
 
 describe('ServiceTypeList', () => {
@@ -59,9 +72,9 @@ describe('ServiceTypeList', () => {
         />
       );
 
-      // Check for "X câu hỏi" text
-      const questionCounts = screen.getAllByText(/\d+ câu hỏi/);
-      expect(questionCounts.length).toBeGreaterThan(0);
+      // Tags render "X câu" and "X bắt buộc" separately (not "câu hỏi")
+      const questionTags = screen.getAllByText(/\d+ câu/);
+      expect(questionTags.length).toBeGreaterThan(0);
     });
 
     it('renders required field count', () => {
@@ -131,8 +144,7 @@ describe('ServiceTypeList', () => {
       );
 
       const ndaButton = screen.getByText('Thỏa thuận bảo mật (NDA)').closest('button');
-      expect(ndaButton).toHaveClass('border-blue-500');
-      expect(ndaButton).toHaveClass('bg-blue-50');
+      expect(ndaButton).toHaveClass('selected');
     });
 
     it('does not highlight unselected service types', () => {
@@ -148,8 +160,8 @@ describe('ServiceTypeList', () => {
       );
 
       const distributionButton = screen.getByText('Hợp đồng phân phối').closest('button');
-      expect(distributionButton).not.toHaveClass('border-blue-500');
-      expect(distributionButton).toHaveClass('border-gray-200');
+      expect(distributionButton).not.toHaveClass('selected');
+      expect(distributionButton).toHaveClass('service-option');
     });
 
     it('calls onBack when back button is clicked', () => {

@@ -1,6 +1,29 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { AdminVaultFilesTable } from './AdminVaultFilesTable';
+
+// Mock next-intl
+vi.mock('next-intl', () => ({
+  useTranslations: (ns: string) => {
+    const vault: Record<string, string> = {
+      fileName: 'Tên tệp',
+      folderColumn: 'Thư mục',
+      tags: 'Thẻ',
+      workspaceColumn: 'Workspace',
+      owner: 'Chủ sở hữu',
+      security: 'Bảo mật',
+      actions: 'Thao tác',
+      loading: 'Đang tải...',
+      noFiles: 'Chưa có tệp nào.',
+      encrypted: 'Đã mã hóa',
+      openFile: 'Mở tệp',
+      folderPath: 'folder',
+      updated: 'cập nhật',
+      untitled: '(không tên)',
+    };
+    return (key: string) => vault[key] ?? key;
+  },
+}));
 
 describe('AdminVaultFilesTable', () => {
   // ==================== WHITEBOX TESTS ====================

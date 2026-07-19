@@ -28,8 +28,10 @@ describe('API Client - Retry Logic', () => {
         } as Response);
 
       const promise = client.get('/test');
-      await vi.advanceTimersByTimeAsync(500);
-      await vi.advanceTimersByTimeAsync(1000);
+      // Advance past retry timer 1 (jitter makes exact ms unpredictable)
+      await vi.advanceTimersToNextTimerAsync();
+      // Advance past retry timer 2 → third fetch succeeds
+      await vi.advanceTimersToNextTimerAsync();
 
       const result = await promise;
 
@@ -42,12 +44,12 @@ describe('API Client - Retry Logic', () => {
       mockFetch.mockRejectedValue(new TypeError('Failed to fetch'));
 
       const promise = client.get('/test');
-      await vi.advanceTimersByTimeAsync(500);
-      await vi.advanceTimersByTimeAsync(1000);
-      await vi.advanceTimersByTimeAsync(2000);
+      await vi.advanceTimersToNextTimerAsync(); // retry 1
+      await vi.advanceTimersToNextTimerAsync(); // retry 2
+      await vi.advanceTimersToNextTimerAsync(); // retry 3, then final throw on attempt 4
 
       await expect(promise).rejects.toThrow('Failed to fetch');
-      expect(mockFetch).toHaveBeenCalledTimes(4);
+      expect(mockFetch).toHaveBeenCalledTimes(4); // initial + 3 retries
     });
   });
 
@@ -66,7 +68,7 @@ describe('API Client - Retry Logic', () => {
         } as Response);
 
       const promise = client.get('/test');
-      await vi.advanceTimersByTimeAsync(500);
+      await vi.advanceTimersToNextTimerAsync(); // past retry delay → second fetch succeeds
 
       const result = await promise;
 
@@ -88,7 +90,7 @@ describe('API Client - Retry Logic', () => {
         } as Response);
 
       const promise = client.get('/test');
-      await vi.advanceTimersByTimeAsync(500);
+      await vi.advanceTimersToNextTimerAsync();
 
       const result = await promise;
 
@@ -110,7 +112,7 @@ describe('API Client - Retry Logic', () => {
         } as Response);
 
       const promise = client.get('/test');
-      await vi.advanceTimersByTimeAsync(500);
+      await vi.advanceTimersToNextTimerAsync();
 
       const result = await promise;
 
@@ -127,9 +129,9 @@ describe('API Client - Retry Logic', () => {
       } as Response);
 
       const promise = client.get('/test');
-      await vi.advanceTimersByTimeAsync(500);
-      await vi.advanceTimersByTimeAsync(1000);
-      await vi.advanceTimersByTimeAsync(2000);
+      await vi.advanceTimersToNextTimerAsync(); // retry 1
+      await vi.advanceTimersToNextTimerAsync(); // retry 2
+      await vi.advanceTimersToNextTimerAsync(); // retry 3, then throws
 
       await expect(promise).rejects.toThrow('Bad Gateway');
       expect(mockFetch).toHaveBeenCalledTimes(4);
@@ -204,7 +206,7 @@ describe('API Client - Retry Logic', () => {
   });
 
   describe('Exponential Backoff Timing', () => {
-    it('should apply exponential backoff delays: 500ms, 1000ms, 2000ms', async () => {
+    it('should apply increasing retry delays (exponential backoff with jitter)', async () => {
       const mockFetch = vi.mocked(fetch);
       const fetchTimes: number[] = [];
 
@@ -214,16 +216,20 @@ describe('API Client - Retry Logic', () => {
       });
 
       const promise = client.get('/test');
-      await vi.advanceTimersByTimeAsync(500);
-      await vi.advanceTimersByTimeAsync(1000);
-      await vi.advanceTimersByTimeAsync(2000);
+      await vi.advanceTimersToNextTimerAsync(); // past delay 1 (~500-650ms)
+      await vi.advanceTimersToNextTimerAsync(); // past delay 2 (~1000-1300ms)
+      await vi.advanceTimersToNextTimerAsync(); // past delay 3 (~2000-2600ms), then throws
 
       await expect(promise).rejects.toThrow('Failed to fetch');
 
       expect(fetchTimes).toHaveLength(4);
-      expect(fetchTimes[1] - fetchTimes[0]).toBe(500);
-      expect(fetchTimes[2] - fetchTimes[1]).toBe(1000);
-      expect(fetchTimes[3] - fetchTimes[2]).toBe(2000);
+      // Delays should increase monotonically (exponential backoff)
+      const d1 = fetchTimes[1] - fetchTimes[0];
+      const d2 = fetchTimes[2] - fetchTimes[1];
+      const d3 = fetchTimes[3] - fetchTimes[2];
+      expect(d1).toBeGreaterThan(0);
+      expect(d2).toBeGreaterThan(d1);
+      expect(d3).toBeGreaterThan(d2);
     });
   });
 

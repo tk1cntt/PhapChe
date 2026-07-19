@@ -7,8 +7,20 @@ import { describe, it, expect, vi } from 'vitest';
 import LegalDomainSelector from '../LegalDomainSelector';
 import { SEED_LEGAL_DOMAINS } from '@/lib/i18n/seed-legal-domains';
 
+const CREATE_REQUEST_VI: Record<string, string> = {
+  domainTitle: 'Chọn lĩnh vực pháp lý',
+  serviceCount: '{count} dịch vụ',
+};
+
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: (ns: string) => {
+    const map: Record<string, string> = ns === 'CreateRequest' ? CREATE_REQUEST_VI : {};
+    return (key: string, params?: Record<string, unknown>) => {
+      const val = map[key] ?? key;
+      if (params) return val.replace(/\{(\w+)\}/g, (_, k: string) => String(params[k] ?? `{${k}}`));
+      return val;
+    };
+  },
 }));
 
 describe('LegalDomainSelector', () => {
@@ -67,10 +79,7 @@ describe('LegalDomainSelector', () => {
       render(<LegalDomainSelector selectedDomainId="commercial-legal" onSelect={onSelect} />);
 
       const commercialButton = screen.getByText('Thương mại').closest('button');
-      expect(commercialButton).toHaveClass('border-blue-500');
-      expect(commercialButton).toHaveClass('bg-blue-50');
-      expect(commercialButton).toHaveClass('ring-2');
-      expect(commercialButton).toHaveClass('ring-blue-500');
+      expect(commercialButton).toHaveClass('selected');
     });
 
     it('does not highlight unselected domains', () => {
@@ -78,8 +87,8 @@ describe('LegalDomainSelector', () => {
       render(<LegalDomainSelector selectedDomainId="commercial-legal" onSelect={onSelect} />);
 
       const corporateButton = screen.getByText('Doanh nghiệp').closest('button');
-      expect(corporateButton).not.toHaveClass('border-blue-500');
-      expect(corporateButton).toHaveClass('border-gray-200');
+      expect(corporateButton).not.toHaveClass('selected');
+      expect(corporateButton).toHaveClass('domain-card');
     });
 
     it('allows changing selection', () => {

@@ -183,12 +183,13 @@ describe('ReviewConsole', () => {
     it('renders pagination when totalPages > 1', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ ...mockData, totalPages: 3, page: 1 }),
+        json: async () => ({ ...mockData, total: 25, page: 1 }),
       });
       await act(async () => { render(<ReviewConsole />); });
       await waitFor(() => { expect(screen.getByText('Hợp đồng ABC')).toBeInTheDocument(); });
-      expect(screen.getByText(/1 \/ 3/)).toBeInTheDocument();
-      expect(screen.getByText('Trước')).toBeDisabled();
+      expect(screen.getByTestId("common-paging")).toBeInTheDocument();
+      // Paging uses SVG arrows
+expect(screen.getByLabelText('previousPage')).toBeDisabled();
     });
   });
 

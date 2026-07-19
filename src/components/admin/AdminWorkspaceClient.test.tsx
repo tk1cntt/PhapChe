@@ -2,11 +2,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import AdminWorkspaceClient from './AdminWorkspaceClient';
 
+const { pushMock, routerObj } = vi.hoisted(() => {
+  const pushMock = vi.fn();
+  return {
+    pushMock,
+    routerObj: { push: pushMock },
+  };
+});
+
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: vi.fn(),
-  }),
+  useRouter: () => routerObj,
+}));
+
+// Mock next-intl (not used by AdminWorkspaceClient directly, but may be in children)
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 // Mock fetch
@@ -21,7 +32,7 @@ describe('AdminWorkspaceClient', () => {
   // ==================== WHITEBOX TESTS ====================
   describe('Whitebox: Component renders correctly', () => {
     it('renders page header with correct title', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({
           workspaces: [],
@@ -38,7 +49,7 @@ describe('AdminWorkspaceClient', () => {
     });
 
     it('renders create workspace buttons', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({
           workspaces: [],
@@ -56,7 +67,7 @@ describe('AdminWorkspaceClient', () => {
     });
 
     it('renders permission card', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({
           workspaces: [],
@@ -73,7 +84,7 @@ describe('AdminWorkspaceClient', () => {
     });
 
     it('renders table headers correctly', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({
           workspaces: [],
@@ -96,7 +107,7 @@ describe('AdminWorkspaceClient', () => {
   // ==================== BLACKBOX TESTS ====================
   describe('Blackbox: API integration', () => {
     it('fetches data from /api/workspaces on mount', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({
           workspaces: [],
@@ -108,12 +119,12 @@ describe('AdminWorkspaceClient', () => {
       });
 
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith('/api/workspaces', expect.any(Object));
+        expect(mockFetch).toHaveBeenCalledWith('/api/workspaces');
       });
     });
 
     it('displays workspaces from API response', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({
           workspaces: [
@@ -141,7 +152,7 @@ describe('AdminWorkspaceClient', () => {
     });
 
     it('displays active status badge', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({
           workspaces: [
@@ -167,7 +178,7 @@ describe('AdminWorkspaceClient', () => {
     });
 
     it('displays inactive status badge', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({
           workspaces: [
@@ -196,7 +207,7 @@ describe('AdminWorkspaceClient', () => {
   // ==================== ABNORMAL TESTS ====================
   describe('Abnormal: Edge cases', () => {
     it('handles empty API response gracefully', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({
           workspaces: [],
@@ -213,7 +224,7 @@ describe('AdminWorkspaceClient', () => {
     });
 
     it('handles missing fields gracefully', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({
           workspaces: [
@@ -243,7 +254,7 @@ describe('AdminWorkspaceClient', () => {
   // ==================== ERROR TESTS ====================
   describe('Error: Error handling', () => {
     it('displays error message on API failure', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: false,
         status: 500,
       });
@@ -258,14 +269,7 @@ describe('AdminWorkspaceClient', () => {
     });
 
     it('redirects to sign-in on 401 response', async () => {
-      const pushMock = vi.fn();
-      vi.mock('next/navigation', () => ({
-        useRouter: () => ({
-          push: pushMock,
-        }),
-      }));
-
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: false,
         status: 401,
       });
@@ -280,7 +284,7 @@ describe('AdminWorkspaceClient', () => {
     });
 
     it('shows retry button on error', async () => {
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: false,
         status: 500,
       });

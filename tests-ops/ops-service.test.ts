@@ -53,31 +53,31 @@ describe('Ops Service', () => {
     expect(typeof opsService.calcOpsSla).toBe('function');
   });
 
-  it('should calculate SLA correctly for null deadline', () => {
-    const opsService = require('@/lib/ops/ops-service');
-    const sla = opsService.calcOpsSla(null, null, new Date());
+  it('should calculate SLA correctly for null deadline', async () => {
+    const { calcOpsSla } = await import('@/lib/ops/ops-service');
+    const sla = calcOpsSla(null, null, new Date());
     expect(sla.level).toBe('info');
-    expect(sla.label).toBe('Không có SLA');
+    expect(sla.label).toBe('Chưa có SLA');
   });
 
-  it('should calculate SLA as danger when deadline is passed', () => {
-    const opsService = require('@/lib/ops/ops-service');
+  it('should calculate SLA as danger when deadline is passed', async () => {
+    const { calcOpsSla } = await import('@/lib/ops/ops-service');
     const pastDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000); // 2 days ago
-    const sla = opsService.calcOpsSla(pastDate, null, new Date(Date.now() - 10 * 24 * 60 * 60 * 1000));
+    const sla = calcOpsSla(pastDate, null, new Date(Date.now() - 10 * 24 * 60 * 60 * 1000));
     expect(sla.level).toBe('danger');
   });
 
-  it('should calculate SLA as warn when deadline is within 24 hours', () => {
-    const opsService = require('@/lib/ops/ops-service');
-    const soonDate = new Date(Date.now() + 12 * 60 * 60 * 1000); // 12 hours from now
-    const sla = opsService.calcOpsSla(soonDate, null, new Date());
+  it('should calculate SLA as warn when deadline is within 24-72 hours', async () => {
+    const { calcOpsSla } = await import('@/lib/ops/ops-service');
+    const midDate = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours from now
+    const sla = calcOpsSla(midDate, null, new Date());
     expect(sla.level).toBe('warn');
   });
 
-  it('should calculate SLA as ok when deadline is far', () => {
-    const opsService = require('@/lib/ops/ops-service');
+  it('should calculate SLA as ok when deadline is far', async () => {
+    const { calcOpsSla } = await import('@/lib/ops/ops-service');
     const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
-    const sla = opsService.calcOpsSla(futureDate, null, new Date());
+    const sla = calcOpsSla(futureDate, null, new Date());
     expect(sla.level).toBe('ok');
   });
 });

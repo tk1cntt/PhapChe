@@ -8,7 +8,24 @@ import IntakeQuestionsFormEnhanced, { validateQuestionsForm } from '../IntakeQue
 import { SEED_MATTER_TYPES } from '@/lib/i18n/seed-legal-domains';
 
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: (ns: string) => {
+    const map: Record<string, string> = {
+      'questions.title': 'Thông tin chi tiết',
+      'questions.noQuestions': 'Không có câu hỏi',
+      'questions.questionNumber': 'Câu hỏi {n}',
+      'questions.fillInfo': 'Điền thông tin cần thiết',
+      'placeholder.enter': 'Nhập {field}...',
+      'error.required': 'Trường này là bắt buộc',
+      'error.invalidEmail': 'Email không hợp lệ',
+      'error.invalidPhone': 'Số điện thoại không hợp lệ',
+      'label.requiredInfo': 'Các trường có dấu * là bắt buộc',
+    };
+    return (key: string, params?: Record<string, string>) => {
+      const val = map[key] ?? key;
+      if (params) return val.replace(/\{(\w+)\}/g, (_, k: string) => params[k] ?? `{${k}}`);
+      return val;
+    };
+  },
 }));
 
 describe('IntakeQuestionsFormEnhanced', () => {
@@ -234,16 +251,16 @@ describe('IntakeQuestionsFormEnhanced', () => {
     it('validates required fields', () => {
       const errors = validateQuestionsForm('agency_contract', {});
       expect(Object.keys(errors).length).toBeGreaterThan(0);
-      expect(errors.partner_name).toBe('Trường này là bắt buộc');
+      expect(errors.partner_name).toBe('required');
     });
 
     it('validates all required fields', () => {
       const errors = validateQuestionsForm('agency_contract', {
         partner_name: 'Test',
       });
-      // commission_rate and contract_term are also required
-      expect(errors.commission_rate).toBe('Trường này là bắt buộc');
-      expect(errors.contract_term).toBe('Trường này là bắt buộc');
+      // commission_rate and contract_term are also required — error keys are returned
+      expect(errors.commission_rate).toBe('required');
+      expect(errors.contract_term).toBe('required');
     });
 
     it('passes validation when all required fields are filled', () => {

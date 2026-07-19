@@ -1,14 +1,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { toastError, toastSuccess, toastInfo } from '../toast';
 
-// Mock react-hot-toast — the default export is a function with .error/.success methods
-const mockToast = vi.fn() as any;
-mockToast.error = vi.fn();
-mockToast.success = vi.fn();
+// Use vi.hoisted to avoid "Cannot access before initialization" with vi.mock
+const { mockToast } = vi.hoisted(() => {
+  const toastFn = vi.fn() as any;
+  toastFn.error = vi.fn();
+  toastFn.success = vi.fn();
+  return { mockToast: toastFn };
+});
 
 vi.mock('react-hot-toast', () => ({
   default: mockToast,
 }));
+
+import { toastError, toastSuccess, toastInfo } from '../toast';
 
 describe('Toast Notifications', () => {
   beforeEach(() => {

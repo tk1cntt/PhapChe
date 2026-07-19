@@ -1,0 +1,252 @@
+/**
+ * AI System Types — v2.3
+ *
+ * Domain model cho AI integration: LLM Gateway, RAG Vector Store,
+ * Agent Skill Framework, Audit Trail cho AI suggestions.
+ */
+
+// ── Vector / Embedding ──────────────────────────────────────
+
+export interface DocumentChunk {
+  /** Unique chunk ID */
+  id: string;
+  /** Full document this chunk belongs to */
+  documentId: string;
+  /** Source document title/reference (e.g. "Luật Doanh nghiệp 2020 — Điều 135") */
+  source: string;
+  /** Original text content */
+  content: string;
+  /** Chunk index within document */
+  chunkIndex: number;
+  /** Embedding vector (dimension depends on model) */
+  embedding: number[];
+  /** Legal domain tags for filtering */
+  domainTags: LegalDomain[];
+  /** Document metadata */
+  metadata: Record<string, string>;
+  /** ISO timestamp when chunk was indexed */
+  indexedAt: string;
+}
+
+export interface SearchResult {
+  chunk: DocumentChunk;
+  /** Cosine similarity score (0-1) */
+  score: number;
+}
+
+export interface SearchQuery {
+  /** Natural language query */
+  query: string;
+  /** Filter by legal domain(s) */
+  domainTags?: LegalDomain[];
+  /** Max results to return */
+  topK?: number;
+  /** Minimum similarity threshold (0-1) */
+  minScore?: number;
+}
+
+// ── LLM Gateway ─────────────────────────────────────────────
+
+export type LlmProvider = 'openai' | 'azure' | 'anthropic' | 'groq' | 'custom';
+
+export interface LlmModelConfig {
+  provider: LlmProvider;
+  modelId: string;
+  /** API base URL (for custom endpoints) */
+  baseUrl?: string;
+  /** API key (loaded from env) */
+  apiKeyEnv: string;
+  /** Default max tokens */
+  maxTokens?: number;
+  /** Default temperature */
+  temperature?: number;
+}
+
+export interface ChatMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+export interface LlmRequest {
+  /** Model config to use */
+  model: LlmModelConfig;
+  /** Messages (system + user + history) */
+  messages: ChatMessage[];
+  /** Override default temperature */
+  temperature?: number;
+  /** Override default max tokens */
+  maxTokens?: number;
+  /** JSON mode (structured output) */
+  responseFormat?: 'text' | 'json_object';
+  /** Enable streaming */
+  stream?: boolean;
+}
+
+export interface LlmResponse {
+  /** Full response text */
+  content: string;
+  /** Token usage */
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+  /** Model used */
+  model: string;
+  /** Whether response was from cache */
+  cached?: boolean;
+  /** Latency in ms */
+  latencyMs: number;
+}
+
+export interface LlmStreamChunk {
+  /** Partial content delta */
+  delta: string;
+  /** Whether this is the final chunk */
+  done: boolean;
+}
+
+// ── Agent Skill Framework ───────────────────────────────────
+
+/** 13 legal domains matching SEED_LEGAL_DOMAINS */
+export type LegalDomain =
+  | 'commercial-legal'
+  | 'corporate-legal'
+  | 'employment-legal'
+  | 'privacy-legal'
+  | 'product-legal'
+  | 'regulatory-legal'
+  | 'ai-governance-legal'
+  | 'ip-legal'
+  | 'litigation-legal'
+  | 'legal-clinic'
+  | 'law-student'
+  | 'legal-builder-hub'
+  | 'external-plugins';
+
+/** Agent skill types — each maps to a matter type workflow step */
+export type AgentSkill =
+  | 'commercial-contract-drafter'
+  | 'commercial-contract-reviewer'
+  | 'employment-contract-reviewer'
+  | 'employment-policy-checker'
+  | 'corporate-doc-generator'
+  | 'corporate-compliance-checker'
+  | 'ip-trademark-search'
+  | 'ip-patent-analyzer'
+  | 'privacy-compliance-checker'
+  | 'privacy-dpia-generator'
+  | 'regulatory-gap-analyzer'
+  | 'ai-governance-assessor'
+  | 'litigation-risk-scorer'
+  | 'general-legal-researcher';
+
+/** Maps legal domain → agent skills */
+export const DOMAIN_SKILL_MAP: Record<LegalDomain, AgentSkill[]> = {
+  'commercial-legal': ['commercial-contract-drafter', 'commercial-contract-reviewer'],
+  'corporate-legal': ['corporate-doc-generator', 'corporate-compliance-checker'],
+  'employment-legal': ['employment-contract-reviewer', 'employment-policy-checker'],
+  'privacy-legal': ['privacy-compliance-checker', 'privacy-dpia-generator'],
+  'product-legal': ['commercial-contract-reviewer', 'regulatory-gap-analyzer'],
+  'regulatory-legal': ['regulatory-gap-analyzer', 'general-legal-researcher'],
+  'ai-governance-legal': ['ai-governance-assessor'],
+  'ip-legal': ['ip-trademark-search', 'ip-patent-analyzer'],
+  'litigation-legal': ['litigation-risk-scorer'],
+  'legal-clinic': ['general-legal-researcher', 'employment-policy-checker'],
+  'law-student': ['general-legal-researcher'],
+  'legal-builder-hub': ['general-legal-researcher', 'commercial-contract-drafter'],
+  'external-plugins': ['general-legal-researcher'],
+};
+
+export interface SkillContext {
+  /** Which matter type is being handled */
+  matterTypeKey: string;
+  /** Legal domain */
+  domain: LegalDomain;
+  /** Request context (title, description, intake answers) */
+  requestContext: {
+    title: string;
+    description?: string;
+    intakeAnswers?: Record<string, string>;
+  };
+  /** Optional RAG search results for legal grounding */
+  legalContext?: SearchResult[];
+  /** Optional document IDs to analyze */
+  documentIds?: string[];
+  /** Language for output */
+  locale: 'vi' | 'en' | 'zh' | 'ja';
+}
+
+export interface SkillResult {
+  /** Structured output from agent */
+  output: Record<string, unknown>;
+  /** Human-readable summary */
+  summary: string;
+  /** List of legal references cited */
+  citations: string[];
+  /** Confidence score (0-1) */
+  confidence: number;
+  /** Tokens used */
+  usage: {
+    promptTokens: number;
+    completionTokens: number;
+  };
+  /** Agent skill used */
+  skill: AgentSkill;
+  /** Timestamp */
+  executedAt: string;
+}
+
+export interface SkillResultStream {
+  /** Partial output chunk */
+  chunk: SkillResult | null;
+  /** Human-readable status message */
+  status: string;
+  /** Whether this is the final chunk */
+  done: boolean;
+}
+
+// ── AI Audit Trail ──────────────────────────────────────────
+
+export interface AiSuggestion {
+  id: string;
+  requestId: string;
+  skill: AgentSkill;
+  /** The AI-generated output (before human modification) */
+  aiOutput: string;
+  /** Final output after human review */
+  finalOutput: string | null;
+  /** Whether human approved/rejected/modified */
+  decision: 'pending' | 'approved' | 'rejected' | 'modified';
+  /** Who made the decision */
+  decidedById: string | null;
+  /** Decision notes */
+  decisionNotes: string | null;
+  /** Link to RAG citations used */
+  citations: string[];
+  /** Model used */
+  model: string;
+  /** Tokens + latency */
+  usage: {
+    promptTokens: number;
+    completionTokens: number;
+    latencyMs: number;
+  };
+  createdAt: string;
+  decidedAt: string | null;
+}
+
+// ── System Prompt Templates ─────────────────────────────────
+
+export interface SystemPromptTemplate {
+  /** Agent skill */
+  skill: AgentSkill;
+  /** System prompt (with {{variable}} placeholders) */
+  template: string;
+  /** Description of what this prompt does */
+  description: string;
+  /** Expected output format */
+  outputFormat: 'text' | 'json_object';
+  /** Variables that must be filled */
+  requiredVariables: string[];
+}

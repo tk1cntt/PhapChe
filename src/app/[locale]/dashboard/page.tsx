@@ -92,7 +92,6 @@ export default async function DashboardPage({
           } : {}),
         },
         orderBy: { updatedAt: 'desc' },
-        take: 10,
       });
     })(),
     // Recent vault documents (user-scoped)

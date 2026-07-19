@@ -147,7 +147,7 @@ describe('DeliveryConsole', () => {
       mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ ...mockData, data: [mockData.data[0]] }) });
       await act(async () => { render(<DeliveryConsole />); });
       await waitFor(() => { expect(screen.getByText('Hợp đồng ABC')).toBeInTheDocument(); });
-      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'approved' } });
+      fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'approved' } });
       await waitFor(() => { expect(screen.getByText('Hợp đồng ABC')).toBeInTheDocument(); });
     });
   });
@@ -163,9 +163,10 @@ describe('DeliveryConsole', () => {
     });
 
     it('renders pagination', async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ ...mockData, totalPages: 5 }) });
+      // Paging computes totalPages = Math.ceil(total/pageSize), so total must be > pageSize (10)
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ ...mockData, total: 25 }) });
       await act(async () => { render(<DeliveryConsole />); });
-      await waitFor(() => { expect(screen.getByText(/1 \/ 5/)).toBeInTheDocument(); });
+      await waitFor(() => { expect(screen.getByTestId('common-paging')).toBeInTheDocument(); });
     });
 
     it('searches by text input', async () => {

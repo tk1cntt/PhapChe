@@ -7,6 +7,36 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import FileUploadZone from '../FileUploadZone';
 import type { UploadedFile } from '@/lib/types/wizard';
 
+// Stable translator
+const TRANSLATIONS: Record<string, Record<string, string>> = {
+  CreateRequest: {
+    'fileUpload.title': 'Tài liệu đính kèm',
+    'fileUpload.desc': 'Tải lên các tài liệu liên quan (không bắt buộc)',
+    'fileUpload.dropHere': 'Kéo thả file vào đây hoặc click để chọn',
+    'fileUpload.supportedFormats': 'Hỗ trợ: PDF, DOC, DOCX, JPG, PNG (tối đa 50MB)',
+    'fileUpload.noFiles': 'Chưa có file nào được tải lên',
+    'fileUpload.filesCount': '{count} file đã tải lên',
+    'fileUpload.confirmDelete': 'Xóa file này?',
+    'error.fileTooLarge': 'File vượt quá 50MB',
+    'error.fileTypeNotSupported': 'Loại file không được hỗ trợ',
+    'message.uploadProgress': 'Đang tải lên...',
+  },
+};
+
+function makeT(ns: string) {
+  const nso = TRANSLATIONS[ns] ?? {};
+  return (key: string, params?: Record<string, string>) => {
+    const val = nso[key];
+    if (!val) return key;
+    if (params) return val.replace(/\{(\w+)\}/g, (_, k: string) => params[k] ?? `{${k}}`);
+    return val;
+  };
+}
+
+vi.mock('next-intl', () => ({
+  useTranslations: (ns: string) => makeT(ns),
+}));
+
 // Mock window.confirm
 const mockConfirm = vi.fn().mockReturnValue(true);
 window.confirm = mockConfirm;
@@ -82,7 +112,7 @@ describe('FileUploadZone', () => {
         <FileUploadZone files={files} onFileAdd={vi.fn()} onFileRemove={onFileRemove} />
       );
 
-      const removeBtn = screen.getByLabelText('Xóa file');
+      const removeBtn = screen.getByLabelText('Xóa file này?');
       fireEvent.click(removeBtn);
 
       expect(mockConfirm).toHaveBeenCalledWith('Xóa file này?');
@@ -99,7 +129,7 @@ describe('FileUploadZone', () => {
         <FileUploadZone files={files} onFileAdd={vi.fn()} onFileRemove={onFileRemove} />
       );
 
-      const removeBtn = screen.getByLabelText('Xóa file');
+      const removeBtn = screen.getByLabelText('Xóa file này?');
       fireEvent.click(removeBtn);
 
       expect(onFileRemove).not.toHaveBeenCalled();
@@ -115,7 +145,7 @@ describe('FileUploadZone', () => {
         dataTransfer: { files: [] },
       });
 
-      expect(dropZone).toHaveClass('border-blue-500');
+      expect(dropZone).toHaveClass('dragging');
     });
 
     it('drag leave removes active state', () => {
@@ -127,7 +157,7 @@ describe('FileUploadZone', () => {
       fireEvent.dragEnter(dropZone, { dataTransfer: { files: [] } });
       fireEvent.dragLeave(dropZone, { dataTransfer: { files: [] } });
 
-      expect(dropZone).not.toHaveClass('border-blue-500');
+      expect(dropZone).not.toHaveClass('dragging');
     });
   });
 

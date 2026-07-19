@@ -50,6 +50,9 @@ const stableT = {
 
 vi.mock('next-intl', () => ({
   useTranslations: (ns: string) => stableT[ns as keyof typeof stableT] ?? ((k: string) => k),
+  useLocale: () => 'vi',
+  useNow: () => new Date(),
+  useTimeZone: () => 'Asia/Ho_Chi_Minh',
 }));
 
 // Mock fetch
@@ -118,7 +121,9 @@ describe('TriagePanel', () => {
       mockFetch.mockResolvedValueOnce({ ok: true, json: async () => mockTriageData });
       await act(async () => { render(<TriagePanel />); });
       await waitFor(() => { expect(screen.getByPlaceholderText('Tìm theo mã, tiêu đề...')).toBeInTheDocument(); });
-      expect(screen.getByRole('combobox')).toBeInTheDocument();
+	    // Paging component adds another combobox (pageSize select)
+	    const combos = screen.getAllByRole('combobox');
+	    expect(combos.length).toBeGreaterThanOrEqual(1);
     });
 
     it('renders column headers', async () => {
@@ -145,10 +150,10 @@ describe('TriagePanel', () => {
     });
 
     it('shows pagination only when multi-page', async () => {
-      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ ...mockTriageData, total: 20, totalPages: 2 }) });
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ ...mockTriageData, total: 25, totalPages: 3 }) });
       await act(async () => { render(<TriagePanel />); });
-      await waitFor(() => { expect(screen.getByText('Trước')).toBeInTheDocument(); });
-      expect(screen.getByText('Sau')).toBeInTheDocument();
+      await waitFor(() => { expect(screen.getByTestId('common-paging')).toBeInTheDocument(); });
+      expect(screen.getByText('2')).toBeInTheDocument();
     });
   });
 
@@ -194,7 +199,7 @@ describe('TriagePanel', () => {
       await act(async () => { render(<TriagePanel />); });
       await waitFor(() => { expect(screen.getByText('REQ-2026-001')).toBeInTheDocument(); });
 
-      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'draft_intake' } });
+      fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'draft_intake' } });
       await waitFor(() => { expect(screen.queryByText('REQ-2026-001')).not.toBeInTheDocument(); });
       expect(screen.getByText('REQ-2026-002')).toBeInTheDocument();
     });

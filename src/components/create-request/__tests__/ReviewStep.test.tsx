@@ -7,8 +7,51 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ReviewStep from '../ReviewStep';
 import type { WizardState } from '@/lib/types/wizard';
 
+const CREATE_REQUEST_VI: Record<string, string> = {
+  'review.confirmAndSubmit': 'Xác nhận & Gửi',
+  'review.domainAndService': 'Lĩnh vực & Dịch vụ',
+  'review.domainSelected': 'Đã chọn lĩnh vực',
+  'review.serviceSelected': 'Đã chọn dịch vụ',
+  'review.emailEntered': 'Đã nhập email',
+  'review.reviewBeforeSubmit': 'Vui lòng kiểm tra kỹ thông tin trước khi gửi',
+  'review.submitting': 'Đang gửi...',
+  'review.redirectingToRequests': 'Đang chuyển hướng đến trang yêu cầu...',
+  'review.noDocuments': 'Chưa có tài liệu nào',
+  'review.details': 'Thông tin chi tiết',
+  'label.notSelected': 'Chưa chọn',
+  'label.notEntered': 'Chưa nhập',
+  'label.priority': 'Mức độ ưu tiên',
+  'label.normal': 'Bình thường',
+  'label.urgent': 'Khẩn cấp',
+  'label.normalSla': 'Xử lý trong 72 giờ',
+  'label.urgentSla': 'Xử lý trong 24 giờ',
+  'label.contactInfo': 'Thông tin liên hệ',
+  'label.email': 'Email',
+  'label.phone': 'Số điện thoại',
+  'label.companyName': 'Tên công ty',
+  'label.taxCode': 'Mã số thuế',
+  'label.domain': 'Lĩnh vực',
+  'label.service': 'Dịch vụ',
+  'button.submit': 'Gửi yêu cầu',
+  'button.edit': 'Chỉnh sửa',
+  'button.back': 'Quay lại',
+  'error.fillAllRequired': 'Vui lòng điền đầy đủ thông tin bắt buộc',
+  'error.submitGeneralError': 'Có lỗi xảy ra khi gửi yêu cầu',
+  'fileUpload.title': 'Tài liệu đính kèm',
+  'fileUpload.noFiles': 'Chưa có file nào được tải lên',
+  'message.submitSuccessTitle': 'Yêu cầu đã được gửi!',
+  'message.submitSuccessDesc': 'Yêu cầu của bạn đã được gửi thành công. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.',
+};
+
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: (ns: string) => {
+    const map: Record<string, string> = ns === 'CreateRequest' ? CREATE_REQUEST_VI : {};
+    return (key: string, params?: Record<string, unknown>) => {
+      const val = map[key] ?? key;
+      if (params) return val.replace(/\{(\w+)\}/g, (_, k: string) => String(params[k] ?? `{${k}}`));
+      return val;
+    };
+  },
 }));
 
 describe('ReviewStep', () => {
@@ -138,9 +181,8 @@ describe('ReviewStep', () => {
     it('highlights selected priority', () => {
       render(<ReviewStep state={mockState} onEdit={vi.fn()} onSubmit={vi.fn()} />);
 
-      const normalPriority = screen.getByText('Bình thường').closest('div');
-      expect(normalPriority).toHaveClass('border-blue-500');
-      expect(normalPriority).toHaveClass('bg-blue-50');
+      const normalPriority = screen.getByText('Bình thường').closest('label');
+      expect(normalPriority).toHaveClass('selected');
     });
 
     it('shows validation checklist', () => {
@@ -214,8 +256,11 @@ describe('ReviewStep', () => {
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Thử lại')).toBeInTheDocument();
+        // Error text shown
+        expect(screen.getByText('Failed')).toBeInTheDocument();
       });
+      // Retry button is "Quay lại" (button.back)
+      expect(screen.getByText('Quay lại')).toBeInTheDocument();
     });
 
     it('clears error when retry button is clicked', async () => {
@@ -226,10 +271,10 @@ describe('ReviewStep', () => {
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Thử lại')).toBeInTheDocument();
+        expect(screen.getByText('Failed')).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText('Thử lại'));
+      fireEvent.click(screen.getByText('Quay lại'));
 
       await waitFor(() => {
         expect(screen.queryByText('Failed')).not.toBeInTheDocument();

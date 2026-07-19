@@ -20,7 +20,7 @@ const createActivity = (overrides: Partial<ActivityItem> = {}): ActivityItem => 
   ...overrides,
 });
 
-// Mock useTranslations hook - useTranslations('namespace') returns a t function
+// Mock useTranslations hook
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => {
     const translations: Record<string, string> = {
@@ -40,16 +40,6 @@ vi.mock('next-intl', () => ({
   },
 }));
 
-// Mock next-intl
-vi.mock('next-intl', () => ({
-  useTranslations: () => mockUseTranslations,
-}));
-
-// Test helper: render component
-const renderWithI18n = (ui: React.ReactElement) => {
-  return render(ui);
-};
-
 // ============================================
 // WHITEBOX TESTS - Internal implementation
 // ============================================
@@ -57,7 +47,7 @@ describe('ActivityTimeline Whitebox Tests', () => {
   describe('Color Dot Rendering', () => {
     it('renders blue dot for user type activities', () => {
       const activity = createActivity({ type: 'user' });
-      const { container } = renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      const { container } = render(<ActivityTimeline activities={[activity]} />);
       const dot = container.querySelector('.timeline-dot');
       expect(dot).toBeInTheDocument();
       expect(dot?.style.background).toBe('rgb(37, 99, 235)'); // Blue
@@ -65,28 +55,28 @@ describe('ActivityTimeline Whitebox Tests', () => {
 
     it('renders green dot for request type activities', () => {
       const activity = createActivity({ type: 'request' });
-      const { container } = renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      const { container } = render(<ActivityTimeline activities={[activity]} />);
       const dot = container.querySelector('.timeline-dot');
       expect(dot?.style.background).toBe('rgb(16, 185, 129)'); // Green
     });
 
     it('renders red dot for review type activities', () => {
       const activity = createActivity({ type: 'review' });
-      const { container } = renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      const { container } = render(<ActivityTimeline activities={[activity]} />);
       const dot = container.querySelector('.timeline-dot');
       expect(dot?.style.background).toBe('rgb(239, 68, 68)'); // Red
     });
 
     it('renders orange dot for document type activities', () => {
       const activity = createActivity({ type: 'document' });
-      const { container } = renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      const { container } = render(<ActivityTimeline activities={[activity]} />);
       const dot = container.querySelector('.timeline-dot');
       expect(dot?.style.background).toBe('rgb(249, 115, 22)'); // Orange
     });
 
     it('renders teal dot for system type activities', () => {
       const activity = createActivity({ type: 'system' });
-      const { container } = renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      const { container } = render(<ActivityTimeline activities={[activity]} />);
       const dot = container.querySelector('.timeline-dot');
       expect(dot?.style.background).toBe('rgb(8, 127, 120)'); // Teal
     });
@@ -95,13 +85,13 @@ describe('ActivityTimeline Whitebox Tests', () => {
   describe('Activity Type Badge', () => {
     it('shows type badge when showType is true', () => {
       const activity = createActivity({ type: 'request' });
-      renderWithI18n(<ActivityTimeline activities={[activity]} showType={true} />);
+      render(<ActivityTimeline activities={[activity]} showType={true} />);
       expect(screen.getByText('Hồ sơ')).toBeInTheDocument();
     });
 
     it('hides type badge when showType is false', () => {
       const activity = createActivity({ type: 'request' });
-      renderWithI18n(<ActivityTimeline activities={[activity]} showType={false} />);
+      render(<ActivityTimeline activities={[activity]} showType={false} />);
       // Badge should not be visible
       expect(screen.queryByText('Hồ sơ')).not.toBeInTheDocument();
     });
@@ -114,7 +104,7 @@ describe('ActivityTimeline Whitebox Tests', () => {
 describe('ActivityTimeline Blackbox Tests', () => {
   describe('Empty State', () => {
     it('renders empty state when activities array is empty', () => {
-      renderWithI18n(<ActivityTimeline activities={[]} />);
+      render(<ActivityTimeline activities={[]} />);
       expect(screen.getByText('Không có hoạt động nào')).toBeInTheDocument();
     });
   });
@@ -127,7 +117,7 @@ describe('ActivityTimeline Blackbox Tests', () => {
         description: 'Test description',
         actor: 'Test Actor',
       });
-      renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      render(<ActivityTimeline activities={[activity]} />);
 
       expect(screen.getByText('Hồ sơ được tạo')).toBeInTheDocument();
       expect(screen.getByText('Test description')).toBeInTheDocument();
@@ -139,7 +129,7 @@ describe('ActivityTimeline Blackbox Tests', () => {
         createActivity({ id: '2', action: 'Second Action' }),
         createActivity({ id: '3', action: 'Third Action' }),
       ];
-      renderWithI18n(<ActivityTimeline activities={activities} />);
+      render(<ActivityTimeline activities={activities} />);
 
       const firstAction = screen.getByText('First Action');
       expect(firstAction).toBeInTheDocument();
@@ -150,7 +140,7 @@ describe('ActivityTimeline Blackbox Tests', () => {
         createActivity({ id: '1', relativeTime: '5 phút trước' }),
         createActivity({ id: '2', relativeTime: '2 giờ trước' }),
       ];
-      renderWithI18n(<ActivityTimeline activities={activities} />);
+      render(<ActivityTimeline activities={activities} />);
 
       expect(screen.getByText('5 phút trước')).toBeInTheDocument();
       expect(screen.getByText('2 giờ trước')).toBeInTheDocument();
@@ -166,7 +156,7 @@ describe('ActivityTimeline Blackbox Tests', () => {
         createActivity({ id: '4', action: 'Action 4' }),
         createActivity({ id: '5', action: 'Action 5' }),
       ];
-      renderWithI18n(<ActivityTimeline activities={activities} maxItems={3} />);
+      render(<ActivityTimeline activities={activities} maxItems={3} />);
 
       expect(screen.getByText('Action 1')).toBeInTheDocument();
       expect(screen.getByText('Action 2')).toBeInTheDocument();
@@ -189,7 +179,7 @@ describe('ActivityTimeline Abnormal Tests', () => {
         metadata: undefined,
         targetType: undefined,
       });
-      renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      render(<ActivityTimeline activities={[activity]} />);
       expect(screen.getByText('Hồ sơ được tạo')).toBeInTheDocument();
     });
   });
@@ -198,14 +188,14 @@ describe('ActivityTimeline Abnormal Tests', () => {
     it('handles very long description', () => {
       const longDescription = 'A'.repeat(500);
       const activity = createActivity({ description: longDescription });
-      const { container } = renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      const { container } = render(<ActivityTimeline activities={[activity]} />);
       expect(container.querySelector('.timeline-item')).toBeInTheDocument();
     });
 
     it('handles very long action text', () => {
       const longAction = 'B'.repeat(200);
       const activity = createActivity({ action: longAction });
-      renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      render(<ActivityTimeline activities={[activity]} />);
       expect(screen.getByText(longAction)).toBeInTheDocument();
     });
   });
@@ -215,7 +205,7 @@ describe('ActivityTimeline Abnormal Tests', () => {
       const activity = createActivity({
         description: 'Hồ sơ đã được duyệt ✅🎉 Nguyễn Văn Minh ★☆●',
       });
-      renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      render(<ActivityTimeline activities={[activity]} />);
       expect(screen.getByText(/Hồ sơ đã được duyệt/)).toBeInTheDocument();
     });
   });
@@ -229,7 +219,7 @@ describe('ActivityTimeline Abnormal Tests', () => {
 
       activityTypes.forEach((type) => {
         const activity = createActivity({ id: `test-${type}`, type });
-        const { container } = renderWithI18n(<ActivityTimeline activities={[activity]} />);
+        const { container } = render(<ActivityTimeline activities={[activity]} />);
         expect(container.querySelector('.timeline-item')).toBeInTheDocument();
         expect(container.querySelector('.timeline-dot')).toBeInTheDocument();
       });
@@ -244,13 +234,13 @@ describe('ActivityTimeline Error Tests', () => {
   describe('Invalid Props', () => {
     it('handles null activities array gracefully', () => {
       // @ts-expect-error - Testing invalid prop
-      const { container } = renderWithI18n(<ActivityTimeline activities={null} />);
+      const { container } = render(<ActivityTimeline activities={null} />);
       expect(container.querySelector('.timeline')).toBeInTheDocument();
     });
 
     it('handles undefined activities gracefully', () => {
       // @ts-expect-error - Testing invalid prop
-      const { container } = renderWithI18n(<ActivityTimeline activities={undefined} />);
+      const { container } = render(<ActivityTimeline activities={undefined} />);
       expect(container.querySelector('.timeline')).toBeInTheDocument();
     });
   });
@@ -265,7 +255,7 @@ describe('ActivityTimeline Error Tests', () => {
         timestamp: new Date().toISOString(),
         relativeTime: 'now',
       };
-      renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      render(<ActivityTimeline activities={[activity]} />);
       expect(screen.getByText('Test without id')).toBeInTheDocument();
     });
   });
@@ -277,7 +267,7 @@ describe('ActivityTimeline Error Tests', () => {
         // @ts-expect-error - Testing malformed data
         type: 123,
       };
-      const { container } = renderWithI18n(<ActivityTimeline activities={[activity]} />);
+      const { container } = render(<ActivityTimeline activities={[activity]} />);
       // Should not crash - falls back to 'system' type (teal dot)
       expect(container.querySelector('.timeline-item')).toBeInTheDocument();
       const dot = container.querySelector('.timeline-dot');
@@ -290,7 +280,7 @@ describe('ActivityTimeline Error Tests', () => {
         null as unknown as ActivityItem,
         createActivity({ id: '3' }),
       ];
-      const { container } = renderWithI18n(<ActivityTimeline activities={activities} />);
+      const { container } = render(<ActivityTimeline activities={activities} />);
       // Should render valid items and skip null
       expect(container.querySelectorAll('.timeline-item')).toHaveLength(2);
     });

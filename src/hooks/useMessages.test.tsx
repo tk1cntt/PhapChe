@@ -9,7 +9,7 @@ import { ReactNode } from 'react';
 vi.mock('@/lib/api', () => ({
   messagesApi: {
     getThreads: vi.fn(),
-    get: vi.fn(),
+    getThread: vi.fn(),
   },
 }));
 
@@ -94,7 +94,7 @@ describe('useMessages Hook', () => {
   describe('useMessageById', () => {
     it('should fetch single message by ID successfully', async () => {
       const mockData = { id: '123', content: 'Test message', createdAt: new Date().toISOString() };
-      vi.mocked(messagesApi.get).mockResolvedValue(mockData);
+      vi.mocked(messagesApi.getThread).mockResolvedValue(mockData);
 
       const { result } = renderHook(() => useMessageById('123'), { wrapper });
 
@@ -103,11 +103,11 @@ describe('useMessages Hook', () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       expect(result.current.data).toEqual(mockData);
-      expect(messagesApi.get).toHaveBeenCalledWith('123');
+      expect(messagesApi.getThread).toHaveBeenCalledWith('123');
     });
 
     it('should handle fetch error', async () => {
-      vi.mocked(messagesApi.get).mockRejectedValue(new Error('Not found'));
+      vi.mocked(messagesApi.getThread).mockRejectedValue(new Error('Not found'));
 
       const { result } = renderHook(() => useMessageById('999'), { wrapper });
 
@@ -123,11 +123,11 @@ describe('useMessages Hook', () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(result.current.fetchStatus).toBe('idle');
-      expect(messagesApi.get).not.toHaveBeenCalled();
+      expect(messagesApi.getThread).not.toHaveBeenCalled();
     });
 
     it('should use correct query key', async () => {
-      vi.mocked(messagesApi.get).mockResolvedValue({ id: '456' });
+      vi.mocked(messagesApi.getThread).mockResolvedValue({ id: '456' });
 
       renderHook(() => useMessageById('456'), { wrapper });
 

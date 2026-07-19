@@ -148,7 +148,7 @@ describe('SpecialistWorkbench', () => {
       await act(async () => { render(<SpecialistWorkbench />); });
       await waitFor(() => { expect(screen.getByText('Hợp đồng ABC')).toBeInTheDocument(); });
 
-      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'in_progress' } });
+      fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'in_progress' } });
       await waitFor(() => { expect(screen.queryByText('Hợp đồng ABC')).not.toBeInTheDocument(); });
       expect(screen.getByText('Đăng ký nhãn hiệu')).toBeInTheDocument();
     });
@@ -172,29 +172,31 @@ describe('SpecialistWorkbench', () => {
 
   describe('Abnormal: Pagination', () => {
     it('renders pagination when totalPages > 1', async () => {
+      // Paging computes totalPages = Math.ceil(total/pageSize), so total must be > pageSize (10)
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ ...mockData, totalPages: 3, page: 1 }),
+        json: async () => ({ ...mockData, total: 25, page: 1 }),
       });
       await act(async () => { render(<SpecialistWorkbench />); });
       await waitFor(() => { expect(screen.getByText('Hợp đồng ABC')).toBeInTheDocument(); });
-      expect(screen.getByText(/1 \/ 3/)).toBeInTheDocument();
-      expect(screen.getByText('Trước')).toBeDisabled();
-      expect(screen.getByText('Sau')).not.toBeDisabled();
+      expect(screen.getByTestId("common-paging")).toBeInTheDocument();
+      // Paging uses SVG arrows — check aria-label
+      expect(screen.getByLabelText('previousPage')).toBeDisabled();
+      expect(screen.getByLabelText('nextPage')).not.toBeDisabled();
     });
 
     it('navigates to next page', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ ...mockData, totalPages: 3, page: 1 }),
+        json: async () => ({ ...mockData, total: 25, page: 1 }),
       });
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ ...mockData, totalPages: 3, page: 2 }),
+        json: async () => ({ ...mockData, total: 25, page: 2 }),
       });
       await act(async () => { render(<SpecialistWorkbench />); });
       await waitFor(() => { expect(screen.getByText('Hợp đồng ABC')).toBeInTheDocument(); });
-      fireEvent.click(screen.getByText('Sau'));
+      fireEvent.click(screen.getByLabelText('nextPage'));
       await waitFor(() => { expect(mockFetch).toHaveBeenCalledTimes(2); });
     });
   });

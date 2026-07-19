@@ -138,7 +138,8 @@ describe('seed-legal-domains', () => {
           expect(question).toHaveProperty('required');
           expect(question).toHaveProperty('type');
           expect(typeof question.key).toBe('string');
-          expect(typeof question.label).toBe('string');
+          // label is now a multi-locale object { vi, en, zh, ja }
+          expect(typeof question.label).toBe('object');
           expect(typeof question.required).toBe('boolean');
           expect(['text', 'textarea']).toContain(question.type);
         });

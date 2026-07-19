@@ -622,12 +622,14 @@ async function main() {
   console.log(`  ✓ Vault files: ${demoVaultFiles.length}`);
 
   // ── Seed audit events for demo-legal-workspace (customer.demo as actor) ──
+  // Action names must match Dashboard.activity.actions i18n keys
+  // (see src/messages/en.json → Dashboard.activity.actions)
   const demoAuditActions = [
-    'request.create', 'document.upload', 'request.update',
-    'document.download', 'intake.submitted', 'request.create',
-    'document.upload', 'request.update', 'vault.upload',
-    'request.create', 'document.upload', 'user.login',
-    'request.update', 'vault.download', 'document.upload',
+    'request.created', 'document.uploaded', 'request.updated',
+    'document.downloaded', 'intake.submitted', 'request.created',
+    'document.uploaded', 'request.updated', 'vault.file_added',
+    'request.created', 'document.uploaded', 'user.updated',
+    'request.updated', 'vault.file_added', 'document.uploaded',
   ];
 
   for (let i = 0; i < demoAuditActions.length; i++) {

@@ -66,9 +66,22 @@ function parseMessage(msg: {
   };
 }
 
+// ── Types ────────────────────────────────────────────────────
+
+interface RequestContext {
+  title: string;
+  description?: string | null;
+  matterTypeKey?: string | null;
+  intakeAnswers?: Record<string, unknown> | null;
+  documents?: { title: string; content: string }[];
+}
+
 // ── Helpers ──────────────────────────────────────────────────
 
-function buildSystemPrompt(skill?: string | null): string {
+const MAX_CONTEXT_CHARS = 12000; // Giới hạn tổng context để tránh vượt token
+const MAX_DOC_CHARS = 2500;      // Giới hạn mỗi tài liệu
+
+function buildSystemPrompt(skill?: string | null, context?: RequestContext): string {
   const base = `Bạn là trợ lý pháp lý AI cho nền tảng GitNexus Legal, phục vụ chuyên viên pháp lý (specialist) và người kiểm duyệt (reviewer).
 
 Nguyên tắc:
@@ -78,11 +91,57 @@ Nguyên tắc:
 4. Phân biệt rõ giữa tư vấn sơ bộ và tư vấn pháp lý chính thức.
 5. Không đưa ra lời khuyên pháp lý dứt khoát — luôn khuyến nghị kiểm tra bởi reviewer.`;
 
+  const parts: string[] = [base];
+
   if (skill) {
-    return `${base}\n\nBạn đang được yêu cầu thực hiện kỹ năng: "${skill}". Hãy tập trung trả lời theo đúng chuyên môn này.`;
+    parts.push(`\nBạn đang được yêu cầu thực hiện kỹ năng: "${skill}". Hãy tập trung trả lời theo đúng chuyên môn này.`);
   }
 
-  return base;
+  // Inject request context nếu có
+  if (context) {
+    parts.push('\n---');
+    parts.push('\n## THÔNG TIN YÊU CẦU HIỆN TẠI');
+    parts.push(`\n**Tiêu đề:** ${context.title}`);
+
+    if (context.matterTypeKey) {
+      parts.push(`**Loại hồ sơ:** ${context.matterTypeKey}`);
+    }
+
+    if (context.description) {
+      parts.push(`**Mô tả:** ${context.description}`);
+    }
+
+    // Intake answers
+    if (context.intakeAnswers && Object.keys(context.intakeAnswers).length > 0) {
+      parts.push('\n### Thông tin khách hàng cung cấp:');
+      for (const [key, value] of Object.entries(context.intakeAnswers)) {
+        const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
+        parts.push(`- ${label}: ${String(value)}`);
+      }
+    }
+
+    // Documents
+    if (context.documents && context.documents.length > 0) {
+      parts.push(`\n### Tài liệu đính kèm (${context.documents.length} tài liệu):`);
+      for (let i = 0; i < context.documents.length; i++) {
+        const doc = context.documents[i];
+        const truncated = doc.content.length > MAX_DOC_CHARS
+          ? doc.content.slice(0, MAX_DOC_CHARS) + '\n...[đã cắt]'
+          : doc.content;
+        parts.push(`\n--- Tài liệu ${i + 1}: ${doc.title} ---`);
+        parts.push(truncated);
+      }
+    }
+
+    parts.push('\n---');
+    parts.push('\nHãy sử dụng các thông tin trên để trả lời chính xác và phù hợp với ngữ cảnh của yêu cầu này.');
+  }
+
+  const full = parts.join('\n');
+  // Truncate toàn bộ system prompt nếu quá dài
+  return full.length > MAX_CONTEXT_CHARS
+    ? full.slice(0, MAX_CONTEXT_CHARS) + '\n...[system prompt đã cắt để vừa context]'
+    : full;
 }
 
 // ── GET ──────────────────────────────────────────────────────
@@ -174,13 +233,14 @@ export async function POST(
     const content = body.content.trim();
     const skill = body.skill ?? null;
 
-    // Fetch request with workspace info
+    // Fetch request with workspace info + intake
     const legalRequest = await prisma.legalRequest.findUnique({
       where: { id: requestId },
       select: {
         id: true,
         workspaceId: true,
         title: true,
+        description: true,
         intakeSubmission: {
           select: { matterTypeKey: true, answers: true },
         },
@@ -190,6 +250,34 @@ export async function POST(
     if (!legalRequest) {
       return NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 });
     }
+
+    // Fetch documents attached to this request (latest version only)
+    const documents = await prisma.document.findMany({
+      where: { requestId, deletedAt: null },
+      include: {
+        documentVersions: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { generatedContent: true, status: true },
+        },
+      },
+    });
+
+    // Build request context cho LLM
+    const requestContext: RequestContext = {
+      title: legalRequest.title,
+      description: legalRequest.description,
+      matterTypeKey: legalRequest.intakeSubmission?.matterTypeKey ?? null,
+      intakeAnswers: (legalRequest.intakeSubmission?.answers as Record<string, unknown>) ?? null,
+      documents: documents
+        .map((d) => {
+          const latestVersion = d.documentVersions[0];
+          return latestVersion
+            ? { title: d.title, content: latestVersion.generatedContent }
+            : null;
+        })
+        .filter((d): d is { title: string; content: string } => d !== null),
+    };
 
     // 1. Store user message
     const userMessage = await prisma.aiChatMessage.create({
@@ -227,7 +315,7 @@ export async function POST(
     });
 
     const chatMessages: ChatMessage[] = [
-      { role: 'system', content: buildSystemPrompt(skill) },
+      { role: 'system', content: buildSystemPrompt(skill, requestContext) },
       ...priorMessages.map((m) => ({
         role: m.role as 'user' | 'assistant' | 'system',
         content: m.content,

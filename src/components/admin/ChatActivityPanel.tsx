@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Send, Bot, User, AlertTriangle, ChevronDown, Sparkles, Info } from 'lucide-react';
+import { ArrowLeft, Send, Bot, User, AlertTriangle, ChevronDown, Sparkles, Info, Lightbulb } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import '@/styles/pages/admin/chat-activity.css';
 
 // ── Types ────────────────────────────────────────────────────
@@ -69,6 +71,7 @@ export function ChatActivityPanel({
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [composerInput, setComposerInput] = useState('');
   const [aiNotConfigured, setAiNotConfigured] = useState(false);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
 
   const listRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
@@ -104,6 +107,7 @@ export function ChatActivityPanel({
         if (cancelled) return;
 
         setMessages(data.messages ?? []);
+        setSuggestedQuestions(data.suggestedQuestions ?? []);
       } catch (err) {
         if (cancelled) return;
         const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -119,11 +123,14 @@ export function ChatActivityPanel({
 
   // ── Send message ───────────────────────────────────────────
 
-  const handleSend = useCallback(async () => {
-    const content = composerInput.trim();
+  const handleSend = useCallback(async (presetTextOrEvent?: string | React.MouseEvent) => {
+    const presetText = typeof presetTextOrEvent === 'string' ? presetTextOrEvent : undefined;
+    const content = (presetText ?? composerInput).trim();
     if (!content || isSending) return;
 
     setComposerInput('');
+    // Clear suggestions sau khi bắt đầu chat
+    setSuggestedQuestions([]);
     setIsSending(true);
     setError(null);
     setAiNotConfigured(false);
@@ -296,7 +303,7 @@ export function ChatActivityPanel({
         </div>
       )}
 
-      {/* Message list or empty state */}
+      {/* Message list or empty state with suggestions */}
       {messages.length === 0 && !isSending ? (
         <div className="chat-activity-empty" data-testid="chat-activity-empty">
           <div className="chat-activity-empty-icon">
@@ -304,6 +311,29 @@ export function ChatActivityPanel({
           </div>
           <p className="chat-activity-empty-title">{t('emptyTitle')}</p>
           <p className="chat-activity-empty-desc">{t('emptyDesc')}</p>
+
+          {/* Suggested questions */}
+          {suggestedQuestions.length > 0 && (
+            <div className="chat-activity-suggestions" data-testid="chat-activity-suggestions">
+              <p className="chat-activity-suggestions-title">
+                <Lightbulb size={14} />
+                {t('suggestionsTitle')}
+              </p>
+              <div className="chat-activity-suggestions-list">
+                {suggestedQuestions.map((question, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className="chat-activity-suggestion-pill"
+                    onClick={() => handleSend(question)}
+                    data-testid={`chat-suggestion-${idx}`}
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="chat-activity-list" ref={listRef} data-testid="chat-activity-list">
@@ -432,7 +462,15 @@ function ChatMessageBubble({
       </span>
 
       {/* Bubble */}
-      <div className="chat-activity-msg-bubble">{message.content}</div>
+      <div className="chat-activity-msg-bubble">
+        {isUser ? (
+          message.content
+        ) : (
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {message.content}
+          </ReactMarkdown>
+        )}
+      </div>
 
       {/* Meta: time, skill, tokens */}
       <div className="chat-activity-msg-meta">

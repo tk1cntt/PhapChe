@@ -81,6 +81,70 @@ interface RequestContext {
 const MAX_CONTEXT_CHARS = 12000; // Giới hạn tổng context để tránh vượt token
 const MAX_DOC_CHARS = 2500;      // Giới hạn mỗi tài liệu
 
+/**
+ * Generate 4-6 suggested questions dựa vào document content + request info.
+ * Dùng template-based (không gọi LLM) — nhanh, free.
+ */
+function generateSuggestedQuestions(context: RequestContext): string[] {
+  const questions: string[] = [];
+  const allText = [
+    context.title,
+    context.matterTypeKey ?? '',
+    ...(context.documents?.map((d) => d.content) ?? []),
+  ].join(' ').toLowerCase();
+
+  const title = context.title;
+
+  // Phân loại câu hỏi theo nội dung document
+  if (allText.includes('điều 1') || allText.includes('điều 2') || allText.includes('điều khoản')) {
+    questions.push(`Tóm tắt các điều khoản chính trong hồ sơ "${title}"`);
+    questions.push('Các điều khoản nào có rủi ro pháp lý cao nhất? Cần sửa thế nào?');
+  }
+
+  if (allText.includes('hợp đồng') || allText.includes('lao động') || context.matterTypeKey === 'labor_contract') {
+    questions.push('Hợp đồng này có tuân thủ Bộ luật Lao động 2019 không? Liệt kê điểm cần bổ sung.');
+    questions.push('Điều khoản chấm dứt hợp đồng và bồi thường đã đủ chặt chẽ chưa?');
+  }
+
+  if (allText.includes('bảo mật') || allText.includes('nda') || allText.includes('confidential')) {
+    questions.push('Phạm vi bảo mật trong NDA này đã bao quát đủ loại thông tin cần bảo vệ chưa?');
+    questions.push('Thời hạn bảo mật và chế tài xử phạt vi phạm đã đủ mạnh chưa?');
+  }
+
+  if (allText.includes('dịch vụ') || allText.includes('service') || allText.includes('sla')) {
+    questions.push('Điều khoản SLA và phí dịch vụ có công bằng cho cả hai bên không?');
+    questions.push('Điều khoản chấm dứt hợp đồng dịch vụ đã bảo vệ đủ quyền lợi khách hàng chưa?');
+  }
+
+  if (allText.includes('thành lập') || allText.includes('doanh nghiệp') || allText.includes('công ty')) {
+    questions.push('Hồ sơ thành lập đã đủ giấy tờ theo Luật Doanh nghiệp 2025 chưa?');
+    questions.push('Ngành nghề đăng ký có cần giấy phép con hoặc điều kiện đặc biệt không?');
+  }
+
+  if (allText.includes('nhãn hiệu') || allText.includes('sở hữu trí tuệ') || allText.includes('đăng ký')) {
+    questions.push('Nhãn hiệu này có khả năng bị từ chối vì tương tự nhãn hiệu khác không?');
+    questions.push('Phân nhóm Nice đã khai báo đủ để bảo hộ toàn diện sản phẩm/dịch vụ chưa?');
+    questions.push('Cần chuẩn bị thêm tài liệu gì để tăng khả năng được cấp văn bằng bảo hộ?');
+  }
+
+  // Generic questions luôn có
+  const genericQuestions = [
+    `Phân tích rủi ro pháp lý chính trong hồ sơ "${title}"`,
+    'Những quy định pháp luật nào đang chi phối hồ sơ này?',
+    'Đề xuất các bước tiếp theo để hoàn thiện và xử lý hồ sơ này.',
+    'Soạn thảo email phản hồi khách hàng về tình trạng hồ sơ.',
+  ];
+
+  // Điền generic nếu chưa đủ 4 câu
+  for (const gq of genericQuestions) {
+    if (questions.length >= 6) break;
+    if (!questions.includes(gq)) questions.push(gq);
+  }
+
+  // Giới hạn 6 câu
+  return questions.slice(0, 6);
+}
+
 function buildSystemPrompt(skill?: string | null, context?: RequestContext): string {
   const base = `Bạn là trợ lý pháp lý AI cho nền tảng GitNexus Legal, phục vụ chuyên viên pháp lý (specialist) và người kiểm duyệt (reviewer).
 
@@ -162,15 +226,24 @@ export async function GET(
       return NextResponse.json({ error: 'VALIDATION: missing request id' }, { status: 400 });
     }
 
-    // Verify request exists
+    // Verify request exists + fetch context (title, matterType, documents)
     const legalRequest = await prisma.legalRequest.findUnique({
       where: { id: requestId },
-      select: { id: true, workspaceId: true, title: true },
+      select: {
+        id: true,
+        workspaceId: true,
+        title: true,
+        description: true,
+        intakeSubmission: {
+          select: { matterTypeKey: true, answers: true },
+        },
+      },
     });
     if (!legalRequest) {
       return NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 });
     }
 
+    // Fetch messages
     const rawMessages = await prisma.aiChatMessage.findMany({
       where: { requestId },
       orderBy: { createdAt: 'asc' },
@@ -187,10 +260,40 @@ export async function GET(
 
     const messages = rawMessages.map(parseMessage);
 
+    // Fetch documents để generate suggested questions
+    const documents = await prisma.document.findMany({
+      where: { requestId, deletedAt: null },
+      include: {
+        documentVersions: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { generatedContent: true, status: true },
+        },
+      },
+    });
+
+    const requestContext: RequestContext = {
+      title: legalRequest.title,
+      description: legalRequest.description,
+      matterTypeKey: legalRequest.intakeSubmission?.matterTypeKey ?? null,
+      intakeAnswers: (legalRequest.intakeSubmission?.answers as Record<string, unknown>) ?? null,
+      documents: documents
+        .map((d) => {
+          const latestVersion = d.documentVersions[0];
+          return latestVersion
+            ? { title: d.title, content: latestVersion.generatedContent }
+            : null;
+        })
+        .filter((d): d is { title: string; content: string } => d !== null),
+    };
+
+    const suggestedQuestions = generateSuggestedQuestions(requestContext);
+
     return NextResponse.json({
       requestId,
       requestTitle: legalRequest.title,
       messages,
+      suggestedQuestions,
       ragAvailable: isVectorStoreReady(),
       model: DEFAULT_MODEL_KEY,
     });

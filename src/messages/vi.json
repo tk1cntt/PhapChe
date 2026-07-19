@@ -2318,6 +2318,7 @@
     "errorLoad": "Không thể tải lịch sử trò chuyện.",
     "errorSend": "Không thể gửi tin nhắn.",
     "errorAiNotConfigured": "AI chưa được cấu hình. Tin nhắn của bạn đã được lưu nhưng AI chưa phản hồi.",
+    "suggestionsTitle": "Gợi ý câu hỏi",
     "retry": "Thử lại"
   }
 }

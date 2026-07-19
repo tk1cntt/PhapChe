@@ -2213,6 +2213,7 @@
     "errorLoad": "チャット履歴を読み込めません。",
     "errorSend": "メッセージを送信できません。",
     "errorAiNotConfigured": "AIが設定されていません。メッセージは保存されましたがAIは応答しませんでした。",
+    "suggestionsTitle": "おすすめの質問",
     "retry": "再試行"
   }
 }

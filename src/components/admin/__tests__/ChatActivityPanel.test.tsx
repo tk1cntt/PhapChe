@@ -46,10 +46,18 @@ vi.mock('next-intl', () => ({
       errorSend: 'Không thể gửi tin nhắn.',
       errorAiNotConfigured: 'AI chưa được cấu hình.',
       retry: 'Thử lại',
+      suggestionsTitle: 'Gợi ý câu hỏi',
     };
     return map[key] ?? key;
   },
 }));
+
+vi.mock('react-markdown', () => {
+  const MockMarkdown = ({ children }: { children: string }) => React.createElement('div', { 'data-testid': 'markdown-content' }, children);
+  return { default: MockMarkdown };
+});
+
+vi.mock('remark-gfm', () => ({ default: vi.fn() }));
 
 import { ChatActivityPanel } from '../ChatActivityPanel';
 
@@ -663,6 +671,191 @@ describe('ChatActivityPanel', () => {
         expect(screen.getByTestId('chat-msg-s1')).toBeTruthy();
         expect(screen.getByText('Hệ thống đã khởi tạo')).toBeTruthy();
       });
+    });
+
+    it('should render suggested questions when empty state + data', async () => {
+      const suggestions = [
+        'Câu hỏi gợi ý 1',
+        'Câu hỏi gợi ý 2',
+        'Câu hỏi gợi ý 3',
+        'Câu hỏi gợi ý 4',
+        'Câu hỏi gợi ý 5',
+      ];
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          requestId: 'req-test-1',
+          requestTitle: 'Test',
+          messages: [],
+          suggestedQuestions: suggestions,
+        }),
+      });
+
+      render(
+        <ChatActivityPanel requestId="req-test-1" requestTitle="Test" />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('chat-activity-suggestions')).toBeTruthy();
+        expect(screen.getByText('Gợi ý câu hỏi')).toBeTruthy();
+      });
+
+      // Check all suggestion pills render
+      for (let i = 0; i < suggestions.length; i++) {
+        expect(screen.getByTestId(`chat-suggestion-${i}`)).toBeTruthy();
+        expect(screen.getByText(suggestions[i])).toBeTruthy();
+      }
+    });
+
+    it('should not show suggestions container when list is empty', async () => {
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          requestId: 'req-test-1',
+          requestTitle: 'Test',
+          messages: [],
+          suggestedQuestions: [],
+        }),
+      });
+
+      render(
+        <ChatActivityPanel requestId="req-test-1" requestTitle="Test" />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('chat-activity-empty')).toBeTruthy();
+      });
+
+      // No suggestions element
+      expect(screen.queryByTestId('chat-activity-suggestions')).toBeNull();
+    });
+
+    it('should send message when suggestion pill clicked', async () => {
+      (global.fetch as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({
+            requestId: 'req-test-1',
+            requestTitle: 'Test',
+            messages: [],
+            suggestedQuestions: ['Gợi ý câu hỏi pháp lý'],
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({
+            userMessage: makeMessage({ id: 'u1', content: 'Gợi ý câu hỏi pháp lý' }),
+            assistantMessage: makeMessage({ id: 'a1', role: 'assistant', content: 'Trả lời' }),
+          }),
+        });
+
+      render(
+        <ChatActivityPanel requestId="req-test-1" requestTitle="Test" />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('chat-suggestion-0')).toBeTruthy();
+      });
+
+      fireEvent.click(screen.getByTestId('chat-suggestion-0'));
+
+      // Should call POST with the suggestion text
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith(
+          '/api/admin/requests/req-test-1/chat',
+          expect.objectContaining({
+            method: 'POST',
+            body: expect.stringContaining('Gợi ý câu hỏi pháp lý'),
+          }),
+        );
+      });
+    });
+
+    it('should hide suggestions after first message is sent', async () => {
+      (global.fetch as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({
+            requestId: 'req-test-1',
+            requestTitle: 'Test',
+            messages: [],
+            suggestedQuestions: ['Gợi ý'],
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({
+            userMessage: makeMessage({ id: 'u1', content: 'Gợi ý' }),
+            assistantMessage: makeMessage({ id: 'a1', role: 'assistant', content: 'Trả lời' }),
+          }),
+        });
+
+      render(
+        <ChatActivityPanel requestId="req-test-1" requestTitle="Test" />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('chat-activity-suggestions')).toBeTruthy();
+      });
+
+      fireEvent.click(screen.getByTestId('chat-suggestion-0'));
+
+      // Sau khi send, empty state + suggestions sẽ biến mất
+      await waitFor(() => {
+        expect(screen.queryByTestId('chat-activity-suggestions')).toBeNull();
+      });
+    });
+
+    it('should render markdown content in assistant bubble', async () => {
+      const messages = [
+        makeMessage({
+          id: 'a1',
+          role: 'assistant',
+          content: '## Tiêu đề\n\n- Item 1\n- Item 2\n\n**In đậm** và *in nghiêng*',
+        }),
+      ];
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ requestId: 'req-test-1', requestTitle: 'Test', messages }),
+      });
+
+      render(
+        <ChatActivityPanel requestId="req-test-1" requestTitle="Test" />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('chat-msg-a1')).toBeTruthy();
+      });
+
+      // Markdown content should be rendered (our mock renders a div with data-testid="markdown-content")
+      const markdownEl = screen.getByTestId('markdown-content');
+      expect(markdownEl).toBeTruthy();
+      expect(markdownEl.textContent).toContain('## Tiêu đề');
+    });
+
+    it('should render user messages as plain text, not markdown', async () => {
+      const messages = [
+        makeMessage({ id: 'u1', role: 'user', content: 'Tôi cần **giúp đỡ**' }),
+      ];
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ requestId: 'req-test-1', requestTitle: 'Test', messages }),
+      });
+
+      render(
+        <ChatActivityPanel requestId="req-test-1" requestTitle="Test" />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('chat-msg-u1')).toBeTruthy();
+      });
+
+      // User message should NOT have markdown-content data-testid
+      const userBubble = screen.getByTestId('chat-msg-u1');
+      expect(userBubble.querySelector('[data-testid="markdown-content"]')).toBeNull();
     });
   });
 });

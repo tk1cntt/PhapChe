@@ -168,6 +168,105 @@
   border: 1px solid var(--color-border);
   color: var(--color-text);
   border-bottom-left-radius: var(--radius-sm);
+  white-space: normal; /* Override pre-wrap cho markdown */
+}
+
+/* ── Markdown content trong assistant bubble ── */
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble p {
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble h1,
+.chat-activity-msg--assistant .chat-activity-msg-bubble h2,
+.chat-activity-msg--assistant .chat-activity-msg-bubble h3,
+.chat-activity-msg--assistant .chat-activity-msg-bubble h4 {
+  margin: var(--space-sm) 0 var(--space-xs) 0;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble h1 { font-size: var(--text-lg); }
+.chat-activity-msg--assistant .chat-activity-msg-bubble h2 { font-size: var(--text-base); }
+.chat-activity-msg--assistant .chat-activity-msg-bubble h3 { font-size: var(--text-sm2); }
+.chat-activity-msg--assistant .chat-activity-msg-bubble h4 { font-size: var(--text-sm); }
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble ul,
+.chat-activity-msg--assistant .chat-activity-msg-bubble ol {
+  margin: 0 0 var(--space-xs) 0;
+  padding-left: 1.5em;
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble li {
+  margin-bottom: 2px;
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble code {
+  padding: 1px 5px;
+  font-size: 0.9em;
+  background: var(--color-surface-hover);
+  border-radius: 3px;
+  font-family: var(--font-mono, 'SF Mono', 'Fira Code', monospace);
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble pre {
+  margin: var(--space-xs) 0;
+  padding: var(--space-sm);
+  background: var(--color-surface-hover);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble pre code {
+  padding: 0;
+  background: none;
+  font-size: var(--text-xs);
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble blockquote {
+  margin: var(--space-xs) 0;
+  padding-left: var(--space-sm);
+  border-left: 3px solid var(--color-purple);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble table {
+  margin: var(--space-xs) 0;
+  border-collapse: collapse;
+  width: 100%;
+  font-size: var(--text-xs);
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble th,
+.chat-activity-msg--assistant .chat-activity-msg-bubble td {
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble th {
+  background: var(--color-surface-hover);
+  font-weight: 600;
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble strong {
+  font-weight: 600;
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble a {
+  color: var(--color-purple);
+  text-decoration: underline;
+}
+
+.chat-activity-msg--assistant .chat-activity-msg-bubble hr {
+  margin: var(--space-sm) 0;
+  border: none;
+  border-top: 1px solid var(--color-border);
 }
 
 .chat-activity-msg--system .chat-activity-msg-bubble {
@@ -287,6 +386,62 @@
   border-radius: var(--radius-full);
   background: var(--color-surface-hover);
   color: var(--color-text-muted);
+}
+
+/* ── Suggested questions pills ── */
+
+.chat-activity-suggestions {
+  margin-top: var(--space-lg);
+  width: 100%;
+  max-width: 520px;
+}
+
+.chat-activity-suggestions-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.chat-activity-suggestions-title svg {
+  flex-shrink: 0;
+  color: var(--color-amber);
+}
+
+.chat-activity-suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.chat-activity-suggestion-pill {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-sm) var(--space-sm2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-family: inherit;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.chat-activity-suggestion-pill:hover {
+  border-color: var(--color-purple);
+  background: var(--color-purple-muted);
+  color: var(--color-purple);
+}
+
+.chat-activity-suggestion-pill:focus-visible {
+  outline: 2px solid var(--color-purple);
+  outline-offset: 2px;
 }
 
 /* ── Empty state ── */

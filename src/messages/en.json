@@ -2315,6 +2315,7 @@
     "errorLoad": "Unable to load chat history.",
     "errorSend": "Unable to send message.",
     "errorAiNotConfigured": "AI is not configured. Your message was saved but AI did not respond.",
+    "suggestionsTitle": "Suggested Questions",
     "retry": "Retry"
   }
 }

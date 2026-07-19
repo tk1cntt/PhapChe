@@ -2213,6 +2213,7 @@
     "errorLoad": "无法加载聊天记录。",
     "errorSend": "无法发送消息。",
     "errorAiNotConfigured": "AI 未配置。您的消息已保存但 AI 未响应。",
+    "suggestionsTitle": "推荐问题",
     "retry": "重试"
   }
 }

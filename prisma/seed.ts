@@ -498,6 +498,79 @@ async function main() {
   }
   console.log(`  ✓ Demo requests: ${demoCount} in ${workspace.slug}`);
 
+  // ── Seed document templates for demo-legal-workspace ──
+  const sampleTemplates = [
+    { key: 'labor_contract', label: 'Hợp đồng lao động', desc: 'Mẫu hợp đồng lao động tiêu chuẩn' },
+    { key: 'nda', label: 'Thỏa thuận bảo mật (NDA)', desc: 'Mẫu NDA hai bên' },
+    { key: 'service_agreement', label: 'Hợp đồng dịch vụ', desc: 'Mẫu hợp đồng dịch vụ pháp lý' },
+    { key: 'company_formation', label: 'Hồ sơ thành lập DN', desc: 'Mẫu hồ sơ thành lập doanh nghiệp' },
+  ];
+
+  const templateIds: Record<string, string> = {};
+  for (const t of sampleTemplates) {
+    const tmpl = await prisma.documentTemplate.upsert({
+      where: { workspaceId_matterTypeKey_version: { workspaceId: workspace.id, matterTypeKey: t.key, version: 1 } },
+      update: { label: t.label, content: `# ${t.label}\n\n---\n\nNội dung mẫu cho **${t.desc}**.\n\n## Điều khoản\n\n1. Bên A: {party_a}\n2. Bên B: {party_b}\n3. Ngày hiệu lực: {effective_date}\n4. Thời hạn: {duration}\n\n---\n*Template version 1*` },
+      create: {
+        workspaceId: workspace.id,
+        matterTypeKey: t.key,
+        version: 1,
+        status: 'published',
+        label: t.label,
+        description: t.desc,
+        variableSchema: { party_a: 'string', party_b: 'string', effective_date: 'date', duration: 'string' },
+        content: `# ${t.label}\n\n---\n\nNội dung mẫu cho **${t.desc}**.\n\n## Điều khoản\n\n1. Bên A: {party_a}\n2. Bên B: {party_b}\n3. Ngày hiệu lực: {effective_date}\n4. Thời hạn: {duration}\n\n---\n*Template version 1*`,
+      },
+    });
+    templateIds[t.key] = tmpl.id;
+  }
+  console.log(`  ✓ Document templates: ${Object.keys(templateIds).length}`);
+
+  // ── Seed documents + versions for demo requests ──
+  const allDemoRequests = await prisma.legalRequest.findMany({
+    where: { workspaceId: workspace.id, code: { startsWith: 'DEMO-' } },
+  });
+
+  const documentStatuses = ['draft', 'in_progress', 'submitted_for_review', 'approved', 'rejected'];
+
+  let docCount = 0;
+  for (const req of allDemoRequests) {
+    const tplKey = sampleTemplates[docCount % sampleTemplates.length].key;
+    const tpl = templateIds[tplKey];
+    if (!tpl) continue;
+
+    // Only create documents for requests past draft_intake/triage
+    const docStatus = req.status === 'draft_intake' || req.status === 'triage'
+      ? 'draft'
+      : documentStatuses[docCount % documentStatuses.length];
+
+    const doc = await prisma.document.create({
+      data: {
+        workspaceId: workspace.id,
+        requestId: req.id,
+        title: `Tài liệu: ${req.title}`,
+      },
+    });
+
+    await prisma.documentVersion.create({
+      data: {
+        documentId: doc.id,
+        templateId: tpl,
+        templateVersion: 1,
+        status: docStatus,
+        inputSnapshot: {
+          party_a: 'Công ty An Phát',
+          party_b: req.title.includes('đối tác') ? 'Đối tác ABC' : 'Bên liên quan',
+          effective_date: new Date().toISOString().split('T')[0],
+          duration: '12 tháng',
+        },
+        generatedContent: `# ${req.title}\n\n---\n\n## BÊN A: Công ty An Phát\nĐịa chỉ: 123 Nguyễn Huệ, Quận 1, TP.HCM\nMST: 0123456789\n\n## BÊN B: Bên liên quan\n\n## ĐIỀU 1: NỘI DUNG CÔNG VIỆC\nThực hiện ${req.title.toLowerCase()} theo yêu cầu.\n\n## ĐIỀU 2: THỜI HẠN\n12 tháng kể từ ngày ký.\n\n## ĐIỀU 3: PHÍ DỊCH VỤ\nTheo báo giá đính kèm.\n\n---\n*Tài liệu mẫu — chỉ dùng cho demo*`,
+      },
+    });
+    docCount++;
+  }
+  console.log(`  ✓ Documents + versions: ${docCount}`);
+
   // Phase 16 fixtures: minimum demo legal request, document, and document version
   // so dynamic detail routes can validate with role-owned IDs.
   const customerUser = demoCustomer;

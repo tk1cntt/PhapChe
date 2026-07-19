@@ -1,8 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
-import { FileCheck, XCircle, CheckCircle2, Eye, ArrowRight } from 'lucide-react';
+import { FileCheck, XCircle, CheckCircle2, Eye } from 'lucide-react';
 import '@/styles/pages/admin/reviewer-dashboard.css';
 
 interface ReviewerStats {
@@ -79,7 +78,6 @@ export default function ReviewerDashboardClient({
   recentDecisions,
   translations: t,
 }: ReviewerDashboardClientProps) {
-  const router = useRouter();
 
   return (
     <>
@@ -120,7 +118,7 @@ export default function ReviewerDashboardClient({
 
       {/* 3 Stat Cards */}
       <div className="stats stats-3">
-        <div className="stat-card-reviewer orange" onClick={() => router.push('/admin/review')}>
+        <div className="stat-card-reviewer orange">
           <div className="stat-card-icon">
             <Eye size={22} />
           </div>
@@ -130,7 +128,7 @@ export default function ReviewerDashboardClient({
             <span className="stat-card-desc">{t.statPendingDesc}</span>
           </div>
         </div>
-        <div className="stat-card-reviewer green" onClick={() => router.push('/admin/review')}>
+        <div className="stat-card-reviewer green">
           <div className="stat-card-icon">
             <CheckCircle2 size={22} />
           </div>
@@ -140,7 +138,7 @@ export default function ReviewerDashboardClient({
             <span className="stat-card-desc">{t.statApprovedTodayDesc}</span>
           </div>
         </div>
-        <div className="stat-card-reviewer red" onClick={() => router.push('/admin/review')}>
+        <div className="stat-card-reviewer red">
           <div className="stat-card-icon">
             <XCircle size={22} />
           </div>
@@ -161,7 +159,6 @@ export default function ReviewerDashboardClient({
               <FileCheck size={20} />
               {t.pendingReviews}
             </div>
-            <a href="/admin/review" className="panel-title-link">{t.viewAll} <ArrowRight size={14} /></a>
           </div>
 
           {pendingReviews.length === 0 ? (
@@ -187,9 +184,9 @@ export default function ReviewerDashboardClient({
                       <span className="task-priority" style={{ background: pr.bg, color: pr.color }}>
                         {item.priority}
                       </span>
-                      <a href="/admin/review" className="task-action-link review-action">
-                        {t.actionReview} →
-                      </a>
+                      <span className="task-action-label review-action">
+                        {t.actionReview}
+                      </span>
                     </div>
                   </div>
                 );

@@ -131,7 +131,10 @@
 }
 
 .review-action {
-  color: oklch(0.5 0.12 280) !important;
+  font-size: var(--text-sm2);
+  font-weight: 800;
+  color: oklch(0.5 0.12 280);
+  white-space: nowrap;
 }
 
 /* ── Decisions timeline ── */

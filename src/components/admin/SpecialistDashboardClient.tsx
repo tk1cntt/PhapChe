@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
-import { Clock, CheckCircle2, FileText, RotateCcw, ArrowRight } from 'lucide-react';
+import { Clock, CheckCircle2, FileText, RotateCcw } from 'lucide-react';
 import '@/styles/pages/admin/specialist-dashboard.css';
 
 interface SpecialistStats {
@@ -91,7 +89,6 @@ export default function SpecialistDashboardClient({
   recentTasks,
   translations: t,
 }: SpecialistDashboardClientProps) {
-  const router = useRouter();
 
   return (
     <>
@@ -132,7 +129,7 @@ export default function SpecialistDashboardClient({
 
       {/* 4 Stat Cards */}
       <div className="stats stats-4">
-        <div className="stat-card-specialist blue" onClick={() => router.push('/admin/requests')}>
+        <div className="stat-card-specialist blue">
           <div className="stat-card-icon">
             <FileText size={22} />
           </div>
@@ -142,7 +139,7 @@ export default function SpecialistDashboardClient({
             <span className="stat-card-desc">{t.statAssignedDesc}</span>
           </div>
         </div>
-        <div className="stat-card-specialist orange" onClick={() => router.push('/admin/requests')}>
+        <div className="stat-card-specialist orange">
           <div className="stat-card-icon">
             <Clock size={22} />
           </div>
@@ -152,7 +149,7 @@ export default function SpecialistDashboardClient({
             <span className="stat-card-desc">{t.statInProgressDesc}</span>
           </div>
         </div>
-        <div className="stat-card-specialist green" onClick={() => router.push('/admin/requests')}>
+        <div className="stat-card-specialist green">
           <div className="stat-card-icon">
             <CheckCircle2 size={22} />
           </div>
@@ -162,7 +159,7 @@ export default function SpecialistDashboardClient({
             <span className="stat-card-desc">{t.statPendingReviewDesc}</span>
           </div>
         </div>
-        <div className="stat-card-specialist red" onClick={() => router.push('/admin/requests')}>
+        <div className="stat-card-specialist red">
           <div className="stat-card-icon">
             <RotateCcw size={22} />
           </div>
@@ -183,7 +180,7 @@ export default function SpecialistDashboardClient({
               <FileText size={20} />
               {t.myTasks}
             </div>
-            <a href="/admin/requests" className="panel-title-link">{t.viewAll} <ArrowRight size={14} /></a>
+
           </div>
 
           {recentTasks.length === 0 ? (
@@ -213,9 +210,9 @@ export default function SpecialistDashboardClient({
                       <span className="task-priority" style={{ background: pr.bg, color: pr.color }}>
                         {task.priority}
                       </span>
-                      <a href={`/admin/requests`} className="task-action-link">
-                        {getActionLabel(task.status, t)} →
-                      </a>
+                      <span className="task-action-label">
+                        {getActionLabel(task.status, t)}
+                      </span>
                     </div>
                   </div>
                 );

@@ -21,10 +21,10 @@ export const ALL_ADMIN_ROLES: readonly AppRole[] = [
  */
 export const MENU_VISIBILITY: Record<string, readonly AppRole[] | null> = {
   dashboard: null,
-  requests: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
+  requests: ['super_admin', 'coordinator_admin'],
   users: ['super_admin', 'coordinator_admin'],
   workspace: ['super_admin', 'coordinator_admin'],
-  partner: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
+  partner: ['super_admin', 'coordinator_admin'],
   organizations: ['super_admin'],
   operations: ['super_admin', 'coordinator_admin'],
   audit: ['super_admin', 'coordinator_admin', 'audit_admin'],
@@ -47,12 +47,12 @@ export const TAB_VISIBILITY: Record<string, readonly AppRole[]> = {
  * Admin route → roles được phép truy cập.
  */
 export const ADMIN_ROUTE_GUARDS: Record<string, readonly AppRole[]> = {
-  requests: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
+  requests: ['super_admin', 'coordinator_admin'],
   dashboard: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer', 'audit_admin'],
   vault: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
   users: ['super_admin', 'coordinator_admin'],
   workspace: ['super_admin', 'coordinator_admin'],
-  partner: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
+  partner: ['super_admin', 'coordinator_admin'],
   operations: ['super_admin', 'coordinator_admin'],
   audit: ['super_admin', 'coordinator_admin', 'audit_admin'],
   organizations: ['super_admin'],

@@ -1418,6 +1418,22 @@
     "bannerDescDefault": "所有权限、角色和工作区变更均已记录在审计日志中。",
     "noWorkloadData": "暂无工作负载数据",
     "noAlerts": "暂无警报",
+    "alert": {
+      "accessDenied": "{count} 次访问被拒绝",
+      "accessDeniedDesc": "审核员超出工作区范围",
+      "nearSla": "{count} 个请求接近SLA截止",
+      "nearSlaDesc": "需在17:00前分配",
+      "roleChange": "{count} 个角色变更请求",
+      "roleChangeDesc": "等待超级管理员审批",
+      "noAlerts": "无高级警报",
+      "noAlertsDesc": "系统运行正常",
+      "badge": {
+        "audit": "审计",
+        "sla": "SLA",
+        "role": "角色",
+        "ok": "OK"
+      }
+    },
     "noApprovals": "暂无待审批请求",
     "noWorkspaces": "暂无工作区",
     "noTimeline": "暂无最近活动",

@@ -302,39 +302,46 @@ export default async function AdminDashboardPage({ params }: PageProps) {
     };
   });
 
-  // Alert data — dùng real stats thay vì query auditEvent trực tiếp (model không có field severity)
-  const alertData = [
+  // Alert data — structured type keys để client component format bằng i18n
+  const alertData: Array<{
+    type: 'accessDenied' | 'nearSla' | 'roleChange' | 'noAlerts';
+    icon: string;
+    iconColor: 'red' | 'orange' | 'blue' | 'green';
+    count: number;
+    badgeKey: string;
+    badgeColor: 'red' | 'orange' | 'blue' | 'green';
+  }> = [
     {
+      type: 'accessDenied',
       icon: '!',
-      iconColor: 'red' as const,
-      title: `${auditAlertsCount} Truy cập bị từ chối`,
-      description: 'Reviewer ngoài workspace scope',
-      badge: 'Audit',
-      badgeColor: 'red' as const,
+      iconColor: 'red',
+      count: auditAlertsCount,
+      badgeKey: 'audit',
+      badgeColor: 'red',
     },
     {
+      type: 'nearSla',
       icon: 'S',
-      iconColor: 'orange' as const,
-      title: `${nearSlaRequests} hồ sơ sắp quá SLA`,
-      description: 'Cần điều phối trước 17:00',
-      badge: 'SLA',
-      badgeColor: 'orange' as const,
+      iconColor: 'orange',
+      count: nearSlaRequests,
+      badgeKey: 'sla',
+      badgeColor: 'orange',
     },
     {
+      type: 'roleChange',
       icon: 'R',
-      iconColor: 'blue' as const,
-      title: `${pendingApprovalsRaw.length} yêu cầu đổi role`,
-      description: 'Đang chờ Super Admin duyệt',
-      badge: 'Role',
-      badgeColor: 'blue' as const,
+      iconColor: 'blue',
+      count: pendingApprovalsRaw.length,
+      badgeKey: 'role',
+      badgeColor: 'blue',
     },
     {
+      type: 'noAlerts',
       icon: 'V',
-      iconColor: 'green' as const,
-      title: 'Không có cảnh báo cao',
-      description: 'Hệ thống hoạt động bình thường',
-      badge: 'OK',
-      badgeColor: 'green' as const,
+      iconColor: 'green',
+      count: 0,
+      badgeKey: 'ok',
+      badgeColor: 'green',
     },
   ];
 

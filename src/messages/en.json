@@ -1714,6 +1714,22 @@
     "bannerDescDefault": "Changes to permissions, roles and workspaces are recorded in the audit log.",
     "noWorkloadData": "No workload data yet",
     "noAlerts": "No alerts",
+    "alert": {
+      "accessDenied": "{count} access denied",
+      "accessDeniedDesc": "Reviewer outside workspace scope",
+      "nearSla": "{count} requests near SLA",
+      "nearSlaDesc": "Dispatch before 17:00",
+      "roleChange": "{count} role change requests",
+      "roleChangeDesc": "Awaiting Super Admin approval",
+      "noAlerts": "No high alerts",
+      "noAlertsDesc": "System operating normally",
+      "badge": {
+        "audit": "Audit",
+        "sla": "SLA",
+        "role": "Role",
+        "ok": "OK"
+      }
+    },
     "noApprovals": "No pending approvals",
     "noWorkspaces": "No workspaces yet",
     "noTimeline": "No recent activity",

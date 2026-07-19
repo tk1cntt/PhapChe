@@ -1717,6 +1717,22 @@
     "bannerDescDefault": "Các thay đổi quyền, role và workspace đều được ghi nhận trong audit log.",
     "noWorkloadData": "Chưa có dữ liệu workload",
     "noAlerts": "Không có cảnh báo",
+    "alert": {
+      "accessDenied": "{count} Truy cập bị từ chối",
+      "accessDeniedDesc": "Reviewer ngoài workspace scope",
+      "nearSla": "{count} hồ sơ sắp quá SLA",
+      "nearSlaDesc": "Cần điều phối trước 17:00",
+      "roleChange": "{count} yêu cầu đổi role",
+      "roleChangeDesc": "Đang chờ Super Admin duyệt",
+      "noAlerts": "Không có cảnh báo cao",
+      "noAlertsDesc": "Hệ thống hoạt động bình thường",
+      "badge": {
+        "audit": "Audit",
+        "sla": "SLA",
+        "role": "Role",
+        "ok": "OK"
+      }
+    },
     "noApprovals": "Không có yêu cầu chờ duyệt",
     "noWorkspaces": "Chưa có workspace nào",
     "noTimeline": "Không có hoạt động nào gần đây",

@@ -2,12 +2,14 @@
 
 import { useTranslations } from 'next-intl';
 
+type AlertType = 'accessDenied' | 'nearSla' | 'roleChange' | 'noAlerts';
+
 interface AlertItemProps {
+  type: AlertType;
   icon: string;
   iconColor: 'red' | 'orange' | 'blue' | 'green';
-  title: string;
-  description: string;
-  badge: string;
+  count: number;
+  badgeKey: string;
   badgeColor: 'red' | 'orange' | 'blue' | 'green';
 }
 
@@ -18,17 +20,18 @@ const badgeClass: Record<string, string> = {
   green: 'badge green',
 };
 
-function AlertItem({ icon, iconColor, title, description, badge, badgeColor }: AlertItemProps) {
+function AlertItem({ type, icon, iconColor, count, badgeKey, badgeColor }: AlertItemProps) {
+  const t = useTranslations('AdminDashboard');
   return (
     <div className="alert-item">
       <div className="item-left">
         <div className={`item-icon ${iconColor}`}>{icon}</div>
         <div className="item-info">
-          <strong>{title}</strong>
-          <span>{description}</span>
+          <strong>{t(`alert.${type}`, { count })}</strong>
+          <span>{t(`alert.${type}Desc`)}</span>
         </div>
       </div>
-      <span className={badgeClass[badgeColor] || badgeClass.blue}>{badge}</span>
+      <span className={badgeClass[badgeColor] || badgeClass.blue}>{t(`alert.badge.${badgeKey}`)}</span>
     </div>
   );
 }

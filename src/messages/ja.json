@@ -1418,6 +1418,22 @@
     "bannerDescDefault": "すべての権限、ロール、ワークスペースの変更は監査ログに記録されます。",
     "noWorkloadData": "ワークロードデータなし",
     "noAlerts": "アラートなし",
+    "alert": {
+      "accessDenied": "{count}件のアクセス拒否",
+      "accessDeniedDesc": "レビュアーがワークスペース範囲外",
+      "nearSla": "{count}件のSLA期限間近",
+      "nearSlaDesc": "17:00までに割り当てが必要",
+      "roleChange": "{count}件のロール変更依頼",
+      "roleChangeDesc": "スーパー管理者の承認待ち",
+      "noAlerts": "重大なアラートなし",
+      "noAlertsDesc": "システムは正常に稼働中",
+      "badge": {
+        "audit": "監査",
+        "sla": "SLA",
+        "role": "ロール",
+        "ok": "OK"
+      }
+    },
     "noApprovals": "承認待ちリクエストなし",
     "noWorkspaces": "ワークスペースなし",
     "noTimeline": "最近のアクティビティなし",

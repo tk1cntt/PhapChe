@@ -30,11 +30,11 @@ interface AdminDashboardClientProps {
     count: string;
   }>;
   alertData: Array<{
+    type: 'accessDenied' | 'nearSla' | 'roleChange' | 'noAlerts';
     icon: string;
     iconColor: 'red' | 'orange' | 'blue' | 'green';
-    title: string;
-    description: string;
-    badge: string;
+    count: number;
+    badgeKey: string;
     badgeColor: 'red' | 'orange' | 'blue' | 'green';
   }>;
   workspaceData: Array<{

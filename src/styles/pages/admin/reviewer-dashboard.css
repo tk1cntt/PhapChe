@@ -1,0 +1,219 @@
+/* Reviewer Dashboard — dedicated view for reviewer role */
+
+/* ── Welcome Banner ── */
+.reviewer-banner {
+  background: linear-gradient(135deg, oklch(0.92 0.05 280), oklch(0.97 0.02 240));
+  border: 1px solid oklch(0.85 0.04 280);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.reviewer-banner h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.reviewer-banner p {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm2);
+  margin: 0;
+}
+
+.reviewer-banner strong {
+  color: oklch(0.5 0.12 280);
+  font-weight: 700;
+}
+
+/* ── Reviewer stat cards ── */
+.stats-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card-reviewer {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+  transition: box-shadow var(--dur-normal) var(--ease-out), border-color var(--dur-normal) var(--ease-out);
+}
+
+.stat-card-reviewer:hover {
+  box-shadow: 0 4px 16px oklch(0 0 0 / 0.08);
+  border-color: var(--color-border);
+}
+
+.stat-card-reviewer.orange .stat-card-icon { background: oklch(0.94 0.06 60); color: var(--color-warning); }
+.stat-card-reviewer.green .stat-card-icon { background: var(--color-primary-muted); color: var(--color-primary); }
+.stat-card-reviewer.red .stat-card-icon { background: var(--color-danger-muted); color: var(--color-danger); }
+
+/* ── Review queue ── */
+.reviewer-queue-list {
+  display: grid;
+  gap: 10px;
+}
+
+.reviewer-queue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: oklch(0.985 0.003 240);
+  transition: box-shadow var(--dur-normal) var(--ease-out);
+}
+
+.reviewer-queue-item:hover {
+  box-shadow: 0 2px 8px oklch(0 0 0 / 0.06);
+}
+
+.queue-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.queue-code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: var(--text-xs);
+  color: oklch(0.5 0.12 280);
+  background: oklch(0.93 0.05 280);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.queue-info {
+  min-width: 0;
+}
+
+.queue-info strong {
+  display: block;
+  font-size: var(--text-sm2);
+  color: var(--color-text);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-info span {
+  display: block;
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.queue-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.review-action {
+  color: oklch(0.5 0.12 280) !important;
+}
+
+/* ── Decisions timeline ── */
+.decisions-timeline {
+  display: grid;
+  gap: 12px;
+}
+
+.decision-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: oklch(0.985 0.003 240);
+}
+
+.decision-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.decision-dot.approved { background: var(--color-primary); }
+.decision-dot.revised { background: var(--color-danger); }
+
+.decision-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.decision-info strong {
+  display: block;
+  font-size: var(--text-sm2);
+  color: var(--color-text);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.decision-info span {
+  display: block;
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.decision-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.decision-time {
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .stats-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .reviewer-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-3 {
+    grid-template-columns: 1fr;
+  }
+}

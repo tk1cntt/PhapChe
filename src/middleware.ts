@@ -99,16 +99,14 @@ export default async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Admin routes require session → redirect to login if missing
-  // Role-based access is checked by admin layout.tsx (Node.js server component)
-  if (isAdmin && !sessionCookie) {
+  // All non-public routes require session → redirect to login if missing
+  // Role-based access for admin is checked by admin layout.tsx (Node.js server component)
+  if (!sessionCookie) {
     const locale = currentLocale && routing.locales.includes(currentLocale as typeof routing.locales[number])
       ? currentLocale : 'vi';
     return NextResponse.redirect(new URL(buildLoginUrl(pathname, search, locale), request.url));
   }
 
-  // Non-admin routes with session cookie → pass through
-  // NOTE: Role guard moved to admin layout.tsx which runs on Node.js (can use Prisma)
   return response;
 }
 

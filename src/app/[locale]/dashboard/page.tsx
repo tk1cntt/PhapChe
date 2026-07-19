@@ -93,9 +93,9 @@ export default async function DashboardPage({
         take: 10,
       });
     })(),
-    // Recent vault documents
+    // Recent vault documents (all workspace files, not just user's own)
     prisma.vaultFile.findMany({
-      where: { workspaceId: wsId, actorId: userId },
+      where: { workspaceId: wsId },
       include: {
         actor: { select: { id: true, name: true } },
       },

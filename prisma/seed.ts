@@ -571,6 +571,59 @@ async function main() {
   }
   console.log(`  ✓ Documents + versions: ${docCount}`);
 
+  // ── Seed vault files for demo-legal-workspace ──
+  const demoVaultFiles = [
+    'Hợp đồng lao động thời vụ - Bản cuối.pdf',
+    'Thỏa thuận bảo mật NDA - Đã ký.pdf',
+    'Giấy phép kinh doanh công ty.docx',
+    'Điều lệ công ty TNHH.pdf',
+    'Báo cáo tuân thủ PCCC.docx',
+    'Hợp đồng phân phối độc quyền - Dự thảo.pdf',
+    'Đơn đăng ký nhãn hiệu Pháp Việt.pdf',
+    'Biên bản thỏa thuận hợp tác.docx',
+    'Báo cáo tài chính quý 1-2026.xlsx',
+    'Hợp đồng thuê văn phòng quận 1.pdf',
+    'Hồ sơ sáp nhập chi nhánh.docx',
+    'Đăng ký sáng chế - Mô tả kỹ thuật.pdf',
+  ];
+
+  const demoMimeTypes = [
+    'application/pdf', 'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/pdf',
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/pdf',
+  ];
+
+  const fileKinds = ['contract', 'nda', 'license', 'charter', 'compliance', 'contract', 'application', 'minutes', 'report', 'contract', 'merger', 'patent'];
+
+  for (let i = 0; i < demoVaultFiles.length; i++) {
+    const relatedReq = allDemoRequests[i % allDemoRequests.length];
+    const uploaderIdx = i % 3;
+    const uploaderEmails = ['customer.demo@example.test', 'specialist.demo@example.test', 'customer2.demo@example.test'];
+    const uploader = await prisma.user.findUniqueOrThrow({ where: { email: uploaderEmails[uploaderIdx] } });
+
+    await prisma.vaultFile.create({
+      data: {
+        storageKey: `vault/demo/${Date.now()}-${i}`,
+        contentType: demoMimeTypes[i],
+        size: Math.floor(Math.random() * 5000000) + 100000,
+        workspaceId: workspace.id,
+        requestId: relatedReq.id,
+        actorId: uploader.id,
+        fileKind: fileKinds[i],
+        filename: demoVaultFiles[i],
+      },
+    });
+  }
+  console.log(`  ✓ Vault files: ${demoVaultFiles.length}`);
+
   // Phase 16 fixtures: minimum demo legal request, document, and document version
   // so dynamic detail routes can validate with role-owned IDs.
   const customerUser = demoCustomer;

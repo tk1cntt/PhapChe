@@ -2210,7 +2210,8 @@
     "errorForbidden": "You don't have permission for this action.",
     "errorTransitionFailed": "Status transition failed. Please try again.",
     "errorUnknown": "An unknown error occurred.",
-    "successTransitioned": "Status changed to: {status}!"
+    "successTransitioned": "Status changed to: {status}!",
+    "btnAiAssist": "AI Assistant"
   },
   "ReviewConsole": {
     "statPending": "Pending Review",
@@ -2249,7 +2250,8 @@
     "errorForbidden": "You do not have permission to review this request.",
     "errorTransitionFailed": "Unable to review this request. Please try again.",
     "errorUnknown": "An unknown error occurred.",
-    "successReviewed": "Reviewed: {status}!"
+    "successReviewed": "Reviewed: {status}!",
+    "btnAiAssist": "AI Assistant"
   },
   "DeliveryConsole": {
     "statApproved": "Approved",

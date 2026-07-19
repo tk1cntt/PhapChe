@@ -2108,7 +2108,8 @@
     "errorForbidden": "この操作の権限がありません。",
     "errorTransitionFailed": "ステータス遷移に失敗しました。再試行してください。",
     "errorUnknown": "不明なエラーが発生しました。",
-    "successTransitioned": "ステータスが {status} に変更されました！"
+    "successTransitioned": "ステータスが {status} に変更されました！",
+    "btnAiAssist": "AIアシスタント"
   },
   "ReviewConsole": {
     "statPending": "レビュー待ち",
@@ -2147,7 +2148,8 @@
     "errorForbidden": "この案件をレビューする権限がありません。",
     "errorTransitionFailed": "レビュー処理に失敗しました。再試行してください。",
     "errorUnknown": "不明なエラーが発生しました。",
-    "successReviewed": "レビュー完了: {status}！"
+    "successReviewed": "レビュー完了: {status}！",
+    "btnAiAssist": "AIアシスタント"
   },
   "DeliveryConsole": {
     "statApproved": "承認済み",

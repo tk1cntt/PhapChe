@@ -2108,7 +2108,8 @@
     "errorForbidden": "您没有权限执行此操作。",
     "errorTransitionFailed": "状态转换失败，请重试。",
     "errorUnknown": "发生未知错误。",
-    "successTransitioned": "状态已更改为: {status}！"
+    "successTransitioned": "状态已更改为: {status}！",
+    "btnAiAssist": "AI助手"
   },
   "ReviewConsole": {
     "statPending": "待审核",
@@ -2147,7 +2148,8 @@
     "errorForbidden": "您无权审核此案件。",
     "errorTransitionFailed": "审核处理失败，请重试。",
     "errorUnknown": "发生未知错误。",
-    "successReviewed": "审核完成: {status}！"
+    "successReviewed": "审核完成: {status}！",
+    "btnAiAssist": "AI助手"
   },
   "DeliveryConsole": {
     "statApproved": "已通过",

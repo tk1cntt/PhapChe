@@ -2190,5 +2190,29 @@
     "errorTransitionFailed": "操作に失敗しました。再試行してください。",
     "errorUnknown": "不明なエラーが発生しました。",
     "successTransitioned": "ステータスが {status} に変更されました！"
+  },
+  "ChatActivity": {
+    "pageTitle": "AIチャット",
+    "backLink": "戻る",
+    "modelLabel": "モデル",
+    "emptyTitle": "AIとのチャットを開始",
+    "emptyDesc": "質問を入力するか、以下からAIスキルを選択して法的サポートを受けてください。",
+    "inputPlaceholder": "質問やリクエストを入力...",
+    "send": "送信",
+    "skillLabel": "スキル",
+    "skillNone": "なし",
+    "skillGeneralResearch": "法律リサーチ",
+    "skillContractDraft": "契約書作成",
+    "skillContractReview": "契約書レビュー",
+    "skillComplianceCheck": "コンプライアンス",
+    "typingIndicator": "AIが応答中...",
+    "youLabel": "あなた",
+    "aiLabel": "AIアシスタント",
+    "citationsLabel": "引用",
+    "tokensLabel": "トークン",
+    "errorLoad": "チャット履歴を読み込めません。",
+    "errorSend": "メッセージを送信できません。",
+    "errorAiNotConfigured": "AIが設定されていません。メッセージは保存されましたがAIは応答しませんでした。",
+    "retry": "再試行"
   }
 }

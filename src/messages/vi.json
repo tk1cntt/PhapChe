@@ -2295,5 +2295,29 @@
     "errorTransitionFailed": "Không thể thực hiện thao tác. Vui lòng thử lại.",
     "errorUnknown": "Đã xảy ra lỗi không xác định.",
     "successTransitioned": "Đã chuyển sang trạng thái: {status}!"
+  },
+  "ChatActivity": {
+    "pageTitle": "Trò chuyện AI",
+    "backLink": "Quay lại",
+    "modelLabel": "Model",
+    "emptyTitle": "Bắt đầu trò chuyện với AI",
+    "emptyDesc": "Đặt câu hỏi hoặc chọn kỹ năng AI bên dưới để nhận hỗ trợ pháp lý cho request này.",
+    "inputPlaceholder": "Nhập câu hỏi hoặc yêu cầu...",
+    "send": "Gửi",
+    "skillLabel": "Kỹ năng",
+    "skillNone": "Không",
+    "skillGeneralResearch": "Nghiên cứu PL",
+    "skillContractDraft": "Soạn HĐ",
+    "skillContractReview": "Rà soát HĐ",
+    "skillComplianceCheck": "Tuân thủ",
+    "typingIndicator": "AI đang trả lời...",
+    "youLabel": "Bạn",
+    "aiLabel": "AI Assistant",
+    "citationsLabel": "Trích dẫn",
+    "tokensLabel": "tokens",
+    "errorLoad": "Không thể tải lịch sử trò chuyện.",
+    "errorSend": "Không thể gửi tin nhắn.",
+    "errorAiNotConfigured": "AI chưa được cấu hình. Tin nhắn của bạn đã được lưu nhưng AI chưa phản hồi.",
+    "retry": "Thử lại"
   }
 }

@@ -11,72 +11,86 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 
 // ── Mocks ────────────────────────────────────────────────────
 
-// Mock next-intl
-vi.mock('next-intl', () => ({
-  useTranslations: (namespace?: string) => (key: string) => {
-    const maps: Record<string, Record<string, string>> = {
-      SpecialistWorkbench: {
-        statAssigned: 'Đã phân công',
-        statInProgress: 'Đang xử lý',
-        statPendingReview: 'Chờ kiểm tra',
-        statRevision: 'Cần sửa',
-        searchPlaceholder: 'Tìm kiếm...',
-        filterAll: 'Tất cả',
-        loading: 'Đang tải...',
-        retry: 'Thử lại',
-        emptyTitle: 'Trống',
-        emptyDesc: 'Không có dữ liệu',
-        colCode: 'Mã',
-        colTitle: 'Tiêu đề',
-        colCustomer: 'KH',
-        colWorkspace: 'WS',
-        colType: 'Loại',
-        colPriority: 'Ưu tiên',
-        colStatus: 'Trạng thái',
-        colAction: 'Thao tác',
-        btnStartWork: 'Bắt đầu',
-        btnSubmitReview: 'Gửi KT',
-        btnResubmit: 'Gửi lại',
-        btnAiAssist: 'AI',
-        reviewerLabel: 'Reviewer',
-        errorUnknown: 'Lỗi',
-        errorForbidden: 'Cấm',
-        statusJustUpdated: 'Đã cập nhật',
-        prev: 'Trước',
-        next: 'Sau',
-      },
-      ReviewConsole: {
-        statPending: 'Chờ KT',
-        statApproved: 'Đã duyệt',
-        statRevision: 'Cần sửa',
-        searchPlaceholder: 'Tìm kiếm...',
-        loading: 'Đang tải...',
-        retry: 'Thử lại',
-        emptyTitle: 'Trống',
-        emptyDesc: 'Không có dữ liệu',
-        colCode: 'Mã',
-        colTitle: 'Tiêu đề',
-        colCustomer: 'KH',
-        colWorkspace: 'WS',
-        colType: 'Loại',
-        colPriority: 'Ưu tiên',
-        colSpecialist: 'Chuyên viên',
-        colStatus: 'Trạng thái',
-        colAction: 'Thao tác',
-        btnApprove: 'Duyệt',
-        btnRevise: 'YCS',
-        btnAiAssist: 'AI',
-        specialistLabel: 'CV',
-        errorUnknown: 'Lỗi',
-        errorForbidden: 'Cấm',
-        prev: 'Trước',
-        next: 'Sau',
-      },
-    };
-    const map = namespace ? (maps[namespace] ?? {}) : {};
-    return map[key] ?? key;
-  },
+// Mock next/navigation
+const mockPush = vi.fn();
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush }),
+  useParams: () => ({}),
 }));
+
+// Mock next-intl with stable translation references (avoid useCallback infinite re-render)
+vi.mock('next-intl', () => {
+  const specialistMap: Record<string, string> = {
+    statAssigned: 'Đã phân công',
+    statInProgress: 'Đang xử lý',
+    statPendingReview: 'Chờ kiểm tra',
+    statRevision: 'Cần sửa',
+    searchPlaceholder: 'Tìm kiếm...',
+    filterAll: 'Tất cả',
+    loading: 'Đang tải...',
+    retry: 'Thử lại',
+    emptyTitle: 'Trống',
+    emptyDesc: 'Không có dữ liệu',
+    colCode: 'Mã',
+    colTitle: 'Tiêu đề',
+    colCustomer: 'KH',
+    colWorkspace: 'WS',
+    colType: 'Loại',
+    colPriority: 'Ưu tiên',
+    colStatus: 'Trạng thái',
+    colAction: 'Thao tác',
+    btnStartWork: 'Bắt đầu',
+    btnSubmitReview: 'Gửi KT',
+    btnResubmit: 'Gửi lại',
+    btnAiAssist: 'AI',
+    reviewerLabel: 'Reviewer',
+    errorUnknown: 'Lỗi',
+    errorForbidden: 'Cấm',
+    statusJustUpdated: 'Đã cập nhật',
+    prev: 'Trước',
+    next: 'Sau',
+  };
+
+  const reviewMap: Record<string, string> = {
+    statPending: 'Chờ KT',
+    statApproved: 'Đã duyệt',
+    statRevision: 'Cần sửa',
+    searchPlaceholder: 'Tìm kiếm...',
+    loading: 'Đang tải...',
+    retry: 'Thử lại',
+    emptyTitle: 'Trống',
+    emptyDesc: 'Không có dữ liệu',
+    colCode: 'Mã',
+    colTitle: 'Tiêu đề',
+    colCustomer: 'KH',
+    colWorkspace: 'WS',
+    colType: 'Loại',
+    colPriority: 'Ưu tiên',
+    colSpecialist: 'Chuyên viên',
+    colStatus: 'Trạng thái',
+    colAction: 'Thao tác',
+    btnApprove: 'Duyệt',
+    btnRevise: 'YCS',
+    btnAiAssist: 'AI',
+    specialistLabel: 'CV',
+    errorUnknown: 'Lỗi',
+    errorForbidden: 'Cấm',
+    prev: 'Trước',
+    next: 'Sau',
+  };
+
+  const tSpecialist = vi.fn((key: string) => specialistMap[key] ?? key);
+  const tReviewer = vi.fn((key: string) => reviewMap[key] ?? key);
+  const tGeneric = vi.fn((key: string) => key);
+
+  return {
+    useTranslations: (namespace?: string) => {
+      if (namespace === 'SpecialistWorkbench') return tSpecialist;
+      if (namespace === 'ReviewConsole') return tReviewer;
+      return tGeneric;
+    },
+  };
+});
 
 vi.mock('@/components/ui/Paging', () => ({
   default: ({ current, pageSize, total, onChange }: any) => (
@@ -384,7 +398,7 @@ describe('AiStatusBadge', () => {
 import { SpecialistWorkbench } from '@/components/admin/SpecialistWorkbench';
 
 const makeWorkbenchReq = (overrides: Record<string, unknown> = {}) => ({
-  id: overrides.id as string ?? 'req-1',
+  id: overrides.id as string ?? '1',
   code: overrides.code as string ?? 'REQ-001',
   title: overrides.title as string ?? 'Test Request',
   description: '',
@@ -414,7 +428,7 @@ describe('SpecialistWorkbench AI Integration', () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
-          data: [makeWorkbenchReq(), makeWorkbenchReq({ id: 'req-2', code: 'REQ-002' })],
+          data: [makeWorkbenchReq(), makeWorkbenchReq({ id: '2', code: 'REQ-002' })],
           stats: { assigned: 2, inProgress: 0, pendingReview: 0, revisionRequired: 0 },
           total: 2,
           page: 1,
@@ -431,8 +445,7 @@ describe('SpecialistWorkbench AI Integration', () => {
       });
     });
 
-    it('should open AiAssistantPanel when AI button is clicked', async () => {
-      // Mock AiAssistantPanel import at render time
+    it('should navigate to chat page when AI button is clicked', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
@@ -453,13 +466,13 @@ describe('SpecialistWorkbench AI Integration', () => {
 
       fireEvent.click(screen.getByTestId('ai-btn-req-1'));
 
-      // AiAssistantPanel should now be visible
+      // Should navigate to chat page instead of opening inline panel
       await waitFor(() => {
-        expect(screen.getByTestId('ai-assistant-panel')).toBeTruthy();
+        expect(mockPush).toHaveBeenCalledWith('/vi/admin/requests/1/chat');
       });
     });
 
-    it('should close AiAssistantPanel when AI button is clicked again', async () => {
+    it('should navigate again when AI button is clicked again', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
@@ -478,24 +491,20 @@ describe('SpecialistWorkbench AI Integration', () => {
         expect(screen.getByTestId('ai-btn-req-1')).toBeTruthy();
       });
 
-      // Open
+      // Click twice — both clicks should navigate
       fireEvent.click(screen.getByTestId('ai-btn-req-1'));
-      await waitFor(() => {
-        expect(screen.getByTestId('ai-assistant-panel')).toBeTruthy();
-      });
+      fireEvent.click(screen.getByTestId('ai-btn-req-1'));
 
-      // Close
-      fireEvent.click(screen.getByTestId('ai-btn-req-1'));
       await waitFor(() => {
-        expect(screen.queryByTestId('ai-assistant-panel')).toBeNull();
+        expect(mockPush).toHaveBeenCalledTimes(2);
       });
     });
 
-    it('should switch AI target when clicking different row', async () => {
+    it('should navigate to chat page on AI button click for any request', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
-          data: [makeWorkbenchReq(), makeWorkbenchReq({ id: 'req-2', code: 'REQ-002', title: 'Request 2' })],
+          data: [makeWorkbenchReq(), makeWorkbenchReq({ id: '2', code: 'REQ-002', title: 'Request 2' })],
           stats: { assigned: 2, inProgress: 0, pendingReview: 0, revisionRequired: 0 },
           total: 2,
           page: 1,
@@ -513,26 +522,24 @@ describe('SpecialistWorkbench AI Integration', () => {
 
       fireEvent.click(screen.getByTestId('ai-btn-req-1'));
       await waitFor(() => {
-        expect(screen.getByTestId('ai-assistant-panel')).toBeTruthy();
+        expect(mockPush).toHaveBeenCalledWith('/vi/admin/requests/1/chat');
       });
 
-      // Click req-2's AI button — should switch, panel stays open
-      const btn2 = document.querySelector('[data-testid="ai-btn-req-2"]');
-      expect(btn2).toBeTruthy();
-      fireEvent.click(btn2!);
+      mockPush.mockClear();
 
+      fireEvent.click(screen.getByTestId('ai-btn-req-2'));
       await waitFor(() => {
-        expect(screen.getByTestId('ai-assistant-panel')).toBeTruthy();
+        expect(mockPush).toHaveBeenCalledWith('/vi/admin/requests/2/chat');
       });
     });
   });
 
   describe('Blackbox', () => {
-    it('should pass correct requestId and matterTypeKey to AiAssistantPanel', async () => {
+    it('should navigate to chat page with correct requestId on AI click', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
-          data: [makeWorkbenchReq({ id: 'req-42', matterTypeKey: 'labor_contract' })],
+          data: [makeWorkbenchReq({ id: '42', matterTypeKey: 'labor_contract' })],
           stats: { assigned: 1, inProgress: 0, pendingReview: 0, revisionRequired: 0 },
           total: 1,
           page: 1,
@@ -549,15 +556,14 @@ describe('SpecialistWorkbench AI Integration', () => {
 
       fireEvent.click(screen.getByTestId('ai-btn-req-42'));
 
-      // Panel should show with correct context
       await waitFor(() => {
-        expect(screen.getByTestId('ai-assistant-panel')).toBeTruthy();
+        expect(mockPush).toHaveBeenCalledWith('/vi/admin/requests/42/chat');
       });
     });
   });
 
   describe('Abnormal', () => {
-    it('should handle null matterTypeKey in AI button', async () => {
+    it('should handle null matterTypeKey in AI button with navigation', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
@@ -570,6 +576,8 @@ describe('SpecialistWorkbench AI Integration', () => {
         }),
       });
 
+      mockPush.mockClear();
+
       render(<SpecialistWorkbench />);
 
       await waitFor(() => {
@@ -579,11 +587,11 @@ describe('SpecialistWorkbench AI Integration', () => {
       fireEvent.click(screen.getByTestId('ai-btn-req-1'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-assistant-panel')).toBeTruthy();
+        expect(mockPush).toHaveBeenCalledWith('/vi/admin/requests/1/chat');
       });
     });
 
-    it('should not render AI panel when no ai target', async () => {
+    it('should not render inline AI panel (navigation-only pattern)', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
@@ -602,6 +610,7 @@ describe('SpecialistWorkbench AI Integration', () => {
         expect(screen.getByTestId('ai-btn-req-1')).toBeTruthy();
       });
 
+      // No inline panel — navigation pattern only
       expect(screen.queryByTestId('ai-assistant-panel')).toBeNull();
     });
   });
@@ -654,12 +663,12 @@ describe('ReviewConsole AI Integration', () => {
       render(<ReviewConsole />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-rev-1')).toBeTruthy();
-        expect(screen.getByTestId('ai-btn-rev-2')).toBeTruthy();
+        expect(screen.getByTestId('ai-btn-req-rev-1')).toBeTruthy();
+        expect(screen.getByTestId('ai-btn-req-rev-2')).toBeTruthy();
       });
     });
 
-    it('should open AiAssistantPanel on AI button click', async () => {
+    it('should navigate to chat page on AI button click in ReviewConsole', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
@@ -672,20 +681,22 @@ describe('ReviewConsole AI Integration', () => {
         }),
       });
 
+      mockPush.mockClear();
+
       render(<ReviewConsole />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-rev-1')).toBeTruthy();
+        expect(screen.getByTestId('ai-btn-req-rev-1')).toBeTruthy();
       });
 
-      fireEvent.click(screen.getByTestId('ai-btn-rev-1'));
+      fireEvent.click(screen.getByTestId('ai-btn-req-rev-1'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-assistant-panel')).toBeTruthy();
+        expect(mockPush).toHaveBeenCalledWith('/vi/admin/requests/rev-1/chat');
       });
     });
 
-    it('should toggle panel on repeated AI button clicks', async () => {
+    it('should navigate again on repeated AI button clicks in ReviewConsole', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({
@@ -698,25 +709,20 @@ describe('ReviewConsole AI Integration', () => {
         }),
       });
 
+      mockPush.mockClear();
+
       render(<ReviewConsole />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-rev-1')).toBeTruthy();
+        expect(screen.getByTestId('ai-btn-req-rev-1')).toBeTruthy();
       });
 
-      // Open panel
-      fireEvent.click(screen.getByTestId('ai-btn-rev-1'));
-      await waitFor(() => {
-        expect(screen.getByTestId('ai-assistant-panel')).toBeTruthy();
-      });
-
-      // Close panel — button still exists in row above the panel
-      const btn = document.querySelector('[data-testid="ai-btn-rev-1"]');
-      expect(btn).toBeTruthy();
-      fireEvent.click(btn!);
+      // Click twice — both clicks navigate
+      fireEvent.click(screen.getByTestId('ai-btn-req-rev-1'));
+      fireEvent.click(screen.getByTestId('ai-btn-req-rev-1'));
 
       await waitFor(() => {
-        expect(screen.queryByTestId('ai-assistant-panel')).toBeNull();
+        expect(mockPush).toHaveBeenCalledTimes(2);
       });
     });
   });
@@ -740,7 +746,7 @@ describe('ReviewConsole AI Integration', () => {
       await waitFor(() => {
         expect(screen.getByText('Duyệt')).toBeTruthy();
         expect(screen.getByText('YCS')).toBeTruthy();
-        expect(screen.getByTestId('ai-btn-rev-1')).toBeTruthy();
+        expect(screen.getByTestId('ai-btn-req-rev-1')).toBeTruthy();
       });
     });
   });

@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
 import Paging from '@/components/ui/Paging';
 import { ReviewDialog } from './ReviewDialog';
-import { AiAssistantPanel } from './AiAssistantPanel';
 
 interface ReviewRequest {
   id: string;
@@ -55,8 +55,8 @@ export function ReviewConsole() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
+  const router = useRouter();
   const [dialogTarget, setDialogTarget] = useState<ReviewRequest | null>(null);
-  const [aiTarget, setAiTarget] = useState<{ id: string; title: string; matterTypeKey: string | null } | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -233,11 +233,14 @@ export function ReviewConsole() {
                     <button
                       type="button"
                       className="ai-btn"
-                      onClick={() => setAiTarget(aiTarget?.id === req.id ? null : { id: req.id, title: req.title, matterTypeKey: req.matterTypeKey })}
+                      onClick={() => {
+                        const locale = window.location.pathname.split('/')[1] || 'vi';
+                        router.push(`/${locale}/admin/requests/${req.id}/chat`);
+                      }}
                       title={t('btnAiAssist')}
                       style={{
-                        background: aiTarget?.id === req.id ? '#f3e8ff' : 'transparent',
-                        color: aiTarget?.id === req.id ? '#9333ea' : '#a78bfa',
+                        background: 'transparent',
+                        color: '#a78bfa',
                         border: '1px solid #e9d5ff',
                         borderRadius: '4px',
                         padding: '3px 6px',
@@ -247,7 +250,7 @@ export function ReviewConsole() {
                         alignItems: 'center',
                         gap: '3px',
                       }}
-                      data-testid={`ai-btn-${req.id}`}
+                      data-testid={`ai-btn-req-${req.id}`}
                     >
                       <Sparkles size={12} />
                       AI
@@ -264,17 +267,6 @@ export function ReviewConsole() {
             pageSize={10}
             total={data.total}
             onChange={(p) => setPage(p)}
-          />
-        </div>
-      )}
-
-      {/* AI Assistant Panel */}
-      {aiTarget && (
-        <div className="mt-4">
-          <AiAssistantPanel
-            requestId={aiTarget.id}
-            requestTitle={aiTarget.title}
-            matterTypeKey={aiTarget.matterTypeKey}
           />
         </div>
       )}

@@ -2190,5 +2190,29 @@
     "errorTransitionFailed": "操作失败，请重试。",
     "errorUnknown": "发生未知错误。",
     "successTransitioned": "状态已更改为: {status}！"
+  },
+  "ChatActivity": {
+    "pageTitle": "AI 聊天",
+    "backLink": "返回",
+    "modelLabel": "模型",
+    "emptyTitle": "开始与 AI 对话",
+    "emptyDesc": "输入问题或选择下方 AI 技能以获取法律协助。",
+    "inputPlaceholder": "输入您的问题或请求...",
+    "send": "发送",
+    "skillLabel": "技能",
+    "skillNone": "无",
+    "skillGeneralResearch": "法律研究",
+    "skillContractDraft": "起草合同",
+    "skillContractReview": "审查合同",
+    "skillComplianceCheck": "合规检查",
+    "typingIndicator": "AI 正在回复...",
+    "youLabel": "您",
+    "aiLabel": "AI 助手",
+    "citationsLabel": "引用",
+    "tokensLabel": "tokens",
+    "errorLoad": "无法加载聊天记录。",
+    "errorSend": "无法发送消息。",
+    "errorAiNotConfigured": "AI 未配置。您的消息已保存但 AI 未响应。",
+    "retry": "重试"
   }
 }

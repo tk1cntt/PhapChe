@@ -2292,5 +2292,29 @@
     "errorTransitionFailed": "Unable to complete the action. Please try again.",
     "errorUnknown": "An unknown error occurred.",
     "successTransitioned": "Status changed to: {status}!"
+  },
+  "ChatActivity": {
+    "pageTitle": "AI Chat",
+    "backLink": "Back",
+    "modelLabel": "Model",
+    "emptyTitle": "Start chatting with AI",
+    "emptyDesc": "Ask a question or select an AI skill below to get legal assistance for this request.",
+    "inputPlaceholder": "Type your question or request...",
+    "send": "Send",
+    "skillLabel": "Skill",
+    "skillNone": "None",
+    "skillGeneralResearch": "Legal Research",
+    "skillContractDraft": "Draft Contract",
+    "skillContractReview": "Review Contract",
+    "skillComplianceCheck": "Compliance",
+    "typingIndicator": "AI is responding...",
+    "youLabel": "You",
+    "aiLabel": "AI Assistant",
+    "citationsLabel": "Citations",
+    "tokensLabel": "tokens",
+    "errorLoad": "Unable to load chat history.",
+    "errorSend": "Unable to send message.",
+    "errorAiNotConfigured": "AI is not configured. Your message was saved but AI did not respond.",
+    "retry": "Retry"
   }
 }

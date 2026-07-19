@@ -56,6 +56,7 @@ model User {
   sentMessages       Message[]          @relation("MessageSender")
   receivedMessages   Message[]          @relation("MessageRecipient")
   drafts             Draft[]
+  aiChatMessages     AiChatMessage[]
 }
 
 model UserPreferences {
@@ -320,6 +321,7 @@ model LegalRequest {
   workflowTransitions  WorkflowTransition[]
   auditEvents          AuditEvent[]
   messages             Message[]
+  aiChatMessages       AiChatMessage[]
 
   @@index([workspaceId])
   @@index([createdById])
@@ -795,6 +797,23 @@ model Message {
   @@index([senderId])
   @@index([recipientId])
   @@index([isRead])
+}
+
+model AiChatMessage {
+  id               String       @id @default(cuid())
+  requestId        String
+  userId           String
+  role             String       // "user" | "assistant" | "system"
+  content          String
+  skill            String?      // AgentSkill key
+  citations        String?      // JSON string array
+  metadata         String?      // JSON: { model, tokens, latencyMs, confidence }
+  createdAt        DateTime     @default(now())
+  request          LegalRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user             User         @relation(fields: [userId], references: [id])
+
+  @@index([requestId])
+  @@index([requestId, createdAt])
 }
 
 model Draft {

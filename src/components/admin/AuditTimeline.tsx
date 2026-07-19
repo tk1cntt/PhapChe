@@ -3,13 +3,94 @@
 import { useTranslations } from 'next-intl';
 
 export interface AuditEntry {
-  title: string;
+  actorName: string;
+  action: string;
+  targetType: string;
+  targetLabel: string;
   description: string;
   time: string;
 }
 
 interface AuditTimelineProps {
   entries?: AuditEntry[];
+}
+
+/** Map audit action keys → i18n keys */
+const ACTION_I18N_MAP: Record<string, string> = {
+  'request.created': 'auditAction.requestCreated',
+  'request.status_changed': 'auditAction.requestStatusChanged',
+  'request.assigned': 'auditAction.requestAssigned',
+  'review.started': 'auditAction.reviewStarted',
+  'review.approved': 'auditAction.reviewApproved',
+  'review.rejected': 'auditAction.reviewRejected',
+  'review.checklist_answered': 'auditAction.reviewChecklistAnswered',
+  'intake.draft_created': 'auditAction.intakeDraftCreated',
+  'intake.submitted': 'auditAction.intakeSubmitted',
+  'intake.answers_saved': 'auditAction.intakeAnswersSaved',
+  'user.created': 'auditAction.userCreated',
+  'user.role_updated': 'auditAction.userRoleUpdated',
+  'user.deactivated': 'auditAction.userDeactivated',
+  'workspace.membership_assigned': 'auditAction.workspaceMembershipAssigned',
+  'document.draft_generated': 'auditAction.documentDraftGenerated',
+  'document.submitted_for_review': 'auditAction.documentSubmittedForReview',
+  'template.created': 'auditAction.templateCreated',
+  'template.published': 'auditAction.templatePublished',
+  'template.deprecated': 'auditAction.templateDeprecated',
+  'delivery.ready_notified': 'auditAction.deliveryReadyNotified',
+  'vault.file_stored': 'auditAction.vaultFileStored',
+  'vault.file_deleted': 'auditAction.vaultFileDeleted',
+  'vault.access_requested': 'auditAction.vaultAccessRequested',
+  'vault.metadata_accessed': 'auditAction.vaultMetadataAccessed',
+  'folder.created': 'auditAction.folderCreated',
+  'tag.created': 'auditAction.tagCreated',
+  'vault_file.tagged': 'auditAction.vaultFileTagged',
+  'vault_file.untagged': 'auditAction.vaultFileUntagged',
+  'vault_file.moved_to_folder': 'auditAction.vaultFileMovedToFolder',
+  'ai.chat.message': 'auditAction.aiChatMessage',
+  'access_denied': 'auditAction.accessDenied',
+  'permission_change': 'auditAction.permissionChange',
+  'unauthorized_access_attempt': 'auditAction.unauthorizedAccess',
+};
+
+/** Map targetType → i18n key */
+const TARGET_TYPE_MAP: Record<string, string> = {
+  'REQUEST': 'targetType.request',
+  'WORKSPACE': 'targetType.workspace',
+  'USER': 'targetType.user',
+  'DOCUMENT': 'targetType.document',
+  'TEMPLATE': 'targetType.template',
+  'REVIEW': 'targetType.review',
+  'VAULT_FILE': 'targetType.vaultFile',
+  'FOLDER': 'targetType.folder',
+  'MESSAGE': 'targetType.message',
+};
+
+function formatActionLabel(action: string, t: ReturnType<typeof useTranslations>): string {
+  const i18nKey = ACTION_I18N_MAP[action];
+  if (i18nKey) {
+    try {
+      return t(i18nKey);
+    } catch {
+      // fall through to formatted fallback
+    }
+  }
+  // Fallback: format raw key into readable text
+  return action
+    .replace(/\./g, ' › ')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function formatTargetType(targetType: string, t: ReturnType<typeof useTranslations>): string {
+  const key = TARGET_TYPE_MAP[targetType];
+  if (key) {
+    try {
+      return t(key);
+    } catch {
+      // fall through
+    }
+  }
+  return targetType.toLowerCase().replace(/_/g, ' ');
 }
 
 export default function AuditTimeline({ entries = [] }: AuditTimelineProps) {
@@ -38,8 +119,13 @@ export default function AuditTimeline({ entries = [] }: AuditTimelineProps) {
           entries.map((entry, index) => (
             <div key={index} className="timeline-item">
               <div className="timeline-dot" />
-              <strong>{entry.title}</strong>
-              <p>{entry.description}</p>
+              <strong>
+                {entry.actorName} — {formatActionLabel(entry.action, t)}
+              </strong>
+              <p>
+                <span className="target-type-label">[{formatTargetType(entry.targetType, t)}]</span>{' '}
+                {entry.description}
+              </p>
               <div className="timeline-time">{entry.time}</div>
             </div>
           ))

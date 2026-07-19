@@ -53,7 +53,10 @@ interface AdminDashboardClientProps {
     badgeColor: 'orange' | 'blue' | 'red';
   }>;
   timelineData: Array<{
-    title: string;
+    actorName: string;
+    action: string;
+    targetType: string;
+    targetLabel: string;
     description: string;
     time: string;
   }>;

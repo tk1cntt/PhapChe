@@ -1720,6 +1720,7 @@
     "noApprovals": "Không có yêu cầu chờ duyệt",
     "noWorkspaces": "Chưa có workspace nào",
     "noTimeline": "Không có hoạt động nào gần đây",
+    "auditMe": "Tôi",
     "auditAction": {
       "requestCreated": "Tạo hồ sơ mới",
       "requestStatusChanged": "Đổi trạng thái hồ sơ",

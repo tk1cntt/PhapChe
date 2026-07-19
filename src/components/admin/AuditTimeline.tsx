@@ -13,6 +13,7 @@ export interface AuditEntry {
 
 interface AuditTimelineProps {
   entries?: AuditEntry[];
+  currentUserName?: string;
 }
 
 /** Map audit action keys → i18n keys */
@@ -93,7 +94,14 @@ function formatTargetType(targetType: string, t: ReturnType<typeof useTranslatio
   return targetType.toLowerCase().replace(/_/g, ' ');
 }
 
-export default function AuditTimeline({ entries = [] }: AuditTimelineProps) {
+function resolveActorName(actorName: string, currentUserName: string | undefined, t: ReturnType<typeof useTranslations>): string {
+  if (currentUserName && actorName === currentUserName) {
+    return t('auditMe');
+  }
+  return actorName;
+}
+
+export default function AuditTimeline({ entries = [], currentUserName }: AuditTimelineProps) {
   const t = useTranslations('AdminDashboard');
 
   return (
@@ -120,7 +128,7 @@ export default function AuditTimeline({ entries = [] }: AuditTimelineProps) {
             <div key={index} className="timeline-item">
               <div className="timeline-dot" />
               <strong>
-                {entry.actorName} — {formatActionLabel(entry.action, t)}
+                {resolveActorName(entry.actorName, currentUserName, t)} — {formatActionLabel(entry.action, t)}
               </strong>
               <p>
                 <span className="target-type-label">[{formatTargetType(entry.targetType, t)}]</span>{' '}

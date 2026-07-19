@@ -1717,6 +1717,7 @@
     "noApprovals": "No pending approvals",
     "noWorkspaces": "No workspaces yet",
     "noTimeline": "No recent activity",
+    "auditMe": "Me",
     "auditAction": {
       "requestCreated": "Created request",
       "requestStatusChanged": "Changed request status",

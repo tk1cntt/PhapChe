@@ -8,6 +8,7 @@ export type { AppRole };
 
 export type AppSession = {
   userId: string;
+  name?: string;
   activeWorkspaceId?: string | null;
   roles: AppRole[];
 };
@@ -48,6 +49,7 @@ export async function requireAppSession(reqHeaders?: Headers): Promise<AppSessio
     where: { id: userId, isActive: true },
     select: {
       id: true,
+      name: true,
       memberships: {
         where: { isActive: true, workspace: { isActive: true } },
         select: { workspaceId: true, role: true },
@@ -72,6 +74,7 @@ export async function requireAppSession(reqHeaders?: Headers): Promise<AppSessio
 
   return {
     userId: user.id,
+    name: user.name,
     activeWorkspaceId: bestMembership.workspaceId,
     roles: allRoles,
   };

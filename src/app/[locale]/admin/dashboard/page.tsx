@@ -340,6 +340,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
 
   return (
     <AdminDashboardClient
+      currentUserName={session.name ?? ''}
       stats={stats}
       workloadData={workloadData}
       alertData={alertData}

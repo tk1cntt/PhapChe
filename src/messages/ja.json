@@ -1421,6 +1421,7 @@
     "noApprovals": "承認待ちリクエストなし",
     "noWorkspaces": "ワークスペースなし",
     "noTimeline": "最近のアクティビティなし",
+    "auditMe": "私",
     "auditAction": {
       "requestCreated": "リクエスト作成",
       "requestStatusChanged": "ステータス変更",

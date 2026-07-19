@@ -13,6 +13,7 @@ import '@/styles/pages/admin/dashboard.css';
 import { Users, FolderKanban, Clock, AlertTriangle } from 'lucide-react';
 
 interface AdminDashboardClientProps {
+  currentUserName: string;
   stats: {
     users: { total: number; active: number; invited: number };
     workspaces: { total: number; active: number };
@@ -116,6 +117,7 @@ interface AdminDashboardClientProps {
 }
 
 export default function AdminDashboardClient({
+  currentUserName,
   stats,
   workloadData,
   alertData,
@@ -191,7 +193,7 @@ export default function AdminDashboardClient({
       <div className="admin-grid-3">
         <WorkspacePanel workspaces={workspaceData} />
         <ApprovalPanel approvals={approvalData} />
-        <AuditTimeline entries={timelineData} />
+        <AuditTimeline entries={timelineData} currentUserName={currentUserName} />
       </div>
 
       {/* Section 6: Toolbar */}

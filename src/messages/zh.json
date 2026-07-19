@@ -1421,6 +1421,7 @@
     "noApprovals": "暂无待审批请求",
     "noWorkspaces": "暂无工作区",
     "noTimeline": "暂无最近活动",
+    "auditMe": "我",
     "auditAction": {
       "requestCreated": "创建请求",
       "requestStatusChanged": "更改状态",

@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import type { AppRole } from "@/lib/types";
 
@@ -24,10 +25,23 @@ const ROLE_PRIORITY: Record<string, number> = {
   customer: 10,
 };
 
+const DEFAULT_LOCALE = 'vi';
+const VALID_LOCALES = ['vi', 'en', 'zh', 'ja'];
+
+function buildSignInUrl(pathname: string): string {
+  const segments = pathname.split('/').filter(Boolean);
+  const locale = VALID_LOCALES.includes(segments[0] ?? '') ? segments[0] : DEFAULT_LOCALE;
+  const returnUrl = encodeURIComponent(pathname);
+  return `/${locale}/sign-in?returnUrl=${returnUrl}`;
+}
+
 export async function requireAppSession(reqHeaders?: Headers): Promise<AppSession> {
   const h = reqHeaders ?? await headers();
   const session = await auth.api.getSession({ headers: h });
-  if (!session?.user?.id) throw new Error('UNAUTHENTICATED');
+  if (!session?.user?.id) {
+    const pathname = h.get('x-pathname') ?? '';
+    redirect(buildSignInUrl(pathname));
+  }
 
   const userId = session.user.id;
   const user = await prisma.user.findFirst({
@@ -41,7 +55,10 @@ export async function requireAppSession(reqHeaders?: Headers): Promise<AppSessio
     },
   });
 
-  if (!user || user.memberships.length === 0) throw new Error('UNAUTHENTICATED');
+  if (!user || user.memberships.length === 0) {
+    const pathname = h.get('x-pathname') ?? '';
+    redirect(buildSignInUrl(pathname));
+  }
 
   // Collect all unique roles from all memberships
   const allRoles = Array.from(new Set(user.memberships.map((m) => m.role as AppRole)));

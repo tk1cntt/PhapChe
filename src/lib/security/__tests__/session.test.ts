@@ -218,10 +218,7 @@ describe('requireAppSession — blackbox (API route scenarios)', () => {
 // ============================================================
 
 describe('requireAppSession — abnormal (edge cases)', () => {
-  it('returns empty roles array when user has no memberships matching filter', async () => {
-    // This shouldn't happen in practice (no memberships → UNAUTHENTICATED),
-    // but testing the fallback. Actually the code throws UNAUTHENTICATED on
-    // empty memberships. Let's test the boundary.
+  it('redirects to sign-in when user has no active memberships', async () => {
     const mockHeaders = new Headers({ cookie: 'token=xyz' });
     const mockSessionUser = { user: { id: 'user-1' } };
     const mockUser = {
@@ -232,17 +229,17 @@ describe('requireAppSession — abnormal (edge cases)', () => {
     vi.mocked(auth.api.getSession).mockResolvedValue(mockSessionUser as any);
     vi.mocked(prisma.user.findFirst).mockResolvedValue(mockUser as any);
 
-    await expect(requireAppSession(mockHeaders)).rejects.toThrow('UNAUTHENTICATED');
+    await expect(requireAppSession(mockHeaders)).rejects.toThrow('NEXT_REDIRECT');
   });
 
-  it('throws UNAUTHENTICATED when user is inactive', async () => {
+  it('redirects to sign-in when user is inactive', async () => {
     const mockHeaders = new Headers({ cookie: 'token=xyz' });
     const mockSessionUser = { user: { id: 'user-1' } };
 
     vi.mocked(auth.api.getSession).mockResolvedValue(mockSessionUser as any);
     vi.mocked(prisma.user.findFirst).mockResolvedValue(null as any);
 
-    await expect(requireAppSession(mockHeaders)).rejects.toThrow('UNAUTHENTICATED');
+    await expect(requireAppSession(mockHeaders)).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('handles Headers with many unrelated fields gracefully', async () => {
@@ -289,30 +286,30 @@ describe('requireAppSession — abnormal (edge cases)', () => {
 // ============================================================
 
 describe('requireAppSession — error (failure modes)', () => {
-  it('throws UNAUTHENTICATED when session is null', async () => {
+  it('redirects to sign-in when session is null', async () => {
     vi.mocked(auth.api.getSession).mockResolvedValue(null as any);
 
-    await expect(requireAppSession(new Headers())).rejects.toThrow('UNAUTHENTICATED');
+    await expect(requireAppSession(new Headers())).rejects.toThrow('NEXT_REDIRECT');
   });
 
-  it('throws UNAUTHENTICATED when session has no user', async () => {
+  it('redirects to sign-in when session has no user', async () => {
     vi.mocked(auth.api.getSession).mockResolvedValue({} as any);
 
-    await expect(requireAppSession(new Headers())).rejects.toThrow('UNAUTHENTICATED');
+    await expect(requireAppSession(new Headers())).rejects.toThrow('NEXT_REDIRECT');
   });
 
-  it('throws UNAUTHENTICATED when session.user has no id', async () => {
+  it('redirects to sign-in when session.user has no id', async () => {
     vi.mocked(auth.api.getSession).mockResolvedValue({ user: {} } as any);
 
-    await expect(requireAppSession(new Headers())).rejects.toThrow('UNAUTHENTICATED');
+    await expect(requireAppSession(new Headers())).rejects.toThrow('NEXT_REDIRECT');
   });
 
-  it('throws UNAUTHENTICATED when user not found in DB', async () => {
+  it('redirects to sign-in when user not found in DB', async () => {
     const mockHeaders = new Headers({ cookie: 'token=fake' });
     vi.mocked(auth.api.getSession).mockResolvedValue({ user: { id: 'ghost' } } as any);
     vi.mocked(prisma.user.findFirst).mockResolvedValue(null as any);
 
-    await expect(requireAppSession(mockHeaders)).rejects.toThrow('UNAUTHENTICATED');
+    await expect(requireAppSession(mockHeaders)).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('throws UNAUTHENTICATED when prisma query fails (no crash, error propagated)', async () => {

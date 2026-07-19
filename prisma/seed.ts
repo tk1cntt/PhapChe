@@ -183,7 +183,7 @@ async function seedEngagementData() {
   return { serviceTypes };
 }
 
-async function seedAnPhatWorkspace() {
+async function seedAnPhatWorkspace(orgId: string) {
   // Phase 30: Workspace page seed data - "Cong ty An Phat" workspace
   const anPhatWorkspace = await prisma.workspace.upsert({
     where: { slug: 'an-phat' },
@@ -192,6 +192,7 @@ async function seedAnPhatWorkspace() {
       name: 'Cong ty An Phat',
       slug: 'an-phat',
       isActive: true,
+      organizationId: orgId,
     },
   });
 
@@ -288,7 +289,8 @@ async function main() {
   await seedEngagementData();
 
   // Seed Phase 30: An Phat workspace
-  await seedAnPhatWorkspace();
+  const anPhatOrg = await prisma.organization.findFirst({ where: { name: { startsWith: 'Công ty Luật' } } });
+  await seedAnPhatWorkspace(anPhatOrg?.id ?? 'platform-default-org');
 
   const workspace = await prisma.workspace.upsert({
     where: { slug: routingCapability.workspaceSlug },
@@ -297,6 +299,7 @@ async function main() {
       name: 'Demo Legal Workspace',
       slug: routingCapability.workspaceSlug,
       isActive: true,
+      organizationId: anPhatOrg?.id ?? 'platform-default-org',
     },
   });
 
@@ -388,17 +391,118 @@ async function main() {
     }
   }
 
-  // Phase 16 fixtures: minimum demo legal request, document, and document version
-  // so dynamic detail routes can validate with role-owned IDs.
-  const customerUser = await prisma.user.findUniqueOrThrow({
+  // ── Seed demo requests for demo-legal-workspace ──
+  // So @example.test users see full data when they log in.
+  // Filter logic (src/lib/security/request-filter.ts):
+  //   customer → { createdById }
+  //   specialist → { assignedSpecialistId }
+  //   reviewer → { assignedReviewerId }
+  const demoCustomer = await prisma.user.findUniqueOrThrow({
     where: { email: 'customer.demo@example.test' },
   });
-  const specialistUser = await prisma.user.findUniqueOrThrow({
+  const demoSpecialist = await prisma.user.findUniqueOrThrow({
     where: { email: 'specialist.demo@example.test' },
   });
-  const reviewerUser = await prisma.user.findUniqueOrThrow({
+  const demoReviewer = await prisma.user.findUniqueOrThrow({
     where: { email: 'reviewer.demo@example.test' },
   });
+
+  const demoRequestTitles = [
+    'Tư vấn hợp đồng lao động thời vụ',
+    'Soạn thảo NDA với đối tác ABC',
+    'Đăng ký nhãn hiệu "Pháp Việt"',
+    'Tư vấn thành lập công ty TNHH MTV',
+    'Rà soát tuân thủ PCCC cho văn phòng',
+    'Đàm phán hợp đồng phân phối độc quyền',
+    'Tư vấn luật đầu tư nước ngoài',
+    'Soạn thảo điều lệ công ty cổ phần',
+    'Đăng ký bản quyền phần mềm ERP',
+    'Tư vấn thuế TNCN cho nhân viên nước ngoài',
+    'Hợp đồng thuê văn phòng quận 1',
+    'Thỏa thuận bảo mật thông tin khách hàng',
+    'Hợp đồng dịch vụ IT outsourcing',
+    'Tư vấn sáp nhập chi nhánh miền Bắc',
+    'Đăng ký kiểu dáng công nghiệp bao bì',
+    'Hợp đồng đại lý độc quyền miền Nam',
+    'Tư vấn chấm dứt hợp đồng lao động',
+    'Soạn thảo quy chế lương thưởng 2026',
+    'Đăng ký sáng chế quy trình sản xuất',
+    'Hợp đồng chuyển nhượng vốn góp',
+    'Tư vấn pháp lý dự án khu đô thị',
+    'Rà soát hợp đồng thuê kho bãi',
+    'Soạn thảo biên bản thỏa thuận hợp tác',
+    'Đăng ký tên thương mại "An Phát Logistics"',
+    'Tư vấn xuất khẩu lao động Nhật Bản',
+    'Hợp đồng gia công hàng may mặc',
+    'Soạn thảo thỏa thuận hợp tác chiến lược',
+    'Đăng ký chỉ dẫn địa lý "Nước mắm Phú Quốc"',
+    'Tư vấn luật thương mại điện tử xuyên biên giới',
+    'Hợp đồng nhượng quyền thương hiệu cà phê',
+    'Rà soát chính sách nghỉ phép công ty',
+    'Soạn thảo quy trình khiếu nại nội bộ',
+    'Đăng ký quyền tác giả phim quảng cáo',
+    'Tư vấn đầu tư bất động sản nghỉ dưỡng',
+    'Hợp đồng liên doanh với đối tác Hàn Quốc',
+    'Soạn thảo thỏa thuận không cạnh tranh',
+    'Đăng ký nhãn hiệu quốc tế Madrid',
+    'Tư vấn giải quyết tranh chấp thương mại',
+    'Hợp đồng cung ứng nguyên vật liệu',
+    'Rà soát tuân thủ bảo vệ dữ liệu cá nhân',
+  ];
+
+  // Full workflow cycle distributed across 40 requests
+  const demoStatuses = [
+    'draft_intake', 'triage', 'triage', 'triage',
+    'assigned', 'assigned', 'assigned',
+    'in_progress', 'in_progress', 'in_progress', 'in_progress',
+    'pending_review', 'pending_review', 'pending_review', 'pending_review',
+    'revision_required', 'revision_required',
+    'approved', 'approved', 'approved',
+    'delivered', 'delivered',
+    'closed', 'closed',
+  ];
+
+  const priorities: ('low' | 'medium' | 'high' | 'urgent')[] = ['low', 'medium', 'high', 'urgent'];
+  const demoCount = Math.min(demoRequestTitles.length, demoStatuses.length);
+
+  for (let i = 0; i < demoCount; i++) {
+    const status = demoStatuses[i];
+    const priority = priorities[i % priorities.length];
+    // Rotate creator among 3 customer users so each sees ~13 own requests
+    const creatorIdx = i % 3; // customer.demo, customer2.demo, customer3.demo
+    const customerEmails = ['customer.demo@example.test', 'customer2.demo@example.test', 'customer3.demo@example.test'];
+    const creator = await prisma.user.findUniqueOrThrow({ where: { email: customerEmails[creatorIdx] } });
+
+    // Rotate assignments so specialist/reviewer see their share
+    const hasSpecialist = ['assigned', 'in_progress', 'pending_review', 'revision_required', 'approved', 'delivered', 'closed'].includes(status);
+    const hasReviewer = ['pending_review', 'revision_required', 'approved', 'delivered', 'closed'].includes(status);
+
+    // Use SLA ranges: 3, 5, 7, 10, 14 days
+    const slaDays = [3, 5, 7, 10, 14][i % 5];
+    const slaDeadline = new Date();
+    slaDeadline.setDate(slaDeadline.getDate() + slaDays);
+
+    await prisma.legalRequest.create({
+      data: {
+        code: `DEMO-2026-${String(i + 1).padStart(3, '0')}`,
+        title: demoRequestTitles[i],
+        status,
+        priority,
+        workspaceId: workspace.id,
+        createdById: creator.id,
+        assignedSpecialistId: hasSpecialist ? demoSpecialist.id : null,
+        assignedReviewerId: hasReviewer ? demoReviewer.id : null,
+        slaDeadline,
+      },
+    });
+  }
+  console.log(`  ✓ Demo requests: ${demoCount} in ${workspace.slug}`);
+
+  // Phase 16 fixtures: minimum demo legal request, document, and document version
+  // so dynamic detail routes can validate with role-owned IDs.
+  const customerUser = demoCustomer;
+  const specialistUser = demoSpecialist;
+  const reviewerUser = demoReviewer;
 
   const existingRequest = await prisma.legalRequest.findFirst({
     where: { workspaceId: workspace.id, title: 'Phase 16 fixture request' },

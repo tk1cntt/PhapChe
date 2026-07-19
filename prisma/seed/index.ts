@@ -45,6 +45,7 @@ export async function seedAll(prisma: PrismaClient) {
     await tx.session.deleteMany();
     await tx.verification.deleteMany();
     await tx.userPreferences.deleteMany();
+    await tx.draft.deleteMany();
     await tx.user.deleteMany();
     await tx.organization.deleteMany();
     await tx.tenant.deleteMany();

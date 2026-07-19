@@ -48,7 +48,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
       key: 'dashboard',
       label: t('dashboard'),
       href: '/vi/admin/dashboard',
-      requiredRoles: null,
+      requiredRoles: undefined,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <rect x="3" y="3" width="7" height="7" rx="1"/>
@@ -103,7 +103,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
       key: 'partner',
       label: t('partner'),
       href: '/vi/admin/partner',
-      requiredRoles: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
+      requiredRoles: ['super_admin', 'coordinator_admin'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>

@@ -136,8 +136,9 @@ export async function GET(
       model: DEFAULT_MODEL_KEY,
     });
   } catch (error) {
-    console.error('[AI Chat GET Error]', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('[AI Chat GET Error]', msg, error);
+    return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });
   }
 }
 

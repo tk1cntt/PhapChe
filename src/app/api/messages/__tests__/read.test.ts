@@ -1,5 +1,5 @@
 /**
- * PUT /api/messages/[threadId]/read — Unit Tests
+ * PUT /api/messages/[requestId]/read — Unit Tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -17,7 +17,7 @@ vi.mock('@/lib/security/session', () => ({
   requireAppSession: vi.fn(),
 }));
 
-import { PUT } from '../[threadId]/read/route';
+import { PUT } from '../[requestId]/read/route';
 import { NextRequest } from 'next/server';
 
 const { requireAppSession } = vi.mocked(
@@ -28,7 +28,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('PUT /api/messages/[threadId]/read', () => {
+describe('PUT /api/messages/[requestId]/read', () => {
   // WHITEBOX
   describe('Whitebox', () => {
     it('marks unread messages as read for current user in thread', async () => {
@@ -37,7 +37,7 @@ describe('PUT /api/messages/[threadId]/read', () => {
 
       const res = await PUT(
         new NextRequest('http://localhost/api/messages/req-1/read', { method: 'PUT' }),
-        { params: Promise.resolve({ threadId: 'req-1' }) }
+        { params: Promise.resolve({ requestId: 'req-1' }) }
       );
 
       expect(res.status).toBe(200);
@@ -61,7 +61,7 @@ describe('PUT /api/messages/[threadId]/read', () => {
 
       const res = await PUT(
         new NextRequest('http://localhost/api/messages/req-1/read', { method: 'PUT' }),
-        { params: Promise.resolve({ threadId: 'req-1' }) }
+        { params: Promise.resolve({ requestId: 'req-1' }) }
       );
 
       const body = await res.json();
@@ -77,7 +77,7 @@ describe('PUT /api/messages/[threadId]/read', () => {
 
       const res = await PUT(
         new NextRequest('http://localhost/api/messages/x/read', { method: 'PUT' }),
-        { params: Promise.resolve({ threadId: 'req-1' }) }
+        { params: Promise.resolve({ requestId: 'req-1' }) }
       );
 
       expect(res.status).toBe(500);

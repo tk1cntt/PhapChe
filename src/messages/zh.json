@@ -2338,6 +2338,8 @@
     "retry": "重试",
     "documentTitle": "文档",
     "fileRefresh": "重新加载列表",
+    "fileExpand": "展开面板",
+    "fileCollapse": "收起面板",
     "fileLoading": "加载中...",
     "fileNoFiles": "暂无文档",
     "fileStatusDraft": "草稿",

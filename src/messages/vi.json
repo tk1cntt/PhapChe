@@ -2443,6 +2443,8 @@
     "retry": "Thử lại",
     "documentTitle": "Tài liệu",
     "fileRefresh": "Tải lại danh sách",
+    "fileExpand": "Mở rộng panel",
+    "fileCollapse": "Thu nhỏ panel",
     "fileLoading": "Đang tải...",
     "fileNoFiles": "Chưa có tài liệu nào",
     "fileStatusDraft": "Nháp",

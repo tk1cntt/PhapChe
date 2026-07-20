@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, FileText, Send } from 'lucide-react';
+import { ArrowLeft, FileText, Send, Maximize2, Minimize2 } from 'lucide-react';
 import { ChatActivityPanel } from '@/components/admin/ChatActivityPanel';
 import { DocumentFilePanel, type FileItem } from '@/components/admin/DocumentFilePanel';
 import { DocumentAnnotationPanel } from '@/components/admin/DocumentAnnotationPanel';
@@ -28,6 +28,9 @@ export default function ChatActivityPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
   const [activeFileName, setActiveFileName] = useState<string | null>(null);
+
+  // Expand left panel (default mở rộng gấp 2)
+  const [leftExpanded, setLeftExpanded] = useState(true);
 
   // Report state
   const [reportOpen, setReportOpen] = useState(false);
@@ -207,7 +210,7 @@ export default function ChatActivityPage() {
       </div>
 
       {/* Split Layout */}
-      <div className="chat-split-body">
+      <div className={`chat-split-body${leftExpanded ? ' expanded' : ''}`}>
         {/* Left: Document Panel + Annotations */}
         <div className="chat-split-left">
           <div className="chat-split-left-top">
@@ -215,6 +218,8 @@ export default function ChatActivityPage() {
               requestId={requestId}
               activeFileId={activeFileId}
               onSelectFile={handleSelectFile}
+              expanded={leftExpanded}
+              onToggleExpand={() => setLeftExpanded((v) => !v)}
             />
           </div>
           <div className="chat-split-left-bottom">

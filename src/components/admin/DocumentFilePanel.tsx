@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { FileText, Upload, File, Loader2, AlertTriangle, Eye, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
+import { FileText, Upload, File, Loader2, AlertTriangle, Eye, CheckCircle2, AlertCircle, Clock, Maximize2, Minimize2 } from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -23,6 +23,8 @@ interface DocumentFilePanelProps {
   requestId: string;
   activeFileId: string | null;
   onSelectFile: (fileId: string | null, fileTitle: string | null) => void;
+  expanded?: boolean;
+  onToggleExpand?: () => void;
 }
 
 interface PreviewData {
@@ -72,7 +74,7 @@ function getReviewStatusIcon(reviewStatus: string): React.ReactNode {
 
 // ── Component ────────────────────────────────────────────────
 
-export function DocumentFilePanel({ requestId, activeFileId, onSelectFile }: DocumentFilePanelProps) {
+export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expanded = true, onToggleExpand }: DocumentFilePanelProps) {
   const t = useTranslations('ChatActivity');
 
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -182,15 +184,27 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile }: Doc
       <div className="doc-file-list-section">
         <div className="doc-file-list-header">
           <h3><FileText size={16} /> {t('documentTitle')}</h3>
-          <button
-            type="button"
-            className="doc-file-refresh-btn"
-            onClick={loadFiles}
-            disabled={filesLoading}
-            title={t('fileRefresh')}
-          >
-            <Loader2 size={14} className={filesLoading ? 'spinning' : ''} />
-          </button>
+          <div className="doc-file-list-header-actions">
+            {onToggleExpand && (
+              <button
+                type="button"
+                className="doc-file-expand-btn"
+                onClick={onToggleExpand}
+                title={expanded ? t('fileCollapse') : t('fileExpand')}
+              >
+                {expanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+              </button>
+            )}
+            <button
+              type="button"
+              className="doc-file-refresh-btn"
+              onClick={loadFiles}
+              disabled={filesLoading}
+              title={t('fileRefresh')}
+            >
+              <Loader2 size={14} className={filesLoading ? 'spinning' : ''} />
+            </button>
+          </div>
         </div>
 
         {filesLoading ? (

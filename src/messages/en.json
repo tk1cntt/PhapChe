@@ -2440,6 +2440,8 @@
     "retry": "Retry",
     "documentTitle": "Documents",
     "fileRefresh": "Reload list",
+    "fileExpand": "Expand panel",
+    "fileCollapse": "Collapse panel",
     "fileLoading": "Loading...",
     "fileNoFiles": "No documents yet",
     "fileStatusDraft": "Draft",

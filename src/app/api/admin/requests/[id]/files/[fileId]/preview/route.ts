@@ -76,6 +76,15 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
   }
   if (!globalThis.navigator) (globalThis as Record<string, unknown>).navigator = { userAgent: 'node.js' };
   if (!globalThis.devicePixelRatio) globalThis.devicePixelRatio = 1;
+  // pdfjs-dist@6.x dùng Promise.try (TC39 proposal) — Node 22 chưa có
+  if (!('try' in Promise)) {
+    Object.defineProperty(Promise, 'try', {
+      value: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) =>
+        new Promise((resolve) => resolve(fn(...args))),
+      configurable: true,
+      writable: true,
+    });
+  }
 
   const pdfjsLib = await import('pdfjs-dist');
   // Disable worker — text extraction doesn't need a separate thread,

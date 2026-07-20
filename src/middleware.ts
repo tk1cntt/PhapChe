@@ -5,6 +5,7 @@ import { routing } from './routing';
 // Cookie names
 const LOCALE_COOKIE = 'preferred-locale';
 const SESSION_COOKIE = 'better-auth.session_token';
+const SESSION_COOKIE_ALT = 'better-auth-session_token';
 
 /**
  * Các prefix route công khai — luôn cho phép, không cần session.
@@ -22,6 +23,31 @@ const STATIC_EXTENSIONS = /\.(ico|png|jpg|jpeg|svg|css|js|woff2?|ttf|map|webmani
 // ============================================================
 // Helpers
 // ============================================================
+
+/**
+ * Trích xuất session token từ raw Cookie header.
+ * Dùng khi request.cookies.get() không parse được dotted cookie names
+ * trong Edge Runtime (VD: `better-auth.session_token`).
+ */
+function extractSessionTokenFromHeader(
+  cookieHeader: string | null,
+  cookieName: string
+): string | undefined {
+  if (!cookieHeader) return undefined;
+  const altName = cookieName.replace('.', '-');
+  // Duyệt từng cookie pair: key=value
+  const pairs = cookieHeader.split(';');
+  for (const pair of pairs) {
+    const eqIndex = pair.indexOf('=');
+    if (eqIndex === -1) continue;
+    const name = pair.substring(0, eqIndex).trim();
+    const value = pair.substring(eqIndex + 1).trim();
+    if (name === cookieName || name === altName) {
+      return decodeURIComponent(value);
+    }
+  }
+  return undefined;
+}
 
 function isPublicPath(pathname: string): boolean {
   if (STATIC_EXTENSIONS.test(pathname)) return true;
@@ -88,7 +114,12 @@ export default async function middleware(request: NextRequest) {
   }
 
   // ── Step 3: Session gate (Edge-safe — cookie check only) ──
-  const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value;
+  // Kiểm tra session cookie từ request.
+  // request.cookies.get() đôi khi không parse được dotted cookie names trong
+  // Edge Runtime → fallback sang raw Cookie header để đảm bảo độ tin cậy.
+  const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value
+    || request.cookies.get(SESSION_COOKIE_ALT)?.value
+    || extractSessionTokenFromHeader(request.headers.get('cookie'), SESSION_COOKIE);
   const isAdmin = isAdminPath(pathname);
 
   // Pass pathname to downstream server components via header

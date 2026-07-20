@@ -56,7 +56,8 @@ function isPdf(mimeType: string | null, filename: string | null): boolean {
 }
 
 async function extractPdfText(buffer: Buffer): Promise<string> {
-  const data = await pdfParse(buffer);
+  // v2.0.550 handles malformed PDFs (bad XRef, broken cross-reference tables) better than v1.10.100
+  const data = await pdfParse(buffer, { version: 'v2.0.550' });
   // Clean up excessive newlines and normalize whitespace
   return data.text
     .replace(/\r\n/g, '\n')

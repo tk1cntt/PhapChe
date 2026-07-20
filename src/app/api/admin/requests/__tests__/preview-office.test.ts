@@ -2,7 +2,8 @@
  * Tests for preview/route.ts — Office XML + PDF extraction
  *
  * Covers: isOfficeXml, isPdf, extractDocxText, extractXlsxText, extractPdfText,
- * integration with isBinaryPreview, edge cases, markdown table conversion
+ * integration with isBinaryPreview, edge cases, markdown table conversion,
+ * pdf.js v2.0.550 for bad XRef resilience, text normalization
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -285,7 +286,7 @@ describe('isPdf', () => {
 // ── PDF extraction tests ─────────────────────────────────────────
 
 describe('extractPdfText (via pdf-parse mock)', () => {
-  it('should call pdfParse with buffer', async () => {
+  it('should call pdfParse with buffer and v2.0.550 version', async () => {
     vi.mocked(pdfParse).mockResolvedValueOnce({
       text: 'Hello from PDF',
       numpages: 1,
@@ -295,9 +296,9 @@ describe('extractPdfText (via pdf-parse mock)', () => {
       version: '1.4',
     });
 
-    const result = await pdfParse(Buffer.from('fake'));
+    const result = await pdfParse(Buffer.from('fake'), { version: 'v2.0.550' });
     expect(result.text).toBe('Hello from PDF');
-    expect(pdfParse).toHaveBeenCalledWith(expect.any(Buffer));
+    expect(pdfParse).toHaveBeenCalledWith(expect.any(Buffer), { version: 'v2.0.550' });
   });
 
   it('should handle empty PDF', async () => {
@@ -310,15 +311,54 @@ describe('extractPdfText (via pdf-parse mock)', () => {
       version: '1.4',
     });
 
-    const result = await pdfParse(Buffer.from('empty'));
+    const result = await pdfParse(Buffer.from('empty'), { version: 'v2.0.550' });
     expect(result.text).toBe('');
   });
 
-  it('should handle pdfParse throwing an error', async () => {
+  it('should handle pdfParse throwing an error (bad XRef, corrupted PDF)', async () => {
     vi.mocked(pdfParse).mockRejectedValueOnce(new Error('Invalid PDF structure'));
 
-    await expect(pdfParse(Buffer.from('bad')))
+    await expect(pdfParse(Buffer.from('bad'), { version: 'v2.0.550' }))
       .rejects.toThrow('Invalid PDF structure');
+  });
+
+  // ── Replica of production extractPdfText for integration-style contract test ──
+  describe('extractPdfText replica (whitebox)', () => {
+    async function extractPdfTextReplica(buffer: Buffer): Promise<string> {
+      const data = await pdfParse(buffer, { version: 'v2.0.550' });
+      return data.text
+        .replace(/\r\n/g, '\n')
+        .replace(/\n{4,}/g, '\n\n\n')
+        .trim();
+    }
+
+    it('should normalize windows line endings', async () => {
+      vi.mocked(pdfParse).mockResolvedValueOnce({
+        text: 'Line1\r\nLine2\r\nLine3',
+        numpages: 1, numrender: 1, info: {}, metadata: {}, version: '1.4',
+      });
+      const result = await extractPdfTextReplica(Buffer.from('fake'));
+      expect(result).toBe('Line1\nLine2\nLine3');
+    });
+
+    it('should collapse excessive newlines (4+ → 3)', async () => {
+      vi.mocked(pdfParse).mockResolvedValueOnce({
+        text: 'A\n\n\n\n\nB\n\n\n\nC',
+        numpages: 1, numrender: 1, info: {}, metadata: {}, version: '1.4',
+      });
+      const result = await extractPdfTextReplica(Buffer.from('fake'));
+      // 5 newlines → \n\n\n, 4 newlines → \n\n\n
+      expect(result).toBe('A\n\n\nB\n\n\nC');
+    });
+
+    it('should trim leading/trailing whitespace', async () => {
+      vi.mocked(pdfParse).mockResolvedValueOnce({
+        text: '  \n  Hello World  \n  ',
+        numpages: 1, numrender: 1, info: {}, metadata: {}, version: '1.4',
+      });
+      const result = await extractPdfTextReplica(Buffer.from('fake'));
+      expect(result).toBe('Hello World');
+    });
   });
 });
 

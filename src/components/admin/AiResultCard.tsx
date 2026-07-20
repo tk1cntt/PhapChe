@@ -55,7 +55,7 @@ function ContractSection({ output }: { output: Record<string, unknown> }) {
 
   return (
     <div className="ai-result-section-sm">
-      {output.contractTitle && (
+      {(output.contractTitle as string) && (
         <h4 className="ai-contract-title">
           {output.contractTitle as string}
         </h4>
@@ -82,7 +82,7 @@ function ContractSection({ output }: { output: Record<string, unknown> }) {
               <p className="ai-detail-title">
                 Điều {c.articleNumber as number}: {c.title as string}
               </p>
-              {c.legalBasis && (
+              {(c.legalBasis as string) && (
                 <p className="ai-detail-sub">
                   📜 {c.legalBasis as string}
                 </p>
@@ -135,12 +135,12 @@ function ReviewSection({ output }: { output: Record<string, unknown> }) {
                 </span>
                 <span className="ai-detail-title">{f.issue as string}</span>
               </div>
-              {f.recommendation && (
+              {(f.recommendation as string) && (
                 <p className="ai-detail-sub">
                   → {f.recommendation as string}
                 </p>
               )}
-              {f.legalBasis && (
+              {(f.legalBasis as string) && (
                 <p className="ai-legal-basis">📜 {f.legalBasis as string}</p>
               )}
             </div>
@@ -173,7 +173,7 @@ function ComplianceSection({ output }: { output: Record<string, unknown> }) {
                 <span className="ai-detail-title" style={{ fontSize: 'var(--text-xs)' }}>
                   {item.category as string ?? item.area as string}
                 </span>
-                {item.status && (
+                {(item.status as string) && (
                   <span className={`ai-status-pill ${
                     item.status === 'compliant' ? 'compliant' :
                     item.status === 'non_compliant' ? 'non-compliant' :
@@ -182,16 +182,16 @@ function ComplianceSection({ output }: { output: Record<string, unknown> }) {
                     {item.status as string}
                   </span>
                 )}
-                {item.severity && (
+                {(item.severity as string) && (
                   <span className={`ai-risk-badge ${getRiskClass(item.severity as string)}`}>
                     {item.severity as string}
                   </span>
                 )}
               </div>
-              {item.action && (
+              {(item.action as string) && (
                 <p className="ai-detail-sub">{item.action as string}</p>
               )}
-              {item.legalBasis && (
+              {(item.legalBasis as string) && (
                 <p className="ai-legal-basis">📜 {item.legalBasis as string}</p>
               )}
             </div>
@@ -209,7 +209,7 @@ function GeneralSection({ output }: { output: Record<string, unknown> }) {
 
   return (
     <div className="ai-result-section-sm">
-      {answer && (
+      {Boolean(answer) && (
         <p className="ai-summary-text">{answer}</p>
       )}
 
@@ -218,8 +218,8 @@ function GeneralSection({ output }: { output: Record<string, unknown> }) {
           <p className="ai-sub-title">Căn cứ pháp lý:</p>
           {legalBasis.map((lb: Record<string, unknown>, i: number) => (
             <div key={i} className="ai-legal-basis">
-              📜 {lb.law as string}{lb.article ? ` — ${lb.article as string}` : ''}
-              {lb.content && <p className="ai-legal-basis-sub">{lb.content as string}</p>}
+              📜 {lb.law as string}{(lb.article as string) ? ` — ${lb.article as string}` : ''}
+              {(lb.content as string) && <p className="ai-legal-basis-sub">{lb.content as string}</p>}
             </div>
           ))}
         </div>
@@ -310,10 +310,10 @@ export function AiResultCard({
       {expandedResult && (
         <div className="ai-result-body" data-testid="ai-result-body">
           {/* Summary */}
-          {result.summary && (
+          {Boolean(result.summary) && (
             <div className="ai-summary-row">
               <Info size={14} />
-              <p className="ai-summary-text">{result.summary}</p>
+              <p className="ai-summary-text">{result.summary as string}</p>
             </div>
           )}
 

@@ -296,7 +296,7 @@ export function SpecialistWorkbench() {
           <Paging
             current={page}
             pageSize={10}
-            total={data.total}
+            total={data?.total ?? 0}
             onChange={(p) => setPage(p)}
           />
         </div>

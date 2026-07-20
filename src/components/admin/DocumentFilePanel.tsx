@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { FileText, Upload, File, Loader2, AlertTriangle, Eye } from 'lucide-react';
+import { FileText, Upload, File, Loader2, AlertTriangle, Eye, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -56,6 +56,14 @@ function getStatusLabel(status: string | null, t: ReturnType<typeof useTranslati
   }
 }
 
+function getReviewStatusIcon(reviewStatus: string): React.ReactNode {
+  switch (reviewStatus) {
+    case 'reviewed': return <CheckCircle2 size={14} className="file-review-icon reviewed" />;
+    case 'has_issues': return <AlertCircle size={14} className="file-review-icon has-issues" />;
+    default: return <Clock size={14} className="file-review-icon pending" />;
+  }
+}
+
 // ── Component ────────────────────────────────────────────────
 
 export function DocumentFilePanel({ requestId, activeFileId, onSelectFile }: DocumentFilePanelProps) {
@@ -68,6 +76,8 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile }: Doc
   const [preview, setPreview] = useState<PreviewData | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
+
+  const [reviewStatuses, setReviewStatuses] = useState<Record<string, string>>({});
 
   // ── Load file list ──
 
@@ -86,9 +96,23 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile }: Doc
     }
   }, [requestId]);
 
+  // ── Load review statuses ──
+
+  const loadReviewStatuses = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/admin/requests/${requestId}/files/review-status`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setReviewStatuses(data.statuses ?? {});
+    } catch {
+      // silent
+    }
+  }, [requestId]);
+
   useEffect(() => {
     loadFiles();
-  }, [loadFiles]);
+    loadReviewStatuses();
+  }, [loadFiles, loadReviewStatuses]);
 
   // ── Load preview when activeFileId changes ──
 
@@ -118,6 +142,31 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile }: Doc
     loadPreview();
     return () => { cancelled = true; };
   }, [requestId, activeFileId]);
+
+  // ── Toggle review status ──
+
+  const toggleReviewStatus = useCallback(async (fileId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Don't select the file
+    const currentStatus = reviewStatuses[fileId] ?? 'pending';
+    const nextStatus = currentStatus === 'reviewed' ? 'pending' : 'reviewed';
+
+    // Optimistic update
+    setReviewStatuses((prev) => ({ ...prev, [fileId]: nextStatus }));
+
+    try {
+      const res = await fetch(`/api/admin/requests/${requestId}/files/review-status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileKey: fileId, status: nextStatus }),
+      });
+      if (!res.ok) {
+        // Rollback
+        setReviewStatuses((prev) => ({ ...prev, [fileId]: currentStatus }));
+      }
+    } catch {
+      setReviewStatuses((prev) => ({ ...prev, [fileId]: currentStatus }));
+    }
+  }, [requestId, reviewStatuses]);
 
   // ── Render ──────────────────────────────────────────────
 
@@ -155,7 +204,9 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile }: Doc
           </div>
         ) : (
           <div className="doc-file-list-items">
-            {files.map((file) => (
+            {files.map((file) => {
+              const reviewStatus = reviewStatuses[file.id] ?? 'pending';
+              return (
               <button
                 key={file.id}
                 type="button"
@@ -176,8 +227,15 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile }: Doc
                 <div className={`doc-file-item-type-badge ${file.type}`}>
                   {file.type === 'generated' ? t('fileTypeGenerated') : t('fileTypeUploaded')}
                 </div>
+                <div
+                  className="doc-file-review-toggle"
+                  onClick={(e) => toggleReviewStatus(file.id, e)}
+                  title={reviewStatus === 'reviewed' ? t('fileStatusReviewed') : reviewStatus === 'has_issues' ? t('fileStatusHasIssues') : t('fileStatusPending')}
+                >
+                  {getReviewStatusIcon(reviewStatus)}
+                </div>
               </button>
-            ))}
+            )})}
           </div>
         )}
       </div>

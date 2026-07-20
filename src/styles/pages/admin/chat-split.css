@@ -54,6 +54,66 @@
   font-weight: 500;
 }
 
+.chat-split-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-split-status-badge {
+  font-size: var(--text-xs, 11px);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.chat-split-status-badge.status-in_progress {
+  background: #dbeafe;
+  color: #2563eb;
+}
+.chat-split-status-badge.status-pending_review {
+  background: #fef3c7;
+  color: #d97706;
+}
+.chat-split-status-badge.status-approved {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.chat-split-header-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: var(--text-xs, 12px);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.chat-split-header-action:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+.chat-split-header-action.primary {
+  color: white;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.chat-split-header-action.primary:hover {
+  opacity: 0.9;
+}
+.chat-split-header-action:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* ── Body: Split Layout ────────────────────────────────────── */
 
 .chat-split-body {
@@ -70,6 +130,23 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+}
+
+.chat-split-left-top {
+  flex: 0 0 65%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-split-left-bottom {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-border);
 }
 
 .chat-split-right {
@@ -283,6 +360,34 @@
 .doc-file-item-type-badge.vault_file {
   background: #dbeafe;
   color: #2563eb;
+}
+
+/* ── Review Status Toggle ──────────────────────────────────── */
+
+.doc-file-review-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.doc-file-review-toggle:hover {
+  background: var(--color-surface-hover);
+}
+
+.file-review-icon.reviewed {
+  color: #16a34a;
+}
+.file-review-icon.has-issues {
+  color: var(--color-danger);
+}
+.file-review-icon.pending {
+  color: var(--color-text-muted);
+  opacity: 0.5;
 }
 
 /* ── Preview Section ────────────────────────────────────────── */

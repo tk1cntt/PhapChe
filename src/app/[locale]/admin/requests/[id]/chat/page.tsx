@@ -2,19 +2,24 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { ArrowLeft, FileText, Send } from 'lucide-react';
 import { ChatActivityPanel } from '@/components/admin/ChatActivityPanel';
 import { DocumentFilePanel, type FileItem } from '@/components/admin/DocumentFilePanel';
+import { DocumentAnnotationPanel } from '@/components/admin/DocumentAnnotationPanel';
+import { ReportDialog, type ReportData } from '@/components/admin/ReportDialog';
 import '@/styles/pages/admin/chat-split.css';
 
 interface RequestInfo {
   title: string;
   matterTypeKey: string | null;
+  status: string;
 }
 
 export default function ChatActivityPage() {
   const params = useParams();
   const router = useRouter();
+  const t = useTranslations('ChatActivity');
   const requestId = params.id as string;
   const locale = (params.locale as string) || 'vi';
 
@@ -23,6 +28,14 @@ export default function ChatActivityPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
   const [activeFileName, setActiveFileName] = useState<string | null>(null);
+
+  // Report state
+  const [reportOpen, setReportOpen] = useState(false);
+  const [report, setReport] = useState<ReportData | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
+
+  // Submit state
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +57,7 @@ export default function ChatActivityPage() {
         setRequestInfo({
           title: req.title ?? 'Request',
           matterTypeKey: req.matterTypeKey ?? req.intakeSubmission?.matterTypeKey ?? null,
+          status: req.status ?? 'draft_intake',
         });
       } catch (err) {
         if (cancelled) return;
@@ -65,6 +79,51 @@ export default function ChatActivityPage() {
     setActiveFileId(fileId);
     setActiveFileName(fileTitle);
   }, []);
+
+  // ── Generate Report ──
+
+  const handleGenerateReport = useCallback(async () => {
+    setReportOpen(true);
+    setReportLoading(true);
+    setReport(null);
+
+    try {
+      const res = await fetch(`/api/admin/requests/${requestId}/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ includeResolved: false }),
+      });
+      if (!res.ok) throw new Error('Failed to generate');
+      const data = await res.json();
+      setReport(data.report);
+    } catch {
+      setReport(null);
+    } finally {
+      setReportLoading(false);
+    }
+  }, [requestId]);
+
+  // ── Submit for Review ──
+
+  const handleSubmitForReview = useCallback(async () => {
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/admin/requests/${requestId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'pending_review' }),
+      });
+      if (res.ok) {
+        setRequestInfo((prev) => prev ? { ...prev, status: 'pending_review' } : prev);
+      }
+    } catch {
+      // silent
+    } finally {
+      setSubmitting(false);
+    }
+  }, [requestId]);
+
+  const canSubmit = requestInfo?.status === 'in_progress';
 
   if (loading) {
     return (
@@ -117,17 +176,54 @@ export default function ChatActivityPage() {
             </span>
           )}
         </div>
+        <div className="chat-split-header-right">
+          {/* Request status badge */}
+          <span className={`chat-split-status-badge status-${requestInfo.status}`}>
+            {t('requestStatus')}: {requestInfo.status}
+          </span>
+          {/* Generate Report */}
+          <button
+            type="button"
+            className="chat-split-header-action"
+            onClick={handleGenerateReport}
+            title={t('reportGenerate')}
+          >
+            <FileText size={14} />
+            {t('reportGenerate')}
+          </button>
+          {/* Submit for Review */}
+          {canSubmit && (
+            <button
+              type="button"
+              className="chat-split-header-action primary"
+              onClick={handleSubmitForReview}
+              disabled={submitting}
+            >
+              <Send size={14} />
+              {submitting ? '...' : t('submitForReview')}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Split Layout */}
       <div className="chat-split-body">
-        {/* Left: Document Panel */}
+        {/* Left: Document Panel + Annotations */}
         <div className="chat-split-left">
-          <DocumentFilePanel
-            requestId={requestId}
-            activeFileId={activeFileId}
-            onSelectFile={handleSelectFile}
-          />
+          <div className="chat-split-left-top">
+            <DocumentFilePanel
+              requestId={requestId}
+              activeFileId={activeFileId}
+              onSelectFile={handleSelectFile}
+            />
+          </div>
+          <div className="chat-split-left-bottom">
+            <DocumentAnnotationPanel
+              requestId={requestId}
+              fileKey={activeFileId}
+              fileName={activeFileName}
+            />
+          </div>
         </div>
 
         {/* Right: Chat Panel */}
@@ -141,6 +237,14 @@ export default function ChatActivityPage() {
           />
         </div>
       </div>
+
+      {/* Report Dialog */}
+      <ReportDialog
+        report={report}
+        loading={reportLoading}
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+      />
     </div>
   );
 }

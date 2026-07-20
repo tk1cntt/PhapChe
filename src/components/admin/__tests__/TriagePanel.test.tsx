@@ -55,6 +55,10 @@ vi.mock('next-intl', () => ({
   useTimeZone: () => 'Asia/Ho_Chi_Minh',
 }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 // Mock fetch
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
@@ -126,13 +130,14 @@ describe('TriagePanel', () => {
 	    expect(combos.length).toBeGreaterThanOrEqual(1);
     });
 
-    it('renders column headers', async () => {
+    it('renders request cards with code, title, and meta', async () => {
       mockFetch.mockResolvedValueOnce({ ok: true, json: async () => mockTriageData });
       await act(async () => { render(<TriagePanel />); });
-      await waitFor(() => { expect(screen.getByText('Mã hồ sơ')).toBeInTheDocument(); });
-      expect(screen.getByText('Tiêu đề / Mô tả')).toBeInTheDocument();
-      expect(screen.getByText('Khách hàng')).toBeInTheDocument();
-      expect(screen.getByText('Workspace')).toBeInTheDocument();
+      await waitFor(() => { expect(screen.getByText('REQ-2026-001')).toBeInTheDocument(); });
+      // Cards render code as mono text, title, customer/workspace in meta
+      expect(screen.getByText('Hợp đồng lao động ABC Corp')).toBeInTheDocument();
+      expect(screen.getByText('Nguyễn Văn A')).toBeInTheDocument();
+      expect(screen.getByText('ABC Corp')).toBeInTheDocument();
     });
 
     it('renders request rows', async () => {
@@ -153,7 +158,8 @@ describe('TriagePanel', () => {
       mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ ...mockTriageData, total: 25, totalPages: 3 }) });
       await act(async () => { render(<TriagePanel />); });
       await waitFor(() => { expect(screen.getByTestId('common-paging')).toBeInTheDocument(); });
-      expect(screen.getByText('2')).toBeInTheDocument();
+      // Paging shows page navigation buttons — next page should be enabled
+      expect(screen.getByLabelText('nextPage')).not.toBeDisabled();
     });
   });
 

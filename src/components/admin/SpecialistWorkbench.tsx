@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Sparkles } from 'lucide-react';
 import Paging from '@/components/ui/Paging';
+import RequestCard from './RequestCard';
 import { UpdateStatusDialog } from './UpdateStatusDialog';
 
 interface WorkbenchRequest {
@@ -203,103 +203,62 @@ export function SpecialistWorkbench() {
         </div>
       )}
 
-      {/* List */}
+      {/* Request Cards */}
       {!loading && !error && filteredData.length > 0 && (
-        <div className="triage-list">
-          <div className="triage-header-row">
-            <span className="col-code">{t('colCode')}</span>
-            <span className="col-title">{t('colTitle')}</span>
-            <span className="col-customer">{t('colCustomer')}</span>
-            <span className="col-workspace">{t('colWorkspace')}</span>
-            <span className="col-type">{t('colType')}</span>
-            <span className="col-priority">{t('colPriority')}</span>
-            <span className="col-status">{t('colStatus')}</span>
-            <span className="col-action">{t('colAction')}</span>
-          </div>
-
+        <div className="request-cards-grid">
           {filteredData.map(req => {
             const sBadge = STATUS_STYLE[req.status] || STATUS_STYLE.assigned;
             const pBadge = PRIORITY_STYLE[req.priority] || PRIORITY_STYLE.MEDIUM;
             const matterLabel = req.matterTypeKey ? (tMatter(req.matterTypeKey as any) as string) : '—';
 
-            // Determine available actions per status
             let actionLabel = '';
-            let nextStatus = '';
-            if (req.status === 'assigned') { actionLabel = t('btnStartWork'); nextStatus = 'in_progress'; }
-            else if (req.status === 'in_progress') { actionLabel = t('btnSubmitReview'); nextStatus = 'pending_review'; }
-            else if (req.status === 'revision_required') { actionLabel = t('btnResubmit'); nextStatus = 'in_progress'; }
+            if (req.status === 'assigned') { actionLabel = t('btnStartWork'); }
+            else if (req.status === 'in_progress') { actionLabel = t('btnSubmitReview'); }
+            else if (req.status === 'revision_required') { actionLabel = t('btnResubmit'); }
 
             return (
-              <div key={req.id} className="triage-row">
-                <span className="col-code" title={req.code}>{req.code}</span>
-                <span className="col-title">
-                  <div className="title-text">{req.title}</div>
-                  {req.reviewerName && <div className="title-desc">{t('reviewerLabel')}: {req.reviewerName}</div>}
-                </span>
-                <span className="col-customer">
-                  <div className="customer-name">{req.customerName}</div>
-                  <div className="customer-email">{req.customerEmail}</div>
-                </span>
-                <span className="col-workspace">{req.workspaceName}</span>
-                <span className="col-type">{matterLabel}</span>
-                <span className="col-priority">
-                  <span className="priority-badge" style={{ background: pBadge.bg, color: pBadge.color }}>
-                    {req.priority}
-                  </span>
-                </span>
-                <span className="col-status">
-                  <span className="status-badge" style={{ background: sBadge.bg, color: sBadge.color }}>
-                    {tStatus(req.status) || req.status}
-                  </span>
-                </span>
-                <span className="col-action">
-                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                    {actionLabel ? (
-                      <button className="assign-btn" onClick={() => setDialogTarget(req)}>
-                        {actionLabel}
-                      </button>
-                    ) : (
-                      <span className="title-desc" style={{ fontSize: 12 }}>{tStatus('statusJustUpdated') || ''}</span>
-                    )}
+              <RequestCard
+                key={req.id}
+                code={req.code}
+                title={req.title}
+                subtitle={req.reviewerName ? `${t('reviewerLabel')}: ${req.reviewerName}` : undefined}
+                metaLines={[req.customerName, req.workspaceName, matterLabel]}
+                priority={req.priority}
+                priorityStyle={pBadge}
+                statusLabel={(tStatus(req.status) as string) || req.status}
+                statusStyle={sBadge}
+                date={new Date(req.createdAt).toLocaleDateString('vi-VN')}
+                actionSlot={
+                  actionLabel ? (
                     <button
-                      type="button"
-                      className="ai-btn"
-                      onClick={() => {
-                        const locale = window.location.pathname.split('/')[1] || 'vi';
-                        router.push(`/${locale}/admin/requests/${req.id}/chat`);
-                      }}
-                      title={t('btnAiAssist')}
-                      style={{
-                        background: 'transparent',
-                        color: '#a78bfa',
-                        border: '1px solid #e9d5ff',
-                        borderRadius: '4px',
-                        padding: '3px 6px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '3px',
-                      }}
-                      data-testid={`ai-btn-req-${req.id}`}
+                      className="request-card-action-btn"
+                      style={{ background: 'var(--color-primary)', color: '#fff', border: 'none' }}
+                      onClick={() => setDialogTarget(req)}
                     >
-                      <Sparkles size={12} />
-                      AI
+                      {actionLabel}
                     </button>
-                  </div>
-                </span>
-              </div>
+                  ) : null
+                }
+                onAiClick={() => {
+                  const locale = window.location.pathname.split('/')[1] || 'vi';
+                  router.push(`/${locale}/admin/requests/${req.id}/chat`);
+                }}
+                aiTooltip={t('btnAiAssist') ?? 'AI Assistant'}
+                testId={`workbench-card-${req.id}`}
+              />
             );
           })}
-
-          {/* Pagination */}
-          <Paging
-            current={page}
-            pageSize={10}
-            total={data?.total ?? 0}
-            onChange={(p) => setPage(p)}
-          />
         </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && !error && filteredData.length > 0 && (
+        <Paging
+          current={page}
+          pageSize={10}
+          total={data?.total ?? 0}
+          onChange={(p) => setPage(p)}
+        />
       )}
 
       {/* Update Status Dialog */}

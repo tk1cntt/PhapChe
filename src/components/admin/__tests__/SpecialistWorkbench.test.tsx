@@ -37,6 +37,10 @@ vi.mock('next-intl', () => ({
   useTranslations: (ns: string) => stableT[ns as keyof typeof stableT] ?? ((k: string) => k),
 }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 // Mock UpdateStatusDialog
 vi.mock('../UpdateStatusDialog', () => ({
   UpdateStatusDialog: ({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) => (

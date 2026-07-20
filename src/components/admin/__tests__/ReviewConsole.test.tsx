@@ -44,6 +44,10 @@ vi.mock('next-intl', () => ({
   useTranslations: (ns: string) => stableT[ns as keyof typeof stableT] ?? ((k: string) => k),
 }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 // Mock ReviewDialog as a simple trigger component
 vi.mock('../ReviewDialog', () => ({
   ReviewDialog: ({ onClose, onSuccess, defaultAction }: {

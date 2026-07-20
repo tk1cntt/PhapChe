@@ -440,8 +440,8 @@ describe('SpecialistWorkbench AI Integration', () => {
       render(<SpecialistWorkbench />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-req-1')).toBeTruthy();
-        expect(screen.getByTestId('ai-btn-req-2')).toBeTruthy();
+        expect(screen.getByTestId('workbench-card-1-ai-btn')).toBeTruthy();
+        expect(screen.getByTestId('workbench-card-2-ai-btn')).toBeTruthy();
       });
     });
 
@@ -461,10 +461,10 @@ describe('SpecialistWorkbench AI Integration', () => {
       render(<SpecialistWorkbench />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-req-1')).toBeTruthy();
+        expect(screen.getByTestId('workbench-card-1-ai-btn')).toBeTruthy();
       });
 
-      fireEvent.click(screen.getByTestId('ai-btn-req-1'));
+      fireEvent.click(screen.getByTestId('workbench-card-1-ai-btn'));
 
       // Should navigate to chat page instead of opening inline panel
       await waitFor(() => {
@@ -488,12 +488,12 @@ describe('SpecialistWorkbench AI Integration', () => {
       render(<SpecialistWorkbench />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-req-1')).toBeTruthy();
+        expect(screen.getByTestId('workbench-card-1-ai-btn')).toBeTruthy();
       });
 
       // Click twice — both clicks should navigate
-      fireEvent.click(screen.getByTestId('ai-btn-req-1'));
-      fireEvent.click(screen.getByTestId('ai-btn-req-1'));
+      fireEvent.click(screen.getByTestId('workbench-card-1-ai-btn'));
+      fireEvent.click(screen.getByTestId('workbench-card-1-ai-btn'));
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledTimes(2);
@@ -516,18 +516,18 @@ describe('SpecialistWorkbench AI Integration', () => {
       render(<SpecialistWorkbench />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-req-1')).toBeTruthy();
-        expect(screen.getByTestId('ai-btn-req-2')).toBeTruthy();
+        expect(screen.getByTestId('workbench-card-1-ai-btn')).toBeTruthy();
+        expect(screen.getByTestId('workbench-card-2-ai-btn')).toBeTruthy();
       });
 
-      fireEvent.click(screen.getByTestId('ai-btn-req-1'));
+      fireEvent.click(screen.getByTestId('workbench-card-1-ai-btn'));
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/vi/admin/requests/1/chat');
       });
 
       mockPush.mockClear();
 
-      fireEvent.click(screen.getByTestId('ai-btn-req-2'));
+      fireEvent.click(screen.getByTestId('workbench-card-2-ai-btn'));
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/vi/admin/requests/2/chat');
       });
@@ -551,10 +551,10 @@ describe('SpecialistWorkbench AI Integration', () => {
       render(<SpecialistWorkbench />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-req-42')).toBeTruthy();
+        expect(screen.getByTestId('workbench-card-42-ai-btn')).toBeTruthy();
       });
 
-      fireEvent.click(screen.getByTestId('ai-btn-req-42'));
+      fireEvent.click(screen.getByTestId('workbench-card-42-ai-btn'));
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/vi/admin/requests/42/chat');
@@ -581,10 +581,10 @@ describe('SpecialistWorkbench AI Integration', () => {
       render(<SpecialistWorkbench />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-req-1')).toBeTruthy();
+        expect(screen.getByTestId('workbench-card-1-ai-btn')).toBeTruthy();
       });
 
-      fireEvent.click(screen.getByTestId('ai-btn-req-1'));
+      fireEvent.click(screen.getByTestId('workbench-card-1-ai-btn'));
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/vi/admin/requests/1/chat');
@@ -607,7 +607,7 @@ describe('SpecialistWorkbench AI Integration', () => {
       render(<SpecialistWorkbench />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-req-1')).toBeTruthy();
+        expect(screen.getByTestId('workbench-card-1-ai-btn')).toBeTruthy();
       });
 
       // No inline panel — navigation pattern only
@@ -663,8 +663,8 @@ describe('ReviewConsole AI Integration', () => {
       render(<ReviewConsole />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-req-rev-1')).toBeTruthy();
-        expect(screen.getByTestId('ai-btn-req-rev-2')).toBeTruthy();
+        expect(screen.getByTestId('review-card-rev-1-ai-btn')).toBeTruthy();
+        expect(screen.getByTestId('review-card-rev-2-ai-btn')).toBeTruthy();
       });
     });
 
@@ -686,10 +686,10 @@ describe('ReviewConsole AI Integration', () => {
       render(<ReviewConsole />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-req-rev-1')).toBeTruthy();
+        expect(screen.getByTestId('review-card-rev-1-ai-btn')).toBeTruthy();
       });
 
-      fireEvent.click(screen.getByTestId('ai-btn-req-rev-1'));
+      fireEvent.click(screen.getByTestId('review-card-rev-1-ai-btn'));
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/vi/admin/requests/rev-1/chat');
@@ -714,12 +714,12 @@ describe('ReviewConsole AI Integration', () => {
       render(<ReviewConsole />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('ai-btn-req-rev-1')).toBeTruthy();
+        expect(screen.getByTestId('review-card-rev-1-ai-btn')).toBeTruthy();
       });
 
       // Click twice — both clicks navigate
-      fireEvent.click(screen.getByTestId('ai-btn-req-rev-1'));
-      fireEvent.click(screen.getByTestId('ai-btn-req-rev-1'));
+      fireEvent.click(screen.getByTestId('review-card-rev-1-ai-btn'));
+      fireEvent.click(screen.getByTestId('review-card-rev-1-ai-btn'));
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledTimes(2);
@@ -746,7 +746,7 @@ describe('ReviewConsole AI Integration', () => {
       await waitFor(() => {
         expect(screen.getByText('Duyệt')).toBeTruthy();
         expect(screen.getByText('YCS')).toBeTruthy();
-        expect(screen.getByTestId('ai-btn-req-rev-1')).toBeTruthy();
+        expect(screen.getByTestId('review-card-rev-1-ai-btn')).toBeTruthy();
       });
     });
   });

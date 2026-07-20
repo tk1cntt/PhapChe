@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Sparkles } from 'lucide-react';
 import Paging from '@/components/ui/Paging';
+import RequestCard from './RequestCard';
 import { ReviewDialog } from './ReviewDialog';
 
 interface ReviewRequest {
@@ -177,98 +177,63 @@ export function ReviewConsole() {
         </div>
       )}
 
-      {/* List */}
+      {/* Request Cards */}
       {!loading && !error && filteredData.length > 0 && (
-        <div className="triage-list">
-          <div className="triage-header-row">
-            <span className="col-code">{t('colCode')}</span>
-            <span className="col-title">{t('colTitle')}</span>
-            <span className="col-customer">{t('colCustomer')}</span>
-            <span className="col-workspace">{t('colWorkspace')}</span>
-            <span className="col-type">{t('colType')}</span>
-            <span className="col-priority">{t('colPriority')}</span>
-            <span className="col-specialist">{t('colSpecialist')}</span>
-            <span className="col-action">{t('colAction')}</span>
-          </div>
-
+        <div className="request-cards-grid">
           {filteredData.map(req => {
             const pBadge = PRIORITY_STYLE[req.priority] || PRIORITY_STYLE.MEDIUM;
             const matterLabel = req.matterTypeKey ? (tMatter(req.matterTypeKey as any) as string) : '—';
 
             return (
-              <div key={req.id} className="triage-row">
-                <span className="col-code" title={req.code}>{req.code}</span>
-                <span className="col-title">
-                  <div className="title-text">{req.title}</div>
-                  {req.specialistName && <div className="title-desc">{t('specialistLabel')}: {req.specialistName}</div>}
-                </span>
-                <span className="col-customer">
-                  <div className="customer-name">{req.customerName}</div>
-                  <div className="customer-email">{req.customerEmail}</div>
-                </span>
-                <span className="col-workspace">{req.workspaceName}</span>
-                <span className="col-type">{matterLabel}</span>
-                <span className="col-priority">
-                  <span className="priority-badge" style={{ background: pBadge.bg, color: pBadge.color }}>
-                    {req.priority}
-                  </span>
-                </span>
-                <span className="col-specialist">{req.specialistName || '—'}</span>
-                <span className="col-action">
-                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <RequestCard
+                key={req.id}
+                code={req.code}
+                title={req.title}
+                subtitle={req.specialistName ? `${t('specialistLabel')}: ${req.specialistName}` : undefined}
+                metaLines={[req.customerName, req.workspaceName, matterLabel]}
+                priority={req.priority}
+                priorityStyle={pBadge}
+                statusLabel={(tStatus('pending_review') as string) || 'Pending Review'}
+                statusStyle={{ bg: '#fef3c7', color: '#d97706' }}
+                date={new Date(req.createdAt).toLocaleDateString('vi-VN')}
+                actionSlot={
+                  <div style={{ display: 'flex', gap: 6 }}>
                     <button
-                      className="approve-btn"
-                      onClick={() => setDialogTarget({ ...req, _reviewAction: 'approve' } as any)}
+                      className="request-card-action-btn"
                       style={{ background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0' }}
+                      onClick={() => setDialogTarget({ ...req, _reviewAction: 'approve' } as any)}
                     >
                       {t('btnApprove')}
                     </button>
                     <button
-                      className="revise-btn"
-                      onClick={() => setDialogTarget({ ...req, _reviewAction: 'revise' } as any)}
+                      className="request-card-action-btn"
                       style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca' }}
+                      onClick={() => setDialogTarget({ ...req, _reviewAction: 'revise' } as any)}
                     >
                       {t('btnRevise')}
                     </button>
-                    <button
-                      type="button"
-                      className="ai-btn"
-                      onClick={() => {
-                        const locale = window.location.pathname.split('/')[1] || 'vi';
-                        router.push(`/${locale}/admin/requests/${req.id}/chat`);
-                      }}
-                      title={t('btnAiAssist')}
-                      style={{
-                        background: 'transparent',
-                        color: '#a78bfa',
-                        border: '1px solid #e9d5ff',
-                        borderRadius: '4px',
-                        padding: '3px 6px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '3px',
-                      }}
-                      data-testid={`ai-btn-req-${req.id}`}
-                    >
-                      <Sparkles size={12} />
-                      AI
-                    </button>
                   </div>
-                </span>
-              </div>
+                }
+                onAiClick={() => {
+                  const locale = window.location.pathname.split('/')[1] || 'vi';
+                  router.push(`/${locale}/admin/requests/${req.id}/chat`);
+                }}
+                aiTooltip={t('btnAiAssist') ?? 'AI Assistant'}
+                testId={`review-card-${req.id}`}
+              />
             );
           })}
-
-          {/* Pagination */}
-          <Paging
-            current={page}
-            pageSize={10}
-            total={data?.total ?? 0}
-            onChange={(p) => setPage(p)}
-          />
         </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && !error && filteredData.length > 0 && (
+        <Paging
+          current={page}
+          pageSize={10}
+          total={data?.total ?? 0}
+          onChange={(p) => setPage(p)}
+        />
       )}
 
       {/* Review Dialog */}

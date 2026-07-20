@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import Paging from '@/components/ui/Paging';
+import RequestCard from './RequestCard';
 import { AssignmentDialog } from './AssignmentDialog';
 
 interface TriageRequest {
@@ -54,6 +56,7 @@ export function TriagePanel() {
   const t = useTranslations('AdminTriage');
   const tStatus = useTranslations('RequestStatus');
   const tMatter = useTranslations('MatterTypes');
+  const router = useRouter();
   const [data, setData] = useState<TriageResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -196,68 +199,58 @@ export function TriagePanel() {
         </div>
       )}
 
-      {/* Request List */}
+      {/* Request Cards */}
       {!loading && !error && filteredData.length > 0 && (
-        <div className="triage-list">
-          <div className="triage-header-row">
-            <span className="col-code">{t('colCode')}</span>
-            <span className="col-title">{t('colTitle')}</span>
-            <span className="col-customer">{t('colCustomer')}</span>
-            <span className="col-workspace">{t('colWorkspace')}</span>
-            <span className="col-type">{t('colType')}</span>
-            <span className="col-priority">{t('colPriority')}</span>
-            <span className="col-status">{t('colStatus')}</span>
-            <span className="col-action">{t('colAction')}</span>
-          </div>
-
+        <div className="request-cards-grid">
           {filteredData.map(req => {
             const sBadge = STATUS_BADGE[req.status] || STATUS_BADGE.draft_intake;
             const pBadge = PRIORITY_BADGE[req.priority] || PRIORITY_BADGE.MEDIUM;
             const matterLabel = req.matterTypeKey ? (tMatter(req.matterTypeKey as any) as string) : '—';
 
             return (
-              <div key={req.id} className="triage-row">
-                <span className="col-code" title={req.code}>{req.code}</span>
-                <span className="col-title">
-                  <div className="title-text">{req.title}</div>
-                  {req.description && <div className="title-desc">{req.description.slice(0, 80)}{req.description.length > 80 ? '...' : ''}</div>}
-                </span>
-                <span className="col-customer">
-                  <div className="customer-name">{req.customerName}</div>
-                  <div className="customer-email">{req.customerEmail}</div>
-                </span>
-                <span className="col-workspace">{req.workspaceName}</span>
-                <span className="col-type">{matterLabel}</span>
-                <span className="col-priority">
-                  <span className="priority-badge" style={{ background: pBadge.bg, color: pBadge.color }}>
-                    {req.priority}
-                  </span>
-                </span>
-                <span className="col-status">
-                  <span className="status-badge" style={{ background: sBadge.bg, color: sBadge.color }}>
-                    {sBadge.label}
-                  </span>
-                </span>
-                <span className="col-action">
+              <RequestCard
+                key={req.id}
+                code={req.code}
+                title={req.title}
+                subtitle={req.description ? (req.description.length > 80 ? req.description.slice(0, 80) + '...' : req.description) : undefined}
+                metaLines={[
+                  `${req.customerName}`,
+                  req.workspaceName,
+                  matterLabel,
+                ]}
+                priority={req.priority}
+                priorityStyle={pBadge}
+                statusLabel={sBadge.label}
+                statusStyle={sBadge}
+                date={req.date}
+                actionSlot={
                   <button
-                    className="assign-btn"
+                    className="request-card-action-btn"
+                    style={{ background: 'var(--color-primary)', color: '#fff', border: 'none' }}
                     onClick={() => setAssignTarget(req)}
                   >
                     {t('btnAssign')}
                   </button>
-                </span>
-              </div>
+                }
+                onAiClick={() => {
+                  const locale = window.location.pathname.split('/')[1] || 'vi';
+                  router.push(`/${locale}/admin/requests/${req.id}/chat`);
+                }}
+                aiTooltip={t('btnAiAssist') ?? 'AI Assistant'}
+              />
             );
           })}
-
-          {/* Pagination */}
-          <Paging
-            current={page}
-            pageSize={10}
-            total={data?.total ?? 0}
-            onChange={(p) => setPage(p)}
-          />
         </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && !error && filteredData.length > 0 && (
+        <Paging
+          current={page}
+          pageSize={10}
+          total={data?.total ?? 0}
+          onChange={(p) => setPage(p)}
+        />
       )}
 
       {/* Assignment Dialog */}

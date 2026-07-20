@@ -88,9 +88,30 @@ function MessagesClient({
     return () => clearInterval(intervalId);
   }, [pollInterval, lastPoll, workspaceSlug]);
 
-  // Handle thread selection - just update activeThreadId (messages already loaded)
+  // Mark messages as read when selecting a thread
+  const markThreadAsRead = useCallback(async (threadId: string) => {
+    // Optimistic: mark thread as read locally
+    setThreads((prev) =>
+      prev.map((t) => (t.id === threadId ? { ...t, isRead: true } : t))
+    );
+
+    // Fire-and-forget API call (best-effort)
+    try {
+      await fetch(`/api/messages/${threadId}/read`, { method: 'PUT' });
+    } catch {
+      // Best-effort; silently ignore failures
+    }
+  }, []);
+
+  // Handle thread selection - update activeThreadId and mark as read
   const handleSelectThread = useCallback((threadId: string) => {
     setActiveThreadId(threadId);
+    markThreadAsRead(threadId);
+  }, [markThreadAsRead]);
+
+  // Handle info panel toggle
+  const handleToggleInfoPanel = useCallback(() => {
+    setShowInfoPanel((prev) => !prev);
   }, []);
 
   // Handle sending message
@@ -179,7 +200,11 @@ function MessagesClient({
       )}
 
       {/* Right Panel: Case Info */}
-      <InfoPanel caseInfo={activeCaseInfo} isOpen={showInfoPanel} />
+      <InfoPanel
+        caseInfo={activeCaseInfo}
+        isOpen={showInfoPanel}
+        onClose={handleToggleInfoPanel}
+      />
     </div>
   );
 }

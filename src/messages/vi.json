@@ -2440,6 +2440,18 @@
     "errorSend": "Không thể gửi tin nhắn.",
     "errorAiNotConfigured": "AI chưa được cấu hình. Tin nhắn của bạn đã được lưu nhưng AI chưa phản hồi.",
     "suggestionsTitle": "Gợi ý câu hỏi",
-    "retry": "Thử lại"
+    "retry": "Thử lại",
+    "documentTitle": "Tài liệu",
+    "fileRefresh": "Tải lại danh sách",
+    "fileLoading": "Đang tải...",
+    "fileNoFiles": "Chưa có tài liệu nào",
+    "fileStatusDraft": "Nháp",
+    "fileStatusUploaded": "Đã tải lên",
+    "fileStatusPublished": "Đã phát hành",
+    "fileTypeGenerated": "Tạo bởi AI",
+    "fileTypeUploaded": "Tải lên",
+    "fileSelectHint": "Chọn một file để xem trước",
+    "filePreviewLoading": "Đang tải nội dung...",
+    "fileBinaryHint": "Không thể hiển thị trước file này. Vui lòng tải xuống để xem."
   }
 }

@@ -2335,6 +2335,18 @@
     "errorSend": "メッセージを送信できません。",
     "errorAiNotConfigured": "AIが設定されていません。メッセージは保存されましたがAIは応答しませんでした。",
     "suggestionsTitle": "おすすめの質問",
-    "retry": "再試行"
+    "retry": "再試行",
+    "documentTitle": "ドキュメント",
+    "fileRefresh": "リストを再読み込み",
+    "fileLoading": "読み込み中...",
+    "fileNoFiles": "まだドキュメントはありません",
+    "fileStatusDraft": "下書き",
+    "fileStatusUploaded": "アップロード済み",
+    "fileStatusPublished": "公開済み",
+    "fileTypeGenerated": "AI生成",
+    "fileTypeUploaded": "アップロード",
+    "fileSelectHint": "プレビューするファイルを選択",
+    "filePreviewLoading": "コンテンツ読み込み中...",
+    "fileBinaryHint": "このファイルはプレビューできません。ダウンロードしてご覧ください。"
   }
 }

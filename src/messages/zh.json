@@ -2335,6 +2335,18 @@
     "errorSend": "无法发送消息。",
     "errorAiNotConfigured": "AI 未配置。您的消息已保存但 AI 未响应。",
     "suggestionsTitle": "推荐问题",
-    "retry": "重试"
+    "retry": "重试",
+    "documentTitle": "文档",
+    "fileRefresh": "重新加载列表",
+    "fileLoading": "加载中...",
+    "fileNoFiles": "暂无文档",
+    "fileStatusDraft": "草稿",
+    "fileStatusUploaded": "已上传",
+    "fileStatusPublished": "已发布",
+    "fileTypeGenerated": "AI 生成",
+    "fileTypeUploaded": "已上传",
+    "fileSelectHint": "选择一个文件进行预览",
+    "filePreviewLoading": "正在加载内容...",
+    "fileBinaryHint": "无法预览此文件。请下载后查看。"
   }
 }

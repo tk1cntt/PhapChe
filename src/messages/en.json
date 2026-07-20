@@ -2437,6 +2437,18 @@
     "errorSend": "Unable to send message.",
     "errorAiNotConfigured": "AI is not configured. Your message was saved but AI did not respond.",
     "suggestionsTitle": "Suggested Questions",
-    "retry": "Retry"
+    "retry": "Retry",
+    "documentTitle": "Documents",
+    "fileRefresh": "Reload list",
+    "fileLoading": "Loading...",
+    "fileNoFiles": "No documents yet",
+    "fileStatusDraft": "Draft",
+    "fileStatusUploaded": "Uploaded",
+    "fileStatusPublished": "Published",
+    "fileTypeGenerated": "AI Generated",
+    "fileTypeUploaded": "Uploaded",
+    "fileSelectHint": "Select a file to preview",
+    "filePreviewLoading": "Loading content...",
+    "fileBinaryHint": "This file cannot be previewed. Please download to view."
   }
 }

@@ -1,8 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { ChatActivityPanel } from '@/components/admin/ChatActivityPanel';
+import { DocumentFilePanel, type FileItem } from '@/components/admin/DocumentFilePanel';
+import '@/styles/pages/admin/chat-split.css';
 
 interface RequestInfo {
   title: string;
@@ -18,6 +21,8 @@ export default function ChatActivityPage() {
   const [requestInfo, setRequestInfo] = useState<RequestInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeFileId, setActiveFileId] = useState<string | null>(null);
+  const [activeFileName, setActiveFileName] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -35,7 +40,6 @@ export default function ChatActivityPage() {
         const data = await res.json();
         if (cancelled) return;
 
-        // Handle both envelope formats
         const req = data.data ?? data;
         setRequestInfo({
           title: req.title ?? 'Request',
@@ -53,9 +57,14 @@ export default function ChatActivityPage() {
     return () => { cancelled = true; };
   }, [requestId]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     router.push(`/${locale}/admin/requests`);
-  };
+  }, [router, locale]);
+
+  const handleSelectFile = useCallback((fileId: string | null, fileTitle: string | null) => {
+    setActiveFileId(fileId);
+    setActiveFileName(fileTitle);
+  }, []);
 
   if (loading) {
     return (
@@ -89,11 +98,49 @@ export default function ChatActivityPage() {
   }
 
   return (
-    <ChatActivityPanel
-      requestId={requestId}
-      requestTitle={requestInfo.title}
-      matterTypeKey={requestInfo.matterTypeKey}
-      onBack={handleBack}
-    />
+    <div className="chat-split-page">
+      {/* Header */}
+      <div className="chat-split-header">
+        <div className="chat-split-header-left">
+          <button
+            type="button"
+            className="chat-split-back-btn"
+            onClick={handleBack}
+          >
+            <ArrowLeft size={16} />
+            Quay lại
+          </button>
+          <span className="chat-split-header-title">{requestInfo.title}</span>
+          {activeFileName && (
+            <span className="chat-split-header-file">
+              · {activeFileName}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Split Layout */}
+      <div className="chat-split-body">
+        {/* Left: Document Panel */}
+        <div className="chat-split-left">
+          <DocumentFilePanel
+            requestId={requestId}
+            activeFileId={activeFileId}
+            onSelectFile={handleSelectFile}
+          />
+        </div>
+
+        {/* Right: Chat Panel */}
+        <div className="chat-split-right">
+          <ChatActivityPanel
+            requestId={requestId}
+            requestTitle={requestInfo.title}
+            matterTypeKey={requestInfo.matterTypeKey}
+            activeFileId={activeFileId}
+            activeFileName={activeFileName}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Send, Bot, User, AlertTriangle, ChevronDown, Sparkles, Info, Lightbulb } from 'lucide-react';
+import { Send, Bot, User, AlertTriangle, ChevronDown, Sparkles, Info, Lightbulb, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import '@/styles/pages/admin/chat-activity.css';
@@ -30,6 +30,8 @@ export interface ChatActivityPanelProps {
   matterTypeKey?: string | null;
   model?: string;
   onBack?: () => void;
+  activeFileId?: string | null;
+  activeFileName?: string | null;
 }
 
 // ── Quick-access skill chips ──
@@ -61,6 +63,8 @@ export function ChatActivityPanel({
   matterTypeKey,
   model = 'gpt-4o-mini',
   onBack,
+  activeFileId,
+  activeFileName,
 }: ChatActivityPanelProps) {
   const t = useTranslations('ChatActivity');
 
@@ -156,6 +160,7 @@ export function ChatActivityPanel({
         body: JSON.stringify({
           content,
           skill: selectedSkill,
+          fileId: activeFileId ?? undefined,
         }),
       });
 
@@ -186,7 +191,7 @@ export function ChatActivityPanel({
       // Refocus composer
       composerRef.current?.focus();
     }
-  }, [composerInput, isSending, requestId, selectedSkill]);
+  }, [composerInput, isSending, requestId, selectedSkill, activeFileId]);
 
   // ── Keyboard handlers ──────────────────────────────────────
 
@@ -222,23 +227,6 @@ export function ChatActivityPanel({
   if (isLoading) {
     return (
       <div className="chat-activity-page" data-testid="chat-activity-page">
-        <div className="chat-activity-header">
-          <div className="chat-activity-header-left">
-            {onBack && (
-              <button
-                type="button"
-                className="chat-activity-back-btn"
-                onClick={onBack}
-                data-testid="chat-activity-back"
-              >
-                <ArrowLeft size={16} />
-                {t('backLink')}
-              </button>
-            )}
-            <span className="chat-activity-header-title">{requestTitle}</span>
-          </div>
-        </div>
-
         <div className="chat-activity-loading" data-testid="chat-activity-loading">
           <div className="chat-activity-skeleton-msg left">
             <div className="chat-activity-skeleton-bubble" />
@@ -261,28 +249,18 @@ export function ChatActivityPanel({
 
   return (
     <div className="chat-activity-page" data-testid="chat-activity-page">
-      {/* Header */}
-      <div className="chat-activity-header">
-        <div className="chat-activity-header-left">
-          {onBack && (
-            <button
-              type="button"
-              className="chat-activity-back-btn"
-              onClick={onBack}
-              data-testid="chat-activity-back"
-            >
-              <ArrowLeft size={16} />
-              {t('backLink')}
-            </button>
-          )}
-          <span className="chat-activity-header-title">{requestTitle}</span>
+      {/* Compact top bar: model badge + file indicator */}
+      <div className="chat-activity-top-bar">
+        <div className="chat-activity-model-badge" data-testid="chat-activity-model-badge">
+          <Sparkles size={10} />
+          {model}
         </div>
-        <div className="chat-activity-header-badges">
-          <span className="chat-activity-model-badge" data-testid="chat-activity-model-badge">
-            <Sparkles size={10} />
-            {model}
-          </span>
-        </div>
+        {activeFileId && activeFileName && (
+          <div className="chat-activity-file-indicator">
+            <FileText size={12} />
+            <span>{activeFileName}</span>
+          </div>
+        )}
       </div>
 
       {/* Error banner */}

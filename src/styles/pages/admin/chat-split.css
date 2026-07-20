@@ -1,0 +1,416 @@
+/* ── Split Chat Page Layout ─────────────────────────────────── */
+
+.chat-split-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--topbar-height, 64px) - 2rem);
+  overflow: hidden;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+
+.chat-split-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+
+.chat-split-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-split-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-sm2);
+  font-weight: 600;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm, 6px);
+}
+.chat-split-back-btn:hover {
+  background: var(--color-surface-hover, #f1f5f9);
+}
+
+.chat-split-header-title {
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.chat-split-header-file {
+  font-size: var(--text-sm2);
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+/* ── Body: Split Layout ────────────────────────────────────── */
+
+.chat-split-body {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chat-split-left {
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chat-split-right {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Top bar (inside chat panel) ───────────────────────────── */
+
+.chat-activity-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+
+.chat-activity-file-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs, 11px);
+  color: var(--color-primary);
+  background: var(--color-primary-muted, #e0e7ff);
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-weight: 600;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Document File Panel ───────────────────────────────────── */
+
+.doc-file-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.doc-file-list-section {
+  flex: 0 0 auto;
+  max-height: 45%;
+  overflow-y: auto;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.doc-file-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  z-index: 1;
+}
+
+.doc-file-list-header h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.doc-file-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+
+.doc-file-refresh-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+.doc-file-list-loading,
+.doc-file-list-error,
+.doc-file-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 12px;
+  font-size: var(--text-sm2);
+  color: var(--color-text-muted);
+}
+
+.doc-file-list-error {
+  color: var(--color-danger);
+}
+
+.doc-file-list-empty p {
+  margin: 0;
+  font-size: var(--text-xs);
+}
+
+/* ── File Items ────────────────────────────────────────────── */
+
+.doc-file-list-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.doc-file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s;
+}
+
+.doc-file-item:hover {
+  background: var(--color-surface-hover);
+}
+
+.doc-file-item.active {
+  background: var(--color-primary-muted, #e0e7ff);
+  border-left: 3px solid var(--color-primary);
+  padding-left: 9px;
+}
+
+.doc-file-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm, 6px);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.doc-file-item.active .doc-file-item-icon {
+  background: var(--color-primary);
+  color: white;
+}
+
+.doc-file-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.doc-file-item-name {
+  font-size: var(--text-sm2);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-file-item-meta {
+  font-size: var(--text-2xs, 10px);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-file-item-type-badge {
+  font-size: var(--text-3xs, 9px);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.doc-file-item-type-badge.generated {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.doc-file-item-type-badge.vault_file {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+/* ── Preview Section ────────────────────────────────────────── */
+
+.doc-file-preview-section {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.doc-file-preview-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: var(--color-text-muted);
+}
+
+.doc-file-preview-empty p {
+  font-size: var(--text-xs);
+  margin: 0;
+}
+
+.doc-file-preview-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  font-size: var(--text-sm2);
+  color: var(--color-text-muted);
+}
+
+.doc-file-preview-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  font-size: var(--text-sm2);
+  color: var(--color-danger);
+  background: var(--color-danger-muted, #fef2f2);
+  margin: 8px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+.doc-file-preview-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.doc-file-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-surface);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.doc-file-preview-header h4 {
+  font-size: var(--text-sm2);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-file-preview-mime {
+  font-size: var(--text-3xs, 9px);
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  padding: 2px 8px;
+  border-radius: 100px;
+  flex-shrink: 0;
+}
+
+.doc-file-preview-text {
+  flex: 1;
+  margin: 0;
+  padding: 12px;
+  font-size: var(--text-xs, 12px);
+  line-height: 1.6;
+  font-family: var(--font-mono, 'Courier New', monospace);
+  color: var(--color-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-y: auto;
+  background: var(--color-bg);
+}
+
+.doc-file-preview-binary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: var(--color-text-muted);
+}
+
+.doc-file-preview-binary p {
+  font-size: var(--text-xs);
+  margin: 0;
+  text-align: center;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .chat-split-body {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-split-left {
+    max-height: 40%;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .doc-file-list-section {
+    max-height: 50%;
+  }
+}

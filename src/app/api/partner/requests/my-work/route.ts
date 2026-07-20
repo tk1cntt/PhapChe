@@ -8,8 +8,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
-import { formatDateTime } from '@/lib/i18n/date-format';
-
 export async function GET(request: NextRequest) {
   try {
     const session = await requireAppSession();
@@ -85,8 +83,8 @@ export async function GET(request: NextRequest) {
       status: r.status,
       priority: r.priority ?? 'MEDIUM',
       reviewerName: r.assignedReviewer?.name ?? null,
-      createdAt: formatDateTime(r.createdAt, 'vi'),
-      updatedAt: formatDateTime(r.updatedAt, 'vi'),
+      createdAt: r.createdAt.toISOString(),
+      updatedAt: r.updatedAt.toISOString(),
     }));
 
     return NextResponse.json({

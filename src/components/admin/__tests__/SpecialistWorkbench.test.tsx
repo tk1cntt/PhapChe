@@ -35,6 +35,7 @@ const stableT = {
 
 vi.mock('next-intl', () => ({
   useTranslations: (ns: string) => stableT[ns as keyof typeof stableT] ?? ((k: string) => k),
+  useLocale: () => 'vi',
 }));
 
 vi.mock('next/navigation', () => ({
@@ -61,7 +62,7 @@ const mockData = {
       workspaceId: 'ws-1', workspaceName: 'ABC Corp', customerName: 'Nguyễn Văn A',
       customerEmail: 'a@example.com', matterTypeKey: 'labor_contract',
       status: 'assigned', priority: 'HIGH', reviewerName: 'Reviewer 1',
-      createdAt: '18/07/2026', updatedAt: '18/07/2026',
+      createdAt: '2026-07-18T00:00:00.000Z', updatedAt: '2026-07-18T00:00:00.000Z',
       workspaceSlug: '',
     },
     {
@@ -69,7 +70,7 @@ const mockData = {
       workspaceId: 'ws-2', workspaceName: 'XYZ Ltd', customerName: 'Trần Thị B',
       customerEmail: 'b@example.com', matterTypeKey: null,
       status: 'in_progress', priority: 'MEDIUM', reviewerName: null,
-      createdAt: '17/07/2026', updatedAt: '17/07/2026',
+      createdAt: '2026-07-17T00:00:00.000Z', updatedAt: '2026-07-17T00:00:00.000Z',
       workspaceSlug: '',
     },
   ],

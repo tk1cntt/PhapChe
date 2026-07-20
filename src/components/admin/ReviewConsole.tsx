@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Paging from '@/components/ui/Paging';
 import RequestCard from './RequestCard';
 import { ReviewDialog } from './ReviewDialog';
+import { formatDate } from '@/lib/i18n/date-format';
 
 interface ReviewRequest {
   id: string;
@@ -49,6 +50,7 @@ export function ReviewConsole() {
   const t = useTranslations('ReviewConsole');
   const tStatus = useTranslations('RequestStatus');
   const tMatter = useTranslations('MatterTypes');
+  const locale = useLocale();
   const [data, setData] = useState<ReviewResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -195,7 +197,7 @@ export function ReviewConsole() {
                 priorityStyle={pBadge}
                 statusLabel={(tStatus('pending_review') as string) || 'Pending Review'}
                 statusStyle={{ bg: '#fef3c7', color: '#d97706' }}
-                date={req.createdAt}
+                date={formatDate(req.createdAt, locale)}
                 actionSlot={
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Paging from '@/components/ui/Paging';
 import RequestCard from './RequestCard';
 import { DeliveryDialog } from './DeliveryDialog';
+import { formatDate } from '@/lib/i18n/date-format';
 
 interface DeliveryRequest {
   id: string;
@@ -55,6 +56,7 @@ export function DeliveryConsole() {
   const t = useTranslations('DeliveryConsole');
   const tStatus = useTranslations('RequestStatus');
   const tMatter = useTranslations('MatterTypes');
+  const locale = useLocale();
   const [data, setData] = useState<DeliveryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -209,7 +211,7 @@ export function DeliveryConsole() {
                 priorityStyle={pBadge}
                 statusLabel={(tStatus(req.status) as string) || req.status}
                 statusStyle={sBadge}
-                date={req.createdAt}
+                date={formatDate(req.createdAt, locale)}
                 actionSlot={
                   actionLabel ? (
                     <button

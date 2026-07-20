@@ -81,14 +81,14 @@ const mockTriageData = {
       workspaceId: 'ws-1', workspaceName: 'ABC Corp', workspaceSlug: 'abc-corp',
       customerName: 'Nguyễn Văn A', customerEmail: 'nguyenvana@example.com',
       matterTypeKey: 'labor_contract', status: 'triage', priority: 'HIGH',
-      date: '18/07/2026', hasAnswers: true,
+      date: '2026-07-18T00:00:00.000Z', hasAnswers: true,
     },
     {
       id: 'req-2', code: 'REQ-2026-002', title: 'Đăng ký nhãn hiệu XYZ',
       description: '', workspaceId: 'ws-2', workspaceName: 'XYZ Ltd',
       workspaceSlug: 'xyz-ltd', customerName: 'Trần Thị B',
       customerEmail: 'tranthib@example.com', matterTypeKey: 'trademark_registration',
-      status: 'draft_intake', priority: 'MEDIUM', date: '17/07/2026', hasAnswers: false,
+      status: 'draft_intake', priority: 'MEDIUM', date: '2026-07-17T00:00:00.000Z', hasAnswers: false,
     },
   ],
   specialists: [

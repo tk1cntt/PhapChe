@@ -9,7 +9,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
-import { formatDateTime } from '@/lib/i18n/date-format';
 
 // Valid admin roles
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -78,7 +77,7 @@ export async function GET(request: NextRequest) {
         matterTypeKey,
         status: req.status,
         priority: req.priority ?? 'MEDIUM',
-        date: formatDateTime(req.createdAt, 'vi'),
+        date: req.createdAt.toISOString(),
         hasAnswers: req.intakeSubmission?.answers != null,
         assignedSpecialistId: null,
         assignedSpecialistName: null,

@@ -89,6 +89,7 @@ vi.mock('next-intl', () => {
       if (namespace === 'ReviewConsole') return tReviewer;
       return tGeneric;
     },
+    useLocale: () => 'vi',
   };
 });
 

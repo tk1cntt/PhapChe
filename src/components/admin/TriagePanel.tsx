@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Paging from '@/components/ui/Paging';
 import RequestCard from './RequestCard';
 import { AssignmentDialog } from './AssignmentDialog';
+import { formatDate } from '@/lib/i18n/date-format';
 
 interface TriageRequest {
   id: string;
@@ -57,6 +58,7 @@ export function TriagePanel() {
   const tStatus = useTranslations('RequestStatus');
   const tMatter = useTranslations('MatterTypes');
   const router = useRouter();
+  const locale = useLocale();
   const [data, setData] = useState<TriageResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -222,7 +224,7 @@ export function TriagePanel() {
                 priorityStyle={pBadge}
                 statusLabel={sBadge.label}
                 statusStyle={sBadge}
-                date={req.date}
+                date={formatDate(req.date, locale)}
                 actionSlot={
                   <button
                     className="request-card-action-btn"

@@ -42,6 +42,7 @@ const stableT = {
 
 vi.mock('next-intl', () => ({
   useTranslations: (ns: string) => stableT[ns as keyof typeof stableT] ?? ((k: string) => k),
+  useLocale: () => 'vi',
 }));
 
 vi.mock('next/navigation', () => ({
@@ -71,14 +72,14 @@ const mockData = {
       workspaceId: 'ws-1', workspaceName: 'ABC Corp', customerName: 'Nguyễn Văn A',
       customerEmail: 'a@example.com', matterTypeKey: 'labor_contract',
       status: 'pending_review', priority: 'HIGH', specialistName: 'Specialist 1',
-      createdAt: '18/07/2026', updatedAt: '18/07/2026', workspaceSlug: '',
+      createdAt: '2026-07-18T00:00:00.000Z', updatedAt: '2026-07-18T00:00:00.000Z', workspaceSlug: '',
     },
     {
       id: 'r2', code: 'REQ-002', title: 'Đăng ký nhãn hiệu', description: '',
       workspaceId: 'ws-2', workspaceName: 'XYZ Ltd', customerName: 'Trần Thị B',
       customerEmail: 'b@example.com', matterTypeKey: null,
       status: 'pending_review', priority: 'MEDIUM', specialistName: null,
-      createdAt: '17/07/2026', updatedAt: '17/07/2026', workspaceSlug: '',
+      createdAt: '2026-07-17T00:00:00.000Z', updatedAt: '2026-07-17T00:00:00.000Z', workspaceSlug: '',
     },
   ],
   stats: { pending: 2, approved: 0, revisionRequired: 0 },

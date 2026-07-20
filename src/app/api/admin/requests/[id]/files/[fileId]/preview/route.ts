@@ -16,7 +16,6 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
-import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
 
@@ -56,10 +55,30 @@ function isPdf(mimeType: string | null, filename: string | null): boolean {
 }
 
 async function extractPdfText(buffer: Buffer): Promise<string> {
-  // v2.0.550 handles malformed PDFs (bad XRef, broken cross-reference tables) better than v1.10.100
-  const data = await pdfParse(buffer, { version: 'v2.0.550' });
-  // Clean up excessive newlines and normalize whitespace
-  return data.text
+  // Use pdfjs-dist directly (v5.x) — native error recovery for corrupt XRef tables
+  const pdfjsLib = await import('pdfjs-dist');
+  // pdfjs-dist 5.x stores data as Uint8Array internally; pass raw typed array
+  const src = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+
+  const loadingTask = pdfjsLib.getDocument({ data: src, disableRange: true, disableStream: true });
+  const doc = await loadingTask.promise;
+
+  const parts: string[] = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    try {
+      const page = await doc.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item) => ('str' in item ? item.str : ''))
+        .join(' ');
+      parts.push(pageText);
+    } catch {
+      // Skip pages that fail to parse — recover what we can
+      parts.push(`[Trang ${i}: không thể trích xuất text]`);
+    }
+  }
+
+  return parts.join('\n\n')
     .replace(/\r\n/g, '\n')
     .replace(/\n{4,}/g, '\n\n\n')
     .trim();

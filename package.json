@@ -33,7 +33,7 @@
     "next": "latest",
     "next-intl": "^4.13.0",
     "next-swagger-doc": "^0.4.1",
-    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^5.4.449",
     "radix-ui": "^1.5.0",
     "react": "latest",
     "react-dom": "latest",

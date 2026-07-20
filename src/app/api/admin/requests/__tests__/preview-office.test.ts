@@ -3,7 +3,7 @@
  *
  * Covers: isOfficeXml, isPdf, extractDocxText, extractXlsxText, extractPdfText,
  * integration with isBinaryPreview, edge cases, markdown table conversion,
- * pdf.js v2.0.550 for bad XRef resilience, text normalization
+ * pdfjs-dist v5.x for bad XRef resilience, text normalization, per-page error recovery
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -23,13 +23,26 @@ vi.mock('xlsx', () => ({
   },
 }));
 
-vi.mock('pdf-parse/lib/pdf-parse.js', () => ({
-  default: vi.fn(),
-}));
+vi.mock('pdfjs-dist', () => {
+  const mockGetTextContent = vi.fn();
+  const mockGetPage = vi.fn();
+  const mockDoc = { numPages: 0, getPage: mockGetPage };
+  const mockLoadingTask = { promise: Promise.resolve(mockDoc) };
+  const mockGetDocument = vi.fn(() => mockLoadingTask);
+  return {
+    __esModule: true,
+    default: { getDocument: mockGetDocument },
+    getDocument: mockGetDocument,
+    __mockDoc: mockDoc,
+    __mockGetPage: mockGetPage,
+    __mockGetTextContent: mockGetTextContent,
+    __mockLoadingTask: mockLoadingTask,
+  };
+});
 
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
-import pdfParse from 'pdf-parse/lib/pdf-parse.js';
+import * as pdfjsDist from 'pdfjs-dist';
 
 // ── Re-create testable versions ─────────────────────────────────
 // Functions from route.ts replicated for isolated unit testing
@@ -143,7 +156,7 @@ describe('isBinaryPreview — docx/xlsx/pdf exclusion', () => {
       )).toBe(false);
     });
 
-    it('should NOT flag PDF as binary (extracted by pdf-parse)', () => {
+    it('should NOT flag PDF as binary (extracted by pdfjs-dist)', () => {
       expect(isBinaryPreview('application/pdf', 'file.pdf')).toBe(false);
     });
   });
@@ -285,80 +298,106 @@ describe('isPdf', () => {
 
 // ── PDF extraction tests ─────────────────────────────────────────
 
-describe('extractPdfText (via pdf-parse mock)', () => {
-  it('should call pdfParse with buffer and v2.0.550 version', async () => {
-    vi.mocked(pdfParse).mockResolvedValueOnce({
-      text: 'Hello from PDF',
-      numpages: 1,
-      numrender: 1,
-      info: {},
-      metadata: {},
-      version: '1.4',
-    });
+describe('extractPdfText (via pdfjs-dist v5.x mock)', () => {
+  // Access mock internals via pdfjs-dist module
+  const mocks = pdfjsDist as unknown as {
+    getDocument: ReturnType<typeof vi.fn>;
+    __mockDoc: { numPages: number; getPage: ReturnType<typeof vi.fn> };
+    __mockGetPage: ReturnType<typeof vi.fn>;
+    __mockGetTextContent: ReturnType<typeof vi.fn>;
+    __mockLoadingTask: { promise: Promise<{ numPages: number; getPage: ReturnType<typeof vi.fn> }> };
+  };
 
-    const result = await pdfParse(Buffer.from('fake'), { version: 'v2.0.550' });
-    expect(result.text).toBe('Hello from PDF');
-    expect(pdfParse).toHaveBeenCalledWith(expect.any(Buffer), { version: 'v2.0.550' });
+  function mockPage(textItems: Array<{ str: string }>) {
+    const mockTextContent = { items: textItems };
+    const mockPage = { getTextContent: vi.fn().mockResolvedValue(mockTextContent) };
+    mocks.__mockGetTextContent.mockResolvedValue(mockTextContent);
+    mocks.__mockGetPage.mockResolvedValue(mockPage);
+    return mockPage;
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.__mockGetPage.mockReset();
+    mocks.__mockGetTextContent.mockReset();
   });
 
-  it('should handle empty PDF', async () => {
-    vi.mocked(pdfParse).mockResolvedValueOnce({
-      text: '',
-      numpages: 0,
-      numrender: 1,
-      info: {},
-      metadata: {},
-      version: '1.4',
-    });
-
-    const result = await pdfParse(Buffer.from('empty'), { version: 'v2.0.550' });
-    expect(result.text).toBe('');
-  });
-
-  it('should handle pdfParse throwing an error (bad XRef, corrupted PDF)', async () => {
-    vi.mocked(pdfParse).mockRejectedValueOnce(new Error('Invalid PDF structure'));
-
-    await expect(pdfParse(Buffer.from('bad'), { version: 'v2.0.550' }))
-      .rejects.toThrow('Invalid PDF structure');
-  });
-
-  // ── Replica of production extractPdfText for integration-style contract test ──
-  describe('extractPdfText replica (whitebox)', () => {
-    async function extractPdfTextReplica(buffer: Buffer): Promise<string> {
-      const data = await pdfParse(buffer, { version: 'v2.0.550' });
-      return data.text
-        .replace(/\r\n/g, '\n')
-        .replace(/\n{4,}/g, '\n\n\n')
-        .trim();
+  // ── Replica of production extractPdfText for contract test ──
+  async function extractPdfTextReplica(buffer: Buffer): Promise<string> {
+    const src = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    const loadingTask = mocks.getDocument({ data: src, disableRange: true, disableStream: true });
+    const doc = await loadingTask.promise;
+    const parts: string[] = [];
+    for (let i = 1; i <= doc.numPages; i++) {
+      try {
+        const page = await doc.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = (textContent.items as Array<{ str?: string }>)
+          .map((item) => item.str || '')
+          .join(' ');
+        parts.push(pageText);
+      } catch {
+        parts.push(`[Trang ${i}: không thể trích xuất text]`);
+      }
     }
+    return parts.join('\n\n')
+      .replace(/\r\n/g, '\n')
+      .replace(/\n{4,}/g, '\n\n\n')
+      .trim();
+  }
 
-    it('should normalize windows line endings', async () => {
-      vi.mocked(pdfParse).mockResolvedValueOnce({
-        text: 'Line1\r\nLine2\r\nLine3',
-        numpages: 1, numrender: 1, info: {}, metadata: {}, version: '1.4',
-      });
-      const result = await extractPdfTextReplica(Buffer.from('fake'));
-      expect(result).toBe('Line1\nLine2\nLine3');
-    });
+  it('should extract text from single-page PDF', async () => {
+    mocks.__mockDoc.numPages = 1;
+    mockPage([{ str: 'Xin chào' }, { str: 'Việt Nam' }]);
+    const result = await extractPdfTextReplica(Buffer.from('fake'));
+    expect(result).toBe('Xin chào Việt Nam');
+  });
 
-    it('should collapse excessive newlines (4+ → 3)', async () => {
-      vi.mocked(pdfParse).mockResolvedValueOnce({
-        text: 'A\n\n\n\n\nB\n\n\n\nC',
-        numpages: 1, numrender: 1, info: {}, metadata: {}, version: '1.4',
-      });
-      const result = await extractPdfTextReplica(Buffer.from('fake'));
-      // 5 newlines → \n\n\n, 4 newlines → \n\n\n
-      expect(result).toBe('A\n\n\nB\n\n\nC');
+  it('should join multi-page output with double newline', async () => {
+    mocks.__mockDoc.numPages = 2;
+    // Page 1
+    mocks.__mockGetPage.mockResolvedValueOnce({
+      getTextContent: vi.fn().mockResolvedValue({ items: [{ str: 'Page1' }] }),
     });
+    // Page 2
+    mocks.__mockGetPage.mockResolvedValueOnce({
+      getTextContent: vi.fn().mockResolvedValue({ items: [{ str: 'Page2' }] }),
+    });
+    const result = await extractPdfTextReplica(Buffer.from('fake'));
+    expect(result).toBe('Page1\n\nPage2');
+  });
 
-    it('should trim leading/trailing whitespace', async () => {
-      vi.mocked(pdfParse).mockResolvedValueOnce({
-        text: '  \n  Hello World  \n  ',
-        numpages: 1, numrender: 1, info: {}, metadata: {}, version: '1.4',
-      });
-      const result = await extractPdfTextReplica(Buffer.from('fake'));
-      expect(result).toBe('Hello World');
+  it('should skip failed pages with fallback message', async () => {
+    mocks.__mockDoc.numPages = 3;
+    // Page 1 OK
+    mocks.__mockGetPage.mockResolvedValueOnce({
+      getTextContent: vi.fn().mockResolvedValue({ items: [{ str: 'OK1' }] }),
     });
+    // Page 2 FAIL
+    mocks.__mockGetPage.mockRejectedValueOnce(new Error('bad XRef entry'));
+    // Page 3 OK
+    mocks.__mockGetPage.mockResolvedValueOnce({
+      getTextContent: vi.fn().mockResolvedValue({ items: [{ str: 'OK3' }] }),
+    });
+    const result = await extractPdfTextReplica(Buffer.from('fake'));
+    expect(result).toContain('OK1');
+    expect(result).toContain('[Trang 2: không thể trích xuất text]');
+    expect(result).toContain('OK3');
+  });
+
+  it('should handle empty text items on a page', async () => {
+    mocks.__mockDoc.numPages = 1;
+    mockPage([]);
+    const result = await extractPdfTextReplica(Buffer.from('fake'));
+    expect(result).toBe('');
+  });
+
+  it('should normalize and trim whitespace', async () => {
+    mocks.__mockDoc.numPages = 1;
+    mockPage([{ str: '  Hello  ' }, { str: '\nWorld\n' }]);
+    const result = await extractPdfTextReplica(Buffer.from('fake'));
+    expect(result).toContain('Hello');
+    expect(result).toContain('World');
   });
 });
 

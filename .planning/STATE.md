@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Legacy UI Enhancement
-status: Ready to plan
-stopped_at: Phase 75 planned
-last_updated: "2026-06-21T13:23:29.504Z"
+status: In progress
+stopped_at: Phase 78 completed
+last_updated: "2026-07-20T14:00:00.000Z"
 progress:
   total_phases: 24
-  completed_phases: 4
+  completed_phases: 7
   total_plans: 9
-  completed_plans: 8
-  percent: 17
+  completed_plans: 9
+  percent: 29
 ---
 
 # STATE.md — Project State Tracker
@@ -36,9 +36,57 @@ Enhanced User Dashboard với clickable stat cards, floating chat badge, loading
 - ✅ CSS verified (#087f78 teal color)
 - ✅ i18n verified (all 4 locales)
 
-**Next:** Phase 76 or Phase 77 — tiếp tục theo ROADMAP.md
+**Next:** Phase 79 — User Workspace**
 
 ---
+
+## Phase 78 Progress
+
+### 78-01: SPEC + Bug Fixes ✅ COMPLETE
+
+- **Commit:** `21fc76d`
+- **Date:** 2026-07-20
+- **Delivered:**
+  - SPEC.md với 8 requirements locked
+  - MessagesClient: InfoPanel close button wired (onClose → handleToggleInfoPanel)
+  - Mark-as-read: optimistic update + fire-and-forget API
+  - PUT /api/messages/[threadId]/read endpoint
+
+### 78-02: Comprehensive Tests ✅ COMPLETE
+
+- **Commit:** `3df400b`
+- **Date:** 2026-07-20
+- **131 tests, 10 test files, 0 failures**
+- Test files:
+  - `ThreadItem.test.tsx` — 16 tests (whitebox 6, blackbox 4, abnormal 6)
+  - `Composer.test.tsx` — 14 tests (whitebox 5, blackbox 5, abnormal 4)
+  - `MessageBubble.test.tsx` — 17 tests (whitebox 8, blackbox 2, abnormal 5, error 2)
+  - `ChatPanel.test.tsx` — 12 tests (whitebox 8, blackbox 2, abnormal 2)
+  - `ThreadListPanel.test.tsx` — 11 tests (whitebox 5, blackbox 6)
+  - `InfoPanel.test.tsx` — 16 tests (whitebox 10, blackbox 2, abnormal 4)
+  - `MessagesClient.test.tsx` — 17 tests (whitebox 4, blackbox 6, abnormal 6, error 1)
+  - `send.test.ts` — 17 tests (whitebox 4, blackbox 5, abnormal 4, error 3)
+  - `read.test.ts` — 5 tests (whitebox 2, error 1)
+  - `messages-by-thread.test.ts` — 6 tests (whitebox 2, blackbox 1, error 1)
+
+### Phase 78 Summary
+
+**Goal:** Messages page — 3-column layout với thread list, chat panel, info panel, search, send message với optimistic update, polling, mark-as-read.
+
+**Delivered:**
+- ✅ 8 UI components (existing, verified)
+- ✅ 4 API routes (existing, verified)
+- ✅ 1 new API: PUT /api/messages/[threadId]/read (mark-as-read)
+- ✅ InfoPanel close button wired trong MessagesClient
+- ✅ Mark-as-read with optimistic update
+- ✅ 131 comprehensive tests passing
+- ✅ CSS 3-column layout (existing)
+- ✅ i18n UserMessages cho VI/EN/ZH/JA (existing)
+
+**Next:** Phase 79 — User Workspace
+
+---
+
 
 ## Phase 75 Progress
 

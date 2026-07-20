@@ -1,7 +1,7 @@
 /**
- * Tests for preview/route.ts — Office XML extraction (docx/xlsx)
+ * Tests for preview/route.ts — Office XML + PDF extraction
  *
- * Covers: isOfficeXml detection, extractDocxText, extractXlsxText,
+ * Covers: isOfficeXml, isPdf, extractDocxText, extractXlsxText, extractPdfText,
  * integration with isBinaryPreview, edge cases, markdown table conversion
  */
 
@@ -22,20 +22,24 @@ vi.mock('xlsx', () => ({
   },
 }));
 
+vi.mock('pdf-parse/lib/pdf-parse.js', () => ({
+  default: vi.fn(),
+}));
+
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
+import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 
 // ── Re-create testable versions ─────────────────────────────────
 // Functions from route.ts replicated for isolated unit testing
 
-const BINARY_EXTENSIONS = /\.(pdf|doc|pptx|ppt|xls|zip|rar|7z|png|jpg|jpeg|gif|bmp|webp|mp3|mp4|avi|mov|mkv|exe|dll)$/i;
+const BINARY_EXTENSIONS = /\.(doc|pptx|ppt|xls|zip|rar|7z|png|jpg|jpeg|gif|bmp|webp|mp3|mp4|avi|mov|mkv|exe|dll)$/i;
 
 function isBinaryPreview(mimeType: string | null, filename: string | null): boolean {
   if (mimeType) {
     if (mimeType.startsWith('image/')) return true;
     if (mimeType.startsWith('audio/')) return true;
     if (mimeType.startsWith('video/')) return true;
-    if (mimeType === 'application/pdf') return true;
     if (mimeType.includes('zip') || mimeType.includes('compressed')) return true;
   }
   if (filename && BINARY_EXTENSIONS.test(filename)) return true;
@@ -54,6 +58,12 @@ function isOfficeXml(mimeType: string | null, filename: string | null): 'docx' |
     if (/\.xlsx$/i.test(filename)) return 'xlsx';
   }
   return null;
+}
+
+function isPdf(mimeType: string | null, filename: string | null): boolean {
+  if (mimeType === 'application/pdf') return true;
+  if (filename && /\.pdf$/i.test(filename)) return true;
+  return false;
 }
 
 /** Convert sheet data to markdown table (replicated from route.ts) */
@@ -116,8 +126,8 @@ describe('isOfficeXml', () => {
   });
 });
 
-describe('isBinaryPreview — docx/xlsx exclusion', () => {
-  describe('Whitebox — office files not treated as binary', () => {
+describe('isBinaryPreview — docx/xlsx/pdf exclusion', () => {
+  describe('Whitebox — office/pdf files not treated as binary', () => {
     it('should NOT flag docx as binary (extracted by mammoth)', () => {
       expect(isBinaryPreview(
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -131,13 +141,13 @@ describe('isBinaryPreview — docx/xlsx exclusion', () => {
         'data.xlsx',
       )).toBe(false);
     });
+
+    it('should NOT flag PDF as binary (extracted by pdf-parse)', () => {
+      expect(isBinaryPreview('application/pdf', 'file.pdf')).toBe(false);
+    });
   });
 
   describe('Whitebox — traditional binary still flagged', () => {
-    it('should flag PDF as binary', () => {
-      expect(isBinaryPreview('application/pdf', 'file.pdf')).toBe(true);
-    });
-
     it('should flag images as binary', () => {
       expect(isBinaryPreview('image/png', 'photo.png')).toBe(true);
       expect(isBinaryPreview('image/jpeg', 'scan.jpg')).toBe(true);
@@ -243,6 +253,72 @@ describe('extractXlsxText (via xlsx mock)', () => {
 
     const wb = XLSX.read(Buffer.from('fake'), { type: 'buffer' });
     expect(wb.SheetNames).toHaveLength(0);
+  });
+});
+
+// ── PDF detection tests ──────────────────────────────────────────
+
+describe('isPdf', () => {
+  it('should detect PDF by mimeType', () => {
+    expect(isPdf('application/pdf', null)).toBe(true);
+  });
+
+  it('should detect PDF by filename', () => {
+    expect(isPdf(null, 'contract.pdf')).toBe(true);
+  });
+
+  it('should be case-insensitive for filename', () => {
+    expect(isPdf(null, 'FILE.PDF')).toBe(true);
+  });
+
+  it('should return false for non-PDF', () => {
+    expect(isPdf('text/plain', null)).toBe(false);
+    expect(isPdf(null, 'contract.docx')).toBe(false);
+    expect(isPdf(null, null)).toBe(false);
+  });
+
+  it('should not confuse .pdf with other extensions', () => {
+    expect(isPdf(null, 'file.pdf.backup')).toBe(false);
+  });
+});
+
+// ── PDF extraction tests ─────────────────────────────────────────
+
+describe('extractPdfText (via pdf-parse mock)', () => {
+  it('should call pdfParse with buffer', async () => {
+    vi.mocked(pdfParse).mockResolvedValueOnce({
+      text: 'Hello from PDF',
+      numpages: 1,
+      numrender: 1,
+      info: {},
+      metadata: {},
+      version: '1.4',
+    });
+
+    const result = await pdfParse(Buffer.from('fake'));
+    expect(result.text).toBe('Hello from PDF');
+    expect(pdfParse).toHaveBeenCalledWith(expect.any(Buffer));
+  });
+
+  it('should handle empty PDF', async () => {
+    vi.mocked(pdfParse).mockResolvedValueOnce({
+      text: '',
+      numpages: 0,
+      numrender: 1,
+      info: {},
+      metadata: {},
+      version: '1.4',
+    });
+
+    const result = await pdfParse(Buffer.from('empty'));
+    expect(result.text).toBe('');
+  });
+
+  it('should handle pdfParse throwing an error', async () => {
+    vi.mocked(pdfParse).mockRejectedValueOnce(new Error('Invalid PDF structure'));
+
+    await expect(pdfParse(Buffer.from('bad')))
+      .rejects.toThrow('Invalid PDF structure');
   });
 });
 

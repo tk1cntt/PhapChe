@@ -5,7 +5,7 @@
  *   "vf_<vaultFileId>" — uploaded file (trả về text hoặc info nếu binary)
  *   "gen_<documentId>" — generated document (trả về generatedContent)
  *
- * Response: { content: string, mimeType: string, title: string, isBinary: boolean, previewFormat: 'markdown'|'text' }
+ * Response: { content: string, mimeType: string, title: string, isBinary: boolean, previewFormat: 'markdown'|'text', officeFileType?: 'docx'|'xlsx' }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -16,10 +16,11 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
+import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
 
-const BINARY_EXTENSIONS = /\.(pdf|doc|pptx|ppt|xls|zip|rar|7z|png|jpg|jpeg|gif|bmp|webp|mp3|mp4|avi|mov|mkv|exe|dll)$/i;
+const BINARY_EXTENSIONS = /\.(doc|pptx|ppt|xls|zip|rar|7z|png|jpg|jpeg|gif|bmp|webp|mp3|mp4|avi|mov|mkv|exe|dll)$/i;
 const TEXT_EXTENSIONS = /\.(txt|md|json|xml|html|css|js|ts|jsx|tsx|yaml|yml|csv|log|sql|env)$/i;
 const OFFICE_XML_EXTENSIONS = /\.(docx|xlsx)$/i;
 
@@ -28,7 +29,6 @@ function isBinaryPreview(mimeType: string | null, filename: string | null): bool
     if (mimeType.startsWith('image/')) return true;
     if (mimeType.startsWith('audio/')) return true;
     if (mimeType.startsWith('video/')) return true;
-    if (mimeType === 'application/pdf') return true;
     if (mimeType.includes('zip') || mimeType.includes('compressed')) return true;
   }
   if (filename && BINARY_EXTENSIONS.test(filename)) return true;
@@ -47,6 +47,21 @@ function isOfficeXml(mimeType: string | null, filename: string | null): 'docx' |
     if (/\.xlsx$/i.test(filename)) return 'xlsx';
   }
   return null;
+}
+
+function isPdf(mimeType: string | null, filename: string | null): boolean {
+  if (mimeType === 'application/pdf') return true;
+  if (filename && /\.pdf$/i.test(filename)) return true;
+  return false;
+}
+
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  const data = await pdfParse(buffer);
+  // Clean up excessive newlines and normalize whitespace
+  return data.text
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{4,}/g, '\n\n\n')
+    .trim();
 }
 
 async function extractDocxText(buffer: Buffer): Promise<string> {
@@ -197,6 +212,52 @@ export async function GET(
           const msg = fileErr instanceof Error ? fileErr.message : String(fileErr);
           return NextResponse.json({
             content: `[Lỗi đọc file ${officeType.toUpperCase()}: ${msg}]`,
+            mimeType,
+            title,
+            isBinary: false,
+            previewFormat: 'text',
+          });
+        }
+      }
+
+      // Parse PDF files for text extraction
+      if (isPdf(mimeType, title)) {
+        const objectKey = vaultFile.file?.objectKey ?? vaultFile.storageKey;
+        if (!objectKey) {
+          return NextResponse.json({ content: '', mimeType, title, isBinary: false, previewFormat: 'text' });
+        }
+        try {
+          const storageRoot = process.env.STORAGE_LOCAL_ROOT || '/data/storage/private';
+          const fullPath = join(storageRoot, objectKey);
+          if (!existsSync(fullPath)) {
+            return NextResponse.json({
+              content: `[File không tồn tại trong storage: ${objectKey}]`,
+              mimeType,
+              title,
+              isBinary: false,
+              previewFormat: 'text',
+            });
+          }
+          if (objectKey.includes('..')) {
+            return NextResponse.json({ error: 'Invalid object key' }, { status: 400 });
+          }
+          const buffer = await readFile(fullPath);
+          const content = await extractPdfText(buffer);
+          const MAX_PREVIEW = 100_000;
+          const truncated = content.length > MAX_PREVIEW
+            ? content.slice(0, MAX_PREVIEW) + '\n\n... [đã cắt bớt để hiển thị, tải file gốc để xem đầy đủ]'
+            : content;
+          return NextResponse.json({
+            content: truncated || '[Không có nội dung text trong file PDF]',
+            mimeType,
+            title,
+            isBinary: false,
+            previewFormat: 'text',
+          });
+        } catch (fileErr) {
+          const msg = fileErr instanceof Error ? fileErr.message : String(fileErr);
+          return NextResponse.json({
+            content: `[Lỗi đọc file PDF: ${msg}]`,
             mimeType,
             title,
             isBinary: false,

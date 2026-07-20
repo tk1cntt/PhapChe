@@ -20,7 +20,7 @@ interface IntakeQuestionsFormProps {
 
 interface Question {
   key: string;
-  label: string;
+  label: { vi: string; en: string; zh?: string; ja?: string };
   required: boolean;
   type: 'text' | 'textarea';
 }

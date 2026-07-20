@@ -35,10 +35,10 @@ export async function GET() {
       // Total requests
       prisma.legalRequest.count(),
 
-      // Pending triage (workspace without org)
+      // Pending triage (status: draft_intake or triage)
       prisma.legalRequest.count({
         where: {
-          workspace: { organizationId: null },
+          status: { in: ['draft_intake', 'triage'] },
         },
       }),
 

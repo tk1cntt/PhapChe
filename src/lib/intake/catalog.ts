@@ -7,7 +7,7 @@ import { SEED_MATTER_TYPES } from '../i18n/seed-multilingual';
 
 export type IntakeQuestion = {
   key: string;
-  label: string;
+  label: { vi: string; en: string; zh?: string; ja?: string };
   required: boolean;
   type: 'text' | 'textarea';
 };

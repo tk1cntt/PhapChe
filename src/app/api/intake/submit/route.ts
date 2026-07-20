@@ -84,7 +84,7 @@ export async function POST(request: Request) {
 
     // Get matter type from seed catalog
     const seedMatter = SEED_MATTER_TYPES[serviceType as keyof typeof SEED_MATTER_TYPES];
-    const questions = (seedMatter?.questions ?? []) as readonly { key: string; label: string; required: boolean; type: string }[];
+    const questions = (seedMatter?.questions ?? []) as unknown as readonly { key: string; label: { vi: string; en: string; zh?: string; ja?: string }; required: boolean; type: string }[];
     const schemaVersion = seedMatter?.schemaVersion ?? '2026-07-16';
 
     // Title for LegalRequest (VI primary from seed data)

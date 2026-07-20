@@ -78,6 +78,9 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
   if (!globalThis.devicePixelRatio) globalThis.devicePixelRatio = 1;
 
   const pdfjsLib = await import('pdfjs-dist');
+  // Disable worker — text extraction doesn't need a separate thread,
+  // and Turbopack can't resolve pdf.worker.mjs cross-chunk
+  pdfjsLib.GlobalWorkerOptions.workerPort = null;
   const src = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
 
   const loadingTask = pdfjsLib.getDocument({ data: src, disableRange: true, disableStream: true });

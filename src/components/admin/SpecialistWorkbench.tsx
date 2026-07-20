@@ -227,7 +227,7 @@ export function SpecialistWorkbench() {
                 priorityStyle={pBadge}
                 statusLabel={(tStatus(req.status) as string) || req.status}
                 statusStyle={sBadge}
-                date={new Date(req.createdAt).toLocaleDateString('vi-VN')}
+                date={req.createdAt}
                 actionSlot={
                   actionLabel ? (
                     <button

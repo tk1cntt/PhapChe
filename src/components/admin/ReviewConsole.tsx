@@ -195,7 +195,7 @@ export function ReviewConsole() {
                 priorityStyle={pBadge}
                 statusLabel={(tStatus('pending_review') as string) || 'Pending Review'}
                 statusStyle={{ bg: '#fef3c7', color: '#d97706' }}
-                date={new Date(req.createdAt).toLocaleDateString('vi-VN')}
+                date={req.createdAt}
                 actionSlot={
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button

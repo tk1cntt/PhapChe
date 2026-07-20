@@ -43,6 +43,7 @@ export const ROLE = {
   REVIEWER: 'reviewer',
   COORDINATOR_ADMIN: 'coordinator_admin',
   SUPER_ADMIN: 'super_admin',
+  AUDIT_ADMIN: 'audit_admin',
 } as const;
 
 export type Role = typeof ROLE[keyof typeof ROLE];

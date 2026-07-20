@@ -20,8 +20,8 @@ const SEED_USERS = [
 
 const ROLE_ROUTES: Record<string, string> = {
   customer: '/dashboard',
-  specialist: '/specialist',
-  reviewer: '/reviewer',
+  specialist: '/admin/dashboard',
+  reviewer: '/admin/dashboard',
   coordinator_admin: '/admin/dashboard',
   super_admin: '/admin/dashboard',
   audit_admin: '/admin/audit',

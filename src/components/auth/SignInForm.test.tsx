@@ -303,8 +303,8 @@ describe('SignInForm', () => {
   describe('Role-Based Redirects - Blackbox Tests', () => {
     it.each([
       ['customer', '/vi/dashboard'],
-      ['specialist', '/vi/specialist'],
-      ['reviewer', '/vi/reviewer'],
+      ['specialist', '/vi/admin/dashboard'],
+      ['reviewer', '/vi/admin/dashboard'],
       ['coordinator_admin', '/vi/admin/dashboard'],
       ['super_admin', '/vi/admin/dashboard'],
       ['audit_admin', '/vi/admin/audit'],

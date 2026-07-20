@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { FileText, Upload, File, Loader2, AlertTriangle, Eye, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 
 // ── Types ────────────────────────────────────────────────────
@@ -30,6 +32,7 @@ interface PreviewData {
   isBinary: boolean;
   message?: string;
   officeFileType?: 'docx' | 'xlsx';
+  previewFormat?: 'markdown' | 'text';
 }
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -278,7 +281,17 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile }: Doc
                     {preview.officeFileType === 'docx' ? t('filePreviewDocx') : t('filePreviewXlsx')}
                   </span>
                 </div>
-                <pre className="doc-file-preview-text">{preview.content}</pre>
+                <div className="doc-file-preview-markdown">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {preview.content}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            ) : preview.previewFormat === 'markdown' ? (
+              <div className="doc-file-preview-markdown">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {preview.content}
+                </ReactMarkdown>
               </div>
             ) : (
               <pre className="doc-file-preview-text">{preview.content}</pre>

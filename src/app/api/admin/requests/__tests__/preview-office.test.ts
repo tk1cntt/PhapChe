@@ -2,7 +2,7 @@
  * Tests for preview/route.ts — Office XML extraction (docx/xlsx)
  *
  * Covers: isOfficeXml detection, extractDocxText, extractXlsxText,
- * integration with isBinaryPreview, edge cases
+ * integration with isBinaryPreview, edge cases, markdown table conversion
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -54,6 +54,16 @@ function isOfficeXml(mimeType: string | null, filename: string | null): 'docx' |
     if (/\.xlsx$/i.test(filename)) return 'xlsx';
   }
   return null;
+}
+
+/** Convert sheet data to markdown table (replicated from route.ts) */
+function sheetToMarkdownTable(sheetData: string[][]): string {
+  if (sheetData.length === 0) return '';
+  const [header, ...rows] = sheetData;
+  const sep = `|${header.map(() => '---').join('|')}|`;
+  const headerRow = `|${header.map((c) => c || ' ').join('|')}|`;
+  const dataRows = rows.map((r) => `|${r.map((c) => c || ' ').join('|')}|`);
+  return [headerRow, sep, ...dataRows].join('\n');
 }
 
 // ── Whitebox Tests ──────────────────────────────────────────────
@@ -166,7 +176,7 @@ describe('isBinaryPreview — docx/xlsx exclusion', () => {
 
 describe('extractDocxText (via mammoth mock)', () => {
   it('should call mammoth.extractRawText with buffer', async () => {
-    const mockResult = { value: 'Hello from docx' };
+    const mockResult = { value: 'Hello from docx', messages: [] };
     vi.mocked(mammoth.extractRawText).mockResolvedValueOnce(mockResult);
 
     const result = await mammoth.extractRawText({ buffer: Buffer.from('fake') });
@@ -175,7 +185,7 @@ describe('extractDocxText (via mammoth mock)', () => {
   });
 
   it('should handle empty document', async () => {
-    vi.mocked(mammoth.extractRawText).mockResolvedValueOnce({ value: '' });
+    vi.mocked(mammoth.extractRawText).mockResolvedValueOnce({ value: '', messages: [] });
 
     const result = await mammoth.extractRawText({ buffer: Buffer.from('empty') });
     expect(result.value).toBe('');
@@ -202,7 +212,7 @@ describe('extractXlsxText (via xlsx mock)', () => {
     vi.mocked(XLSX.utils.sheet_to_csv).mockReturnValueOnce('Name');
 
     const wb = XLSX.read(Buffer.from('fake'), { type: 'buffer' });
-    const csv = XLSX.utils.sheet_to_csv(wb.Sheets.Sheet1, { FS: '\t' });
+    const csv = XLSX.utils.sheet_to_csv(wb.Sheets.Sheet1, { FS: ',' });
 
     expect(XLSX.read).toHaveBeenCalledWith(expect.any(Buffer), { type: 'buffer' });
     expect(csv).toBe('Name');
@@ -214,7 +224,7 @@ describe('extractXlsxText (via xlsx mock)', () => {
       Sheets: { Sheet1: {}, Sheet2: {} },
     };
     vi.mocked(XLSX.read).mockReturnValueOnce(mockWorkbook as any);
-    vi.mocked(XLSX.utils.sheet_to_csv).mockReturnValueOnce('A\tB').mockReturnValueOnce('C\tD');
+    vi.mocked(XLSX.utils.sheet_to_csv).mockReturnValueOnce('A,B').mockReturnValueOnce('C,D');
 
     const wb = XLSX.read(Buffer.from('fake'), { type: 'buffer' });
     expect(wb.SheetNames).toHaveLength(2);
@@ -222,7 +232,7 @@ describe('extractXlsxText (via xlsx mock)', () => {
     const lines: string[] = [];
     for (const name of wb.SheetNames) {
       if (wb.SheetNames.length > 1) lines.push(`── ${name} ──`);
-      lines.push(XLSX.utils.sheet_to_csv(wb.Sheets[name], { FS: '\t' }));
+      lines.push(XLSX.utils.sheet_to_csv(wb.Sheets[name], { FS: ',' }));
     }
     expect(lines).toHaveLength(4); // 2 headers + 2 data lines
   });
@@ -236,10 +246,49 @@ describe('extractXlsxText (via xlsx mock)', () => {
   });
 });
 
+// ── Markdown table conversion ────────────────────────────────
+
+describe('sheetToMarkdownTable', () => {
+  it('should convert 2D array to markdown table', () => {
+    const data = [
+      ['STT', 'Tên', 'Giá'],
+      ['1', 'Hợp đồng', '50,000,000'],
+      ['2', 'NDA', '0'],
+    ];
+    const result = sheetToMarkdownTable(data);
+    expect(result).toContain('|STT|Tên|Giá|');
+    expect(result).toContain('|---|---|---|');
+    expect(result).toContain('|1|Hợp đồng|50,000,000|');
+    expect(result).toContain('|2|NDA|0|');
+  });
+
+  it('should handle empty cells', () => {
+    const data = [
+      ['A', 'B'],
+      ['1', ''],
+      ['', '2'],
+    ];
+    const result = sheetToMarkdownTable(data);
+    expect(result).toContain('|A|B|');
+    // Empty cells become space
+    expect(result).toContain('|1| |');
+    expect(result).toContain('| |2|');
+  });
+
+  it('should return empty string for empty input', () => {
+    expect(sheetToMarkdownTable([])).toBe('');
+  });
+
+  it('should handle single-row (header only) table', () => {
+    const result = sheetToMarkdownTable([['X', 'Y']]);
+    expect(result).toBe('|X|Y|\n|---|---|');
+  });
+});
+
 // ── Integration: PreviewData contract ───────────────────────────
 
 describe('PreviewData contract', () => {
-  it('should have optional officeFileType field', () => {
+  it('should have optional officeFileType and previewFormat fields', () => {
     interface PreviewData {
       content: string;
       mimeType: string;
@@ -247,6 +296,7 @@ describe('PreviewData contract', () => {
       isBinary: boolean;
       message?: string;
       officeFileType?: 'docx' | 'xlsx';
+      previewFormat?: 'markdown' | 'text';
     }
 
     const docxPreview: PreviewData = {
@@ -255,25 +305,49 @@ describe('PreviewData contract', () => {
       title: 'contract.docx',
       isBinary: false,
       officeFileType: 'docx',
+      previewFormat: 'markdown',
     };
     expect(docxPreview.officeFileType).toBe('docx');
+    expect(docxPreview.previewFormat).toBe('markdown');
     expect(docxPreview.isBinary).toBe(false);
 
     const xlsxPreview: PreviewData = {
-      content: 'col1\tcol2\nval1\tval2',
+      content: '|STT|Tên|\n|---|---|',
       mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       title: 'data.xlsx',
       isBinary: false,
       officeFileType: 'xlsx',
+      previewFormat: 'markdown',
     };
     expect(xlsxPreview.officeFileType).toBe('xlsx');
+    expect(xlsxPreview.previewFormat).toBe('markdown');
 
     const textPreview: PreviewData = {
       content: 'plain text',
       mimeType: 'text/plain',
       title: 'readme.txt',
       isBinary: false,
+      previewFormat: 'text',
     };
     expect(textPreview.officeFileType).toBeUndefined();
+    expect(textPreview.previewFormat).toBe('text');
+
+    const mdPreview: PreviewData = {
+      content: '# Hello\n\nWorld',
+      mimeType: 'text/markdown',
+      title: 'README.md',
+      isBinary: false,
+      previewFormat: 'markdown',
+    };
+    expect(mdPreview.previewFormat).toBe('markdown');
+
+    const genPreview: PreviewData = {
+      content: 'Generated markdown',
+      mimeType: 'text/markdown',
+      title: 'generated-doc',
+      isBinary: false,
+      previewFormat: 'markdown',
+    };
+    expect(genPreview.previewFormat).toBe('markdown');
   });
 });

@@ -532,6 +532,122 @@
   letter-spacing: 0.05em;
 }
 
+/* ── Markdown Preview ────────────────────────────────────────── */
+
+.doc-file-preview-markdown {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  font-size: var(--text-xs, 13px);
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+.doc-file-preview-markdown h1,
+.doc-file-preview-markdown h2,
+.doc-file-preview-markdown h3,
+.doc-file-preview-markdown h4,
+.doc-file-preview-markdown h5,
+.doc-file-preview-markdown h6 {
+  margin: var(--space-sm, 12px) 0 var(--space-xs, 6px) 0;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.doc-file-preview-markdown h1 { font-size: var(--text-lg, 18px); }
+.doc-file-preview-markdown h2 { font-size: var(--text-base, 16px); }
+.doc-file-preview-markdown h3 { font-size: var(--text-sm2, 14px); }
+
+.doc-file-preview-markdown p {
+  margin: 0 0 var(--space-xs, 8px) 0;
+}
+
+.doc-file-preview-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.doc-file-preview-markdown ul,
+.doc-file-preview-markdown ol {
+  margin: 0 0 var(--space-xs, 8px) 0;
+  padding-left: 1.5em;
+}
+
+.doc-file-preview-markdown li {
+  margin-bottom: 2px;
+}
+
+.doc-file-preview-markdown code {
+  padding: 1px 5px;
+  font-size: 0.9em;
+  background: var(--color-surface-hover);
+  border-radius: 3px;
+  font-family: var(--font-mono, 'SF Mono', 'Fira Code', monospace);
+}
+
+.doc-file-preview-markdown pre {
+  margin: var(--space-xs, 8px) 0;
+  padding: var(--space-sm, 12px);
+  background: var(--color-surface-hover);
+  border-radius: var(--radius-sm, 6px);
+  overflow-x: auto;
+}
+
+.doc-file-preview-markdown pre code {
+  padding: 0;
+  background: none;
+  font-size: var(--text-xs, 12px);
+}
+
+.doc-file-preview-markdown blockquote {
+  margin: var(--space-xs, 8px) 0;
+  padding-left: var(--space-sm, 12px);
+  border-left: 3px solid var(--color-purple, #7c3aed);
+  color: var(--color-text-muted);
+}
+
+.doc-file-preview-markdown a {
+  color: var(--color-primary, #2563eb);
+  text-decoration: underline;
+}
+
+.doc-file-preview-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-xs, 8px) 0;
+  font-size: var(--text-xs, 12px);
+}
+
+.doc-file-preview-markdown th,
+.doc-file-preview-markdown td {
+  padding: 6px 10px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  text-align: left;
+}
+
+.doc-file-preview-markdown th {
+  background: var(--color-surface-hover, #f3f4f6);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.doc-file-preview-markdown tr:nth-child(even) td {
+  background: var(--color-surface, #fafafa);
+}
+
+.doc-file-preview-markdown hr {
+  margin: var(--space-sm, 12px) 0;
+  border: none;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.doc-file-preview-markdown strong {
+  font-weight: 600;
+}
+
+.doc-file-preview-markdown em {
+  font-style: italic;
+}
+
 /* ── Responsive ─────────────────────────────────────────────── */
 
 @media (max-width: 900px) {

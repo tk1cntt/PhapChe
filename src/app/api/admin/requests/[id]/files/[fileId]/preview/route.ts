@@ -5,7 +5,7 @@
  *   "vf_<vaultFileId>" — uploaded file (trả về text hoặc info nếu binary)
  *   "gen_<documentId>" — generated document (trả về generatedContent)
  *
- * Response: { content: string, mimeType: string, title: string, isBinary: boolean }
+ * Response: { content: string, mimeType: string, title: string, isBinary: boolean, previewFormat: 'markdown'|'text' }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -54,19 +54,33 @@ async function extractDocxText(buffer: Buffer): Promise<string> {
   return result.value;
 }
 
+/** Convert sheet data to markdown table */
+function sheetToMarkdownTable(sheetData: string[][]): string {
+  if (sheetData.length === 0) return '';
+  const [header, ...rows] = sheetData;
+  const sep = `|${header.map(() => '---').join('|')}|`;
+  const headerRow = `|${header.map((c) => c || ' ').join('|')}|`;
+  const dataRows = rows.map((r) => `|${r.map((c) => c || ' ').join('|')}|`);
+  return [headerRow, sep, ...dataRows].join('\n');
+}
+
 function extractXlsxText(buffer: Buffer): string {
   const workbook = XLSX.read(buffer, { type: 'buffer' });
-  const lines: string[] = [];
+  const parts: string[] = [];
   for (const sheetName of workbook.SheetNames) {
     const sheet = workbook.Sheets[sheetName];
+    const csv = XLSX.utils.sheet_to_csv(sheet, { FS: ',' });
+    const rows = csv.trim().split('\n').map((line) =>
+      line.split(',').map((c) => c.trim())
+    );
+    if (rows.length === 0) continue;
     if (workbook.SheetNames.length > 1) {
-      lines.push(`── ${sheetName} ──`);
+      parts.push(`### ${sheetName}`);
     }
-    const csv = XLSX.utils.sheet_to_csv(sheet, { FS: '\t' });
-    lines.push(csv);
-    lines.push('');
+    parts.push(sheetToMarkdownTable(rows));
+    parts.push('');
   }
-  return lines.join('\n');
+  return parts.join('\n');
 }
 
 export async function GET(
@@ -109,6 +123,7 @@ export async function GET(
         mimeType: 'text/markdown',
         title: doc.title,
         isBinary: false,
+        previewFormat: 'markdown',
       });
     }
 
@@ -142,7 +157,7 @@ export async function GET(
       if (officeType) {
         const objectKey = vaultFile.file?.objectKey ?? vaultFile.storageKey;
         if (!objectKey) {
-          return NextResponse.json({ content: '', mimeType, title, isBinary: false });
+          return NextResponse.json({ content: '', mimeType, title, isBinary: false, previewFormat: 'text' });
         }
         try {
           const storageRoot = process.env.STORAGE_LOCAL_ROOT || '/data/storage/private';
@@ -153,6 +168,7 @@ export async function GET(
               mimeType,
               title,
               isBinary: false,
+              previewFormat: 'text',
             });
           }
           if (objectKey.includes('..')) {
@@ -175,6 +191,7 @@ export async function GET(
             title,
             isBinary: false,
             officeFileType: officeType,
+            previewFormat: 'markdown',
           });
         } catch (fileErr) {
           const msg = fileErr instanceof Error ? fileErr.message : String(fileErr);
@@ -183,6 +200,7 @@ export async function GET(
             mimeType,
             title,
             isBinary: false,
+            previewFormat: 'text',
           });
         }
       }
@@ -201,7 +219,7 @@ export async function GET(
       // Read text file content
       const objectKey = vaultFile.file?.objectKey ?? vaultFile.storageKey;
       if (!objectKey) {
-        return NextResponse.json({ content: '', mimeType, title, isBinary: false });
+        return NextResponse.json({ content: '', mimeType, title, isBinary: false, previewFormat: 'text' });
       }
 
       try {
@@ -214,6 +232,7 @@ export async function GET(
             mimeType,
             title,
             isBinary: false,
+            previewFormat: 'text',
           });
         }
 
@@ -231,11 +250,15 @@ export async function GET(
           ? content.slice(0, MAX_PREVIEW) + '\n\n... [đã cắt bớt để hiển thị, tải file gốc để xem đầy đủ]'
           : content;
 
+        // Detect markdown by file extension
+        const isMarkdown = /\.(md|markdown)$/i.test(title);
+
         return NextResponse.json({
           content: truncated,
           mimeType: mimeType ?? 'text/plain',
           title,
           isBinary: false,
+          previewFormat: isMarkdown ? 'markdown' : 'text',
         });
       } catch (fileErr) {
         const msg = fileErr instanceof Error ? fileErr.message : String(fileErr);
@@ -244,6 +267,7 @@ export async function GET(
           mimeType: mimeType ?? 'text/plain',
           title,
           isBinary: false,
+          previewFormat: 'text',
         });
       }
     }

@@ -277,7 +277,30 @@ export async function GET(
             return NextResponse.json({ error: 'Invalid object key' }, { status: 400 });
           }
           const buffer = await readFile(fullPath);
-          const content = await extractPdfText(buffer);
+          let content: string;
+
+          // Kiểm tra magic bytes: nếu không phải PDF thật (%PDF header),
+          // đọc thẳng UTF-8 — tránh pdf.js treo khi parse text file
+          const isRealPdf = buffer.length >= 5
+            && buffer[0] === 0x25 && buffer[1] === 0x50
+            && buffer[2] === 0x44 && buffer[3] === 0x46;
+
+          if (!isRealPdf) {
+            // File text/UTF-8 ngụy trang dưới dạng .pdf (demo files, BOM-prefixed)
+            content = buffer.toString('utf-8').replace(/^﻿/, '').trim() || '';
+          } else {
+            try {
+              content = await extractPdfText(buffer);
+              if (!content || content.length < 10) {
+                // PDF hợp lệ nhưng không extract được text (ảnh scan, font đặc biệt)
+                content = buffer.toString('utf-8').slice(0, 200).replace(/[^\x20-\x7E\xC0-\xFFĀ-ɏḀ-ỿ]/g, '') || '';
+              }
+            } catch (pdfErr) {
+              console.error('[PDF Extract Error]', (pdfErr as Error).message);
+              // Fallback cuối: đọc raw
+              content = buffer.toString('utf-8').replace(/^﻿/, '').trim() || '';
+            }
+          }
           const MAX_PREVIEW = 100_000;
           const truncated = content.length > MAX_PREVIEW
             ? content.slice(0, MAX_PREVIEW) + '\n\n... [đã cắt bớt để hiển thị, tải file gốc để xem đầy đủ]'

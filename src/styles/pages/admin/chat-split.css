@@ -502,6 +502,36 @@
   text-align: center;
 }
 
+/* ── Office Document Preview ────────────────────────────────── */
+
+.doc-file-preview-office {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.doc-file-preview-office-header {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: linear-gradient(135deg, #f0f4ff 0%, #fafafa 100%);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.doc-file-preview-office-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-3xs, 10px);
+  font-weight: 600;
+  color: var(--color-primary, #2563eb);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 /* ── Responsive ─────────────────────────────────────────────── */
 
 @media (max-width: 900px) {

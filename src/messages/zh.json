@@ -2348,6 +2348,8 @@
     "fileSelectHint": "选择一个文件进行预览",
     "filePreviewLoading": "正在加载内容...",
     "fileBinaryHint": "无法预览此文件。请下载后查看。",
+    "filePreviewDocx": "Word 预览",
+    "filePreviewXlsx": "Excel 预览",
     "fileStatusReviewed": "已查看",
     "fileStatusHasIssues": "有问题",
     "fileStatusPending": "待查看",

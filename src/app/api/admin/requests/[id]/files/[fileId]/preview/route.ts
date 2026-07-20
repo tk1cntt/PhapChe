@@ -14,11 +14,14 @@ import { prisma } from '@/lib/prisma';
 import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
+import mammoth from 'mammoth';
+import * as XLSX from 'xlsx';
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
 
-const BINARY_EXTENSIONS = /\.(pdf|doc|docx|pptx|ppt|xls|xlsx|zip|rar|7z|png|jpg|jpeg|gif|bmp|webp|mp3|mp4|avi|mov|mkv|exe|dll)$/i;
+const BINARY_EXTENSIONS = /\.(pdf|doc|pptx|ppt|xls|zip|rar|7z|png|jpg|jpeg|gif|bmp|webp|mp3|mp4|avi|mov|mkv|exe|dll)$/i;
 const TEXT_EXTENSIONS = /\.(txt|md|json|xml|html|css|js|ts|jsx|tsx|yaml|yml|csv|log|sql|env)$/i;
+const OFFICE_XML_EXTENSIONS = /\.(docx|xlsx)$/i;
 
 function isBinaryPreview(mimeType: string | null, filename: string | null): boolean {
   if (mimeType) {
@@ -30,6 +33,40 @@ function isBinaryPreview(mimeType: string | null, filename: string | null): bool
   }
   if (filename && BINARY_EXTENSIONS.test(filename)) return true;
   return false;
+}
+
+function isOfficeXml(mimeType: string | null, filename: string | null): 'docx' | 'xlsx' | null {
+  const docxMimes = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  const xlsxMimes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+  if (mimeType) {
+    if (docxMimes.includes(mimeType)) return 'docx';
+    if (xlsxMimes.includes(mimeType)) return 'xlsx';
+  }
+  if (filename) {
+    if (/\.docx$/i.test(filename)) return 'docx';
+    if (/\.xlsx$/i.test(filename)) return 'xlsx';
+  }
+  return null;
+}
+
+async function extractDocxText(buffer: Buffer): Promise<string> {
+  const result = await mammoth.extractRawText({ buffer });
+  return result.value;
+}
+
+function extractXlsxText(buffer: Buffer): string {
+  const workbook = XLSX.read(buffer, { type: 'buffer' });
+  const lines: string[] = [];
+  for (const sheetName of workbook.SheetNames) {
+    const sheet = workbook.Sheets[sheetName];
+    if (workbook.SheetNames.length > 1) {
+      lines.push(`── ${sheetName} ──`);
+    }
+    const csv = XLSX.utils.sheet_to_csv(sheet, { FS: '\t' });
+    lines.push(csv);
+    lines.push('');
+  }
+  return lines.join('\n');
 }
 
 export async function GET(
@@ -98,6 +135,57 @@ export async function GET(
 
       const title = vaultFile.file?.originalName ?? vaultFile.filename ?? 'Tài liệu';
       const mimeType = vaultFile.file?.mimeType ?? vaultFile.contentType ?? null;
+
+      // Parse office XML files (docx/xlsx) for text extraction
+      const officeType = isOfficeXml(mimeType, title);
+
+      if (officeType) {
+        const objectKey = vaultFile.file?.objectKey ?? vaultFile.storageKey;
+        if (!objectKey) {
+          return NextResponse.json({ content: '', mimeType, title, isBinary: false });
+        }
+        try {
+          const storageRoot = process.env.STORAGE_LOCAL_ROOT || '/data/storage/private';
+          const fullPath = join(storageRoot, objectKey);
+          if (!existsSync(fullPath)) {
+            return NextResponse.json({
+              content: `[File không tồn tại trong storage: ${objectKey}]`,
+              mimeType,
+              title,
+              isBinary: false,
+            });
+          }
+          if (objectKey.includes('..')) {
+            return NextResponse.json({ error: 'Invalid object key' }, { status: 400 });
+          }
+          const buffer = await readFile(fullPath);
+          let content: string;
+          if (officeType === 'docx') {
+            content = await extractDocxText(buffer);
+          } else {
+            content = extractXlsxText(buffer);
+          }
+          const MAX_PREVIEW = 100_000;
+          const truncated = content.length > MAX_PREVIEW
+            ? content.slice(0, MAX_PREVIEW) + '\n\n... [đã cắt bớt để hiển thị, tải file gốc để xem đầy đủ]'
+            : content;
+          return NextResponse.json({
+            content: truncated || `[Không có nội dung text trong file ${officeType.toUpperCase()}]`,
+            mimeType,
+            title,
+            isBinary: false,
+            officeFileType: officeType,
+          });
+        } catch (fileErr) {
+          const msg = fileErr instanceof Error ? fileErr.message : String(fileErr);
+          return NextResponse.json({
+            content: `[Lỗi đọc file ${officeType.toUpperCase()}: ${msg}]`,
+            mimeType,
+            title,
+            isBinary: false,
+          });
+        }
+      }
 
       // Check if binary
       if (isBinaryPreview(mimeType, title)) {

@@ -2453,6 +2453,8 @@
     "fileSelectHint": "Chọn một file để xem trước",
     "filePreviewLoading": "Đang tải nội dung...",
     "fileBinaryHint": "Không thể hiển thị trước file này. Vui lòng tải xuống để xem.",
+    "filePreviewDocx": "Xem trước Word",
+    "filePreviewXlsx": "Xem trước Excel",
     "fileStatusReviewed": "Đã xem",
     "fileStatusHasIssues": "Có vấn đề",
     "fileStatusPending": "Chưa xem",

@@ -2348,6 +2348,8 @@
     "fileSelectHint": "プレビューするファイルを選択",
     "filePreviewLoading": "コンテンツ読み込み中...",
     "fileBinaryHint": "このファイルはプレビューできません。ダウンロードしてご覧ください。",
+    "filePreviewDocx": "Word プレビュー",
+    "filePreviewXlsx": "Excel プレビュー",
     "fileStatusReviewed": "レビュー済み",
     "fileStatusHasIssues": "問題あり",
     "fileStatusPending": "未レビュー",

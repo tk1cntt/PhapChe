@@ -29,6 +29,7 @@ interface PreviewData {
   title: string;
   isBinary: boolean;
   message?: string;
+  officeFileType?: 'docx' | 'xlsx';
 }
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -44,6 +45,8 @@ function getFileIcon(mimeType: string | null, type: string): React.ReactNode {
   if (type === 'generated') return <FileText size={16} />;
   if (mimeType?.startsWith('image/')) return <Eye size={16} />;
   if (mimeType === 'application/pdf') return <FileText size={16} />;
+  if (mimeType?.includes('wordprocessingml')) return <FileText size={16} />;
+  if (mimeType?.includes('spreadsheetml')) return <FileText size={16} />;
   return <File size={16} />;
 }
 
@@ -267,6 +270,15 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile }: Doc
               <div className="doc-file-preview-binary">
                 <Eye size={32} />
                 <p>{preview.message ?? t('fileBinaryHint')}</p>
+              </div>
+            ) : preview.officeFileType ? (
+              <div className="doc-file-preview-office">
+                <div className="doc-file-preview-office-header">
+                  <span className="doc-file-preview-office-badge">
+                    {preview.officeFileType === 'docx' ? t('filePreviewDocx') : t('filePreviewXlsx')}
+                  </span>
+                </div>
+                <pre className="doc-file-preview-text">{preview.content}</pre>
               </div>
             ) : (
               <pre className="doc-file-preview-text">{preview.content}</pre>

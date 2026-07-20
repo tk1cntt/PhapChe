@@ -2450,6 +2450,8 @@
     "fileSelectHint": "Select a file to preview",
     "filePreviewLoading": "Loading content...",
     "fileBinaryHint": "This file cannot be previewed. Please download to view.",
+    "filePreviewDocx": "Word Preview",
+    "filePreviewXlsx": "Excel Preview",
     "fileStatusReviewed": "Reviewed",
     "fileStatusHasIssues": "Has Issues",
     "fileStatusPending": "Pending",

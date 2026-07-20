@@ -55,9 +55,29 @@ function isPdf(mimeType: string | null, filename: string | null): boolean {
 }
 
 async function extractPdfText(buffer: Buffer): Promise<string> {
-  // Use pdfjs-dist directly (v5.x) — native error recovery for corrupt XRef tables
+  // ── Node.js polyfills for pdfjs-dist DOM APIs ──
+  // pdfjs-dist@6.x references these at module parse time; inject stubs before import
+  if (typeof globalThis.DOMMatrix === 'undefined') {
+    // Minimal 2D matrix with a-f affine transform props (pdf.js only does multiplyByDOMMatrix)
+    class DOMMatrixStub { a=1; b=0; c=0; d=1; e=0; f=0; }
+    (globalThis as Record<string, unknown>).DOMMatrix = DOMMatrixStub;
+  }
+  if (typeof globalThis.ImageBitmap === 'undefined') {
+    (globalThis as Record<string, unknown>).ImageBitmap = class {};
+  }
+  if (typeof globalThis.OffscreenCanvas === 'undefined') {
+    (globalThis as Record<string, unknown>).OffscreenCanvas = class {};
+  }
+  if (typeof globalThis.HTMLCanvasElement === 'undefined') {
+    (globalThis as Record<string, unknown>).HTMLCanvasElement = class {};
+  }
+  if (typeof globalThis.CSSStyleSheet === 'undefined') {
+    (globalThis as Record<string, unknown>).CSSStyleSheet = class {};
+  }
+  if (!globalThis.navigator) (globalThis as Record<string, unknown>).navigator = { userAgent: 'node.js' };
+  if (!globalThis.devicePixelRatio) globalThis.devicePixelRatio = 1;
+
   const pdfjsLib = await import('pdfjs-dist');
-  // pdfjs-dist 5.x stores data as Uint8Array internally; pass raw typed array
   const src = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
 
   const loadingTask = pdfjsLib.getDocument({ data: src, disableRange: true, disableStream: true });

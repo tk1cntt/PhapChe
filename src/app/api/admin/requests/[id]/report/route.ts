@@ -10,6 +10,10 @@ import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 import { llmComplete, isLlmConfigured, DEFAULT_MODELS } from '@/lib/ai/llm-gateway';
 
+function isRedirectErr(e: unknown): boolean {
+  return e instanceof Error && 'NEXT_REDIRECT' === e.message;
+}
+
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
 
 // ── Helpers ────────────────────────────────────────────────
@@ -277,6 +281,7 @@ Hãy tạo báo cáo bằng tiếng Việt, định dạng Markdown.`;
       },
     });
   } catch (error) {
+    if (isRedirectErr(error)) throw error;
     const msg = error instanceof Error ? error.message : String(error);
     console.error('[Report API Error]', msg);
     return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });

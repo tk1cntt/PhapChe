@@ -7,6 +7,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 
+function isRedirectErr(e: unknown): boolean {
+  return e instanceof Error && 'NEXT_REDIRECT' === e.message;
+}
+
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
 
 // ── PATCH ──────────────────────────────────────────────────
@@ -102,6 +106,7 @@ export async function PATCH(
       },
     });
   } catch (error) {
+    if (isRedirectErr(error)) throw error;
     const msg = error instanceof Error ? error.message : String(error);
     console.error('[Annotation PATCH Error]', msg);
     return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });
@@ -151,6 +156,7 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true });
   } catch (error) {
+    if (isRedirectErr(error)) throw error;
     const msg = error instanceof Error ? error.message : String(error);
     console.error('[Annotation DELETE Error]', msg);
     return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });

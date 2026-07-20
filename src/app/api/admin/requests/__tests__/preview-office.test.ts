@@ -23,16 +23,18 @@ vi.mock('xlsx', () => ({
   },
 }));
 
-vi.mock('pdfjs-dist', () => {
+vi.mock('pdfjs-dist/legacy/build/pdf.mjs', () => {
   const mockGetTextContent = vi.fn();
   const mockGetPage = vi.fn();
   const mockDoc = { numPages: 0, getPage: mockGetPage };
   const mockLoadingTask = { promise: Promise.resolve(mockDoc) };
   const mockGetDocument = vi.fn(() => mockLoadingTask);
+  const mockGlobalWorkerOptions = { workerPort: null };
   return {
     __esModule: true,
-    default: { getDocument: mockGetDocument },
+    default: { getDocument: mockGetDocument, GlobalWorkerOptions: mockGlobalWorkerOptions },
     getDocument: mockGetDocument,
+    GlobalWorkerOptions: mockGlobalWorkerOptions,
     __mockDoc: mockDoc,
     __mockGetPage: mockGetPage,
     __mockGetTextContent: mockGetTextContent,
@@ -42,7 +44,7 @@ vi.mock('pdfjs-dist', () => {
 
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
-import * as pdfjsDist from 'pdfjs-dist';
+import * as pdfjsDist from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 // ── Re-create testable versions ─────────────────────────────────
 // Functions from route.ts replicated for isolated unit testing
@@ -298,7 +300,7 @@ describe('isPdf', () => {
 
 // ── PDF extraction tests ─────────────────────────────────────────
 
-describe('extractPdfText (via pdfjs-dist v5.x mock)', () => {
+describe('extractPdfText (via pdfjs-dist v6.x legacy mock)', () => {
   // Access mock internals via pdfjs-dist module
   const mocks = pdfjsDist as unknown as {
     getDocument: ReturnType<typeof vi.fn>;

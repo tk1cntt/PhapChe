@@ -13,7 +13,8 @@ import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
+import { pathToFileURL } from 'url';
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
 
@@ -22,6 +23,12 @@ const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'review
 const BINARY_EXTENSIONS = /\.(doc|pptx|ppt|xls|zip|rar|7z|png|jpg|jpeg|gif|bmp|webp|mp3|mp4|avi|mov|mkv|exe|dll)$/i;
 const TEXT_EXTENSIONS = /\.(txt|md|json|xml|html|css|js|ts|jsx|tsx|yaml|yml|csv|log|sql|env)$/i;
 const OFFICE_XML_EXTENSIONS = /\.(docx|xlsx)$/i;
+
+/** Trả về file:// URL tới thư mục standard_fonts — pdf.js cần để render text */
+function getStandardFontsUrl(): string {
+  const fontsPath = resolve(process.cwd(), 'node_modules/pdfjs-dist/standard_fonts');
+  return pathToFileURL(fontsPath).href + '/';
+}
 
 function isBinaryPreview(mimeType: string | null, filename: string | null): boolean {
   if (mimeType) {
@@ -55,44 +62,20 @@ function isPdf(mimeType: string | null, filename: string | null): boolean {
 }
 
 async function extractPdfText(buffer: Buffer): Promise<string> {
-  // ── Node.js polyfills for pdfjs-dist DOM APIs ──
-  // pdfjs-dist@6.x references these at module parse time; inject stubs before import
-  if (typeof globalThis.DOMMatrix === 'undefined') {
-    // Minimal 2D matrix with a-f affine transform props (pdf.js only does multiplyByDOMMatrix)
-    class DOMMatrixStub { a=1; b=0; c=0; d=1; e=0; f=0; }
-    (globalThis as Record<string, unknown>).DOMMatrix = DOMMatrixStub;
-  }
-  if (typeof globalThis.ImageBitmap === 'undefined') {
-    (globalThis as Record<string, unknown>).ImageBitmap = class {};
-  }
-  if (typeof globalThis.OffscreenCanvas === 'undefined') {
-    (globalThis as Record<string, unknown>).OffscreenCanvas = class {};
-  }
-  if (typeof globalThis.HTMLCanvasElement === 'undefined') {
-    (globalThis as Record<string, unknown>).HTMLCanvasElement = class {};
-  }
-  if (typeof globalThis.CSSStyleSheet === 'undefined') {
-    (globalThis as Record<string, unknown>).CSSStyleSheet = class {};
-  }
-  if (!globalThis.navigator) (globalThis as Record<string, unknown>).navigator = { userAgent: 'node.js' };
-  if (!globalThis.devicePixelRatio) globalThis.devicePixelRatio = 1;
-  // pdfjs-dist@6.x dùng Promise.try (TC39 proposal) — Node 22 chưa có
-  if (!('try' in Promise)) {
-    Object.defineProperty(Promise, 'try', {
-      value: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) =>
-        new Promise((resolve) => resolve(fn(...args))),
-      configurable: true,
-      writable: true,
-    });
-  }
-
-  const pdfjsLib = await import('pdfjs-dist');
-  // Disable worker — text extraction doesn't need a separate thread,
-  // and Turbopack can't resolve pdf.worker.mjs cross-chunk
+  // Dùng legacy build của pdfjs-dist@6.x — Node.js compatible, đã có sẵn polyfill
+  // cho DOM APIs, Promise.try, và không cần worker thread
+  const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
   pdfjsLib.GlobalWorkerOptions.workerPort = null;
+
+  // Legacy build yêu cầu Uint8Array, không chấp nhận Buffer
   const src = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
 
-  const loadingTask = pdfjsLib.getDocument({ data: src, disableRange: true, disableStream: true });
+  const loadingTask = pdfjsLib.getDocument({
+    data: src,
+    disableRange: true,
+    disableStream: true,
+    standardFontDataUrl: getStandardFontsUrl(),
+  } as Record<string, unknown>);
   const doc = await loadingTask.promise;
 
   const parts: string[] = [];

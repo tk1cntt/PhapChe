@@ -56,6 +56,7 @@ export default function ChatActivityPage() {
   const [aiReviewLoading, setAiReviewLoading] = useState(false);
   const [aiAnnotations, setAiAnnotations] = useState<Annotation[]>([]);
   const [aiReviewError, setAiReviewError] = useState<string | null>(null);
+  const [annotationReloadKey, setAnnotationReloadKey] = useState(0);
 
   // Popup state
   const [popupAnnotation, setPopupAnnotation] = useState<Annotation | null>(null);
@@ -102,7 +103,14 @@ export default function ChatActivityPage() {
   const handleSelectFile = useCallback((fileId: string | null, fileTitle: string | null) => {
     setActiveFileId(fileId);
     setActiveFileName(fileTitle);
-  }, []);
+    // Reset AI annotations khi chuyển file
+    if (fileId !== activeFileId) {
+      setAiAnnotations([]);
+      setAiReviewError(null);
+      setPopupAnnotation(null);
+      setPopupRefElement(null);
+    }
+  }, [activeFileId]);
 
   // ── Generate Report ──
 
@@ -165,8 +173,15 @@ export default function ChatActivityPage() {
         const err = await res.json().catch(() => ({ error: 'UNKNOWN' }));
         throw new Error(err.error || 'AI review failed');
       }
-      const data = await res.json();
-      setAiAnnotations(data.data?.findings ?? []);
+
+      // Reload annotations từ GET API để có đủ fields (aiGenerated, aiConfidence, position...)
+      const annRes = await fetch(`/api/admin/requests/${requestId}/files/annotations?fileKey=${activeFileId}`);
+      if (annRes.ok) {
+        const annData = await annRes.json();
+        setAiAnnotations(annData.annotations ?? []);
+      }
+      // Trigger DocumentAnnotationPanel reload
+      setAnnotationReloadKey((k) => k + 1);
     } catch (err) {
       setAiReviewError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -194,6 +209,7 @@ export default function ChatActivityPage() {
       setAiAnnotations((prev) =>
         prev.map((a) => (a.id === annotation.id ? { ...a, status: 'resolved' as const } : a)),
       );
+      setAnnotationReloadKey((k) => k + 1);
     } catch {
       // silent
     }
@@ -205,6 +221,7 @@ export default function ChatActivityPage() {
         method: 'DELETE',
       });
       setAiAnnotations((prev) => prev.filter((a) => a.id !== annotation.id));
+      setAnnotationReloadKey((k) => k + 1);
     } catch {
       // silent
     }
@@ -336,6 +353,7 @@ export default function ChatActivityPage() {
               requestId={requestId}
               fileKey={activeFileId}
               fileName={activeFileName}
+              reloadKey={annotationReloadKey}
             />
           </div>
         </div>

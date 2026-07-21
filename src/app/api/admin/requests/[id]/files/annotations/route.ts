@@ -52,6 +52,8 @@ export async function GET(
       category: a.category,
       position: a.position,
       status: a.status,
+      aiGenerated: a.aiGenerated,
+      aiConfidence: a.aiConfidence,
       createdAt: a.createdAt.toISOString(),
       updatedAt: a.updatedAt.toISOString(),
     }));

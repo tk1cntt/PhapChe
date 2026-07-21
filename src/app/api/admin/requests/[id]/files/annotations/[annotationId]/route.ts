@@ -101,6 +101,8 @@ export async function PATCH(
         category: annotation.category,
         position: annotation.position,
         status: annotation.status,
+        aiGenerated: annotation.aiGenerated,
+        aiConfidence: annotation.aiConfidence,
         createdAt: annotation.createdAt.toISOString(),
         updatedAt: annotation.updatedAt.toISOString(),
       },

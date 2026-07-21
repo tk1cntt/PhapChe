@@ -39,6 +39,7 @@ export interface DocumentAnnotationPanelProps {
   requestId: string;
   fileKey: string | null;
   fileName: string | null;
+  reloadKey?: number;
 }
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -55,6 +56,7 @@ export function DocumentAnnotationPanel({
   requestId,
   fileKey,
   fileName,
+  reloadKey,
 }: DocumentAnnotationPanelProps) {
   const t = useTranslations('ChatActivity');
 
@@ -94,7 +96,7 @@ export function DocumentAnnotationPanel({
     setShowForm(false);
     setEditingId(null);
     loadAnnotations();
-  }, [fileKey, loadAnnotations]);
+  }, [fileKey, loadAnnotations, reloadKey]);
 
   // ── CRUD handlers ──
 

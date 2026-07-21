@@ -10,13 +10,13 @@
   gap: 2px;
 }
 
-/* ── Section — 1 hàng: border-left | icon label : text ────────── */
+/* ── Section — grid 3 cột: icon(auto) | label(fixed) | text(1fr) ── */
 
 .ai-section {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0;
+  display: grid;
+  grid-template-columns: auto 95px 1fr;
+  align-items: baseline;
+  column-gap: 6px;
   margin: 0;
   padding: 2px 0 2px 7px;
   border-left: 3px solid var(--color-border, #d1d5db);
@@ -27,6 +27,8 @@
 }
 
 .ai-annotation-content--compact .ai-section {
+  grid-template-columns: auto 82px 1fr;
+  column-gap: 4px;
   padding: 1px 0 1px 5px;
   border-left-width: 2px;
   font-size: 12px;
@@ -41,34 +43,34 @@
 
 .ai-section-icon {
   flex-shrink: 0;
-  margin-right: 5px;
+  grid-column: 1;
 }
 
 .ai-section--issue .ai-section-icon           { color: var(--color-danger, #ef4444); }
 .ai-section--recommendation .ai-section-icon  { color: var(--color-primary, #3b82f6); }
 .ai-section--legal .ai-section-icon           { color: #8b5cf6; }
 
-/* ── Label — inline strong tag ─────────────────────────────────── */
+/* ── Label — fixed-width column, căn phải ─────────────────────── */
 
 .ai-section-label {
-  flex-shrink: 0;
+  grid-column: 2;
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.2px;
   color: var(--color-text-muted, #6b7280);
-  margin-right: 6px;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .ai-annotation-content--compact .ai-section-label {
   font-size: 8px;
-  margin-right: 5px;
 }
 
 /* ── Text ──────────────────────────────────────────────────────── */
 
 .ai-section-text {
-  flex: 1;
+  grid-column: 3;
   min-width: 0;
 }
 

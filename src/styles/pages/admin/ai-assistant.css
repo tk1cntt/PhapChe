@@ -124,7 +124,6 @@
 .ai-section-label {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
-  margin-bottom: 8px;
 }
 
 /* ── Error ── */

@@ -36,9 +36,8 @@ export const auth = betterAuth({
   advanced: {
     // Disable CSRF for tunnel/proxy scenarios (demo/dev mode)
     disableCSRFCheck: true,
-    crossSubDomainCookies: {
-      enabled: true,
-    },
+    // Tắt crossSubDomainCookies — không set Domain attribute trên cookie
+    // để browser gửi cookie cho bất kỳ host nào (localhost, tunnel, v.v.)
   },
   plugins: [nextCookies()],
 });

@@ -354,6 +354,22 @@ export async function POST(
     if (isRedirectErr(error)) throw error;
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('[AI Review Error]', message);
+
+    // Phân biệt credential/config errors (503) vs LLM errors (502) vs generic (500)
+    if (message.includes('LLM_API_KEY_MISSING') || message.includes('No active credentials') || message.includes('model_not_found')) {
+      return NextResponse.json(
+        { error: 'AI_NOT_CONFIGURED', detail: 'Chưa cấu hình API key hoặc model cho LLM. Kiểm tra OPENAI_API_KEY, OPENAI_BASE_URL, LLM_MODEL trong .env.' },
+        { status: 503 },
+      );
+    }
+
+    if (message.includes('LLM_API_ERROR') || message.includes('LLM_RATE_LIMIT') || message.includes('LLM_MAX_RETRIES')) {
+      return NextResponse.json(
+        { error: 'AI_SERVICE_ERROR', detail: 'Dịch vụ AI gặp lỗi, vui lòng thử lại sau.' },
+        { status: 502 },
+      );
+    }
+
     return NextResponse.json(
       { error: 'AI_REVIEW_FAILED', detail: message },
       { status: 500 },

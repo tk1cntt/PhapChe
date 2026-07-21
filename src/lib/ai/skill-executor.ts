@@ -39,8 +39,11 @@ export interface SkillExecutorConfig {
   domainSkillMap?: Record<string, AgentSkill[]>;
 }
 
+/** Default model from env, falls back to gpt-4o-mini */
+const ENV_DEFAULT_MODEL = process.env.LLM_MODEL ?? 'gpt-4o-mini';
+
 const DEFAULT_CONFIG: Required<SkillExecutorConfig> = {
-  defaultModel: 'gpt-4o-mini',
+  defaultModel: ENV_DEFAULT_MODEL,
   maxTokens: 4096,
   temperature: 0.3,
   enableRag: true,
@@ -287,7 +290,7 @@ let defaultExecutor: SkillExecutor | null = null;
 
 export function getSkillExecutor(config?: SkillExecutorConfig): SkillExecutor {
   if (!defaultExecutor || config) {
-    defaultExecutor = new SkillExecutor(config);
+    defaultExecutor = new SkillExecutor({ defaultModel: ENV_DEFAULT_MODEL, ...config });
   }
   return defaultExecutor;
 }

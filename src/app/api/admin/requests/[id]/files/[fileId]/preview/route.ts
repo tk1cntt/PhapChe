@@ -11,12 +11,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
-import { readFile } from 'fs/promises';
+import { readFile, writeFile, unlink, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join, resolve } from 'path';
 import { pathToFileURL } from 'url';
+import { randomUUID } from 'crypto';
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
+import { normalizeMarkdown, convertWithMarkItDown, isMarkItDownAvailable } from '@/lib/document';
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
 
@@ -59,6 +61,89 @@ function isPdf(mimeType: string | null, filename: string | null): boolean {
   if (mimeType === 'application/pdf') return true;
   if (filename && /\.pdf$/i.test(filename)) return true;
   return false;
+}
+
+// ── MarkItDown helpers ─────────────────────────────────────
+
+const TEMP_DIR = join(process.env.STORAGE_LOCAL_ROOT || '/data/storage/private', 'temp');
+
+/**
+ * Viết buffer vào temp file trong STORAGE_LOCAL_ROOT/temp/.
+ * Trả về đường dẫn đầy đủ để markitdown đọc.
+ */
+async function createTempFile(buffer: Buffer, extension: string): Promise<string> {
+  const tempId = randomUUID();
+  const tempPath = join(TEMP_DIR, `${tempId}.${extension}`);
+  await mkdir(TEMP_DIR, { recursive: true });
+  await writeFile(tempPath, buffer);
+  return tempPath;
+}
+
+/**
+ * Cleanup temp file (best-effort — không throw).
+ */
+async function cleanupTempFile(filePath: string): Promise<void> {
+  try {
+    await unlink(filePath);
+  } catch {
+    // best-effort cleanup
+  }
+}
+
+/**
+ * Try MarkItDown conversion, fallback to existing converter.
+ * Trả về { content, usedMarkitdown }.
+ */
+async function convertWithMarkItDownOrFallback(
+  buffer: Buffer,
+  mimeType: string | null,
+  filename: string,
+  extension: 'docx' | 'pdf',
+  fallbackFn: () => Promise<string>,
+): Promise<{ content: string; usedMarkitdown: boolean }> {
+  try {
+    // MarkItDown path
+    const tempPath = await createTempFile(buffer, extension);
+
+    const result = await convertWithMarkItDown(
+      tempPath,
+      mimeType ?? '',
+      filename,
+    );
+
+    // Cleanup temp file regardless of outcome
+    await cleanupTempFile(tempPath);
+
+    if (result.success && result.markdown.length > 0) {
+      // Normalize output từ MarkItDown
+      const normalized = normalizeMarkdown(result.markdown, {
+        detectArticles: true,
+        detectSections: true,
+        detectSubItems: true,
+        normalizeLists: true,
+      });
+      return { content: normalized.content, usedMarkitdown: true };
+    }
+
+    // MarkItDown failed — fallback
+    console.warn(`[Preview] MarkItDown ${extension} failed: ${result.error}. Falling back.`);
+  } catch (err) {
+    console.warn(`[Preview] MarkItDown ${extension} error:`, (err as Error).message, '. Falling back.');
+  }
+
+  // Fallback to existing converter
+  const content = await fallbackFn();
+  // Normalize cả fallback output
+  if (content) {
+    const normalized = normalizeMarkdown(content, {
+      detectArticles: true,
+      detectSections: true,
+      detectSubItems: true,
+      normalizeLists: true,
+    });
+    return { content: normalized.content, usedMarkitdown: false };
+  }
+  return { content, usedMarkitdown: false };
 }
 
 async function extractPdfText(buffer: Buffer): Promise<string> {
@@ -167,9 +252,14 @@ export async function GET(
         return NextResponse.json({ error: 'FILE_NOT_FOUND' }, { status: 404 });
       }
 
-      const content = doc.documentVersions[0]?.generatedContent ?? '';
+      const rawContent = doc.documentVersions[0]?.generatedContent ?? '';
+      const normalized = rawContent ? normalizeMarkdown(rawContent, {
+        detectArticles: true,
+        detectSections: true,
+        detectSubItems: true,
+      }) : { content: '' };
       return NextResponse.json({
-        content,
+        content: normalized.content,
         mimeType: 'text/markdown',
         title: doc.title,
         isBinary: false,
@@ -226,9 +316,17 @@ export async function GET(
           }
           const buffer = await readFile(fullPath);
           let content: string;
+          let usedMarkItDown = false;
           if (officeType === 'docx') {
-            content = await extractDocxText(buffer);
+            // Try MarkItDown first, fallback to mammoth extractRawText
+            const result = await convertWithMarkItDownOrFallback(
+              buffer, mimeType, title, 'docx',
+              () => extractDocxText(buffer),
+            );
+            content = result.content;
+            usedMarkItDown = result.usedMarkitdown;
           } else {
+            // XLSX — giữ nguyên converter hiện tại (đã tốt)
             content = extractXlsxText(buffer);
           }
           const MAX_PREVIEW = 100_000;
@@ -278,9 +376,10 @@ export async function GET(
           }
           const buffer = await readFile(fullPath);
           let content: string;
+          let usedMarkItDown = false;
 
           // Kiểm tra magic bytes: nếu không phải PDF thật (%PDF header),
-          // đọc thẳng UTF-8 — tránh pdf.js treo khi parse text file
+          // đọc thẳng UTF-8 — tránh MarkItDown/pdf.js treo khi parse text file
           const isRealPdf = buffer.length >= 5
             && buffer[0] === 0x25 && buffer[1] === 0x50
             && buffer[2] === 0x44 && buffer[3] === 0x46;
@@ -289,17 +388,19 @@ export async function GET(
             // File text/UTF-8 ngụy trang dưới dạng .pdf (demo files, BOM-prefixed)
             content = buffer.toString('utf-8').replace(/^﻿/, '').trim() || '';
           } else {
-            try {
-              content = await extractPdfText(buffer);
-              if (!content || content.length < 10) {
-                // PDF hợp lệ nhưng không extract được text (ảnh scan, font đặc biệt)
-                content = buffer.toString('utf-8').slice(0, 200).replace(/[^\x20-\x7E\xC0-\xFFĀ-ɏḀ-ỿ]/g, '') || '';
-              }
-            } catch (pdfErr) {
-              console.error('[PDF Extract Error]', (pdfErr as Error).message);
-              // Fallback cuối: đọc raw
-              content = buffer.toString('utf-8').replace(/^﻿/, '').trim() || '';
-            }
+            // Try MarkItDown first (pdfplumber + pdfminer), fallback to pdf.js
+            const result = await convertWithMarkItDownOrFallback(
+              buffer, mimeType, title, 'pdf',
+              async () => {
+                try {
+                  return await extractPdfText(buffer);
+                } catch {
+                  return buffer.toString('utf-8').replace(/^﻿/, '').trim() || '';
+                }
+              },
+            );
+            content = result.content;
+            usedMarkItDown = result.usedMarkitdown;
           }
           const MAX_PREVIEW = 100_000;
           const truncated = content.length > MAX_PREVIEW
@@ -310,7 +411,7 @@ export async function GET(
             mimeType,
             title,
             isBinary: false,
-            previewFormat: 'text',
+            previewFormat: 'markdown',
           });
         } catch (fileErr) {
           const msg = fileErr instanceof Error ? fileErr.message : String(fileErr);
@@ -361,16 +462,23 @@ export async function GET(
         }
 
         const buffer = await readFile(fullPath);
-        const content = buffer.toString('utf-8');
+        const rawContent = buffer.toString('utf-8');
 
         // Truncate nếu quá dài (> 100KB)
         const MAX_PREVIEW = 100_000;
-        const truncated = content.length > MAX_PREVIEW
-          ? content.slice(0, MAX_PREVIEW) + '\n\n... [đã cắt bớt để hiển thị, tải file gốc để xem đầy đủ]'
-          : content;
+        const truncated = rawContent.length > MAX_PREVIEW
+          ? rawContent.slice(0, MAX_PREVIEW) + '\n\n... [đã cắt bớt để hiển thị, tải file gốc để xem đầy đủ]'
+          : rawContent;
 
-        // Detect markdown by file extension
+        // Normalize text content
         const isMarkdown = /\.(md|markdown)$/i.test(title);
+        const content = isMarkdown
+          ? normalizeMarkdown(truncated, {
+              detectArticles: true,
+              detectSections: true,
+              detectSubItems: true,
+            }).content
+          : truncated;
 
         return NextResponse.json({
           content: truncated,

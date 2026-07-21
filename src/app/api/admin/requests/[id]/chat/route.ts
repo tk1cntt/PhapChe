@@ -13,6 +13,7 @@ import { prisma } from '@/lib/prisma';
 import { recordAuditEvent } from '@/lib/audit/audit';
 import { llmComplete, isLlmConfigured, DEFAULT_MODELS } from '@/lib/ai/llm-gateway';
 import { isVectorStoreReady } from '@/lib/ai/vector-store';
+import { normalizeMarkdown } from '@/lib/document';
 import type { ChatMessage } from '@/lib/ai/types';
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
@@ -315,9 +316,13 @@ export async function GET(
       documents: documents
         .map((d) => {
           const latestVersion = d.documentVersions[0];
-          return latestVersion
-            ? { title: d.title, content: latestVersion.generatedContent }
-            : null;
+          if (!latestVersion || !latestVersion.generatedContent) return null;
+          const normalized = normalizeMarkdown(latestVersion.generatedContent, {
+            detectArticles: true,
+            detectSections: true,
+            detectSubItems: true,
+          });
+          return { title: d.title, content: normalized.content };
         })
         .filter((d): d is { title: string; content: string } => d !== null),
     };
@@ -410,9 +415,13 @@ export async function POST(
       documents: documents
         .map((d) => {
           const latestVersion = d.documentVersions[0];
-          return latestVersion
-            ? { title: d.title, content: latestVersion.generatedContent }
-            : null;
+          if (!latestVersion || !latestVersion.generatedContent) return null;
+          const normalized = normalizeMarkdown(latestVersion.generatedContent, {
+            detectArticles: true,
+            detectSections: true,
+            detectSubItems: true,
+          });
+          return { title: d.title, content: normalized.content };
         })
         .filter((d): d is { title: string; content: string } => d !== null),
     };

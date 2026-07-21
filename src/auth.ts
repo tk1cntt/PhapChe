@@ -21,6 +21,7 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24,      // refresh every 24h
   },
+  // Wildcard patterns for tunnel origins (trycloudflare, ngrok, etc.)
   trustedOrigins: [
     "http://localhost:3000",
     "http://localhost:3001",
@@ -29,6 +30,15 @@ export const auth = betterAuth({
     "http://localhost:3004",
     "http://localhost:3005",
     baseURL,
+    "https://*.trycloudflare.com",
+    "https://*.ngrok-free.app",
   ],
+  advanced: {
+    // Disable CSRF for tunnel/proxy scenarios (demo/dev mode)
+    disableCSRFCheck: true,
+    crossSubDomainCookies: {
+      enabled: true,
+    },
+  },
   plugins: [nextCookies()],
 });

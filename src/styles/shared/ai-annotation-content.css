@@ -3,28 +3,30 @@
 .ai-annotation-content {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-.ai-annotation-content--compact {
   gap: 4px;
 }
 
-/* ── Section ──────────────────────────────────────────────────── */
+.ai-annotation-content--compact {
+  gap: 2px;
+}
+
+/* ── Section — single line with border-left accent ───────────── */
 
 .ai-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 4px 0 4px 8px;
-  border-radius: 0;
+  margin: 0;
+  padding: 1px 0 1px 8px;
   border-left: 3px solid var(--color-border, #d1d5db);
-  background: none;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text, #1f2937);
+  word-break: break-word;
 }
 
 .ai-annotation-content--compact .ai-section {
-  padding: 2px 0 2px 6px;
+  padding: 0 0 0 6px;
   border-left-width: 2px;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .ai-section--issue {
@@ -39,18 +41,20 @@
   border-left-color: #8b5cf6;
 }
 
-/* ── Inline Section Header ────────────────────────────────────── */
+/* ── Inline Label ────────────────────────────────────────────── */
 
-.ai-section-header {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
+.ai-section-label {
+  display: inline;
+  white-space: nowrap;
   margin-right: 4px;
 }
 
 .ai-section-icon {
-  flex-shrink: 0;
   vertical-align: middle;
+  margin-right: 0;
+  position: relative;
+  top: -1px;
+  flex-shrink: 0;
 }
 
 .ai-section--issue .ai-section-icon {
@@ -65,31 +69,17 @@
   color: #8b5cf6;
 }
 
-.ai-section-label {
-  font-size: 10px;
+.ai-section-label strong {
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   color: var(--color-text-muted, #6b7280);
+  vertical-align: middle;
 }
 
-.ai-annotation-content--compact .ai-section-label {
-  font-size: 9px;
-}
-
-/* ── Section Text — inline flow ───────────────────────────────── */
-
-.ai-section-text {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--color-text, #1f2937);
-  word-break: break-word;
-}
-
-.ai-annotation-content--compact .ai-section-text {
-  font-size: 12px;
-  line-height: 1.45;
+.ai-annotation-content--compact .ai-section-label strong {
+  font-size: 8px;
 }
 
 /* ── Raw Content Fallback ──────────────────────────────────────── */

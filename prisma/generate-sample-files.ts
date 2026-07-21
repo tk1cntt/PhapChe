@@ -208,81 +208,46 @@ function buildMinimalXlsx(rows: string[][]): Buffer {
   ]);
 }
 
+/**
+ * Generate PDF sample file as plain UTF-8 text (not a real PDF binary).
+ *
+ * Preview route (preview/route.ts) checks for real PDF magic bytes (%PDF).
+ * If absent, it reads the file directly as UTF-8 — no pdf.js / MarkItDown decode step.
+ * This avoids encoding issues with Vietnamese diacritics in PDF comment/cross-ref sections.
+ */
+function generatePdfContent(filename: string): string {
+  const name = filename.replace(/\.pdf$/i, '');
+  return (
+    `TÀI LIỆU PHÁP LÝ\n\n` +
+    `${name}\n\n` +
+    `Ngày tạo: ${new Date().toLocaleDateString('vi-VN')}\n\n` +
+    `---\n\n` +
+    `1. GIỚI THIỆU\n\n` +
+    `Đây là tài liệu mẫu được tạo tự động bởi hệ thống Pháp Chế nhằm phục vụ mục đích demo ` +
+    `tính năng xem trước (preview) file PDF.\n\n` +
+    `Tài liệu này chứa nội dung pháp lý giả lập để người dùng có thể trải nghiệm đầy đủ quy ` +
+    `trình review tài liệu trong hệ thống.\n\n` +
+    `2. NỘI DUNG CHÍNH\n\n` +
+    `- Điều 1: Các bên tham gia thỏa thuận\n` +
+    `- Điều 2: Phạm vi và đối tượng của hợp đồng\n` +
+    `- Điều 3: Thời hạn và hiệu lực\n` +
+    `- Điều 4: Quyền và nghĩa vụ của các bên\n` +
+    `- Điều 5: Phương thức thanh toán\n` +
+    `- Điều 6: Bảo mật thông tin\n` +
+    `- Điều 7: Chấm dứt và hủy bỏ\n` +
+    `- Điều 8: Giải quyết tranh chấp\n\n` +
+    `3. KẾT LUẬN\n\n` +
+    `Tài liệu cần được xem xét kỹ lưỡng bởi chuyên viên pháp lý trước khi gửi cho khách hàng.`
+  );
+}
+
 function buildMinimalPdf(text: string): Buffer {
-  // Minimal valid PDF v1.4
-  const escaped = escapePdfString(text);
-  const content = [
-    '%PDF-1.4',
-    '1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj',
-    '2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj',
-    '3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Contents 4 0 R/Resources<<>>>>endobj',
-    '4 0 obj<</Length 5 0 R>>stream',
-    'BT /F1 12 Tf 50 700 Td (' + escaped + ') Tj ET',
-    'endstream endobj',
-    '5 0 obj ' + (escaped.length + 39) + ' endobj',
-    'xref',
-    '0 6',
-    '0000000000 65535 f ',
-    `0000000009 00000 n `,
-    `0000000058 00000 n `,
-    `0000000115 00000 n `,
-    `0000000210 00000 n `,
-    `0000000000 00000 n `,
-    'trailer<</Size 6/Root 1 0 R>>',
-    'startxref',
-    '0', // will be computed
-    '%%EOF',
-  ].join('\n');
-
-  // Fix xref offsets
-  const lines = content.split('\n');
-  const objects: Record<number, number> = {};
-  let pos = 0;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const m = line.match(/^(\d+) \d+ obj/);
-    if (m) objects[parseInt(m[1])] = pos;
-    if (i === 9) { // stream length object
-      objects[5] = pos;
-    }
-    pos += line.length + 1;
-  }
-
-  // Rebuild with correct xref
-  const xrefLines = [
-    '%PDF-1.4',
-    '1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj',
-    '2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj',
-    '3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Contents 4 0 R/Resources<<>>>>endobj',
-    `4 0 obj<</Length ${escaped.length + 39}>>stream`,
-    `BT /F1 12 Tf 50 700 Td (${escaped}) Tj ET`,
-    'endstream endobj',
-  ];
-
-  const xrefStartOffset = xrefLines.join('\n').length + 1;
-  const trailer = [
-    'xref',
-    '0 5',
-    '0000000000 65535 f ',
-    `${String(xrefLines[1].length + 1).padStart(10, '0')} 00000 n `,
-    `${String(xrefLines.slice(0, 2).map(l => l.length + 1).reduce((a, b) => a + b, 0)).padStart(10, '0')} 00000 n `,
-    `${String(xrefLines.slice(0, 3).map(l => l.length + 1).reduce((a, b) => a + b, 0)).padStart(10, '0')} 00000 n `,
-    `${String(xrefLines.slice(0, 4).map(l => l.length + 1).reduce((a, b) => a + b, 0)).padStart(10, '0')} 00000 n `,
-    `trailer<</Size 5/Root 1 0 R>>`,
-    'startxref',
-    String(xrefStartOffset),
-    '%%EOF',
-  ];
-
-  return Buffer.from(xrefLines.join('\n') + '\n' + trailer.join('\n'), 'utf-8');
+  // Plain UTF-8 text — preview route detects missing %PDF header and reads directly
+  return Buffer.from(text, 'utf-8');
 }
 
 function escapeXml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function escapePdfString(s: string): string {
-  return s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)').replace(/\n/g, '\\n');
 }
 
 // ── Sample Content Generators ───────────────────────────────────
@@ -357,7 +322,7 @@ async function main() {
         const rows = generateXlsxContent(filename);
         buffer = buildMinimalXlsx(rows);
       } else if (mimeType === 'application/pdf' || ext === 'pdf') {
-        const content = `TÀI LIỆU PHÁP LÝ - ${filename}\n\nĐây là file PDF mẫu được tạo tự động bởi hệ thống Pháp Chế.`;
+        const content = generatePdfContent(filename);
         buffer = buildMinimalPdf(content);
       } else {
         // Plain text for everything else

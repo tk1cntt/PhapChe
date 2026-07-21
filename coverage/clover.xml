@@ -1,42 +1,230 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1784368697709" clover="3.2.0">
-  <project timestamp="1784368697709" name="All files">
-    <metrics statements="33" coveredstatements="33" conditionals="25" coveredconditionals="25" methods="10" coveredmethods="10" elements="68" coveredelements="68" complexity="0" loc="33" ncloc="33" packages="1" files="1" classes="1"/>
-    <file name="middleware-guard.ts" path="D:\PhapChe\src\lib\security\middleware-guard.ts">
-      <metrics statements="33" coveredstatements="33" conditionals="25" coveredconditionals="25" methods="10" coveredmethods="10"/>
-      <line num="16" count="1" type="stmt"/>
-      <line num="35" count="1" type="stmt"/>
-      <line num="49" count="1" type="stmt"/>
-      <line num="57" count="24" type="stmt"/>
-      <line num="58" count="24" type="stmt"/>
-      <line num="59" count="24" type="stmt"/>
-      <line num="61" count="24" type="cond" truecount="5" falsecount="0"/>
-      <line num="62" count="2" type="stmt"/>
-      <line num="65" count="22" type="stmt"/>
-      <line num="72" count="187" type="cond" truecount="2" falsecount="0"/>
-      <line num="79" count="22" type="cond" truecount="2" falsecount="0"/>
-      <line num="80" count="21" type="stmt"/>
-      <line num="89" count="51" type="stmt"/>
-      <line num="91" count="102" type="stmt"/>
-      <line num="92" count="51" type="cond" truecount="2" falsecount="0"/>
-      <line num="93" count="46" type="cond" truecount="2" falsecount="0"/>
-      <line num="100" count="19" type="cond" truecount="2" falsecount="0"/>
-      <line num="107" count="26" type="stmt"/>
-      <line num="116" count="29" type="cond" truecount="2" falsecount="0"/>
-      <line num="117" count="5" type="stmt"/>
-      <line num="121" count="24" type="stmt"/>
-      <line num="122" count="24" type="cond" truecount="2" falsecount="0"/>
-      <line num="123" count="2" type="stmt"/>
-      <line num="127" count="22" type="cond" truecount="2" falsecount="0"/>
-      <line num="129" count="3" type="stmt"/>
-      <line num="132" count="19" type="stmt"/>
-      <line num="133" count="19" type="stmt"/>
-      <line num="136" count="19" type="cond" truecount="2" falsecount="0"/>
-      <line num="137" count="1" type="stmt"/>
-      <line num="138" count="1" type="stmt"/>
-      <line num="141" count="18" type="cond" truecount="2" falsecount="0"/>
-      <line num="142" count="4" type="stmt"/>
-      <line num="145" count="14" type="stmt"/>
-    </file>
+<coverage generated="1784631605644" clover="3.2.0">
+  <project timestamp="1784631605644" name="All files">
+    <metrics statements="197" coveredstatements="191" conditionals="138" coveredconditionals="131" methods="43" coveredmethods="43" elements="378" coveredelements="365" complexity="0" loc="197" ncloc="197" packages="2" files="7" classes="7"/>
+    <package name="document">
+      <metrics statements="59" coveredstatements="53" conditionals="37" coveredconditionals="33" methods="12" coveredmethods="12"/>
+      <file name="cache.ts" path="D:\PhapChe\src\lib\document\cache.ts">
+        <metrics statements="18" coveredstatements="18" conditionals="8" coveredconditionals="8" methods="8" coveredmethods="8"/>
+        <line num="11" count="4" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="19" count="4" type="stmt"/>
+        <line num="24" count="23" type="stmt"/>
+        <line num="25" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="26" count="5" type="stmt"/>
+        <line num="31" count="34" type="cond" truecount="2" falsecount="0"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="34" count="34" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="48" count="32" type="stmt"/>
+        <line num="53" count="7" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="61" count="1" type="stmt"/>
+        <line num="62" count="4" type="stmt"/>
+        <line num="63" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="64" count="2" type="stmt"/>
+        <line num="70" count="2" type="stmt"/>
+      </file>
+      <file name="markitdown.ts" path="D:\PhapChe\src\lib\document\markitdown.ts">
+        <metrics statements="40" coveredstatements="34" conditionals="29" coveredconditionals="25" methods="4" coveredmethods="4"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="32" count="10" type="stmt"/>
+        <line num="33" count="10" type="cond" truecount="4" falsecount="0"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="37" count="9" type="stmt"/>
+        <line num="38" count="9" type="stmt"/>
+        <line num="39" count="9" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="44" count="9" type="stmt"/>
+        <line num="45" count="9" type="stmt"/>
+        <line num="46" count="9" type="stmt"/>
+        <line num="53" count="10" type="stmt"/>
+        <line num="54" count="10" type="stmt"/>
+        <line num="55" count="10" type="stmt"/>
+        <line num="75" count="7" type="stmt"/>
+        <line num="76" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="85" count="7" type="stmt"/>
+        <line num="87" count="7" type="stmt"/>
+        <line num="88" count="7" type="stmt"/>
+        <line num="99" count="0" type="stmt"/>
+        <line num="101" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="102" count="0" type="stmt"/>
+        <line num="110" count="0" type="stmt"/>
+        <line num="116" count="7" type="stmt"/>
+        <line num="119" count="7" type="cond" truecount="4" falsecount="0"/>
+        <line num="120" count="1" type="stmt"/>
+        <line num="128" count="6" type="stmt"/>
+        <line num="143" count="7" type="stmt"/>
+        <line num="144" count="7" type="stmt"/>
+        <line num="146" count="7" type="cond" truecount="4" falsecount="0"/>
+        <line num="147" count="5" type="cond" truecount="4" falsecount="0"/>
+        <line num="148" count="3" type="cond" truecount="4" falsecount="0"/>
+        <line num="149" count="2" type="cond" truecount="3" falsecount="1"/>
+        <line num="151" count="2" type="stmt"/>
+      </file>
+      <file name="types.ts" path="D:\PhapChe\src\lib\document\types.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="97" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="document.normalizer">
+      <metrics statements="138" coveredstatements="138" conditionals="101" coveredconditionals="98" methods="31" coveredmethods="31"/>
+      <file name="cleaners.ts" path="D:\PhapChe\src\lib\document\normalizer\cleaners.ts">
+        <metrics statements="17" coveredstatements="17" conditionals="12" coveredconditionals="12" methods="8" coveredmethods="8"/>
+        <line num="11" count="19" type="stmt"/>
+        <line num="18" count="24" type="stmt"/>
+        <line num="35" count="20" type="stmt"/>
+        <line num="37" count="271" type="stmt"/>
+        <line num="47" count="22" type="stmt"/>
+        <line num="60" count="18" type="stmt"/>
+        <line num="69" count="21" type="stmt"/>
+        <line num="83" count="2" type="stmt"/>
+        <line num="96" count="16" type="stmt"/>
+        <line num="98" count="16" type="stmt"/>
+        <line num="100" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="101" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="102" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="103" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="104" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="105" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="107" count="16" type="stmt"/>
+      </file>
+      <file name="detectors.ts" path="D:\PhapChe\src\lib\document\normalizer\detectors.ts">
+        <metrics statements="49" coveredstatements="49" conditionals="16" coveredconditionals="14" methods="11" coveredmethods="11"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="40" count="2" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="49" count="2" type="stmt"/>
+        <line num="58" count="23" type="stmt"/>
+        <line num="60" count="23" type="stmt"/>
+        <line num="61" count="37" type="stmt"/>
+        <line num="62" count="37" type="stmt"/>
+        <line num="63" count="37" type="stmt"/>
+        <line num="66" count="23" type="stmt"/>
+        <line num="74" count="20" type="stmt"/>
+        <line num="76" count="20" type="stmt"/>
+        <line num="77" count="14" type="stmt"/>
+        <line num="78" count="14" type="stmt"/>
+        <line num="79" count="14" type="stmt"/>
+        <line num="82" count="20" type="stmt"/>
+        <line num="90" count="17" type="stmt"/>
+        <line num="91" count="19" type="stmt"/>
+        <line num="92" count="19" type="stmt"/>
+        <line num="101" count="19" type="stmt"/>
+        <line num="109" count="18" type="stmt"/>
+        <line num="117" count="21" type="stmt"/>
+        <line num="118" count="15" type="stmt"/>
+        <line num="120" count="15" type="cond" truecount="1" falsecount="1"/>
+        <line num="122" count="15" type="cond" truecount="4" falsecount="0"/>
+        <line num="123" count="10" type="stmt"/>
+        <line num="134" count="15" type="stmt"/>
+        <line num="135" count="15" type="stmt"/>
+        <line num="136" count="15" type="stmt"/>
+        <line num="137" count="15" type="stmt"/>
+        <line num="139" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="140" count="13" type="stmt"/>
+        <line num="141" count="13" type="stmt"/>
+        <line num="142" count="13" type="stmt"/>
+        <line num="145" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="146" count="13" type="stmt"/>
+        <line num="147" count="13" type="stmt"/>
+        <line num="148" count="13" type="stmt"/>
+        <line num="151" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="152" count="12" type="stmt"/>
+        <line num="153" count="12" type="stmt"/>
+        <line num="156" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="157" count="12" type="stmt"/>
+        <line num="160" count="15" type="cond" truecount="1" falsecount="1"/>
+        <line num="161" count="15" type="stmt"/>
+        <line num="164" count="15" type="stmt"/>
+      </file>
+      <file name="formatters.ts" path="D:\PhapChe\src\lib\document\normalizer\formatters.ts">
+        <metrics statements="41" coveredstatements="41" conditionals="49" coveredconditionals="49" methods="9" coveredmethods="9"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="27" count="17" type="stmt"/>
+        <line num="28" count="193" type="cond" truecount="2" falsecount="0"/>
+        <line num="35" count="17" type="stmt"/>
+        <line num="36" count="17" type="stmt"/>
+        <line num="38" count="17" type="stmt"/>
+        <line num="39" count="221" type="cond" truecount="2" falsecount="0"/>
+        <line num="40" count="221" type="cond" truecount="2" falsecount="0"/>
+        <line num="44" count="17" type="cond" truecount="4" falsecount="0"/>
+        <line num="45" count="4" type="stmt"/>
+        <line num="46" count="42" type="cond" truecount="2" falsecount="0"/>
+        <line num="50" count="13" type="stmt"/>
+        <line num="60" count="17" type="stmt"/>
+        <line num="64" count="218" type="cond" truecount="4" falsecount="0"/>
+        <line num="65" count="3" type="stmt"/>
+        <line num="67" count="215" type="stmt"/>
+        <line num="79" count="19" type="stmt"/>
+        <line num="80" count="19" type="stmt"/>
+        <line num="82" count="19" type="stmt"/>
+        <line num="83" count="224" type="stmt"/>
+        <line num="84" count="224" type="cond" truecount="2" falsecount="0"/>
+        <line num="85" count="224" type="stmt"/>
+        <line num="86" count="224" type="cond" truecount="2" falsecount="0"/>
+        <line num="87" count="224" type="cond" truecount="2" falsecount="0"/>
+        <line num="88" count="224" type="cond" truecount="2" falsecount="0"/>
+        <line num="91" count="224" type="cond" truecount="6" falsecount="0"/>
+        <line num="92" count="3" type="stmt"/>
+        <line num="96" count="224" type="cond" truecount="5" falsecount="0"/>
+        <line num="97" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="98" count="13" type="cond" truecount="4" falsecount="0"/>
+        <line num="99" count="3" type="stmt"/>
+        <line num="103" count="224" type="stmt"/>
+        <line num="106" count="19" type="stmt"/>
+        <line num="113" count="19" type="stmt"/>
+        <line num="126" count="14" type="stmt"/>
+        <line num="127" count="14" type="stmt"/>
+        <line num="129" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="130" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="131" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="132" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="134" count="14" type="stmt"/>
+      </file>
+      <file name="pipeline.ts" path="D:\PhapChe\src\lib\document\normalizer\pipeline.ts">
+        <metrics statements="31" coveredstatements="31" conditionals="24" coveredconditionals="23" methods="3" coveredmethods="3"/>
+        <line num="23" count="14" type="stmt"/>
+        <line num="30" count="14" type="stmt"/>
+        <line num="48" count="16" type="stmt"/>
+        <line num="49" count="16" type="stmt"/>
+        <line num="52" count="16" type="cond" truecount="4" falsecount="0"/>
+        <line num="53" count="2" type="stmt"/>
+        <line num="61" count="14" type="stmt"/>
+        <line num="62" count="14" type="stmt"/>
+        <line num="63" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="76" count="13" type="cond" truecount="1" falsecount="1"/>
+        <line num="79" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="91" count="16" type="stmt"/>
+        <line num="92" count="16" type="stmt"/>
+        <line num="93" count="16" type="stmt"/>
+        <line num="95" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="96" count="11" type="stmt"/>
+        <line num="103" count="11" type="stmt"/>
+        <line num="104" count="11" type="stmt"/>
+        <line num="105" count="11" type="stmt"/>
+        <line num="109" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="110" count="11" type="stmt"/>
+        <line num="119" count="13" type="cond" truecount="4" falsecount="0"/>
+        <line num="120" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="121" count="1" type="stmt"/>
+        <line num="122" count="1" type="stmt"/>
+        <line num="126" count="13" type="cond" truecount="4" falsecount="0"/>
+        <line num="127" count="2" type="stmt"/>
+        <line num="130" count="13" type="stmt"/>
+        <line num="133" count="13" type="stmt"/>
+        <line num="135" count="13" type="stmt"/>
+      </file>
+    </package>
   </project>
 </coverage>

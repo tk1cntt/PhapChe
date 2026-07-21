@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
@@ -61,6 +62,7 @@
     "@vitest/coverage-v8": "^4.1.9",
     "autoprefixer": "latest",
     "bcrypt": "^6.0.0",
+    "cross-env": "^10.1.0",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "jsdom": "^29.1.1",

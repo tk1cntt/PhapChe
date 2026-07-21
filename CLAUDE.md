@@ -4,7 +4,7 @@ Mọi trao đổi phải dùng tiếng Việt.
 
 Bất cứ yêu cầu nào cần thực hiện, cần đánh giá xem có cần phải tạo /gsd-quick hay không.
 
-Cấm sử dụng lệnh taskkill //F //IM node.exe.
+Cấm sử dụng lệnh taskkill //F //IM node.exe. Chỉ được phép kill process port 3000
 
 **KHÔNG sử dụng Ant Design components** — tất cả shared components dùng custom Tailwind CSS. Ant Design sẽ được replace nếu đang được dùng.
 

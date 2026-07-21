@@ -15,10 +15,10 @@
 .ai-section {
   display: flex;
   flex-direction: row;
-  align-items: baseline;
+  align-items: center;
   gap: 0;
   margin: 0;
-  padding: 1px 0 1px 7px;
+  padding: 2px 0 2px 7px;
   border-left: 3px solid var(--color-border, #d1d5db);
   font-size: 13px;
   line-height: 1.5;
@@ -27,7 +27,7 @@
 }
 
 .ai-annotation-content--compact .ai-section {
-  padding: 0 0 0 5px;
+  padding: 1px 0 1px 5px;
   border-left-width: 2px;
   font-size: 12px;
   line-height: 1.45;
@@ -41,8 +41,7 @@
 
 .ai-section-icon {
   flex-shrink: 0;
-  align-self: center;
-  margin-right: 3px;
+  margin-right: 5px;
 }
 
 .ai-section--issue .ai-section-icon           { color: var(--color-danger, #ef4444); }
@@ -58,13 +57,12 @@
   text-transform: uppercase;
   letter-spacing: 0.2px;
   color: var(--color-text-muted, #6b7280);
-  margin-right: 4px;
-  align-self: center;
+  margin-right: 6px;
 }
 
 .ai-annotation-content--compact .ai-section-label {
   font-size: 8px;
-  margin-right: 3px;
+  margin-right: 5px;
 }
 
 /* ── Text ──────────────────────────────────────────────────────── */

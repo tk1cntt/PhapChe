@@ -60,6 +60,57 @@
   gap: 8px;
 }
 
+/* ── Mode Selector Buttons ─────────────────────────────────── */
+
+.chat-split-mode-group {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg, #f1f5f9);
+  border-radius: var(--radius-md, 8px);
+  padding: 3px;
+  gap: 2px;
+}
+
+.chat-split-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: var(--text-xs, 12px);
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-md, 8px) - 2px);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.chat-split-mode-btn:hover {
+  color: var(--color-text);
+  background: var(--color-surface-hover, #e2e8f0);
+}
+
+.chat-split-mode-btn.active {
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.1));
+  font-weight: 600;
+}
+
+/* ── Mode-specific color accents ── */
+.chat-split-mode-btn:nth-child(1).active {
+  color: #2563eb; /* blue - review */
+}
+.chat-split-mode-btn:nth-child(2).active {
+  color: #7c3aed; /* purple - AI focus */
+}
+.chat-split-mode-btn:nth-child(3).active {
+  color: #16a34a; /* green - full document */
+}
+
 .chat-split-status-badge {
   font-size: var(--text-xs, 11px);
   font-weight: 600;
@@ -126,6 +177,32 @@
 
 .chat-split-body.expanded {
   grid-template-columns: 680px 1fr;
+}
+
+/* ── Mode-based grid ratios ────────────────────────────────── */
+
+/* Review Mode: Document 70% | AI 30% */
+.chat-split-body.mode-review {
+  grid-template-columns: 70fr 30fr;
+}
+.chat-split-body.mode-review.expanded {
+  grid-template-columns: 70fr 30fr;
+}
+
+/* AI Focus: Document 40% | AI 60% */
+.chat-split-body.mode-ai-focus {
+  grid-template-columns: 40fr 60fr;
+}
+.chat-split-body.mode-ai-focus.expanded {
+  grid-template-columns: 40fr 60fr;
+}
+
+/* Full Document: Document 100%, AI collapsed */
+.chat-split-body.mode-full-document {
+  grid-template-columns: 1fr 0;
+}
+.chat-split-body.mode-full-document .chat-split-right {
+  display: none;
 }
 
 .chat-split-left {

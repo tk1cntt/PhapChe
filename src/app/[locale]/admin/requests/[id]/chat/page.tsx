@@ -3,18 +3,26 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, FileText, Send, Maximize2, Minimize2 } from 'lucide-react';
+import { ArrowLeft, FileText, Send, Maximize2, Minimize2, Eye, Sparkles, Columns } from 'lucide-react';
 import { ChatActivityPanel } from '@/components/admin/ChatActivityPanel';
 import { DocumentFilePanel, type FileItem } from '@/components/admin/DocumentFilePanel';
 import { DocumentAnnotationPanel } from '@/components/admin/DocumentAnnotationPanel';
 import { ReportDialog, type ReportData } from '@/components/admin/ReportDialog';
 import '@/styles/pages/admin/chat-split.css';
 
+type ChatMode = 'review' | 'ai-focus' | 'full-document';
+
 interface RequestInfo {
   title: string;
   matterTypeKey: string | null;
   status: string;
 }
+
+const MODE_DEFS: { key: ChatMode; label: string; icon: typeof Eye; hint: string }[] = [
+  { key: 'review', label: 'Review', icon: Eye, hint: 'Document 70% | AI 30%' },
+  { key: 'ai-focus', label: 'AI Focus', icon: Sparkles, hint: 'Document 40% | AI 60%' },
+  { key: 'full-document', label: 'Full Document', icon: Columns, hint: 'Document 100%' },
+];
 
 export default function ChatActivityPage() {
   const params = useParams();
@@ -31,6 +39,9 @@ export default function ChatActivityPage() {
 
   // Expand left panel (default mở rộng gấp 2)
   const [leftExpanded, setLeftExpanded] = useState(true);
+
+  // Chat mode: controls document/AI split ratio
+  const [chatMode, setChatMode] = useState<ChatMode>('review');
 
   // Report state
   const [reportOpen, setReportOpen] = useState(false);
@@ -179,6 +190,29 @@ export default function ChatActivityPage() {
             </span>
           )}
         </div>
+
+        {/* Mode Selector */}
+        <div className="chat-split-mode-group" role="radiogroup" aria-label="View mode">
+          {MODE_DEFS.map((mode) => {
+            const Icon = mode.icon;
+            const isActive = chatMode === mode.key;
+            return (
+              <button
+                key={mode.key}
+                type="button"
+                className={`chat-split-mode-btn${isActive ? ' active' : ''}`}
+                onClick={() => setChatMode(mode.key)}
+                title={mode.hint}
+                role="radio"
+                aria-checked={isActive}
+              >
+                <Icon size={14} />
+                <span>{mode.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
         <div className="chat-split-header-right">
           {/* Request status badge */}
           <span className={`chat-split-status-badge status-${requestInfo.status}`}>
@@ -210,7 +244,7 @@ export default function ChatActivityPage() {
       </div>
 
       {/* Split Layout */}
-      <div className={`chat-split-body${leftExpanded ? ' expanded' : ''}`}>
+      <div className={`chat-split-body mode-${chatMode}${leftExpanded ? ' expanded' : ''}`}>
         {/* Left: Document Panel + Annotations */}
         <div className="chat-split-left">
           <div className="chat-split-left-top">

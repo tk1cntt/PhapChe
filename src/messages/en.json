@@ -2488,6 +2488,14 @@
     "reportGenerating": "Generating report...",
     "submitForReview": "Submit for Review",
     "submitReviewConfirm": "Confirm submit for review?",
-    "requestStatus": "Status"
+    "requestStatus": "Status",
+    "aiReview": "AI Review",
+    "aiReviewLoading": "Analyzing...",
+    "aiReviewComplete": "Complete — {count} issues",
+    "aiReviewError": "AI Error: {message}",
+    "aiConfidence": "Confidence",
+    "aiAccept": "Accept",
+    "aiDismiss": "Dismiss",
+    "aiGenerated": "AI detected"
   }
 }

@@ -2491,6 +2491,14 @@
     "reportGenerating": "Đang tạo báo cáo...",
     "submitForReview": "Gửi review",
     "submitReviewConfirm": "Xác nhận gửi review?",
-    "requestStatus": "Trạng thái"
+    "requestStatus": "Trạng thái",
+    "aiReview": "AI Rà soát",
+    "aiReviewLoading": "Đang phân tích...",
+    "aiReviewComplete": "Hoàn tất — {count} vấn đề",
+    "aiReviewError": "Lỗi AI: {message}",
+    "aiConfidence": "Độ tin cậy",
+    "aiAccept": "Chấp nhận",
+    "aiDismiss": "Bỏ qua",
+    "aiGenerated": "AI phát hiện"
   }
 }

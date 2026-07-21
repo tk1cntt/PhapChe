@@ -2386,6 +2386,14 @@
     "reportGenerating": "レポート作成中...",
     "submitForReview": "レビューに提出",
     "submitReviewConfirm": "レビューに提出しますか？",
-    "requestStatus": "ステータス"
+    "requestStatus": "ステータス",
+    "aiReview": "AIレビュー",
+    "aiReviewLoading": "分析中...",
+    "aiReviewComplete": "完了 — {count}件の問題",
+    "aiReviewError": "AIエラー: {message}",
+    "aiConfidence": "信頼度",
+    "aiAccept": "承認",
+    "aiDismiss": "却下",
+    "aiGenerated": "AI検出"
   }
 }

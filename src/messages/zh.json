@@ -2386,6 +2386,14 @@
     "reportGenerating": "正在生成报告...",
     "submitForReview": "提交评审",
     "submitReviewConfirm": "确认提交评审？",
-    "requestStatus": "状态"
+    "requestStatus": "状态",
+    "aiReview": "AI审查",
+    "aiReviewLoading": "分析中...",
+    "aiReviewComplete": "完成 — {count}个问题",
+    "aiReviewError": "AI错误: {message}",
+    "aiConfidence": "置信度",
+    "aiAccept": "接受",
+    "aiDismiss": "忽略",
+    "aiGenerated": "AI发现"
   }
 }

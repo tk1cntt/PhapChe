@@ -139,7 +139,8 @@ export type AgentSkill =
   | 'regulatory-gap-analyzer'
   | 'ai-governance-assessor'
   | 'litigation-risk-scorer'
-  | 'general-legal-researcher';
+  | 'general-legal-researcher'
+  | 'document-issue-analyzer';
 
 /** Maps legal domain → agent skills */
 export const DOMAIN_SKILL_MAP: Record<LegalDomain, AgentSkill[]> = {
@@ -168,6 +169,7 @@ export interface SkillContext {
     title: string;
     description?: string;
     intakeAnswers?: Record<string, string>;
+    documentContent?: string;  // line-numbered document content for inline AI review
   };
   /** Optional RAG search results for legal grounding */
   legalContext?: SearchResult[];

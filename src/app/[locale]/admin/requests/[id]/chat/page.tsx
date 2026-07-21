@@ -6,7 +6,8 @@ import { useTranslations } from 'next-intl';
 import { ArrowLeft, FileText, Send, Maximize2, Minimize2, Eye, Sparkles, Columns } from 'lucide-react';
 import { ChatActivityPanel } from '@/components/admin/ChatActivityPanel';
 import { DocumentFilePanel, type FileItem } from '@/components/admin/DocumentFilePanel';
-import { DocumentAnnotationPanel } from '@/components/admin/DocumentAnnotationPanel';
+import { DocumentAnnotationPanel, type Annotation } from '@/components/admin/DocumentAnnotationPanel';
+import { AiIssuePopup } from '@/components/admin/AiIssuePopup';
 import { ReportDialog, type ReportData } from '@/components/admin/ReportDialog';
 import '@/styles/pages/admin/chat-split.css';
 
@@ -50,6 +51,15 @@ export default function ChatActivityPage() {
 
   // Submit state
   const [submitting, setSubmitting] = useState(false);
+
+  // AI Review state
+  const [aiReviewLoading, setAiReviewLoading] = useState(false);
+  const [aiAnnotations, setAiAnnotations] = useState<Annotation[]>([]);
+  const [aiReviewError, setAiReviewError] = useState<string | null>(null);
+
+  // Popup state
+  const [popupAnnotation, setPopupAnnotation] = useState<Annotation | null>(null);
+  const [popupRefElement, setPopupRefElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -138,6 +148,67 @@ export default function ChatActivityPage() {
   }, [requestId]);
 
   const canSubmit = requestInfo?.status === 'in_progress';
+
+  // ── AI Review ──
+
+  const handleAiReview = useCallback(async () => {
+    if (!activeFileId) return;
+    setAiReviewLoading(true);
+    setAiReviewError(null);
+    setAiAnnotations([]);
+
+    try {
+      const res = await fetch(`/api/admin/requests/${requestId}/files/${activeFileId}/ai-review`, {
+        method: 'POST',
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'UNKNOWN' }));
+        throw new Error(err.error || 'AI review failed');
+      }
+      const data = await res.json();
+      setAiAnnotations(data.data?.findings ?? []);
+    } catch (err) {
+      setAiReviewError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setAiReviewLoading(false);
+    }
+  }, [requestId, activeFileId]);
+
+  const handleAnnotationClick = useCallback((annotation: Annotation, element: HTMLElement) => {
+    setPopupAnnotation(annotation);
+    setPopupRefElement(element);
+  }, []);
+
+  const handleClosePopup = useCallback(() => {
+    setPopupAnnotation(null);
+    setPopupRefElement(null);
+  }, []);
+
+  const handleAcceptAnnotation = useCallback(async (annotation: Annotation) => {
+    try {
+      await fetch(`/api/admin/requests/${requestId}/files/annotations/${annotation.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'resolved' }),
+      });
+      setAiAnnotations((prev) =>
+        prev.map((a) => (a.id === annotation.id ? { ...a, status: 'resolved' as const } : a)),
+      );
+    } catch {
+      // silent
+    }
+  }, [requestId]);
+
+  const handleDismissAnnotation = useCallback(async (annotation: Annotation) => {
+    try {
+      await fetch(`/api/admin/requests/${requestId}/files/annotations/${annotation.id}`, {
+        method: 'DELETE',
+      });
+      setAiAnnotations((prev) => prev.filter((a) => a.id !== annotation.id));
+    } catch {
+      // silent
+    }
+  }, [requestId]);
 
   if (loading) {
     return (
@@ -254,6 +325,10 @@ export default function ChatActivityPage() {
               onSelectFile={handleSelectFile}
               expanded={leftExpanded}
               onToggleExpand={() => setLeftExpanded((v) => !v)}
+              annotations={aiAnnotations}
+              onAiReview={handleAiReview}
+              aiReviewLoading={aiReviewLoading}
+              onAnnotationClick={handleAnnotationClick}
             />
           </div>
           <div className="chat-split-left-bottom">
@@ -284,6 +359,23 @@ export default function ChatActivityPage() {
         open={reportOpen}
         onClose={() => setReportOpen(false)}
       />
+
+      {/* AI Issue Popup */}
+      <AiIssuePopup
+        annotation={popupAnnotation}
+        referenceElement={popupRefElement}
+        onAccept={handleAcceptAnnotation}
+        onDismiss={handleDismissAnnotation}
+        onClose={handleClosePopup}
+      />
+
+      {/* AI Review Error Toast */}
+      {aiReviewError && (
+        <div className="ai-review-error-toast">
+          <span>{aiReviewError}</span>
+          <button type="button" onClick={() => setAiReviewError(null)}>×</button>
+        </div>
+      )}
     </div>
   );
 }

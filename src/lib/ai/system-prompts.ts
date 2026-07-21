@@ -6,6 +6,7 @@
  */
 
 import type { SystemPromptTemplate, AgentSkill } from './types';
+import { documentIssueAnalyzerPrompt } from './system-prompts/document-issue-analyzer';
 
 // ── System Prompts ──────────────────────────────────────────
 
@@ -528,6 +529,8 @@ YÊU CẦU ĐẦU RA (JSON):
     outputFormat: 'json_object',
     requiredVariables: ['requestTitle'],
   },
+
+  'document-issue-analyzer': documentIssueAnalyzerPrompt,
 };
 
 // ── Public API ──────────────────────────────────────────────

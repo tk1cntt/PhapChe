@@ -81,6 +81,7 @@ export class SkillExecutor {
       matterType: context.matterTypeKey,
       requestTitle: context.requestContext.title,
       requestDescription: context.requestContext.description ?? '',
+      documentContent: context.requestContext.documentContent ?? '',
       locale: context.locale,
       legalContext: legalContext.map((r) => ({
         source: r.chunk.source,
@@ -157,6 +158,7 @@ export class SkillExecutor {
       matterType: context.matterTypeKey,
       requestTitle: context.requestContext.title,
       requestDescription: context.requestContext.description ?? '',
+      documentContent: context.requestContext.documentContent ?? '',
       locale: context.locale,
       legalContext: legalContext.map((r) => ({
         source: r.chunk.source,

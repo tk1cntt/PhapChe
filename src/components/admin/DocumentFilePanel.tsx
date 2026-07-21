@@ -4,7 +4,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { FileText, Upload, File, Loader2, AlertTriangle, Eye, CheckCircle2, AlertCircle, Clock, Maximize2, Minimize2 } from 'lucide-react';
+import { FileText, Upload, File, Loader2, AlertTriangle, Eye, CheckCircle2, AlertCircle, Clock, Maximize2, Minimize2, Sparkles } from 'lucide-react';
+import { DocumentPreviewTipTap } from './DocumentPreviewTipTap';
+import type { Annotation } from './DocumentAnnotationPanel';
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -25,6 +27,11 @@ interface DocumentFilePanelProps {
   onSelectFile: (fileId: string | null, fileTitle: string | null) => void;
   expanded?: boolean;
   onToggleExpand?: () => void;
+  // AI Review
+  annotations?: Annotation[];
+  onAiReview?: () => void;
+  aiReviewLoading?: boolean;
+  onAnnotationClick?: (annotation: Annotation, element: HTMLElement) => void;
 }
 
 interface PreviewData {
@@ -74,7 +81,7 @@ function getReviewStatusIcon(reviewStatus: string): React.ReactNode {
 
 // ── Component ────────────────────────────────────────────────
 
-export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expanded = true, onToggleExpand }: DocumentFilePanelProps) {
+export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expanded = true, onToggleExpand, annotations = [], onAiReview, aiReviewLoading = false, onAnnotationClick }: DocumentFilePanelProps) {
   const t = useTranslations('ChatActivity');
 
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -282,8 +289,32 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expan
             <div className="doc-file-preview-header">
               <h4>{preview.title}</h4>
               <span className="doc-file-preview-mime">{preview.mimeType}</span>
+              {onAiReview && (
+                <button
+                  type="button"
+                  className="doc-file-ai-review-btn"
+                  onClick={onAiReview}
+                  disabled={aiReviewLoading || preview.isBinary}
+                  title="AI Rà soát tài liệu"
+                >
+                  {aiReviewLoading ? (
+                    <Loader2 size={14} className="spinning" />
+                  ) : (
+                    <Sparkles size={14} />
+                  )}
+                  AI Review
+                </button>
+              )}
             </div>
-            {preview.isBinary ? (
+            {annotations.length > 0 && !preview.isBinary ? (
+              <div className="doc-file-preview-tiptap">
+                <DocumentPreviewTipTap
+                  content={preview.content}
+                  annotations={annotations}
+                  onAnnotationClick={onAnnotationClick}
+                />
+              </div>
+            ) : preview.isBinary ? (
               <div className="doc-file-preview-binary">
                 <Eye size={32} />
                 <p>{preview.message ?? t('fileBinaryHint')}</p>

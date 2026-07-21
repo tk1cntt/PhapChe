@@ -560,6 +560,44 @@
   flex-shrink: 0;
 }
 
+/* ── AI Review Button ────────────────────────────────────────── */
+
+.doc-file-ai-review-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: var(--text-xs, 11px);
+  font-weight: 600;
+  font-family: inherit;
+  color: #7c3aed;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 1px solid #c4b5fd;
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, box-shadow 0.15s;
+  margin-left: auto;
+}
+
+.doc-file-ai-review-btn:hover {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  box-shadow: 0 1px 4px rgba(124, 58, 237, 0.2);
+}
+
+.doc-file-ai-review-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── TipTap Preview ──────────────────────────────────────────── */
+
+.doc-file-preview-tiptap {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .doc-file-preview-text {
   flex: 1;
   margin: 0;
@@ -734,6 +772,44 @@
 
 .doc-file-preview-markdown em {
   font-style: italic;
+}
+
+/* ── AI Review Error Toast ────────────────────────────────────── */
+
+.ai-review-error-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md, 8px);
+  color: var(--color-danger, #dc2626);
+  font-size: var(--text-sm2, 13px);
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ai-review-error-toast button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  border-radius: 4px;
+}
+
+.ai-review-error-toast button:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* ── Responsive ─────────────────────────────────────────────── */

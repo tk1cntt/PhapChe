@@ -13,21 +13,24 @@ import {
   Info,
   AlertCircle,
   Loader2,
+  Sparkles,
 } from 'lucide-react';
 import '@/styles/pages/admin/annotation-panel.css';
 
 // ── Types ────────────────────────────────────────────────────
 
-interface Annotation {
+export interface Annotation {
   id: string;
   fileKey: string;
   authorId: string;
   authorName: string;
   content: string;
-  severity: 'info' | 'warning' | 'critical';
+  severity: 'critical' | 'high' | 'medium' | 'low' | 'info' | 'warning';
   category: 'issue' | 'suggestion' | 'question' | 'comment';
-  position: { line?: number; snippet?: string } | null;
+  position: { line?: number; lineStart?: number; lineEnd?: number; snippet?: string } | null;
   status: 'open' | 'resolved' | 'dismissed';
+  aiGenerated: boolean;
+  aiConfidence?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -63,7 +66,7 @@ export function DocumentAnnotationPanel({
 
   // Form state
   const [formContent, setFormContent] = useState('');
-  const [formSeverity, setFormSeverity] = useState<'info' | 'warning' | 'critical'>('info');
+  const [formSeverity, setFormSeverity] = useState<Annotation['severity']>('info');
   const [formCategory, setFormCategory] = useState<'issue' | 'suggestion' | 'question' | 'comment'>('issue');
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -332,9 +335,20 @@ export function DocumentAnnotationPanel({
                     <SevIcon size={12} />
                     {t(`annotationSeverity${ann.severity.charAt(0).toUpperCase() + ann.severity.slice(1)}` as any)}
                   </span>
+                  {ann.aiGenerated && (
+                    <span className="annotation-item-ai-badge">
+                      <Sparkles size={10} />
+                      AI
+                    </span>
+                  )}
                   <span className="annotation-item-category">
                     {t(`annotationCategory${ann.category.charAt(0).toUpperCase() + ann.category.slice(1)}` as any)}
                   </span>
+                  {ann.aiConfidence !== undefined && (
+                    <span className="annotation-item-confidence">
+                      {(ann.aiConfidence * 100).toFixed(0)}%
+                    </span>
+                  )}
                   {ann.position?.line && (
                     <span className="annotation-item-line">
                       📍 dòng {ann.position.line}
@@ -351,30 +365,54 @@ export function DocumentAnnotationPanel({
                   {ann.content}
                 </div>
                 <div className="annotation-item-actions">
-                  <button
-                    type="button"
-                    className="annotation-item-action"
-                    onClick={() => handleEdit(ann)}
-                    title={t('annotationEdit')}
-                  >
-                    <Edit3 size={12} />
-                  </button>
-                  <button
-                    type="button"
-                    className={`annotation-item-action${isResolved ? ' resolved' : ''}`}
-                    onClick={() => handleResolve(ann)}
-                    title={t(isResolved ? 'annotationResolve' : 'annotationResolve')}
-                  >
-                    <Check size={12} />
-                  </button>
-                  <button
-                    type="button"
-                    className="annotation-item-action danger"
-                    onClick={() => handleDelete(ann)}
-                    title={t('annotationDelete')}
-                  >
-                    <Trash2 size={12} />
-                  </button>
+                  {ann.aiGenerated && ann.status === 'open' && (
+                    <>
+                      <button
+                        type="button"
+                        className="annotation-item-action accept"
+                        onClick={() => handleResolve(ann)}
+                        title="Chấp nhận AI finding"
+                      >
+                        <Check size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        className="annotation-item-action dismiss"
+                        onClick={() => handleDelete(ann)}
+                        title="Bỏ qua AI finding"
+                      >
+                        <X size={12} />
+                      </button>
+                    </>
+                  )}
+                  {!ann.aiGenerated && (
+                    <>
+                      <button
+                        type="button"
+                        className="annotation-item-action"
+                        onClick={() => handleEdit(ann)}
+                        title={t('annotationEdit')}
+                      >
+                        <Edit3 size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        className={`annotation-item-action${isResolved ? ' resolved' : ''}`}
+                        onClick={() => handleResolve(ann)}
+                        title={t('annotationResolve')}
+                      >
+                        <Check size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        className="annotation-item-action danger"
+                        onClick={() => handleDelete(ann)}
+                        title={t('annotationDelete')}
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             );

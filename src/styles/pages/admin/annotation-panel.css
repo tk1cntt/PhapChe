@@ -336,3 +336,44 @@
   border-color: var(--color-danger);
   background: #fef2f2;
 }
+
+.annotation-item-action.accept {
+  color: #16a34a;
+  border-color: #dcfce7;
+  background: #f0fdf4;
+}
+.annotation-item-action.accept:hover {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.annotation-item-action.dismiss {
+  color: var(--color-text-muted);
+  border-color: var(--color-border-subtle);
+}
+.annotation-item-action.dismiss:hover {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  background: #fef2f2;
+}
+
+/* ── AI Badge & Confidence ──────────────────────────────────── */
+
+.annotation-item-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 5px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.annotation-item-confidence {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}

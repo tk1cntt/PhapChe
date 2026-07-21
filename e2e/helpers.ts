@@ -23,8 +23,8 @@ export async function loginAs(page: Page, role: keyof typeof CREDENTIALS): Promi
 
   const creds = CREDENTIALS[role];
 
-  // Find the email input (first input with type text or first input)
-  const emailInput = page.locator('input[type="text"]').first();
+  // Find the email input (type="email" in SignInForm)
+  const emailInput = page.locator('input[type="email"]').first();
   const passwordInput = page.locator('input[type="password"]').first();
 
   // Wait for inputs to be visible

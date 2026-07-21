@@ -20,10 +20,14 @@
     "storage:migrate": "tsx src/lib/storage/commands/migrate.ts"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.27.20",
     "@noble/hashes": "^2.2.0",
     "@prisma/client": "^6.19.0",
     "@tanstack/react-query": "^5.101.0",
     "@tanstack/react-query-devtools": "^5.101.0",
+    "@tiptap/extension-highlight": "^3.28.0",
+    "@tiptap/react": "^3.28.0",
+    "@tiptap/starter-kit": "^3.28.0",
     "bcryptjs": "^3.0.3",
     "better-auth": "^1.6.14",
     "class-variance-authority": "^0.7.1",

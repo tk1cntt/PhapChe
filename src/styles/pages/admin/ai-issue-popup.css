@@ -1,0 +1,149 @@
+/* ── AI Issue Popup Styles ───────────────────────────────────── */
+
+.ai-issue-popup {
+  z-index: 9999;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+  max-width: 380px;
+  min-width: 280px;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ai-issue-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-surface-hover, #f9fafb);
+}
+
+.ai-issue-popup-severity {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.ai-issue-popup-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.ai-issue-popup-confidence {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.ai-issue-popup-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--color-text-muted, #6b7280);
+  transition: background-color 0.15s;
+}
+
+.ai-issue-popup-close:hover {
+  background: var(--color-surface-hover, #f3f4f6);
+  color: var(--color-text, #1f2937);
+}
+
+.ai-issue-popup-body {
+  padding: 10px 12px;
+}
+
+.ai-issue-popup-issue {
+  margin: 0 0 8px;
+  color: var(--color-text, #1f2937);
+  font-size: 13px;
+}
+
+.ai-issue-popup-section {
+  margin-bottom: 8px;
+}
+
+.ai-issue-popup-section strong {
+  display: block;
+  font-size: 11px;
+  color: var(--color-text-muted, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.ai-issue-popup-section p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text, #374151);
+}
+
+.ai-issue-popup-actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-surface-hover, #f9fafb);
+}
+
+.ai-issue-popup-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border, #d1d5db);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex: 1;
+  justify-content: center;
+}
+
+.ai-issue-popup-btn.accept {
+  background: var(--color-primary, #3b82f6);
+  color: #fff;
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.ai-issue-popup-btn.accept:hover {
+  background: var(--color-primary-hover, #2563eb);
+}
+
+.ai-issue-popup-btn.dismiss {
+  background: transparent;
+  color: var(--color-text-muted, #6b7280);
+  border-color: var(--color-border, #d1d5db);
+}
+
+.ai-issue-popup-btn.dismiss:hover {
+  background: var(--color-surface-hover, #f3f4f6);
+  color: var(--color-text, #1f2937);
+}
+
+.ai-issue-popup-arrow {
+  fill: var(--color-surface, #ffffff);
+  stroke: var(--color-border, #e5e7eb);
+  stroke-width: 1px;
+}

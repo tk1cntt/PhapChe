@@ -849,6 +849,8 @@ model DocumentAnnotation {
   category      String   @default("issue")  // "issue" | "suggestion" | "question" | "comment"
   position      Json?                       // { line?, snippet? }
   status        String   @default("open")   // "open" | "resolved" | "dismissed"
+  aiGenerated   Boolean  @default(false)    // true if created by AI (inline review)
+  aiConfidence  Float?                      // 0-1 confidence score from AI
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

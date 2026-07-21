@@ -3,11 +3,11 @@
 .ai-annotation-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .ai-annotation-content--compact {
-  gap: 8px;
+  gap: 4px;
 }
 
 /* ── Section ──────────────────────────────────────────────────── */
@@ -15,43 +15,42 @@
 .ai-section {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 8px 10px;
-  border-radius: 6px;
+  gap: 0;
+  padding: 4px 0 4px 8px;
+  border-radius: 0;
   border-left: 3px solid var(--color-border, #d1d5db);
-  background: var(--color-surface-hover, #f9fafb);
+  background: none;
 }
 
 .ai-annotation-content--compact .ai-section {
-  padding: 6px 8px;
-  gap: 1px;
+  padding: 2px 0 2px 6px;
+  border-left-width: 2px;
 }
 
 .ai-section--issue {
   border-left-color: var(--color-danger, #ef4444);
-  background: #fef2f2;
 }
 
 .ai-section--recommendation {
   border-left-color: var(--color-primary, #3b82f6);
-  background: #eff6ff;
 }
 
 .ai-section--legal {
   border-left-color: #8b5cf6;
-  background: #f5f3ff;
 }
 
-/* ── Section Header ───────────────────────────────────────────── */
+/* ── Inline Section Header ────────────────────────────────────── */
 
 .ai-section-header {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
+  margin-right: 4px;
 }
 
 .ai-section-icon {
   flex-shrink: 0;
+  vertical-align: middle;
 }
 
 .ai-section--issue .ai-section-icon {
@@ -67,40 +66,37 @@
 }
 
 .ai-section-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   color: var(--color-text-muted, #6b7280);
 }
 
 .ai-annotation-content--compact .ai-section-label {
-  font-size: 10px;
+  font-size: 9px;
 }
 
-/* ── Section Text ──────────────────────────────────────────────── */
+/* ── Section Text — inline flow ───────────────────────────────── */
 
 .ai-section-text {
   margin: 0;
-  padding-left: 22px; /* align with label after icon */
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.5;
   color: var(--color-text, #1f2937);
-  white-space: pre-wrap;
   word-break: break-word;
 }
 
 .ai-annotation-content--compact .ai-section-text {
   font-size: 12px;
-  line-height: 1.5;
-  padding-left: 18px;
+  line-height: 1.45;
 }
 
 /* ── Raw Content Fallback ──────────────────────────────────────── */
 
 .ai-raw-content {
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.5;
   color: var(--color-text, #1f2937);
   white-space: pre-wrap;
   word-break: break-word;
@@ -108,5 +104,5 @@
 
 .ai-raw-content--compact {
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.45;
 }

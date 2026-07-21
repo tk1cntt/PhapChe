@@ -5,6 +5,7 @@
  *
  * Dùng chung cho AiIssuePopup (popup) và DocumentAnnotationPanel (sidebar).
  * Parse content thành các section: Vấn đề → Đề xuất → Căn cứ pháp lý.
+ * Label hiển thị inline như prefix của dòng text.
  */
 
 import React from 'react';
@@ -53,15 +54,16 @@ export function AiAnnotationContent({ content, compact = false }: AiAnnotationCo
       {parsed.sections.map((section) => {
         const Icon = SECTION_ICONS[section.label] || AlertCircle;
         const sectionClass = SECTION_CLASSES[section.label] || '';
+        const iconSize = compact ? 10 : 12;
 
         return (
-          <div key={section.key} className={`ai-section ${sectionClass}`}>
-            <div className="ai-section-header">
-              <Icon size={compact ? 12 : 14} className="ai-section-icon" />
-              <span className="ai-section-label">{section.label}</span>
-            </div>
-            <p className="ai-section-text">{section.content}</p>
-          </div>
+          <p key={section.key} className={`ai-section ${sectionClass}`}>
+            <span className="ai-section-label">
+              <Icon size={iconSize} className="ai-section-icon" />
+              <strong>{section.label}</strong>
+            </span>
+            {section.content}
+          </p>
         );
       })}
     </div>

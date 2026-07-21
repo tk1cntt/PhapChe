@@ -1,0 +1,1 @@
+markitdown[pdf,docx,xlsx]>=0.1.6

@@ -1,0 +1,112 @@
+/* ── AI Annotation Content — Structured section display ──────── */
+
+.ai-annotation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ai-annotation-content--compact {
+  gap: 8px;
+}
+
+/* ── Section ──────────────────────────────────────────────────── */
+
+.ai-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border-left: 3px solid var(--color-border, #d1d5db);
+  background: var(--color-surface-hover, #f9fafb);
+}
+
+.ai-annotation-content--compact .ai-section {
+  padding: 6px 8px;
+  gap: 1px;
+}
+
+.ai-section--issue {
+  border-left-color: var(--color-danger, #ef4444);
+  background: #fef2f2;
+}
+
+.ai-section--recommendation {
+  border-left-color: var(--color-primary, #3b82f6);
+  background: #eff6ff;
+}
+
+.ai-section--legal {
+  border-left-color: #8b5cf6;
+  background: #f5f3ff;
+}
+
+/* ── Section Header ───────────────────────────────────────────── */
+
+.ai-section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-section-icon {
+  flex-shrink: 0;
+}
+
+.ai-section--issue .ai-section-icon {
+  color: var(--color-danger, #ef4444);
+}
+
+.ai-section--recommendation .ai-section-icon {
+  color: var(--color-primary, #3b82f6);
+}
+
+.ai-section--legal .ai-section-icon {
+  color: #8b5cf6;
+}
+
+.ai-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.ai-annotation-content--compact .ai-section-label {
+  font-size: 10px;
+}
+
+/* ── Section Text ──────────────────────────────────────────────── */
+
+.ai-section-text {
+  margin: 0;
+  padding-left: 22px; /* align with label after icon */
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text, #1f2937);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ai-annotation-content--compact .ai-section-text {
+  font-size: 12px;
+  line-height: 1.5;
+  padding-left: 18px;
+}
+
+/* ── Raw Content Fallback ──────────────────────────────────────── */
+
+.ai-raw-content {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text, #1f2937);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ai-raw-content--compact {
+  font-size: 12px;
+  line-height: 1.5;
+}

@@ -73,31 +73,6 @@
   padding: 10px 12px;
 }
 
-.ai-issue-popup-issue {
-  margin: 0 0 8px;
-  color: var(--color-text, #1f2937);
-  font-size: 13px;
-}
-
-.ai-issue-popup-section {
-  margin-bottom: 8px;
-}
-
-.ai-issue-popup-section strong {
-  display: block;
-  font-size: 11px;
-  color: var(--color-text-muted, #6b7280);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 2px;
-}
-
-.ai-issue-popup-section p {
-  margin: 0;
-  font-size: 13px;
-  color: var(--color-text, #374151);
-}
-
 .ai-issue-popup-actions {
   display: flex;
   gap: 8px;

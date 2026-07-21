@@ -15,6 +15,7 @@ import {
   Loader2,
   Sparkles,
 } from 'lucide-react';
+import { AiAnnotationContent } from './AiAnnotationContent';
 import '@/styles/pages/admin/annotation-panel.css';
 
 // ── Types ────────────────────────────────────────────────────
@@ -364,7 +365,11 @@ export function DocumentAnnotationPanel({
                   </span>
                 </div>
                 <div className="annotation-item-content">
-                  {ann.content}
+                  {ann.aiGenerated ? (
+                    <AiAnnotationContent content={ann.content} compact />
+                  ) : (
+                    ann.content
+                  )}
                 </div>
                 <div className="annotation-item-actions">
                   {ann.aiGenerated && ann.status === 'open' && (

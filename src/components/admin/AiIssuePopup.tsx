@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 
 import type { Annotation } from './DocumentAnnotationPanel';
+import { AiAnnotationContent } from './AiAnnotationContent';
 import '@/styles/pages/admin/ai-issue-popup.css';
 
 // ── Props ──────────────────────────────────────────────────────
@@ -87,12 +88,6 @@ export function AiIssuePopup({
   const sevConfig = SEVERITY_CONFIG[annotation.severity] || SEVERITY_CONFIG.info;
   const SevIcon = sevConfig.icon;
 
-  // Parse content for display sections
-  const contentParts = annotation.content.split('\n**');
-  const issue = contentParts[0]?.replace('**Vấn đề:** ', '').replace('**Vấn đề:**', '') || '';
-  const recommendation = contentParts.find((p) => p.startsWith('Đề xuất:**'))?.replace('Đề xuất:** ', '').replace('Đề xuất:**', '') || '';
-  const legalBasis = contentParts.find((p) => p.startsWith('Căn cứ:**'))?.replace('Căn cứ:** ', '').replace('Căn cứ:**', '') || '';
-
   return (
     <FloatingPortal>
       <div
@@ -129,22 +124,7 @@ export function AiIssuePopup({
 
         {/* Content */}
         <div className="ai-issue-popup-body">
-          {issue && <p className="ai-issue-popup-issue">{issue}</p>}
-          {recommendation && (
-            <div className="ai-issue-popup-section">
-              <strong>Đề xuất:</strong>
-              <p>{recommendation}</p>
-            </div>
-          )}
-          {legalBasis && (
-            <div className="ai-issue-popup-section">
-              <strong>Căn cứ pháp lý:</strong>
-              <p>{legalBasis}</p>
-            </div>
-          )}
-          {!issue && !recommendation && !legalBasis && (
-            <p className="ai-issue-popup-issue">{annotation.content}</p>
-          )}
+          <AiAnnotationContent content={annotation.content} />
         </div>
 
         {/* Actions */}

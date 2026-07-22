@@ -19,7 +19,7 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     successTransitioned: 'Đã chuyển sang: {status}!',
   },
   RequestStatus: {
-    assigned: 'Đã phân công', in_progress: 'Đang xử lý', pending_review: 'Chờ kiểm tra',
+    assigned: 'Đã phân công', in_progress: 'Đang xử lý', pending_review: 'Chờ phê duyệt',
     revision_required: 'Cần sửa',
   },
 };

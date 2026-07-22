@@ -18,7 +18,7 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     successTransitioned: 'Đã chuyển sang: {status}!',
   },
   RequestStatus: {
-    approved: 'Đã duyệt', delivered: 'Đã bàn giao', closed: 'Đã đóng',
+    approved: 'Đã phê duyệt', delivered: 'Đã bàn giao', closed: 'Đã đóng',
   },
 };
 
@@ -62,7 +62,7 @@ describe('DeliveryDialog', () => {
       render(<DeliveryDialog request={approvedReq} onClose={vi.fn()} onSuccess={vi.fn()} />);
       expect(screen.getByText('Bàn giao / Đóng hồ sơ')).toBeInTheDocument();
       expect(screen.getByText(/REQ-001/)).toBeInTheDocument();
-      expect(screen.getByText('Đã duyệt')).toBeInTheDocument();
+      expect(screen.getByText('Đã phê duyệt')).toBeInTheDocument();
       expect(screen.getByText('Đã bàn giao')).toBeInTheDocument();
     });
 

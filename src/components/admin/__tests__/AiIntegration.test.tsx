@@ -23,7 +23,7 @@ vi.mock('next-intl', () => {
   const specialistMap: Record<string, string> = {
     statAssigned: 'Đã phân công',
     statInProgress: 'Đang xử lý',
-    statPendingReview: 'Chờ kiểm tra',
+    statPendingReview: 'Chờ phê duyệt',
     statRevision: 'Cần sửa',
     searchPlaceholder: 'Tìm kiếm...',
     filterAll: 'Tất cả',
@@ -52,8 +52,8 @@ vi.mock('next-intl', () => {
   };
 
   const reviewMap: Record<string, string> = {
-    statPending: 'Chờ KT',
-    statApproved: 'Đã duyệt',
+    statPending: 'Chờ PĐ',
+    statApproved: 'Đã phê duyệt',
     statRevision: 'Cần sửa',
     searchPlaceholder: 'Tìm kiếm...',
     loading: 'Đang tải...',

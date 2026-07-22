@@ -19,6 +19,7 @@ const DEFAULT_PROPS = {
   date: '15/07/2026',
   actionSlot: <button>Phân công</button>,
   onAiClick: vi.fn(),
+  showAiButton: true,
 };
 
 describe('RequestCard', () => {
@@ -152,6 +153,52 @@ describe('RequestCard', () => {
     it('uses default testId from code when testId not provided', () => {
       render(<RequestCard {...DEFAULT_PROPS} />);
       expect(screen.getByTestId('request-card-REQ-042')).toBeTruthy();
+    });
+  });
+
+  // ── AI button visibility ──
+  describe('showAiButton', () => {
+    it('hides AI button when showAiButton is false (default)', () => {
+      const { container } = render(
+        <RequestCard {...DEFAULT_PROPS} showAiButton={false} />,
+      );
+      expect(container.querySelector('.request-card-ai-btn')).toBeFalsy();
+    });
+
+    it('shows AI button when showAiButton is true', () => {
+      render(<RequestCard {...DEFAULT_PROPS} showAiButton />);
+      expect(screen.getByTestId('request-card-ai-REQ-042')).toBeTruthy();
+    });
+
+    it('does not render AI button by default (showAiButton defaults to false)', () => {
+      const propsWithoutShowAi = { ...DEFAULT_PROPS };
+      delete (propsWithoutShowAi as any).showAiButton;
+      const { container } = render(<RequestCard {...propsWithoutShowAi} />);
+      expect(container.querySelector('.request-card-ai-btn')).toBeFalsy();
+    });
+  });
+
+  // ── File count always visible ──
+  describe('file count', () => {
+    it('shows file count 0 when stats are empty', () => {
+      render(<RequestCard {...DEFAULT_PROPS} stats={{ fileCount: 0, annotationCount: 0, annotationResolved: 0 }} />);
+      const fileStat = screen.getByTestId('request-card-ai-REQ-042')
+        .closest('.request-card-footer')!
+        .querySelector('.request-card-stat')!;
+      expect(fileStat.textContent).toContain('0');
+    });
+
+    it('shows file count when stats are provided', () => {
+      render(<RequestCard {...DEFAULT_PROPS} stats={{ fileCount: 5, annotationCount: 3, annotationResolved: 1 }} />);
+      const footer = document.querySelector('.request-card-stats')!;
+      expect(footer.textContent).toContain('5');
+    });
+
+    it('shows annotation and resolved counts when present', () => {
+      render(<RequestCard {...DEFAULT_PROPS} stats={{ fileCount: 2, annotationCount: 4, annotationResolved: 2 }} />);
+      const footer = document.querySelector('.request-card-stats')!;
+      expect(footer.textContent).toContain('2');
+      expect(footer.textContent).toContain('4');
     });
   });
 });

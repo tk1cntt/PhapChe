@@ -286,10 +286,10 @@ export default async function AdminOrganizationActivityPage({ params }: PageProp
     const sla = getSlaStatus(req.slaDeadline);
     const statusMap: Record<string, { variant: string; text: string }> = {
       draft_intake: { variant: 'gray', text: 'Nháp' },
-      assigned: { variant: 'blue', text: 'Đã giao' },
+      assigned: { variant: 'purple', text: 'Đã phân công' },
       in_progress: { variant: 'orange', text: 'Đang xử lý' },
-      pending_review: { variant: 'purple', text: 'Chờ duyệt' },
-      approved: { variant: 'green', text: 'Đã duyệt' },
+      pending_review: { variant: 'purple', text: 'Chờ phê duyệt' },
+      approved: { variant: 'green', text: 'Đã phê duyệt' },
       delivered: { variant: 'green', text: 'Đã giao' },
       closed: { variant: 'gray', text: 'Đã đóng' },
       cancelled: { variant: 'gray', text: 'Đã hủy' },

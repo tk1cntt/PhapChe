@@ -18,7 +18,7 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     successReviewed: 'Đã kiểm duyệt: {status}!',
   },
   RequestStatus: {
-    pending_review: 'Chờ kiểm tra', approved: 'Đã duyệt', revision_required: 'Cần sửa',
+    pending_review: 'Chờ phê duyệt', approved: 'Đã phê duyệt', revision_required: 'Cần sửa',
   },
 };
 
@@ -58,7 +58,7 @@ describe('ReviewDialog', () => {
 
     it('shows approve decision by default', () => {
       render(<ReviewDialog request={baseReq} defaultAction="approve" onClose={vi.fn()} onSuccess={vi.fn()} />);
-      expect(screen.getByText('Đã duyệt')).toBeInTheDocument();
+      expect(screen.getByText('Đã phê duyệt')).toBeInTheDocument();
       // Confirm button shows "Duyệt"
       expect(screen.getByText('Duyệt')).toBeInTheDocument();
     });

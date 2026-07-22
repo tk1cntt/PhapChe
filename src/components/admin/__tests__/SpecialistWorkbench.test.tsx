@@ -5,7 +5,7 @@ import { SpecialistWorkbench } from '../SpecialistWorkbench';
 // Stable translator
 const TRANSLATIONS: Record<string, Record<string, string>> = {
   SpecialistWorkbench: {
-    statAssigned: 'Đã phân công', statInProgress: 'Đang xử lý', statPendingReview: 'Chờ kiểm tra',
+    statAssigned: 'Đã phân công', statInProgress: 'Đang xử lý', statPendingReview: 'Chờ phê duyệt',
     statRevision: 'Cần sửa', searchPlaceholder: 'Tìm theo mã, tiêu đề...', filterAll: 'Tất cả',
     loading: 'Đang tải...', retry: 'Thử lại', emptyTitle: 'Không có hồ sơ nào được gán',
     emptyDesc: 'Các hồ sơ được phân công sẽ hiển thị ở đây.',
@@ -17,7 +17,7 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     errorForbidden: 'Bạn không có quyền.', errorUnknown: 'Đã xảy ra lỗi.',
   },
   RequestStatus: {
-    assigned: 'Đã phân công', in_progress: 'Đang xử lý', pending_review: 'Chờ kiểm tra',
+    assigned: 'Đã phân công', in_progress: 'Đang xử lý', pending_review: 'Chờ phê duyệt',
     revision_required: 'Cần sửa', statusJustUpdated: 'Vừa cập nhật',
   },
   MatterTypes: { labor_contract: 'Soạn hợp đồng lao động' },

@@ -5,7 +5,7 @@ import { ReviewConsole } from '../ReviewConsole';
 // Stable translator
 const TRANSLATIONS: Record<string, Record<string, string>> = {
   ReviewConsole: {
-    statPending: 'Chờ kiểm tra', statApproved: 'Đã duyệt', statRevision: 'Cần sửa',
+    statPending: 'Chờ phê duyệt', statApproved: 'Đã phê duyệt', statRevision: 'Cần sửa',
     searchPlaceholder: 'Tìm theo mã, tiêu đề...', loading: 'Đang tải...',
     retry: 'Thử lại', emptyTitle: 'Không có hồ sơ nào cần kiểm tra',
     emptyDesc: 'Các hồ sơ chờ bạn kiểm tra sẽ hiển thị ở đây.',
@@ -25,7 +25,7 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     successReviewed: 'Đã kiểm duyệt: {status}!',
   },
   RequestStatus: {
-    pending_review: 'Chờ kiểm tra', approved: 'Đã duyệt', revision_required: 'Cần sửa',
+    pending_review: 'Chờ phê duyệt', approved: 'Đã phê duyệt', revision_required: 'Cần sửa',
   },
   MatterTypes: { labor_contract: 'Soạn hợp đồng lao động' },
 };

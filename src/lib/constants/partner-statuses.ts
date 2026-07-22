@@ -19,8 +19,8 @@ export type PartnerAllowedStatus = typeof PARTNER_ALLOWED_STATUSES[number];
 // Status display labels for UI
 export const PARTNER_STATUS_LABELS: Record<PartnerAllowedStatus, { vi: string; en: string }> = {
   [REQUEST_STATUS.IN_PROGRESS]: { vi: 'Đang xử lý', en: 'In Progress' },
-  [REQUEST_STATUS.PENDING_REVIEW]: { vi: 'Chờ duyệt', en: 'Pending Review' },
-  [REQUEST_STATUS.APPROVED]: { vi: 'Đã duyệt', en: 'Approved' },
+  [REQUEST_STATUS.PENDING_REVIEW]: { vi: 'Chờ phê duyệt', en: 'Pending Review' },
+  [REQUEST_STATUS.APPROVED]: { vi: 'Đã phê duyệt', en: 'Approved' },
   [REQUEST_STATUS.DELIVERED]: { vi: 'Đã giao', en: 'Delivered' },
 };
 
@@ -28,11 +28,11 @@ export const PARTNER_STATUS_LABELS: Record<PartnerAllowedStatus, { vi: string; e
 export const REQUEST_STATUS_LABELS: Record<string, string> = {
   [REQUEST_STATUS.DRAFT_INTAKE]: 'Bản nháp',
   [REQUEST_STATUS.TRIAGE]: 'Phân loại',
-  [REQUEST_STATUS.ASSIGNED]: 'Đã giao',
+  [REQUEST_STATUS.ASSIGNED]: 'Đã phân công',
   [REQUEST_STATUS.IN_PROGRESS]: 'Đang xử lý',
-  [REQUEST_STATUS.PENDING_REVIEW]: 'Chờ duyệt',
+  [REQUEST_STATUS.PENDING_REVIEW]: 'Chờ phê duyệt',
   [REQUEST_STATUS.REVISION_REQUIRED]: 'Cần sửa',
-  [REQUEST_STATUS.APPROVED]: 'Đã duyệt',
+  [REQUEST_STATUS.APPROVED]: 'Đã phê duyệt',
   [REQUEST_STATUS.DELIVERED]: 'Đã giao',
   [REQUEST_STATUS.CLOSED]: 'Đã đóng',
   [REQUEST_STATUS.CANCELLED]: 'Đã hủy',

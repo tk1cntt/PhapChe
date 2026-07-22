@@ -5,7 +5,7 @@ import { DeliveryConsole } from '../DeliveryConsole';
 // Stable translator
 const TRANSLATIONS: Record<string, Record<string, string>> = {
   DeliveryConsole: {
-    statApproved: 'Đã duyệt', statDelivered: 'Đã bàn giao', statClosed: 'Đã đóng',
+    statApproved: 'Đã phê duyệt', statDelivered: 'Đã bàn giao', statClosed: 'Đã đóng',
     searchPlaceholder: 'Tìm theo mã, tiêu đề...', filterAll: 'Tất cả',
     loading: 'Đang tải...', retry: 'Thử lại',
     emptyTitle: 'Không có hồ sơ nào', emptyDesc: 'Các hồ sơ đã duyệt.',
@@ -24,7 +24,7 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     successTransitioned: 'Đã chuyển sang: {status}!',
   },
   RequestStatus: {
-    approved: 'Đã duyệt', delivered: 'Đã bàn giao', closed: 'Đã đóng',
+    approved: 'Đã phê duyệt', delivered: 'Đã bàn giao', closed: 'Đã đóng',
   },
   MatterTypes: { labor_contract: 'Soạn hợp đồng lao động' },
 };

@@ -8,6 +8,7 @@
  */
 
 import React, { useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   useFloating,
   offset,
@@ -42,13 +43,13 @@ export interface AiIssuePopupProps {
 
 // ── Severity config ────────────────────────────────────────────
 
-const SEVERITY_CONFIG: Record<string, { icon: React.FC<{ size?: number; className?: string }>; label: string; color: string }> = {
-  critical: { icon: AlertCircle, label: 'Nghiêm trọng', color: '#ef4444' },
-  high: { icon: AlertTriangle, label: 'Cao', color: '#f59e0b' },
-  medium: { icon: Info, label: 'Trung bình', color: '#3b82f6' },
-  low: { icon: Info, label: 'Thấp', color: '#6b7280' },
-  info: { icon: Info, label: 'Thông tin', color: '#6b7280' },
-  warning: { icon: AlertTriangle, label: 'Cảnh báo', color: '#f59e0b' },
+const SEVERITY_CONFIG: Record<string, { icon: React.FC<{ size?: number; className?: string }>; color: string }> = {
+  critical: { icon: AlertCircle, color: '#ef4444' },
+  high: { icon: AlertTriangle, color: '#f59e0b' },
+  medium: { icon: Info, color: '#3b82f6' },
+  low: { icon: Info, color: '#6b7280' },
+  info: { icon: Info, color: '#6b7280' },
+  warning: { icon: AlertTriangle, color: '#f59e0b' },
 };
 
 // ── Component ──────────────────────────────────────────────────
@@ -72,6 +73,8 @@ export function AiIssuePopup({
       arrow({ element: arrowRef }),
     ],
   });
+
+  const t = useTranslations('ChatActivity');
 
   const handleAccept = useCallback(() => {
     if (annotation) onAccept?.(annotation);
@@ -99,24 +102,24 @@ export function AiIssuePopup({
         <div className="ai-issue-popup-header">
           <div className="ai-issue-popup-severity" style={{ color: sevConfig.color }}>
             <SevIcon size={16} />
-            <span>{sevConfig.label}</span>
+            <span>{t(`annotationSeverity${annotation.severity.charAt(0).toUpperCase() + annotation.severity.slice(1)}` as any)}</span>
           </div>
           {annotation.aiGenerated && (
             <div className="ai-issue-popup-ai-badge">
               <Sparkles size={12} />
-              <span>AI</span>
+              <span>{t('annotationAiBadge')}</span>
             </div>
           )}
           {annotation.aiConfidence !== undefined && (
             <div className="ai-issue-popup-confidence">
-              {(annotation.aiConfidence * 100).toFixed(0)}% tin cậy
+              {t('aiPopupConfidence', { pct: (annotation.aiConfidence * 100).toFixed(0) })}
             </div>
           )}
           <button
             type="button"
             className="ai-issue-popup-close"
             onClick={onClose}
-            title="Đóng"
+            title={t('aiPopupClose')}
           >
             <X size={14} />
           </button>
@@ -124,6 +127,11 @@ export function AiIssuePopup({
 
         {/* Content */}
         <div className="ai-issue-popup-body">
+          {annotation.position?.snippet && (
+            <blockquote className="ai-issue-popup-snippet">
+              {annotation.position.snippet}
+            </blockquote>
+          )}
           <AiAnnotationContent content={annotation.content} />
         </div>
 
@@ -136,7 +144,7 @@ export function AiIssuePopup({
               onClick={handleAccept}
             >
               <Check size={14} />
-              Chấp nhận
+              {t('aiAccept')}
             </button>
             <button
               type="button"
@@ -144,7 +152,7 @@ export function AiIssuePopup({
               onClick={handleDismiss}
             >
               <X size={14} />
-              Bỏ qua
+              {t('aiDismiss')}
             </button>
           </div>
         )}

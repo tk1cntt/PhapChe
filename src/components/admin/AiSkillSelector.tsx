@@ -111,6 +111,11 @@ const SKILL_LABELS: Record<AgentSkill, { label: string; desc: string; domain: Le
     desc: 'Tìm quy định, án lệ, phân tích',
     domain: 'legal-clinic',
   },
+  'document-issue-analyzer': {
+    label: 'Phân tích tài liệu',
+    desc: 'Phát hiện vấn đề pháp lý trong tài liệu',
+    domain: 'commercial-legal',
+  },
 };
 
 // ── Component ────────────────────────────────────────────────

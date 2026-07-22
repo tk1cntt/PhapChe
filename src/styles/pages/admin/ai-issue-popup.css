@@ -73,6 +73,24 @@
   padding: 10px 12px;
 }
 
+.ai-issue-popup-snippet {
+  margin: 0 0 8px 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--color-text-muted, #6b7280);
+  background: var(--color-bg, #f9fafb);
+  border-left: 3px solid var(--color-border, #d1d5db);
+  border-radius: 0 var(--radius-sm, 4px) var(--radius-sm, 4px) 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
 .ai-issue-popup-actions {
   display: flex;
   gap: 8px;

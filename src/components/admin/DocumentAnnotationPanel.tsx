@@ -341,7 +341,7 @@ export function DocumentAnnotationPanel({
                   {ann.aiGenerated && (
                     <span className="annotation-item-ai-badge">
                       <Sparkles size={10} />
-                      AI
+                      {t('annotationAiBadge')}
                     </span>
                   )}
                   <span className="annotation-item-category">
@@ -349,21 +349,26 @@ export function DocumentAnnotationPanel({
                   </span>
                   {ann.aiConfidence !== undefined && (
                     <span className="annotation-item-confidence">
-                      {(ann.aiConfidence * 100).toFixed(0)}%
+                      {t('annotationConfidence', { pct: (ann.aiConfidence * 100).toFixed(0) })}
                     </span>
                   )}
                   {ann.position?.line && (
                     <span className="annotation-item-line">
-                      📍 dòng {ann.position.line}
+                      {t('annotationLine', { line: ann.position.line })}
                     </span>
                   )}
                   <span className="annotation-item-author">
                     {ann.authorName}
                   </span>
                   <span className="annotation-item-time">
-                    {new Date(ann.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(ann.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
+                {ann.position?.snippet && (
+                  <blockquote className="annotation-item-snippet">
+                    {ann.position.snippet}
+                  </blockquote>
+                )}
                 <div className="annotation-item-content">
                   {ann.aiGenerated ? (
                     <AiAnnotationContent content={ann.content} compact />
@@ -378,7 +383,7 @@ export function DocumentAnnotationPanel({
                         type="button"
                         className="annotation-item-action accept"
                         onClick={() => handleResolve(ann)}
-                        title="Chấp nhận AI finding"
+                        title={t('annotationAcceptTitle')}
                       >
                         <Check size={12} />
                       </button>
@@ -386,7 +391,7 @@ export function DocumentAnnotationPanel({
                         type="button"
                         className="annotation-item-action dismiss"
                         onClick={() => handleDelete(ann)}
-                        title="Bỏ qua AI finding"
+                        title={t('annotationDismissTitle')}
                       >
                         <X size={12} />
                       </button>

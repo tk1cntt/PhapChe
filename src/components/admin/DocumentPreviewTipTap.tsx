@@ -212,7 +212,7 @@ export function DocumentPreviewTipTap({
   // Expose the annotation map so external code can read it
   // (used by AiIssuePopup for line-at-click lookup)
   if (typeof window !== 'undefined') {
-    (window as Record<string, unknown>).__tiptapAnnotationMap = annMapRef.current;
+    (window as unknown as Record<string, unknown>).__tiptapAnnotationMap = annMapRef.current;
   }
 
   return (

@@ -17,7 +17,7 @@ export interface AiAnnotationContentProps {
   compact?: boolean;
 }
 
-const SECTION_META: Record<string, { icon: React.FC<{ size?: number }>; cssClass: string }> = {
+const SECTION_META: Record<string, { icon: React.FC<{ size?: number; className?: string }>; cssClass: string }> = {
   'Vấn đề':          { icon: AlertCircle, cssClass: 'ai-section--issue' },
   'Issue':           { icon: AlertCircle, cssClass: 'ai-section--issue' },
   'Đề xuất':          { icon: Lightbulb,   cssClass: 'ai-section--recommendation' },

@@ -79,15 +79,41 @@ export async function PATCH(
       },
     });
 
+    // ── Audit events for assignment actions ──
+    const auditEvents: Array<{ action: string; metadataSummary: string }> = [];
+
     if (specialistId && !existingRequest.assignedSpecialistId) {
       await prisma.requestAssignment.create({
         data: { requestId: existingRequest.id, userId: specialistId, kind: 'specialist', createdById: session.userId },
+      });
+      auditEvents.push({
+        action: 'request.assigned',
+        metadataSummary: `Phân công chuyên viên: ${updatedRequest.assignedSpecialist?.name ?? specialistId}`,
       });
     }
 
     if (reviewerId && !existingRequest.assignedReviewerId) {
       await prisma.requestAssignment.create({
         data: { requestId: existingRequest.id, userId: reviewerId, kind: 'reviewer', createdById: session.userId },
+      });
+      auditEvents.push({
+        action: 'request.assigned',
+        metadataSummary: `Phân công người kiểm duyệt: ${updatedRequest.assignedReviewer?.name ?? reviewerId}`,
+      });
+    }
+
+    // Ghi audit log cho tất cả assignment actions
+    for (const evt of auditEvents) {
+      await prisma.auditEvent.create({
+        data: {
+          actorId: session.userId,
+          workspaceId: existingRequest.workspaceId,
+          action: evt.action,
+          targetType: 'request',
+          targetId: existingRequest.id,
+          requestId: existingRequest.id,
+          metadataSummary: evt.metadataSummary,
+        },
       });
     }
 

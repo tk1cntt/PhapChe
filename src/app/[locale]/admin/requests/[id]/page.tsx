@@ -1,10 +1,12 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { FormattedDate } from '@/components/shared/ui/FormattedDate';
+import { RequestTimeline } from '@/components/admin/RequestTimeline';
 import '@/styles/pages/admin/requests.css';
+import '@/styles/pages/admin/request-timeline.css';
 
 interface RequestDetail {
   id: string;
@@ -56,6 +58,7 @@ export default function AdminRequestDetailPage() {
   const [request, setRequest] = useState<RequestDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
 
   const statusLabels: Record<string, string> = {
     draft_intake: t('statusDraft'),
@@ -167,7 +170,7 @@ export default function AdminRequestDetailPage() {
           </button>
 
           <div className="top-actions">
-            <button className="ghost-btn">
+            <button className="ghost-btn" onClick={() => timelineRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
               <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
@@ -339,6 +342,38 @@ export default function AdminRequestDetailPage() {
                 </div>
               </div>
             )}
+
+            {/* Traceability Timeline */}
+            <div ref={timelineRef} className="detail-card">
+              <div className="detail-card-header">
+                <div className="detail-card-title">
+                  <div className="card-icon purple">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2>{t('timelineTitle')}</h2>
+                    <div className="card-subtitle">{t('metadataSubtitle')}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="detail-card-body">
+                <RequestTimeline
+                  requestId={requestId}
+                  labels={{
+                    title: t('timelineTitle'),
+                    empty: t('timelineEmpty'),
+                    loading: t('timelineLoading'),
+                    error: t('timelineError'),
+                    retry: t('timelineRetry'),
+                    specialist: t('timelineSpecialist'),
+                    reviewer: t('timelineReviewer'),
+                    unassigned: t('timelineUnassigned'),
+                  }}
+                />
+              </div>
+            </div>
           </main>
 
           {/* Side Column */}

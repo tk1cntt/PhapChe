@@ -1,0 +1,174 @@
+/* ── Request Timeline ─────────────────────────────────────────── */
+
+.request-timeline {
+  position: relative;
+  display: grid;
+  gap: 16px;
+}
+
+.request-timeline::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--color-border, #e2e8f0);
+}
+
+.request-timeline-item {
+  position: relative;
+  padding-left: 36px;
+}
+
+.request-timeline-dot {
+  position: absolute;
+  left: 4px;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid;
+  z-index: 2;
+  background: var(--color-surface, #fff);
+}
+
+.request-timeline-dot--status_change {
+  border-color: var(--color-purple, #722ed1);
+  background: #f3e8ff;
+}
+
+.request-timeline-dot--assignment {
+  border-color: var(--color-blue, #1677ff);
+  background: #e6f0ff;
+}
+
+.request-timeline-dot--audit {
+  border-color: var(--color-slate, #64748b);
+  background: #f1f5f9;
+}
+
+.request-timeline-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.request-timeline-actor {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text, #1e293b);
+}
+
+.request-timeline-detail {
+  font-size: 13px;
+  color: var(--color-text, #1e293b);
+  line-height: 1.5;
+}
+
+.request-timeline-note {
+  font-size: 12px;
+  color: var(--color-text-muted, #64748b);
+  font-style: italic;
+  margin-top: 1px;
+}
+
+.request-timeline-time {
+  font-size: 11px;
+  color: var(--color-text-muted, #94a3b8);
+  margin-top: 2px;
+}
+
+/* ── Current assignment row ── */
+
+.request-timeline-current {
+  display: flex;
+  gap: 24px;
+  padding: 12px 16px;
+  background: var(--color-surface-alt, #f8fafc);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 1px solid var(--color-border, #e2e8f0);
+}
+
+.request-timeline-current-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.request-timeline-current-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted, #94a3b8);
+  font-weight: 600;
+}
+
+.request-timeline-current-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text, #1e293b);
+}
+
+.request-timeline-current-value--empty {
+  color: var(--color-text-muted, #94a3b8);
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* ── States ── */
+
+.request-timeline-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 20px;
+}
+
+.request-timeline-skeleton {
+  height: 40px;
+  background: var(--color-skeleton, #e2e8f0);
+  border-radius: 6px;
+  animation: request-timeline-pulse 1.5s ease-in-out infinite;
+}
+
+.request-timeline-skeleton:nth-child(2) { width: 85%; }
+.request-timeline-skeleton:nth-child(3) { width: 60%; }
+
+@keyframes request-timeline-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.request-timeline-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--color-text-muted, #94a3b8);
+  font-size: 13px;
+}
+
+.request-timeline-error {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--color-danger, #dc2626);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.request-timeline-retry-btn {
+  font-size: 12px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 4px;
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #1e293b);
+  cursor: pointer;
+}
+
+.request-timeline-retry-btn:hover {
+  background: var(--color-surface-alt, #f8fafc);
+}

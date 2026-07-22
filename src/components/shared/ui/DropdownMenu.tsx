@@ -62,7 +62,7 @@ export function DropdownMenu({
   return (
     <div
       ref={containerRef}
-      style={{ position: 'relative', display: 'inline-block' }}
+      className="dropdown-container"
       onClick={handleTriggerClick}
     >
       <span className="dropdown-trigger">{children}</span>

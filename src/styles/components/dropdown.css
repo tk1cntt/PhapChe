@@ -3,6 +3,11 @@
  * Custom dropdown menu — replaces Ant Design Dropdown.
  */
 
+.dropdown-container {
+  position: relative;
+  display: block; /* ensure full-width click target in any parent */
+}
+
 .dropdown-trigger {
   cursor: pointer;
   user-select: none;

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useState, useEffect, useCallback } from 'react';
 import { DropdownMenu } from '@/components/shared/ui/DropdownMenu';
 import type { DropdownItem } from '@/components/shared/ui/DropdownMenu';
 import { signOut } from '@/lib/auth-client';
@@ -36,6 +37,21 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
   const t = useTranslations('AdminNav');
   const tCommon = useTranslations('Common');
   const tHelp = useTranslations('AdminNav');
+
+  // Sidebar collapsed state — persists to localStorage
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    const stored = localStorage.getItem('sidebar-collapsed');
+    if (stored === 'true') setCollapsed(true);
+  }, []);
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('sidebar-collapsed', String(next));
+      return next;
+    });
+  }, []);
 
   const safeRoles: string[] = userRoles ?? [];
   const hasAccess = (roles: readonly string[] | null): boolean => {
@@ -211,7 +227,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
   ];
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${collapsed ? ' collapsed' : ''}`}>
       <div>
         {/* Brand */}
         <div className="brand">
@@ -226,9 +242,10 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
               key={item.key}
               href={item.href}
               className={`nav-item ${isActive(item.href) ? 'active' : ''}`}
+              data-label={item.label}
             >
               {item.icon}
-              {item.label}
+              <span className="nav-item-label">{item.label}</span>
             </Link>
           ))}
         </nav>
@@ -258,6 +275,19 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
             </svg>
           </div>
         </DropdownMenu>
+
+        {/* Toggle collapse/expand */}
+        <button
+          type="button"
+          className="sidebar-toggle"
+          onClick={toggleCollapsed}
+          title={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="m11 19-7-7 7-7"/>
+            <path d="m18 19-7-7 7-7"/>
+          </svg>
+        </button>
       </div>
     </aside>
   );

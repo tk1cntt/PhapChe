@@ -227,6 +227,11 @@ export function DeliveryConsole() {
                   const locale = window.location.pathname.split('/')[1] || 'vi';
                   window.location.href = `/${locale}/admin/requests/${req.id}/chat`;
                 }}
+                stats={{
+                  fileCount: (req as any).fileCount ?? 0,
+                  annotationCount: (req as any).annotationCount ?? 0,
+                  annotationResolved: (req as any).annotationResolved ?? 0,
+                }}
               />
             );
           })}

@@ -60,6 +60,17 @@ export async function GET(request: NextRequest) {
       prisma.legalRequest.count({ where: { assignedReviewerId: session.userId, status: 'revision_required' } }),
     ]);
 
+    // ── Document + annotation stats ──
+    const requestIds = requests.map(r => r.id);
+    const [fileCounts, annotationCounts, annotationResolvedCounts] = await Promise.all([
+      prisma.file.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds } }, _count: { id: true } }),
+      prisma.documentAnnotation.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds } }, _count: { id: true } }),
+      prisma.documentAnnotation.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds }, status: 'resolved' }, _count: { id: true } }),
+    ]);
+    const fileCountMap    = Object.fromEntries(fileCounts.map(f => [f.requestId, f._count.id]));
+    const annCountMap      = Object.fromEntries(annotationCounts.map(a => [a.requestId, a._count.id]));
+    const annResolvedMap   = Object.fromEntries(annotationResolvedCounts.map(a => [a.requestId, a._count.id]));
+
     const data = requests.map(r => ({
       id: r.id,
       code: r.code ?? `REQ-${r.id.slice(-6)}`,
@@ -76,6 +87,9 @@ export async function GET(request: NextRequest) {
       specialistName: r.assignedSpecialist?.name ?? null,
       createdAt: r.createdAt.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
+      fileCount: fileCountMap[r.id] ?? 0,
+      annotationCount: annCountMap[r.id] ?? 0,
+      annotationResolved: annResolvedMap[r.id] ?? 0,
     }));
 
     return NextResponse.json({

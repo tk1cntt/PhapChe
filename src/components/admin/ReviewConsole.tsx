@@ -69,7 +69,7 @@ export function ReviewConsole() {
       params.set('pageSize', '10');
       if (search) params.set('search', search);
 
-      const res = await fetch(`/api/partner/requests/pending-review?${params}`);
+      const res = await fetch(`/api/admin/requests/pending-review?${params}`);
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
           setError(t('errorForbidden'));
@@ -221,6 +221,11 @@ export function ReviewConsole() {
                   router.push(`/${locale}/admin/requests/${req.id}/chat`);
                 }}
                 aiTooltip={t('btnAiAssist') ?? 'AI Assistant'}
+                stats={{
+                  fileCount: (req as any).fileCount ?? 0,
+                  annotationCount: (req as any).annotationCount ?? 0,
+                  annotationResolved: (req as any).annotationResolved ?? 0,
+                }}
                 testId={`review-card-${req.id}`}
               />
             );

@@ -29,18 +29,18 @@ export async function GET(request: NextRequest) {
     const pageSize = Math.min(50, Math.max(5, parseInt(searchParams.get('pageSize') || '10', 10)));
     const skip = (page - 1) * pageSize;
 
-    // Find requests pending triage: status = draft_intake or triage
-    // After v2.3: organizationId is NOT NULL, triage is about assignment, not org matching
+    // Find requests pending triage: only status = triage
+    // draft_intake excluded — user is still drafting, not ready for admin
     const total = await prisma.legalRequest.count({
       where: {
-        status: { in: ['draft_intake', 'triage'] },
+        status: 'triage',
       },
     });
 
     // Find requests that need triage
     const triageRequests = await prisma.legalRequest.findMany({
       where: {
-        status: { in: ['draft_intake', 'triage'] },
+        status: 'triage',
       },
       include: {
         workspace: {
@@ -57,6 +57,17 @@ export async function GET(request: NextRequest) {
       skip,
       take: pageSize,
     });
+
+    // ── Document + annotation stats for all returned requests ──
+    const requestIds = triageRequests.map(r => r.id);
+    const [fileCounts, annotationCounts, annotationResolvedCounts] = await Promise.all([
+      prisma.file.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds } }, _count: { id: true } }),
+      prisma.documentAnnotation.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds } }, _count: { id: true } }),
+      prisma.documentAnnotation.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds }, status: 'resolved' }, _count: { id: true } }),
+    ]);
+    const fileCountMap = Object.fromEntries(fileCounts.map(f => [f.requestId, f._count.id]));
+    const annotationCountMap = Object.fromEntries(annotationCounts.map(a => [a.requestId, a._count.id]));
+    const annotationResolvedMap = Object.fromEntries(annotationResolvedCounts.map(a => [a.requestId, a._count.id]));
 
     // Transform to triage format
     const triageCases = triageRequests.map((req, index) => {
@@ -83,6 +94,9 @@ export async function GET(request: NextRequest) {
         assignedSpecialistName: null,
         assignedReviewerId: null,
         assignedReviewerName: null,
+        fileCount: fileCountMap[req.id] ?? 0,
+        annotationCount: annotationCountMap[req.id] ?? 0,
+        annotationResolved: annotationResolvedMap[req.id] ?? 0,
       };
     });
 

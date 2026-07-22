@@ -1,20 +1,23 @@
 /**
- * Delivery Console API
- * GET /api/admin/requests/delivery
+ * Specialist Workbench API — unified under /api/admin/requests/my-work
+ * GET /api/admin/requests/my-work
  *
- * Returns legal requests at approved/delivered status for coordinator delivery management.
+ * Returns legal requests assigned to the current specialist (active work only).
+ * Excludes: draft_intake, triage, approved, delivered, closed, cancelled
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
+
 export async function GET(request: NextRequest) {
   try {
     const session = await requireAppSession();
 
-    const isCoordinator = session.roles?.includes('coordinator_admin');
-    const isAdmin = session.roles?.some(r => ['super_admin'].includes(r));
+    // Specialists + admins
+    const isSpecialist = session.roles?.includes('specialist');
+    const isAdmin = session.roles?.some((r: string) => ['super_admin', 'coordinator_admin'].includes(r));
 
-    if (!isCoordinator && !isAdmin) {
+    if (!isSpecialist && !isAdmin) {
       return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
     }
 
@@ -25,9 +28,17 @@ export async function GET(request: NextRequest) {
     const statusFilter = searchParams.get('status') || '';
     const search = searchParams.get('search') || '';
 
+    // Active work only: exclude intake, triage, finished, and cancelled
+    const EXCLUDED_STATUSES = ['draft_intake', 'triage', 'pending_review', 'approved', 'delivered', 'closed', 'cancelled'];
+
     const where: Record<string, unknown> = {
-      status: statusFilter || { in: ['approved', 'delivered', 'closed'] },
+      ...(isSpecialist && !isAdmin ? { assignedSpecialistId: session.userId } : {}),
+      status: { notIn: EXCLUDED_STATUSES },
     };
+
+    if (statusFilter) {
+      where.status = statusFilter;
+    }
 
     if (search) {
       where.OR = [
@@ -44,35 +55,39 @@ export async function GET(request: NextRequest) {
         include: {
           workspace: { select: { id: true, name: true, slug: true } },
           createdBy: { select: { id: true, name: true, email: true } },
-          assignedSpecialist: { select: { id: true, name: true } },
           assignedReviewer: { select: { id: true, name: true } },
           intakeSubmission: { select: { id: true, matterTypeKey: true } },
         },
-        orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
+        orderBy: [{ priority: 'asc' }, { updatedAt: 'desc' }],
         skip,
         take: pageSize,
       }),
     ]);
 
-    // Stats
-    const [approvedCount, deliveredCount, closedCount] = await Promise.all([
-      prisma.legalRequest.count({ where: { status: 'approved' } }),
-      prisma.legalRequest.count({ where: { status: 'delivered' } }),
-      prisma.legalRequest.count({ where: { status: 'closed' } }),
-    ]);
+    // Stats: count per active status
+    const activeStatuses = ['assigned', 'in_progress', 'revision_required'] as const;
+    const statsQueries = activeStatuses.map((s) =>
+      prisma.legalRequest.count({
+        where: {
+          ...(isSpecialist && !isAdmin ? { assignedSpecialistId: session.userId } : {}),
+          status: s,
+        },
+      }),
+    );
+    const [assignedCount, inProgressCount, revisionCount] = await Promise.all(statsQueries);
 
     // ── Document + annotation stats ──
-    const requestIds = requests.map(r => r.id);
+    const requestIds = requests.map((r) => r.id);
     const [fileCounts, annotationCounts, annotationResolvedCounts] = await Promise.all([
       prisma.file.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds } }, _count: { id: true } }),
       prisma.documentAnnotation.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds } }, _count: { id: true } }),
       prisma.documentAnnotation.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds }, status: 'resolved' }, _count: { id: true } }),
     ]);
-    const fileCountMap    = Object.fromEntries(fileCounts.map(f => [f.requestId, f._count.id]));
-    const annCountMap      = Object.fromEntries(annotationCounts.map(a => [a.requestId, a._count.id]));
-    const annResolvedMap   = Object.fromEntries(annotationResolvedCounts.map(a => [a.requestId, a._count.id]));
+    const fileCountMap = Object.fromEntries(fileCounts.map((f) => [f.requestId, f._count.id]));
+    const annCountMap = Object.fromEntries(annotationCounts.map((a) => [a.requestId, a._count.id]));
+    const annResolvedMap = Object.fromEntries(annotationResolvedCounts.map((a) => [a.requestId, a._count.id]));
 
-    const data = requests.map(r => ({
+    const data = requests.map((r) => ({
       id: r.id,
       code: r.code ?? `REQ-${r.id.slice(-6)}`,
       title: r.title,
@@ -85,7 +100,6 @@ export async function GET(request: NextRequest) {
       matterTypeKey: r.intakeSubmission?.matterTypeKey ?? null,
       status: r.status,
       priority: r.priority ?? 'MEDIUM',
-      specialistName: r.assignedSpecialist?.name ?? null,
       reviewerName: r.assignedReviewer?.name ?? null,
       createdAt: r.createdAt.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
@@ -96,14 +110,18 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data,
-      stats: { approved: approvedCount, delivered: deliveredCount, closed: closedCount },
+      stats: {
+        assigned: assignedCount,
+        inProgress: inProgressCount,
+        revisionRequired: revisionCount,
+      },
       total,
       page,
       pageSize,
       totalPages: Math.ceil(total / pageSize),
     });
   } catch (error) {
-    console.error('Delivery API error:', error);
+    console.error('Specialist my-work error:', error);
     return NextResponse.json({ error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }

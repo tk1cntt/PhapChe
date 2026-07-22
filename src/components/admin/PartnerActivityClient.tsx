@@ -162,11 +162,11 @@ const STATUS_COLORS: Record<string, string> = {
 
 const STATUS_LABELS: Record<string, string> = {
   draft_intake: 'Nháp',
-  assigned: 'Đã giao',
+  assigned: 'Đã phân công',
   in_progress: 'Đang xử lý',
-  pending_review: 'Chờ duyệt',
+  pending_review: 'Chờ phê duyệt',
   revision_required: 'Cần sửa',
-  approved: 'Đã duyệt',
+  approved: 'Đã phê duyệt',
   delivered: 'Hoàn tất',
   closed: 'Đã đóng',
   cancelled: 'Đã hủy',

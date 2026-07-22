@@ -742,10 +742,10 @@ export default function AdminRequestsClient() {
                 <select value={filters.status} onChange={(e) => handleFilterChange('status', e.target.value)}>
                   <option value="">{t('allStatuses') || 'Tất cả trạng thái'}</option>
                   <option value="draft_intake">Nháp</option>
-                  <option value="assigned">Đã giao partner</option>
+                  <option value="assigned">Đã phân công</option>
                   <option value="in_progress">Đang xử lý</option>
-                  <option value="pending_review">Chờ review</option>
-                  <option value="approved">Đã duyệt</option>
+                  <option value="pending_review">Chờ phê duyệt</option>
+                  <option value="approved">Đã phê duyệt</option>
                   <option value="delivered">Đã giao</option>
                   <option value="closed">Đã đóng</option>
                 </select>

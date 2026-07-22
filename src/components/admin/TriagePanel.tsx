@@ -23,6 +23,9 @@ interface TriageRequest {
   priority: string;
   date: string;
   hasAnswers: boolean;
+  fileCount?: number;
+  annotationCount?: number;
+  annotationResolved?: number;
 }
 
 interface StaffMember {
@@ -239,6 +242,11 @@ export function TriagePanel() {
                   router.push(`/${locale}/admin/requests/${req.id}/chat`);
                 }}
                 aiTooltip={t('btnAiAssist') ?? 'AI Assistant'}
+                stats={{
+                  fileCount: (req as any).fileCount ?? 0,
+                  annotationCount: (req as any).annotationCount ?? 0,
+                  annotationResolved: (req as any).annotationResolved ?? 0,
+                }}
               />
             );
           })}

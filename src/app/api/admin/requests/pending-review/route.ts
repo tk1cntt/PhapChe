@@ -1,8 +1,8 @@
 /**
- * Delivery Console API
- * GET /api/admin/requests/delivery
+ * Reviewer Console API — unified under /api/admin/requests/pending-review
+ * GET /api/admin/requests/pending-review
  *
- * Returns legal requests at approved/delivered status for coordinator delivery management.
+ * Returns legal requests at pending_review status assigned to the current reviewer.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
@@ -11,10 +11,10 @@ export async function GET(request: NextRequest) {
   try {
     const session = await requireAppSession();
 
-    const isCoordinator = session.roles?.includes('coordinator_admin');
-    const isAdmin = session.roles?.some(r => ['super_admin'].includes(r));
+    const isReviewer = session.roles?.includes('reviewer');
+    const isAdmin = session.roles?.some((r: string) => ['super_admin', 'coordinator_admin'].includes(r));
 
-    if (!isCoordinator && !isAdmin) {
+    if (!isReviewer && !isAdmin) {
       return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
     }
 
@@ -22,11 +22,11 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
     const pageSize = Math.min(50, Math.max(5, parseInt(searchParams.get('pageSize') || '10', 10)));
     const skip = (page - 1) * pageSize;
-    const statusFilter = searchParams.get('status') || '';
     const search = searchParams.get('search') || '';
 
     const where: Record<string, unknown> = {
-      status: statusFilter || { in: ['approved', 'delivered', 'closed'] },
+      ...(isReviewer && !isAdmin ? { assignedReviewerId: session.userId } : {}),
+      status: 'pending_review',
     };
 
     if (search) {
@@ -45,34 +45,34 @@ export async function GET(request: NextRequest) {
           workspace: { select: { id: true, name: true, slug: true } },
           createdBy: { select: { id: true, name: true, email: true } },
           assignedSpecialist: { select: { id: true, name: true } },
-          assignedReviewer: { select: { id: true, name: true } },
           intakeSubmission: { select: { id: true, matterTypeKey: true } },
         },
-        orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
+        orderBy: [{ priority: 'asc' }, { updatedAt: 'desc' }],
         skip,
         take: pageSize,
       }),
     ]);
 
     // Stats
-    const [approvedCount, deliveredCount, closedCount] = await Promise.all([
-      prisma.legalRequest.count({ where: { status: 'approved' } }),
-      prisma.legalRequest.count({ where: { status: 'delivered' } }),
-      prisma.legalRequest.count({ where: { status: 'closed' } }),
+    const reviewWhere = isReviewer && !isAdmin ? { assignedReviewerId: session.userId } : {};
+    const [pendingCount, approvedCount, revisionCount] = await Promise.all([
+      prisma.legalRequest.count({ where: { ...reviewWhere, status: 'pending_review' } }),
+      prisma.legalRequest.count({ where: { ...reviewWhere, status: 'approved' } }),
+      prisma.legalRequest.count({ where: { ...reviewWhere, status: 'revision_required' } }),
     ]);
 
     // ── Document + annotation stats ──
-    const requestIds = requests.map(r => r.id);
+    const requestIds = requests.map((r) => r.id);
     const [fileCounts, annotationCounts, annotationResolvedCounts] = await Promise.all([
       prisma.file.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds } }, _count: { id: true } }),
       prisma.documentAnnotation.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds } }, _count: { id: true } }),
       prisma.documentAnnotation.groupBy({ by: ['requestId'], where: { requestId: { in: requestIds }, status: 'resolved' }, _count: { id: true } }),
     ]);
-    const fileCountMap    = Object.fromEntries(fileCounts.map(f => [f.requestId, f._count.id]));
-    const annCountMap      = Object.fromEntries(annotationCounts.map(a => [a.requestId, a._count.id]));
-    const annResolvedMap   = Object.fromEntries(annotationResolvedCounts.map(a => [a.requestId, a._count.id]));
+    const fileCountMap = Object.fromEntries(fileCounts.map((f) => [f.requestId, f._count.id]));
+    const annCountMap = Object.fromEntries(annotationCounts.map((a) => [a.requestId, a._count.id]));
+    const annResolvedMap = Object.fromEntries(annotationResolvedCounts.map((a) => [a.requestId, a._count.id]));
 
-    const data = requests.map(r => ({
+    const data = requests.map((r) => ({
       id: r.id,
       code: r.code ?? `REQ-${r.id.slice(-6)}`,
       title: r.title,
@@ -86,7 +86,6 @@ export async function GET(request: NextRequest) {
       status: r.status,
       priority: r.priority ?? 'MEDIUM',
       specialistName: r.assignedSpecialist?.name ?? null,
-      reviewerName: r.assignedReviewer?.name ?? null,
       createdAt: r.createdAt.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
       fileCount: fileCountMap[r.id] ?? 0,
@@ -96,14 +95,14 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data,
-      stats: { approved: approvedCount, delivered: deliveredCount, closed: closedCount },
+      stats: { pending: pendingCount, approved: approvedCount, revisionRequired: revisionCount },
       total,
       page,
       pageSize,
       totalPages: Math.ceil(total / pageSize),
     });
   } catch (error) {
-    console.error('Delivery API error:', error);
+    console.error('Pending-review API error:', error);
     return NextResponse.json({ error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }

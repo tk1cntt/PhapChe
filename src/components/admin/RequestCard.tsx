@@ -1,10 +1,16 @@
 'use client';
 
-import { Sparkles } from 'lucide-react';
+import { Sparkles, FileText, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export interface RequestCardStyle {
   bg: string;
   color: string;
+}
+
+export interface RequestCardStats {
+  fileCount: number;
+  annotationCount: number;
+  annotationResolved: number;
 }
 
 export interface RequestCardProps {
@@ -27,6 +33,10 @@ export interface RequestCardProps {
   /** AI button tooltip */
   aiTooltip?: string;
   testId?: string;
+  /** Document & annotation stats */
+  stats?: RequestCardStats;
+  /** Show AI button — chỉ hiện với assigned / in_progress / revision_required */
+  showAiButton?: boolean;
 }
 
 const Badge: React.FC<{ label: string; style: RequestCardStyle }> = ({ label, style }) => (
@@ -52,7 +62,13 @@ export default function RequestCard({
   onAiClick,
   aiTooltip,
   testId,
+  stats,
+  showAiButton = false,
 }: RequestCardProps) {
+  const fileCount = stats?.fileCount ?? 0;
+  const annotationCount = stats?.annotationCount ?? 0;
+  const annotationResolved = stats?.annotationResolved ?? 0;
+
   return (
     <div className="request-card" data-testid={testId ?? `request-card-${code}`}>
       {/* ── Header: code + badges ── */}
@@ -81,21 +97,43 @@ export default function RequestCard({
         </div>
       )}
 
-      {/* ── Footer: date + actions ── */}
+      {/* ── Footer: stats + date | actions ── */}
       <div className="request-card-footer">
-        <span className="request-card-date">{date}</span>
+        <div className="request-card-footer-left">
+          <div className="request-card-stats">
+            <span className="request-card-stat" data-testid={testId ? `${testId}-file-count` : undefined}>
+              <FileText size={12} />
+              {fileCount}
+            </span>
+            {annotationCount > 0 && (
+              <span className="request-card-stat">
+                <AlertCircle size={12} />
+                {annotationCount}
+              </span>
+            )}
+            {annotationResolved > 0 && (
+              <span className="request-card-stat resolved">
+                <CheckCircle2 size={12} />
+                {annotationResolved}
+              </span>
+            )}
+          </div>
+          <span className="request-card-date">{date}</span>
+        </div>
         <div className="request-card-actions">
           {actionSlot}
-          <button
-            type="button"
-            className="request-card-ai-btn"
-            onClick={onAiClick}
-            title={aiTooltip ?? 'AI Assistant'}
-            data-testid={testId ? `${testId}-ai-btn` : `request-card-ai-${code}`}
-          >
-            <Sparkles size={13} />
-            AI
-          </button>
+          {showAiButton && (
+            <button
+              type="button"
+              className="request-card-ai-btn"
+              onClick={onAiClick}
+              title={aiTooltip ?? 'AI Assistant'}
+              data-testid={testId ? `${testId}-ai-btn` : `request-card-ai-${code}`}
+            >
+              <Sparkles size={13} />
+              AI
+            </button>
+          )}
         </div>
       </div>
     </div>

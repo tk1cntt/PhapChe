@@ -2362,6 +2362,9 @@
     "annotationSeverityInfo": "信息",
     "annotationSeverityWarning": "警告",
     "annotationSeverityCritical": "严重",
+    "annotationSeverityHigh": "高",
+    "annotationSeverityMedium": "中",
+    "annotationSeverityLow": "低",
     "annotationCategory": "类型",
     "annotationCategoryIssue": "问题",
     "annotationCategorySuggestion": "建议",
@@ -2394,6 +2397,13 @@
     "aiConfidence": "置信度",
     "aiAccept": "接受",
     "aiDismiss": "忽略",
-    "aiGenerated": "AI发现"
+    "aiGenerated": "AI发现",
+    "annotationLine": "📍 第{line}行",
+    "annotationConfidence": "{pct}%",
+    "annotationAcceptTitle": "标记为已处理",
+    "annotationDismissTitle": "忽略，不处理",
+    "annotationAiBadge": "AI",
+    "aiPopupClose": "关闭",
+    "aiPopupConfidence": "{pct}% 置信度"
   }
 }

@@ -2362,6 +2362,9 @@
     "annotationSeverityInfo": "情報",
     "annotationSeverityWarning": "警告",
     "annotationSeverityCritical": "重大",
+    "annotationSeverityHigh": "高",
+    "annotationSeverityMedium": "中",
+    "annotationSeverityLow": "低",
     "annotationCategory": "種類",
     "annotationCategoryIssue": "問題",
     "annotationCategorySuggestion": "提案",
@@ -2394,6 +2397,13 @@
     "aiConfidence": "信頼度",
     "aiAccept": "承認",
     "aiDismiss": "却下",
-    "aiGenerated": "AI検出"
+    "aiGenerated": "AI検出",
+    "annotationLine": "📍 {line}行目",
+    "annotationConfidence": "{pct}%",
+    "annotationAcceptTitle": "対応済みにする",
+    "annotationDismissTitle": "無視する",
+    "annotationAiBadge": "AI",
+    "aiPopupClose": "閉じる",
+    "aiPopupConfidence": "信頼度 {pct}%"
   }
 }

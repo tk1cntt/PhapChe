@@ -48,7 +48,10 @@ NGUYÊN TẮC QUAN TRỌNG:
 6. Nếu không tìm thấy vấn đề, trả về findings là mảng rỗng và overallRisk là "low"
 7. Ngôn ngữ output: {{locale}}
 8. Dòng được đánh số từ 1 (dòng đầu tiên của tài liệu)
-9. TRẢ VỀ DUY NHẤT JSON, không thêm bất kỳ text nào khác`,
+9. TRẢ VỀ DUY NHẤT JSON, không thêm bất kỳ text nào khác
+10. QUAN TRỌNG: Liệt kê TẤT CẢ vấn đề phát hiện được, không giới hạn số lượng. Phân tích từng điều khoản, từng đoạn một cách có hệ thống. Nếu tài liệu có 20 vấn đề, hãy liệt kê đủ 20. Đây là rà soát pháp lý toàn diện — bỏ sót vấn đề có thể gây hậu quả pháp lý nghiêm trọng.
+11. Với mỗi điều khoản trong tài liệu: kiểm tra tính hợp lệ, đối chiếu với quy định pháp luật Việt Nam, phát hiện điều khoản bất lợi, thiếu sót, mâu thuẫn.`,
+
   outputFormat: 'json_object',
   requiredVariables: ['documentContent', 'locale'],
 };

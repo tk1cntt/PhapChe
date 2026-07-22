@@ -22,7 +22,7 @@ import { splitMarkdownToLines, getLinesArray, fuzzyMatchPosition } from '@/lib/d
 import type { AgentSkill, SkillContext } from '@/lib/ai/types';
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
-const MAX_DOC_CHARS = 15000; // Truncate document for AI context window
+const MAX_DOC_CHARS = 40000; // Context window for AI — large enough for most legal docs
 
 function isRedirectErr(e: unknown): boolean {
   return e instanceof Error && 'NEXT_REDIRECT' === e.message;
@@ -73,7 +73,7 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
     for (let i = 1; i <= doc.numPages; i++) {
       const page = await doc.getPage(i);
       const textContent = await page.getTextContent();
-      const pageText = textContent.items
+      const pageText = (textContent.items as { str?: string }[])
         .map((item: { str?: string }) => item.str ?? '')
         .join(' ');
       pages.push(pageText);
@@ -85,15 +85,15 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
 }
 
 async function convertWithMarkItDownOrFallback(
-  buffer: Buffer,
+  filePath: string,
   mimeType: string | null,
   filename: string | null,
   _fileType: string,
   fallback: () => Promise<string>,
 ): Promise<{ content: string; usedMarkitdown: boolean }> {
-  if (isMarkItDownAvailable()) {
+  if (await isMarkItDownAvailable()) {
     try {
-      const result = await convertWithMarkItDown(buffer, mimeType ?? '', filename ?? '');
+      const result = await convertWithMarkItDown(filePath, mimeType ?? '', filename ?? '');
       if (result.success && result.markdown) {
         const normalized = normalizeMarkdown(result.markdown);
         return { content: normalized.content, usedMarkitdown: true };
@@ -200,17 +200,17 @@ export async function POST(
 
       // DOCX
       if (mimeType?.includes('wordprocessingml') || docTitle.toLowerCase().endsWith('.docx')) {
-        const result = await convertWithMarkItDownOrFallback(buffer, mimeType, docTitle, 'docx', () => extractDocxText(buffer));
+        const result = await convertWithMarkItDownOrFallback(fullPath, mimeType, docTitle, 'docx', () => extractDocxText(buffer));
         rawContent = result.content;
       } else if (mimeType?.includes('spreadsheetml') || docTitle.toLowerCase().endsWith('.xlsx')) {
-        rawContent = extractXlsxText(buffer);
+        rawContent = await extractXlsxText(buffer);
       } else if (isPdf(mimeType, docTitle)) {
         // PDF: try MarkItDown first, fallback pdfjs
         const isRealPdf = buffer.length >= 5 && buffer[0] === 0x25 && buffer[1] === 0x50;
         if (!isRealPdf) {
           rawContent = buffer.toString('utf-8').trim();
         } else {
-          const result = await convertWithMarkItDownOrFallback(buffer, mimeType, docTitle, 'pdf', () => extractPdfText(buffer));
+          const result = await convertWithMarkItDownOrFallback(fullPath, mimeType, docTitle, 'pdf', () => extractPdfText(buffer));
           rawContent = result.content;
         }
       } else {
@@ -265,6 +265,16 @@ export async function POST(
       confidence: number;
       annotationId?: string;
     }> = [];
+
+    // ── Delete old AI annotations before creating new ones ──
+    // Re-running AI Review replaces all previous AI-generated annotations
+    await prisma.documentAnnotation.deleteMany({
+      where: {
+        requestId,
+        fileKey: fileId,
+        aiGenerated: true,
+      },
+    });
 
     // ── Map positions + Create annotations ──
     for (const finding of aiFindings) {
@@ -335,6 +345,11 @@ export async function POST(
           status: 'has_issues',
         },
         update: { status: 'has_issues' },
+      });
+    } else {
+      // If re-run found 0 issues, remove old review status
+      await prisma.documentReviewStatus.deleteMany({
+        where: { requestId, fileKey: fileId, reviewerId: session.userId },
       });
     }
 

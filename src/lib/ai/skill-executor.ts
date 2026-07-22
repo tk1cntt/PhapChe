@@ -20,6 +20,107 @@ import { llmComplete, llmStream, isLlmConfigured, DEFAULT_MODELS } from './llm-g
 import { semanticSearch, isVectorStoreReady } from './vector-store';
 import { renderSystemPrompt, getSystemPrompt, getSkillsForDomain } from './system-prompts';
 
+// ── Truncated JSON recovery ─────────────────────────────────
+
+/**
+ * Attempt to recover findings from a truncated JSON response.
+ * LLMs sometimes cut off mid-JSON due to token limits.
+ * This tries: outer repair → extract findings array → rebuild partial.
+ */
+function tryRecoverTruncatedJson(raw: string): Record<string, unknown> {
+  // Try to close the JSON by adding missing brackets
+  const repaired = repairJson(raw);
+  try {
+    return JSON.parse(repaired);
+  } catch {
+    // If repair fails, try to extract whatever we can
+  }
+
+  const result: Record<string, unknown> = { text: raw };
+
+  // Extract overallRisk
+  const riskMatch = raw.match(/"overallRisk"\s*:\s*"([^"]+)"/);
+  if (riskMatch) result.overallRisk = riskMatch[1];
+
+  // Extract findings array — find "findings": [ and grab everything up to the last complete object
+  const findingsIdx = raw.indexOf('"findings"');
+  if (findingsIdx !== -1) {
+    const bracketIdx = raw.indexOf('[', findingsIdx);
+    if (bracketIdx !== -1) {
+      const findingsRaw = raw.slice(bracketIdx);
+      const findings = extractPartialFindings(findingsRaw);
+      if (findings.length > 0) result.findings = findings;
+    }
+  }
+
+  return result;
+}
+
+function repairJson(raw: string): string {
+  let s = raw.trim();
+
+  // If it ends mid-string, close it
+  let inString = false;
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === '"' && (i === 0 || s[i - 1] !== '\\')) inString = !inString;
+  }
+  if (inString) s += '"';
+
+  // Count unmatched braces/brackets and close them
+  let braceDepth = 0;
+  let bracketDepth = 0;
+  inString = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (ch === '"' && (i === 0 || s[i - 1] !== '\\')) { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === '{') braceDepth++;
+    if (ch === '}') braceDepth--;
+    if (ch === '[') bracketDepth++;
+    if (ch === ']') bracketDepth--;
+  }
+  // Close in reverse order (inner arrays first, then outer braces)
+  s += ']'.repeat(Math.max(0, bracketDepth));
+  s += '}'.repeat(Math.max(0, braceDepth));
+
+  return s;
+}
+
+function extractPartialFindings(findingsRaw: string): Array<Record<string, unknown>> {
+  const findings: Array<Record<string, unknown>> = [];
+  // Parse individual finding objects one at a time
+  const stack: string[] = [];
+  let start = -1;
+  let inString = false;
+
+  for (let i = 0; i < findingsRaw.length; i++) {
+    const ch = findingsRaw[i];
+    if (ch === '"' && (i === 0 || findingsRaw[i - 1] !== '\\')) {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+
+    if (ch === '{') {
+      if (stack.length === 0) start = i;
+      stack.push('{');
+    }
+    if (ch === '}') {
+      stack.pop();
+      if (stack.length === 0 && start !== -1) {
+        try {
+          findings.push(JSON.parse(findingsRaw.slice(start, i + 1)));
+        } catch {
+          // Skip malformed objects
+        }
+        start = -1;
+      }
+    }
+  }
+
+  return findings;
+}
+
 // ── Configuration ───────────────────────────────────────────
 
 export interface SkillExecutorConfig {
@@ -44,7 +145,7 @@ const ENV_DEFAULT_MODEL = process.env.LLM_MODEL ?? 'gpt-4o-mini';
 
 const DEFAULT_CONFIG: Required<SkillExecutorConfig> = {
   defaultModel: ENV_DEFAULT_MODEL,
-  maxTokens: 4096,
+  maxTokens: 16384,
   temperature: 0.3,
   enableRag: true,
   ragMinScore: 0.3,
@@ -108,12 +209,12 @@ export class SkillExecutor {
       responseFormat: promptTpl.outputFormat === 'json_object' ? 'json_object' : 'text',
     });
 
-    // 4. Parse output
+    // 4. Parse output with truncation recovery
     let output: Record<string, unknown>;
     try {
       output = JSON.parse(response.content);
     } catch {
-      output = { text: response.content };
+      output = tryRecoverTruncatedJson(response.content);
     }
 
     // 5. Build citations
@@ -196,7 +297,7 @@ export class SkillExecutor {
     try {
       output = JSON.parse(fullContent);
     } catch {
-      output = { text: fullContent };
+      output = tryRecoverTruncatedJson(fullContent);
     }
 
     const citations = legalContext.map((r) => r.chunk.source);

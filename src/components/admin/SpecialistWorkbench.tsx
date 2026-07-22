@@ -77,7 +77,7 @@ export function SpecialistWorkbench() {
       params.set('pageSize', '10');
       if (search) params.set('search', search);
 
-      const res = await fetch(`/api/partner/requests/my-work?${params}`);
+      const res = await fetch(`/api/admin/requests/my-work?${params}`);
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
           setError(t('errorForbidden'));
@@ -246,6 +246,12 @@ export function SpecialistWorkbench() {
                   router.push(`/${locale}/admin/requests/${req.id}/chat`);
                 }}
                 aiTooltip={t('btnAiAssist') ?? 'AI Assistant'}
+                showAiButton={req.status === 'in_progress' || req.status === 'revision_required'}
+                stats={{
+                  fileCount: (req as any).fileCount ?? 0,
+                  annotationCount: (req as any).annotationCount ?? 0,
+                  annotationResolved: (req as any).annotationResolved ?? 0,
+                }}
                 testId={`workbench-card-${req.id}`}
               />
             );

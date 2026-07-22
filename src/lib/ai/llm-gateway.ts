@@ -82,7 +82,7 @@ export const DEFAULT_MODELS: Record<string, LlmModelConfig> = {
     modelId: 'legal-agent',
     baseUrl: DEFAULT_OPENAI_URL,
     apiKeyEnv: 'OPENAI_API_KEY',
-    maxTokens: 4096,
+    maxTokens: 16384,
     temperature: 0.3,
   },
 };

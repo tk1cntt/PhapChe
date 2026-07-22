@@ -3,13 +3,15 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, FileText, Send, Maximize2, Minimize2, Eye, Sparkles, Columns } from 'lucide-react';
+import { ArrowLeft, FileText, Send, Maximize2, Minimize2, Eye, Sparkles, Columns, MessageSquare, Clock } from 'lucide-react';
 import { ChatActivityPanel } from '@/components/admin/ChatActivityPanel';
 import { DocumentFilePanel, type FileItem } from '@/components/admin/DocumentFilePanel';
 import { DocumentAnnotationPanel, type Annotation } from '@/components/admin/DocumentAnnotationPanel';
 import { AiIssuePopup } from '@/components/admin/AiIssuePopup';
 import { ReportDialog, type ReportData } from '@/components/admin/ReportDialog';
+import { RequestTimeline } from '@/components/admin/RequestTimeline';
 import '@/styles/pages/admin/chat-split.css';
+import '@/styles/pages/admin/request-timeline.css';
 
 type ChatMode = 'review' | 'ai-focus' | 'full-document';
 
@@ -61,6 +63,9 @@ export default function ChatActivityPage() {
   // Popup state
   const [popupAnnotation, setPopupAnnotation] = useState<Annotation | null>(null);
   const [popupRefElement, setPopupRefElement] = useState<HTMLElement | null>(null);
+
+  // Left-bottom tab: "Chú thích" | "Lịch sử"
+  const [leftBottomTab, setLeftBottomTab] = useState<'annotations' | 'timeline'>('annotations');
 
   useEffect(() => {
     let cancelled = false;
@@ -349,12 +354,50 @@ export default function ChatActivityPage() {
             />
           </div>
           <div className="chat-split-left-bottom">
-            <DocumentAnnotationPanel
-              requestId={requestId}
-              fileKey={activeFileId}
-              fileName={activeFileName}
-              reloadKey={annotationReloadKey}
-            />
+            {/* Tab bar */}
+            <div className="chat-split-subtabs">
+              <button
+                type="button"
+                className={`chat-split-subtab${leftBottomTab === 'annotations' ? ' active' : ''}`}
+                onClick={() => setLeftBottomTab('annotations')}
+              >
+                <MessageSquare size={14} />
+                {t('annotations') ?? 'Chú thích'}
+              </button>
+              <button
+                type="button"
+                className={`chat-split-subtab${leftBottomTab === 'timeline' ? ' active' : ''}`}
+                onClick={() => setLeftBottomTab('timeline')}
+              >
+                <Clock size={14} />
+                {t('timelineTab') ?? 'Lịch sử'}
+              </button>
+            </div>
+
+            {leftBottomTab === 'annotations' ? (
+              <DocumentAnnotationPanel
+                requestId={requestId}
+                fileKey={activeFileId}
+                fileName={activeFileName}
+                reloadKey={annotationReloadKey}
+              />
+            ) : (
+              <div className="chat-split-timeline-wrap">
+                <RequestTimeline
+                  requestId={requestId}
+                  labels={{
+                    title: t('timelineTitle') ?? 'Lịch sử hoạt động',
+                    empty: t('timelineEmpty') ?? 'Chưa có hoạt động nào',
+                    loading: t('timelineLoading') ?? 'Đang tải...',
+                    error: t('timelineError') ?? 'Không thể tải lịch sử',
+                    retry: t('timelineRetry') ?? 'Thử lại',
+                    specialist: t('timelineSpecialist') ?? 'Chuyên viên',
+                    reviewer: t('timelineReviewer') ?? 'Người kiểm duyệt',
+                    unassigned: t('timelineUnassigned') ?? 'Chưa phân công',
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -392,6 +435,17 @@ export default function ChatActivityPage() {
         <div className="ai-review-error-toast">
           <span>{aiReviewError}</span>
           <button type="button" onClick={() => setAiReviewError(null)}>×</button>
+        </div>
+      )}
+
+      {/* AI Review Full-Screen Loading Overlay */}
+      {aiReviewLoading && (
+        <div className="ai-review-overlay">
+          <div className="ai-review-overlay-card">
+            <div className="ai-review-overlay-spinner" />
+            <p className="ai-review-overlay-title">{t('aiReviewInProgress') ?? 'AI Review đang xử lý'}</p>
+            <p className="ai-review-overlay-hint">{t('aiReviewWait') ?? 'Vui lòng không rời khỏi trang này...'}</p>
+          </div>
         </div>
       )}
     </div>

@@ -3,6 +3,7 @@ import {
   hasAnyRole,
   canSeeMenu,
   canSeeTab,
+  canAccessRoute,
   MENU_VISIBILITY,
   TAB_VISIBILITY,
   ALL_ADMIN_ROLES,
@@ -183,6 +184,36 @@ describe('role-config', () => {
       for (const [tab, roles] of Object.entries(TAB_VISIBILITY)) {
         expect(roles.length, `Tab "${tab}" has empty roles`).toBeGreaterThan(0);
       }
+    });
+  });
+
+  // ── canAccessRoute ──
+  describe('canAccessRoute', () => {
+    it('specialist can access requests route', () => {
+      expect(canAccessRoute('requests', ['specialist'])).toBe(true);
+    });
+
+    it('reviewer can access requests route', () => {
+      expect(canAccessRoute('requests', ['reviewer'])).toBe(true);
+    });
+
+    it('specialist and reviewer can access vault route', () => {
+      expect(canAccessRoute('vault', ['specialist'])).toBe(true);
+      expect(canAccessRoute('vault', ['reviewer'])).toBe(true);
+    });
+
+    it('specialist cannot access users route', () => {
+      expect(canAccessRoute('users', ['specialist'])).toBe(false);
+    });
+
+    it('reviewer cannot access workspace route', () => {
+      expect(canAccessRoute('workspace', ['reviewer'])).toBe(false);
+    });
+
+    it('customer cannot access any admin route', () => {
+      expect(canAccessRoute('requests', ['customer'])).toBe(false);
+      expect(canAccessRoute('dashboard', ['customer'])).toBe(false);
+      expect(canAccessRoute('vault', ['customer'])).toBe(false);
     });
   });
 

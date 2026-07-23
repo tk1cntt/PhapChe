@@ -21,7 +21,7 @@ export const ALL_ADMIN_ROLES: readonly AppRole[] = [
  */
 export const MENU_VISIBILITY: Record<string, readonly AppRole[] | null> = {
   dashboard: null,
-  requests: ['super_admin', 'coordinator_admin'],
+  requests: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
   users: ['super_admin', 'coordinator_admin'],
   workspace: ['super_admin', 'coordinator_admin'],
   partner: ['super_admin', 'coordinator_admin'],
@@ -47,7 +47,7 @@ export const TAB_VISIBILITY: Record<string, readonly AppRole[]> = {
  * Admin route → roles được phép truy cập.
  */
 export const ADMIN_ROUTE_GUARDS: Record<string, readonly AppRole[]> = {
-  requests: ['super_admin', 'coordinator_admin'],
+  requests: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
   dashboard: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer', 'audit_admin'],
   vault: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
   users: ['super_admin', 'coordinator_admin'],

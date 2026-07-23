@@ -257,14 +257,21 @@ async function seedAnPhatWorkspace(orgId: string) {
       'Dieu khoan bao mat',
     ];
 
+    const matterTypes = [
+      'contract_drafting', 'nda', 'contract_drafting', 'labor_contract',
+      'corporate_governance', 'incorporation', 'agency_contract', 'nda',
+      'internal_regulation', 'distribution_contract', 'contract_drafting', 'nda',
+    ];
+
     for (let i = 0; i < 12; i++) {
       await prisma.legalRequest.upsert({
         where: { id: `req-anphat-${String(i + 1).padStart(3, '0')}` },
-        update: {},
+        update: { matterType: matterTypes[i] },
         create: {
           id: `req-anphat-${String(i + 1).padStart(3, '0')}`,
           workspaceId: anPhatWorkspace.id,
           title: titles[i] || `Yeu cau ${i + 1}`,
+          matterType: matterTypes[i],
           status: statuses[i] || 'draft_intake',
           createdById: customerUser.id,
         },
@@ -465,6 +472,51 @@ async function main() {
   const priorities: ('low' | 'medium' | 'high' | 'urgent')[] = ['low', 'medium', 'high', 'urgent'];
   const demoCount = Math.min(demoRequestTitles.length, demoStatuses.length);
 
+  // Map matter types to demo requests by semantic match with title content
+  const demoMatterTypes = [
+    'labor_contract',     // 0: Tư vấn hợp đồng lao động thời vụ
+    'nda',                // 1: Soạn thảo NDA với đối tác ABC
+    'trademark',          // 2: Đăng ký nhãn hiệu "Pháp Việt"
+    'incorporation',      // 3: Tư vấn thành lập công ty TNHH MTV
+    'regulatory',         // 4: Rà soát tuân thủ PCCC cho văn phòng
+    'distribution_contract', // 5: Đàm phán hợp đồng phân phối độc quyền
+    'regulatory',         // 6: Tư vấn luật đầu tư nước ngoài
+    'corporate_governance', // 7: Soạn thảo điều lệ công ty cổ phần
+    'copyright',          // 8: Đăng ký bản quyền phần mềm ERP
+    'regulatory',         // 9: Tư vấn thuế TNCN cho nhân viên nước ngoài
+    'service_agreement',  // 10: Hợp đồng thuê văn phòng quận 1
+    'nda',                // 11: Thỏa thuận bảo mật thông tin khách hàng
+    'service_agreement',  // 12: Hợp đồng dịch vụ IT outsourcing
+    'mna',                // 13: Tư vấn sáp nhập chi nhánh miền Bắc
+    'trademark',          // 14: Đăng ký kiểu dáng công nghiệp bao bì
+    'agency_contract',    // 15: Hợp đồng đại lý độc quyền miền Nam
+    'termination',        // 16: Tư vấn chấm dứt hợp đồng lao động
+    'employment_policy',  // 17: Soạn thảo quy chế lương thưởng 2026
+    'patent',             // 18: Đăng ký sáng chế quy trình sản xuất
+    'contract_drafting',  // 19: Hợp đồng chuyển nhượng vốn góp
+    'regulatory',         // 20: Tư vấn pháp lý dự án khu đô thị
+    'contract_review',    // 21: Rà soát hợp đồng thuê kho bãi
+    'contract_drafting',  // 22: Soạn thảo biên bản thỏa thuận hợp tác
+    'business_registration', // 23: Đăng ký tên thương mại "An Phát Logistics"
+    // Extended for demoStatuses expansion — mapped for full 40 titles
+    'labor_contract',     // 24: Tư vấn xuất khẩu lao động Nhật Bản
+    'contract_drafting',  // 25: Hợp đồng gia công hàng may mặc
+    'contract_drafting',  // 26: Soạn thảo thỏa thuận hợp tác chiến lược
+    'trademark',          // 27: Đăng ký chỉ dẫn địa lý
+    'regulatory',         // 28: Tư vấn luật thương mại điện tử xuyên biên giới
+    'contract_drafting',  // 29: Hợp đồng nhượng quyền thương hiệu
+    'internal_regulation', // 30: Rà soát chính sách nghỉ phép công ty
+    'internal_regulation', // 31: Soạn thảo quy trình khiếu nại nội bộ
+    'copyright',          // 32: Đăng ký quyền tác giả phim quảng cáo
+    'regulatory',         // 33: Tư vấn đầu tư bất động sản nghỉ dưỡng
+    'contract_drafting',  // 34: Hợp đồng liên doanh với đối tác Hàn Quốc
+    'contract_drafting',  // 35: Soạn thảo thỏa thuận không cạnh tranh
+    'trademark',          // 36: Đăng ký nhãn hiệu quốc tế Madrid
+    'dispute',            // 37: Tư vấn giải quyết tranh chấp thương mại
+    'contract_drafting',  // 38: Hợp đồng cung ứng nguyên vật liệu
+    'data_protection',    // 39: Rà soát tuân thủ bảo vệ dữ liệu cá nhân
+  ];
+
   for (let i = 0; i < demoCount; i++) {
     const status = demoStatuses[i];
     const priority = priorities[i % priorities.length];
@@ -486,6 +538,7 @@ async function main() {
       data: {
         code: `DEMO-2026-${String(i + 1).padStart(3, '0')}`,
         title: demoRequestTitles[i],
+        matterType: demoMatterTypes[i] ?? null,
         status,
         priority,
         workspaceId: workspace.id,
@@ -662,6 +715,7 @@ async function main() {
     data: {
       workspaceId: workspace.id,
       title: 'Phase 16 fixture request',
+      matterType: 'contract_drafting',
       status: 'in_progress',
       createdById: customerUser.id,
       assignedSpecialistId: specialistUser.id,

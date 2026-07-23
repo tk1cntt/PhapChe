@@ -59,6 +59,59 @@ const requestTitles = [
   'Soạn thảo di chúc',
 ];
 
+const requestMatterTypes = [
+  'labor_contract',        // 1
+  'contract_drafting',     // 2
+  'trademark',             // 3
+  'incorporation',         // 4
+  'regulatory',            // 5
+  'contract_drafting',     // 6
+  'regulatory',            // 7
+  'corporate_governance',  // 8
+  'copyright',             // 9
+  'regulatory',            // 10
+  'labor_contract',        // 11
+  'contract_drafting',     // 12
+  'trademark',             // 13
+  'incorporation',         // 14
+  'regulatory',            // 15
+  'service_agreement',     // 16
+  'nda',                   // 17
+  'service_agreement',     // 18
+  'mna',                   // 19
+  'trademark',             // 20
+  'distribution_contract', // 21
+  'labor_contract',        // 22
+  'internal_regulation',   // 23
+  'patent',                // 24
+  'contract_drafting',     // 25
+  'regulatory',            // 26
+  'contract_review',       // 27
+  'contract_drafting',     // 28
+  'business_registration', // 29
+  'labor_contract',        // 30
+  'contract_drafting',     // 31
+  'contract_drafting',     // 32
+  'trademark',             // 33
+  'regulatory',            // 34
+  'agency_contract',       // 35
+  'internal_regulation',   // 36
+  'internal_regulation',   // 37
+  'copyright',             // 38
+  'regulatory',            // 39
+  'contract_drafting',     // 40
+  'contract_drafting',     // 41
+  'trademark',             // 42
+  'dispute',               // 43
+  'contract_drafting',     // 44
+  'data_protection',       // 45
+  'privacy_compliance',    // 46
+  'trademark',             // 47
+  'legal_advice',          // 48
+  'contract_drafting',     // 49
+  'contract_drafting',     // 50
+];
+
 const auditActions = [
   'user.login',
   'user.logout',
@@ -179,6 +232,7 @@ export default async function seedOperations(tx: Prisma.TransactionClient, conte
       data: {
         code: `REQ-2026-${String(i + 1).padStart(3, '0')}`,
         title: requestTitles[i],
+        matterType: requestMatterTypes[i] ?? null,
         status,
         priority,
         workspaceId,

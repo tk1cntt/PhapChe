@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { FileText, Upload, File, Loader2, AlertTriangle, Eye, CheckCircle2, AlertCircle, Clock, Maximize2, Minimize2, Sparkles } from 'lucide-react';
+import { FileText, Upload, File, Loader2, AlertTriangle, Eye, CheckCircle2, AlertCircle, Clock, Maximize2, Minimize2, Sparkles, ChevronDown } from 'lucide-react';
 import { DocumentPreviewTipTap } from './DocumentPreviewTipTap';
+import { suggestSkills, getPrimarySkill } from '@/lib/ai/domain-resolver';
+import type { AgentSkill } from '@/lib/ai/types';
 import type { Annotation } from './DocumentAnnotationPanel';
 
 // ── Types ────────────────────────────────────────────────────
@@ -29,9 +31,10 @@ interface DocumentFilePanelProps {
   onToggleExpand?: () => void;
   // AI Review
   annotations?: Annotation[];
-  onAiReview?: () => void;
+  onAiReview?: (skill: AgentSkill) => void;
   aiReviewLoading?: boolean;
   onAnnotationClick?: (annotation: Annotation, element: HTMLElement) => void;
+  matterTypeKey?: string | null;
 }
 
 interface PreviewData {
@@ -81,7 +84,7 @@ function getReviewStatusIcon(reviewStatus: string): React.ReactNode {
 
 // ── Component ────────────────────────────────────────────────
 
-export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expanded = true, onToggleExpand, annotations = [], onAiReview, aiReviewLoading = false, onAnnotationClick }: DocumentFilePanelProps) {
+export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expanded = true, onToggleExpand, annotations = [], onAiReview, aiReviewLoading = false, onAnnotationClick, matterTypeKey }: DocumentFilePanelProps) {
   const t = useTranslations('ChatActivity');
 
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -93,6 +96,50 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expan
   const [previewError, setPreviewError] = useState<string | null>(null);
 
   const [reviewStatuses, setReviewStatuses] = useState<Record<string, string>>({});
+
+  // ── Skill selector ──
+  const suggestedSkills = useMemo<AgentSkill[]>(() => suggestSkills(matterTypeKey ?? null), [matterTypeKey]);
+  const defaultSkill = useMemo<AgentSkill>(() => getPrimarySkill(matterTypeKey ?? null), [matterTypeKey]);
+  const [selectedSkill, setSelectedSkill] = useState<AgentSkill>(defaultSkill);
+
+  // Cập nhật default skill khi matterTypeKey thay đổi
+  useEffect(() => {
+    setSelectedSkill(getPrimarySkill(matterTypeKey ?? null));
+  }, [matterTypeKey]);
+
+  const skillLabels: Record<string, string> = {
+    'document-issue-analyzer': 'Rà soát tài liệu',
+    'nda-reviewer': 'Rà soát NDA',
+    'vendor-contract-reviewer': 'Rà soát HĐ nhà cung cấp',
+    'commercial-contract-drafter': 'Soạn HĐ thương mại',
+    'commercial-contract-reviewer': 'Rà soát HĐ thương mại',
+    'board-resolution-drafter': 'Soạn Nghị quyết',
+    'entity-compliance-checker': 'Kiểm tra tuân thủ DN',
+    'corporate-doc-generator': 'Tạo tài liệu DN',
+    'corporate-compliance-checker': 'Kiểm tra tuân thủ',
+    'labor-discipline-checker': 'Kiểm tra kỷ luật LĐ',
+    'internal-regulation-drafter': 'Soạn Nội quy LĐ',
+    'employment-contract-reviewer': 'Rà soát HĐLĐ',
+    'employment-policy-checker': 'Kiểm tra chính sách LĐ',
+    'dsar-response-drafter': 'Soạn phản hồi DSAR',
+    'privacy-compliance-checker': 'Kiểm tra bảo mật',
+    'privacy-dpia-generator': 'Tạo DPIA',
+    'tos-generator': 'Soạn Điều khoản DV',
+    'regulatory-gap-analyzer': 'Phân tích tuân thủ',
+    'compliance-gap-analyzer': 'Phân tích khoảng trống',
+    'ai-impact-assessment': 'Đánh giá AI Impact',
+    'ai-governance-assessor': 'Đánh giá AI Governance',
+    'trademark-clearance': 'Tra cứu nhãn hiệu',
+    'cease-desist-drafter': 'Soạn thư C&D',
+    'ip-trademark-search': 'Tra cứu nhãn hiệu',
+    'ip-patent-analyzer': 'Phân tích bằng sáng chế',
+    'demand-letter-drafter': 'Soạn thư đòi nợ',
+    'litigation-strategist': 'Chiến lược tranh tụng',
+    'litigation-risk-scorer': 'Đánh giá rủi ro tranh tụng',
+    'client-letter-drafter': 'Soạn thư tư vấn',
+    'legal-memo-drafter': 'Soạn Memo pháp lý',
+    'general-legal-researcher': 'Nghiên cứu pháp lý',
+  };
 
   // ── Load file list ──
 
@@ -290,20 +337,37 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expan
               <h4>{preview.title}</h4>
               <span className="doc-file-preview-mime">{preview.mimeType}</span>
               {onAiReview && (
-                <button
-                  type="button"
-                  className="doc-file-ai-review-btn"
-                  onClick={onAiReview}
-                  disabled={aiReviewLoading || preview.isBinary}
-                  title="AI Rà soát tài liệu"
-                >
-                  {aiReviewLoading ? (
-                    <Loader2 size={14} className="spinning" />
-                  ) : (
-                    <Sparkles size={14} />
-                  )}
-                  AI Review
-                </button>
+                <div className="doc-file-ai-review-group" data-testid="doc-file-ai-review-group">
+                  <button
+                    type="button"
+                    className="doc-file-ai-review-btn"
+                    onClick={() => onAiReview(selectedSkill)}
+                    disabled={aiReviewLoading || preview.isBinary}
+                    title={skillLabels[selectedSkill] ?? 'AI Rà soát tài liệu'}
+                  >
+                    {aiReviewLoading ? (
+                      <Loader2 size={14} className="spinning" />
+                    ) : (
+                      <Sparkles size={14} />
+                    )}
+                    AI Review
+                  </button>
+                  <div className="doc-file-skill-selector" data-testid="doc-file-skill-selector">
+                    <select
+                      value={selectedSkill}
+                      onChange={(e) => setSelectedSkill(e.target.value as AgentSkill)}
+                      disabled={aiReviewLoading}
+                      className="doc-file-skill-select"
+                    >
+                      {suggestedSkills.map((sk) => (
+                        <option key={sk} value={sk}>
+                          {skillLabels[sk] ?? sk}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={12} className="doc-file-skill-chevron" />
+                  </div>
+                </div>
               )}
             </div>
             {annotations.length > 0 && !preview.isBinary ? (

@@ -116,6 +116,89 @@ const SKILL_LABELS: Record<AgentSkill, { label: string; desc: string; domain: Le
     desc: 'Phát hiện vấn đề pháp lý trong tài liệu',
     domain: 'commercial-legal',
   },
+  'nda-reviewer': {
+    label: 'Rà soát NDA',
+    desc: 'Phân tích thỏa thuận bảo mật',
+    domain: 'commercial-legal',
+  },
+  'vendor-contract-reviewer': {
+    label: 'Rà soát hợp đồng',
+    desc: 'Rà soát hợp đồng thương mại',
+    domain: 'commercial-legal',
+  },
+  'board-resolution-drafter': {
+    label: 'Soạn nghị quyết',
+    desc: 'Nghị quyết HĐTV/HĐQT theo Luật DN 2020',
+    domain: 'corporate-legal',
+  },
+  'entity-compliance-checker': {
+    label: 'Kiểm tra tuân thủ',
+    desc: 'Tuân thủ doanh nghiệp: thuế, báo cáo, quản trị',
+    domain: 'corporate-legal',
+  },
+  // ── Phase 2 (P0): Employment + Privacy ──
+  'labor-discipline-checker': {
+    label: 'Kỷ luật lao động',
+    desc: 'Kiểm tra quy trình kỷ luật theo BLLĐ 2019',
+    domain: 'employment-legal',
+  },
+  'internal-regulation-drafter': {
+    label: 'Nội quy lao động',
+    desc: 'Soạn nội quy lao động cho doanh nghiệp',
+    domain: 'employment-legal',
+  },
+  'dsar-response-drafter': {
+    label: 'Phản hồi DSAR',
+    desc: 'Soạn phản hồi yêu cầu dữ liệu cá nhân',
+    domain: 'privacy-legal',
+  },
+  // ── Phase 3 (P1): IP + Litigation ──
+  'trademark-clearance': {
+    label: 'Tra cứu nhãn hiệu',
+    desc: 'Tra cứu khả năng bảo hộ nhãn hiệu',
+    domain: 'ip-legal',
+  },
+  'cease-desist-drafter': {
+    label: 'Thư cảnh báo',
+    desc: 'Soạn thư cảnh báo vi phạm SHTT',
+    domain: 'ip-legal',
+  },
+  'demand-letter-drafter': {
+    label: 'Thư yêu cầu',
+    desc: 'Soạn thư yêu cầu thanh toán',
+    domain: 'litigation-legal',
+  },
+  'litigation-strategist': {
+    label: 'Chiến lược tranh tụng',
+    desc: 'Phân tích chiến lược và rủi ro tranh tụng',
+    domain: 'litigation-legal',
+  },
+  // ── Phase 4 (P2): Product + Regulatory + AI + Clinic ──
+  'tos-generator': {
+    label: 'Điều khoản dịch vụ',
+    desc: 'Soạn Terms of Service cho sản phẩm',
+    domain: 'product-legal',
+  },
+  'compliance-gap-analyzer': {
+    label: 'Phân tích tuân thủ',
+    desc: 'Phân tích khoảng trống tuân thủ ngành',
+    domain: 'regulatory-legal',
+  },
+  'ai-impact-assessment': {
+    label: 'Đánh giá AI',
+    desc: 'Đánh giá tác động hệ thống AI',
+    domain: 'ai-governance-legal',
+  },
+  'client-letter-drafter': {
+    label: 'Thư tư vấn',
+    desc: 'Soạn thư tư vấn pháp lý khách hàng',
+    domain: 'legal-clinic',
+  },
+  'legal-memo-drafter': {
+    label: 'Memo pháp lý',
+    desc: 'Soạn memo pháp lý nội bộ',
+    domain: 'legal-clinic',
+  },
 };
 
 // ── Component ────────────────────────────────────────────────

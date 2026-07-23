@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Send, Bot, User, AlertTriangle, ChevronDown, Sparkles, Info, Lightbulb, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { suggestSkills } from '@/lib/ai/domain-resolver';
+import type { AgentSkill } from '@/lib/ai/types';
 import '@/styles/pages/admin/chat-activity.css';
 
 // ── Types ────────────────────────────────────────────────────
@@ -34,14 +36,39 @@ export interface ChatActivityPanelProps {
   activeFileName?: string | null;
 }
 
-// ── Quick-access skill chips ──
-
-const QUICK_SKILLS = [
-  { key: 'general-legal-researcher', labelKey: 'skillGeneralResearch' },
-  { key: 'commercial-contract-drafter', labelKey: 'skillContractDraft' },
-  { key: 'commercial-contract-reviewer', labelKey: 'skillContractReview' },
-  { key: 'corporate-compliance-checker', labelKey: 'skillComplianceCheck' },
-];
+// Skill label mapping
+const SKILL_LABELS: Record<string, string> = {
+  'general-legal-researcher': 'skillGeneralResearch',
+  'commercial-contract-drafter': 'skillContractDraft',
+  'commercial-contract-reviewer': 'skillContractReview',
+  'corporate-compliance-checker': 'skillComplianceCheck',
+  'nda-reviewer': 'skillNdaReview',
+  'vendor-contract-reviewer': 'skillVendorContractReview',
+  'board-resolution-drafter': 'skillBoardResolution',
+  'entity-compliance-checker': 'skillEntityCompliance',
+  'document-issue-analyzer': 'skillDocIssueAnalyzer',
+  'labor-discipline-checker': 'skillLaborDiscipline',
+  'internal-regulation-drafter': 'skillInternalRegulation',
+  'employment-contract-reviewer': 'skillEmploymentReview',
+  'employment-policy-checker': 'skillEmploymentPolicy',
+  'dsar-response-drafter': 'skillDsarResponse',
+  'privacy-compliance-checker': 'skillPrivacyCompliance',
+  'privacy-dpia-generator': 'skillDpiaGenerator',
+  'tos-generator': 'skillTosGenerator',
+  'regulatory-gap-analyzer': 'skillRegulatoryGap',
+  'compliance-gap-analyzer': 'skillComplianceGap',
+  'ai-impact-assessment': 'skillAiImpact',
+  'ai-governance-assessor': 'skillAiGovernance',
+  'trademark-clearance': 'skillTrademarkClearance',
+  'cease-desist-drafter': 'skillCeaseDesist',
+  'ip-trademark-search': 'skillIpSearch',
+  'ip-patent-analyzer': 'skillPatentAnalyzer',
+  'demand-letter-drafter': 'skillDemandLetter',
+  'litigation-strategist': 'skillLitigationStrategy',
+  'litigation-risk-scorer': 'skillLitigationRisk',
+  'client-letter-drafter': 'skillClientLetter',
+  'legal-memo-drafter': 'skillLegalMemo',
+};
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -80,6 +107,15 @@ export function ChatActivityPanel({
   const listRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic skill chips based on request domain
+  const quickSkills = useMemo<{ key: AgentSkill; labelKey: string }[]>(() => {
+    const skills = suggestSkills(matterTypeKey ?? null);
+    return skills.map((sk) => ({
+      key: sk,
+      labelKey: SKILL_LABELS[sk] ?? 'skillGeneralResearch',
+    }));
+  }, [matterTypeKey]);
 
   // ── Auto-scroll ────────────────────────────────────────────
 
@@ -357,7 +393,7 @@ export function ChatActivityPanel({
             >
               {t('skillNone')}
             </button>
-            {QUICK_SKILLS.map((sk) => (
+            {quickSkills.map((sk) => (
               <button
                 key={sk.key}
                 type="button"

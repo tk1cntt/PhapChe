@@ -102,7 +102,6 @@ describe('ChatActivityPanel', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('chat-activity-page')).toBeTruthy();
-        expect(screen.getByText('Hợp đồng ABC')).toBeTruthy();
         expect(screen.getByTestId('chat-activity-model-badge')).toBeTruthy();
       });
     });
@@ -268,7 +267,36 @@ describe('ChatActivityPanel', () => {
       });
     });
 
-    it('should select and deselect skill chips', async () => {
+    it('should select and deselect dynamic skill chips based on matterTypeKey', async () => {
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ requestId: 'req-test-1', requestTitle: 'Test', messages: [] }),
+      });
+
+      // Pass matterTypeKey to get domain-specific skills (commercial-legal)
+      render(
+        <ChatActivityPanel requestId="req-test-1" requestTitle="Test" matterTypeKey="nda" />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('chat-activity-skill-chips')).toBeTruthy();
+      });
+
+      // First skill for nda is nda-reviewer
+      const chip = screen.getByTestId('chat-activity-skill-nda-reviewer');
+      fireEvent.click(chip);
+
+      await waitFor(() => {
+        expect(chip.className).toContain('active');
+      });
+
+      fireEvent.click(chip);
+      await waitFor(() => {
+        expect(chip.className).not.toContain('active');
+      });
+    });
+
+    it('should fallback to general-legal-researcher when no matterTypeKey', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ requestId: 'req-test-1', requestTitle: 'Test', messages: [] }),
@@ -282,20 +310,11 @@ describe('ChatActivityPanel', () => {
         expect(screen.getByTestId('chat-activity-skill-chips')).toBeTruthy();
       });
 
-      const chip = screen.getByTestId('chat-activity-skill-commercial-contract-drafter');
-      fireEvent.click(chip);
-
-      await waitFor(() => {
-        expect(chip.className).toContain('active');
-      });
-
-      fireEvent.click(chip);
-      await waitFor(() => {
-        expect(chip.className).not.toContain('active');
-      });
+      // Without matterTypeKey, should show general-legal-researcher
+      expect(screen.getByTestId('chat-activity-skill-general-legal-researcher')).toBeTruthy();
     });
 
-    it('should render with onBack button when provided', async () => {
+    it('should render with onBack prop accepted', async () => {
       const onBack = vi.fn();
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
@@ -307,7 +326,8 @@ describe('ChatActivityPanel', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('chat-activity-back')).toBeTruthy();
+        // onBack is accepted as prop, back button rendered by parent page
+        expect(screen.getByTestId('chat-activity-page')).toBeTruthy();
       });
     });
   });
@@ -396,7 +416,7 @@ describe('ChatActivityPanel', () => {
       expect(global.fetch).toHaveBeenCalledTimes(1); // only the history GET
     });
 
-    it('should call onBack when back button clicked', async () => {
+    it('should accept onBack prop without crashing', async () => {
       const onBack = vi.fn();
 
       render(
@@ -404,11 +424,8 @@ describe('ChatActivityPanel', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('chat-activity-back')).toBeTruthy();
+        expect(screen.getByTestId('chat-activity-page')).toBeTruthy();
       });
-
-      fireEvent.click(screen.getByTestId('chat-activity-back'));
-      expect(onBack).toHaveBeenCalledTimes(1);
     });
 
     it('should toggle citations visibility when toggle clicked', async () => {

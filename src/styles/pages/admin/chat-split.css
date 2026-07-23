@@ -607,6 +607,13 @@
 
 /* ── AI Review Button ────────────────────────────────────────── */
 
+.doc-file-ai-review-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-left: auto;
+}
+
 .doc-file-ai-review-btn {
   display: inline-flex;
   align-items: center;
@@ -618,11 +625,10 @@
   color: #7c3aed;
   background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
   border: 1px solid #c4b5fd;
-  border-radius: var(--radius-sm, 6px);
+  border-radius: var(--radius-sm, 6px) 0 0 var(--radius-sm, 6px);
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s, box-shadow 0.15s;
-  margin-left: auto;
 }
 
 .doc-file-ai-review-btn:hover {
@@ -633,6 +639,56 @@
 .doc-file-ai-review-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* ── AI Review Skill Selector ─────────────────────────────────── */
+
+.doc-file-skill-selector {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.doc-file-skill-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 5px 22px 5px 8px;
+  font-size: var(--text-xs, 11px);
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 1px solid #c4b5fd;
+  border-left: none;
+  border-radius: 0 var(--radius-sm, 6px) var(--radius-sm, 6px) 0;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-file-skill-select:hover {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+}
+
+.doc-file-skill-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.doc-file-skill-select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -1px;
+}
+
+.doc-file-skill-chevron {
+  position: absolute;
+  right: 5px;
+  pointer-events: none;
+  color: var(--color-primary);
+  opacity: 0.6;
 }
 
 /* ── TipTap Preview ──────────────────────────────────────────── */

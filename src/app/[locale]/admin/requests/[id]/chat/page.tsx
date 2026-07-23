@@ -10,6 +10,7 @@ import { DocumentAnnotationPanel, type Annotation } from '@/components/admin/Doc
 import { AiIssuePopup } from '@/components/admin/AiIssuePopup';
 import { ReportDialog, type ReportData } from '@/components/admin/ReportDialog';
 import { RequestTimeline } from '@/components/admin/RequestTimeline';
+import type { AgentSkill } from '@/lib/ai/types';
 import '@/styles/pages/admin/chat-split.css';
 import '@/styles/pages/admin/request-timeline.css';
 
@@ -86,7 +87,7 @@ export default function ChatActivityPage() {
         const req = data.data ?? data;
         setRequestInfo({
           title: req.title ?? 'Request',
-          matterTypeKey: req.matterTypeKey ?? req.intakeSubmission?.matterTypeKey ?? null,
+          matterTypeKey: req.matterType ?? req.intakeSubmission?.matterTypeKey ?? null,
           status: req.status ?? 'draft_intake',
         });
       } catch (err) {
@@ -164,7 +165,7 @@ export default function ChatActivityPage() {
 
   // ── AI Review ──
 
-  const handleAiReview = useCallback(async () => {
+  const handleAiReview = useCallback(async (skill: AgentSkill) => {
     if (!activeFileId) return;
     setAiReviewLoading(true);
     setAiReviewError(null);
@@ -173,6 +174,8 @@ export default function ChatActivityPage() {
     try {
       const res = await fetch(`/api/admin/requests/${requestId}/files/${activeFileId}/ai-review`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skill }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: 'UNKNOWN' }));
@@ -351,6 +354,7 @@ export default function ChatActivityPage() {
               onAiReview={handleAiReview}
               aiReviewLoading={aiReviewLoading}
               onAnnotationClick={handleAnnotationClick}
+              matterTypeKey={requestInfo.matterTypeKey}
             />
           </div>
           <div className="chat-split-left-bottom">

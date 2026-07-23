@@ -68,6 +68,7 @@ const SKILL_LABELS: Record<string, string> = {
   'litigation-risk-scorer': 'skillLitigationRisk',
   'client-letter-drafter': 'skillClientLetter',
   'legal-memo-drafter': 'skillLegalMemo',
+  'corporate-doc-generator': 'skillCorporateDocGen',
 };
 
 // ── Helpers ──────────────────────────────────────────────────

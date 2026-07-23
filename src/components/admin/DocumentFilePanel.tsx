@@ -107,39 +107,45 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expan
     setSelectedSkill(getPrimarySkill(matterTypeKey ?? null));
   }, [matterTypeKey]);
 
-  const skillLabels: Record<string, string> = {
-    'document-issue-analyzer': 'Rà soát tài liệu',
-    'nda-reviewer': 'Rà soát NDA',
-    'vendor-contract-reviewer': 'Rà soát HĐ nhà cung cấp',
-    'commercial-contract-drafter': 'Soạn HĐ thương mại',
-    'commercial-contract-reviewer': 'Rà soát HĐ thương mại',
-    'board-resolution-drafter': 'Soạn Nghị quyết',
-    'entity-compliance-checker': 'Kiểm tra tuân thủ DN',
-    'corporate-doc-generator': 'Tạo tài liệu DN',
-    'corporate-compliance-checker': 'Kiểm tra tuân thủ',
-    'labor-discipline-checker': 'Kiểm tra kỷ luật LĐ',
-    'internal-regulation-drafter': 'Soạn Nội quy LĐ',
-    'employment-contract-reviewer': 'Rà soát HĐLĐ',
-    'employment-policy-checker': 'Kiểm tra chính sách LĐ',
-    'dsar-response-drafter': 'Soạn phản hồi DSAR',
-    'privacy-compliance-checker': 'Kiểm tra bảo mật',
-    'privacy-dpia-generator': 'Tạo DPIA',
-    'tos-generator': 'Soạn Điều khoản DV',
-    'regulatory-gap-analyzer': 'Phân tích tuân thủ',
-    'compliance-gap-analyzer': 'Phân tích khoảng trống',
-    'ai-impact-assessment': 'Đánh giá AI Impact',
-    'ai-governance-assessor': 'Đánh giá AI Governance',
-    'trademark-clearance': 'Tra cứu nhãn hiệu',
-    'cease-desist-drafter': 'Soạn thư C&D',
-    'ip-trademark-search': 'Tra cứu nhãn hiệu',
-    'ip-patent-analyzer': 'Phân tích bằng sáng chế',
-    'demand-letter-drafter': 'Soạn thư đòi nợ',
-    'litigation-strategist': 'Chiến lược tranh tụng',
-    'litigation-risk-scorer': 'Đánh giá rủi ro tranh tụng',
-    'client-letter-drafter': 'Soạn thư tư vấn',
-    'legal-memo-drafter': 'Soạn Memo pháp lý',
-    'general-legal-researcher': 'Nghiên cứu pháp lý',
-  };
+  // i18n key mapping — same names as ChatActivityPanel for consistency
+  const SKILL_I18N_KEY_MAP: Record<string, string> = {
+    'document-issue-analyzer': 'skillDocIssueAnalyzer',
+    'nda-reviewer': 'skillNdaReview',
+    'vendor-contract-reviewer': 'skillVendorContractReview',
+    'commercial-contract-drafter': 'skillContractDraft',
+    'commercial-contract-reviewer': 'skillContractReview',
+    'board-resolution-drafter': 'skillBoardResolution',
+    'entity-compliance-checker': 'skillEntityCompliance',
+    'corporate-doc-generator': 'skillCorporateDocGen',
+    'corporate-compliance-checker': 'skillComplianceCheck',
+    'labor-discipline-checker': 'skillLaborDiscipline',
+    'internal-regulation-drafter': 'skillInternalRegulation',
+    'employment-contract-reviewer': 'skillEmploymentReview',
+    'employment-policy-checker': 'skillEmploymentPolicy',
+    'dsar-response-drafter': 'skillDsarResponse',
+    'privacy-compliance-checker': 'skillPrivacyCompliance',
+    'privacy-dpia-generator': 'skillDpiaGenerator',
+    'tos-generator': 'skillTosGenerator',
+    'regulatory-gap-analyzer': 'skillRegulatoryGap',
+    'compliance-gap-analyzer': 'skillComplianceGap',
+    'ai-impact-assessment': 'skillAiImpact',
+    'ai-governance-assessor': 'skillAiGovernance',
+    'trademark-clearance': 'skillTrademarkClearance',
+    'cease-desist-drafter': 'skillCeaseDesist',
+    'ip-trademark-search': 'skillIpSearch',
+    'ip-patent-analyzer': 'skillPatentAnalyzer',
+    'demand-letter-drafter': 'skillDemandLetter',
+    'litigation-strategist': 'skillLitigationStrategy',
+    'litigation-risk-scorer': 'skillLitigationRisk',
+    'client-letter-drafter': 'skillClientLetter',
+    'legal-memo-drafter': 'skillLegalMemo',
+    'general-legal-researcher': 'skillGeneralResearch',
+  } as const;
+
+  const getSkillLabel = useCallback((skill: string): string => {
+    const key = SKILL_I18N_KEY_MAP[skill];
+    return key ? t(key as Parameters<typeof t>[0]) : skill;
+  }, [t]);
 
   // ── Load file list ──
 
@@ -343,7 +349,7 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expan
                     className="doc-file-ai-review-btn"
                     onClick={() => onAiReview(selectedSkill)}
                     disabled={aiReviewLoading || preview.isBinary}
-                    title={skillLabels[selectedSkill] ?? 'AI Rà soát tài liệu'}
+                    title={getSkillLabel(selectedSkill)}
                   >
                     {aiReviewLoading ? (
                       <Loader2 size={14} className="spinning" />
@@ -361,7 +367,7 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expan
                     >
                       {suggestedSkills.map((sk) => (
                         <option key={sk} value={sk}>
-                          {skillLabels[sk] ?? sk}
+                          {getSkillLabel(sk)}
                         </option>
                       ))}
                     </select>

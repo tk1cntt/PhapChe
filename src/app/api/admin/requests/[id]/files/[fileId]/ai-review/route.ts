@@ -29,7 +29,7 @@ const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'review
 const MAX_DOC_CHARS = 40000; // Context window for AI — large enough for most legal docs
 
 /** Skills that return line-positioned findings suitable for inline annotations */
-const INLINE_ANNOTATION_SKILLS: AgentSkill[] = ['document-issue-analyzer'];
+export const INLINE_ANNOTATION_SKILLS: AgentSkill[] = ['document-issue-analyzer'];
 
 /** Find domain for a skill via DOMAIN_SKILL_MAP */
 function getDomainForSkill(skill: AgentSkill): LegalDomain {
@@ -302,29 +302,14 @@ export async function POST(
     const executor = getSkillExecutor({ enableRag: false });
     const result = await executor.execute(skill, context);
 
-    // For non-inline-annotation skills, return structured output directly
-    if (!INLINE_ANNOTATION_SKILLS.includes(skill)) {
-      const totalMs = Date.now() - startTime;
-      return NextResponse.json({
-        success: true,
-        data: {
-          skill,
-          output: result.output,
-          summary: result.summary,
-          citations: result.citations,
-          confidence: result.confidence,
-          timing: { totalMs },
-        },
-      });
-    }
-
-    // ── Parse AI findings (inline annotation mode) ──
+    // ── Parse AI findings ──
+    const isInlineSkill = INLINE_ANNOTATION_SKILLS.includes(skill);
     const aiFindings = (result.output?.findings as Array<Record<string, unknown>>) ?? [];
     const mappedFindings: Array<{
       severity: string;
-      lineStart: number;
-      lineEnd: number;
-      matchedText: string;
+      lineStart?: number;
+      lineEnd?: number;
+      matchedText?: string;
       issue: string;
       recommendation: string;
       legalBasis: string;
@@ -333,7 +318,6 @@ export async function POST(
     }> = [];
 
     // ── Delete old AI annotations before creating new ones ──
-    // Re-running AI Review replaces all previous AI-generated annotations
     await prisma.documentAnnotation.deleteMany({
       where: {
         requestId,
@@ -342,26 +326,50 @@ export async function POST(
       },
     });
 
-    // ── Map positions + Create annotations ──
+    // ── Create annotations from findings (both inline & non-inline skills) ──
     for (const finding of aiFindings) {
-      const severity = (finding.severity as string) ?? 'info';
-      const aiLineStart = Number(finding.lineStart) || 1;
-      const snippet = (finding.matchedText as string) ?? '';
+      const rawSeverity = (finding.severity as string) ?? 'info';
       const issue = (finding.issue as string) ?? '';
       const recommendation = (finding.recommendation as string) ?? '';
       const legalBasis = (finding.legalBasis as string) ?? '';
+      const clause = (finding.clause as string) ?? '';
 
-      // Fuzzy match position
-      const mapped = fuzzyMatchPosition(snippet, linesArray, aiLineStart);
+      // Map AI severity → Prisma severity (Prisma chỉ chấp nhận info|warning|critical)
+      const mappedSeverity = rawSeverity === 'critical' ? 'critical'
+        : rawSeverity === 'high' ? 'critical'
+        : rawSeverity === 'medium' ? 'warning'
+        : 'info';
 
-      // Build content for annotation
-      const annotationContent = [
-        `**Vấn đề:** ${issue}`,
-        recommendation ? `\n**Đề xuất:** ${recommendation}` : '',
-        legalBasis ? `\n**Căn cứ:** ${legalBasis}` : '',
-      ].join('');
+      // Build content
+      const parts = [`**Vấn đề:** ${issue}`];
+      if (clause && clause !== 'N/A') parts.unshift(`**Điều khoản:** ${clause}`);
+      if (recommendation) parts.push(`\n**Đề xuất:** ${recommendation}`);
+      if (legalBasis && legalBasis !== 'N/A') parts.push(`\n**Căn cứ:** ${legalBasis}`);
+      const annotationContent = parts.join('');
 
-      // Create annotation record
+      // Position: only for inline skills with line info
+      let position: Record<string, unknown> | undefined;
+      let confidence = result.confidence;
+      let lineStart: number | undefined;
+      let lineEnd: number | undefined;
+      let matchedText: string | undefined;
+
+      if (isInlineSkill) {
+        const aiLineStart = Number(finding.lineStart) || 1;
+        const snippet = (finding.matchedText as string) ?? '';
+        const mapped = fuzzyMatchPosition(snippet, linesArray, aiLineStart);
+        lineStart = mapped.lineStart;
+        lineEnd = mapped.lineEnd;
+        matchedText = mapped.matchedText.substring(0, 200);
+        confidence = mapped.confidence;
+        position = {
+          line: lineStart,
+          lineStart,
+          lineEnd,
+          snippet: matchedText,
+        };
+      }
+
       try {
         const annotation = await prisma.documentAnnotation.create({
           data: {
@@ -369,29 +377,23 @@ export async function POST(
             fileKey: fileId,
             authorId: session.userId,
             content: annotationContent,
-            // Map AI severity → Prisma severity (Prisma chỉ chấp nhận info|warning|critical)
-            severity: severity === 'critical' ? 'critical' : severity === 'high' ? 'critical' : severity === 'medium' ? 'warning' : 'info',
+            severity: mappedSeverity,
             category: 'issue',
-            position: {
-              line: mapped.lineStart,
-              lineStart: mapped.lineStart,
-              lineEnd: mapped.lineEnd,
-              snippet: mapped.matchedText.substring(0, 200),
-            },
+            position: (position ?? undefined) as any,
             aiGenerated: true,
-            aiConfidence: mapped.confidence,
+            aiConfidence: confidence,
           },
         });
 
         mappedFindings.push({
-          severity,
-          lineStart: mapped.lineStart,
-          lineEnd: mapped.lineEnd,
-          matchedText: mapped.matchedText.substring(0, 200),
+          severity: rawSeverity,
+          lineStart,
+          lineEnd,
+          matchedText,
           issue,
           recommendation,
           legalBasis,
-          confidence: mapped.confidence,
+          confidence,
           annotationId: annotation.id,
         });
       } catch (createErr) {
@@ -414,7 +416,6 @@ export async function POST(
         update: { status: 'has_issues' },
       });
     } else {
-      // If re-run found 0 issues, remove old review status
       await prisma.documentReviewStatus.deleteMany({
         where: { requestId, fileKey: fileId, reviewerId: session.userId },
       });

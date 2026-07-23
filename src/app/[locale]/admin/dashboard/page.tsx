@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import AdminDashboardClient from '@/components/admin/AdminDashboardClient';
@@ -10,8 +11,24 @@ interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-function timeAgo(date: Date): string {
+function timeAgo(date: Date, locale: string): string {
   const minutes = Math.floor((Date.now() - date.getTime()) / 1000 / 60);
+  if (locale === 'en') {
+    if (minutes < 60) return `${minutes} minutes ago`;
+    if (minutes < 1440) return `${Math.floor(minutes / 60)} hours ago`;
+    return `${Math.floor(minutes / 1440)} days ago`;
+  }
+  if (locale === 'zh') {
+    if (minutes < 60) return `${minutes} 分钟前`;
+    if (minutes < 1440) return `${Math.floor(minutes / 60)} 小时前`;
+    return `${Math.floor(minutes / 1440)} 天前`;
+  }
+  if (locale === 'ja') {
+    if (minutes < 60) return `${minutes}分前`;
+    if (minutes < 1440) return `${Math.floor(minutes / 60)}時間前`;
+    return `${Math.floor(minutes / 1440)}日前`;
+  }
+  // vi (default)
   if (minutes < 60) return `${minutes} phút trước`;
   if (minutes < 1440) return `${Math.floor(minutes / 60)} giờ trước`;
   return `${Math.floor(minutes / 1440)} ngày trước`;
@@ -28,6 +45,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
 
   // ── SPECIALIST DASHBOARD ──
   if (isSpecialist) {
+    const t = await getTranslations({ locale, namespace: 'SpecialistDashboard' });
     const specialistId = session.userId;
 
     const [
@@ -81,34 +99,34 @@ export default async function AdminDashboardPage({ params }: PageProps) {
         stats={specialistStats}
         recentTasks={specialistTasks}
         translations={{
-          pageTitle: 'Bảng điều khiển chuyên viên',
-          pageDesc: 'Tổng quan công việc và hồ sơ đang xử lý',
-          statAssigned: 'Được gán',
-          statInProgress: 'Đang xử lý',
-          statPendingReview: 'Chờ duyệt',
-          statRevisionRequired: 'Cần sửa',
-          statAssignedDesc: 'Hồ sơ mới được gán',
-          statInProgressDesc: 'Đang thực hiện',
-          statPendingReviewDesc: 'Đã gửi duyệt',
-          statRevisionRequiredDesc: 'Cần chỉnh sửa',
-          myTasks: 'Công việc của tôi',
-          viewAll: 'Xem tất cả',
-          noTasks: 'Không có công việc nào',
-          noTasksDesc: 'Hiện tại bạn chưa có hồ sơ nào được gán',
-          colCode: 'Mã',
-          colTitle: 'Tiêu đề',
-          colCustomer: 'Khách hàng',
-          colStatus: 'Trạng thái',
-          colPriority: 'Ưu tiên',
-          colAction: 'Thao tác',
-          actionStart: 'Bắt đầu',
-          actionContinue: 'Tiếp tục',
-          actionSubmit: 'Gửi duyệt',
-          actionRevise: 'Sửa lại',
-          quickTips: 'Mẹo xử lý nhanh',
-          tip1: 'Kiểm tra kỹ thông tin khách hàng và tài liệu đính kèm trước khi bắt đầu xử lý.',
-          tip2: 'Sử dụng AI Chat để nhận gợi ý phân tích pháp lý và tăng tốc xử lý.',
-          tip3: 'Sau khi hoàn tất, gửi duyệt sớm để reviewer có thời gian kiểm tra chất lượng.',
+          pageTitle: t('pageTitle'),
+          pageDesc: t('pageDesc'),
+          statAssigned: t('statAssigned'),
+          statInProgress: t('statInProgress'),
+          statPendingReview: t('statPendingReview'),
+          statRevisionRequired: t('statRevisionRequired'),
+          statAssignedDesc: t('statAssignedDesc'),
+          statInProgressDesc: t('statInProgressDesc'),
+          statPendingReviewDesc: t('statPendingReviewDesc'),
+          statRevisionRequiredDesc: t('statRevisionRequiredDesc'),
+          myTasks: t('myTasks'),
+          viewAll: t('viewAll'),
+          noTasks: t('noTasks'),
+          noTasksDesc: t('noTasksDesc'),
+          colCode: t('colCode'),
+          colTitle: t('colTitle'),
+          colCustomer: t('colCustomer'),
+          colStatus: t('colStatus'),
+          colPriority: t('colPriority'),
+          colAction: t('colAction'),
+          actionStart: t('actionStart'),
+          actionContinue: t('actionContinue'),
+          actionSubmit: t('actionSubmit'),
+          actionRevise: t('actionRevise'),
+          quickTips: t('quickTips'),
+          tip1: t('tip1'),
+          tip2: t('tip2'),
+          tip3: t('tip3'),
         }}
       />
     );
@@ -116,6 +134,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
 
   // ── REVIEWER DASHBOARD ──
   if (isReviewer) {
+    const t = await getTranslations({ locale, namespace: 'ReviewerDashboard' });
     const reviewerId = session.userId;
 
     const [
@@ -172,7 +191,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
       specialistName: item.assignedSpecialist?.name || '—',
       customerName: item.createdBy.name,
       workspaceName: item.workspace.name,
-      submittedAt: timeAgo(item.updatedAt),
+      submittedAt: timeAgo(item.updatedAt, locale),
     }));
 
     const recentDecisions = recentDecisionsList.map(item => ({
@@ -180,7 +199,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
       code: item.code || item.id.slice(0, 8),
       title: item.title,
       decision: (item.status === 'approved' ? 'approved' : 'revised') as 'approved' | 'revised',
-      decisionAt: timeAgo(item.updatedAt),
+      decisionAt: timeAgo(item.updatedAt, locale),
     }));
 
     return (
@@ -190,39 +209,41 @@ export default async function AdminDashboardPage({ params }: PageProps) {
         pendingReviews={pendingReviews}
         recentDecisions={recentDecisions}
         translations={{
-          pageTitle: 'Bảng điều khiển kiểm duyệt',
-          pageDesc: 'Tổng quan hồ sơ cần duyệt và lịch sử quyết định',
-          statPending: 'Chờ duyệt',
-          statApprovedToday: 'Đã duyệt hôm nay',
-          statRevisionRequired: 'Yêu cầu sửa',
-          statPendingDesc: 'Cần hành động',
-          statApprovedTodayDesc: 'Đã phê duyệt',
-          statRevisionRequiredDesc: 'Trả lại sửa',
-          pendingReviews: 'Hồ sơ chờ kiểm duyệt',
-          viewAll: 'Xem tất cả',
-          noPending: 'Không có hồ sơ chờ duyệt',
-          noPendingDesc: 'Tất cả hồ sơ đã được xử lý',
-          recentDecisions: 'Quyết định gần đây',
-          noDecisions: 'Chưa có quyết định nào',
-          colCode: 'Mã',
-          colTitle: 'Tiêu đề',
-          colSpecialist: 'Chuyên viên',
-          colCustomer: 'Khách hàng',
-          colPriority: 'Ưu tiên',
-          actionReview: 'Duyệt',
-          approvedLabel: 'Đã duyệt',
-          revisedLabel: 'Yêu cầu sửa',
-          reviewGuidelines: 'Nguyên tắc kiểm duyệt',
-          guideline1: 'Đọc kỹ toàn bộ hồ sơ, đối chiếu với yêu cầu ban đầu của khách hàng trước khi ra quyết định.',
-          guideline2: 'Kiểm tra tính pháp lý và tính nhất quán của tài liệu — đây là bước kiểm soát chất lượng cuối cùng.',
-          guideline3: 'Nếu yêu cầu chỉnh sửa, ghi rõ lý do và hướng dẫn cụ thể để chuyên viên sửa nhanh chóng.',
+          pageTitle: t('pageTitle'),
+          pageDesc: t('pageDesc'),
+          statPending: t('statPending'),
+          statApprovedToday: t('statApprovedToday'),
+          statRevisionRequired: t('statRevisionRequired'),
+          statPendingDesc: t('statPendingDesc'),
+          statApprovedTodayDesc: t('statApprovedTodayDesc'),
+          statRevisionRequiredDesc: t('statRevisionRequiredDesc'),
+          pendingReviews: t('pendingReviews'),
+          viewAll: t('viewAll'),
+          noPending: t('noPending'),
+          noPendingDesc: t('noPendingDesc'),
+          recentDecisions: t('recentDecisions'),
+          noDecisions: t('noDecisions'),
+          colCode: t('colCode'),
+          colTitle: t('colTitle'),
+          colSpecialist: t('colSpecialist'),
+          colCustomer: t('colCustomer'),
+          colPriority: t('colPriority'),
+          actionReview: t('actionReview'),
+          approvedLabel: t('approvedLabel'),
+          revisedLabel: t('revisedLabel'),
+          reviewGuidelines: t('reviewGuidelines'),
+          guideline1: t('guideline1'),
+          guideline2: t('guideline2'),
+          guideline3: t('guideline3'),
         }}
       />
     );
   }
 
-  // ── ADMIN DASHBOARD (existing) ──
-  // Parallel Prisma queries for admin
+  // ── ADMIN DASHBOARD ──
+  const t = await getTranslations({ locale, namespace: 'AdminDashboard' });
+
+  // Parallel Prisma queries
   const [
     totalUsers,
     activeUsers,
@@ -292,7 +313,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
 
   const timelineData = recentAuditEvents.map((event) => {
     const targetLabel = event.targetId ? (event.workspace?.name || event.targetId.slice(0, 12)) : (event.workspace?.name || '—');
-    return { actorName: event.actor?.name || 'Hệ thống', action: event.action, targetType: event.targetType, targetLabel, description: event.metadataSummary || '', time: timeAgo(event.createdAt) };
+    return { actorName: event.actor?.name || 'Hệ thống', action: event.action, targetType: event.targetType, targetLabel, description: event.metadataSummary || '', time: timeAgo(event.createdAt, locale) };
   });
 
   const requestTableData = recentRequests.map((req) => {
@@ -326,22 +347,47 @@ export default async function AdminDashboardPage({ params }: PageProps) {
       timelineData={timelineData}
       requestTableData={requestTableData}
       translations={{
-        pageTitle: 'Tổng quan hệ thống', pageDesc: 'Tổng quan hoạt động hệ thống, workspaces và SLA.',
-        bannerTitle: 'Hệ thống đang hoạt động ổn định',
-        bannerDesc: `${stats.openRequests} hồ sơ đang mở, ${stats.nearSla} hồ sơ sắp quá SLA, ${stats.auditAlerts} cảnh báo audit cần rà soát và ${stats.workspaces.active} workspace đang hoạt động.`,
-        viewAudit: 'Xem nhật ký', dispatchWorkload: 'Điều phối workload', exportReport: 'Xuất báo cáo', createRequest: 'Tạo hồ sơ mới',
-        statUsers: 'Tổng người dùng', statUsersDesc: `${stats.users.active} active, ${stats.users.invited} invited`,
-        statWorkspaces: 'Không gian làm việc', statWorkspacesDesc: `${stats.workspaces.active} đang hoạt động`,
-        statNearSla: 'Sắp quá SLA', statNearSlaDesc: 'cần ưu tiên xử lý',
-        statAuditAlerts: 'Cảnh báo audit', statAuditAlertsDesc: 'cần rà soát',
-        workloadPanel: 'Khối lượng công việc chuyên viên', alertsPanel: 'Cảnh báo cần xử lý',
-        workspacesPanel: 'Không gian nổi bật', approvalsPanel: 'Chờ phê duyệt',
-        timelinePanel: 'Nhật ký kiểm toán gần đây',
-        viewDetail: 'Xem chi tiết', viewAll: 'Xem tất cả',
-        colCode: 'Mã hồ sơ', colWorkspace: 'Không gian', colCustomer: 'Khách hàng',
-        colStatus: 'Trạng thái', colAssignee: 'Người phụ trách', colSla: 'SLA', colAction: 'Thao tác',
-        searchPlaceholder: 'Tìm hồ sơ, workspace, người phụ trách...',
-        filter: 'Bộ lọc', status: 'Trạng thái', workspace: 'Không gian', export: 'Xuất', columns: 'Cột hiển thị',
+        pageTitle: t('pageTitle'),
+        pageDesc: t('pageDesc'),
+        bannerTitle: t('bannerTitle'),
+        bannerDesc: t('bannerDesc', {
+          openRequests: stats.openRequests,
+          nearSla: stats.nearSla,
+          auditAlerts: stats.auditAlerts,
+          activeWorkspaces: stats.workspaces.active,
+        }),
+        viewAudit: t('viewAudit'),
+        dispatchWorkload: t('dispatchWorkload'),
+        exportReport: t('exportReport'),
+        createRequest: t('createRequest'),
+        statUsers: t('statUsers'),
+        statUsersDesc: t('statUsersDesc', { active: stats.users.active, invited: stats.users.invited }),
+        statWorkspaces: t('statWorkspaces'),
+        statWorkspacesDesc: t('statWorkspacesDesc', { count: stats.workspaces.active }),
+        statNearSla: t('statNearSla'),
+        statNearSlaDesc: t('statNearSlaDesc'),
+        statAuditAlerts: t('statAuditAlerts'),
+        statAuditAlertsDesc: t('statAuditAlertsDesc'),
+        workloadPanel: t('workloadPanel'),
+        alertsPanel: t('alertsPanel'),
+        workspacesPanel: t('workspacesPanel'),
+        approvalsPanel: t('approvalsPanel'),
+        timelinePanel: t('timelinePanel'),
+        viewDetail: t('viewDetail'),
+        viewAll: t('viewAll'),
+        colCode: t('colCode'),
+        colWorkspace: t('colWorkspace'),
+        colCustomer: t('colCustomer'),
+        colStatus: t('colStatus'),
+        colAssignee: t('colAssignee'),
+        colSla: t('colSla'),
+        colAction: t('colAction'),
+        searchPlaceholder: t('searchPlaceholder'),
+        filter: t('filter'),
+        status: t('status'),
+        workspace: t('workspace'),
+        export: t('export'),
+        columns: t('columns'),
       }}
     />
   );

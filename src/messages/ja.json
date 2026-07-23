@@ -2419,6 +2419,8 @@
     "requestStatus": "ステータス",
     "aiReview": "AIレビュー",
     "aiReviewLoading": "分析中...",
+    "aiReviewInProgress": "AIレビュー実行中",
+    "aiReviewWait": "このページを離れないでください...",
     "aiReviewComplete": "完了 — {count}件の問題",
     "aiReviewError": "AIエラー: {message}",
     "aiConfidence": "信頼度",

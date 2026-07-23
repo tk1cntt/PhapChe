@@ -2419,6 +2419,8 @@
     "requestStatus": "状态",
     "aiReview": "AI审查",
     "aiReviewLoading": "分析中...",
+    "aiReviewInProgress": "AI审查进行中",
+    "aiReviewWait": "请勿离开此页面...",
     "aiReviewComplete": "完成 — {count}个问题",
     "aiReviewError": "AI错误: {message}",
     "aiConfidence": "置信度",

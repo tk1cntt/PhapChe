@@ -2431,6 +2431,16 @@
     "annotationDismissTitle": "忽略，不处理",
     "annotationAiBadge": "AI",
     "aiPopupClose": "关闭",
-    "aiPopupConfidence": "{pct}% 置信度"
+    "aiPopupConfidence": "{pct}% 置信度",
+    "annotations": "注释",
+    "timelineTab": "时间线",
+    "timelineTitle": "活动历史",
+    "timelineEmpty": "暂无活动",
+    "timelineLoading": "加载中...",
+    "timelineError": "无法加载历史",
+    "timelineRetry": "重试",
+    "timelineSpecialist": "专员",
+    "timelineReviewer": "审核员",
+    "timelineUnassigned": "未分配"
   }
 }

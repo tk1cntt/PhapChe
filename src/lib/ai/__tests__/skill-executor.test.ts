@@ -308,7 +308,7 @@ describe('SkillExecutor', () => {
       expect(result.skill).toBe('litigation-risk-scorer');
     });
 
-    it('should handle all 14 skills without crashing', async () => {
+    it('should handle all 31 skills without crashing', async () => {
       vi.mocked(isVectorStoreReady).mockReturnValue(false);
       vi.mocked(llmComplete).mockResolvedValue({
         content: JSON.stringify({ summary: 'OK' }),
@@ -332,6 +332,23 @@ describe('SkillExecutor', () => {
         'ai-governance-assessor',
         'litigation-risk-scorer',
         'general-legal-researcher',
+        'document-issue-analyzer',
+        'nda-reviewer',
+        'vendor-contract-reviewer',
+        'board-resolution-drafter',
+        'entity-compliance-checker',
+        'labor-discipline-checker',
+        'internal-regulation-drafter',
+        'dsar-response-drafter',
+        'trademark-clearance',
+        'cease-desist-drafter',
+        'demand-letter-drafter',
+        'litigation-strategist',
+        'tos-generator',
+        'compliance-gap-analyzer',
+        'ai-impact-assessment',
+        'client-letter-drafter',
+        'legal-memo-drafter',
       ];
 
       for (const skill of skills) {
@@ -341,7 +358,7 @@ describe('SkillExecutor', () => {
         expect(result.summary).toBeTruthy();
       }
 
-      expect(llmComplete).toHaveBeenCalledTimes(14);
+      expect(llmComplete).toHaveBeenCalledTimes(31);
     });
   });
 

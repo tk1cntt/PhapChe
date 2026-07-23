@@ -54,12 +54,6 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PREFIXES.some(p => pathname.startsWith(p) || pathname.includes(p));
 }
 
-function isAdminPath(pathname: string): boolean {
-  const segments = pathname.split('/').filter(Boolean);
-  const adminIdx = segments.findIndex(s => s === 'admin');
-  return adminIdx !== -1 && adminIdx < segments.length - 1;
-}
-
 function buildLoginUrl(pathname: string, search: string, locale: string): string {
   const returnUrl = encodeURIComponent(pathname + search);
   return `/${locale}/sign-in?returnUrl=${returnUrl}`;
@@ -120,15 +114,9 @@ export default async function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value
     || request.cookies.get(SESSION_COOKIE_ALT)?.value
     || extractSessionTokenFromHeader(request.headers.get('cookie'), SESSION_COOKIE);
-  const isAdmin = isAdminPath(pathname);
 
   // Pass pathname to downstream server components via header
   response.headers.set('x-pathname', pathname);
-
-  // Break redirect loop: if already showing the forbidden error page, pass through
-  if (isAdmin && request.nextUrl.searchParams.get('error') === 'forbidden') {
-    return response;
-  }
 
   // All non-public routes require session → redirect to login if missing
   // Role-based access for admin is checked by admin layout.tsx (Node.js server component)

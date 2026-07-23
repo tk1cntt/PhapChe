@@ -38,6 +38,10 @@ export const auth = betterAuth({
     disableCSRFCheck: true,
     // Tắt crossSubDomainCookies — không set Domain attribute trên cookie
     // để browser gửi cookie cho bất kỳ host nào (localhost, tunnel, v.v.)
+    // CRITICAL: Force useSecureCookies=false — nếu không, production build
+    // (isProduction=true) sẽ thêm __Secure- prefix + secure:true → browser
+    // từ chối cookie trên HTTP → session không được gửi → redirect loop.
+    useSecureCookies: false,
   },
   plugins: [nextCookies()],
 });

@@ -1,9 +1,12 @@
 /**
  * POST /api/admin/requests/[id]/files/[fileId]/ai-review
  *
- * Trigger AI-powered inline document review.
- * The AI analyzes the document content, returns structured findings with
- * line positions, and creates DocumentAnnotation records for each issue.
+ * Trigger AI-powered inline document review with optional skill selection.
+ *
+ * Body (optional): { skill?: AgentSkill }
+ *   - If skill is provided, runs that skill on the document.
+ *   - Default: 'document-issue-analyzer' (inline annotations with line positions).
+ *   - Other skills: return structured output without inline annotations.
  *
  * Response: { findings: MappedFinding[], annotationCount: number, timing: { totalMs: number } }
  */
@@ -18,11 +21,40 @@ import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
 import { normalizeMarkdown, convertWithMarkItDown, isMarkItDownAvailable } from '@/lib/document';
 import { getSkillExecutor, isAiReady } from '@/lib/ai/skill-executor';
+import { getSystemPrompt } from '@/lib/ai/system-prompts';
 import { splitMarkdownToLines, getLinesArray, fuzzyMatchPosition } from '@/lib/document/position-mapper';
-import type { AgentSkill, SkillContext } from '@/lib/ai/types';
+import type { AgentSkill, SkillContext, LegalDomain } from '@/lib/ai/types';
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
 const MAX_DOC_CHARS = 40000; // Context window for AI — large enough for most legal docs
+
+/** Skills that return line-positioned findings suitable for inline annotations */
+const INLINE_ANNOTATION_SKILLS: AgentSkill[] = ['document-issue-analyzer'];
+
+/** Find domain for a skill via DOMAIN_SKILL_MAP */
+function getDomainForSkill(skill: AgentSkill): LegalDomain {
+  for (const [domain, skills] of Object.entries(skillDomainMap)) {
+    if ((skills as AgentSkill[]).includes(skill)) return domain as LegalDomain;
+  }
+  return 'commercial-legal';
+}
+
+// Lightweight local DOMAIN_SKILL_MAP (avoids circular dependency)
+const skillDomainMap: Record<string, AgentSkill[]> = {
+  'commercial-legal': ['document-issue-analyzer', 'nda-reviewer', 'vendor-contract-reviewer', 'commercial-contract-drafter', 'commercial-contract-reviewer'],
+  'corporate-legal': ['board-resolution-drafter', 'entity-compliance-checker', 'corporate-doc-generator', 'corporate-compliance-checker'],
+  'employment-legal': ['labor-discipline-checker', 'internal-regulation-drafter', 'employment-contract-reviewer', 'employment-policy-checker'],
+  'privacy-legal': ['dsar-response-drafter', 'privacy-compliance-checker', 'privacy-dpia-generator'],
+  'product-legal': ['tos-generator', 'commercial-contract-reviewer', 'regulatory-gap-analyzer'],
+  'regulatory-legal': ['compliance-gap-analyzer', 'regulatory-gap-analyzer', 'general-legal-researcher'],
+  'ai-governance-legal': ['ai-impact-assessment', 'ai-governance-assessor'],
+  'ip-legal': ['trademark-clearance', 'cease-desist-drafter', 'ip-trademark-search', 'ip-patent-analyzer'],
+  'litigation-legal': ['demand-letter-drafter', 'litigation-strategist', 'litigation-risk-scorer'],
+  'legal-clinic': ['client-letter-drafter', 'legal-memo-drafter', 'general-legal-researcher'],
+  'law-student': ['general-legal-researcher'],
+  'legal-builder-hub': ['general-legal-researcher', 'commercial-contract-drafter'],
+  'external-plugins': ['general-legal-researcher'],
+};
 
 function isRedirectErr(e: unknown): boolean {
   return e instanceof Error && 'NEXT_REDIRECT' === e.message;
@@ -135,6 +167,23 @@ export async function POST(
       return NextResponse.json({ error: 'VALIDATION: missing ids' }, { status: 400 });
     }
 
+    // ── Parse optional body for skill selection ──
+    let selectedSkill: AgentSkill = 'document-issue-analyzer';
+    try {
+      const text = await _request.text();
+      if (text) {
+        const body = JSON.parse(text);
+        if (body?.skill && typeof body.skill === 'string') {
+          const validSkills = new Set(Object.values(skillDomainMap).flat());
+          if (validSkills.has(body.skill)) {
+            selectedSkill = body.skill as AgentSkill;
+          }
+        }
+      }
+    } catch {
+      // No body or empty body — use default skill
+    }
+
     // ── Load request ──
     const legalRequest = await prisma.legalRequest.findUnique({
       where: { id: requestId },
@@ -238,10 +287,11 @@ export async function POST(
     const linesArray = getLinesArray(rawContent);
 
     // ── Execute AI skill ──
-    const skill: AgentSkill = 'document-issue-analyzer';
+    const skill = selectedSkill;
+    const domain = getDomainForSkill(skill);
     const context: SkillContext = {
       matterTypeKey: 'commercial',
-      domain: 'commercial-legal',
+      domain,
       requestContext: {
         title: legalRequest.title,
         documentContent: numberedContent,
@@ -252,7 +302,23 @@ export async function POST(
     const executor = getSkillExecutor({ enableRag: false });
     const result = await executor.execute(skill, context);
 
-    // ── Parse AI findings ──
+    // For non-inline-annotation skills, return structured output directly
+    if (!INLINE_ANNOTATION_SKILLS.includes(skill)) {
+      const totalMs = Date.now() - startTime;
+      return NextResponse.json({
+        success: true,
+        data: {
+          skill,
+          output: result.output,
+          summary: result.summary,
+          citations: result.citations,
+          confidence: result.confidence,
+          timing: { totalMs },
+        },
+      });
+    }
+
+    // ── Parse AI findings (inline annotation mode) ──
     const aiFindings = (result.output?.findings as Array<Record<string, unknown>>) ?? [];
     const mappedFindings: Array<{
       severity: string;
@@ -303,7 +369,8 @@ export async function POST(
             fileKey: fileId,
             authorId: session.userId,
             content: annotationContent,
-            severity: (['critical', 'high', 'medium', 'low'].includes(severity) ? severity : 'info') as 'info' | 'warning' | 'critical',
+            // Map AI severity → Prisma severity (Prisma chỉ chấp nhận info|warning|critical)
+            severity: severity === 'critical' ? 'critical' : severity === 'high' ? 'critical' : severity === 'medium' ? 'warning' : 'info',
             category: 'issue',
             position: {
               line: mapped.lineStart,

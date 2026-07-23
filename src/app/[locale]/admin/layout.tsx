@@ -67,8 +67,10 @@ export default async function AdminLayoutWrapper({ children, params }: LayoutPro
     const pathname = headersList.get('x-pathname') || '';
     const routeKey = extractRouteKey(pathname);
 
-    if (routeKey && !canAccessRoute(routeKey, session.roles ?? [])) {
-      redirect(`/${locale}/admin/dashboard?error=forbidden`);
+    // Gate 2: Don't re-check dashboard itself — doing so would cause
+    // an RSC fetch loop because _rsc requests don't carry query params.
+    if (routeKey && routeKey !== 'dashboard' && !canAccessRoute(routeKey, session.roles ?? [])) {
+      redirect(`/${locale}/admin/dashboard`);
     }
 
     // Fetch user info for sidebar profile display
@@ -93,7 +95,10 @@ export default async function AdminLayoutWrapper({ children, params }: LayoutPro
         </AdminLayout>
       </AdminRoleProvider>
     );
-  } catch {
+  } catch (e) {
+    // redirect() throws a NEXT_REDIRECT error — don't swallow it.
+    // Re-throwing ensures the login redirect with returnUrl passes through.
+    if ((e as any)?.digest?.startsWith('NEXT_REDIRECT')) throw e;
     redirect(`/${locale}/sign-in`);
   }
 }

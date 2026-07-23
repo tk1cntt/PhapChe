@@ -125,35 +125,66 @@ export type LegalDomain =
   | 'external-plugins';
 
 /** Agent skill types — each maps to a matter type workflow step */
+// Phase 1 (P0): Commercial + Corporate
+// Phase 2 (P0): Employment + Privacy
+// Phase 3 (P1): IP + Litigation
+// Phase 4 (P2): Product + Regulatory + AI Governance + Clinic
 export type AgentSkill =
+  // ── Commercial Legal ──
   | 'commercial-contract-drafter'
   | 'commercial-contract-reviewer'
-  | 'employment-contract-reviewer'
-  | 'employment-policy-checker'
+  | 'nda-reviewer'
+  | 'vendor-contract-reviewer'
+  // ── Corporate Legal ──
   | 'corporate-doc-generator'
   | 'corporate-compliance-checker'
-  | 'ip-trademark-search'
-  | 'ip-patent-analyzer'
+  | 'board-resolution-drafter'
+  | 'entity-compliance-checker'
+  // ── Employment Legal ──
+  | 'employment-contract-reviewer'
+  | 'employment-policy-checker'
+  | 'labor-discipline-checker'
+  | 'internal-regulation-drafter'
+  // ── Privacy Legal ──
   | 'privacy-compliance-checker'
   | 'privacy-dpia-generator'
-  | 'regulatory-gap-analyzer'
-  | 'ai-governance-assessor'
+  | 'dsar-response-drafter'
+  // ── IP Legal ──
+  | 'ip-trademark-search'
+  | 'ip-patent-analyzer'
+  | 'trademark-clearance'
+  | 'cease-desist-drafter'
+  // ── Litigation ──
   | 'litigation-risk-scorer'
+  | 'demand-letter-drafter'
+  | 'litigation-strategist'
+  // ── Product Legal ──
+  | 'tos-generator'
+  // ── Regulatory ──
+  | 'regulatory-gap-analyzer'
+  | 'compliance-gap-analyzer'
+  // ── AI Governance ──
+  | 'ai-governance-assessor'
+  | 'ai-impact-assessment'
+  // ── Legal Clinic ──
+  | 'client-letter-drafter'
+  | 'legal-memo-drafter'
+  // ── Generic ──
   | 'general-legal-researcher'
   | 'document-issue-analyzer';
 
 /** Maps legal domain → agent skills */
 export const DOMAIN_SKILL_MAP: Record<LegalDomain, AgentSkill[]> = {
-  'commercial-legal': ['commercial-contract-drafter', 'commercial-contract-reviewer'],
-  'corporate-legal': ['corporate-doc-generator', 'corporate-compliance-checker'],
-  'employment-legal': ['employment-contract-reviewer', 'employment-policy-checker'],
-  'privacy-legal': ['privacy-compliance-checker', 'privacy-dpia-generator'],
-  'product-legal': ['commercial-contract-reviewer', 'regulatory-gap-analyzer'],
-  'regulatory-legal': ['regulatory-gap-analyzer', 'general-legal-researcher'],
-  'ai-governance-legal': ['ai-governance-assessor'],
-  'ip-legal': ['ip-trademark-search', 'ip-patent-analyzer'],
-  'litigation-legal': ['litigation-risk-scorer'],
-  'legal-clinic': ['general-legal-researcher', 'employment-policy-checker'],
+  'commercial-legal': ['nda-reviewer', 'vendor-contract-reviewer', 'commercial-contract-drafter', 'commercial-contract-reviewer'],
+  'corporate-legal': ['board-resolution-drafter', 'entity-compliance-checker', 'corporate-doc-generator', 'corporate-compliance-checker'],
+  'employment-legal': ['labor-discipline-checker', 'internal-regulation-drafter', 'employment-contract-reviewer', 'employment-policy-checker'],
+  'privacy-legal': ['dsar-response-drafter', 'privacy-compliance-checker', 'privacy-dpia-generator'],
+  'product-legal': ['tos-generator', 'commercial-contract-reviewer', 'regulatory-gap-analyzer'],
+  'regulatory-legal': ['compliance-gap-analyzer', 'regulatory-gap-analyzer', 'general-legal-researcher'],
+  'ai-governance-legal': ['ai-impact-assessment', 'ai-governance-assessor'],
+  'ip-legal': ['trademark-clearance', 'cease-desist-drafter', 'ip-trademark-search', 'ip-patent-analyzer'],
+  'litigation-legal': ['demand-letter-drafter', 'litigation-strategist', 'litigation-risk-scorer'],
+  'legal-clinic': ['client-letter-drafter', 'legal-memo-drafter', 'general-legal-researcher'],
   'law-student': ['general-legal-researcher'],
   'legal-builder-hub': ['general-legal-researcher', 'commercial-contract-drafter'],
   'external-plugins': ['general-legal-researcher'],

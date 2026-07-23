@@ -56,6 +56,13 @@ export {
   renderSystemPrompt,
 } from './system-prompts';
 
+// Domain Resolver
+export {
+  suggestSkills,
+  matterTypeToDomain,
+  getPrimarySkill,
+} from './domain-resolver';
+
 // Legal Knowledge
 export {
   initializeLegalKnowledge,

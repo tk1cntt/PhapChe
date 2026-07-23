@@ -121,7 +121,7 @@ describe('AiSkillSelector', () => {
   });
 
   describe('Blackbox', () => {
-    it('should display all 14 skills across domains when each expanded', () => {
+    it('should display all 31 skills across domains when each expanded', () => {
       const onSelect = vi.fn();
       render(
         // @ts-expect-error
@@ -129,10 +129,10 @@ describe('AiSkillSelector', () => {
       );
 
       // Only one domain expanded at a time — verify each domain group exists
-      // Only 9 of 13 domains have skills assigned (the other 4 have no skills = not rendered)
+      // 10 of 13 domains have skills assigned (product-legal now has tos-generator)
       const domainIds = [
         'commercial-legal', 'corporate-legal', 'employment-legal',
-        'privacy-legal', 'regulatory-legal',
+        'privacy-legal', 'product-legal', 'regulatory-legal',
         'ai-governance-legal', 'ip-legal', 'litigation-legal', 'legal-clinic',
       ];
 
@@ -144,8 +144,8 @@ describe('AiSkillSelector', () => {
         totalSkills += skills.length;
       }
 
-      // 14 total skill items across all domains
-      expect(totalSkills).toBe(14);
+      // 31 total skill items across all domains (15 legacy + 16 new)
+      expect(totalSkills).toBe(31);
     });
 
     it('should only expand one domain at a time', async () => {

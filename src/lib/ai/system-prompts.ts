@@ -7,6 +7,22 @@
 
 import type { SystemPromptTemplate, AgentSkill } from './types';
 import { documentIssueAnalyzerPrompt } from './system-prompts/document-issue-analyzer';
+import { ndaReviewerPrompt } from './system-prompts/nda-reviewer';
+import { vendorContractReviewerPrompt } from './system-prompts/vendor-contract-reviewer';
+import { boardResolutionDrafterPrompt } from './system-prompts/board-resolution-drafter';
+import { entityComplianceCheckerPrompt } from './system-prompts/entity-compliance-checker';
+import { laborDisciplineCheckerPrompt } from './system-prompts/labor-discipline-checker';
+import { internalRegulationDrafterPrompt } from './system-prompts/internal-regulation-drafter';
+import { dsarResponseDrafterPrompt } from './system-prompts/dsar-response-drafter';
+import { trademarkClearancePrompt } from './system-prompts/trademark-clearance';
+import { ceaseDesistDrafterPrompt } from './system-prompts/cease-desist-drafter';
+import { demandLetterDrafterPrompt } from './system-prompts/demand-letter-drafter';
+import { litigationStrategistPrompt } from './system-prompts/litigation-strategist';
+import { tosGeneratorPrompt } from './system-prompts/tos-generator';
+import { complianceGapAnalyzerPrompt } from './system-prompts/compliance-gap-analyzer';
+import { aiImpactAssessmentPrompt } from './system-prompts/ai-impact-assessment';
+import { clientLetterDrafterPrompt } from './system-prompts/client-letter-drafter';
+import { legalMemoDrafterPrompt } from './system-prompts/legal-memo-drafter';
 
 // ── System Prompts ──────────────────────────────────────────
 
@@ -23,6 +39,11 @@ YÊU CẦU ĐẦU VÀO:
 - Loại hợp đồng: {{matterType}}
 - Yêu cầu khách hàng: {{requestTitle}}
 {{#if requestDescription}}- Mô tả chi tiết: {{requestDescription}}{{/if}}
+
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
 
 BỐI CẢNH PHÁP LÝ (từ RAG):
 {{#each legalContext}}
@@ -69,6 +90,11 @@ YÊU CẦU ĐẦU VÀO:
 - Loại hợp đồng: {{matterType}}
 - Yêu cầu khách hàng: {{requestTitle}}
 
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
+
 BỐI CẢNH PHÁP LÝ (từ RAG):
 {{#each legalContext}}
 📜 {{source}}
@@ -112,6 +138,11 @@ YÊU CẦU ĐẦU VÀO:
 - Loại hợp đồng: {{matterType}}
 - Yêu cầu: {{requestTitle}}
 {{#if requestDescription}}- Mô tả: {{requestDescription}}{{/if}}
+
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
 
 BỐI CẢNH PHÁP LÝ (từ RAG):
 {{#each legalContext}}
@@ -158,6 +189,11 @@ YÊU CẦU ĐẦU VÀO:
 - Chính sách cần kiểm tra: {{requestTitle}}
 {{#if requestDescription}}- Mô tả: {{requestDescription}}{{/if}}
 
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
+
 BỐI CẢNH PHÁP LÝ:
 {{#each legalContext}}
 📜 {{source}}
@@ -196,6 +232,11 @@ YÊU CẦU ĐẦU VÀO:
 - Yêu cầu: {{requestTitle}}
 {{#if requestDescription}}- Mô tả: {{requestDescription}}{{/if}}
 
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
+
 BỐI CẢNH PHÁP LÝ:
 {{#each legalContext}}
 📜 {{source}}
@@ -231,6 +272,11 @@ Kiểm tra tình trạng tuân thủ pháp luật doanh nghiệp.
 YÊU CẦU ĐẦU VÀO:
 - Doanh nghiệp: {{requestTitle}}
 {{#if requestDescription}}- Mô tả: {{requestDescription}}{{/if}}
+
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
 
 BỐI CẢNH PHÁP LÝ:
 {{#each legalContext}}
@@ -269,6 +315,11 @@ YÊU CẦU ĐẦU VÀO:
 - Nhãn hiệu: {{requestTitle}}
 {{#if requestDescription}}- Mô tả: {{requestDescription}}{{/if}}
 
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
+
 BỐI CẢNH PHÁP LÝ:
 {{#each legalContext}}
 📜 {{source}}
@@ -303,6 +354,10 @@ Phân tích khả năng bảo hộ sáng chế/giải pháp hữu ích theo Lu�
 YÊU CẦU ĐẦU VÀO:
 - Sáng chế: {{requestTitle}}
 {{#if requestDescription}}- Mô tả kỹ thuật: {{requestDescription}}{{/if}}
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
 
 YÊU CẦU ĐẦU RA (JSON):
 {
@@ -330,6 +385,11 @@ Kiểm tra mức độ tuân thủ Nghị định 13/2023/NĐ-CP về bảo vệ
 YÊU CẦU ĐẦU VÀO:
 - Tổ chức/Hệ thống: {{requestTitle}}
 {{#if requestDescription}}- Mô tả xử lý dữ liệu: {{requestDescription}}{{/if}}
+
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
 
 BỐI CẢNH PHÁP LÝ:
 {{#each legalContext}}
@@ -368,6 +428,10 @@ Tạo báo cáo Đánh giá tác động bảo vệ dữ liệu cá nhân (DPIA)
 YÊU CẦU ĐẦU VÀO:
 - Hệ thống/Hoạt động xử lý: {{requestTitle}}
 {{#if requestDescription}}- Mô tả: {{requestDescription}}{{/if}}
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
 
 YÊU CẦU ĐẦU RA (JSON):
 {
@@ -398,6 +462,11 @@ Phân tích khoảng trống giữa hiện trạng doanh nghiệp và yêu cầu
 YÊU CẦU ĐẦU VÀO:
 - Lĩnh vực: {{matterType}}
 - Doanh nghiệp: {{requestTitle}}
+
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
 
 BỐI CẢNH PHÁP LÝ:
 {{#each legalContext}}
@@ -436,6 +505,10 @@ NHIỆM VỤ:
 YÊU CẦU ĐẦU VÀO:
 - Hệ thống AI: {{requestTitle}}
 {{#if requestDescription}}- Mô tả: {{requestDescription}}{{/if}}
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
 
 YÊU CẦU ĐẦU RA (JSON):
 {
@@ -469,6 +542,11 @@ NHIỆM VỤ:
 YÊU CẦU ĐẦU VÀO:
 - Vụ việc: {{requestTitle}}
 {{#if requestDescription}}- Mô tả: {{requestDescription}}{{/if}}
+
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
 
 BỐI CẢNH PHÁP LÝ:
 {{#each legalContext}}
@@ -507,6 +585,11 @@ CHI TIẾT:
 {{requestDescription}}
 {{/if}}
 
+{{#if documentContent}}
+NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
+{{documentContent}}
+{{/if}}
+
 BỐI CẢNH PHÁP LÝ (từ cơ sở dữ liệu luật):
 {{#each legalContext}}
 📜 {{source}}
@@ -531,6 +614,30 @@ YÊU CẦU ĐẦU RA (JSON):
   },
 
   'document-issue-analyzer': documentIssueAnalyzerPrompt,
+
+  // ── Phase 1: Commercial + Corporate Legal ──
+  'nda-reviewer': ndaReviewerPrompt,
+  'vendor-contract-reviewer': vendorContractReviewerPrompt,
+  'board-resolution-drafter': boardResolutionDrafterPrompt,
+  'entity-compliance-checker': entityComplianceCheckerPrompt,
+
+  // ── Phase 2: Employment + Privacy ──
+  'labor-discipline-checker': laborDisciplineCheckerPrompt,
+  'internal-regulation-drafter': internalRegulationDrafterPrompt,
+  'dsar-response-drafter': dsarResponseDrafterPrompt,
+
+  // ── Phase 3: IP + Litigation ──
+  'trademark-clearance': trademarkClearancePrompt,
+  'cease-desist-drafter': ceaseDesistDrafterPrompt,
+  'demand-letter-drafter': demandLetterDrafterPrompt,
+  'litigation-strategist': litigationStrategistPrompt,
+
+  // ── Phase 4: Product + Regulatory + AI + Clinic ──
+  'tos-generator': tosGeneratorPrompt,
+  'compliance-gap-analyzer': complianceGapAnalyzerPrompt,
+  'ai-impact-assessment': aiImpactAssessmentPrompt,
+  'client-letter-drafter': clientLetterDrafterPrompt,
+  'legal-memo-drafter': legalMemoDrafterPrompt,
 };
 
 // ── Public API ──────────────────────────────────────────────

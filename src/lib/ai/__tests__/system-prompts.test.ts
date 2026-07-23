@@ -14,6 +14,8 @@ describe('System Prompts', () => {
         const skills = getAllSkills();
         skills.forEach((skill) => {
           const tpl = getSystemPrompt(skill);
+          // Skip placeholder templates (Phase 3/4 — not yet implemented)
+          if (tpl.template === 'PLACEHOLDER') return;
           expect(tpl.skill).toBe(skill);
           expect(tpl.template).toBeTruthy();
           expect(tpl.description).toBeTruthy();
@@ -23,9 +25,9 @@ describe('System Prompts', () => {
         });
       });
 
-      it('should have all 14 skills', () => {
+      it('should have all 31 skills (15 legacy + 4 P1 + 3 P2 + 9 P3/P4 placeholders)', () => {
         const skills = getAllSkills();
-        expect(skills.length).toBe(14);
+        expect(skills.length).toBe(31);
       });
 
       it('should have JSON output format for all structured skills', () => {
@@ -45,9 +47,9 @@ describe('System Prompts', () => {
   });
 
   describe('getAllSkills', () => {
-    it('should return an array of 14 skills', () => {
+    it('should return an array of 31 skills', () => {
       const skills = getAllSkills();
-      expect(skills).toHaveLength(14);
+      expect(skills).toHaveLength(31);
       expect(Array.isArray(skills)).toBe(true);
     });
 
@@ -178,6 +180,84 @@ describe('System Prompts', () => {
     describe('Error', () => {
       it('should throw for invalid skill', () => {
         expect(() => renderSystemPrompt('invalid-skill' as any, {})).toThrow();
+      });
+    });
+  });
+
+  describe('documentContent — Bugfix verify (all skills receive document)', () => {
+    describe('Whitebox', () => {
+      it('should have {{documentContent}} in EVERY skill template', () => {
+        const skills = getAllSkills();
+        const missing: string[] = [];
+        skills.forEach((skill) => {
+          const tpl = getSystemPrompt(skill);
+          if (tpl.template === 'PLACEHOLDER') return;
+          if (!tpl.template.includes('{{documentContent}}')) {
+            missing.push(skill);
+          }
+        });
+        expect(missing).toEqual([]);
+      });
+
+      it('should render documentContent when provided', () => {
+        const docContent = 'Điều 1: Bên A đồng ý bảo mật thông tin của Bên B.';
+        const rendered = renderSystemPrompt('nda-reviewer', {
+          matterType: 'nda',
+          requestTitle: 'Rà soát NDA',
+          documentContent: docContent,
+          locale: 'vi',
+        });
+        expect(rendered).toContain(docContent);
+        expect(rendered).toContain('NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH');
+      });
+
+      it('should remove {{#if documentContent}} block when documentContent is empty', () => {
+        const rendered = renderSystemPrompt('nda-reviewer', {
+          matterType: 'nda',
+          requestTitle: 'Rà soát NDA',
+          documentContent: '',
+          locale: 'vi',
+        });
+        expect(rendered).not.toContain('NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH');
+        expect(rendered).not.toContain('{{#if documentContent}}');
+        expect(rendered).not.toContain('{{/if}}');
+      });
+
+      it('should render documentContent for all 30 non-placeholder skills', () => {
+        const skills = getAllSkills();
+        const docContent = 'Điều 1: Nội dung mẫu để test.';
+        const errors: string[] = [];
+        skills.forEach((skill) => {
+          const tpl = getSystemPrompt(skill);
+          if (tpl.template === 'PLACEHOLDER') return;
+          try {
+            const rendered = renderSystemPrompt(skill, {
+              matterType: 'nda',
+              requestTitle: 'Test',
+              documentContent: docContent,
+              locale: 'vi',
+            });
+            if (!rendered.includes(docContent)) {
+              errors.push(`${skill}: documentContent not rendered`);
+            }
+          } catch (e: unknown) {
+            errors.push(`${skill}: exception — ${e instanceof Error ? e.message : String(e)}`);
+          }
+        });
+        expect(errors).toEqual([]);
+      });
+    });
+
+    describe('Error', () => {
+      it('should not break when documentContent is missing from context entirely', () => {
+        const rendered = renderSystemPrompt('nda-reviewer', {
+          matterType: 'nda',
+          requestTitle: 'Test',
+          locale: 'vi',
+        });
+        expect(typeof rendered).toBe('string');
+        expect(rendered).not.toContain('NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH');
+        expect(rendered).not.toContain('{{#if documentContent}}');
       });
     });
   });

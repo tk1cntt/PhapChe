@@ -233,7 +233,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: 'SUBMIT_FAILED', message: 'Failed to submit request' },
+      { error: 'SUBMIT_FAILED', detail: 'Failed to submit request' },
       { status: 500 }
     );
   }

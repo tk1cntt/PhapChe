@@ -108,17 +108,33 @@ export class PartnerInviteService {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + expiryDays);
 
-      // Create invite
-      const invite = await this.prismaClient.partnerInvite.create({
-        data: {
-          partnerId,
-          email: email.toLowerCase(),
-          role,
-          token,
-          invitedBy,
-          expiresAt,
-          status: 'pending',
-        },
+      // ── Create invite within transaction to prevent duplicate pending invites ──
+      const invite = await this.prismaClient.$transaction(async (tx) => {
+        // Check for existing pending invite (re-check inside transaction)
+        const existingInvite = await tx.partnerInvite.findFirst({
+          where: {
+            partnerId,
+            email: email.toLowerCase(),
+            status: 'pending',
+            expiresAt: { gt: new Date() },
+          },
+        });
+
+        if (existingInvite) {
+          throw Object.assign(new Error('Pending invite already exists for this email'), { code: 'DUPLICATE_INVITE' });
+        }
+
+        return tx.partnerInvite.create({
+          data: {
+            partnerId,
+            email: email.toLowerCase(),
+            role,
+            token,
+            invitedBy,
+            expiresAt,
+            status: 'pending',
+          },
+        });
       });
 
       return {
@@ -131,9 +147,12 @@ export class PartnerInviteService {
       };
     } catch (error) {
       console.error('Create invite error:', error);
+      if (error instanceof Error && (error as Error & { code?: string }).code === 'DUPLICATE_INVITE') {
+        return { success: false, error: 'Pending invite already exists for this email' };
+      }
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to create invite',
+        error: 'Failed to create invite',
       };
     }
   }
@@ -230,7 +249,7 @@ export class PartnerInviteService {
       console.error('Accept invite error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to accept invite',
+        error: 'Failed to accept invite',
       };
     }
   }
@@ -269,7 +288,7 @@ export class PartnerInviteService {
       console.error('Revoke invite error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to revoke invite',
+        error: 'Failed to revoke invite',
       };
     }
   }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
+import { isStructuredError } from '@/lib/errors';
 
 export async function PUT(request: Request) {
   try {
@@ -34,42 +35,41 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Check if email is already taken by another user
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        email: email.toLowerCase(),
-        NOT: { id: userId }
-      }
-    });
+    // Check if email is already taken by another user (read inside transaction)
+    // Update user profile atomically
+    const updatedUser = await prisma.$transaction(async (tx) => {
+      const existingUser = await tx.user.findFirst({
+        where: {
+          email: email.toLowerCase(),
+          NOT: { id: userId }
+        }
+      });
 
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'VALIDATION_ERROR', message: 'Email is already in use' },
-        { status: 400 }
-      );
-    }
-
-    // Update user profile
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        name: name.trim(),
-        email: email.toLowerCase().trim(),
-        phone: phone || null,
-        title: title || null,
-        timezone: timezone || 'Asia/Ho_Chi_Minh',
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        title: true,
-        timezone: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
+      if (existingUser) {
+        throw Object.assign(new Error('Email is already in use'), { status: 400, error: 'VALIDATION_ERROR' });
       }
+
+      return tx.user.update({
+        where: { id: userId },
+        data: {
+          name: name.trim(),
+          email: email.toLowerCase().trim(),
+          phone: phone || null,
+          title: title || null,
+          timezone: timezone || 'Asia/Ho_Chi_Minh',
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          title: true,
+          timezone: true,
+          avatarUrl: true,
+          createdAt: true,
+          updatedAt: true,
+        }
+      });
     });
 
     return NextResponse.json({
@@ -80,6 +80,13 @@ export async function PUT(request: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Profile update failed:', message);
+
+    if (isStructuredError(error)) {
+      return NextResponse.json(
+        { error: error.error, detail: error.detail },
+        { status: error.status }
+      );
+    }
 
     if (message === 'UNAUTHENTICATED') {
       return NextResponse.json(

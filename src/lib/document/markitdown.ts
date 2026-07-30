@@ -23,10 +23,12 @@ const CLI_CHECK_TTL_MS = 60_000;
 let cliChecked = false;
 let cliAvailable = false;
 let cliLastChecked = 0;
+let cliCheckPromise: Promise<boolean> | null = null;
 
 /**
  * Kiểm tra markitdown CLI có sẵn không.
  * Cache kết quả trong 60s để tránh spawn liên tục.
+ * Mutex via cliCheckPromise prevents concurrent duplicate checks.
  */
 export async function isMarkItDownAvailable(): Promise<boolean> {
   const now = Date.now();
@@ -34,16 +36,26 @@ export async function isMarkItDownAvailable(): Promise<boolean> {
     return cliAvailable;
   }
 
-  try {
-    await execFileAsync('markitdown', ['--version'], { timeout: 5_000 });
-    cliAvailable = true;
-  } catch {
-    cliAvailable = false;
+  // Prevent concurrent checks — reuse the in-flight promise
+  if (cliCheckPromise) {
+    return cliCheckPromise;
   }
 
-  cliChecked = true;
-  cliLastChecked = now;
-  return cliAvailable;
+  cliCheckPromise = (async () => {
+    try {
+      await execFileAsync('markitdown', ['--version'], { timeout: 5_000 });
+      cliAvailable = true;
+    } catch {
+      cliAvailable = false;
+    }
+
+    cliChecked = true;
+    cliLastChecked = now;
+    cliCheckPromise = null;
+    return cliAvailable;
+  })();
+
+  return cliCheckPromise;
 }
 
 /**
@@ -53,6 +65,7 @@ export function resetCliCache(): void {
   cliChecked = false;
   cliAvailable = false;
   cliLastChecked = 0;
+  cliCheckPromise = null;
 }
 
 // ── Converter ─────────────────────────────────────────────────

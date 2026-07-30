@@ -9,7 +9,13 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { matterTypeKey, title, answers } = body;
 
-    const workspaceId = session.activeWorkspaceId!;
+    const workspaceId = session.activeWorkspaceId;
+    if (!workspaceId) {
+      return NextResponse.json(
+        { error: 'WORKSPACE_REQUIRED', detail: 'No active workspace' },
+        { status: 400 }
+      );
+    }
     const resolvedMatterType = matterTypeKey || 'general';
     const resolvedAnswers = answers || {};
 
@@ -89,7 +95,7 @@ export async function POST(request: Request) {
 
     // Return actual error for debugging
     return NextResponse.json(
-      { error: 'DRAFT_CREATION_FAILED', message, stack: error instanceof Error ? error.stack : undefined },
+      { error: 'DRAFT_CREATION_FAILED', detail: 'Failed to create draft' },
       { status: 500 }
     );
   }

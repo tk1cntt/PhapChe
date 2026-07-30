@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { createStorageService, FileCategory, FileVisibility } from '@/lib/storage';
 
@@ -14,11 +15,6 @@ const submitDataSchema = z.object({
   domainId: z.string().min(1),
   serviceType: z.string().min(1),
   answers: z.record(z.string(), z.string()).optional().default({}),
-  files: z.array(z.object({
-    vaultFileId: z.string(),
-    filename: z.string(),
-    size: z.number(),
-  })).optional().default([]),
   priority: z.enum(['normal', 'urgent']).optional().default('normal'),
   contactInfo: z.object({
     email: z.string().email('Invalid email format'),
@@ -27,6 +23,8 @@ const submitDataSchema = z.object({
     taxCode: z.string().optional(),
   }).optional(),
 });
+
+const SLA_HOURS = { urgent: 24, normal: 72 } as const;
 
 export async function POST(request: Request) {
   try {
@@ -74,21 +72,26 @@ export async function POST(request: Request) {
 
     const { draftId, domainId, serviceType, answers, priority, contactInfo } = validationResult.data;
     const uploadedFiles = formData.getAll('files');
-    const correlationId = `v2-submit-${Date.now()}`;
+    const correlationId = `v2-submit-${crypto.randomUUID()}`;
     const now = new Date();
 
-    // Calculate SLA deadline
-    const slaDeadline = priority === 'urgent'
-      ? new Date(now.getTime() + 24 * 60 * 60 * 1000)
-      : new Date(now.getTime() + 72 * 60 * 60 * 1000);
-
-    // Get matter type from seed catalog
+    // Validate serviceType exists in seed catalog
     const seedMatter = SEED_MATTER_TYPES[serviceType as keyof typeof SEED_MATTER_TYPES];
-    const questions = (seedMatter?.questions ?? []) as unknown as readonly { key: string; label: { vi: string; en: string; zh?: string; ja?: string }; required: boolean; type: string }[];
-    const schemaVersion = seedMatter?.schemaVersion ?? '2026-07-16';
+    if (!seedMatter) {
+      return NextResponse.json(
+        { error: 'VALIDATION_ERROR', detail: `Unknown service type: ${serviceType}` },
+        { status: 400 }
+      );
+    }
+
+    // Calculate SLA deadline
+    const slaDeadline = new Date(now.getTime() + SLA_HOURS[priority] * 60 * 60 * 1000);
+
+    const questions = (seedMatter.questions ?? []) as unknown as readonly { key: string; label: { vi: string; en: string; zh?: string; ja?: string }; required: boolean; type: string }[];
+    const schemaVersion = seedMatter.schemaVersion ?? '2026-07-16';
 
     // Title for LegalRequest (VI primary from seed data)
-    const title = String(seedMatter?.label?.vi ?? serviceType);
+    const title = String(seedMatter.label?.vi ?? serviceType);
 
     // Create request + intake submission in transaction
     const result = await prisma.$transaction(async (tx) => {
@@ -153,63 +156,85 @@ export async function POST(request: Request) {
       return legalRequest;
     });
 
-    // Upload files via StorageService (S3-ready architecture per local_store_to_s3.md)
+    // Upload files via StorageService in parallel with accurate tracking
+    let filesStored = 0;
+    const failedFiles: string[] = [];
     if (uploadedFiles.length > 0) {
       const storageService = createStorageService();
-      for (const entry of uploadedFiles) {
-        if (!(entry instanceof File)) continue;
-        try {
-          const buffer = Buffer.from(await entry.arrayBuffer());
+      const uploadResults = await Promise.allSettled(
+        uploadedFiles
+          .filter((entry): entry is File => entry instanceof File)
+          .map(async (entry) => {
+            const buffer = Buffer.from(await entry.arrayBuffer());
 
-          // StorageService handles: MIME validation, object key generation,
-          // checksum, upload to provider, File record creation, audit logging
-          const fileRecord = await storageService.uploadFile({
-            organizationId: workspaceId,
-            requestId: result.id,
-            file: buffer,
-            originalName: entry.name,
-            mimeType: entry.type || 'application/octet-stream',
-            category: FileCategory.REQUEST_UPLOAD,
-            visibility: FileVisibility.PRIVATE,
-            createdBy: session.userId,
-          });
-
-          // Create VaultFile record for dashboard query compatibility
-          await prisma.vaultFile.create({
-            data: {
+            // StorageService handles: MIME validation, object key generation,
+            // checksum, upload to provider, File record creation, audit logging
+            const fileRecord = await storageService.uploadFile({
+              organizationId: workspaceId,
               requestId: result.id,
-              workspaceId,
-              actorId: session.userId,
-              fileId: fileRecord.id,
-              filename: entry.name,
-              storageKey: fileRecord.objectKey,
-              fileKind: 'intake_upload',
-              source: 'customer_upload',
-              size: entry.size,
-              contentType: entry.type || 'application/octet-stream',
-            },
-          });
-        } catch (err) {
-          console.error('Failed to store intake file:', entry.name, err);
-        }
+              file: buffer,
+              originalName: entry.name,
+              mimeType: entry.type || 'application/octet-stream',
+              category: FileCategory.REQUEST_UPLOAD,
+              visibility: FileVisibility.PRIVATE,
+              createdBy: session.userId,
+            });
+
+            // Create VaultFile record for dashboard query compatibility
+            // NOTE: If this fails, the file is already uploaded but lacks DB linkage.
+            // Consider compensating cleanup in a future iteration.
+            await prisma.vaultFile.create({
+              data: {
+                requestId: result.id,
+                workspaceId,
+                actorId: session.userId,
+                fileId: fileRecord.id,
+                filename: entry.name,
+                storageKey: fileRecord.objectKey,
+                fileKind: 'intake_upload',
+                source: 'customer_upload',
+                size: entry.size,
+                contentType: entry.type || 'application/octet-stream',
+              },
+            });
+
+            return entry.name;
+          }),
+      );
+
+      filesStored = uploadResults.filter((r) => r.status === 'fulfilled').length;
+      const rejected = uploadResults.filter((r) => r.status === 'rejected');
+      rejected.forEach((_r, i) => {
+        const name = (uploadedFiles[i] as File)?.name ?? `file-${i}`;
+        failedFiles.push(name);
+      });
+      if (failedFiles.length > 0) {
+        console.error('Failed to store intake files:', failedFiles.join(', '));
       }
     }
 
     // Transition to triage (v2.3: customer submit goes straight to triage)
-    await transitionRequestStatus({
-      requestId: result.id,
-      actorId: session.userId,
-      toStatus: 'triage',
-      reason: 'Intake submitted via wizard',
-      correlationId,
-    });
+    // If this fails, the request remains in initial status — log the error for ops
+    try {
+      await transitionRequestStatus({
+        requestId: result.id,
+        actorId: session.userId,
+        toStatus: 'triage',
+        reason: 'Intake submitted via wizard',
+        correlationId,
+      });
+    } catch (transitionError) {
+      console.error('Failed to transition request to triage:', transitionError);
+    }
 
-    // Delete draft if present
+    // Delete draft if present (with ownership verification)
     if (draftId) {
       try {
-        await prisma.draft.delete({ where: { id: draftId } });
+        await prisma.draft.delete({
+          where: { id: draftId, workspaceId, createdById: session.userId },
+        });
       } catch {
-        // Draft might not exist, ignore
+        // Draft might not exist or not owned by user, ignore
       }
     }
 
@@ -219,7 +244,8 @@ export async function POST(request: Request) {
       priority,
       slaDeadline: slaDeadline.toISOString(),
       submittedAt: now.toISOString(),
-      filesStored: uploadedFiles.length,
+      filesStored,
+      ...(failedFiles.length > 0 ? { failedFiles } : {}),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

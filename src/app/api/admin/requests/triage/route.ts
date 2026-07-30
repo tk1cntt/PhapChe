@@ -25,8 +25,10 @@ export async function GET(request: NextRequest) {
 
     // Parse pagination params
     const { searchParams } = new URL(request.url);
-    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-    const pageSize = Math.min(50, Math.max(5, parseInt(searchParams.get('pageSize') || '10', 10)));
+    const rawPage = parseInt(searchParams.get('page') || '1', 10);
+    const rawPageSize = parseInt(searchParams.get('pageSize') || '10', 10);
+    const page = Number.isNaN(rawPage) ? 1 : Math.max(1, rawPage);
+    const pageSize = Number.isNaN(rawPageSize) ? 10 : Math.min(50, Math.max(5, rawPageSize));
     const skip = (page - 1) * pageSize;
 
     // Find requests pending triage: only status = triage
@@ -77,7 +79,7 @@ export async function GET(request: NextRequest) {
       return {
         id: req.id,
         index: index + 1,
-        code: req.code ?? `REQ-${new Date().getFullYear()}-${String(index + 1).padStart(3, '0')}`,
+        code: req.code || `REQ-${new Date().getFullYear()}-${String(skip + index + 1).padStart(5, '0')}`,
         title: req.title,
         description: req.description ?? '',
         workspaceId: req.workspaceId,
@@ -89,7 +91,7 @@ export async function GET(request: NextRequest) {
         status: req.status,
         priority: req.priority ?? 'MEDIUM',
         date: req.createdAt.toISOString(),
-        hasAnswers: req.intakeSubmission?.answers != null,
+        hasAnswers: req.intakeSubmission?.answers !== null && req.intakeSubmission?.answers !== undefined,
         assignedSpecialistId: null,
         assignedSpecialistName: null,
         assignedReviewerId: null,
@@ -101,7 +103,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Fetch available specialists & reviewers for the workspaces involved
-    const workspaceIds = [...new Set(triageRequests.map(r => r.workspaceId))];
+    const workspaceIds = [...new Set(triageRequests.map(r => r.workspaceId).filter(Boolean))];
     const workspaceMembers = workspaceIds.length > 0 ? await prisma.workspaceMembership.findMany({
       where: {
         workspaceId: { in: workspaceIds },
@@ -131,7 +133,11 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / pageSize),
     });
   } catch (error) {
+    // Re-throw Next.js redirect errors so they are handled by the framework
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      throw error;
+    }
     console.error('Admin triage error:', error instanceof Error ? error.message : String(error));
-    return NextResponse.json({ error: 'Internal server error', detail: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

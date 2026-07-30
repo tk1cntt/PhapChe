@@ -8,6 +8,9 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { partnerAuthService } from '@/lib/services/partner-auth-service';
 
+// Valid partner roles for filter validation
+const VALID_ROLES = ['admin', 'specialist', 'viewer'];
+
 export async function GET(req: NextRequest) {
   try {
     // Get session from request headers (better-auth reads from cookie)
@@ -19,7 +22,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get partner context
+    // Get partner context with deterministic ordering
     const member = await prisma.partnerMember.findFirst({
       where: {
         userId: session.user.id,
@@ -27,6 +30,7 @@ export async function GET(req: NextRequest) {
         partner: { status: 'active' },
       },
       include: { partner: true },
+      orderBy: { createdAt: 'asc' },
     });
 
     if (!member) {
@@ -37,7 +41,19 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const role = searchParams.get('role');
     const status = searchParams.get('status');
-    const isActive = status === 'inactive' ? false : status === 'active' ? true : undefined;
+
+    // Validate role filter if provided
+    if (role && !VALID_ROLES.includes(role)) {
+      return NextResponse.json({ error: 'Invalid role filter' }, { status: 400 });
+    }
+
+    // Compute isActive filter
+    let isActive: boolean | undefined;
+    if (status === 'active') {
+      isActive = true;
+    } else if (status === 'inactive') {
+      isActive = false;
+    }
 
     // Get all members
     const members = await partnerAuthService.getPartnerMembers(member.partnerId, {
@@ -53,7 +69,7 @@ export async function GET(req: NextRequest) {
           id: m.user.id,
           name: m.user.name,
           email: m.user.email,
-          avatarUrl: m.user.avatarUrl,
+          avatarUrl: (m.user as any).avatarUrl ?? null,
         },
         role: m.role,
         isActive: m.isActive,

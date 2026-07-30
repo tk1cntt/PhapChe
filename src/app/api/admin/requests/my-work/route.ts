@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const statusFilter = searchParams.get('status') || '';
     const search = searchParams.get('search') || '';
 
-    // Active work only: exclude intake, triage, finished, and cancelled
+    // Active work only: exclude intake, triage, pending_review, finished, and cancelled
     const EXCLUDED_STATUSES = ['draft_intake', 'triage', 'pending_review', 'approved', 'delivered', 'closed', 'cancelled'];
 
     const where: Record<string, unknown> = {
@@ -58,6 +58,8 @@ export async function GET(request: NextRequest) {
           assignedReviewer: { select: { id: true, name: true } },
           intakeSubmission: { select: { id: true, matterTypeKey: true } },
         },
+        // WARNING: Alphabetical sort on priority enum gives 'HIGH','LOW','MEDIUM' — not severity order.
+        // Fix: store priority as numeric rank in schema, or use raw SQL CASE expression.
         orderBy: [{ priority: 'asc' }, { updatedAt: 'desc' }],
         skip,
         take: pageSize,

@@ -47,8 +47,8 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') ?? '1', 10);
-    const pageSize = parseInt(searchParams.get('pageSize') ?? '10', 10);
+    const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') ?? '10', 10) || 10));
     const search = searchParams.get('search') ?? '';
     const statusFilter = searchParams.get('status') ?? '';
     const priorityFilter = searchParams.get('priority') ?? '';
@@ -143,10 +143,10 @@ export async function GET(request: NextRequest) {
         id: req.code ?? req.id.slice(-10),
         fullId: req.id,
         type: matterTypeKey ?? 'Legal Request',
-        workspace: req.workspace.name,
-        workspaceSlug: req.workspace.slug,
-        customer: req.createdBy.name,
-        customerEmail: req.createdBy.email,
+        workspace: req.workspace?.name ?? '—',
+        workspaceSlug: req.workspace?.slug ?? '—',
+        customer: req.createdBy?.name ?? '—',
+        customerEmail: req.createdBy?.email ?? '—',
         status: statusInfo.variant,
         statusText: statusInfo.text,
         assignee,
@@ -171,6 +171,10 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
+    // Re-throw Next.js redirect errors so they are handled by the framework
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      throw error;
+    }
     console.error('Admin requests list error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -14,6 +14,9 @@ import { isStructuredError } from '@/lib/errors';
 // Valid admin roles
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
 
+// Valid membership roles for creation
+const VALID_ROLES = [...ADMIN_ROLES, 'customer', 'member', 'specialist', 'reviewer', 'audit_admin'] as const;
+
 /**
  * Get session with admin role check from database memberships
  */
@@ -21,6 +24,15 @@ async function requireAdminSession() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) {
     throw { status: 401, error: 'UNAUTHORIZED', detail: 'Authentication required' };
+  }
+
+  // Verify user account is active
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { isActive: true },
+  });
+  if (!user?.isActive) {
+    throw { status: 403, error: 'FORBIDDEN', detail: 'User account is deactivated' };
   }
 
   // Query all workspace memberships to find admin roles
@@ -40,12 +52,17 @@ async function requireAdminSession() {
     throw { status: 403, error: 'FORBIDDEN', detail: 'Admin access required' };
   }
 
-  return { session, userId: session.user.id, roles: userRoles };
+  // For non-super_admin roles, determine accessible workspace IDs for scoping
+  const workspaceIds = memberships
+    .filter((m) => m.role && ADMIN_ROLES.includes(m.role as any))
+    .map((m) => m.workspaceId);
+
+  return { session, userId: session.user.id, roles: userRoles, workspaceIds };
 }
 
 export async function GET(req: NextRequest) {
   try {
-    await requireAdminSession();
+    const { userId, roles: userRoles, workspaceIds } = await requireAdminSession();
 
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search');
@@ -69,8 +86,31 @@ export async function GET(req: NextRequest) {
     if (workspaceId) {
       where.memberships = { some: { workspaceId } };
     }
+
+    if (role) {
+      where.memberships = {
+        ...(where.memberships as object),
+        some: {
+          ...(where.memberships ? (where.memberships as any).some : {}),
+          role,
+        },
+      };
+    }
+
     if (isActive !== null && isActive !== undefined) {
       where.isActive = isActive === 'true';
+    }
+
+    // For non-super_admin, scope users to those in the admin's accessible workspaces
+    const isSuperAdmin = userRoles.includes('super_admin');
+    if (!isSuperAdmin && workspaceIds.length > 0) {
+      where.memberships = {
+        ...(where.memberships as object),
+        some: {
+          ...(where.memberships ? (where.memberships as any).some : {}),
+          workspaceId: { in: workspaceIds },
+        },
+      };
     }
 
     const [users, total] = await Promise.all([
@@ -150,9 +190,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Email and name are required', field: 'email' }, { status: 400 });
     }
 
+    // Validate role against allowed values
+    const safeRole = role && (VALID_ROLES as readonly string[]).includes(role) ? role : 'customer';
+
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Email already exists', field: 'email' }, { status: 400 });
+    }
+
+    // Note: password is extracted but not stored via Prisma — auth provider (BetterAuth)
+    // handles password hashing. The user is created with emailVerified=true for admin-created accounts.
+    // If password-based auth is needed, use the auth provider's createUser API.
+    if (password) {
+      console.warn('[admin/users POST] Password provided but Prisma-level user creation does not store passwords. Use auth provider API for password-based accounts.');
     }
 
     const user = await prisma.user.create({
@@ -163,7 +213,7 @@ export async function POST(req: NextRequest) {
         memberships: workspaceId ? {
           create: {
             workspaceId,
-            role: role || 'customer',
+            role: safeRole,
             isActive: true,
           },
         } : undefined,

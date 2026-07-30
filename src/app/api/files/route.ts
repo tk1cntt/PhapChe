@@ -2,7 +2,7 @@
  * POST /api/files - Upload file
  *
  * Handles file upload with multipart/form-data.
- * Requires authentication and workspace membership.
+ * Requires authentication and workspace/organization membership.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,6 +14,9 @@ import { FileCategory, FileVisibility } from '@/lib/storage/types';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+// Max file size: 50MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,6 +55,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate file size before buffering
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: 'Validation error', detail: 'File exceeds maximum size limit (50MB)' },
+        { status: 400 }
+      );
+    }
+
     // Validate category
     const validCategories = Object.values(FileCategory);
     if (!validCategories.includes(category as FileCategory)) {
@@ -70,13 +81,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify workspace membership
+    // Verify organization membership (always required, regardless of requestId)
+    const orgMembership = await prisma.workspaceMembership.findFirst({
+      where: { userId, isActive: true, workspace: { organizationId } },
+      select: { id: true },
+    });
+    if (!orgMembership) {
+      return NextResponse.json(
+        { error: 'Forbidden', detail: 'Not a member of this organization' },
+        { status: 403 }
+      );
+    }
+
+    // Verify workspace membership (stricter: must also belong to the request's workspace)
     if (requestId) {
       const membership = await prisma.workspaceMembership.findFirst({
         where: {
           userId,
           isActive: true,
-          workspace: { requests: { some: { id: requestId } } },
+          workspace: {
+            organizationId,
+            requests: { some: { id: requestId } },
+          },
         },
         select: { id: true },
       });
@@ -113,22 +139,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('File upload error:', error);
-
-    if (error instanceof Error) {
-      if (error.message.includes('PERMISSION')) {
-        return NextResponse.json(
-          { error: 'Forbidden', detail: 'Permission denied' },
-          { status: 403 }
-        );
-      }
-      if (error.message.includes('VALIDATION')) {
-        return NextResponse.json(
-          { error: 'Validation error', detail: 'Invalid file upload request' },
-          { status: 400 }
-        );
-      }
-    }
-
     return NextResponse.json(
       { error: 'Internal server error', detail: 'Failed to upload file' },
       { status: 500 }

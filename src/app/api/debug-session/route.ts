@@ -38,7 +38,6 @@ export async function GET(request: Request) {
         memberships: {
           where: { isActive: true, workspace: { isActive: true } },
           select: { workspaceId: true, role: true },
-          take: 1,
         },
       },
     });
@@ -50,12 +49,17 @@ export async function GET(request: Request) {
         userFound: !!user,
         userIsActive: user?.isActive,
         hasActiveMembership: !!user?.memberships?.length,
+        membershipCount: user?.memberships?.length ?? 0,
       },
     });
   } catch (error) {
-    return NextResponse.json({
-      success: false,
-      error: 'Internal error',
-    });
+    console.error('[debug-session] Failed to retrieve session or user:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Internal error',
+      },
+      { status: 500 },
+    );
   }
 }

@@ -12,18 +12,18 @@ import { NextResponse } from 'next/server';
 import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 import { getSkillExecutor, isAiReady } from '@/lib/ai/skill-executor';
-import { getSystemPrompt, renderSystemPrompt } from '@/lib/ai/system-prompts';
+import { getSystemPrompt } from '@/lib/ai/system-prompts';
 import { isVectorStoreReady } from '@/lib/ai/vector-store';
 import { DOMAIN_SKILL_MAP } from '@/lib/ai/types';
 import type { AgentSkill, LegalDomain, SkillContext } from '@/lib/ai/types';
 
-const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'];
+const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
 
 export async function POST(request: Request) {
   try {
     // Auth
     const session = await requireAppSession();
-    const hasRole = ALLOWED_ROLES.some((r) => session.roles.includes(r as never));
+    const hasRole = (ALLOWED_ROLES as readonly string[]).some((r) => session.roles.includes(r as never));
     if (!hasRole) {
       return NextResponse.json({ error: 'FORBIDDEN: Chỉ admin, coordinator, specialist, reviewer được dùng AI' }, { status: 403 });
     }
@@ -72,6 +72,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 });
     }
 
+    // Resource-level authorization: verify user is assigned to this request
+    const isAssigned = legalRequest.assignedSpecialistId === session.userId
+      || legalRequest.assignedReviewerId === session.userId
+      || legalRequest.createdById === session.userId;
+    const isAdmin = session.roles?.some((r: string) => ['super_admin', 'coordinator_admin'].includes(r));
+
+    if (!isAssigned && !isAdmin) {
+      return NextResponse.json(
+        { error: 'FORBIDDEN: Not authorized to access this request' },
+        { status: 403 },
+      );
+    }
+
     // Determine legal domain from matter type
     const matterTypeKey = legalRequest.intakeSubmission?.matterTypeKey ?? 'unsupported';
     let domain: LegalDomain = 'commercial-legal';
@@ -95,7 +108,6 @@ export async function POST(request: Request) {
     }
 
     // Build context
-    const promptTpl = getSystemPrompt(skill);
     const context: SkillContext = {
       matterTypeKey,
       domain,
@@ -111,19 +123,36 @@ export async function POST(request: Request) {
     const executor = getSkillExecutor();
     const result = await executor.execute(skill, context);
 
-    // Record suggestion for audit
-    executor.recordSuggestion(requestId, skill, result, session.userId);
+    // Record suggestion for audit (await to ensure audit integrity)
+    try {
+      await executor.recordSuggestion(requestId, skill, result, session.userId);
+    } catch (auditError) {
+      console.error('[AI Audit Error] Failed to record suggestion:', auditError);
+    }
 
     return NextResponse.json({
       success: true,
       data: {
         ...result,
         ragAvailable: isVectorStoreReady(),
-        model: executor['config'].defaultModel,
+        model: process.env.LLM_MODEL ?? 'gpt-4o-mini',
       },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
+
+    // Handle authentication/session errors explicitly
+    if (message === 'UNAUTHENTICATED' || message.includes('SESSION')) {
+      return NextResponse.json(
+        { error: 'UNAUTHORIZED', detail: 'Invalid or expired session.' },
+        { status: 401 },
+      );
+    }
+
+    // Re-throw Next.js redirect errors
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      throw error;
+    }
 
     if (message === 'LLM_API_KEY_MISSING' || message.includes('LLM_API_KEY_MISSING')) {
       return NextResponse.json(
@@ -146,7 +175,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: 'AI_EXECUTION_FAILED',
-        detail: message,
+        detail: 'Internal server error',
       },
       { status: 500 },
     );

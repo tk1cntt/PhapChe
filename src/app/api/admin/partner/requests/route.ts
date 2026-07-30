@@ -22,62 +22,60 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get('page') ?? '1', 10);
-    const limit = parseInt(searchParams.get('limit') ?? '20', 10);
+    const rawPage = parseInt(searchParams.get('page') ?? '1', 10);
+    const rawLimit = parseInt(searchParams.get('limit') ?? '20', 10);
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+    const limit = Number.isFinite(rawLimit) && rawLimit > 0 && rawLimit <= 100 ? rawLimit : 20;
     const status = searchParams.get('status');
     const partnerId = searchParams.get('partnerId');
     const search = searchParams.get('search');
 
-    // Build base where clause
-    const where: Record<string, unknown> = {};
+    // Build database-level filter for partner-related requests
+    const where: Record<string, unknown> = {
+      OR: [
+        { assignedPartnerId: { not: null } },
+        { engagement: { partnerId: { not: null } } },
+      ],
+    };
 
     if (status) where.status = status;
     if (partnerId) where.assignedPartnerId = partnerId;
 
-    // Search by title, description, or customer (createdBy) name
+    // Search by title, description, or customer name
+    // SQLite LIKE is case-insensitive for ASCII by default, no need for mode: 'insensitive'
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { createdBy: { name: { contains: search, mode: 'insensitive' } } },
-        { assignedPartner: { name: { contains: search, mode: 'insensitive' } } },
+      where.AND = [
+        { OR: [
+          { title: { contains: search } },
+          { description: { contains: search } },
+          { createdBy: { name: { contains: search } } },
+          { assignedPartner: { name: { contains: search } } },
+        ]},
       ];
     }
 
-    // Fetch more records to filter for partner-related ones in memory
-    // SQLite doesn't handle OR with NOT NULL well
-    const fetchLimit = 200; // Fetch up to 200 to filter
-
-    const allRequests = await prisma.legalRequest.findMany({
-      where,
-      include: {
-        assignedPartner: { select: { id: true, name: true } },
-        engagement: {
-          select: {
-            partnerId: true,
-            partner: { select: { name: true } }
-          }
+    const [total, requests] = await Promise.all([
+      prisma.legalRequest.count({ where }),
+      prisma.legalRequest.findMany({
+        where,
+        include: {
+          assignedPartner: { select: { id: true, name: true } },
+          engagement: {
+            select: {
+              partnerId: true,
+              partner: { select: { name: true } }
+            }
+          },
+          createdBy: { select: { id: true, name: true, email: true } },
         },
-        createdBy: { select: { id: true, name: true, email: true } },
-      },
-      orderBy: { updatedAt: 'desc' },
-      take: fetchLimit,
-    });
-
-    // Filter in-memory for partner-related requests
-    const partnerRequests = allRequests.filter(
-      (r) => r.assignedPartnerId || r.engagement?.partnerId
-    );
-
-    // Apply pagination
-    const total = partnerRequests.length;
-    const paginatedRequests = partnerRequests.slice(
-      (page - 1) * limit,
-      page * limit
-    );
+        orderBy: { updatedAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
 
     return NextResponse.json({
-      data: paginatedRequests,
+      data: requests,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {

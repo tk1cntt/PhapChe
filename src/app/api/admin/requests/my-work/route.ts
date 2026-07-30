@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       status: { notIn: EXCLUDED_STATUSES },
     };
 
-    if (statusFilter) {
+    if (statusFilter && !EXCLUDED_STATUSES.includes(statusFilter)) {
       where.status = statusFilter;
     }
 

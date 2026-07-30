@@ -112,13 +112,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Invalid matter type', field: 'matterTypeId' }, { status: 400 });
   }
 
-  // Generate request code
-  const count = await prisma.legalRequest.count();
-  const code = `REQ-${String(count + 1).padStart(5, '0')}`;
+  // Generate request code — atomic via create with timestamp suffix
+  const requestCode = `REQ-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
   const request = await prisma.legalRequest.create({
     data: {
-      code,
+      code: requestCode,
       workspaceId,
       matterTypeId,
       engagementId: engagementId || null,
@@ -147,7 +146,7 @@ export async function POST(req: NextRequest) {
       targetType: 'request',
       targetId: request.id,
       requestId: request.id,
-      metadataSummary: JSON.stringify({ code, title, matterTypeId }),
+      metadataSummary: JSON.stringify({ code: requestCode, title, matterTypeId }),
     },
   });
 

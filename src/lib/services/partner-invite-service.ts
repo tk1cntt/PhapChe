@@ -177,8 +177,8 @@ export class PartnerInviteService {
         return { success: false, error: 'User not found' };
       }
 
-      // Verify email matches (if user email is set)
-      if (user.email.toLowerCase() !== invite.email.toLowerCase()) {
+      // Verify email matches (if both user and invite emails are set)
+      if (user.email && user.email.toLowerCase() !== invite.email.toLowerCase()) {
         return { success: false, error: 'Invite email does not match user email' };
       }
 

@@ -51,8 +51,10 @@ export async function GET(req: NextRequest) {
     const workspaceId = searchParams.get('workspaceId');
     const role = searchParams.get('role');
     const isActive = searchParams.get('isActive');
-    const skip = parseInt(searchParams.get('skip') || '0', 10);
-    const take = parseInt(searchParams.get('take') || '20', 10);
+    const rawSkip = parseInt(searchParams.get('skip') || '0', 10);
+    const rawTake = parseInt(searchParams.get('take') || '20', 10);
+    const skip = Number.isFinite(rawSkip) ? Math.max(0, rawSkip) : 0;
+    const take = Number.isFinite(rawTake) ? Math.min(100, Math.max(1, rawTake)) : 20;
 
     const where: Record<string, unknown> = {};
 

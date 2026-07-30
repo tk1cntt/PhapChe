@@ -8,14 +8,16 @@
 import { StorageService } from './storage.service';
 import { LocalStorageProvider } from './providers/local-storage.provider';
 
-// Singleton storage service instance
+// Singleton storage service instance + init promise
 let storageService: StorageService | null = null;
+let initPromise: Promise<void> | null = null;
 
 /**
  * Get the storage service instance
  *
  * Initializes the service on first call based on STORAGE_DRIVER env var.
  * Subsequent calls return the same instance.
+ * Callers should await ensureStorageReady() before using async methods.
  */
 export function getStorageService(): StorageService {
   if (!storageService) {
@@ -26,8 +28,8 @@ export function getStorageService(): StorageService {
       const provider = new LocalStorageProvider(rootPath);
       const maxFileSize = parseInt(process.env.STORAGE_MAX_FILE_SIZE || '52428800', 10); // 50MB default
 
-      // Initialize storage directories
-      provider.initialize().catch((err) => {
+      // Start async init; capture promise so delegate methods can await it
+      initPromise = provider.initialize().catch((err) => {
         console.error('Failed to initialize storage:', err);
       });
 
@@ -40,30 +42,40 @@ export function getStorageService(): StorageService {
   return storageService;
 }
 
+/** Ensure storage provider initialization completed before proceeding */
+async function ensureStorageReady(): Promise<void> {
+  if (initPromise) await initPromise;
+}
+
 // Export alias for convenience
 export const storageServer = {
   get service() {
     return getStorageService();
   },
 
-  // Delegate methods for convenience
+  // Delegate methods for convenience — each awaits init before proceeding
   async uploadFile(input: Parameters<StorageService['uploadFile']>[0]) {
+    await ensureStorageReady();
     return getStorageService().uploadFile(input);
   },
 
   async getFile(fileId: string, userId: string) {
+    await ensureStorageReady();
     return getStorageService().getFile(fileId, userId);
   },
 
   async getDownloadUrl(fileId: string, userId: string) {
+    await ensureStorageReady();
     return getStorageService().getDownloadUrl(fileId, userId);
   },
 
   async deleteFile(fileId: string, userId: string) {
+    await ensureStorageReady();
     return getStorageService().deleteFile(fileId, userId);
   },
 
   async getAccessLogs(fileId: string, userId: string, options?: { page?: number; pageSize?: number }) {
+    await ensureStorageReady();
     return getStorageService().getAccessLogs(fileId, userId, options);
   },
 };

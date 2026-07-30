@@ -147,7 +147,10 @@ export async function GET(
       };
 
       const config = actionLabels[event.action] || { icon: 'org', label: event.action, variant: 'org' };
-      const meta = event.metadataSummary ? JSON.parse(event.metadataSummary) as Record<string, unknown> : {};
+      let meta: Record<string, unknown> = {};
+      if (event.metadataSummary) {
+        try { meta = JSON.parse(event.metadataSummary) as Record<string, unknown>; } catch { /* keep empty */ }
+      }
       const description = typeof meta.details === 'string' ? meta.details : event.action;
 
       return {
@@ -258,7 +261,10 @@ export async function GET(
     });
 
     const timeline = timelineEvents.map((event, index) => {
-      const meta = event.metadataSummary ? JSON.parse(event.metadataSummary) as Record<string, unknown> : {};
+      let meta: Record<string, unknown> = {};
+      if (event.metadataSummary) {
+        try { meta = JSON.parse(event.metadataSummary) as Record<string, unknown>; } catch { /* keep empty */ }
+      }
       return {
         step: index + 1,
         title: getActionTitle(event.action),

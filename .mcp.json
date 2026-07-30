@@ -8,6 +8,7 @@
         "openmemory.main",
         "mcp"
       ],
+      "cwd": "D:/PhapChe",
       "env": {
         "PYTHONPATH": "D:/ai-tools/openmemory-py/packages/openmemory-py/src",
         "OM_DB_URL": "sqlite:///D:/PhapChe/.openmemory/openmemory.db"

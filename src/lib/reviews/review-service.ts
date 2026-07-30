@@ -100,25 +100,25 @@ export async function startReview(input: StartReviewInput): Promise<{ reviewId: 
   if (!isAssignedReviewer && !isAdmin) throw new Error('FORBIDDEN');
 
   const result = await prisma.$transaction(async (tx) => {
-    // Schema has no unique on (documentVersionId, reviewerId); guard against
-    // double-create by checking existence first.
+    // Unique constraint on (documentVersionId, reviewerId) prevents double-create.
+    // Use findFirst + create pattern within transaction for idempotency.
     const existing = await tx.review.findFirst({
       where: { documentVersionId, reviewerId: session.userId },
       select: { id: true, status: true },
     });
-    const review = existing
-      ? existing
-      : await tx.review.create({
-          data: {
-            workspaceId: docVersion.document.workspaceId,
-            requestId: docVersion.document.requestId,
-            documentId: docVersion.document.id,
-            reviewerId: session.userId,
-            documentVersionId,
-            status: 'in_progress',
-          },
-          select: { id: true, status: true },
-        });
+    if (existing) return existing;
+
+    const review = await tx.review.create({
+      data: {
+        workspaceId: docVersion.document.workspaceId,
+        requestId: docVersion.document.requestId,
+        documentId: docVersion.document.id,
+        reviewerId: session.userId,
+        documentVersionId,
+        status: 'in_progress',
+      },
+      select: { id: true, status: true },
+    });
 
     await recordAuditEvent(
       {

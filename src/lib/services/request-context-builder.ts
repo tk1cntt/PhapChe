@@ -3,7 +3,8 @@
  * Builds permission context from request for multi-tenant access control
  */
 
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
+import { prisma as sharedPrisma } from '@/lib/prisma';
 import type {
   RequestContext,
   RequestContextOptions,
@@ -18,7 +19,7 @@ export class RequestContextBuilder {
   private prisma: PrismaClient;
 
   constructor(prisma?: PrismaClient) {
-    this.prisma = prisma || new PrismaClient();
+    this.prisma = prisma || sharedPrisma;
   }
 
   /**

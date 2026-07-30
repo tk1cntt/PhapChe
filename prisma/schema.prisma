@@ -498,6 +498,7 @@ model Review {
   reviewer    User         @relation(fields: [reviewerId], references: [id])
   checklistAnswers ReviewChecklistAnswer[]
 
+  @@unique([documentVersionId, reviewerId])
   @@index([workspaceId])
   @@index([requestId])
   @@index([documentId])

@@ -1,10 +1,11 @@
 /**
  * Auth Middleware
- * Validates user session and attaches user context to request
+ * Validates user session, enforces role-based access, attaches user context to request
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
 
 export interface AuthMiddlewareOptions {
   required?: boolean;
@@ -27,10 +28,22 @@ export function authMiddleware(options: AuthMiddlewareOptions = {}) {
       return NextResponse.next();
     }
 
-    // Check roles if specified
+    // Enforce role check when roles are specified
     if (options.roles && options.roles.length > 0) {
-      // For now, just check if user exists
-      // Role checking would need workspace membership lookup
+      const memberships = await prisma.workspaceMembership.findMany({
+        where: { userId: session.user.id, isActive: true },
+        select: { role: true },
+      });
+
+      const userRoles = new Set(memberships.map((m) => m.role));
+      const hasRequiredRole = options.roles.some((role) => userRoles.has(role));
+
+      if (!hasRequiredRole) {
+        return NextResponse.json(
+          { error: 'FORBIDDEN', detail: 'Insufficient permissions' },
+          { status: 403 }
+        );
+      }
     }
 
     // Attach user to request

@@ -8,18 +8,26 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const session = await auth.api.getSession({ headers: req.headers });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const isActive = searchParams.get('isActive') !== 'false';
+
+    const serviceTypes = await prisma.serviceType.findMany({
+      where: isActive ? { isActive: true } : {},
+      orderBy: { name: 'asc' },
+    });
+
+    return NextResponse.json({ data: serviceTypes });
+  } catch (error) {
+    console.error('Service types error:', error);
+    return NextResponse.json(
+      { error: 'INTERNAL_ERROR', detail: 'Internal server error' },
+      { status: 500 }
+    );
   }
-
-  const { searchParams } = new URL(req.url);
-  const isActive = searchParams.get('isActive') !== 'false';
-
-  const serviceTypes = await prisma.serviceType.findMany({
-    where: isActive ? { isActive: true } : {},
-    orderBy: { name: 'asc' },
-  });
-
-  return NextResponse.json({ data: serviceTypes });
 }

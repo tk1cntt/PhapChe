@@ -73,7 +73,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
           </h2>
           {this.state.error && (
             <p className="mt-2 text-center text-gray-600">
-              {this.state.error.message}
+              {process.env.NODE_ENV === 'development'
+                ? this.state.error.message
+                : 'Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.'}
             </p>
           )}
           <button

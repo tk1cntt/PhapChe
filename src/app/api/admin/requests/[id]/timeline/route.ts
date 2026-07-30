@@ -14,6 +14,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
+const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -64,13 +65,24 @@ export async function GET(
     }
 
     const { id } = await params;
+    const isAdmin = session.roles?.some((r) => (ADMIN_ROLES as readonly string[]).includes(r));
+    const isSuperAdmin = session.roles?.includes('super_admin');
 
-    // Verify request exists
+    // Fetch user's workspace memberships for authorization
+    const memberships = await prisma.workspaceMembership.findMany({
+      where: { userId: session.userId, isActive: true },
+      select: { workspaceId: true, role: true },
+    });
+    const workspaceIds = memberships.map(m => m.workspaceId);
+
+    // Verify request exists AND user has workspace access
     const legalRequest = await prisma.legalRequest.findFirst({
       where: { OR: [{ id }, { code: id }] },
       select: {
         id: true,
         workspaceId: true,
+        assignedSpecialistId: true,
+        assignedReviewerId: true,
         assignedSpecialist: { select: { id: true, name: true } },
         assignedReviewer: { select: { id: true, name: true } },
       },
@@ -78,6 +90,20 @@ export async function GET(
 
     if (!legalRequest) {
       return NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 });
+    }
+
+    // Workspace isolation check
+    if (!isSuperAdmin && !workspaceIds.includes(legalRequest.workspaceId)) {
+      return NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 });
+    }
+
+    // Object-level access: non-admin users can only see their assigned requests
+    if (!isAdmin && !isSuperAdmin) {
+      const isAssigned = legalRequest.assignedSpecialistId === session.userId
+        || legalRequest.assignedReviewerId === session.userId;
+      if (!isAssigned) {
+        return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+      }
     }
 
     const requestId = legalRequest.id;
@@ -150,14 +176,26 @@ export async function GET(
     // Sort by timestamp descending
     timeline.sort((a, b) => b.ts.localeCompare(a.ts));
 
-    // ── Current assignments ──
+    // ── Current assignments derived from RequestAssignment table (most recent isCurrent=true) ──
+    // Fallback to legalRequest direct fields for backward compat
+    const currentSpecialist = assignments
+      .filter(a => a.kind === 'specialist' && a.isCurrent)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
+    const currentReviewer = assignments
+      .filter(a => a.kind === 'reviewer' && a.isCurrent)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
+
     const current: TimelineResponse['current'] = {
-      specialist: legalRequest.assignedSpecialist
-        ? { id: legalRequest.assignedSpecialist.id, name: legalRequest.assignedSpecialist.name }
-        : null,
-      reviewer: legalRequest.assignedReviewer
-        ? { id: legalRequest.assignedReviewer.id, name: legalRequest.assignedReviewer.name }
-        : null,
+      specialist: currentSpecialist?.user
+        ? { id: currentSpecialist.user.id, name: currentSpecialist.user.name }
+        : legalRequest.assignedSpecialist
+          ? { id: legalRequest.assignedSpecialist.id, name: legalRequest.assignedSpecialist.name }
+          : null,
+      reviewer: currentReviewer?.user
+        ? { id: currentReviewer.user.id, name: currentReviewer.user.name }
+        : legalRequest.assignedReviewer
+          ? { id: legalRequest.assignedReviewer.id, name: legalRequest.assignedReviewer.name }
+          : null,
     };
 
     const response: TimelineResponse = { timeline, current };

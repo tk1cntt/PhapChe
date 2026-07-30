@@ -446,6 +446,12 @@ export async function GET(
 
       try {
         const storageRoot = process.env.STORAGE_LOCAL_ROOT || '/data/storage/private';
+
+        // Kiểm tra path traversal BEFORE accessing filesystem
+        if (objectKey.includes('..')) {
+          return NextResponse.json({ error: 'Invalid object key' }, { status: 400 });
+        }
+
         const fullPath = join(storageRoot, objectKey);
 
         if (!existsSync(fullPath)) {
@@ -456,11 +462,6 @@ export async function GET(
             isBinary: false,
             previewFormat: 'text',
           });
-        }
-
-        // Kiểm tra path traversal
-        if (objectKey.includes('..')) {
-          return NextResponse.json({ error: 'Invalid object key' }, { status: 400 });
         }
 
         const buffer = await readFile(fullPath);
@@ -482,8 +483,9 @@ export async function GET(
             }).content
           : truncated;
 
+        // Return normalized content (not raw truncated)
         return NextResponse.json({
-          content: truncated,
+          content,
           mimeType: mimeType ?? 'text/plain',
           title,
           isBinary: false,

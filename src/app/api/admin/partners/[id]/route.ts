@@ -125,7 +125,7 @@ export async function GET(
       id: m.user.id,
       name: m.user.name,
       role: 'partner',
-      description: `${m.role === 'partner_admin' ? 'Partner Admin' : m.role} · owner của ${Math.floor(Math.random() * 5) + 1} hồ sơ đang mở`,
+      description: `${m.role === 'partner_admin' ? 'Partner Admin' : m.role}`,
     }));
 
     // Add users from requests
@@ -143,7 +143,7 @@ export async function GET(
     const timeline = recentAuditLogs.slice(0, 4).map((log, index) => ({
       id: log.id,
       action: log.action,
-      requestCode: log.requestId ? `REQ-${Date.now().toString().slice(-6)}` : undefined,
+      requestCode: log.requestId ? `REQ-${log.requestId.slice(0, 8)}` : undefined,
       orgName: log.workspace?.organization?.name,
       date: formatDate(new Date(log.createdAt), 'vi'),
     }));
@@ -176,7 +176,7 @@ export async function GET(
         if (parts.length > 1) {
           meta.docName = parts.slice(0, -1).join(' ') || 'tài liệu';
           meta.docType = 'Uploaded';
-          meta.docSize = Math.floor(Math.random() * 5 + 1) + '.1 MB';
+          meta.docSize = 'N/A';
         }
       }
 
@@ -224,8 +224,9 @@ export async function GET(
           activeRequests,
           completedRequests,
           slaRisk: slaAtRiskRequests,
-          documents: Math.floor(activeRequests * 1.5),
-          workspaces: partner.engagements.length * 2,
+          averageResponseTimeMs: null, // TODO: calculate from timeline data
+          totalDocuments: 0, // TODO: query actual document count
+          totalWorkspaces: partner.engagements.length,
           usersTouched: relatedUsers.length,
         },
         members: partner.members.map((m) => ({

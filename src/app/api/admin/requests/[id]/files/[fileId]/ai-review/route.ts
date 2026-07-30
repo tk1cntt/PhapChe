@@ -16,7 +16,7 @@ import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
 import { normalizeMarkdown, convertWithMarkItDown, isMarkItDownAvailable } from '@/lib/document';
@@ -240,7 +240,12 @@ export async function POST(
       }
 
       const storageRoot = process.env.STORAGE_LOCAL_ROOT || '/data/storage/private';
-      const fullPath = join(storageRoot, objectKey);
+      // Normalize key to strip leading slashes/backslashes, then verify path stays in storage root
+      const normalizedKey = objectKey.replace(/^[/\\]+/, '').replace(/\\/g, '/');
+      const fullPath = resolve(storageRoot, normalizedKey);
+      if (!fullPath.startsWith(resolve(storageRoot))) {
+        return NextResponse.json({ error: 'Invalid object key' }, { status: 400 });
+      }
       if (!existsSync(fullPath)) {
         return NextResponse.json({ error: 'FILE_NOT_FOUND' }, { status: 404 });
       }
@@ -379,7 +384,7 @@ export async function POST(
               content: annotationContent,
               severity: mappedSeverity,
               category: 'issue',
-              position: (position ?? undefined) as any,
+              position: position ? { ...position } : undefined,
               aiGenerated: true,
               aiConfidence: confidence,
             },

@@ -76,28 +76,6 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Guard: cannot demote/deactivate the last active admin
-    const isDemotingOrDeactivating =
-      (role !== undefined && targetMember.role === 'admin' && role !== 'admin') ||
-      (isActive === false && targetMember.isActive);
-
-    if (isDemotingOrDeactivating) {
-      const activeAdminCount = await prisma.partnerMember.count({
-        where: {
-          partnerId: targetMember.partnerId,
-          role: 'admin',
-          isActive: true,
-          id: { not: targetMember.id },
-        },
-      });
-      if (activeAdminCount === 0) {
-        return NextResponse.json(
-          { error: 'Cannot remove the last active admin. Promote another member to admin first.' },
-          { status: 400 }
-        );
-      }
-    }
-
     // Build update data
     const updateData: { role?: string; isActive?: boolean } = {};
     if (role !== undefined) updateData.role = role;
@@ -107,11 +85,34 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
     }
 
-    // Update member
-    const updated = await prisma.partnerMember.update({
-      where: { id },
-      data: updateData,
-      include: { user: true },
+    // Guard: cannot demote/deactivate the last active admin
+    const isDemotingOrDeactivating =
+      (role !== undefined && targetMember.role === 'admin' && role !== 'admin') ||
+      (isActive === false && targetMember.isActive);
+
+    // Wrap guard check + mutation trong transaction để tránh race condition
+    // Đảm bảo giữa count và update không có request khác chen vào
+    const updated = await prisma.$transaction(async (tx) => {
+      if (isDemotingOrDeactivating) {
+        const activeAdminCount = await tx.partnerMember.count({
+          where: {
+            partnerId: targetMember.partnerId,
+            role: 'admin',
+            isActive: true,
+            id: { not: targetMember.id },
+          },
+        });
+        if (activeAdminCount === 0) {
+          throw new LastAdminError();
+        }
+      }
+
+      // Update member trong cùng transaction với guard check
+      return tx.partnerMember.update({
+        where: { id },
+        data: updateData,
+        include: { user: true },
+      });
     });
 
     return NextResponse.json({
@@ -128,6 +129,12 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       },
     });
   } catch (error) {
+    if (error instanceof LastAdminError) {
+      return NextResponse.json(
+        { error: 'Cannot remove the last active admin. Promote another member to admin first.' },
+        { status: 400 }
+      );
+    }
     console.error('Update member error:', error);
     return NextResponse.json({ error: 'Failed to update member' }, { status: 500 });
   }
@@ -184,32 +191,46 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Guard: cannot delete the last active admin
-    if (targetMember.role === 'admin' && targetMember.isActive) {
-      const activeAdminCount = await prisma.partnerMember.count({
-        where: {
-          partnerId: targetMember.partnerId,
-          role: 'admin',
-          isActive: true,
-          id: { not: targetMember.id },
-        },
-      });
-      if (activeAdminCount === 0) {
-        return NextResponse.json(
-          { error: 'Cannot remove the last active admin. Promote another member to admin first.' },
-          { status: 400 }
-        );
+    // Wrap last-admin guard check + delete trong transaction để tránh race condition
+    // Đảm bảo giữa count và delete không có request khác xóa admin khác
+    await prisma.$transaction(async (tx) => {
+      if (targetMember.role === 'admin' && targetMember.isActive) {
+        const activeAdminCount = await tx.partnerMember.count({
+          where: {
+            partnerId: targetMember.partnerId,
+            role: 'admin',
+            isActive: true,
+            id: { not: targetMember.id },
+          },
+        });
+        if (activeAdminCount === 0) {
+          throw new LastAdminError();
+        }
       }
-    }
 
-    // Delete member
-    await prisma.partnerMember.delete({
-      where: { id },
+      // Delete member trong cùng transaction với guard check
+      await tx.partnerMember.delete({
+        where: { id },
+      });
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (error instanceof LastAdminError) {
+      return NextResponse.json(
+        { error: 'Cannot remove the last active admin. Promote another member to admin first.' },
+        { status: 400 }
+      );
+    }
     console.error('Remove member error:', error);
     return NextResponse.json({ error: 'Failed to remove member' }, { status: 500 });
+  }
+}
+
+/** Error class để phân biệt lỗi last-admin guard vs lỗi thông thường trong transaction */
+class LastAdminError extends Error {
+  constructor() {
+    super('Cannot remove the last active admin');
+    this.name = 'LastAdminError';
   }
 }

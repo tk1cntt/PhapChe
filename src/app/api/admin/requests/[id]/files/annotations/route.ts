@@ -21,7 +21,7 @@ export async function GET(
 ) {
   try {
     const session = await requireAppSession();
-    const hasRole = ALLOWED_ROLES.some((r) => (session.roles as string[]).includes(r));
+    const hasRole = ALLOWED_ROLES.some((r) => (Array.isArray(session.roles) ? session.roles : []).includes(r as never));
     if (!hasRole) {
       return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
     }
@@ -46,7 +46,7 @@ export async function GET(
       id: a.id,
       fileKey: a.fileKey,
       authorId: a.authorId,
-      authorName: a.author.name,
+      authorName: a.author?.name ?? 'Unknown',
       content: a.content,
       severity: a.severity,
       category: a.category,
@@ -75,7 +75,7 @@ export async function POST(
 ) {
   try {
     const session = await requireAppSession();
-    const hasRole = ALLOWED_ROLES.some((r) => (session.roles as string[]).includes(r));
+    const hasRole = ALLOWED_ROLES.some((r) => (Array.isArray(session.roles) ? session.roles : []).includes(r as never));
     if (!hasRole) {
       return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
     }
@@ -134,7 +134,7 @@ export async function POST(
         id: annotation.id,
         fileKey: annotation.fileKey,
         authorId: annotation.authorId,
-        authorName: annotation.author.name,
+        authorName: annotation.author?.name ?? 'Unknown',
         content: annotation.content,
         severity: annotation.severity,
         category: annotation.category,

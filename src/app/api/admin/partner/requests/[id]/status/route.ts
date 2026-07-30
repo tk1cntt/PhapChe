@@ -16,6 +16,13 @@ import { auth } from '@/auth';
 // Valid admin roles
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
 
+// Aligned with prisma/schema.prisma: draft_intake, triage, assigned, in_progress,
+// pending_review, revision_required, approved, delivered, closed, cancelled
+const VALID_STATUSES = [
+  'draft_intake', 'triage', 'assigned', 'in_progress',
+  'pending_review', 'revision_required', 'approved', 'delivered', 'closed', 'cancelled',
+];
+
 /**
  * Get session with admin role check from database memberships
  */
@@ -43,7 +50,6 @@ async function requireAdminSession() {
   }
 
   return {
-    session,
     userId: session.user.id,
     roles: userRoles,
     activeWorkspaceId: memberships[0]?.workspaceId,
@@ -55,67 +61,70 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { session, userId } = await requireAdminSession();
+    const { userId } = await requireAdminSession();
 
     const { id } = await params;
     const body = await req.json();
     const { status, note } = body;
 
-    // Valid statuses
-    const VALID_STATUSES = ['draft_intake', 'submitted', 'triage', 'assigned', 'in_progress', 'pending_review', 'review', 'approved', 'delivered', 'closed', 'cancelled'];
+    // Validate note length
+    if (note && note.length > 2000) {
+      return NextResponse.json(
+        { error: 'INVALID_NOTE', detail: 'Note must be 2000 characters or less' },
+        { status: 400 },
+      );
+    }
 
     // Validate status
     if (!status || !VALID_STATUSES.includes(status)) {
       return NextResponse.json(
-        { error: 'INVALID_STATUS', detail: 'Status must be a valid request status' },
-        { status: 400 }
+        { error: 'INVALID_STATUS', detail: `Valid statuses: ${VALID_STATUSES.join(', ')}` },
+        { status: 400 },
       );
     }
 
-    // Check if request exists
+    // Check if request exists and get workspaceId for audit
     const existingRequest = await prisma.legalRequest.findUnique({
       where: { id },
-      select: { id: true, status: true, assignedPartnerId: true },
+      select: { id: true, status: true, assignedPartnerId: true, workspaceId: true },
     });
 
     if (!existingRequest) {
       return NextResponse.json(
         { error: 'NOT_FOUND', detail: 'Request not found' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // Update status
-    const updated = await prisma.legalRequest.update({
-      where: { id },
-      data: {
-        status,
-        statusNote: note || null,
-        updatedAt: new Date(),
-      },
-      select: {
-        id: true,
-        status: true,
-        statusNote: true,
-        updatedAt: true,
-      },
-    });
-
-    // Admin audit log using AuditEvent
-    await prisma.auditEvent.create({
-      data: {
-        actorId: userId,
-        workspaceId: '', // Platform-level admin, no specific workspace
-        action: 'admin.partner.status_override',
-        targetType: 'request',
-        targetId: id,
-        metadataSummary: JSON.stringify({
-          previousStatus: existingRequest.status,
-          newStatus: status,
-          note: note || null,
-        }),
-      },
-    });
+    // Update status and create audit log atomically
+    const [updated] = await prisma.$transaction([
+      prisma.legalRequest.update({
+        where: { id },
+        data: {
+          status,
+          updatedAt: new Date(),
+        },
+        select: {
+          id: true,
+          status: true,
+          updatedAt: true,
+        },
+      }),
+      prisma.auditEvent.create({
+        data: {
+          actorId: userId,
+          workspaceId: existingRequest.workspaceId || '',
+          action: 'admin.partner.status_override',
+          targetType: 'request',
+          targetId: id,
+          metadataSummary: JSON.stringify({
+            previousStatus: existingRequest.status,
+            newStatus: status,
+            note: note || null,
+          }),
+        },
+      }),
+    ]);
 
     return NextResponse.json({ data: updated });
   } catch (error: unknown) {
@@ -125,7 +134,7 @@ export async function PATCH(
     console.error('Error updating partner request status:', error);
     return NextResponse.json(
       { error: 'Internal Server Error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

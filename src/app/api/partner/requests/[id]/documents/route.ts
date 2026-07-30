@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { storageServer } from '@/lib/storage/server';
 
 // Allowed MIME types for document uploads
 const ALLOWED_MIME_TYPES = [
@@ -118,55 +119,87 @@ export async function POST(
     return NextResponse.json(
       {
         error: 'VALIDATION_ERROR',
-        detail: `File type not allowed. Allowed types: PDF, images (JPEG, PNG, GIF, WebP), Word, Excel, text, ZIP`,
+        detail: 'File type not allowed. Allowed types: PDF, images (JPEG, PNG, GIF, WebP), Word, Excel, text, ZIP',
         field: 'file'
       },
       { status: 400 }
     );
   }
 
-  // Create vault file record
-  const vaultFile = await prisma.vaultFile.create({
-    data: {
-      workspaceId: currentRequest.workspaceId,
+  try {
+    // Đọc nội dung file và chuyển thành Buffer để lưu vào storage
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+
+    // Lưu file vào storage provider (local/S3), tạo File record trong DB
+    const fileRecord = await storageServer.uploadFile({
+      organizationId: currentRequest.workspaceId,
       requestId: id,
-      actorId: session.user.id,
-      filename: file.name,
-      contentType: file.type,
-      size: file.size,
-      fileKind: 'upload',
-      source: 'partner_upload',
-    },
-  });
+      file: fileBuffer,
+      originalName: file.name,
+      mimeType: file.type,
+      category: 'request_attachment' as const,
+      visibility: 'customer_visible' as const,
+      createdBy: session.user.id,
+    });
 
-  // Create audit event
-  await prisma.auditEvent.create({
-    data: {
-      actorId: session.user.id,
-      workspaceId: currentRequest.workspaceId,
-      action: 'request.document_uploaded',
-      targetType: 'request',
-      targetId: id,
-      requestId: id,
-      metadataSummary: JSON.stringify({
-        documentId: vaultFile.id,
-        filename: file.name,
-        mimeType: file.type,
-        size: file.size,
-      }),
-    },
-  });
+    // Tạo vaultFile và audit event trong transaction để đảm bảo toàn vẹn dữ liệu
+    // Nếu audit fail, vaultFile sẽ được rollback, tránh orphan record
+    const trimmedDescription = description?.trim() || null;
 
-  const document = {
-    id: vaultFile.id,
-    filename: vaultFile.filename,
-    mimeType: vaultFile.contentType,
-    size: vaultFile.size,
-    description: description?.trim() || vaultFile.filename,
-    createdAt: vaultFile.createdAt,
-  };
+    const [vaultFile] = await prisma.$transaction(async (tx) => {
+      const vf = await tx.vaultFile.create({
+        data: {
+          workspaceId: currentRequest.workspaceId,
+          requestId: id,
+          actorId: session.user.id,
+          filename: file.name,
+          contentType: file.type,
+          size: file.size,
+          fileKind: 'upload',
+          source: 'partner_upload',
+          storageKey: fileRecord.objectKey,
+          fileId: fileRecord.id,
+          reason: trimmedDescription,
+        },
+      });
 
-  return NextResponse.json({ data: document }, { status: 201 });
+      await tx.auditEvent.create({
+        data: {
+          actorId: session.user.id,
+          workspaceId: currentRequest.workspaceId,
+          action: 'request.document_uploaded',
+          targetType: 'request',
+          targetId: id,
+          requestId: id,
+          metadataSummary: JSON.stringify({
+            documentId: vf.id,
+            filename: file.name,
+            mimeType: file.type,
+            size: file.size,
+          }),
+        },
+      });
+
+      return [vf];
+    });
+
+    const document = {
+      id: vaultFile.id,
+      filename: vaultFile.filename,
+      mimeType: vaultFile.contentType,
+      size: vaultFile.size,
+      description: trimmedDescription || vaultFile.filename,
+      createdAt: vaultFile.createdAt,
+    };
+
+    return NextResponse.json({ data: document }, { status: 201 });
+  } catch (error) {
+    console.error('Document upload error:', error);
+    return NextResponse.json(
+      { error: 'UPLOAD_FAILED', detail: 'Failed to upload document' },
+      { status: 500 }
+    );
+  }
 }
 
 // GET - List documents
@@ -200,6 +233,7 @@ export async function GET(
       contentType: true,
       size: true,
       createdAt: true,
+      reason: true,
     },
     orderBy: { createdAt: 'desc' },
   });
@@ -209,7 +243,7 @@ export async function GET(
     filename: f.filename,
     mimeType: f.contentType,
     size: f.size,
-    description: f.filename,
+    description: (f as { reason?: string }).reason || f.filename,
     createdAt: f.createdAt,
   }));
 

@@ -104,7 +104,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    const canDelete = membership?.role === 'coordinator_admin' || membership?.role === 'super_admin';
+    const canDelete = membership?.role === 'coordinator' || membership?.role === 'coordinator_admin' || membership?.role === 'super_admin';
 
     if (!canDelete) {
       return NextResponse.json(

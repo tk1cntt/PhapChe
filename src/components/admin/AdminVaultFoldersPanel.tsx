@@ -20,7 +20,7 @@ export function AdminVaultFoldersPanel({ folders }: AdminVaultFoldersPanelProps)
   const t = useTranslations('Vault');
   const [search, setSearch] = useState('');
 
-  const filteredFolders = folders.filter((f) => {
+  const filteredFolders = (folders || []).filter((f) => {
     const name = (f.name || '');
     return name.toLowerCase().includes(search.toLowerCase());
   });

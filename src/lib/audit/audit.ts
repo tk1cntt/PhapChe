@@ -57,10 +57,10 @@ const targetTypeMap: Record<AuditTargetTypeInput, AuditTargetType> = {
 };
 
 export async function recordAuditEvent(input: RecordAuditEventInput, db: AuditDb = prisma) {
-  if (!input.workspaceId.trim()) throw new Error('AUDIT_WORKSPACE_REQUIRED');
-  if (!input.action.trim()) throw new Error('AUDIT_ACTION_REQUIRED');
-  if (!input.targetId.trim()) throw new Error('AUDIT_TARGET_REQUIRED');
-  if (!input.correlationId.trim()) throw new Error('AUDIT_CORRELATION_REQUIRED');
+  if (!input.workspaceId?.trim()) throw new Error('AUDIT_WORKSPACE_REQUIRED');
+  if (!input.action?.trim()) throw new Error('AUDIT_ACTION_REQUIRED');
+  if (!input.targetId?.trim()) throw new Error('AUDIT_TARGET_REQUIRED');
+  if (!input.correlationId?.trim()) throw new Error('AUDIT_CORRELATION_REQUIRED');
   if (input.metadataSummary != null && typeof input.metadataSummary !== 'string') throw new Error('metadataSummary must be a string');
   if (input.metadataSummary && input.metadataSummary.length > 500) throw new Error('metadataSummary must be 500 characters or fewer');
 

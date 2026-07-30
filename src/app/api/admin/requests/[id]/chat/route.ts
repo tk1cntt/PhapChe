@@ -279,6 +279,11 @@ export async function GET(
       return NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 });
     }
 
+    // Workspace-level auth: user must be member of this request's workspace
+    if (session.activeWorkspaceId && legalRequest.workspaceId !== session.activeWorkspaceId) {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+    }
+
     // Fetch messages
     const rawMessages = await prisma.aiChatMessage.findMany({
       where: { requestId },
@@ -392,6 +397,11 @@ export async function POST(
 
     if (!legalRequest) {
       return NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 });
+    }
+
+    // Workspace-level auth: user must be member of this request's workspace
+    if (session.activeWorkspaceId && legalRequest.workspaceId !== session.activeWorkspaceId) {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
     }
 
     // Fetch documents attached to this request (latest version only)

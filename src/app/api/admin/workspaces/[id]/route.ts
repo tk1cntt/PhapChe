@@ -9,21 +9,24 @@ import { prisma } from '@/lib/prisma';
 
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'];
 
-async function requireAdminSession() {
+async function requireAdminSession(workspaceId: string) {
   const session = await auth.api.getSession();
   if (!session?.user?.id) {
     throw { status: 401, error: 'Unauthorized' };
   }
 
-  const memberships = await prisma.workspaceMembership.findMany({
-    where: { userId: session.user.id, isActive: true },
+  // Verify admin membership in the SPECIFIC workspace, not just any workspace
+  const membership = await prisma.workspaceMembership.findFirst({
+    where: {
+      userId: session.user.id,
+      workspaceId,
+      isActive: true,
+      role: { in: ADMIN_ROLES },
+    },
     select: { role: true },
   });
 
-  const userRoles = memberships.map((m) => m.role).filter((r): r is string => r !== null);
-  const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
-
-  if (!hasAdminRole) {
+  if (!membership) {
     throw { status: 403, error: 'Forbidden' };
   }
 
@@ -37,7 +40,7 @@ export async function GET(
   const { id } = await params;
 
   try {
-    await requireAdminSession();
+    await requireAdminSession(id);
   } catch (e: any) {
     return NextResponse.json({ error: e.error }, { status: e.status });
   }
@@ -67,7 +70,7 @@ export async function PATCH(
   const { id } = await params;
 
   try {
-    await requireAdminSession();
+    await requireAdminSession(id);
   } catch (e: any) {
     return NextResponse.json({ error: e.error }, { status: e.status });
   }
@@ -107,7 +110,7 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    await requireAdminSession();
+    await requireAdminSession(id);
   } catch (e: any) {
     return NextResponse.json({ error: e.error }, { status: e.status });
   }

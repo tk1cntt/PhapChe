@@ -20,6 +20,13 @@ export async function PATCH(
   try {
     const session = await requireAppSession();
     const { id } = await params;
+
+    // Check admin roles for status transitions
+    const isAdmin = session.roles?.some((r) => r === 'super_admin' || r === 'coordinator_admin');
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+    }
+
     const body = await request.json();
     const { status, note } = body;
 

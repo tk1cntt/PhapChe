@@ -26,6 +26,11 @@ export async function GET(
       return NextResponse.json({ error: 'File not found' }, { status: 404 });
     }
 
+    // Workspace-level access control — prevent cross-tenant data leak
+    if (vaultFile.workspaceId !== session.activeWorkspaceId) {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+    }
+
     // For now, return a placeholder response since we don't have actual S3/storage
     // In production, this would generate a signed URL or stream the file
     return NextResponse.json({
@@ -33,7 +38,9 @@ export async function GET(
       filename: vaultFile.filename,
       storageKey: vaultFile.storageKey,
     });
-  } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Download error:', message);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

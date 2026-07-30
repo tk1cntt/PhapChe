@@ -10,10 +10,17 @@ export async function GET(
     const session = await requireAppSession();
     const { id } = await params;
 
+    if (!session.activeWorkspaceId) {
+      return NextResponse.json(
+        { error: 'WORKSPACE_REQUIRED', message: 'No active workspace' },
+        { status: 400 }
+      );
+    }
+
     const legalRequest = await prisma.legalRequest.findFirst({
       where: {
         id,
-        workspaceId: session.activeWorkspaceId ?? undefined,
+        workspaceId: session.activeWorkspaceId,
       },
       include: {
         workspace: { select: { id: true, name: true, slug: true } },

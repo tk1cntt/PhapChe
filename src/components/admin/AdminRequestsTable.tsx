@@ -203,7 +203,7 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
           <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: 'var(--color-text)', fontWeight: 500, borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
             <div className="customer" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div className="mini-avatar" style={{ width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 800, fontSize: 13, background: 'var(--color-surface-hover)', color: 'var(--color-text-secondary)' }}>
-                {row.customer.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
+                {(row.customer || '—').split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
               </div>
               <div className="customer-info">
                 <strong style={{ display: 'block', fontSize: 14, marginBottom: 4 }}>{row.customer}</strong>

@@ -38,6 +38,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Authorization: sender must be creator, specialist, or reviewer of the request
+    const isAuthorized =
+      userId === legalRequest.createdById ||
+      userId === legalRequest.assignedSpecialistId;
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { error: 'FORBIDDEN' },
+        { status: 403 }
+      );
+    }
+
     // Determine recipient (if user is customer, send to specialist; if specialist, send to customer)
     const recipientId =
       userId === legalRequest.createdById

@@ -44,7 +44,7 @@ export default function DeadlineSLA({ cases }: DeadlineSLAProps) {
   const t = useTranslations('DeadlineSLA');
 
   // Get active cases with deadlines (excluding completed/closed/cancelled)
-  const activeCases = cases.filter(c =>
+  const activeCases = (cases || []).filter(c =>
     !['approved', 'delivered', 'closed', 'cancelled'].includes(c.status)
   );
 

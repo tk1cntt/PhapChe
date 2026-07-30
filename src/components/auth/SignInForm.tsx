@@ -336,10 +336,14 @@ export default function SignInForm() {
           const data = await res.json();
           userRole = data.role || 'customer';
         }
-      } catch { /* fallback */ }
+      } catch (err) {
+        console.error('Failed to fetch session role:', err);
+        /* fallback to customer */
+      }
 
       router.push(getRedirectPath(userRole));
-    } catch {
+    } catch (err) {
+      console.error('Sign-in error:', err);
       toast.error(T.genericError);
     } finally {
       setLoading(false);

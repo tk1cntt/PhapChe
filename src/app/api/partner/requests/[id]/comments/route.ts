@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 
 // Helper to check partner access
 async function checkPartnerAccess(requestId: string, userId: string) {
@@ -45,7 +46,8 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  try {
+    const { id } = await params;
 
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
@@ -89,6 +91,13 @@ export async function GET(
   }));
 
   return NextResponse.json({ data: comments });
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
+      return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
+    }
+    console.error('Error fetching partner comments:', error);
+    return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });
+  }
 }
 
 // POST - Add comment
@@ -96,7 +105,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  try {
+    const { id } = await params;
 
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
@@ -180,4 +190,11 @@ export async function POST(
   };
 
   return NextResponse.json({ data: comment }, { status: 201 });
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
+      return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
+    }
+    console.error('Error adding partner comment:', error);
+    return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });
+  }
 }

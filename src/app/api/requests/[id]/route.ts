@@ -49,10 +49,9 @@ export async function GET(
 
     return NextResponse.json({ data: legalRequest });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error('Request detail error:', message);
+    console.error('Request detail error:', error instanceof Error ? error.message : String(error));
 
-    if (message === 'UNAUTHENTICATED') {
+    if (error instanceof Error && error.message === 'UNAUTHENTICATED') {
       return NextResponse.json(
         { error: 'UNAUTHENTICATED', message: 'Please login to continue' },
         { status: 401 }

@@ -96,13 +96,13 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       if (error.message.includes('PERMISSION')) {
         return NextResponse.json(
-          { error: 'Forbidden', detail: error.message },
+          { error: 'Forbidden', detail: 'Permission denied' },
           { status: 403 }
         );
       }
       if (error.message.includes('VALIDATION')) {
         return NextResponse.json(
-          { error: 'Validation error', detail: error.message },
+          { error: 'Validation error', detail: 'Invalid file upload request' },
           { status: 400 }
         );
       }

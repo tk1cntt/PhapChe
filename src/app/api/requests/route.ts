@@ -6,13 +6,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 
 // GET - List user's requests
 export async function GET(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
-  }
+  try {
+    const session = await auth.api.getSession({ headers: req.headers });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
+    }
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get('status');
@@ -59,18 +61,23 @@ export async function GET(req: NextRequest) {
     matterTypeKey: req.matterTypeRef?.key,
   }));
 
-  return NextResponse.json({
-    data: transformedRequests,
-    pagination: { total, skip, take, hasMore: skip + take < total },
-  });
+    return NextResponse.json({
+      data: transformedRequests,
+      pagination: { total, skip, take, hasMore: skip + take < total },
+    });
+  } catch (error: unknown) {
+    console.error('Error listing requests:', error);
+    return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });
+  }
 }
 
 // POST - Create new request
 export async function POST(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
-  }
+  try {
+    const session = await auth.api.getSession({ headers: req.headers });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
+    }
 
   const body = await req.json();
   const {
@@ -150,5 +157,12 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return NextResponse.json({ data: request }, { status: 201 });
+    return NextResponse.json({ data: request }, { status: 201 });
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
+      return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
+    }
+    console.error('Error creating request:', error);
+    return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });
+  }
 }

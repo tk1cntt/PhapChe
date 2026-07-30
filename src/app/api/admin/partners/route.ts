@@ -90,7 +90,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Admin partners list error:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json({ error: 'Internal server error', detail: message }, { status: 500 });
+    return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });
   }
 }

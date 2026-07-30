@@ -19,7 +19,7 @@ export async function GET(
     const messages = await prisma.message.findMany({
       where: {
         legalRequestId: requestId,
-        workspaceId: activeWorkspaceId ?? '',
+        ...(activeWorkspaceId ? { workspaceId: activeWorkspaceId } : {}),
       },
       orderBy: { createdAt: 'asc' },
     });

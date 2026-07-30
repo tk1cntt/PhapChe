@@ -10,87 +10,97 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
-  // 1. Get session
-  const session = await auth.api.getSession({
-    headers: req.headers,
-  });
+  try {
+    // 1. Get session
+    const session = await auth.api.getSession({
+      headers: req.headers,
+    });
 
-  if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: 'UNAUTHORIZED', detail: 'Authentication required' },
-      { status: 401 }
-    );
-  }
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'UNAUTHORIZED', detail: 'Authentication required' },
+        { status: 401 }
+      );
+    }
 
-  const userId = session.user.id;
+    const userId = session.user.id;
 
-  // 2. Get partner membership
-  const member = await prisma.partnerMember.findFirst({
-    where: { userId, isActive: true },
-    select: { partnerId: true },
-  });
+    // 2. Get partner membership
+    const member = await prisma.partnerMember.findFirst({
+      where: { userId, isActive: true },
+      select: { partnerId: true },
+    });
 
-  if (!member) {
-    return NextResponse.json(
-      { error: 'FORBIDDEN', detail: 'Not a partner member' },
-      { status: 403 }
-    );
-  }
+    if (!member) {
+      return NextResponse.json(
+        { error: 'FORBIDDEN', detail: 'Not a partner member' },
+        { status: 403 }
+      );
+    }
 
-  // 3. Get query params
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get('status') || 'active';
-  const skip = parseInt(searchParams.get('skip') || '0', 10);
-  const take = parseInt(searchParams.get('take') || '10', 10);
+    // 3. Get query params with NaN guards
+    const { searchParams } = new URL(req.url);
+    const status = searchParams.get('status') || 'active';
+    const rawSkip = parseInt(searchParams.get('skip') || '0', 10);
+    const rawTake = parseInt(searchParams.get('take') || '10', 10);
+    const skip = Number.isFinite(rawSkip) ? Math.max(0, rawSkip) : 0;
+    const take = Number.isFinite(rawTake) ? Math.min(100, Math.max(1, rawTake)) : 10;
 
-  // 4. Get engagements
-  const where = {
-    partnerId: member.partnerId,
-    ...(status !== 'all' ? { status } : {}),
-  };
+    // 4. Get engagements
+    const where = {
+      partnerId: member.partnerId,
+      ...(status !== 'all' ? { status } : {}),
+    };
 
-  const [engagements, total] = await Promise.all([
-    prisma.engagement.findMany({
-      where,
-      include: {
-        organization: {
-          select: { id: true, name: true },
-        },
-        serviceScopes: {
-          include: {
-            serviceType: {
-              select: { id: true, key: true, name: true },
+    const [engagements, total] = await Promise.all([
+      prisma.engagement.findMany({
+        where,
+        include: {
+          organization: {
+            select: { id: true, name: true },
+          },
+          serviceScopes: {
+            include: {
+              serviceType: {
+                select: { id: true, key: true, name: true },
+              },
             },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take,
-    }),
-    prisma.engagement.count({ where }),
-  ]);
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      prisma.engagement.count({ where }),
+    ]);
 
-  return NextResponse.json({
-    data: engagements.map((e) => ({
-      id: e.id,
-      organization: e.organization,
-      status: e.status,
-      serviceTypes: e.serviceScopes.map((s) => ({
-        id: s.serviceType.id,
-        key: s.serviceType.key,
-        name: s.serviceType.name,
-        permissionLevel: s.permissionLevel,
+    return NextResponse.json({
+      data: engagements.map((e) => ({
+        id: e.id,
+        organization: e.organization,
+        status: e.status,
+        serviceTypes: e.serviceScopes.map((s) => ({
+          id: s.serviceType.id,
+          key: s.serviceType.key,
+          name: s.serviceType.name,
+          permissionLevel: s.permissionLevel,
+        })),
+        startDate: e.startDate,
+        endDate: e.endDate,
+        notes: e.notes,
       })),
-      startDate: e.startDate,
-      endDate: e.endDate,
-      notes: e.notes,
-    })),
-    pagination: {
-      total,
-      skip,
-      take,
-      hasMore: skip + take < total,
-    },
-  });
+      pagination: {
+        total,
+        skip,
+        take,
+        hasMore: skip + take < total,
+      },
+    });
+  } catch (error) {
+    console.error('Partner engagements error:', error);
+    return NextResponse.json(
+      { error: 'INTERNAL_ERROR', detail: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }

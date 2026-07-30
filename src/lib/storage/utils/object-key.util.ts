@@ -23,6 +23,13 @@ export function generateObjectKey(params: {
 }): string {
   const { organizationId, requestId, fileId, safeFileName, category } = params;
 
+  // Prevent path traversal: reject "..", "/", "\" in all path segments
+  for (const segment of [organizationId, requestId, fileId, safeFileName]) {
+    if (segment && (segment.includes('..') || segment.includes('/') || segment.includes('\\'))) {
+      throw new Error('Invalid path segment: contains traversal characters');
+    }
+  }
+
   switch (category) {
     case FileCategoryEnum.REQUEST_UPLOAD:
       // organizations/{orgId}/requests/{requestId}/uploads/{fileId}/{safeFileName}

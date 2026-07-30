@@ -111,9 +111,8 @@ export async function PATCH(
     });
   } catch (error) {
     if (isRedirectErr(error)) throw error;
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error('[Annotation PATCH Error]', msg);
-    return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });
+    console.error('[Annotation PATCH Error]', error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: 'Internal server error', detail: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -161,8 +160,7 @@ export async function DELETE(
     return NextResponse.json({ ok: true });
   } catch (error) {
     if (isRedirectErr(error)) throw error;
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error('[Annotation DELETE Error]', msg);
-    return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });
+    console.error('[Annotation DELETE Error]', error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: 'Internal server error', detail: 'Internal server error' }, { status: 500 });
   }
 }

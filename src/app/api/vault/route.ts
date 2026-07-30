@@ -17,7 +17,8 @@ export async function GET() {
     ]);
 
     return NextResponse.json({ folders, tags, classifications });
-  } catch {
-    return NextResponse.json({ folders: [], tags: [], classifications: [] });
+  } catch (error) {
+    console.error('Vault API error:', error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }

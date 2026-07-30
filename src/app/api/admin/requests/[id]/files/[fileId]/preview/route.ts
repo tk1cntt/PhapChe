@@ -299,6 +299,10 @@ export async function GET(
         if (!objectKey) {
           return NextResponse.json({ content: '', mimeType, title, isBinary: false, previewFormat: 'text' });
         }
+        // Path traversal check BEFORE any file system access
+        if (objectKey.includes('..')) {
+          return NextResponse.json({ error: 'Invalid object key' }, { status: 400 });
+        }
         try {
           const storageRoot = process.env.STORAGE_LOCAL_ROOT || '/data/storage/private';
           const fullPath = join(storageRoot, objectKey);
@@ -310,9 +314,6 @@ export async function GET(
               isBinary: false,
               previewFormat: 'text',
             });
-          }
-          if (objectKey.includes('..')) {
-            return NextResponse.json({ error: 'Invalid object key' }, { status: 400 });
           }
           const buffer = await readFile(fullPath);
           let content: string;
@@ -342,9 +343,9 @@ export async function GET(
             previewFormat: 'markdown',
           });
         } catch (fileErr) {
-          const msg = fileErr instanceof Error ? fileErr.message : String(fileErr);
+          console.error('[Preview DOCX/XLSX]', fileErr instanceof Error ? fileErr.message : String(fileErr));
           return NextResponse.json({
-            content: `[Lỗi đọc file ${officeType.toUpperCase()}: ${msg}]`,
+            content: `[Lỗi đọc file ${officeType.toUpperCase()}: Không thể trích xuất nội dung]`,
             mimeType,
             title,
             isBinary: false,
@@ -359,6 +360,10 @@ export async function GET(
         if (!objectKey) {
           return NextResponse.json({ content: '', mimeType, title, isBinary: false, previewFormat: 'text' });
         }
+        // Path traversal check BEFORE any file system access
+        if (objectKey.includes('..')) {
+          return NextResponse.json({ error: 'Invalid object key' }, { status: 400 });
+        }
         try {
           const storageRoot = process.env.STORAGE_LOCAL_ROOT || '/data/storage/private';
           const fullPath = join(storageRoot, objectKey);
@@ -370,9 +375,6 @@ export async function GET(
               isBinary: false,
               previewFormat: 'text',
             });
-          }
-          if (objectKey.includes('..')) {
-            return NextResponse.json({ error: 'Invalid object key' }, { status: 400 });
           }
           const buffer = await readFile(fullPath);
           let content: string;
@@ -414,9 +416,9 @@ export async function GET(
             previewFormat: 'markdown',
           });
         } catch (fileErr) {
-          const msg = fileErr instanceof Error ? fileErr.message : String(fileErr);
+          console.error('[Preview PDF]', fileErr instanceof Error ? fileErr.message : String(fileErr));
           return NextResponse.json({
-            content: `[Lỗi đọc file PDF: ${msg}]`,
+            content: `[Lỗi đọc file PDF: Không thể trích xuất nội dung]`,
             mimeType,
             title,
             isBinary: false,
@@ -488,9 +490,9 @@ export async function GET(
           previewFormat: isMarkdown ? 'markdown' : 'text',
         });
       } catch (fileErr) {
-        const msg = fileErr instanceof Error ? fileErr.message : String(fileErr);
+        console.error('[Preview read error]', fileErr instanceof Error ? fileErr.message : String(fileErr));
         return NextResponse.json({
-          content: `[Lỗi đọc file: ${msg}]`,
+          content: `[Lỗi đọc file: Không thể trích xuất nội dung]`,
           mimeType: mimeType ?? 'text/plain',
           title,
           isBinary: false,
@@ -501,8 +503,7 @@ export async function GET(
 
     return NextResponse.json({ error: 'INVALID_FILE_ID' }, { status: 400 });
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error('[File Preview API Error]', msg, error);
-    return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });
+    console.error('[File Preview API Error]', error instanceof Error ? error.message : String(error), error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

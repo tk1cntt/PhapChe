@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / pageSize),
     });
   } catch (error) {
-    console.error('Admin triage error:', error);
-    return NextResponse.json({ error: 'Internal server error', detail: String(error) }, { status: 500 });
+    console.error('Admin triage error:', error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: 'Internal server error', detail: 'Internal server error' }, { status: 500 });
   }
 }

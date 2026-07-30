@@ -29,6 +29,7 @@ export abstract class BaseRepository<T, CreateInput, UpdateInput, WhereInput> {
    */
   async findById(ctx: RequestContext, id: string): Promise<T | null> {
     const result = await this.dbFindById(id);
+    // Return null for both "not found" and "no permission" — avoid info leak
     if (!result) return null;
 
     if (await this.canAccess(ctx, result)) {

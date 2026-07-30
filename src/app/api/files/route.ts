@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
 import { storageServer } from '@/lib/storage/server';
 import { FileCategory, FileVisibility } from '@/lib/storage/types';
 
@@ -25,6 +26,8 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const userId = session.user.id;
 
     // Parse multipart form data
     const formData = await request.formData();
@@ -65,6 +68,24 @@ export async function POST(request: NextRequest) {
         { error: 'Validation error', detail: `Invalid visibility: ${visibility}` },
         { status: 400 }
       );
+    }
+
+    // Verify workspace membership
+    if (requestId) {
+      const membership = await prisma.workspaceMembership.findFirst({
+        where: {
+          userId,
+          isActive: true,
+          workspace: { requests: { some: { id: requestId } } },
+        },
+        select: { id: true },
+      });
+      if (!membership) {
+        return NextResponse.json(
+          { error: 'Forbidden', detail: 'Not a member of this workspace' },
+          { status: 403 }
+        );
+      }
     }
 
     // Get file buffer

@@ -20,7 +20,7 @@ export async function GET() {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ role: 'customer' }, { status: 401 });
+      return NextResponse.json({ error: 'UNAUTHENTICATED' }, { status: 401 });
     }
 
     // Fetch user's workspace memberships to determine primary role

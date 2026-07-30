@@ -51,7 +51,7 @@ export async function GET(
   }
 
   const workspace = await prisma.workspace.findUnique({
-    where: { id },
+    where: { id, isActive: true },
     include: {
       organization: { select: { id: true, name: true, slug: true } },
       members: {

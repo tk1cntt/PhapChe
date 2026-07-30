@@ -14,9 +14,21 @@ export interface AuthMiddlewareOptions {
 
 export function authMiddleware(options: AuthMiddlewareOptions = {}) {
   return async (req: NextRequest) => {
-    const session = await auth.api.getSession({
-      headers: req.headers,
-    });
+    let session;
+    try {
+      session = await auth.api.getSession({
+        headers: req.headers,
+      });
+    } catch (err) {
+      console.error('Auth middleware session error:', err instanceof Error ? err.message : String(err));
+      if (options.required !== false) {
+        return NextResponse.json(
+          { error: 'INTERNAL_ERROR', detail: 'Internal server error' },
+          { status: 500 }
+        );
+      }
+      return NextResponse.next();
+    }
 
     if (!session) {
       if (options.required !== false) {

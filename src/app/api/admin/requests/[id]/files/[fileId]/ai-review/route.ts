@@ -317,89 +317,90 @@ export async function POST(
       annotationId?: string;
     }> = [];
 
-    // ── Delete old AI annotations before creating new ones ──
-    await prisma.documentAnnotation.deleteMany({
-      where: {
-        requestId,
-        fileKey: fileId,
-        aiGenerated: true,
-      },
+    // ── Delete old AI annotations & create new ones within transaction ──
+    await prisma.$transaction(async (tx) => {
+      await tx.documentAnnotation.deleteMany({
+        where: {
+          requestId,
+          fileKey: fileId,
+          aiGenerated: true,
+        },
+      });
+
+      for (const finding of aiFindings) {
+        const rawSeverity = (finding.severity as string) ?? 'info';
+        const issue = (finding.issue as string) ?? '';
+        const recommendation = (finding.recommendation as string) ?? '';
+        const legalBasis = (finding.legalBasis as string) ?? '';
+        const clause = (finding.clause as string) ?? '';
+
+        // Map AI severity → Prisma severity (Prisma chỉ chấp nhận info|warning|critical)
+        const mappedSeverity = rawSeverity === 'critical' ? 'critical'
+          : rawSeverity === 'high' ? 'critical'
+          : rawSeverity === 'medium' ? 'warning'
+          : 'info';
+
+        // Build content
+        const parts = [`**Vấn đề:** ${issue}`];
+        if (clause && clause !== 'N/A') parts.unshift(`**Điều khoản:** ${clause}`);
+        if (recommendation) parts.push(`\n**Đề xuất:** ${recommendation}`);
+        if (legalBasis && legalBasis !== 'N/A') parts.push(`\n**Căn cứ:** ${legalBasis}`);
+        const annotationContent = parts.join('');
+
+        // Position: only for inline skills with line info
+        let position: Record<string, unknown> | undefined;
+        let confidence = result.confidence;
+        let lineStart: number | undefined;
+        let lineEnd: number | undefined;
+        let matchedText: string | undefined;
+
+        if (isInlineSkill) {
+          const aiLineStart = Number(finding.lineStart) || 1;
+          const snippet = (finding.matchedText as string) ?? '';
+          const mapped = fuzzyMatchPosition(snippet, linesArray, aiLineStart);
+          lineStart = mapped.lineStart;
+          lineEnd = mapped.lineEnd;
+          matchedText = mapped.matchedText.substring(0, 200);
+          confidence = mapped.confidence;
+          position = {
+            line: lineStart,
+            lineStart,
+            lineEnd,
+            snippet: matchedText,
+          };
+        }
+
+        try {
+          const annotation = await tx.documentAnnotation.create({
+            data: {
+              requestId,
+              fileKey: fileId,
+              authorId: session.userId,
+              content: annotationContent,
+              severity: mappedSeverity,
+              category: 'issue',
+              position: (position ?? undefined) as any,
+              aiGenerated: true,
+              aiConfidence: confidence,
+            },
+          });
+
+          mappedFindings.push({
+            severity: rawSeverity,
+            lineStart,
+            lineEnd,
+            matchedText,
+            issue,
+            recommendation,
+            legalBasis,
+            confidence,
+            annotationId: annotation.id,
+          });
+        } catch (createErr) {
+          console.error('[AI Review] Failed to create annotation:', createErr);
+        }
+      }
     });
-
-    // ── Create annotations from findings (both inline & non-inline skills) ──
-    for (const finding of aiFindings) {
-      const rawSeverity = (finding.severity as string) ?? 'info';
-      const issue = (finding.issue as string) ?? '';
-      const recommendation = (finding.recommendation as string) ?? '';
-      const legalBasis = (finding.legalBasis as string) ?? '';
-      const clause = (finding.clause as string) ?? '';
-
-      // Map AI severity → Prisma severity (Prisma chỉ chấp nhận info|warning|critical)
-      const mappedSeverity = rawSeverity === 'critical' ? 'critical'
-        : rawSeverity === 'high' ? 'critical'
-        : rawSeverity === 'medium' ? 'warning'
-        : 'info';
-
-      // Build content
-      const parts = [`**Vấn đề:** ${issue}`];
-      if (clause && clause !== 'N/A') parts.unshift(`**Điều khoản:** ${clause}`);
-      if (recommendation) parts.push(`\n**Đề xuất:** ${recommendation}`);
-      if (legalBasis && legalBasis !== 'N/A') parts.push(`\n**Căn cứ:** ${legalBasis}`);
-      const annotationContent = parts.join('');
-
-      // Position: only for inline skills with line info
-      let position: Record<string, unknown> | undefined;
-      let confidence = result.confidence;
-      let lineStart: number | undefined;
-      let lineEnd: number | undefined;
-      let matchedText: string | undefined;
-
-      if (isInlineSkill) {
-        const aiLineStart = Number(finding.lineStart) || 1;
-        const snippet = (finding.matchedText as string) ?? '';
-        const mapped = fuzzyMatchPosition(snippet, linesArray, aiLineStart);
-        lineStart = mapped.lineStart;
-        lineEnd = mapped.lineEnd;
-        matchedText = mapped.matchedText.substring(0, 200);
-        confidence = mapped.confidence;
-        position = {
-          line: lineStart,
-          lineStart,
-          lineEnd,
-          snippet: matchedText,
-        };
-      }
-
-      try {
-        const annotation = await prisma.documentAnnotation.create({
-          data: {
-            requestId,
-            fileKey: fileId,
-            authorId: session.userId,
-            content: annotationContent,
-            severity: mappedSeverity,
-            category: 'issue',
-            position: (position ?? undefined) as any,
-            aiGenerated: true,
-            aiConfidence: confidence,
-          },
-        });
-
-        mappedFindings.push({
-          severity: rawSeverity,
-          lineStart,
-          lineEnd,
-          matchedText,
-          issue,
-          recommendation,
-          legalBasis,
-          confidence,
-          annotationId: annotation.id,
-        });
-      } catch (createErr) {
-        console.error('[AI Review] Failed to create annotation:', createErr);
-      }
-    }
 
     // ── Update review status ──
     if (mappedFindings.length > 0) {
@@ -454,7 +455,7 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { error: 'AI_REVIEW_FAILED', detail: message },
+      { error: 'AI_REVIEW_FAILED', detail: 'Internal server error' },
       { status: 500 },
     );
   }

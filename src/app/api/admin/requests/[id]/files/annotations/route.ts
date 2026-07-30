@@ -63,7 +63,7 @@ export async function GET(
     if (isRedirectErr(error)) throw error;
     const msg = error instanceof Error ? error.message : String(error);
     console.error('[Annotations API Error]', msg);
-    return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error', detail: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -148,6 +148,6 @@ export async function POST(
     if (isRedirectErr(error)) throw error;
     const msg = error instanceof Error ? error.message : String(error);
     console.error('[Annotations API Error]', msg);
-    return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error', detail: 'Internal server error' }, { status: 500 });
   }
 }

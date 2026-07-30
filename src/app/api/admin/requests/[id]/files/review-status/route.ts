@@ -43,7 +43,7 @@ export async function GET(
     if (isRedirectErr(error)) throw error;
     const msg = error instanceof Error ? error.message : String(error);
     console.error('[Review Status API Error]', msg);
-    return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error', detail: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -104,6 +104,6 @@ export async function PUT(
     if (isRedirectErr(error)) throw error;
     const msg = error instanceof Error ? error.message : String(error);
     console.error('[Review Status API Error]', msg);
-    return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error', detail: 'Internal server error' }, { status: 500 });
   }
 }

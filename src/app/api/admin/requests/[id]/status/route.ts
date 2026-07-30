@@ -57,9 +57,9 @@ export async function PATCH(
     };
     const code = error?.message && knownErrors[error.message];
     if (code) {
-      return NextResponse.json({ error: error.message, detail: String(error) }, { status: code });
+      return NextResponse.json({ error: error.message, detail: error.message }, { status: code });
     }
     console.error('Admin status transition error:', error);
-    return NextResponse.json({ error: 'INTERNAL_ERROR', detail: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });
   }
 }

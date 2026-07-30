@@ -28,7 +28,7 @@ export async function GET() {
       {
         success: false,
         error: 'AI_INIT_FAILED',
-        detail: error instanceof Error ? error.message : 'Unknown error',
+        detail: 'Internal server error',
       },
       { status: 500 },
     );

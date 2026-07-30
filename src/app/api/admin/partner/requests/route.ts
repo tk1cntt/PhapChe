@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
     }
     console.error('Admin partner requests error:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error', detail: error?.message },
+      { error: 'Internal Server Error', detail: 'Internal server error' },
       { status: 500 }
     );
   }

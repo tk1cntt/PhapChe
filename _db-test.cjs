@@ -14,7 +14,8 @@ async function main() {
     const pwdSet = !!acc.password;
     let bcryptOk = false;
     if (acc.password) {
-      bcryptOk = await bcrypt.compare('Demo@123456', acc.password);
+      const testPwd = process.env.TEST_PASSWORD || 'Demo@123456';
+      bcryptOk = await bcrypt.compare(testPwd, acc.password);
     }
     console.log(`  ${acc.user.email} | pwd: ${pwdSet ? 'YES' : 'NO'} | bcrypt: ${bcryptOk ? 'PASS' : '---'}`);
   }

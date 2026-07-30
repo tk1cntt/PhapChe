@@ -464,32 +464,34 @@ export default function SignInForm() {
       {/* Version */}
       <p style={S.version}>{T.version}</p>
 
-      {/* Quick user selector */}
-      <div style={{ marginTop: 20, padding: 12, background: 'var(--color-primary-muted)', borderRadius: 12, border: '1px solid var(--color-primary-muted)' }}>
-        <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary)', marginBottom: 8 }}>
-          🧪 Quick Login
-        </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {SEED_USERS.map((user) => (
-            <button
-              key={user.role}
-              type="button"
-              onClick={() => selectUser(user)}
-              style={{
-                padding: '4px 10px',
-                fontSize: 12,
-                background: email === user.email ? '#14b8a6' : '#fff',
-                color: email === user.email ? '#fff' : '#334155',
-                border: '1px solid #cbd5e1',
-                borderRadius: 8,
-                cursor: 'pointer',
-              }}
-            >
-              {user.label}
-            </button>
-          ))}
+      {/* Quick user selector — dev only, credentials gated behind NODE_ENV */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{ marginTop: 20, padding: 12, background: 'var(--color-primary-muted)', borderRadius: 12, border: '1px solid var(--color-primary-muted)' }}>
+          <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary)', marginBottom: 8 }}>
+            🧪 Quick Login
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {SEED_USERS.map((user) => (
+              <button
+                key={user.role}
+                type="button"
+                onClick={() => selectUser(user)}
+                style={{
+                  padding: '4px 10px',
+                  fontSize: 12,
+                  background: email === user.email ? '#14b8a6' : '#fff',
+                  color: email === user.email ? '#fff' : '#334155',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                }}
+              >
+                {user.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

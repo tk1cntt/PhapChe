@@ -12,8 +12,11 @@ const { chromium } = require('playwright');
     console.log('✓ Sign-in page loaded');
 
     // Fill login form
-    await page.fill('input[placeholder="Email"]', 'customer.demo@example.test');
-    await page.fill('input[placeholder="Mật khẩu"]', 'Demo@123456');
+    const testEmail = process.env.TEST_EMAIL || 'customer.demo@example.test';
+    const testPassword = process.env.TEST_PASSWORD;
+    if (!testPassword) { console.error('TEST_PASSWORD env var required'); process.exit(1); }
+    await page.fill('input[placeholder="Email"]', testEmail);
+    await page.fill('input[placeholder="Mật khẩu"]', testPassword);
 
     console.log('✓ Credentials entered');
 

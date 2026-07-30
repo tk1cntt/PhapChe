@@ -11,8 +11,11 @@ async function main() {
 
   // Auth
   await page.goto(BASE + '/sign-in', { waitUntil: 'networkidle', timeout: 30000 });
-  await page.locator('#signin_email, input[id*="email"]').first().fill('admin.demo@example.test');
-  await page.locator('input[type="password"]').first().fill('Demo@123456');
+  const email = process.env.TEST_EMAIL || 'admin.demo@example.test';
+  const password = process.env.TEST_PASSWORD;
+  if (!password) { console.error('TEST_PASSWORD env var required'); process.exit(1); }
+  await page.locator('#signin_email, input[id*="email"]').first().fill(email);
+  await page.locator('input[type="password"]').first().fill(password);
   await page.locator('button[type="submit"]').first().click();
   await page.waitForTimeout(3000);
   console.log('Signed in, URL:', page.url());

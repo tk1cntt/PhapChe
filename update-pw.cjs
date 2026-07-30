@@ -3,7 +3,9 @@ const { PrismaClient } = require('@prisma/client');
 
 async function main() {
   const prisma = new PrismaClient();
-  const hash = await bcrypt.hash('Demo@123456', 10);
+  const password = process.env.RESET_PASSWORD;
+  if (!password) { console.error('RESET_PASSWORD env var required'); process.exit(1); }
+  const hash = await bcrypt.hash(password, 10);
   const result = await prisma.account.updateMany({
     where: { providerId: 'credential' },
     data: { password: hash },

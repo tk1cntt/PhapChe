@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 
 async function main() {
   const db = new PrismaClient();
-  const password = 'Demo@123456';
+  const password = process.env.RESET_PASSWORD;
+  if (!password) { console.error('RESET_PASSWORD env var required'); process.exit(1); }
 
   console.log('Regenerating all credential account passwords...\n');
 

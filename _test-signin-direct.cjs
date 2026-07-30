@@ -9,8 +9,9 @@ async function main() {
   // better-auth looks for Account where:
   //   providerId = 'credential'
   //   accountId = email
-  const email = 'admin.demo@example.test';
-  const password = 'Demo@123456';
+  const email = process.env.TEST_EMAIL || 'admin.demo@example.test';
+  const password = process.env.TEST_PASSWORD;
+  if (!password) { console.error('TEST_PASSWORD env var required'); process.exit(1); }
 
   const account = await db.account.findFirst({
     where: {

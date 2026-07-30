@@ -194,26 +194,29 @@ export class PartnerInviteService {
         return { success: false, error: 'User is already a member' };
       }
 
-      // Create member record
-      const member = await this.prismaClient.partnerMember.create({
-        data: {
-          partnerId: invite.partnerId,
-          userId,
-          role: invite.role,
-          isActive: true,
-        },
-      });
+      // ── Create member + update invite atomically ──
+      // Wrapped in transaction to prevent concurrent accepts and to use
+      // conditional updateMany to avoid overwriting an already-accepted invite.
+      const [member] = await this.prismaClient.$transaction([
+        this.prismaClient.partnerMember.create({
+          data: {
+            partnerId: invite.partnerId,
+            userId,
+            role: invite.role,
+            isActive: true,
+          },
+        }),
+        // Only update if still pending — prevents race with concurrent accept
+        this.prismaClient.partnerInvite.updateMany({
+          where: { id: invite.id, status: 'pending' },
+          data: { status: 'accepted' },
+        }),
+      ]);
 
       // ── B3: Auto-create WorkspaceMembership cho các workspace trong tổ chức có engagement ──
       // Khi partner member join, họ cần workspace membership để truy cập workspace của org.
       // See: docs/shared_customer_partner_collaboration.md §3.1, §13.3
       await this.syncPartnerWorkspaceMemberships(userId, invite.partnerId);
-
-      // Update invite status
-      await this.prismaClient.partnerInvite.update({
-        where: { id: invite.id },
-        data: { status: 'accepted' },
-      });
 
       return {
         success: true,
@@ -252,10 +255,14 @@ export class PartnerInviteService {
         return { success: false, error: 'Invite is not pending' };
       }
 
-      await this.prismaClient.partnerInvite.update({
-        where: { id: inviteId },
+      const result = await this.prismaClient.partnerInvite.updateMany({
+        where: { id: inviteId, status: 'pending' },
         data: { status: 'revoked' },
       });
+
+      if (result.count === 0) {
+        return { success: false, error: 'Invite is not pending or already processed' };
+      }
 
       return { success: true };
     } catch (error) {

@@ -270,6 +270,13 @@ export async function submitForReview(input: SubmitForReviewInput): Promise<{ id
   if (docVersion.status !== 'draft') throw new Error('INVALID_DOCUMENT_VERSION_STATUS');
 
   const updated = await prisma.$transaction(async (tx) => {
+    // Re-read status inside transaction to avoid TOCTOU
+    const dv = await tx.documentVersion.findUnique({
+      where: { id: documentVersionId },
+      select: { id: true, status: true },
+    });
+    if (!dv || dv.status !== 'draft') throw new Error('INVALID_DOCUMENT_VERSION_STATUS');
+
     const updatedVersion = await tx.documentVersion.update({
       where: { id: documentVersionId },
       data: { status: 'submitted_for_review' },

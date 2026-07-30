@@ -38,13 +38,24 @@ export async function GET(
       return NextResponse.json({ error: 'VALIDATION: missing request id' }, { status: 400 });
     }
 
-    // Verify request exists
+    // Verify request exists and user is authorized (workspace + assignment)
     const legalRequest = await prisma.legalRequest.findUnique({
       where: { id: requestId },
-      select: { id: true },
+      select: { id: true, workspaceId: true, assignedSpecialistId: true, assignedReviewerId: true },
     });
     if (!legalRequest) {
       return NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 });
+    }
+
+    // Verify workspace membership
+    if (session.activeWorkspaceId && legalRequest.workspaceId !== session.activeWorkspaceId) {
+      const membership = await prisma.workspaceMembership.findFirst({
+        where: { userId: session.userId, workspaceId: legalRequest.workspaceId, isActive: true },
+        select: { id: true },
+      });
+      if (!membership) {
+        return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+      }
     }
 
     // Fetch VaultFiles (uploaded files)
@@ -103,7 +114,7 @@ export async function GET(
     return NextResponse.json({ files: items });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.error('[Files API Error]', msg, error);
-    return NextResponse.json({ error: 'Internal server error', detail: msg }, { status: 500 });
+    console.error('[Files API Error]', msg);
+    return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });
   }
 }

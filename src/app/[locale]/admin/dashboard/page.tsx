@@ -241,9 +241,18 @@ export default async function AdminDashboardPage({ params }: PageProps) {
   }
 
   // ── ADMIN DASHBOARD ──
+  if (!isAdmin) {
+    return (
+      <div style={{ padding: 48, textAlign: 'center' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Không có quyền truy cập</h1>
+        <p style={{ color: '#6b7280' }}>Bạn không có quyền admin để xem trang này.</p>
+      </div>
+    );
+  }
   const t = await getTranslations({ locale, namespace: 'AdminDashboard' });
 
   // Parallel Prisma queries
+  try {
   const [
     totalUsers,
     activeUsers,
@@ -391,4 +400,13 @@ export default async function AdminDashboardPage({ params }: PageProps) {
       }}
     />
   );
+  } catch (error) {
+    console.error('Admin dashboard error:', error);
+    return (
+      <div style={{ padding: 48, textAlign: 'center' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Lỗi tải dữ liệu</h1>
+        <p style={{ color: '#6b7280' }}>Không thể tải dữ liệu dashboard. Vui lòng thử lại sau.</p>
+      </div>
+    );
+  }
 }

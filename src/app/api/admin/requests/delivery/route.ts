@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-    const pageSize = Math.min(50, Math.max(5, parseInt(searchParams.get('pageSize') || '10', 10)));
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
+    const pageSize = Math.min(50, Math.max(5, parseInt(searchParams.get('pageSize') || '10', 10) || 10));
     const skip = (page - 1) * pageSize;
     const statusFilter = searchParams.get('status') || '';
     const search = searchParams.get('search') || '';

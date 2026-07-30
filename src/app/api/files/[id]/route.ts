@@ -10,6 +10,7 @@ import { headers } from 'next/headers';
 import { auth } from '@/auth';
 import { storageServer } from '@/lib/storage/server';
 import { prisma } from '@/lib/prisma';
+import { FileNotFoundError, FilePermissionError } from '@/lib/storage/types';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -42,19 +43,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Get file error:', error);
 
-    if (error instanceof Error) {
-      if (error.message.includes('NOT_FOUND')) {
-        return NextResponse.json(
-          { error: 'Not found', detail: 'File not found' },
-          { status: 404 }
-        );
-      }
-      if (error.message.includes('PERMISSION')) {
-        return NextResponse.json(
-          { error: 'Forbidden', detail: error.message },
-          { status: 403 }
-        );
-      }
+    if (error instanceof FileNotFoundError) {
+      return NextResponse.json(
+        { error: 'Not found', detail: 'File not found' },
+        { status: 404 }
+      );
+    }
+    if (error instanceof FilePermissionError) {
+      return NextResponse.json(
+        { error: 'Forbidden', detail: 'Permission denied' },
+        { status: 403 }
+      );
     }
 
     return NextResponse.json(
@@ -104,7 +103,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    const canDelete = membership?.role === 'coordinator' || membership?.role === 'coordinator_admin' || membership?.role === 'super_admin';
+    const canDelete = membership?.role === 'coordinator' || membership?.role === 'super_admin';
 
     if (!canDelete) {
       return NextResponse.json(
@@ -120,19 +119,17 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Delete file error:', error);
 
-    if (error instanceof Error) {
-      if (error.message.includes('NOT_FOUND')) {
-        return NextResponse.json(
-          { error: 'Not found', detail: 'File not found' },
-          { status: 404 }
-        );
-      }
-      if (error.message.includes('PERMISSION')) {
-        return NextResponse.json(
-          { error: 'Forbidden', detail: error.message },
-          { status: 403 }
-        );
-      }
+    if (error instanceof FileNotFoundError) {
+      return NextResponse.json(
+        { error: 'Not found', detail: 'File not found' },
+        { status: 404 }
+      );
+    }
+    if (error instanceof FilePermissionError) {
+      return NextResponse.json(
+        { error: 'Forbidden', detail: 'Permission denied' },
+        { status: 403 }
+      );
     }
 
     return NextResponse.json(

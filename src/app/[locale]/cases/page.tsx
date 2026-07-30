@@ -16,10 +16,12 @@ export default async function CasesPage({ params }: PageProps) {
   const { locale } = await params;
   const session = await requireAppSession();
   const { userId, activeWorkspaceId, roles } = session;
-  const t = await getTranslations('UserCases');
-  const tStatus = await getTranslations('RequestStatus');
-  const tActions = await getTranslations('Actions');
-  const tMatter = await getTranslations('MatterTypes');
+
+  try {
+    const t = await getTranslations('UserCases');
+    const tStatus = await getTranslations('RequestStatus');
+    const tActions = await getTranslations('Actions');
+    const tMatter = await getTranslations('MatterTypes');
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -209,4 +211,15 @@ export default async function CasesPage({ params }: PageProps) {
       />
     </UserLayout>
   );
+  } catch (error) {
+    console.error('Failed to load cases page:', error);
+    return (
+      <UserLayout userName="" userRole="customer" workspaceName="" workspaceSlug="">
+        <div style={{ padding: 48, textAlign: 'center' }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Lỗi tải dữ liệu</h1>
+          <p style={{ color: '#6b7280' }}>Không thể tải danh sách hồ sơ. Vui lòng thử lại sau.</p>
+        </div>
+      </UserLayout>
+    );
+  }
 }

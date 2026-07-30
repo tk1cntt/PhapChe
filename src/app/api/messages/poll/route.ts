@@ -30,6 +30,13 @@ export async function GET(request: NextRequest) {
     const session = await requireAppSession();
     const { userId, activeWorkspaceId } = session;
 
+    if (!activeWorkspaceId) {
+      return NextResponse.json(
+        { error: 'WORKSPACE_REQUIRED' },
+        { status: 400 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const since = searchParams.get('since');
     const workspaceSlug = searchParams.get('workspace');
@@ -46,7 +53,7 @@ export async function GET(request: NextRequest) {
     // Fetch threads (requests with recent activity)
     const recentThreads = await prisma.legalRequest.findMany({
       where: {
-        workspaceId: activeWorkspaceId ?? '',
+        workspaceId: activeWorkspaceId,
         updatedAt: { gte: sinceDate },
       },
       include: {
@@ -60,7 +67,7 @@ export async function GET(request: NextRequest) {
     // Fetch new messages
     const newMessages = await prisma.message.findMany({
       where: {
-        workspaceId: activeWorkspaceId ?? '',
+        workspaceId: activeWorkspaceId,
         createdAt: { gte: sinceDate },
         OR: [{ senderId: userId }, { recipientId: userId }],
       },

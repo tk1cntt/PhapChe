@@ -242,7 +242,17 @@ export class PartnerAuthService {
     return this.prismaClient.partnerMember.findMany({
       where,
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            isActive: true,
+            emailVerified: true,
+            createdAt: true,
+            lastActiveAt: true,
+          },
+        },
       },
       orderBy: { createdAt: 'asc' },
     }) as Promise<(PartnerMember & { user: User })[]>;

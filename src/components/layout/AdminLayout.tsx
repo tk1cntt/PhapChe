@@ -31,7 +31,7 @@ interface NavItem {
   requiredRoles?: readonly string[];
 }
 
-function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { userName?: string; userRole?: string; userInitial?: string; userRoles?: string[] }) {
+function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [], locale = 'vi' }: { userName?: string; userRole?: string; userInitial?: string; userRoles?: string[]; locale?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations('AdminNav');
@@ -63,7 +63,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
     {
       key: 'dashboard',
       label: t('dashboard'),
-      href: '/vi/admin/dashboard',
+      href: `/${locale}/admin/dashboard`,
       requiredRoles: undefined,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -77,7 +77,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
     {
       key: 'requests',
       label: t('requests'),
-      href: '/vi/admin/requests',
+      href: `/${locale}/admin/requests`,
       requiredRoles: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -92,7 +92,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
     {
       key: 'users',
       label: t('users'),
-      href: '/vi/admin/users',
+      href: `/${locale}/admin/users`,
       requiredRoles: ['super_admin', 'coordinator_admin'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -104,7 +104,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
     {
       key: 'workspace',
       label: t('workspaces'),
-      href: '/vi/admin/workspace',
+      href: `/${locale}/admin/workspace`,
       requiredRoles: ['super_admin', 'coordinator_admin'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -118,7 +118,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
     {
       key: 'partner',
       label: t('partner'),
-      href: '/vi/admin/partner',
+      href: `/${locale}/admin/partner`,
       requiredRoles: ['super_admin', 'coordinator_admin'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -132,7 +132,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
     {
       key: 'organizations',
       label: t('organizations'),
-      href: '/vi/admin/organizations',
+      href: `/${locale}/admin/organizations`,
       requiredRoles: ['super_admin'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -150,7 +150,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
     {
       key: 'operations',
       label: t('ops'),
-      href: '/vi/admin/operations',
+      href: `/${locale}/admin/operations`,
       requiredRoles: ['super_admin', 'coordinator_admin'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -164,7 +164,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
     {
       key: 'audit',
       label: t('audit'),
-      href: '/vi/admin/audit',
+      href: `/${locale}/admin/audit`,
       requiredRoles: ['super_admin', 'coordinator_admin', 'audit_admin'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -176,7 +176,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
     {
       key: 'vault',
       label: t('vault'),
-      href: '/vi/admin/vault',
+      href: `/${locale}/admin/vault`,
       requiredRoles: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -199,7 +199,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
       await signOut({
         fetchOptions: {
           onSuccess: () => {
-            router.push('/vi/sign-in');
+            router.push(`/${locale}/sign-in`);
             router.refresh();
           },
         },
@@ -207,7 +207,7 @@ function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [] }: { us
     } catch (e) {
       console.error('Logout error:', e);
       // Fallback: redirect anyway
-      router.push('/vi/sign-in');
+      router.push(`/${locale}/sign-in`);
     }
   };
 
@@ -333,11 +333,11 @@ function Topbar() {
   );
 }
 
-export function AdminLayout({ children, userName, userRole, userInitial, userRoles = [] }: AdminLayoutProps) {
+export function AdminLayout({ children, userName, userRole, userInitial, userRoles = [], locale = 'vi' }: AdminLayoutProps) {
   return (
     <AiProvider>
       <div className="app">
-        <Sidebar userName={userName} userRole={userRole} userInitial={userInitial} userRoles={userRoles} />
+        <Sidebar userName={userName} userRole={userRole} userInitial={userInitial} userRoles={userRoles} locale={locale} />
         <main className="main">
           <Topbar />
           <section className="content">

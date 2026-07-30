@@ -165,19 +165,20 @@ export default function AdminAuditClient() {
   const total = data?.total ?? 0;
   const timelineEvents: AuditEventTimeline[] = events.slice(0, 4);
 
-  // Control alerts data
-  const accessDeniedCount = events.filter(e =>
+  // Control alerts data — prefer server-side aggregates from stats endpoint,
+  // fall back to page-based computation (which may be partial for large datasets)
+  const accessDeniedCount = stats?.accessDeniedCount ?? events.filter(e =>
     e.action === 'access_denied' || e.action === 'unauthorized_access_attempt'
   ).length;
-  const roleChangeCount = events.filter(e =>
+  const roleChangeCount = stats?.roleChangeCount ?? events.filter(e =>
     e.action.includes('role') || e.action.includes('Role') || e.action.includes('updateUserRole')
   ).length;
-  const completeAuditCount = events.filter(e =>
+  const completeAuditCount = stats?.completeAuditCount ?? events.filter(e =>
     e.actor && e.correlationId && e.metadataSummary
   ).length;
-  const completeAuditPercent = events.length > 0
+  const completeAuditPercent = stats?.completeAuditPercent ?? (events.length > 0
     ? Math.round((completeAuditCount / events.length) * 100)
-    : 100;
+    : 100);
 
   return (
     <div className="audit-client">

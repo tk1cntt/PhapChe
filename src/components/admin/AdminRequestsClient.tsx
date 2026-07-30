@@ -220,9 +220,9 @@ export default function AdminRequestsClient() {
     }
   }, [filters]);
 
-  // Initial data fetch
+  // Initial data fetch — run once on mount
   useEffect(() => {
-    const fetchAll = async () => {
+    const fetchInitial = async () => {
       setLoading(true);
       setError(null);
       try {
@@ -231,7 +231,6 @@ export default function AdminRequestsClient() {
           fetchStats(),
           fetchOrganizations(),
           fetchPartners(),
-          fetchRequests(),
         ]);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -239,8 +238,14 @@ export default function AdminRequestsClient() {
         setLoading(false);
       }
     };
-    fetchAll();
-  }, [fetchTriageCases, fetchStats, fetchOrganizations, fetchPartners, fetchRequests]);
+    fetchInitial();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Fetch requests when filters change
+  useEffect(() => {
+    fetchRequests();
+  }, [filters]);
 
   const getSelectedCase = () => triageCases.find((c) => c.id === selectedTriageId);
 

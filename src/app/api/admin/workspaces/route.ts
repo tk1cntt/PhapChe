@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'];
 
@@ -33,8 +34,12 @@ async function requireAdminSession() {
 export async function GET(req: NextRequest) {
   try {
     await requireAdminSession();
-  } catch (e: any) {
-    return NextResponse.json({ error: e.error }, { status: e.status });
+  } catch (e: unknown) {
+    if (isStructuredError(e)) {
+      return NextResponse.json({ error: e.error }, { status: e.status });
+    }
+    console.error('Error in GET workspaces:', e);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 
   const { searchParams } = new URL(req.url);
@@ -82,8 +87,12 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     await requireAdminSession();
-  } catch (e: any) {
-    return NextResponse.json({ error: e.error }, { status: e.status });
+  } catch (e: unknown) {
+    if (isStructuredError(e)) {
+      return NextResponse.json({ error: e.error }, { status: e.status });
+    }
+    console.error('Error in POST workspace auth:', e);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 
   try {
@@ -120,8 +129,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ data: workspace }, { status: 201 });
-  } catch (e: any) {
-    if (e?.status && e?.error) {
+  } catch (e: unknown) {
+    if (isStructuredError(e)) {
       return NextResponse.json({ error: e.error }, { status: e.status });
     }
     console.error('Error creating workspace:', e);

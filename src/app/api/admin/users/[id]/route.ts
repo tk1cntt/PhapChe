@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 import { formatDate } from '@/lib/i18n/date-format';
 
 // Valid admin roles
@@ -341,8 +342,8 @@ export async function GET(
         timeline,
       },
     });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
     }
     console.error('Error fetching user detail:', error);
@@ -382,8 +383,8 @@ export async function PATCH(
     });
 
     return NextResponse.json({ data: updated });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
     }
     console.error('Error updating user:', error);
@@ -416,8 +417,8 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
     }
     console.error('Error deleting user:', error);

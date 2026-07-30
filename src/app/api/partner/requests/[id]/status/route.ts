@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 
 // Allowed statuses for partners
 const PARTNER_ALLOWED_STATUSES = [
@@ -174,8 +175,8 @@ export async function PATCH(
     });
 
     return NextResponse.json({ data: updated });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json(
         { error: error.error || 'INVALID_TRANSITION', detail: error.detail },
         { status: error.status }

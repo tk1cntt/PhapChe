@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'];
 
@@ -41,8 +42,12 @@ export async function GET(
 
   try {
     await requireAdminSession(id);
-  } catch (e: any) {
-    return NextResponse.json({ error: e.error }, { status: e.status });
+  } catch (e: unknown) {
+    if (isStructuredError(e)) {
+      return NextResponse.json({ error: e.error }, { status: e.status });
+    }
+    console.error('Error in GET workspace:', e);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 
   const workspace = await prisma.workspace.findUnique({
@@ -71,8 +76,12 @@ export async function PATCH(
 
   try {
     await requireAdminSession(id);
-  } catch (e: any) {
-    return NextResponse.json({ error: e.error }, { status: e.status });
+  } catch (e: unknown) {
+    if (isStructuredError(e)) {
+      return NextResponse.json({ error: e.error }, { status: e.status });
+    }
+    console.error('Error in PATCH workspace:', e);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 
   const workspace = await prisma.workspace.findUnique({ where: { id } });
@@ -111,8 +120,12 @@ export async function DELETE(
 
   try {
     await requireAdminSession(id);
-  } catch (e: any) {
-    return NextResponse.json({ error: e.error }, { status: e.status });
+  } catch (e: unknown) {
+    if (isStructuredError(e)) {
+      return NextResponse.json({ error: e.error }, { status: e.status });
+    }
+    console.error('Error in DELETE workspace:', e);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 
   const workspace = await prisma.workspace.findUnique({ where: { id } });

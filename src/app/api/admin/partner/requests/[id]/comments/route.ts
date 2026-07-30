@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 import { auth } from '@/auth';
 
 // Valid admin roles
@@ -97,8 +98,8 @@ export async function GET(
     }));
 
     return NextResponse.json({ data: comments });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error }, { status: error.status });
     }
     console.error('Error fetching comments:', error);
@@ -182,8 +183,8 @@ export async function POST(
     };
 
     return NextResponse.json({ data: comment }, { status: 201 });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error }, { status: error.status });
     }
     console.error('Error creating comment:', error);

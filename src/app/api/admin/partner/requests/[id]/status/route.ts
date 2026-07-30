@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 import { auth } from '@/auth';
 
 // Valid admin roles
@@ -117,8 +118,8 @@ export async function PATCH(
     });
 
     return NextResponse.json({ data: updated });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error }, { status: error.status });
     }
     console.error('Error updating partner request status:', error);

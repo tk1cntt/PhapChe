@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 import { requireAppSession } from '@/lib/security/session';
 import { ADMIN_ROUTE_GUARDS } from '@/lib/security/role-config';
 import { isEnabled } from '@/lib/config/feature-flags';
@@ -64,16 +65,16 @@ export async function GET(
         matterTypeDisplay
       }
     });
-  } catch (error: any) {
-    if (error?.message === 'UNAUTHENTICATED') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === "UNAUTHENTICATED") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if (error?.status) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error }, { status: error.status });
     }
     console.error('Error fetching partner request detail:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error', detail: error?.message },
+      { error: 'Internal Server Error', detail: "Internal server error" },
       { status: 500 }
     );
   }

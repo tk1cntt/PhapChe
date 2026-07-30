@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 import { requireAppSession } from '@/lib/security/session';
 import { ADMIN_ROUTE_GUARDS } from '@/lib/security/role-config';
 
@@ -79,11 +80,11 @@ export async function GET(req: NextRequest) {
       data: paginatedRequests,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
-  } catch (error: any) {
-    if (error?.message === 'UNAUTHENTICATED') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === "UNAUTHENTICATED") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if (error?.status) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error }, { status: error.status });
     }
     console.error('Admin partner requests error:', error);

@@ -48,16 +48,18 @@ export async function PATCH(
     });
 
     return NextResponse.json({ data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     const knownErrors: Record<string, number> = {
       REQUEST_NOT_FOUND: 404,
       INVALID_REQUEST_TRANSITION: 400,
       FORBIDDEN: 403,
       REQUEST_STATUS_CONFLICT: 409,
     };
-    const code = error?.message && knownErrors[error.message];
-    if (code) {
-      return NextResponse.json({ error: error.message, detail: error.message }, { status: code });
+    if (error instanceof Error && typeof error.message === 'string') {
+      const code = knownErrors[error.message];
+      if (code) {
+        return NextResponse.json({ error: error.message, detail: error.message }, { status: code });
+      }
     }
     console.error('Admin status transition error:', error);
     return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });

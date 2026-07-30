@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 
 // Valid admin roles
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -129,8 +130,8 @@ export async function GET(req: NextRequest) {
       data: transformedUsers,
       pagination: { total, skip, take, hasMore: skip + take < total },
     });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
     }
     console.error('Error fetching users:', error);
@@ -177,8 +178,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ data: user }, { status: 201 });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
     }
     console.error('Error creating user:', error);

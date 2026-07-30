@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { isStructuredError } from '@/lib/errors';
 
 // Valid admin roles
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -200,8 +201,8 @@ export async function GET(
     };
 
     return NextResponse.json({ data: responseData });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
     }
     console.error('Error fetching organization:', error);
@@ -244,8 +245,8 @@ export async function PATCH(
     });
 
     return NextResponse.json({ data: updated });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
     }
     console.error('Error updating organization:', error);
@@ -278,8 +279,8 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    if (error?.status) {
+  } catch (error: unknown) {
+    if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
     }
     console.error('Error deleting organization:', error);

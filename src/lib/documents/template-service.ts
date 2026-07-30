@@ -61,22 +61,24 @@ export async function createTemplate(session: AppSession, input: CreateTemplateI
   });
   if (!workspace) throw new Error('WORKSPACE_NOT_FOUND');
 
-  const existingCount = await prisma.documentTemplate.count({
-    where: { workspaceId: input.workspaceId, matterTypeKey: input.matterTypeKey },
-  });
+  const template = await prisma.$transaction(async (tx) => {
+    const existingCount = await tx.documentTemplate.count({
+      where: { workspaceId: input.workspaceId, matterTypeKey: input.matterTypeKey },
+    });
 
-  const template = await prisma.documentTemplate.create({
-    data: {
-      workspaceId: input.workspaceId,
-      matterTypeKey: input.matterTypeKey,
-      label: input.label,
-      description: input.description || null,
-      variableSchema: input.variableSchema ?? [],
-      content: input.content,
-      version: existingCount + 1,
-      status: 'draft',
-      createdById: session.userId,
-    },
+    return tx.documentTemplate.create({
+      data: {
+        workspaceId: input.workspaceId,
+        matterTypeKey: input.matterTypeKey,
+        label: input.label,
+        description: input.description || null,
+        variableSchema: input.variableSchema ?? [],
+        content: input.content,
+        version: existingCount + 1,
+        status: 'draft',
+        createdById: session.userId,
+      },
+    });
   });
 
   await recordAuditEvent({
@@ -217,26 +219,27 @@ export async function createNewVersion(session: AppSession, templateId: string, 
   if (!template) throw new Error('TEMPLATE_NOT_FOUND');
   if (template.status === 'draft') throw new Error('CREATE_VERSION_FROM_PUBLISHED_ONLY');
 
-  const maxVersion = await prisma.documentTemplate.aggregate({
-    where: { workspaceId: template.workspaceId, matterTypeKey: template.matterTypeKey },
-    _max: { version: true },
-  });
+  const newTemplate = await prisma.$transaction(async (tx) => {
+    const maxVersion = await tx.documentTemplate.aggregate({
+      where: { workspaceId: template.workspaceId, matterTypeKey: template.matterTypeKey },
+      _max: { version: true },
+    });
+    const newVersion = (maxVersion._max.version ?? template.version) + 1;
 
-  const newVersion = (maxVersion._max.version ?? template.version) + 1;
-
-  const newTemplate = await prisma.documentTemplate.create({
-    data: {
-      workspaceId: template.workspaceId,
-      matterTypeKey: template.matterTypeKey,
-      version: newVersion,
-      status: 'draft',
-      label: (input?.label ? input.label : template.label) as string | null,
-      description: (input?.description ? input.description : template.description) as string | null,
-      variableSchema: (input?.variableSchema as object[]) ?? (template.variableSchema as object[]),
-      content: input?.content ?? template.content,
-      previousVersionId: templateId,
-      createdById: session.userId,
-    },
+    return tx.documentTemplate.create({
+      data: {
+        workspaceId: template.workspaceId,
+        matterTypeKey: template.matterTypeKey,
+        version: newVersion,
+        status: 'draft',
+        label: (input?.label ? input.label : template.label) as string | null,
+        description: (input?.description ? input.description : template.description) as string | null,
+        variableSchema: (input?.variableSchema as object[]) ?? (template.variableSchema as object[]),
+        content: input?.content ?? template.content,
+        previousVersionId: templateId,
+        createdById: session.userId,
+      },
+    });
   });
 
   await recordAuditEvent({
@@ -246,7 +249,7 @@ export async function createNewVersion(session: AppSession, templateId: string, 
     targetType: 'DOCUMENT',
     targetId: newTemplate.id,
     correlationId: `template-version-${newTemplate.id}`,
-    metadataSummary: `newVersionId=${newTemplate.id}; oldVersionId=${templateId}; matterType=${template.matterTypeKey}; newVersion=${newVersion}`,
+    metadataSummary: `newVersionId=${newTemplate.id}; oldVersionId=${templateId}; matterType=${template.matterTypeKey}; newVersion=${newTemplate.version}`,
   });
 
   return newTemplate;

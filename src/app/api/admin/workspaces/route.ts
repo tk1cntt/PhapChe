@@ -86,35 +86,45 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: e.error }, { status: e.status });
   }
 
-  const body = await req.json();
-  const { name, slug, organizationId, description } = body;
+  try {
+    const body = await req.json();
+    const { name, slug, organizationId, description } = body;
 
-  if (!name || !slug) {
-    return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 });
+    if (!name || !slug) {
+      return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 });
+    }
+
+    const workspace = await prisma.$transaction(async (tx) => {
+      const existing = await tx.workspace.findUnique({ where: { slug } });
+      if (existing) {
+        throw Object.assign(new Error('Slug already exists'), { status: 400, error: 'SLUG_EXISTS' });
+      }
+
+      return tx.workspace.create({
+        data: {
+          name,
+          slug,
+          organizationId: organizationId || null,
+          description: description || null,
+          isActive: true,
+        },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          organizationId: true,
+          isActive: true,
+          createdAt: true,
+        },
+      });
+    });
+
+    return NextResponse.json({ data: workspace }, { status: 201 });
+  } catch (e: any) {
+    if (e?.status && e?.error) {
+      return NextResponse.json({ error: e.error }, { status: e.status });
+    }
+    console.error('Error creating workspace:', e);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const existing = await prisma.workspace.findUnique({ where: { slug } });
-  if (existing) {
-    return NextResponse.json({ error: 'Slug already exists' }, { status: 400 });
-  }
-
-  const workspace = await prisma.workspace.create({
-    data: {
-      name,
-      slug,
-      organizationId: organizationId || null,
-      description: description || null,
-      isActive: true,
-    },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      organizationId: true,
-      isActive: true,
-      createdAt: true,
-    },
-  });
-
-  return NextResponse.json({ data: workspace }, { status: 201 });
 }

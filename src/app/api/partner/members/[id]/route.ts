@@ -76,6 +76,28 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       }
     }
 
+    // Guard: cannot demote/deactivate the last active admin
+    const isDemotingOrDeactivating =
+      (role !== undefined && targetMember.role === 'admin' && role !== 'admin') ||
+      (isActive === false && targetMember.isActive);
+
+    if (isDemotingOrDeactivating) {
+      const activeAdminCount = await prisma.partnerMember.count({
+        where: {
+          partnerId: targetMember.partnerId,
+          role: 'admin',
+          isActive: true,
+          id: { not: targetMember.id },
+        },
+      });
+      if (activeAdminCount === 0) {
+        return NextResponse.json(
+          { error: 'Cannot remove the last active admin. Promote another member to admin first.' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Build update data
     const updateData: { role?: string; isActive?: boolean } = {};
     if (role !== undefined) updateData.role = role;
@@ -160,6 +182,24 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
         { error: 'Cannot remove your own membership' },
         { status: 400 }
       );
+    }
+
+    // Guard: cannot delete the last active admin
+    if (targetMember.role === 'admin' && targetMember.isActive) {
+      const activeAdminCount = await prisma.partnerMember.count({
+        where: {
+          partnerId: targetMember.partnerId,
+          role: 'admin',
+          isActive: true,
+          id: { not: targetMember.id },
+        },
+      });
+      if (activeAdminCount === 0) {
+        return NextResponse.json(
+          { error: 'Cannot remove the last active admin. Promote another member to admin first.' },
+          { status: 400 }
+        );
+      }
     }
 
     // Delete member

@@ -66,28 +66,30 @@ export async function PATCH(
       },
     });
 
-    // Update review status based on remaining open annotations
-    const openCount = await prisma.documentAnnotation.count({
-      where: { requestId, fileKey: existing.fileKey, status: 'open' },
-    });
+    // Update review status within transaction to avoid count-then-upsert race
+    await prisma.$transaction(async (tx) => {
+      const openCount = await tx.documentAnnotation.count({
+        where: { requestId, fileKey: existing.fileKey, status: 'open' },
+      });
 
-    await prisma.documentReviewStatus.upsert({
-      where: {
-        requestId_fileKey_reviewerId: {
+      await tx.documentReviewStatus.upsert({
+        where: {
+          requestId_fileKey_reviewerId: {
+            requestId,
+            fileKey: existing.fileKey,
+            reviewerId: session.userId,
+          },
+        },
+        create: {
           requestId,
           fileKey: existing.fileKey,
           reviewerId: session.userId,
+          status: openCount > 0 ? 'has_issues' : 'reviewed',
         },
-      },
-      create: {
-        requestId,
-        fileKey: existing.fileKey,
-        reviewerId: session.userId,
-        status: openCount > 0 ? 'has_issues' : 'reviewed',
-      },
-      update: {
-        status: openCount > 0 ? 'has_issues' : 'reviewed',
-      },
+        update: {
+          status: openCount > 0 ? 'has_issues' : 'reviewed',
+        },
+      });
     });
 
     return NextResponse.json({

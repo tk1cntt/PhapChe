@@ -304,9 +304,10 @@ Enhanced User Dashboard với clickable stat cards, floating chat badge, loading
 | QT20260617-003 | Database improvement plan based on db_suggest.md | 2026-06-17 | 4f475a3 |
 | QT20260617-004 | Database architecture review (4-step expert analysis) | 2026-06-17 | 87beca1 |
 | 260621-0jx | Update CSS cho /vi/create giống như mock UI | 2026-06-21 | 165776b |
+| 260730-mol | Remove UserLayout sidebar, add nav dropdown in header with logo left | 2026-07-30 | 2468e9d |
 
 ---
-*Last updated: 2026-06-21 after quick task 260621-0jx**
+*Last updated: 2026-07-30 after quick task 260730-mol**
 
 ## Session
 

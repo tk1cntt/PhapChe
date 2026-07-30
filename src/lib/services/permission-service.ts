@@ -181,6 +181,7 @@ export class PermissionService {
     const scope = await this.prismaClient.engagementServiceScope.findFirst({
       where: {
         engagementId: request.engagementId,
+        partnerId,
         permissionLevel: 'full_access',
       },
     });

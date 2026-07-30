@@ -20,7 +20,7 @@ export async function GET() {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ role: 'customer' });
+      return NextResponse.json({ role: 'customer' }, { status: 401 });
     }
 
     // Fetch user's workspace memberships to determine primary role
@@ -54,6 +54,6 @@ export async function GET() {
     return NextResponse.json({ role: primaryRole });
   } catch (error) {
     console.error('Failed to fetch session role:', error);
-    return NextResponse.json({ role: 'customer' });
+    return NextResponse.json({ error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }

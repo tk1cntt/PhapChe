@@ -2,7 +2,15 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
+/**
+ * Debug session endpoint — development only.
+ * In production this returns 404 to avoid exposing internal state.
+ */
 export async function GET(request: Request) {
+  if (process.env.NODE_ENV !== 'development') {
+    return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
+  }
+
   const headers = new Headers();
   const cookieHeader = request.headers.get('cookie');
   if (cookieHeader) {
@@ -22,7 +30,6 @@ export async function GET(request: Request) {
 
     const userId = session.user.id;
 
-    // Check user membership (same as requireAppSession)
     const user = await prisma.user.findFirst({
       where: { id: userId, isActive: true },
       select: {
@@ -30,8 +37,7 @@ export async function GET(request: Request) {
         isActive: true,
         memberships: {
           where: { isActive: true, workspace: { isActive: true } },
-          select: { workspaceId: true, role: true, isActive: true, workspace: { select: { id: true, name: true, isActive: true } } },
-          orderBy: { createdAt: 'asc' },
+          select: { workspaceId: true, role: true },
           take: 1,
         },
       },
@@ -39,24 +45,17 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       success: true,
-      user: {
-        id: session.user.id,
-        email: session.user.email,
-        name: session.user.name,
-      },
+      user: { id: session.user.id },
       dbCheck: {
         userFound: !!user,
         userIsActive: user?.isActive,
-        membershipCount: user?.memberships?.length,
-        memberships: user?.memberships,
-        hasActiveMembership: user?.memberships?.[0]?.isActive && user?.memberships?.[0]?.workspace?.isActive,
+        hasActiveMembership: !!user?.memberships?.length,
       },
     });
   } catch (error) {
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
+      error: 'Internal error',
     });
   }
 }

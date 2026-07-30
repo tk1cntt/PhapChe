@@ -43,7 +43,12 @@ function extractSessionTokenFromHeader(
     const name = pair.substring(0, eqIndex).trim();
     const value = pair.substring(eqIndex + 1).trim();
     if (name === cookieName || name === altName) {
-      return decodeURIComponent(value);
+      try {
+        return decodeURIComponent(value);
+      } catch {
+        // Malformed percent-encoding — return raw value
+        return value;
+      }
     }
   }
   return undefined;
@@ -51,7 +56,9 @@ function extractSessionTokenFromHeader(
 
 function isPublicPath(pathname: string): boolean {
   if (STATIC_EXTENSIONS.test(pathname)) return true;
-  return PUBLIC_PREFIXES.some(p => pathname.startsWith(p) || pathname.includes(p));
+  // Strip locale prefix (e.g. /vi/sign-in → /sign-in) before matching
+  const withoutLocale = pathname.replace(/^\/[a-z]{2}(?=\/|$)/, '') || '/';
+  return PUBLIC_PREFIXES.some(p => withoutLocale.startsWith(p));
 }
 
 function buildLoginUrl(pathname: string, search: string, locale: string): string {

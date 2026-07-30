@@ -57,7 +57,9 @@ function checkLegacyRedirect(pathname: string): string | null {
  * Check if a path is public (no role check needed).
  */
 function isPublicPath(pathname: string): boolean {
-  return PUBLIC_PATH_PREFIXES.some(p => pathname.startsWith(p) || pathname.includes(p));
+  // Chỉ match prefix ở đúng vị trí — tránh substring bypass.
+  // VD: /sign-in → public, /admin/sign-in → NOT public
+  return PUBLIC_PATH_PREFIXES.some(p => pathname.startsWith(p) || pathname.includes('/' + p.replace(/^\//, '') + '/'));
 }
 
 /**
@@ -69,7 +71,8 @@ export function extractAdminRoute(pathname: string): string | null {
   const segments = pathname.split('/').filter(Boolean);
   const adminIdx = segments.findIndex(s => s === 'admin');
   if (adminIdx === -1) return null;
-  return segments[adminIdx + 1] ?? null;
+  // Admin root path (e.g. /vi/admin) without sub-route → treat as 'dashboard'
+  return segments[adminIdx + 1] ?? 'dashboard';
 }
 
 /**
@@ -111,10 +114,10 @@ export function checkRouteAccess(pathname: string, userRoles: AppRole[]): { allo
   const adminRoute = extractAdminRoute(pathname)!;
   const requiredRoles = getRequiredRoles(adminRoute);
 
-  // Nếu route không có trong guard map → cho phép (có thể là route mới chưa config)
+  // Nếu route không có trong guard map → deny (fail-closed) để tránh lộ admin route mới
   if (!requiredRoles) {
-    console.warn(`[middleware-guard] No role config for admin route: "${adminRoute}" — allowing access`);
-    return { allowed: true };
+    console.error(`[middleware-guard] MISSING GUARD for admin route: "${adminRoute}" — denying access (fail-closed)`);
+    return { allowed: false, reason: `NO_ROUTE_GUARD:${adminRoute}` };
   }
 
   if (!_hasAnyRole(userRoles, requiredRoles)) {

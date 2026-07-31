@@ -74,6 +74,11 @@ export async function PUT(request: Request) {
       data: { password: newHash }
     });
 
+    // Invalidate all existing sessions for this user after password change
+    await prisma.session.deleteMany({
+      where: { userId },
+    });
+
     return NextResponse.json({
       success: true,
       message: 'Password updated successfully'

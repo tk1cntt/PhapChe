@@ -35,6 +35,15 @@
   border: none;
 }
 
+.back-link:focus-visible,
+.ghost-btn:focus-visible,
+.primary-btn:focus-visible,
+.danger-btn:focus-visible,
+.small-btn:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
 .back-link {
   height: 42px;
   padding: 0 14px;
@@ -684,6 +693,11 @@
   transition: all 0.2s;
 }
 
+.document-btn:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
 .document-btn:hover {
   background: #f8fafc;
   color: #0f766e;
@@ -698,6 +712,12 @@
   background: #fafbfc;
   transition: all 0.2s;
   cursor: pointer;
+}
+
+.upload-area:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+  border-color: #0f766e;
 }
 
 .upload-area:hover {

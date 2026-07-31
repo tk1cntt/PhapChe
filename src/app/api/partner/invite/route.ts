@@ -36,6 +36,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Not a partner member' }, { status: 403 });
     }
 
+    // Check if user has permission to view invites
+    if (!hasPermission(member.role, 'view_members') && !hasPermission(member.role, 'manage_members')) {
+      return NextResponse.json(
+        { error: 'Permission denied' },
+        { status: 403 }
+      );
+    }
+
     // Get pending invites
     const invites = await partnerInviteService.listPendingInvites(member.partnerId);
 

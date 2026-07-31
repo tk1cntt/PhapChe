@@ -60,11 +60,13 @@ export default async function AdminUsersPage({ params }: PageProps) {
       // Active workspaces count
       prisma.workspace.count({ where: { isActive: true } }),
 
-      // Role counts from memberships
-      prisma.workspaceMembership.groupBy({
-        by: ['role'],
-        _count: { role: true },
-      }),
+      // Role counts: distinct users per role from active memberships
+      prisma.$queryRaw<{ role: string; count: bigint }[]>`
+        SELECT role, COUNT(DISTINCT userId) as count
+        FROM WorkspaceMembership
+        WHERE isActive = true
+        GROUP BY role
+      `,
 
       // Workspace options for filter dropdown
       prisma.workspace.findMany({
@@ -85,7 +87,7 @@ export default async function AdminUsersPage({ params }: PageProps) {
     // Transform role counts to Record<string, number>
     const roleStats: Record<string, number> = {};
     roleCounts.forEach((rc) => {
-      roleStats[rc.role] = rc._count.role;
+      roleStats[rc.role] = Number(rc.count);
     });
 
     // Sort role stats by priority

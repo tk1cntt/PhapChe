@@ -38,7 +38,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Authorization: sender must be creator, specialist, or reviewer of the request
+    // Verify the request belongs to the user's active workspace
+    if (legalRequest.workspaceId !== activeWorkspaceId) {
+      return NextResponse.json(
+        { error: 'FORBIDDEN' },
+        { status: 403 }
+      );
+    }
+
+    // Authorization: sender must be creator or specialist of the request
     const isAuthorized =
       userId === legalRequest.createdById ||
       userId === legalRequest.assignedSpecialistId;

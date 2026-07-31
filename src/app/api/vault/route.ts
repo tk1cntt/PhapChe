@@ -10,11 +10,15 @@ export async function GET() {
       return NextResponse.json({ folders: [], tags: [], classifications: [] });
     }
 
-    const [folders, tags, classifications] = await Promise.all([
+    const results = await Promise.allSettled([
       listFolders(session, workspaceId),
       listTags(session, workspaceId),
       listFileClassifications(session, workspaceId),
     ]);
+
+    const [folders, tags, classifications] = results.map((r) =>
+      r.status === 'fulfilled' ? r.value : []
+    );
 
     return NextResponse.json({ folders, tags, classifications });
   } catch (error) {

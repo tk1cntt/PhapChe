@@ -126,7 +126,9 @@ export async function POST(
 
   const { request: currentRequest } = access;
   const body = await req.json();
-  const { content, isInternal } = body;
+  // TODO: Add isInternal field to Message model and persist it.
+  // When implemented, the GET endpoint must also filter out isInternal: true for partners.
+  const { content } = body;
 
   // Validate content
   if (!content || typeof content !== 'string' || content.trim().length === 0) {
@@ -166,7 +168,6 @@ export async function POST(
         targetId: id,
         requestId: id,
         metadataSummary: JSON.stringify({
-          isInternal: Boolean(isInternal),
           contentLength: trimmedContent.length,
         }),
       },
@@ -185,7 +186,6 @@ export async function POST(
     content: message.content,
     authorId: message.senderId,
     author: sender || { id: session.user.id, name: 'Unknown', email: '' },
-    isInternal: Boolean(isInternal),
     createdAt: message.createdAt,
   };
 

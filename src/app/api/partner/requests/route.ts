@@ -14,30 +14,33 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
     }
 
-    const member = await prisma.partnerMember.findFirst({
+    // Query all partners the user belongs to
+    const members = await prisma.partnerMember.findMany({
       where: { userId: session.user.id, isActive: true },
       select: { partnerId: true },
     });
 
-    if (!member) {
+    if (!members.length) {
       return NextResponse.json({ error: 'FORBIDDEN', detail: 'Not a partner' }, { status: 403 });
     }
 
+    const partnerIds = members.map(m => m.partnerId);
+
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
-    const skip = parseInt(searchParams.get('skip') || '0', 10);
-    const take = parseInt(searchParams.get('take') || '20', 10);
+    const skip = Math.max(0, parseInt(searchParams.get('skip') || '0', 10));
+    const take = Math.max(1, Math.min(parseInt(searchParams.get('take') || '20', 10), 100));
 
     // Get partner engagement IDs
     const engagements = await prisma.engagement.findMany({
-      where: { partnerId: member.partnerId, status: 'active' },
+      where: { partnerId: { in: partnerIds }, status: 'active' },
       select: { id: true },
     });
     const engagementIds = engagements.map(e => e.id);
 
     const where: Record<string, unknown> = {
       OR: [
-        { assignedPartnerId: member.partnerId },
+        { assignedPartnerId: { in: partnerIds } },
         ...(engagementIds.length > 0 ? [{ engagementId: { in: engagementIds } }] : []),
       ],
     };

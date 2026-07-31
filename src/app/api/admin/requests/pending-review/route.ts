@@ -102,7 +102,15 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / pageSize),
     });
   } catch (error) {
-    console.error('Pending-review API error:', error);
+    // Re-throw authentication/authorization errors so the client gets proper status codes
+    const message = error instanceof Error ? error.message : String(error);
+    if (message === 'UNAUTHENTICATED') {
+      return NextResponse.json({ error: 'UNAUTHENTICATED', detail: 'Please login to continue' }, { status: 401 });
+    }
+    if (message === 'FORBIDDEN') {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+    }
+    console.error('Pending-review API error:', message);
     return NextResponse.json({ error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }

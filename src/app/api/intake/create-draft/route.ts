@@ -16,8 +16,25 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // Validate title
+    if (typeof title !== 'string' || title.trim().length === 0 || title.length > 500) {
+      return NextResponse.json(
+        { error: 'INVALID_TITLE', detail: 'Title must be a non-empty string up to 500 characters' },
+        { status: 400 }
+      );
+    }
+
+    // Validate answers
+    if (answers !== undefined && (typeof answers !== 'object' || answers === null || Array.isArray(answers))) {
+      return NextResponse.json(
+        { error: 'INVALID_ANSWERS', detail: 'Answers must be a JSON object' },
+        { status: 400 }
+      );
+    }
+
     const resolvedMatterType = matterTypeKey || 'general';
-    const resolvedAnswers = answers || {};
+    const resolvedAnswers = answers && typeof answers === 'object' && !Array.isArray(answers) ? answers : {};
 
     // Build create data based on feature flag
     const createData: Parameters<typeof prisma.legalRequest.create>[0]['data'] = {

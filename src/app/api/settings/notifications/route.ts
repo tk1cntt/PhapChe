@@ -10,10 +10,10 @@ const DEFAULT_PREFERENCES = {
 };
 
 export async function GET() {
-  try {
-    const session = await requireAppSession();
-    const userId = session.userId;
+  const session = await requireAppSession();
+  const userId = session.userId;
 
+  try {
     // Fetch user preferences or return defaults
     const preferences = await prisma.userPreferences.findUnique({
       where: { userId }
@@ -36,15 +36,7 @@ export async function GET() {
     });
 
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error('Get notification preferences failed:', message);
-
-    if (message === 'UNAUTHENTICATED') {
-      return NextResponse.json(
-        { error: 'UNAUTHORIZED', message: 'Authentication required' },
-        { status: 401 }
-      );
-    }
+    console.error('Get notification preferences failed:', error instanceof Error ? error.message : String(error));
 
     return NextResponse.json(
       { error: 'FETCH_FAILED', message: 'Failed to fetch preferences' },
@@ -54,10 +46,10 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  try {
-    const session = await requireAppSession();
-    const userId = session.userId;
+  const session = await requireAppSession();
+  const userId = session.userId;
 
+  try {
     const body = await request.json();
     const { emailOnReply, slaReminder, weeklySummary } = body;
 
@@ -100,15 +92,7 @@ export async function PUT(request: Request) {
     });
 
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error('Update notification preferences failed:', message);
-
-    if (message === 'UNAUTHENTICATED') {
-      return NextResponse.json(
-        { error: 'UNAUTHORIZED', message: 'Authentication required' },
-        { status: 401 }
-      );
-    }
+    console.error('Update notification preferences failed:', error instanceof Error ? error.message : String(error));
 
     return NextResponse.json(
       { error: 'UPDATE_FAILED', message: 'Failed to update preferences' },

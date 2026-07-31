@@ -3,10 +3,10 @@ import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 
 export async function GET() {
-  try {
-    const session = await requireAppSession();
-    const { userId } = session;
+  const session = await requireAppSession();
+  const { userId } = session;
 
+  try {
     const count = await prisma.message.count({
       where: {
         recipientId: userId,

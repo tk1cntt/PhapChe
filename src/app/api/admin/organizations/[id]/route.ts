@@ -229,18 +229,27 @@ export async function PATCH(
       return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Cannot modify default organization' }, { status: 400 });
     }
 
+    const VALID_STATUSES = ['active', 'inactive', 'pending'] as const;
+
     const body = await req.json();
     const { name, businessType, registrationNumber, address, contactEmail, status } = body;
+
+    if (status !== undefined && !(VALID_STATUSES as readonly string[]).includes(status)) {
+      return NextResponse.json(
+        { error: 'VALIDATION_ERROR', detail: `Invalid status: ${status}. Must be one of: ${VALID_STATUSES.join(', ')}` },
+        { status: 400 }
+      );
+    }
 
     const updated = await prisma.organization.update({
       where: { id },
       data: {
-        ...(name && { name }),
+        ...(name !== undefined && { name }),
         ...(businessType !== undefined && { businessType }),
         ...(registrationNumber !== undefined && { registrationNumber }),
         ...(address !== undefined && { address }),
         ...(contactEmail !== undefined && { contactEmail }),
-        ...(status && { status }),
+        ...(status !== undefined && { status }),
       },
     });
 

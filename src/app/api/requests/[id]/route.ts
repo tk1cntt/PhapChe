@@ -24,9 +24,9 @@ export async function GET(
       },
       include: {
         workspace: { select: { id: true, name: true, slug: true } },
-        createdBy: { select: { id: true, name: true, email: true } },
-        assignedSpecialist: { select: { id: true, name: true, email: true } },
-        assignedReviewer: { select: { id: true, name: true, email: true } },
+        createdBy: { select: { id: true, name: true } },
+        assignedSpecialist: { select: { id: true, name: true } },
+        assignedReviewer: { select: { id: true, name: true } },
         intakeSubmission: {
           select: {
             matterTypeKey: true,

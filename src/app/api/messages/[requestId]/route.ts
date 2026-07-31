@@ -15,11 +15,34 @@ export async function GET(
     const { userId, activeWorkspaceId } = session;
     const { requestId } = await params;
 
+    if (!activeWorkspaceId) {
+      return NextResponse.json(
+        { error: 'No active workspace' },
+        { status: 400 }
+      );
+    }
+
+    // Verify the legal request exists and belongs to the user's workspace
+    const legalRequest = await prisma.legalRequest.findFirst({
+      where: {
+        id: requestId,
+        workspaceId: activeWorkspaceId,
+      },
+      select: { id: true },
+    });
+
+    if (!legalRequest) {
+      return NextResponse.json(
+        { error: 'Legal request not found' },
+        { status: 404 }
+      );
+    }
+
     // Fetch messages for this thread
     const messages = await prisma.message.findMany({
       where: {
         legalRequestId: requestId,
-        ...(activeWorkspaceId ? { workspaceId: activeWorkspaceId } : {}),
+        workspaceId: activeWorkspaceId,
       },
       orderBy: { createdAt: 'asc' },
     });

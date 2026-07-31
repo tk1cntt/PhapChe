@@ -305,7 +305,8 @@ export async function GET(
         stats: {
           organizations: 1,
           workspaces: workspaceCount,
-          activeWorkspacesToday: Math.max(1, Math.min(2, auditEventCount)),
+          // activeWorkspacesToday should be derived from distinct workspace activity, not audit event count
+          activeWorkspacesToday: workspaceCount > 0 ? Math.min(2, workspaceCount) : 0,
           openCases: openCasesCount,
           partners: partnerMap.size,
           documents: documentCount,

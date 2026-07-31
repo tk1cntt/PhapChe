@@ -154,13 +154,28 @@ export async function DELETE(
       );
     }
 
-    // 6. Soft-delete draft (set status = 'deleted')
-    await prisma.draft.update({
-      where: { id: draftId },
+    // 6. Check draft status (only allow deletion of 'draft' status)
+    if (draft.status !== 'draft') {
+      return NextResponse.json(
+        { error: 'CONFLICT', detail: 'Only drafts in draft status can be deleted' },
+        { status: 409 }
+      );
+    }
+
+    // 7. Soft-delete draft atomically (only if still in 'draft' status)
+    const result = await prisma.draft.updateMany({
+      where: { id: draftId, status: 'draft' },
       data: { status: 'deleted' },
     });
 
-    // 7. Return success response
+    if (result.count === 0) {
+      return NextResponse.json(
+        { error: 'CONFLICT', detail: 'Draft status has changed; cannot delete' },
+        { status: 409 }
+      );
+    }
+
+    // 8. Return success response
     return NextResponse.json({
       data: {
         success: true,

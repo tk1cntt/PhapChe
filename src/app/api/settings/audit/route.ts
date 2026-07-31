@@ -18,9 +18,13 @@ export async function GET(request: NextRequest) {
     const where: Record<string, unknown> = {
       actorId: userId,
     };
-    if (workspaceId && workspaceId !== '') {
-      where.workspaceId = workspaceId;
+    if (!workspaceId || workspaceId === '') {
+      return NextResponse.json(
+        { error: 'WORKSPACE_REQUIRED', message: 'An active workspace is required to fetch audit events' },
+        { status: 400 }
+      );
     }
+    where.workspaceId = workspaceId;
 
     // Fetch total count
     const total = await prisma.auditEvent.count({ where });

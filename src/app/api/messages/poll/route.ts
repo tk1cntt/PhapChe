@@ -71,6 +71,9 @@ export async function GET(request: NextRequest) {
         createdAt: { gte: sinceDate },
         OR: [{ senderId: userId }, { recipientId: userId }],
       },
+      include: {
+        sender: { select: { name: true } },
+      },
       orderBy: { createdAt: 'asc' },
     });
 
@@ -85,7 +88,7 @@ export async function GET(request: NextRequest) {
           id: msg.id,
           content: msg.content,
           senderId: msg.senderId,
-          senderName: msg.senderId,
+          senderName: msg.sender?.name ?? null,
           isOutgoing: msg.senderId === userId,
           createdAt: msg.createdAt,
         });

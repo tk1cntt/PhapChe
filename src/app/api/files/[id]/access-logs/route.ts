@@ -37,8 +37,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // Parse pagination params
     const searchParams = request.nextUrl.searchParams;
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const pageSize = Math.min(100, parseInt(searchParams.get('pageSize') || '20', 10));
+    const rawPage = parseInt(searchParams.get('page') || '1', 10);
+    const rawPageSize = parseInt(searchParams.get('pageSize') || '20', 10);
+
+    const page = Number.isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+    const pageSize = Number.isNaN(rawPageSize) || rawPageSize < 1
+      ? 20
+      : Math.min(100, rawPageSize);
 
     // Get file to check workspace
     const file = await prisma.file.findUnique({

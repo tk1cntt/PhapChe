@@ -10,6 +10,7 @@
 
 .table-head {
   display: grid;
+  grid-template-columns: 1fr;
   background: linear-gradient(180deg, #f8fafc, #f5f7fb);
   border-bottom: 1px solid #dfe7f1;
 }
@@ -30,6 +31,7 @@
 
 .table-row {
   display: grid;
+  grid-template-columns: 1fr;
   min-height: 68px;
   background: #fff;
   transition: 0.2s;

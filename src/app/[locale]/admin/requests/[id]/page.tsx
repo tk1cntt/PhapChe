@@ -73,36 +73,47 @@ export default function AdminRequestDetailPage() {
   };
 
   useEffect(() => {
-    fetchRequest();
-  }, [requestId]);
+    const abortController = new AbortController();
 
-  const fetchRequest = async () => {
-    setLoading(true);
-    setError(null);
+    const fetchRequest = async () => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const res = await fetch(`/api/admin/partner/requests/${requestId}`);
+      try {
+        const res = await fetch(`/api/admin/partner/requests/${requestId}`, {
+          signal: abortController.signal,
+        });
 
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          router.push('/sign-in');
-          return;
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            router.push('/sign-in');
+            return;
+          }
+          if (res.status === 404) {
+            throw new Error('Request not found');
+          }
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.detail || data.error || 'Failed to fetch request');
         }
-        if (res.status === 404) {
-          throw new Error('Request not found');
+
+        const data = await res.json();
+        setRequest(data.data);
+      } catch (err) {
+        if (abortController.signal.aborted) return;
+        setError(err instanceof Error ? err.message : 'Failed to fetch request');
+      } finally {
+        if (!abortController.signal.aborted) {
+          setLoading(false);
         }
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || data.error || 'Failed to fetch request');
       }
+    };
 
-      const data = await res.json();
-      setRequest(data.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch request');
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchRequest();
+
+    return () => {
+      abortController.abort();
+    };
+  }, [requestId, router]);
 
   const getPartnerName = () => {
     if (!request) return '-';

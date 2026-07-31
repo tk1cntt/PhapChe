@@ -51,18 +51,30 @@ export default async function AdminOrganizationActivityPage({ params }: PageProp
   const workspaceIds = organization.workspaces.map((w) => w.id);
 
   // Parallel data fetching
-  const [
-    openRequests,
-    inProgressRequests,
-    slaRiskRequests,
-    vaultFilesCount,
-    recentAuditLogs,
-    recentRequests,
-    recentVaultFiles,
-    engagements,
-    workspaceMembers,
-    workspaceStats,
-  ] = await Promise.all([
+  let openRequests: number,
+    inProgressRequests: number,
+    slaRiskRequests: number,
+    vaultFilesCount: number,
+    recentAuditLogs: Awaited<ReturnType<typeof prisma.auditEvent.findMany>>,
+    recentRequests: Awaited<ReturnType<typeof prisma.legalRequest.findMany>>,
+    recentVaultFiles: Awaited<ReturnType<typeof prisma.vaultFile.findMany>>,
+    engagements: Awaited<ReturnType<typeof prisma.engagement.findMany>>,
+    workspaceMembers: Awaited<ReturnType<typeof prisma.workspaceMembership.findMany>>,
+    workspaceStats: ({ workspaceId: string; openCases: number; documentCount: number; memberCount: number })[];
+
+  try {
+    [
+      openRequests,
+      inProgressRequests,
+      slaRiskRequests,
+      vaultFilesCount,
+      recentAuditLogs,
+      recentRequests,
+      recentVaultFiles,
+      engagements,
+      workspaceMembers,
+      workspaceStats,
+    ] = await Promise.all([
     // Open requests count
     workspaceIds.length > 0
       ? prisma.legalRequest.count({
@@ -163,6 +175,53 @@ export default async function AdminOrganizationActivityPage({ params }: PageProp
         }))
       : [],
   ]);
+  } catch (_error) {
+    return (
+      <OrgActivityClient
+        orgData={{
+          id: organization.id,
+          name: organization.name,
+          slug: organization.name.toLowerCase().replace(/\s+/g, '_'),
+          status: organization.status,
+          businessType: organization.businessType,
+          registrationNumber: organization.registrationNumber,
+          address: organization.address,
+          contactEmail: organization.contactEmail,
+          healthScore: 0,
+        }}
+        stats={{
+          workspaces: organization.workspaces.length,
+          workspacesActive: organization.workspaces.filter((w) => w.isActive).length,
+          openCases: 0,
+          inProgress: 0,
+          partners: 0,
+          members: 0,
+          membersActive: 0,
+          vaultFiles: 0,
+          vaultFilesNew: 0,
+          slaRisk: 0,
+          slaNeedsResponse: 0,
+        }}
+        activityFeed={[]}
+        requestRows={[]}
+        workspaceCards={organization.workspaces.map((ws) => ({
+          id: ws.id,
+          name: ws.name,
+          slug: ws.slug,
+          description: ws.slug || '',
+          isActive: ws.isActive,
+          statusBadge: 'gray' as const,
+          statusLabel: 'Error',
+          openCases: 0,
+          documentCount: 0,
+          memberCount: 0,
+        }))}
+        partnerCards={[]}
+        documentCards={[]}
+        memberCards={[]}
+      />
+    );
+  }
 
   // Transform to props
   const uniqueMembers = workspaceMembers.map((m) => {

@@ -116,13 +116,13 @@ describe('AdminRequestsPage — whitebox', () => {
 // ============================================================
 
 describe('AdminRequestsPage — blackbox', () => {
-  it('renders loading state when roles are empty', () => {
+  it('renders forbidden state when roles are empty', () => {
     render(
       <Wrapper roles={[]}>
         <AdminRequestsPage />
       </Wrapper>
     );
-    expect(screen.getByText('Đang tải...')).toBeInTheDocument();
+    expect(screen.getByText('Bạn không có quyền truy cập trang này.')).toBeInTheDocument();
   });
 
   it('renders page header with title', () => {
@@ -256,17 +256,17 @@ describe('AdminRequestsPage — abnormal', () => {
 // ============================================================
 
 describe('AdminRequestsPage — error', () => {
-  it('shows loading state when context has empty roles (no provider)', () => {
-    // Render with default AdminRoleProvider (empty roles)
+  it('shows forbidden state when context has empty roles (no provider)', () => {
+    // Empty roles mean no access — roles are resolved server-side before render
     render(
       <NextIntlClientProvider locale="vi" messages={mockMessages}>
         <AdminRequestsPage />
       </NextIntlClientProvider>
     );
-    expect(screen.getByText('Đang tải...')).toBeInTheDocument();
+    expect(screen.getByText('Bạn không có quyền truy cập trang này.')).toBeInTheDocument();
   });
 
-  it('never renders panel content during loading', () => {
+  it('never renders panel content when roles are empty', () => {
     render(
       <Wrapper roles={[]}>
         <AdminRequestsPage />

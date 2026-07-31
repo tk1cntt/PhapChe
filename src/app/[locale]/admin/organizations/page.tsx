@@ -133,7 +133,8 @@ export default function AdminOrganizationsPage() {
       setOrganizations(data.data);
       setTotal(data.pagination.total);
 
-      // Calculate stats
+      // Calculate stats — active/inactive should come from the API
+      // (aggregated across ALL records), not from the current page slice.
       const statsCalc: Stats = {
         total: data.pagination.total,
         active: data.data.filter(o => o.status === 'active').length,

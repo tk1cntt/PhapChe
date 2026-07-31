@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAdminRoles } from '@/lib/security/AdminRoleContext';
 import { TriagePanel } from '@/components/admin/TriagePanel';
@@ -32,18 +32,17 @@ export default function AdminRequestsPage() {
 
   const [activeTab, setActiveTab] = useState<TabKey | null>(null);
   const firstTab = visibleTabs[0] ?? null;
+
+  // Reset activeTab when the selected tab is no longer visible
+  useEffect(() => {
+    if (activeTab && !visibleTabs.includes(activeTab)) {
+      setActiveTab(null);
+    }
+  }, [activeTab, visibleTabs]);
+
   const effectiveTab = activeTab ?? firstTab;
 
-  if (userRoles.length === 0) {
-    return (
-      <div className="requests-loading">
-        <div className="spinner" />
-        <span>{t('loading')}</span>
-      </div>
-    );
-  }
-
-  if (!effectiveTab) {
+  if (userRoles.length === 0 || !effectiveTab) {
     return (
       <div className="requests-error-state">
         <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">

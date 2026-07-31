@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ draftId?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -21,46 +21,50 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
-export default async function CreateRequestPage({ params, searchParams }: PageProps) {
+export default async function CreateRequestPage({ params }: PageProps) {
   const { locale } = await params;
-  const { draftId } = await searchParams;
   const session = await requireAppSession();
   const { userId, activeWorkspaceId } = session;
   const t = await getTranslations('UserCreateRequest');
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      name: true,
-      email: true,
-      phone: true,
-      memberships: {
-        where: { workspaceId: activeWorkspaceId ?? undefined },
-        select: { workspace: { select: { name: true, slug: true } } },
+  try {
+    const membershipsWhere = activeWorkspaceId
+      ? { workspaceId: activeWorkspaceId }
+      : undefined;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        name: true,
+        email: true,
+        phone: true,
+        memberships: {
+          where: membershipsWhere,
+          select: { workspace: { select: { name: true, slug: true } } },
+        },
       },
-    },
-  });
+    });
 
-  const workspace = user?.memberships[0]?.workspace;
-  const userName = user?.name ?? user?.email ?? 'User';
-  const workspaceName = workspace?.name ?? 'Workspace';
-  const workspaceSlug = workspace?.slug ?? 'workspace';
+    const workspace = user?.memberships[0]?.workspace;
+    const userName = user?.name ?? user?.email ?? 'User';
+    const workspaceName = workspace?.name ?? 'Workspace';
+    const workspaceSlug = workspace?.slug ?? 'workspace';
 
-  const workspaces = await prisma.workspace.findMany({
-    where: {
-      memberships: {
-        some: { userId },
+    const workspaces = await prisma.workspace.findMany({
+      where: {
+        memberships: {
+          some: { userId },
+        },
       },
-    },
-    select: { id: true, name: true, slug: true },
-  });
+      select: { id: true, name: true, slug: true },
+    });
 
-  const userContactInfo = {
-    email: user?.email ?? '',
-    phone: user?.phone ?? '',
-    companyName: workspaceName,
-    taxCode: '',
-  };
+    const userContactInfo = {
+      email: user?.email ?? '',
+      phone: user?.phone ?? '',
+      companyName: workspaceName,
+      taxCode: '',
+    };
 
   return (
     <UserLayout userName={userName} userRole="customer" workspaceName={workspaceName} workspaceSlug={workspaceSlug}>
@@ -89,4 +93,20 @@ export default async function CreateRequestPage({ params, searchParams }: PagePr
       />
     </UserLayout>
   );
+  } catch (error) {
+    console.error('Failed to load create request page:', error);
+    return (
+      <UserLayout userName="User" userRole="customer" workspaceName="Workspace" workspaceSlug="workspace">
+        <div className="page-header">
+          <div>
+            <h1>{t('pageTitle')}</h1>
+            <p className="subtitle">{t('pageDesc')}</p>
+          </div>
+        </div>
+        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+          {t('loadError')}
+        </div>
+      </UserLayout>
+    );
+  }
 }

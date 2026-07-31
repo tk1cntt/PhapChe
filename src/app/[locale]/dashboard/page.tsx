@@ -44,76 +44,76 @@ export default async function DashboardPage({
   const { locale } = await params;
   const session = await requireAppSession();
   const { userId, activeWorkspaceId } = session;
-  const wsId = activeWorkspaceId ?? '';
+  if (!activeWorkspaceId) {
+    throw new Error('No active workspace selected');
+  }
+  const wsId = activeWorkspaceId;
 
   // Build where clauses with role filter
   const processingStatusExtra = { status: { in: ['in_progress', 'pending_review', 'triage', 'assigned'] } };
   const completedStatusExtra = { status: { in: ['approved', 'delivered', 'closed'] } };
 
   // Fetch all data needed for dashboard in parallel
-  const [
-    user,
-    activeWorkspace,
-    baseWhere,
-    processingWhere,
-    completedWhere,
-    requestsWhere,
-    requests,
-    recentDocuments,
-    recentActivities,
-  ] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: userId },
-      select: { name: true, email: true },
-    }),
-    activeWorkspaceId
-      ? prisma.workspace.findUnique({
-          where: { id: activeWorkspaceId },
-          select: { id: true, name: true, slug: true },
-        })
-      : null,
-    // Role-filtered where clauses
-    getWorkspaceRequestWhere(wsId, userId),
-    getWorkspaceRequestWhere(wsId, userId, processingStatusExtra),
-    getWorkspaceRequestWhere(wsId, userId, completedStatusExtra),
-    getWorkspaceRequestWhere(wsId, userId),
-    // Requests with relations - role filtered
-    (async () => {
-      const w = await getWorkspaceRequestWhere(wsId, userId);
-      return prisma.legalRequest.findMany({
-        where: w as any,
+  try {
+    const [
+      user,
+      activeWorkspace,
+      baseWhere,
+      processingWhere,
+      completedWhere,
+      requests,
+      recentDocuments,
+      recentActivities,
+    ] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true, email: true },
+      }),
+      prisma.workspace.findUnique({
+        where: { id: activeWorkspaceId },
+        select: { id: true, name: true, slug: true },
+      }),
+      // Role-filtered where clauses
+      getWorkspaceRequestWhere(wsId, userId),
+      getWorkspaceRequestWhere(wsId, userId, processingStatusExtra),
+      getWorkspaceRequestWhere(wsId, userId, completedStatusExtra),
+      // Requests with relations - role filtered (reuse baseWhere below)
+      (async () => {
+        const w = await getWorkspaceRequestWhere(wsId, userId);
+        return prisma.legalRequest.findMany({
+          where: w as any,
+          include: {
+            assignedSpecialist: { select: { id: true, name: true } },
+            assignedReviewer: { select: { id: true, name: true } },
+            ...(isEnabled('DB_MIGRATION_PHASE4') ? {
+              matterTypeRef: {
+                select: { id: true, key: true },
+              },
+            } : {}),
+          },
+          orderBy: { updatedAt: 'desc' },
+        });
+      })(),
+      // Recent vault documents (user-scoped)
+      prisma.vaultFile.findMany({
+        where: { workspaceId: wsId, actorId: userId },
         include: {
-          assignedSpecialist: { select: { id: true, name: true } },
-          assignedReviewer: { select: { id: true, name: true } },
-          ...(isEnabled('DB_MIGRATION_PHASE4') ? {
-            matterTypeRef: {
-              select: { id: true, key: true },
-            },
-          } : {}),
+          actor: { select: { id: true, name: true } },
         },
-        orderBy: { updatedAt: 'desc' },
-      });
-    })(),
-    // Recent vault documents (user-scoped)
-    prisma.vaultFile.findMany({
-      where: { workspaceId: wsId, actorId: userId },
-      include: {
-        actor: { select: { id: true, name: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-    }),
-    // Recent audit events (user-scoped)
-    prisma.auditEvent.findMany({
-      where: { workspaceId: wsId, actorId: userId },
-      include: {
-        actor: { select: { id: true, name: true } },
-        request: { select: { code: true, title: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-    }),
-  ]);
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }),
+      // Recent audit events (user-scoped)
+      prisma.auditEvent.findMany({
+        where: { workspaceId: wsId, actorId: userId },
+        include: {
+          actor: { select: { id: true, name: true } },
+          request: { select: { code: true, title: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }),
+    ]);
 
   // Run count queries with role filter
   const totalRequests = await prisma.legalRequest.count({ where: baseWhere as any });
@@ -404,6 +404,21 @@ export default async function DashboardPage({
       />
     </UserLayout>
   );
+  } catch (error) {
+    console.error('Dashboard load error:', error);
+    return (
+      <UserLayout
+        userName="User"
+        userRole=""
+        workspaceName="Workspace"
+        workspaceSlug=""
+      >
+        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+          Failed to load dashboard
+        </div>
+      </UserLayout>
+    );
+  }
 }
 
 function getStatusVariant(status: string): string {

@@ -17,7 +17,8 @@ export default async function WorkspacePage({
   const { userId, activeWorkspaceId, roles } = session;
   const t = await getTranslations('UserWorkspace');
 
-  // Fetch user with workspace membership
+  try {
+    // Fetch user with workspace membership
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -33,7 +34,10 @@ export default async function WorkspacePage({
   const userName = user?.name ?? 'User';
   const workspaceName = workspace?.name ?? 'Workspace';
   const workspaceSlug = workspace?.slug ?? '';
-  const wsId = workspace?.id ?? activeWorkspaceId ?? '';
+  const wsId = workspace?.id ?? activeWorkspaceId;
+  if (!wsId) {
+    throw new Error('No active workspace found');
+  }
 
   // Fetch DB stats — build role-filtered where clauses for legal requests
   const processingStatusExtra = { status: { in: ['in_progress', 'pending_review', 'revision_required'] } };
@@ -110,4 +114,33 @@ export default async function WorkspacePage({
       </div>
     </UserLayout>
   );
+  } catch (error) {
+    console.error('Workspace load error:', error);
+
+    // Render fallback with minimal data from session
+    const fallbackWorkspaceName = 'Workspace';
+    const fallbackWorkspaceSlug = '';
+    const fallbackUserName = 'User';
+
+    return (
+      <UserLayout
+        userName={fallbackUserName}
+        userRole={roles[0] ?? 'customer'}
+        workspaceName={fallbackWorkspaceName}
+        workspaceSlug={fallbackWorkspaceSlug}
+      >
+        <div className="workspace_page">
+          <div className="page-header">
+            <div>
+              <h1>{t('pageTitle')}</h1>
+              <p className="subtitle">{t('pageDesc')}</p>
+            </div>
+          </div>
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+            {t('loadError')}
+          </div>
+        </div>
+      </UserLayout>
+    );
+  }
 }

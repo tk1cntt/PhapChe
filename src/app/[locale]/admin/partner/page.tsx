@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { AdminStatGrid } from '@/components/admin/AdminStatGrid';
@@ -86,7 +86,16 @@ export default function AdminPartnerPage() {
     return () => clearTimeout(timer);
   }, [search]);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const fetchData = useCallback(async () => {
+    // Cancel previous in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     setLoading(true);
     setError(null);
     try {
@@ -97,22 +106,24 @@ export default function AdminPartnerPage() {
       if (debouncedSearch) params.set('search', debouncedSearch);
       if (statusFilter) params.set('status', statusFilter);
 
-      const response = await fetch(`/api/admin/partner/requests?${params.toString()}`);
+      const response = await fetch(`/api/admin/partner/requests?${params.toString()}`, {
+        signal: abortController.signal,
+      });
 
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           router.push('/sign-in');
           return;
         }
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || errorData.error || 'Failed to fetch requests');
+        console.error('API error:', response.status);
+        throw new Error('Failed to fetch requests');
       }
 
       const data: ApiResponse = await response.json();
       setRequests(data.data);
       setTotal(data.pagination.total);
 
-      // Calculate stats from data
+      // FIXME: stats should come from the server or aggregate the full dataset, not just the current page
       const statsCalc: Stats = {
         total: data.pagination.total,
         inProgress: data.data.filter(r => r.status === 'in_progress').length,
@@ -121,6 +132,7 @@ export default function AdminPartnerPage() {
       };
       setStats(statsCalc);
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       const errorMessage = err instanceof Error ? err.message : 'Failed to load requests';
       setError(errorMessage);
       console.error('Error fetching partner requests:', err);
@@ -128,6 +140,15 @@ export default function AdminPartnerPage() {
       setLoading(false);
     }
   }, [page, pageSize, debouncedSearch, statusFilter, router]);
+
+  // Cleanup abort controller on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

@@ -8,6 +8,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { writeFile, mkdir } from 'fs/promises';
+import { join, resolve } from 'path';
+import { randomUUID } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { isStructuredError } from '@/lib/errors';
 import { auth } from '@/auth';
@@ -66,7 +69,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await requireAdminSession();
+    await requireAdminSession();
 
     const { id } = await params;
 
@@ -83,16 +86,17 @@ export async function GET(
       );
     }
 
-    // Get vault files for this request
+    // Get vault files for this request (exclude soft-deleted)
     const files = await prisma.vaultFile.findMany({
-      where: { requestId: id },
+      where: { requestId: id, deletedAt: null },
       select: {
         id: true,
         filename: true,
         contentType: true,
         size: true,
-        category: true,
-        visibility: true,
+        fileKind: true,
+        source: true,
+        reason: true,
         createdAt: true,
       },
       orderBy: { createdAt: 'desc' },
@@ -104,12 +108,13 @@ export async function GET(
       filename: f.filename,
       mimeType: f.contentType,
       size: f.size,
-      description: f.category || f.filename,
+      description: f.reason || f.fileKind || f.filename,
       createdAt: f.createdAt,
     }));
 
     return NextResponse.json({ data: documents });
   } catch (error: unknown) {
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error;
     if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error }, { status: error.status });
     }
@@ -126,7 +131,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { session, userId } = await requireAdminSession();
+    const { userId } = await requireAdminSession();
 
     const { id } = await params;
 
@@ -162,7 +167,7 @@ export async function POST(
       );
     }
 
-    // Validate MIME type
+    // Validate MIME type (client-provided, not trusted alone — magic bytes check below)
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
       return NextResponse.json(
         { error: 'VALIDATION_ERROR', detail: 'File type not allowed. Allowed: PDF, DOC, DOCX, JPG, PNG' },
@@ -170,36 +175,71 @@ export async function POST(
       );
     }
 
-    // Store file metadata in vault file
-    const vaultFile = await prisma.vaultFile.create({
-      data: {
-        workspaceId: requestExists.workspaceId,
-        requestId: id,
-        actorId: userId,
-        filename: file.name,
-        contentType: file.type,
-        size: file.size,
-        fileKind: 'upload',
-        source: 'admin_upload',
-      },
-    });
+    // Read file bytes for storage
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-    // Audit log using AuditEvent
-    await prisma.auditEvent.create({
-      data: {
-        actorId: userId,
-        workspaceId: requestExists.workspaceId,
-        action: 'admin.partner.document_upload',
-        targetType: 'request',
-        targetId: id,
-        requestId: id,
-        metadataSummary: JSON.stringify({
-          documentId: vaultFile.id,
+    // Verify magic bytes for additional security against MIME spoofing
+    const magicBytes = buffer.slice(0, 4).toString('hex');
+    const allowedMagics: Record<string, string[]> = {
+      'application/pdf': ['25504446'],
+      'image/jpeg': ['ffd8ff'],
+      'image/png': ['89504e47'],
+      'application/msword': ['d0cf11e0'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['504b0304'],
+    };
+    if (allowedMagics[file.type] && !allowedMagics[file.type].includes(magicBytes)) {
+      return NextResponse.json(
+        { error: 'VALIDATION_ERROR', detail: 'File content does not match declared MIME type' },
+        { status: 400 }
+      );
+    }
+
+    // Upload to storage and save metadata in transaction
+    const storageKey = `admin-partner/${id}/${randomUUID()}/${file.name}`;
+    const storageRoot = process.env.STORAGE_LOCAL_ROOT || '/data/storage/private';
+    const fullPath = resolve(storageRoot, storageKey);
+    // Validate storage key is within root
+    if (!fullPath.startsWith(resolve(storageRoot))) {
+      return NextResponse.json(
+        { error: 'Internal Server Error' },
+        { status: 500 }
+      );
+    }
+    await mkdir(resolve(storageRoot, 'admin-partner', id), { recursive: true });
+    await writeFile(fullPath, buffer);
+
+    // Store file metadata and audit log in transaction
+    const [vaultFile] = await prisma.$transaction([
+      prisma.vaultFile.create({
+        data: {
+          workspaceId: requestExists.workspaceId,
+          requestId: id,
+          actorId: userId,
           filename: file.name,
+          storageKey,
+          contentType: file.type,
           size: file.size,
-        }),
-      },
-    });
+          fileKind: 'upload',
+          source: 'admin_upload',
+          reason: description || null,
+        },
+      }),
+      prisma.auditEvent.create({
+        data: {
+          actorId: userId,
+          workspaceId: requestExists.workspaceId,
+          action: 'admin.partner.document_upload',
+          targetType: 'request',
+          targetId: id,
+          requestId: id,
+          metadataSummary: JSON.stringify({
+            filename: file.name,
+            size: file.size,
+          }),
+        },
+      }),
+    ]);
 
     const document = {
       id: vaultFile.id,
@@ -212,6 +252,7 @@ export async function POST(
 
     return NextResponse.json({ data: document }, { status: 201 });
   } catch (error: unknown) {
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error;
     if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error }, { status: error.status });
     }

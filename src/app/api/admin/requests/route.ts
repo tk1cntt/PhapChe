@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import { isEnabled } from '@/lib/config/feature-flags';
+import { isStructuredError } from '@/lib/errors';
 
 // Valid admin roles per schema: coordinator_admin, super_admin (removed audit_admin - not in schema)
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -54,9 +55,16 @@ export async function GET(request: NextRequest) {
     const priorityFilter = searchParams.get('priority') ?? '';
     const workspaceFilter = searchParams.get('workspace') ?? '';
 
+    // Workspace isolation: scope to the session's active workspace
+    const workspaceId = session.activeWorkspaceId;
+    if (!workspaceId) {
+      return NextResponse.json({ error: 'No workspace context' }, { status: 400 });
+    }
+
     // Build where clause
     const where: Record<string, unknown> = {
       AND: [
+        { workspaceId },
         // Search filter: code, title
         search ? {
           OR: [
@@ -68,7 +76,7 @@ export async function GET(request: NextRequest) {
         statusFilter ? { status: statusFilter } : {},
         // Priority filter
         priorityFilter ? { priority: priorityFilter } : {},
-        // Workspace filter
+        // Workspace filter (overrides session workspace if provided)
         workspaceFilter ? { workspaceId: workspaceFilter } : {},
       ],
     };
@@ -175,7 +183,15 @@ export async function GET(request: NextRequest) {
     if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
       throw error;
     }
-    console.error('Admin requests list error:', error);
+    // Preserve structured error status codes (e.g., 401 from auth, 403 from authorization)
+    if (isStructuredError(error)) {
+      console.error('Admin requests list error:', (error as { status: number; error: string }).error);
+      return NextResponse.json(
+        { error: (error as { status: number; error: string }).error },
+        { status: (error as { status: number; error: string }).status },
+      );
+    }
+    console.error('Admin requests list error:', error instanceof Error ? error.message : String(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

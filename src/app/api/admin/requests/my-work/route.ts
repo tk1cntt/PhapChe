@@ -89,26 +89,41 @@ export async function GET(request: NextRequest) {
     const annCountMap = Object.fromEntries(annotationCounts.map((a) => [a.requestId, a._count.id]));
     const annResolvedMap = Object.fromEntries(annotationResolvedCounts.map((a) => [a.requestId, a._count.id]));
 
-    const data = requests.map((r) => ({
-      id: r.id,
-      code: r.code ?? `REQ-${r.id.slice(-6)}`,
-      title: r.title,
-      description: r.description ?? '',
-      workspaceId: r.workspaceId,
-      workspaceName: r.workspace?.name ?? '',
-      workspaceSlug: r.workspace?.slug ?? '',
-      customerName: r.createdBy?.name ?? '',
-      customerEmail: r.createdBy?.email ?? '',
-      matterTypeKey: r.intakeSubmission?.matterTypeKey ?? null,
-      status: r.status,
-      priority: r.priority ?? 'MEDIUM',
-      reviewerName: r.assignedReviewer?.name ?? null,
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString(),
-      fileCount: fileCountMap[r.id] ?? 0,
-      annotationCount: annCountMap[r.id] ?? 0,
-      annotationResolved: annResolvedMap[r.id] ?? 0,
-    }));
+    // Priority rank map for correct severity ordering (not alphabetical)
+    const PRIORITY_RANK: Record<string, number> = {
+      HIGH: 3,
+      MEDIUM: 2,
+      LOW: 1,
+    };
+
+    const data = requests
+      .map((r) => ({
+        id: r.id,
+        code: r.code ?? `REQ-${r.id.slice(-6)}`,
+        title: r.title,
+        description: r.description ?? '',
+        workspaceId: r.workspaceId,
+        workspaceName: r.workspace?.name ?? '',
+        workspaceSlug: r.workspace?.slug ?? '',
+        customerName: r.createdBy?.name ?? '',
+        customerEmail: r.createdBy?.email ?? '',
+        matterTypeKey: r.intakeSubmission?.matterTypeKey ?? null,
+        status: r.status,
+        priority: r.priority ?? 'MEDIUM',
+        reviewerName: r.assignedReviewer?.name ?? null,
+        createdAt: r.createdAt.toISOString(),
+        updatedAt: r.updatedAt.toISOString(),
+        fileCount: fileCountMap[r.id] ?? 0,
+        annotationCount: annCountMap[r.id] ?? 0,
+        annotationResolved: annResolvedMap[r.id] ?? 0,
+      }))
+      .sort((a, b) => {
+        // Sort by priority rank (HIGH first), then by updatedAt descending
+        const rankA = PRIORITY_RANK[a.priority] ?? 0;
+        const rankB = PRIORITY_RANK[b.priority] ?? 0;
+        if (rankB !== rankA) return rankB - rankA;
+        return b.updatedAt.localeCompare(a.updatedAt);
+      });
 
     return NextResponse.json({
       data,
@@ -123,6 +138,7 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / pageSize),
     });
   } catch (error) {
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error;
     console.error('Specialist my-work error:', error);
     return NextResponse.json({ error: 'INTERNAL_ERROR' }, { status: 500 });
   }

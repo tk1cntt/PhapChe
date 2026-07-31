@@ -14,11 +14,9 @@ export * from './utils/checksum.util';
 
 // Providers
 export { LocalStorageProvider, createLocalStorageProvider } from './providers/local-storage.provider';
-import { LocalStorageProvider } from './providers/local-storage.provider';
 
 // Service
 export { StorageService, createStorageService } from './storage.service';
-import { StorageService, createStorageService } from './storage.service';
 
 // Storage Provider interface
 export type { StorageProvider } from './types';

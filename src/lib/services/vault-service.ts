@@ -52,7 +52,7 @@ function generateObjectKey(originalName: string): string {
 /**
  * Calculate checksum for a file buffer
  */
-async function calculateChecksum(buffer: Buffer): Promise<string> {
+function calculateChecksum(buffer: Buffer): string {
   return crypto.createHash('sha256').update(buffer).digest('hex');
 }
 
@@ -160,6 +160,7 @@ export async function getVaultItems(requestId: string, filters: VaultFileFilters
     requestId,
   };
 
+  if (filters.workspaceId) where.workspaceId = filters.workspaceId;
   if (filters.fileKind) where.fileKind = filters.fileKind;
   if (filters.source) where.source = filters.source;
   if (filters.documentVersionId) where.documentVersionId = filters.documentVersionId;
@@ -317,23 +318,25 @@ export async function deleteVaultFile(id: string) {
  * Note: SQLite doesn't support skipDuplicates, so we handle duplicates in application code
  */
 export async function addVaultFileTags(vaultFileId: string, tagIds: string[]) {
-  // Filter out existing tags first
-  const existingTags = await prisma.vaultFileTag.findMany({
-    where: { vaultFileId },
-    select: { tagId: true },
-  });
-  const existingTagIds = new Set(existingTags.map((t) => t.tagId));
-  const newTagIds = tagIds.filter((id) => !existingTagIds.has(id));
+  // Use a transaction to prevent race conditions when inserting tags
+  return prisma.$transaction(async (tx) => {
+    const existingTags = await tx.vaultFileTag.findMany({
+      where: { vaultFileId },
+      select: { tagId: true },
+    });
+    const existingTagIds = new Set(existingTags.map((t) => t.tagId));
+    const newTagIds = tagIds.filter((id) => !existingTagIds.has(id));
 
-  if (newTagIds.length === 0) return { count: 0 };
+    if (newTagIds.length === 0) return { count: 0 };
 
-  const tagConnections = newTagIds.map((tagId) => ({
-    vaultFileId,
-    tagId,
-  }));
+    const tagConnections = newTagIds.map((tagId) => ({
+      vaultFileId,
+      tagId,
+    }));
 
-  return prisma.vaultFileTag.createMany({
-    data: tagConnections,
+    return tx.vaultFileTag.createMany({
+      data: tagConnections,
+    });
   });
 }
 

@@ -31,7 +31,8 @@ export function authMiddleware(options: AuthMiddlewareOptions = {}) {
     }
 
     if (!session) {
-      if (options.required !== false) {
+      // If roles are specified, authentication is always required
+      if (options.required !== false || (options.roles && options.roles.length > 0)) {
         return NextResponse.json(
           { error: 'UNAUTHORIZED', detail: 'Authentication required' },
           { status: 401 }
@@ -42,18 +43,33 @@ export function authMiddleware(options: AuthMiddlewareOptions = {}) {
 
     // Enforce role check when roles are specified
     if (options.roles && options.roles.length > 0) {
-      const memberships = await prisma.workspaceMembership.findMany({
-        where: { userId: session.user.id, isActive: true },
-        select: { role: true },
-      });
-
-      const userRoles = new Set(memberships.map((m) => m.role));
-      const hasRequiredRole = options.roles.some((role) => userRoles.has(role));
-
-      if (!hasRequiredRole) {
+      if (!session.user?.id) {
         return NextResponse.json(
-          { error: 'FORBIDDEN', detail: 'Insufficient permissions' },
-          { status: 403 }
+          { error: 'UNAUTHORIZED', detail: 'Invalid session' },
+          { status: 401 }
+        );
+      }
+      try {
+        // TODO: Consider caching role memberships to reduce DB load per request
+        const memberships = await prisma.workspaceMembership.findMany({
+          where: { userId: session.user.id, isActive: true },
+          select: { role: true },
+        });
+
+        const userRoles = new Set(memberships.map((m) => m.role));
+        const hasRequiredRole = options.roles.some((role) => userRoles.has(role));
+
+        if (!hasRequiredRole) {
+          return NextResponse.json(
+            { error: 'FORBIDDEN', detail: 'Insufficient permissions' },
+            { status: 403 }
+          );
+        }
+      } catch (err) {
+        console.error('Auth middleware role check error:', err instanceof Error ? err.message : String(err));
+        return NextResponse.json(
+          { error: 'INTERNAL_ERROR', detail: 'Internal server error' },
+          { status: 500 }
         );
       }
     }

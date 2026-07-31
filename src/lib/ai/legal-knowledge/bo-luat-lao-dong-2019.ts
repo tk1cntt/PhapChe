@@ -84,7 +84,7 @@ export const boLuatLaoDong2019: LegalKnowledgeDoc = {
         {
           number: 'Điều 36',
           title: 'Quyền đơn phương chấm dứt hợp đồng của người sử dụng lao động',
-          content: 'Người sử dụng lao động có quyền đơn phương chấm dứt hợp đồng lao động trong các trường hợp: a) Người lao động thường xuyên không hoàn thành công việc; b) Người lao động bị ốm đau, tai nạn đã điều trị 12 tháng liên tục đối với hợp đồng không xác định thời hạn, 06 tháng đối với hợp đồng xác định thời hạn mà khả năng lao động chưa hồi phục; c) Do thiên tai, hỏa hoạn, dịch bệnh nguy hiểm, địch họa; d) Người lao động không có mặt tại nơi làm việc sau thời hạn quy định.',
+          content: 'Người sử dụng lao động có quyền đơn phương chấm dứt hợp đồng lao động trong các trường hợp: a) Người lao động thường xuyên không hoàn thành công việc; b) Người lao động bị ốm đau, tai nạn đã điều trị 12 tháng liên tục đối với hợp đồng không xác định thời hạn, 06 tháng đối với hợp đồng xác định thời hạn mà khả năng lao động chưa hồi phục; c) Do thiên tai, hỏa hoạn, dịch bệnh nguy hiểm, địch họa; d) Người lao động không có mặt tại nơi làm việc sau thời hạn quy định; đ) Thay đổi cơ cấu, công nghệ hoặc sáp nhập, hợp nhất, chia, tách doanh nghiệp dẫn đến dôi dư lao động. Người sử dụng lao động phải báo trước ít nhất 45 ngày (hợp đồng không xác định thời hạn), 30 ngày (hợp đồng xác định thời hạn 12-36 tháng), 03 ngày làm việc (hợp đồng dưới 12 tháng).',
         },
       ],
     },
@@ -129,7 +129,7 @@ export const boLuatLaoDong2019: LegalKnowledgeDoc = {
         {
           number: 'Điều 115',
           title: 'Nghỉ lễ, tết',
-          content: 'Người lao động được nghỉ làm việc, hưởng nguyên lương trong những ngày lễ, tết: Tết Dương lịch (01 ngày); Tết Âm lịch (05 ngày); Ngày Chiến thắng 30/4 (01 ngày); Ngày Quốc tế lao động 01/5 (01 ngày); Quốc khánh 02/9 (02 ngày); Ngày Giỗ Tổ Hùng Vương 10/3 âm lịch (01 ngày).',
+          content: 'Người lao động được nghỉ làm việc, hưởng nguyên lương trong những ngày lễ, tết: Tết Dương lịch (01 ngày); Tết Âm lịch (05 ngày, số ngày cụ thể do Thủ tướng Chính phủ quyết định hằng năm); Ngày Chiến thắng 30/4 (01 ngày); Ngày Quốc tế lao động 01/5 (01 ngày); Quốc khánh 02/9 (02 ngày); Ngày Giỗ Tổ Hùng Vương 10/3 âm lịch (01 ngày).',
         },
       ],
     },

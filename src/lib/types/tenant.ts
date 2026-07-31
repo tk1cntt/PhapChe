@@ -15,9 +15,6 @@
  */
 export type TenantMode = 'shared_platform' | 'dedicated_partner' | 'dedicated_customer';
 
-/** @deprecated Use TenantMode instead */
-export type TenantType = TenantMode;
-
 /**
  * Tenant entity — top-level multi-tenant container.
  * In MVP, there is exactly ONE tenant: 'platform-tenant' with mode 'shared_platform'.
@@ -48,7 +45,7 @@ export interface TenantSettings {
  */
 export interface CreateTenantInput {
   name: string;
-  code?: string;
+  code?: string | null;
   mode?: TenantMode;
   settings?: TenantSettings;
 }
@@ -64,4 +61,5 @@ export interface UpdateTenantInput {
 
 /** Platform tenant constant — the single tenant in MVP */
 export const PLATFORM_TENANT_ID = 'platform-tenant';
-export const PLATFORM_TENANT_CODE = 'shared_platform';
+/** Shared platform mode — the single tenant mode in MVP */
+export const PLATFORM_TENANT_MODE: TenantMode = 'shared_platform';

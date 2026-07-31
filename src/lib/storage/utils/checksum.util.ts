@@ -5,7 +5,7 @@
  * Uses crypto module (Node.js built-in).
  */
 
-import { createHash } from 'crypto';
+import { createHash, timingSafeEqual } from 'crypto';
 
 export type ChecksumAlgorithm = 'md5' | 'sha256';
 
@@ -56,5 +56,7 @@ export function verifyChecksum(
   algorithm: ChecksumAlgorithm = 'sha256'
 ): boolean {
   const actualChecksum = computeChecksum(buffer, algorithm);
-  return actualChecksum === expectedChecksum;
+  const actualBuf = Buffer.from(actualChecksum, 'hex');
+  const expectedBuf = Buffer.from(expectedChecksum, 'hex');
+  return actualBuf.length === expectedBuf.length && timingSafeEqual(actualBuf, expectedBuf);
 }

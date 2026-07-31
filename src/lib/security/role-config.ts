@@ -93,6 +93,9 @@ export function canSeeTab(tabKey: string, userRoles: readonly string[]): boolean
  */
 export function canAccessRoute(routeKey: string, userRoles: readonly string[]): boolean {
   const required = ADMIN_ROUTE_GUARDS[routeKey];
-  if (!required) return true; // Route chưa config → allow (sẽ được thêm sau)
+  if (!required) {
+    console.warn(`[canAccessRoute] No guard configured for route: "${routeKey}" — denying access by default.`);
+    return false;
+  }
   return hasAnyRole(userRoles, required);
 }

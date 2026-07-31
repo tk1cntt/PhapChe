@@ -51,7 +51,7 @@ export interface NormalizeResult {
     /** Danh sách các Chương/Mục/Phần đã detect */
     sections: string[];
     /** Cảnh báo từ quá trình detect */
-    errors: string[];
+    warnings: string[];
   };
 
   /** Thống kê */
@@ -71,8 +71,8 @@ export interface NormalizeResult {
 export interface CacheEntry {
   /** SHA-256 hash của raw content */
   hash: string;
-  /** Markdown đã normalize */
-  normalized: string;
+  /** Kết quả normalize đầy đủ */
+  result: NormalizeResult;
   /** Timestamp khi cache được tạo */
   createdAt: number;
 }

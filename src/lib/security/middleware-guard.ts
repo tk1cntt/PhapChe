@@ -46,8 +46,12 @@ function checkLegacyRedirect(pathname: string): string | null {
   const segments = pathname.split('/').filter(Boolean);
   for (const [oldPath, redirectTo] of Object.entries(LEGACY_REDIRECTS)) {
     const oldSegments = oldPath.split('/').filter(Boolean);
-    if (oldSegments.length === 1 && segments.length >= 1 && segments[1] === oldSegments[0]) {
-      return redirectTo;
+    if (oldSegments.length === 1 && segments.length >= 1) {
+      // Check both with and without locale prefix
+      const lastSegment = segments[segments.length - 1];
+      if (lastSegment === oldSegments[0] || (segments.length > 1 && segments[1] === oldSegments[0])) {
+        return redirectTo;
+      }
     }
   }
   return null;
@@ -57,9 +61,14 @@ function checkLegacyRedirect(pathname: string): string | null {
  * Check if a path is public (no role check needed).
  */
 function isPublicPath(pathname: string): boolean {
-  // Chỉ match prefix ở đúng vị trí — tránh substring bypass.
-  // VD: /sign-in → public, /admin/sign-in → NOT public
-  return PUBLIC_PATH_PREFIXES.some(p => pathname.startsWith(p) || pathname.includes('/' + p.replace(/^\//, '') + '/'));
+  // Match prefix at segment boundaries to avoid substring bypass.
+  // e.g. /sign-in → public, /admin/sign-in → NOT public
+  return PUBLIC_PATH_PREFIXES.some(p => {
+    if (pathname.startsWith(p)) return true;
+    // Also match locale-prefixed paths like /vi/sign-in, /vi/sign-in/...
+    const normalized = p.replace(/\/$/, '');
+    return pathname.startsWith(`/${normalized}/`) || pathname === `/${normalized}` || pathname.startsWith(`/${normalized}?`);
+  });
 }
 
 /**
@@ -79,6 +88,10 @@ export function extractAdminRoute(pathname: string): string | null {
  * Lấy required roles cho một admin sub-route.
  */
 export function getRequiredRoles(adminRoute: string): readonly AppRole[] | null {
+  if (typeof _ADMIN_ROUTE_GUARDS !== 'object' || _ADMIN_ROUTE_GUARDS === null) {
+    console.error('[middleware-guard] ADMIN_ROUTE_GUARDS is not a valid object');
+    return null;
+  }
   return (_ADMIN_ROUTE_GUARDS as Record<string, readonly AppRole[]>)[adminRoute] ?? null;
 }
 
@@ -94,6 +107,11 @@ export function isAdminPath(pathname: string): boolean {
  * Trả về null nếu được phép, hoặc lý do từ chối.
  */
 export function checkRouteAccess(pathname: string, userRoles: AppRole[]): { allowed: true } | { allowed: false; reason: string } {
+  // Defensive: treat null/undefined roles as unauthenticated
+  if (!userRoles || !Array.isArray(userRoles)) {
+    return { allowed: false, reason: 'NO_ROLES' };
+  }
+
   // 1. Public routes — always allowed
   if (isPublicPath(pathname)) {
     return { allowed: true };

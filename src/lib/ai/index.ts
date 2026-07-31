@@ -45,7 +45,7 @@ export {
   semanticSearch,
   getIndexStats,
   isVectorStoreReady,
-  vectorIndex,
+  // vectorIndex is intentionally NOT exported — use indexDocument(), semanticSearch(), etc.
 } from './vector-store';
 
 // System Prompts

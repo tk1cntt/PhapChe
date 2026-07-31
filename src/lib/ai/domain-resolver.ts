@@ -18,7 +18,7 @@ const MATTER_DOMAIN_MAP: Record<string, LegalDomain> = {
   distribution_contract: 'commercial-legal',
   agency_contract: 'commercial-legal',
   service_agreement: 'commercial-legal',
-  mnd: 'commercial-legal',
+  mnd: 'commercial-legal', // intended: Mutual Non-Disclosure (mnd); not 'mou'
 
   // Corporate
   incorporation: 'corporate-legal',
@@ -86,12 +86,16 @@ const MATTER_DOMAIN_MAP: Record<string, LegalDomain> = {
 
 // ── Fallback chain ──────────────────────────────────────────
 
+const DEFAULT_DOMAIN: LegalDomain = 'commercial-legal';
+const DEFAULT_SKILLS: AgentSkill[] = ['general-legal-researcher'];
+const DEFAULT_PRIMARY_SKILL: AgentSkill = 'document-issue-analyzer';
+
 /** Suggest up to 3 most relevant skills for a matter type */
 export function suggestSkills(matterTypeKey: string | null | undefined): AgentSkill[] {
-  if (!matterTypeKey) return ['general-legal-researcher'];
+  if (!matterTypeKey) return DEFAULT_SKILLS;
 
-  const domain = MATTER_DOMAIN_MAP[matterTypeKey] ?? 'commercial-legal';
-  const domainSkills = DOMAIN_SKILL_MAP[domain] ?? ['general-legal-researcher'];
+  const domain = MATTER_DOMAIN_MAP[matterTypeKey] ?? DEFAULT_DOMAIN;
+  const domainSkills = DOMAIN_SKILL_MAP[domain] ?? DEFAULT_SKILLS;
 
   // Return up to 3 skills — new Phase skills first (they're domain-specific)
   return domainSkills.slice(0, 3);
@@ -99,21 +103,18 @@ export function suggestSkills(matterTypeKey: string | null | undefined): AgentSk
 
 /** Map a matterTypeKey to its legal domain */
 export function matterTypeToDomain(matterTypeKey: string | null | undefined): LegalDomain {
-  if (!matterTypeKey) return 'commercial-legal';
-  return MATTER_DOMAIN_MAP[matterTypeKey] ?? 'commercial-legal';
+  if (!matterTypeKey) return DEFAULT_DOMAIN;
+  return MATTER_DOMAIN_MAP[matterTypeKey] ?? DEFAULT_DOMAIN;
 }
 
 /** Get the primary suggested skill for a matter type (used as default) */
 export function getPrimarySkill(matterTypeKey: string | null | undefined): AgentSkill {
-  if (!matterTypeKey) return 'document-issue-analyzer';
+  if (!matterTypeKey) return DEFAULT_PRIMARY_SKILL;
 
   const domain = matterTypeToDomain(matterTypeKey);
   const skills = DOMAIN_SKILL_MAP[domain];
-  if (!skills || skills.length === 0) return 'document-issue-analyzer';
+  if (!skills || skills.length === 0) return DEFAULT_PRIMARY_SKILL;
 
-  // For document review, prefer skill names that suggest review/analysis
-  const reviewSkills = skills.filter((s) =>
-    s.includes('review') || s.includes('analyzer') || s.includes('check'),
-  );
-  return reviewSkills[0] ?? skills[0] ?? 'document-issue-analyzer';
+  // Prefer the first skill in the domain's skill list (ordered by relevance)
+  return skills[0] ?? DEFAULT_PRIMARY_SKILL;
 }

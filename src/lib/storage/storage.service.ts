@@ -11,7 +11,7 @@ import { recordFileAccessLog } from '@/lib/audit/audit-service';
 import { generateSafeFileName } from './utils/file-name.util';
 import { generateObjectKey } from './utils/object-key.util';
 import { computeChecksum, type ChecksumAlgorithm } from './utils/checksum.util';
-import { isAllowedMimeType, FilePermissionError, FileValidationError } from './types';
+import { isAllowedMimeType, FilePermissionError, FileValidationError, FileNotFoundError } from './types';
 import type {
   StorageProvider,
   FileCategory,
@@ -143,12 +143,16 @@ export class StorageService {
       },
     });
 
-    // Log access
-    await recordFileAccessLog({
-      fileId,
-      action: 'upload',
-      actorId: input.createdBy,
-    });
+    // Log access (best-effort — don't fail the operation if logging fails)
+    try {
+      await recordFileAccessLog({
+        fileId,
+        action: 'upload',
+        actorId: input.createdBy,
+      });
+    } catch (err) {
+      console.error('Failed to record file access log', err);
+    }
 
     return fileRecord as unknown as FileRecord;
   }
@@ -172,12 +176,16 @@ export class StorageService {
       throw new FilePermissionError('User does not have permission to access this file');
     }
 
-    // Log access
-    await recordFileAccessLog({
-      fileId,
-      action: 'view',
-      actorId: userId,
-    });
+    // Log access (best-effort — don't fail the operation if logging fails)
+    try {
+      await recordFileAccessLog({
+        fileId,
+        action: 'view',
+        actorId: userId,
+      });
+    } catch (err) {
+      console.error('Failed to record file access log', err);
+    }
 
     // Get download URL
     const downloadUrl = await this.provider.getDownloadUrl({
@@ -210,12 +218,16 @@ export class StorageService {
       throw new FilePermissionError('User does not have permission to download this file');
     }
 
-    // Log access
-    await recordFileAccessLog({
-      fileId,
-      action: 'download',
-      actorId: userId,
-    });
+    // Log access (best-effort — don't fail the operation if logging fails)
+    try {
+      await recordFileAccessLog({
+        fileId,
+        action: 'download',
+        actorId: userId,
+      });
+    } catch (err) {
+      console.error('Failed to record file access log', err);
+    }
 
     return this.provider.getDownloadUrl({
       objectKey: fileRecord.objectKey,
@@ -242,24 +254,32 @@ export class StorageService {
       throw new FilePermissionError('User does not have permission to delete this file');
     }
 
-    // Delete from storage
-    await this.provider.deleteObject({
-      objectKey: fileRecord.objectKey,
-      bucket: fileRecord.bucket || undefined,
-    });
-
-    // Update database record (soft delete)
+    // Update database record first (soft delete)
     await prisma.file.update({
       where: { id: fileId },
       data: { status: 'deleted' },
     });
 
-    // Log access
-    await recordFileAccessLog({
-      fileId,
-      action: 'delete',
-      actorId: userId,
-    });
+    // Delete from storage (best-effort; file already marked deleted in DB)
+    try {
+      await this.provider.deleteObject({
+        objectKey: fileRecord.objectKey,
+        bucket: fileRecord.bucket || undefined,
+      });
+    } catch (err) {
+      console.error(`Failed to delete object from storage: ${fileRecord.objectKey}`, err);
+    }
+
+    // Log access (best-effort — don't fail the operation if logging fails)
+    try {
+      await recordFileAccessLog({
+        fileId,
+        action: 'delete',
+        actorId: userId,
+      });
+    } catch (err) {
+      console.error('Failed to record file access log', err);
+    }
   }
 
   /**
@@ -308,19 +328,19 @@ export class StorageService {
   }
 }
 
-// Import FileNotFoundError
-import { FileNotFoundError } from './types';
-
 /**
  * Create storage service based on environment configuration
  */
-export function createStorageService(): StorageService {
+export async function createStorageService(): Promise<StorageService> {
   const driver = process.env.STORAGE_DRIVER || 'local';
+  const maxFileSize = process.env.STORAGE_MAX_FILE_SIZE
+    ? parseInt(process.env.STORAGE_MAX_FILE_SIZE, 10)
+    : undefined;
 
   if (driver === 'local') {
-    const { LocalStorageProvider } = require('./providers/local-storage.provider');
+    const { LocalStorageProvider } = await import('./providers/local-storage.provider');
     const provider = new LocalStorageProvider();
-    return new StorageService(provider);
+    return new StorageService(provider, maxFileSize);
   }
 
   // Future: S3 support

@@ -47,14 +47,14 @@ export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
     }, delay);
   }, [delay]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount or when delay changes
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, []);
+  }, [delay]);
 
   return debouncedCallback;
 }

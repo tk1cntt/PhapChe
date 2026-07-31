@@ -9,7 +9,7 @@ import type { AuditTargetType } from '@/lib/types';
  */
 export interface AuditLog {
   id: string;
-  action: string;
+  action: AuditAction;
   actorId?: string;
   actorEmail?: string;
   actorName?: string;
@@ -17,6 +17,7 @@ export interface AuditLog {
   targetId: string;
   targetLabel?: string;
   metadata?: Record<string, unknown>;
+  metadataSummary?: string;
   ipAddress?: string;
   userAgent?: string;
   createdAt: Date;
@@ -66,8 +67,10 @@ export const AUDIT_ACTIONS = {
   WORKSPACE_CREATED: 'workspace.created',
   WORKSPACE_UPDATED: 'workspace.updated',
   WORKSPACE_DELETED: 'workspace.deleted',
-  MEMBER_INVITED: 'workspace.member_invited',
-  MEMBER_REMOVED: 'workspace.member_removed',
+
+  // Membership actions
+  MEMBER_INVITED: 'membership.invited',
+  MEMBER_REMOVED: 'membership.removed',
 
   // Request actions
   REQUEST_CREATED: 'request.created',

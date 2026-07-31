@@ -128,7 +128,7 @@ export async function updateAdminUserRole({ actor, input, db = prisma }: UserMut
           workspaceId: input.workspaceId,
         },
       },
-      update: { isActive: true },
+      update: { isActive: true, role: input.role },
       create: {
         userId: input.userId,
         workspaceId: input.workspaceId,
@@ -156,6 +156,15 @@ export async function deactivateAdminUser({ actor, input, db = prisma }: UserMut
 
   return db.$transaction(async (tx) => {
     await assertAdminForWorkspace(actor, input.workspaceId, tx);
+
+    await tx.workspaceMembership.updateMany({
+      where: {
+        userId: input.userId,
+        workspaceId: input.workspaceId,
+        isActive: true,
+      },
+      data: { isActive: false },
+    });
 
     const user = await tx.user.update({
       where: { id: input.userId },
@@ -191,7 +200,7 @@ export async function assignUserToWorkspace({ actor, input, db = prisma }: UserM
           workspaceId: input.workspaceId,
         },
       },
-      update: { isActive: true },
+      update: { isActive: true, role: input.role },
       create: {
         userId: input.userId,
         workspaceId: input.workspaceId,

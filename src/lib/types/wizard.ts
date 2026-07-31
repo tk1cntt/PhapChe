@@ -44,7 +44,7 @@ export type WizardAction =
   | { type: 'SET_STEP'; payload: 1 | 2 | 3 | 4 | 5 }
   | { type: 'SET_DOMAIN'; payload: string }
   | { type: 'SET_SERVICE'; payload: string }
-  | { type: 'SET_ANSWER'; key: string; value: string }
+  | { type: 'SET_ANSWER'; payload: { key: string; value: string } }
   | { type: 'ADD_FILE'; payload: UploadedFile }
   | { type: 'REMOVE_FILE'; payload: string }
   | { type: 'SET_PRIORITY'; payload: 'normal' | 'urgent' }

@@ -44,7 +44,7 @@ type RequestVaultFileAccessResult = {
 const VAULT_ACCESS_TTL_MS = 15 * 60 * 1000;
 
 function vaultDownloadSecret() {
-  const secret = process.env.VAULT_DOWNLOAD_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim();
+  const secret = process.env.VAULT_DOWNLOAD_SECRET?.trim();
   if (secret) return secret;
   if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') return 'dev-vault-download-secret';
   throw new Error('VAULT_DOWNLOAD_SECRET_REQUIRED');
@@ -56,6 +56,8 @@ function signVaultFileAccess(vaultFileId: string, userId: string, expires: strin
 
 export function verifyVaultFileAccessSignature(input: { vaultFileId: string; userId: string; expires: string; signature: string }) {
   try {
+    // Reject expired tokens
+    if (Number(input.expires) <= Date.now()) return false;
     if (!/^[0-9a-f]+$/i.test(input.signature)) return false;
     const expected = Buffer.from(signVaultFileAccess(input.vaultFileId, input.userId, input.expires), 'hex');
     const actual = Buffer.from(input.signature, 'hex');
@@ -103,7 +105,9 @@ export async function getVaultFileDownloadPayload(session: AppSession, vaultFile
     if (!finalVersion) throw new Error('FORBIDDEN');
   }
 
-  return vaultFile;
+  // Strip storageKey from the returned payload
+  const { storageKey: _, ...safePayload } = vaultFile as { storageKey: string } & typeof vaultFile;
+  return safePayload as Omit<typeof vaultFile, 'storageKey'>;
 }
 
 // listVaultFiles: list vault files for a request without exposing storageKey

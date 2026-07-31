@@ -31,6 +31,10 @@ export interface LegalKnowledgeDoc {
   domainTags: LegalDomain[];
   /** Law version/edition */
   version: string;
+  /** Optional preamble text (not part of any chapter) */
+  preamble?: string;
   /** Chapters containing articles */
   chapters: LegalChapter[];
+  /** Articles that are not part of any chapter (e.g., appendices, final provisions) */
+  standaloneArticles?: LegalArticle[];
 }

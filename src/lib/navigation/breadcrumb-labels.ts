@@ -1,3 +1,5 @@
+// TODO: Consider using shared route path constants (e.g. ROUTE_PATHS) as keys
+// to keep in sync with route definitions automatically.
 export const breadcrumbLabels: Record<string, string> = {
   admin: "Quản trị",
   users: "Người dùng",

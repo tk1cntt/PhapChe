@@ -32,11 +32,13 @@ NỘI DUNG TÀI LIỆU CẦN PHÂN TÍCH:
 {{documentContent}}
 {{/if}}
 
+{{#if legalContext}}
 BỐI CẢNH PHÁP LÝ (từ RAG):
 {{#each legalContext}}
 📜 {{source}}
 {{content}}
 {{/each}}
+{{/if}}
 
 YÊU CẦU ĐẦU RA (JSON nghiêm ngặt, không thêm text bên ngoài):
 {

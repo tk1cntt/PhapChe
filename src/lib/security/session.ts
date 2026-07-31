@@ -38,24 +38,36 @@ function buildSignInUrl(pathname: string): string {
 
 export async function requireAppSession(reqHeaders?: Headers): Promise<AppSession> {
   const h = reqHeaders ?? await headers();
-  const session = await auth.api.getSession({ headers: h });
+  let session;
+  try {
+    session = await auth.api.getSession({ headers: h });
+  } catch {
+    const pathname = h.get('x-invoke-path') ?? h.get('x-pathname') ?? '';
+    redirect(buildSignInUrl(pathname));
+  }
   if (!session?.user?.id) {
-    const pathname = h.get('x-pathname') ?? '';
+    const pathname = h.get('x-invoke-path') ?? h.get('x-pathname') ?? '';
     redirect(buildSignInUrl(pathname));
   }
 
   const userId = session.user.id;
-  const user = await prisma.user.findFirst({
-    where: { id: userId, isActive: true },
-    select: {
-      id: true,
-      name: true,
-      memberships: {
-        where: { isActive: true, workspace: { isActive: true } },
-        select: { workspaceId: true, role: true },
+  let user;
+  try {
+    user = await prisma.user.findFirst({
+      where: { id: userId, isActive: true },
+      select: {
+        id: true,
+        name: true,
+        memberships: {
+          where: { isActive: true, workspace: { isActive: true } },
+          select: { workspaceId: true, role: true },
+        },
       },
-    },
-  });
+    });
+  } catch {
+    const pathname = h.get('x-invoke-path') ?? h.get('x-pathname') ?? '';
+    redirect(buildSignInUrl(pathname));
+  }
 
   if (!user || user.memberships.length === 0) {
     const pathname = h.get('x-pathname') ?? '';
@@ -66,11 +78,13 @@ export async function requireAppSession(reqHeaders?: Headers): Promise<AppSessio
   const allRoles = Array.from(new Set(user.memberships.map((m) => m.role as AppRole)));
 
   // Pick the membership with the highest privilege role for activeWorkspaceId
-  const bestMembership = user.memberships.reduce((best, m) => {
+  // Sort to ensure deterministic tie-breaking when roles have equal priority
+  const sorted = [...user.memberships].sort((a, b) => a.workspaceId.localeCompare(b.workspaceId));
+  const bestMembership = sorted.reduce((best, m) => {
     const bestPriority = ROLE_PRIORITY[best.role] ?? 0;
     const mPriority = ROLE_PRIORITY[m.role] ?? 0;
     return mPriority > bestPriority ? m : best;
-  }, user.memberships[0]);
+  }, sorted[0]);
 
   return {
     userId: user.id,

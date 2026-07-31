@@ -2,18 +2,21 @@
  * Vault Type Definitions
  */
 
+export type StorageProvider = 'local' | 's3';
+
 /**
  * Vault file entity representing a stored document
  */
 export interface VaultFile {
   id: string;
+  workspaceId: string;
   requestId?: string;
   folderId?: string;
   name: string;
   mimeType: string;
   size: number;
   storageKey: string;
-  storageProvider: 'local' | 's3';
+  storageProvider: StorageProvider;
   uploadedBy: string;
   uploadedByName?: string;
   tags?: VaultTag[];
@@ -50,7 +53,8 @@ export interface VaultTag {
  */
 export interface VaultFileWithUrl extends VaultFile {
   downloadUrl: string;
-  downloadUrlExpiresAt: Date;
+  /** ISO 8601 date string */
+  downloadUrlExpiresAt: string;
 }
 
 /**
@@ -62,8 +66,10 @@ export interface VaultFilters {
   search?: string;
   mimeTypes?: string[];
   uploadedBy?: string;
-  dateFrom?: Date;
-  dateTo?: Date;
+  /** ISO 8601 date string */
+  dateFrom?: string;
+  /** ISO 8601 date string */
+  dateTo?: string;
 }
 
 /**
@@ -106,7 +112,7 @@ export interface VaultStats {
  * Storage provider configuration
  */
 export interface StorageConfig {
-  provider: 'local' | 's3';
+  provider: StorageProvider;
   bucket?: string;
   region?: string;
   endpoint?: string;

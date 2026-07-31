@@ -44,12 +44,12 @@ export function sanitizeFileName(originalName: string): string {
   // Truncate if too long (Windows MAX_PATH consideration)
   if (sanitized.length > 200) {
     const ext = getFileExtension(sanitized);
-    const nameWithoutExt = sanitized.slice(0, 200 - ext.length);
+    const nameWithoutExt = sanitized.slice(0, Math.max(0, 200 - ext.length));
     sanitized = nameWithoutExt + ext;
   }
 
   // Handle empty result
-  if (!sanitized || sanitized === '') {
+  if (!sanitized) {
     return 'unnamed_file';
   }
 
@@ -93,7 +93,7 @@ export function getFileExtension(fileName: string): string {
   }
 
   const lastDot = fileName.lastIndexOf('.');
-  if (lastDot === -1 || lastDot === fileName.length - 1) {
+  if (lastDot <= 0 || lastDot === fileName.length - 1) {
     return '';
   }
 

@@ -9,6 +9,7 @@
 export { normalizeMarkdown } from './normalizer/pipeline';
 export { convertWithMarkItDown, isMarkItDownAvailable, resetCliCache } from './markitdown';
 export { normalizeCache } from './cache';
+export { DEFAULT_OPTIONS } from './types';
 export type {
   NormalizeOptions,
   NormalizeResult,

@@ -119,7 +119,7 @@ export async function getWorkspaceRequestWhere(
   extra?: Record<string, unknown>,
 ): Promise<Record<string, unknown>> {
   return buildRequestWhere(
-    { workspaceId: activeWorkspaceId, ...(extra ?? {}) },
+    { ...(extra ?? {}), workspaceId: activeWorkspaceId },
     userId,
     activeWorkspaceId,
   );

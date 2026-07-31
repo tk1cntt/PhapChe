@@ -103,15 +103,19 @@ export function usePaginationParams(defaultPageSize: number = DEFAULT_PAGE_SIZE)
   }, [buildUrl, router]);
 
   const clearFilters = useCallback(() => {
-    const params = new URLSearchParams();
-    // Keep only page and pageSize
+    const params = new URLSearchParams(searchParams.toString());
+    // Keep search, page, pageSize; remove all filter_* params
+    const keysToDelete: string[] = [];
+    params.forEach((_, key) => {
+      if (key.startsWith('filter_')) {
+        keysToDelete.push(key);
+      }
+    });
+    keysToDelete.forEach(key => params.delete(key));
     params.set('page', '1');
-    if (pageSize !== defaultPageSize) {
-      params.set('pageSize', String(pageSize));
-    }
     const queryString = params.toString();
     router.push(queryString ? `${pathname}?${queryString}` : pathname);
-  }, [buildUrl, router, pathname, pageSize, defaultPageSize]);
+  }, [router, pathname, searchParams]);
 
   const clearSearch = useCallback(() => {
     const url = buildUrl({ search: null, page: '1' });

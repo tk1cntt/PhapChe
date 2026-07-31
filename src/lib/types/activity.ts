@@ -3,8 +3,6 @@
  * Hỗ trợ nhiều loại hoạt động với icons và màu sắc riêng
  */
 
-import type { LucideIcon } from 'lucide-react';
-
 /**
  * Loại hoạt động trên dashboard
  */

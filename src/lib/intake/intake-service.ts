@@ -41,7 +41,7 @@ type ValidationResult = {
 };
 
 function cleanAnswers(answers: IntakeAnswers) {
-  return Object.fromEntries(Object.entries(answers).map(([key, value]) => [key, value.trim()]));
+  return Object.fromEntries(Object.entries(answers).map(([key, value]) => [key, value?.trim() ?? '']));
 }
 
 function buildAnswerLabels(matterTypeKey: string, answers: IntakeAnswers) {
@@ -49,7 +49,7 @@ function buildAnswerLabels(matterTypeKey: string, answers: IntakeAnswers) {
   if (!matterType) throw new Error('MATTER_TYPE_NOT_FOUND');
 
   return matterType.questions
-    .filter((question) => answers[question.key] != null)
+    .filter((question) => answers[question.key] !== null && answers[question.key] !== undefined)
     .map((question) => ({
       key: question.key,
       label: question.label,
@@ -151,7 +151,8 @@ export async function saveIntakeAnswers(input: SaveAnswersInput) {
   if (!submission) throw new Error('INTAKE_SUBMISSION_NOT_FOUND');
 
   const answers = cleanAnswers(input.answers);
-  validateAnswers(submission.matterTypeKey, answers);
+  // Only validate known keys during save; required-field enforcement happens at submit.
+  void validateAnswers(submission.matterTypeKey, answers);
   const answerLabels = buildAnswerLabels(submission.matterTypeKey, answers);
 
   return prisma.$transaction(async (tx) => {
@@ -212,14 +213,6 @@ export async function submitIntake(input: SubmitInput) {
     if (!coordinator) throw new Error('COORDINATOR_REQUIRED_FOR_TRIAGE');
   }
 
-  await transitionRequestStatus({
-    requestId: input.requestId,
-    actorId: input.session.userId,
-    toStatus: 'triage',
-    reason: 'intake submitted via wizard',
-    correlationId: input.correlationId,
-  });
-
   await prisma.$transaction(async (tx) => {
     await tx.intakeSubmission.update({
       where: { id: submission.id },
@@ -241,15 +234,25 @@ export async function submitIntake(input: SubmitInput) {
     );
   });
 
+  // For unsupported matter type, assign to coordinator instead of auto-triaging
   if (submission.matterTypeKey === 'unsupported') {
-    return transitionRequestStatus({
+    await transitionRequestStatus({
       requestId: input.requestId,
       actorId: coordinator!.userId,
       toStatus: 'triage',
       reason: 'unsupported intake requires human triage',
       correlationId: input.correlationId,
     });
+    return { id: input.requestId, status: 'triage' as const };
   }
+
+  await transitionRequestStatus({
+    requestId: input.requestId,
+    actorId: input.session.userId,
+    toStatus: 'triage',
+    reason: 'intake submitted via wizard',
+    correlationId: input.correlationId,
+  });
 
   return { id: input.requestId, status: 'triage' as const };
 }

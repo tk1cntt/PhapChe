@@ -40,10 +40,11 @@ export class WorkspaceRepository extends BaseRepository<
 
   protected async canAccess(ctx: RequestContext, entity: unknown): Promise<boolean> {
     const workspace = entity as { slug: string };
+    if (!workspace?.slug) return false;
     return this.permissionService.canAccessWorkspace(ctx, workspace.slug);
   }
 
-  protected async canCreate(ctx: RequestContext): Promise<boolean> {
+  protected async canCreate(ctx: RequestContext, _data?: { name: string; slug: string; organizationId?: string }): Promise<boolean> {
     if (this.permissionService.isPlatformAdmin(ctx)) return true;
     if (ctx.organization) {
       return this.permissionService.canManageOrganization(ctx, ctx.organization.id);
@@ -51,12 +52,12 @@ export class WorkspaceRepository extends BaseRepository<
     return false;
   }
 
-  protected async canUpdate(ctx: RequestContext, entity: unknown): Promise<boolean> {
+  protected async canUpdate(ctx: RequestContext, entity: unknown, _data?: { name?: string; isActive?: boolean }): Promise<boolean> {
     const workspace = entity as { slug: string };
     return this.permissionService.canManageWorkspace(ctx, workspace.slug);
   }
 
-  protected async canDelete(ctx: RequestContext): Promise<boolean> {
+  protected async canDelete(ctx: RequestContext, _entity?: unknown): Promise<boolean> {
     return this.permissionService.isPlatformAdmin(ctx);
   }
 
@@ -64,8 +65,12 @@ export class WorkspaceRepository extends BaseRepository<
    * List workspaces for current user
    */
   async listForUser(ctx: RequestContext, options?: { skip?: number; take?: number }) {
+    if (!ctx.user?.id) {
+      return [];
+    }
     return this.db.workspace.findMany({
       where: {
+        isActive: true,
         memberships: {
           some: { userId: ctx.user.id, isActive: true },
         },

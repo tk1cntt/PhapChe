@@ -2,12 +2,22 @@
  * Request Type Definitions
  */
 
-import type { RequestStatus } from '@/lib/types';
+import type { RequestStatus } from '@/lib/types'; // Note: circular via barrel; prefer '@/lib/types.ts' if issues arise
 
 /**
  * Priority type for requests
  */
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
+
+/**
+ * Reference to an uploaded file (safe for server-side and JSON serialization)
+ */
+export interface FileReference {
+  name: string;
+  url: string;
+  size?: number;
+  type?: string;
+}
 
 /**
  * Legal request entity
@@ -26,13 +36,18 @@ export interface LegalRequest {
   assignee?: RequestAssignee;
   title: string;
   description?: string;
-  deadline?: Date;
-  slaDueAt?: Date;
-  currentStateEnteredAt?: Date;
+  /** ISO 8601 date string */
+  deadline?: string;
+  /** ISO 8601 date string */
+  slaDueAt?: string;
+  /** ISO 8601 date string */
+  currentStateEnteredAt?: string;
   engagementId?: string;
   assignedPartnerId?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  /** ISO 8601 date string */
+  createdAt: string;
+  /** ISO 8601 date string */
+  updatedAt: string;
 }
 
 /**
@@ -84,7 +99,8 @@ export interface IntakeSubmission {
  */
 export interface IntakeAnswer {
   questionKey: string;
-  value: string | string[] | File[];
+  /** FileReference[] for file uploads (safe for server-side and JSON serialization) */
+  value: string | string[] | FileReference[];
 }
 
 /**
@@ -158,7 +174,9 @@ export interface AssignRequestInput {
  */
 export interface RequestStats {
   total: number;
+  /** Backend guarantees all keys are present (zero-count statuses included) */
   byStatus: Record<RequestStatus, number>;
+  /** Backend guarantees all keys are present (zero-count priorities included) */
   byPriority: Record<Priority, number>;
   overdue: number;
   slaAtRisk: number;

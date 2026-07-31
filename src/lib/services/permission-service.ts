@@ -19,7 +19,7 @@ export class PermissionService {
    * Check if user is platform admin
    */
   isPlatformAdmin(ctx: RequestContext): boolean {
-    return ctx.user.roles.includes('super_admin');
+    return ctx.user.roles?.includes('super_admin') ?? false;
   }
 
   /**
@@ -46,6 +46,7 @@ export class PermissionService {
     if (!request) return false;
 
     // Check workspace membership
+    if (!request.workspace) return false;
     const isMember = request.workspace.memberships.length > 0;
     if (isMember) return true;
 
@@ -81,6 +82,7 @@ export class PermissionService {
     if (!request) return false;
 
     // Check workspace membership with write role
+    if (!request.workspace) return false;
     const isWriter = request.workspace.memberships.length > 0;
     if (isWriter) return true;
 
@@ -192,12 +194,12 @@ export class PermissionService {
   /**
    * Get permission level for partner on engagement
    */
-  async getPartnerPermissionLevel(engagementId: string): Promise<PermissionLevel[]> {
-    const scopes = await this.prismaClient.engagementServiceScope.findMany({
-      where: { engagementId },
+  async getPartnerPermissionLevel(engagementId: string, partnerId: string): Promise<PermissionLevel | null> {
+    const scope = await this.prismaClient.engagementServiceScope.findFirst({
+      where: { engagementId, partnerId },
       select: { permissionLevel: true },
     });
 
-    return scopes.map(s => s.permissionLevel as PermissionLevel);
+    return scope ? (scope.permissionLevel as PermissionLevel) : null;
   }
 }

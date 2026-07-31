@@ -48,7 +48,7 @@ YÊU CẦU ĐẦU RA (JSON nghiêm ngặt, không thêm text bên ngoài):
       "contact": "Email/Điện thoại hỗ trợ"
     },
     "jurisdiction": "Vietnam",
-    "effectiveDate": "Ngày có hiệu lực"
+    "effectiveDate": "Effective date / Ngày có hiệu lực"
   },
   "sections": [
     {

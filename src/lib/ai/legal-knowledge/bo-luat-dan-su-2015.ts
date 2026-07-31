@@ -10,21 +10,28 @@ import type { LegalKnowledgeDoc } from './types';
 export const boLuatDanSu2015: LegalKnowledgeDoc = {
   id: 'bo-luat-dan-su-2015',
   source: 'Bộ luật Dân sự 2015 (Số 91/2015/QH13)',
+  /**
+   * NOTE: This document reflects selected provisions as enacted in 2015.
+   * No amendments are incorporated. Verify against current law before
+   * relying on specific provisions in legal advice.
+   */
   domainTags: ['commercial-legal', 'corporate-legal', 'litigation-legal'],
   version: '2015',
   chapters: [
+    // NOTE: Only key civil/commercial chapters are included below.
+    // Gaps between chapter numbers represent omitted chapters.
     {
       title: 'Chương I — Những quy định chung',
       articles: [
         {
-          number: 'Điều 2',
-          title: 'Đối tượng điều chỉnh',
+          number: 'Điều 1',
+          title: 'Phạm vi điều chỉnh',
           content: 'Bộ luật Dân sự quy định địa vị pháp lý, chuẩn mực pháp lý về cách ứng xử của cá nhân, pháp nhân; quyền, nghĩa vụ về nhân thân và tài sản của cá nhân, pháp nhân trong các quan hệ được hình thành trên cơ sở bình đẳng, tự do ý chí, độc lập về tài sản và tự chịu trách nhiệm.',
         },
         {
           number: 'Điều 3',
           title: 'Nguyên tắc cơ bản của pháp luật dân sự',
-          content: '1. Bình đẳng, tự do, tự nguyện cam kết, thỏa thuận. 2. Cá nhân, pháp nhân phải tự chịu trách nhiệm về việc không thực hiện hoặc thực hiện không đúng nghĩa vụ dân sự. 3. Thiện chí, trung thực. 4. Tôn trọng lợi ích quốc gia, dân tộc, lợi ích công cộng, quyền và lợi ích hợp pháp của người khác. 5. Tôn trọng, bảo vệ quyền dân sự.',
+          content: '1. Cá nhân, pháp nhân đều bình đẳng, không được lấy bất kỳ lý do nào để phân biệt đối xử. 2. Cá nhân, pháp nhân tự do, tự nguyện cam kết, thỏa thuận. 3. Cá nhân, pháp nhân phải tự chịu trách nhiệm về việc không thực hiện hoặc thực hiện không đúng nghĩa vụ dân sự. 4. Thiện chí, trung thực. 5. Tôn trọng lợi ích quốc gia, dân tộc, lợi ích công cộng, quyền và lợi ích hợp pháp của người khác. 6. Tôn trọng, bảo vệ quyền dân sự.',
         },
         {
           number: 'Điều 4',
@@ -34,7 +41,12 @@ export const boLuatDanSu2015: LegalKnowledgeDoc = {
         {
           number: 'Điều 5',
           title: 'Thời hiệu',
-          content: 'Thời hiệu là thời hạn do luật quy định mà khi kết thúc thời hạn đó thì phát sinh hậu quả pháp lý đối với chủ thể theo điều kiện do luật quy định. Thời hiệu hưởng quyền dân sự: 30 năm đối với bất động sản, 10 năm đối với động sản. Thời hiệu khởi kiện hợp đồng: 03 năm. Thời hiệu khởi kiện bồi thường thiệt hại ngoài hợp đồng: 03 năm.',
+          content: 'Thời hiệu là thời hạn do luật quy định mà khi kết thúc thời hạn đó thì phát sinh hậu quả pháp lý đối với chủ thể theo điều kiện do luật quy định. Tòa án chỉ áp dụng quy định về thời hiệu đối với yêu cầu áp dụng thời hiệu của một bên hoặc các bên với điều kiện yêu cầu này phải được đưa ra trước khi Tòa án cấp sơ thẩm ra bản án, quyết định giải quyết vụ việc.',
+        },
+        {
+          number: 'Điều 5 (tóm tắt mở rộng)',
+          title: 'Các thời hiệu khởi kiện quan trọng',
+          content: 'Thời hiệu hưởng quyền dân sự: 30 năm đối với bất động sản, 10 năm đối với động sản (Điều 236, 237). Thời hiệu khởi kiện hợp đồng: 03 năm (Điều 4 - Luật Thương mại 2005 áp dụng bổ sung). Thời hiệu khởi kiện bồi thường thiệt hại ngoài hợp đồng: 03 năm (Điều 588).',
         },
         {
           number: 'Điều 6',
@@ -114,7 +126,7 @@ export const boLuatDanSu2015: LegalKnowledgeDoc = {
         {
           number: 'Điều 418',
           title: 'Phạt vi phạm',
-          content: 'Phạt vi phạm là sự thỏa thuận giữa các bên trong hợp đồng, theo đó bên vi phạm nghĩa vụ phải nộp một khoản tiền cho bên bị vi phạm. Mức phạt vi phạm do các bên thỏa thuận, trừ trường hợp luật liên quan có quy định khác.',
+          content: 'Phạt vi phạm là sự thỏa thuận giữa các bên trong hợp đồng, theo đó bên vi phạm nghĩa vụ phải nộp một khoản tiền cho bên bị vi phạm. Mức phạt vi phạm do các bên thỏa thuận, trừ trường hợp luật liên quan có quy định khác. Lưu ý: Đối với hợp đồng thương mại, Điều 301 Luật Thương mại 2005 giới hạn mức phạt không quá 8% giá trị phần nghĩa vụ hợp đồng bị vi phạm.',
         },
         {
           number: 'Điều 419',
@@ -175,6 +187,11 @@ export const boLuatDanSu2015: LegalKnowledgeDoc = {
           number: 'Điều 365',
           title: 'Chuyển giao quyền yêu cầu',
           content: 'Bên có quyền yêu cầu thực hiện nghĩa vụ có thể chuyển giao quyền yêu cầu đó cho người thế quyền, trừ trường hợp quyền yêu cầu gắn liền với nhân thân hoặc các bên có thỏa thuận không được chuyển giao. Việc chuyển giao quyền yêu cầu không cần có sự đồng ý của bên có nghĩa vụ.',
+        },
+        {
+          number: 'Điều 370',
+          title: 'Chuyển giao nghĩa vụ',
+          content: 'Bên có nghĩa vụ có thể chuyển giao nghĩa vụ cho người thế nghĩa vụ nếu được bên có quyền đồng ý, trừ trường hợp nghĩa vụ gắn liền với nhân thân hoặc pháp luật có quy định không được chuyển giao nghĩa vụ.',
         },
       ],
     },

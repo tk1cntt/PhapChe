@@ -42,6 +42,8 @@ function handleError(status: number, error: Error): never {
     toastError('Không có quyền truy cập');
   } else if (status === 500) {
     toastError('Lỗi máy chủ, vui lòng thử lại');
+  } else {
+    console.error(`[API] HTTP ${status}: ${error.message}`);
   }
   throw error;
 }
@@ -52,7 +54,7 @@ function handleError(status: number, error: Error): never {
 class ApiClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = '') {
+  constructor(baseUrl: string = '/') {
     this.baseUrl = baseUrl;
   }
 
@@ -82,11 +84,11 @@ class ApiClient {
       return baseDelay + jitter;
     };
 
-    if (process.env.NODE_ENV === 'development') {
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
       console.debug(`[API] ${method} ${url.toString()}`);
     }
 
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
         const response = await fetch(url.toString(), {
           method,
@@ -99,6 +101,12 @@ class ApiClient {
           credentials: 'include',
         });
 
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          const text = await response.text().catch(() => '');
+          const error = new Error(`Unexpected content type: ${contentType}`);
+          handleError(response.status, error);
+        }
         const data = await response.json() as T | ErrorResponse;
 
         if (!response.ok) {

@@ -25,25 +25,28 @@ const DEFAULT_FORMAT_OPTIONS: Required<FormatOptions> = {
  */
 export function formatHeadingHierarchy(text: string): string {
   const lines = text.split('\n');
-  const hasH1OrTitle = lines.some((l) => /^#\s/.test(l) || /^[A-ZÀ-Ỹ\s]{10,60}$/.test(l.trim()));
 
-  // Nếu có title text (dòng ALL CAPS ở đầu) và chưa có # heading,
-  // ta không tự động thêm — để detectors xử lý.
-  // Chỉ fix các ## và ### bị lệch level.
-
-  // Logic: đếm levels đã dùng
+  let hasH1 = false;
   let hasH2 = false;
   let hasH3 = false;
 
   for (const line of lines) {
+    if (/^#\s/.test(line)) hasH1 = true;
     if (/^##\s/.test(line)) hasH2 = true;
     if (/^###\s/.test(line)) hasH3 = true;
   }
 
-  // Nếu có ### nhưng không có ## → upgrade ### lên ##
-  if (hasH3 && !hasH2) {
+  // If only ### exists without ## and # → upgrade ### → ##
+  if (hasH3 && !hasH2 && !hasH1) {
     return lines.map((l) =>
       /^###\s/.test(l) ? l.replace(/^###/, '##') : l,
+    ).join('\n');
+  }
+
+  // If # exists alongside other headings, demote # → ##
+  if (hasH1 && (hasH2 || hasH3)) {
+    return lines.map((l) =>
+      /^#\s/.test(l) ? l.replace(/^#\s/, '## ') : l,
     ).join('\n');
   }
 
@@ -83,7 +86,7 @@ export function formatBlankLineSpacing(text: string): string {
     const line = lines[i];
     const prevNonEmpty = i > 0 && lines[i - 1].trim() !== '';
     const isHeading = /^#{1,3}\s/.test(line);
-    const isListItem = /^\s*[-*\d+]\d*\s/.test(line) || /^\s*\d+[.)]\s/.test(line);
+    const isListItem = /^\s*[-*+]\s/.test(line) || /^\s*\d+[.)]\s/.test(line);
     const prevIsBlank = i > 0 && lines[i - 1].trim() === '';
     const prevIsHeading = i > 0 && /^#{1,3}\s/.test(lines[i - 1]);
 
@@ -94,7 +97,7 @@ export function formatBlankLineSpacing(text: string): string {
 
     // Add blank line before list start (when previous is not blank and not list)
     if (isListItem && prevNonEmpty && !prevIsBlank) {
-      const prevIsList = /^\s*[-*\d+]\d*\s/.test(lines[i - 1]) || /^\s*\d+[.)]\s/.test(lines[i - 1]);
+      const prevIsList = /^\s*[-*+]\s/.test(lines[i - 1]) || /^\s*\d+[.)]\s/.test(lines[i - 1]);
       if (!prevIsList && !prevIsHeading) {
         result.push('');
       }
@@ -111,8 +114,7 @@ export function formatBlankLineSpacing(text: string): string {
  */
 export function escapeHtmlEntities(text: string): string {
   return text
-    .replace(/&amp;/g, '&amp;')      // Đã escape → giữ nguyên
-    .replace(/(?<!&amp;)&(?!amp;|lt;|gt;|quot;|#\d+;|#x[0-9a-fA-F]+;)/g, '&amp;')
+    .replace(/&(?!amp;|lt;|gt;|quot;|#\d+;|#x[0-9a-fA-F]+;)/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 }

@@ -4,7 +4,23 @@
  * Client functions for file operations via the API.
  */
 
-import { apiClient, type ApiResponse } from './client';
+import { apiClient } from './client';
+
+// Base URLs
+const FILES_ENDPOINT = '/api/files';
+
+async function assertResponseOk(response: Response, fallbackMessage: string): Promise<void> {
+  if (!response.ok) {
+    let message = fallbackMessage;
+    try {
+      const body = await response.json();
+      message = body.error || body.message || fallbackMessage;
+    } catch {
+      // non-JSON response; keep fallback
+    }
+    throw new Error(`${message} (HTTP ${response.status}: ${response.statusText})`);
+  }
+}
 
 // Types for API responses
 export interface FileUploadResponse {
@@ -67,18 +83,18 @@ export async function uploadFile(
   formData.append('category', options.category || 'request_upload');
   formData.append('visibility', options.visibility || 'private');
 
-  const response = await fetch('/api/files', {
+  const response = await fetch(FILES_ENDPOINT, {
     method: 'POST',
     body: formData,
     credentials: 'include',
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Upload failed' }));
-    throw new Error(error.error || 'Upload failed');
-  }
+  await assertResponseOk(response, 'Upload failed');
 
   const result = await response.json();
+  if (!result?.data) {
+    throw new Error('Upload succeeded but no file data returned');
+  }
   return result.data;
 }
 
@@ -99,15 +115,12 @@ export async function getFile(fileId: string): Promise<FileMetadata> {
  * @returns File as Blob
  */
 export async function downloadFile(fileId: string): Promise<Blob> {
-  const response = await fetch(`/api/files/${fileId}/download`, {
+  const response = await fetch(`${FILES_ENDPOINT}/${fileId}/download`, {
     method: 'GET',
     credentials: 'include',
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Download failed' }));
-    throw new Error(error.error || 'Download failed');
-  }
+  await assertResponseOk(response, 'Download failed');
 
   return response.blob();
 }
@@ -118,15 +131,12 @@ export async function downloadFile(fileId: string): Promise<Blob> {
  * @param fileId - The file ID
  */
 export async function deleteFile(fileId: string): Promise<void> {
-  const response = await fetch(`/api/files/${fileId}`, {
+  const response = await fetch(`${FILES_ENDPOINT}/${fileId}`, {
     method: 'DELETE',
     credentials: 'include',
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Delete failed' }));
-    throw new Error(error.error || 'Delete failed');
-  }
+  await assertResponseOk(response, 'Delete failed');
 }
 
 /**

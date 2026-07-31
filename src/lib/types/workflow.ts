@@ -16,10 +16,13 @@ export interface WorkflowDefinition {
   states: WorkflowState[];
   transitions: WorkflowTransition[];
   initialState: string;
-  version: number;
+  /** Semver version string (e.g. "1.0.0") */
+  version: string;
   status: 'draft' | 'published' | 'deprecated';
-  createdAt: Date;
-  updatedAt: Date;
+  /** ISO 8601 date string */
+  createdAt: string;
+  /** ISO 8601 date string */
+  updatedAt: string;
 }
 
 /**
@@ -69,7 +72,7 @@ export interface WorkflowTransitionLog {
   triggeredByName?: string;
   note?: string;
   metadata?: Record<string, unknown>;
-  triggeredAt: Date;
+  triggeredAt: string;
 }
 
 /**
@@ -85,6 +88,7 @@ export interface AvailableTransition {
  * Input for executing a transition
  */
 export interface ExecuteTransitionInput {
+  requestId: string;
   transitionId: string;
   note?: string;
 }

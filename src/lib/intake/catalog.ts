@@ -33,17 +33,25 @@ export const MATTER_CATALOG = Object.entries(SEED_MATTER_TYPES).map(
     questions: matterType.questions,
     // Full translations available via SEED_MATTER_TYPES
   })
-) as readonly MatterCatalogItem[];
+) satisfies readonly MatterCatalogItem[];
 
 export type MatterTypeKey = MatterCatalogItem['key'];
 
 export function getMatterType(matterTypeKey: string): MatterCatalogItem | null {
   const matterType = MATTER_CATALOG.find((item) => item.key === matterTypeKey);
-  return matterType ? { ...matterType, questions: matterType.questions.map((question) => ({ ...question })) } : null;
+  return matterType
+    ? {
+        ...matterType,
+        questions: matterType.questions.map((question) => ({
+          ...question,
+          label: { ...question.label },
+        })),
+      }
+    : null;
 }
 
 export function getMatterQuestions(matterTypeKey: string): IntakeQuestion[] {
-  return getMatterType(matterTypeKey)?.questions.map((question) => ({ ...question })) ?? [];
+  return getMatterType(matterTypeKey)?.questions.slice() ?? [];
 }
 
 /**

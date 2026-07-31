@@ -34,6 +34,10 @@ export type MultilingualString = {
 /**
  * Multilingual text field - for longer content like descriptions
  */
+/**
+ * Multilingual text field - for longer content like descriptions.
+ * At least one locale should be provided; consumers must implement fallback via getLocalized().
+ */
 export type MultilingualText = {
   vi?: string | null;
   en?: string | null;
@@ -68,7 +72,7 @@ export const LOCALE_TO_SUFFIX: Record<SupportedLocale, string> = {
  * e.g., "labor_contract" → "laborContract"
  */
 export function snakeToCamel(str: string): string {
-  return str.replace(/_([a-z])/g, (_m: string, c: string) => c.toUpperCase());
+  return str.replace(/([a-z0-9])_([a-z])/g, (_m: string, before: string, c: string) => before + c.toUpperCase());
 }
 
 /**

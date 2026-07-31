@@ -109,6 +109,7 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       { key: 'prior_use', label: { vi: 'Thông tin đã sử dụng nhãn hiệu', en: 'Prior Trademark Use Info', zh: '在先商标使用信息', ja: '商標の先行使用情報' }, required: false, type: 'textarea' },
     ],
   },
+  // Fallback type for requests that don't match any known domain
   unsupported: {
     key: 'unsupported',
     label: {
@@ -374,7 +375,7 @@ export const SEED_MATTER_TYPES: Record<string, ServiceTypeDefinition> = {
       vi: 'Soạn điều khoản sử dụng dịch vụ/sản phẩm.',
       en: 'Draft terms of service/product usage.',
       zh: '起草服务/产品使用条款。',
-      ja: 'サービス/製品の 이용약관を作成します。',
+      ja: 'サービス/製品の利用規約を作成します。',
     },
     questions: [
       { key: 'service_name', label: { vi: 'Tên dịch vụ/sản phẩm', en: 'Service/Product Name', zh: '服务/产品名称', ja: 'サービス・製品名' }, required: true, type: 'text' },
@@ -803,7 +804,7 @@ export const SEED_LEGAL_DOMAINS: Record<string, LegalDomainDefinition> = {
       zh: '商业合同、保密协议、合同审查',
       ja: '商事契約、NDA、契約レビュー',
     },
-    matterTypeKeys: ['distribution_contract', 'nda', 'commercial_review'],
+    matterTypeKeys: ['distribution_contract', 'nda', 'commercial_review', 'agency_contract'],
   },
   'corporate-legal': {
     key: 'corporate-legal',

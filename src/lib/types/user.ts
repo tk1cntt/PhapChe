@@ -52,7 +52,9 @@ export interface UserProfile {
   name: string;
   phone?: string;
   title?: string;
+  /** Ensure a default (e.g., 'en') is provided when mapping from User (where language is optional) */
   language: string;
+  /** Ensure defaults are applied when mapping from User (where notifications is optional) */
   notifications: NotificationSettings;
 }
 
@@ -87,6 +89,7 @@ export interface UpdateUserInput {
   title?: string;
   role?: Role;
   isActive?: boolean;
+  // notifications?: NotificationSettings; // If needed: notification management handled separately
 }
 
 /**
@@ -97,5 +100,6 @@ export interface Session {
   email: string;
   role: Role;
   workspaceId?: string;
-  expiresAt: Date;
+  /** ISO 8601 timestamp string; convert to Date if needed */
+  expiresAt: string;
 }

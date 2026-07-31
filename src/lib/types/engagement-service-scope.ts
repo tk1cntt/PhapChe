@@ -10,11 +10,13 @@ export interface EngagementServiceScope {
   engagementId: string;
   serviceTypeId: string;
   permissionLevel: PermissionLevel;
-  createdAt: Date;
+  /** ISO 8601 date string (e.g. "2024-01-01T00:00:00.000Z") */
+  createdAt: string;
 }
 
 export interface CreateEngagementServiceScopeInput {
   engagementId: string;
   serviceTypeId: string;
+  /** @default 'case_assigned' */
   permissionLevel?: PermissionLevel;
 }

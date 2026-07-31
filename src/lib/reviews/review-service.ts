@@ -22,6 +22,8 @@ type RejectReviewInput = {
 // remains self-contained and explicit about what "all required items passed"
 // means; do not replace with a config lookup.
 const REQUIRED_ITEM_IDS = CHECKLIST_ITEMS.filter((i) => i.required).map((i) => i.id);
+const REVIEW_APPROVE_REASON = 'Reviewer duyệt tài liệu';
+const REVIEW_REJECT_REASON = 'Reviewer yêu cầu chỉnh sửa';
 
 type LoadedReview = {
   id: string;
@@ -51,6 +53,7 @@ async function loadReviewForActor(reviewId: string, session: AppSession): Promis
     },
   });
   if (!review) throw new Error('REVIEW_NOT_FOUND');
+  if (!review.request) throw new Error('REQUEST_NOT_FOUND');
   const isAssignedReviewer =
     review.reviewerId === session.userId && review.request.assignedReviewerId === session.userId;
   const isAdmin = session.roles.includes('coordinator_admin') || session.roles.includes('super_admin');
@@ -95,21 +98,27 @@ export async function startReview(input: StartReviewInput): Promise<{ reviewId: 
   if (!docVersion) throw new Error('DOCUMENT_VERSION_NOT_FOUND');
   if (docVersion.status !== 'submitted_for_review') throw new Error('INVALID_DOCUMENT_VERSION_STATUS');
 
-  const isAssignedReviewer = docVersion.document.request.assignedReviewerId === session.userId;
+  const request = docVersion.document.request;
+  if (!request) throw new Error('REQUEST_NOT_FOUND');
+  const isAssignedReviewer = request.assignedReviewerId === session.userId;
   const isAdmin = session.roles.includes('coordinator_admin') || session.roles.includes('super_admin');
   if (!isAssignedReviewer && !isAdmin) throw new Error('FORBIDDEN');
 
   const result = await prisma.$transaction(async (tx) => {
-    // Unique constraint on (documentVersionId, reviewerId) prevents double-create.
-    // Use findFirst + create pattern within transaction for idempotency.
-    const existing = await tx.review.findFirst({
+    // Use upsert for true idempotency under concurrent calls
+    const wasCreated = !(await tx.review.findFirst({
       where: { documentVersionId, reviewerId: session.userId },
-      select: { id: true, status: true },
-    });
-    if (existing) return existing;
+      select: { id: true },
+    }));
 
-    const review = await tx.review.create({
-      data: {
+    const review = await tx.review.upsert({
+      where: {
+        documentVersionId_reviewerId: {
+          documentVersionId,
+          reviewerId: session.userId,
+        },
+      },
+      create: {
         workspaceId: docVersion.document.workspaceId,
         requestId: docVersion.document.requestId,
         documentId: docVersion.document.id,
@@ -117,22 +126,25 @@ export async function startReview(input: StartReviewInput): Promise<{ reviewId: 
         documentVersionId,
         status: 'in_progress',
       },
+      update: {},
       select: { id: true, status: true },
     });
 
-    await recordAuditEvent(
-      {
-        actorId: session.userId,
-        workspaceId: docVersion.document.workspaceId,
-        action: 'review.started',
-        targetType: 'REVIEW',
-        targetId: review.id,
-        requestId: docVersion.document.requestId,
-        correlationId: correlationId ?? `review-start-${review.id}`,
-        metadataSummary: `docVersionId=${documentVersionId}; reviewId=${review.id}; reviewerId=${session.userId}`,
-      },
-      tx,
-    );
+    if (wasCreated) {
+      await recordAuditEvent(
+        {
+          actorId: session.userId,
+          workspaceId: docVersion.document.workspaceId,
+          action: 'review.started',
+          targetType: 'REVIEW',
+          targetId: review.id,
+          requestId: docVersion.document.requestId,
+          correlationId: correlationId ?? `review-start-${review.id}`,
+          metadataSummary: `docVersionId=${documentVersionId}; reviewId=${review.id}; reviewerId=${session.userId}`,
+        },
+        tx,
+      );
+    }
 
     return review;
   });
@@ -152,6 +164,15 @@ export async function answerChecklistItem(
   if (!(await canAccessRequest(session, review.requestId))) throw new Error('FORBIDDEN');
 
   await prisma.$transaction(async (tx) => {
+    // Re-check status inside transaction to prevent race conditions
+    const currentReview = await tx.review.findUnique({
+      where: { id: reviewId },
+      select: { status: true },
+    });
+    if (!currentReview || currentReview.status !== 'in_progress') {
+      throw new Error('REVIEW_NOT_ACTIVE');
+    }
+
     for (const answer of answers) {
       await tx.reviewChecklistAnswer.upsert({
         where: { reviewId_checklistItemId: { reviewId, checklistItemId: answer.checklistItemId } },
@@ -208,6 +229,15 @@ export async function approveReview(
   const corr = correlationId ?? `review-approve-${reviewId}`;
 
   await prisma.$transaction(async (tx) => {
+    // Re-check status inside transaction to prevent race conditions
+    const currentReview = await tx.review.findUnique({
+      where: { id: reviewId },
+      select: { status: true },
+    });
+    if (!currentReview || currentReview.status !== 'in_progress') {
+      throw new Error('REVIEW_NOT_ACTIVE');
+    }
+
     // Persist all answers (idempotent upserts).
     for (const answer of answers) {
       await tx.reviewChecklistAnswer.upsert({
@@ -257,7 +287,7 @@ export async function approveReview(
     requestId: review.requestId,
     actorId: session.userId,
     toStatus: 'approved',
-    reason: 'Reviewer duyệt tài liệu',
+    reason: REVIEW_APPROVE_REASON,
     correlationId: corr,
   });
 
@@ -279,6 +309,15 @@ export async function rejectReview(
   const corr = correlationId ?? `review-reject-${reviewId}`;
 
   await prisma.$transaction(async (tx) => {
+    // Re-check status inside transaction to prevent race conditions
+    const currentReview = await tx.review.findUnique({
+      where: { id: reviewId },
+      select: { status: true },
+    });
+    if (!currentReview || currentReview.status !== 'in_progress') {
+      throw new Error('REVIEW_NOT_ACTIVE');
+    }
+
     for (const answer of answers) {
       await tx.reviewChecklistAnswer.upsert({
         where: { reviewId_checklistItemId: { reviewId, checklistItemId: answer.checklistItemId } },
@@ -329,7 +368,7 @@ export async function rejectReview(
     requestId: review.requestId,
     actorId: session.userId,
     toStatus: 'revision_required',
-    reason: 'Reviewer yêu cầu chỉnh sửa',
+    reason: REVIEW_REJECT_REASON,
     correlationId: corr,
   });
 

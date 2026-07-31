@@ -31,6 +31,7 @@ export function getStorageService(): StorageService {
       // Start async init; capture promise so delegate methods can await it
       initPromise = provider.initialize().catch((err) => {
         console.error('Failed to initialize storage:', err);
+        throw err;
       });
 
       storageService = new StorageService(provider, maxFileSize);
@@ -55,27 +56,32 @@ export const storageServer = {
 
   // Delegate methods for convenience — each awaits init before proceeding
   async uploadFile(input: Parameters<StorageService['uploadFile']>[0]) {
+    const svc = getStorageService();
     await ensureStorageReady();
-    return getStorageService().uploadFile(input);
+    return svc.uploadFile(input);
   },
 
   async getFile(fileId: string, userId: string) {
+    const svc = getStorageService();
     await ensureStorageReady();
-    return getStorageService().getFile(fileId, userId);
+    return svc.getFile(fileId, userId);
   },
 
   async getDownloadUrl(fileId: string, userId: string) {
+    const svc = getStorageService();
     await ensureStorageReady();
-    return getStorageService().getDownloadUrl(fileId, userId);
+    return svc.getDownloadUrl(fileId, userId);
   },
 
   async deleteFile(fileId: string, userId: string) {
+    const svc = getStorageService();
     await ensureStorageReady();
-    return getStorageService().deleteFile(fileId, userId);
+    return svc.deleteFile(fileId, userId);
   },
 
   async getAccessLogs(fileId: string, userId: string, options?: { page?: number; pageSize?: number }) {
+    const svc = getStorageService();
     await ensureStorageReady();
-    return getStorageService().getAccessLogs(fileId, userId, options);
+    return svc.getAccessLogs(fileId, userId, options);
   },
 };

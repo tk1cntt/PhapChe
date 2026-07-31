@@ -15,13 +15,7 @@ export type OrganizationStatus = 'active' | 'inactive' | 'pending';
  * Mirrors design doc §5.5: owner | admin | member | viewer
  */
 export type OrganizationRole = 'owner' | 'admin' | 'member' | 'viewer';
-
-export const ORGANIZATION_ROLE = {
-  OWNER: 'owner',
-  ADMIN: 'admin',
-  MEMBER: 'member',
-  VIEWER: 'viewer',
-} as const;
+export type MembershipStatus = 'active' | 'invited' | 'suspended' | 'removed';
 
 /**
  * Organization entity — customer company, the data owner.
@@ -36,6 +30,7 @@ export interface Organization {
   address?: string | null;
   contactEmail?: string | null;
   status: OrganizationStatus;
+  /** At most one organization per tenant may be the default. Enforced at the service layer. */
   isDefault: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -46,6 +41,7 @@ export interface Organization {
  */
 export interface CreateOrganizationInput {
   name: string;
+  /** tenantId is derived server-side from the authenticated session */
   tenantId: string;
   businessType?: string;
   registrationNumber?: string;
@@ -68,7 +64,8 @@ export interface OrganizationMembership {
   organizationId: string;
   userId: string;
   role: OrganizationRole;
-  status: 'active' | 'invited' | 'suspended' | 'removed';
+  status: MembershipStatus;
+  /** Use a strict permission set. Validate/sanitize on read and write. */
   permissionsJson: Record<string, boolean>;
   invitedByUserId?: string | null;
   joinedAt?: Date | null;

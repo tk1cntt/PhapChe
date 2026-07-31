@@ -21,7 +21,8 @@ export function splitMarkdownToLines(md: string): string {
 }
 
 /**
- * Split numbered output back to raw lines array for position mapping.
+ * Split document content into raw lines array for position mapping.
+ * Note: pass the raw document content, not the numbered output.
  */
 export function getLinesArray(md: string): string[] {
   if (!md) return [];
@@ -63,6 +64,26 @@ function similarity(a: string, b: string): number {
   const maxLen = Math.max(a.length, b.length);
   if (maxLen === 0) return 1;
   return 1 - levenshtein(a, b) / maxLen;
+}
+
+/**
+ * Find best similarity between a snippet and any substring
+ * of a line — avoids penalizing short snippets in long lines.
+ */
+function bestSubstringSimilarity(snippet: string, line: string): number {
+  const snLen = snippet.length;
+  const lnLen = line.length;
+  if (snLen === 0 || lnLen === 0) return 0;
+  if (snLen >= lnLen) return similarity(snippet, line);
+
+  let best = 0;
+  // Slide a window the size of snippet across the line
+  for (let i = 0; i <= lnLen - snLen; i++) {
+    const window = line.substring(i, i + snLen);
+    const sim = similarity(snippet, window);
+    if (sim > best) best = sim;
+  }
+  return best;
 }
 
 // ── Fuzzy Position Matching ────────────────────────────────────
@@ -109,7 +130,7 @@ export function fuzzyMatchPosition(
 
   // ── Strategy 1: Exact match at AI-suggested line ──
   const idx = searchCenter - 1; // convert to 0-indexed
-  if (idx < totalLines && lines[idx].includes(normalizedSnippet)) {
+  if (idx < totalLines && lines[idx] === normalizedSnippet) {
     return {
       lineStart: searchCenter,
       lineEnd: searchCenter,
@@ -145,14 +166,16 @@ export function fuzzyMatchPosition(
         matchedText: twoLines.substring(0, 200),
       };
     }
-    const threeLines = lines[i] + ' ' + lines[i + 1] + ' ' + lines[i + 2];
-    if (i < searchEnd - 2 && threeLines.includes(normalizedSnippet)) {
-      return {
-        lineStart: i + 1,
-        lineEnd: i + 3,
-        confidence: 0.8,
-        matchedText: threeLines.substring(0, 200),
-      };
+    if (i < searchEnd - 2) {
+      const threeLines = lines[i] + ' ' + lines[i + 1] + ' ' + lines[i + 2];
+      if (threeLines.includes(normalizedSnippet)) {
+        return {
+          lineStart: i + 1,
+          lineEnd: i + 3,
+          confidence: 0.8,
+          matchedText: threeLines.substring(0, 200),
+        };
+      }
     }
   }
 
@@ -162,8 +185,8 @@ export function fuzzyMatchPosition(
   let bestText = '';
 
   for (let i = searchStart; i < searchEnd; i++) {
-    // Only try lines that have some character overlap
-    const sim = similarity(normalizedSnippet, lines[i]);
+    // Normalize: compare snippet against sliding window of the line
+    const sim = bestSubstringSimilarity(normalizedSnippet, lines[i]);
     if (sim > bestScore) {
       bestScore = sim;
       bestIdx = i;

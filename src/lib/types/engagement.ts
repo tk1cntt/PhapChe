@@ -10,7 +10,9 @@ export interface Engagement {
   partnerId: string;
   organizationId: string;
   status: EngagementStatus;
+  /** Must be on or before `endDate` when both are provided. */
   startDate?: Date;
+  /** Must be on or after `startDate` when both are provided. */
   endDate?: Date;
   notes?: string;
   createdAt: Date;
@@ -21,14 +23,18 @@ export interface CreateEngagementInput {
   partnerId: string;
   organizationId: string;
   status?: EngagementStatus;
+  /** Must be on or before `endDate` when both are provided. */
   startDate?: Date;
+  /** Must be on or after `startDate` when both are provided. */
   endDate?: Date;
   notes?: string;
 }
 
 export interface UpdateEngagementInput {
   status?: EngagementStatus;
+  /** Must be on or before `endDate` when both are provided. */
   startDate?: Date;
+  /** Must be on or after `startDate` when both are provided. */
   endDate?: Date;
   notes?: string;
 }

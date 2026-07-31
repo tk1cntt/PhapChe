@@ -52,74 +52,97 @@ export function normalizeMarkdown(
   if (!raw || raw.trim().length === 0) {
     return {
       content: '',
-      detected: { articles: [], sections: [], errors: [] },
+      detected: { articles: [], sections: [], warnings: [] },
       stats: { originalChars: 0, normalizedChars: 0, estimatedTokens: 0 },
     };
   }
 
-  // Cache lookup
-  const hash = sha256(raw);
-  const cached = normalizeCache.get(hash);
+  // Cache lookup — include relevant options in key
+  const cacheKey = sha256(raw + JSON.stringify({
+    phases: opts.phases,
+    trimTrailing: opts.trimTrailing,
+    collapseBlankLines: opts.collapseBlankLines,
+    normalizeUnicode: opts.normalizeUnicode,
+    detectArticles: opts.detectArticles,
+    detectSections: opts.detectSections,
+    detectSubItems: opts.detectSubItems,
+    normalizeLists: opts.normalizeLists,
+    maxLength: opts.maxLength,
+  }));
+  const cached = normalizeCache.get(cacheKey);
   if (cached !== null) {
     return {
-      content: cached,
-      detected: { articles: [], sections: [], errors: [] },
+      ...cached,
+      detected: { ...cached.detected, warnings: [] },
       stats: {
+        ...cached.stats,
         originalChars,
-        normalizedChars: cached.length,
-        estimatedTokens: estimateTokens(cached.length),
       },
     };
   }
 
   // Determine active phases
   const activePhases: Set<NormalizePhase> = new Set(opts.phases ?? DEFAULT_OPTIONS.phases);
+  const detectErrors: string[] = [];
 
   // Phase 1: Clean
-  let result = activePhases.has('clean')
-    ? phase1Clean(raw, {
+  let result = raw;
+  if (activePhases.has('clean')) {
+    try {
+      result = phase1Clean(raw, {
         lineEndings: true,
         noise: true,
         trailing: opts.trimTrailing,
         blankLines: opts.collapseBlankLines,
         unicode: opts.normalizeUnicode,
         controlChars: true,
-      })
-    : raw;
+      });
+    } catch (e) {
+      detectErrors.push(`Phase 1 (clean) failed: ${(e as Error).message}`);
+    }
+  }
 
   // Phase 2: Detect
   let articles: string[] = [];
   let sections: string[] = [];
-  const detectErrors: string[] = [];
 
   if (activePhases.has('detect')) {
-    const detectResult = phase2Detect(result, {
-      articles: opts.detectArticles,
-      sections: opts.detectSections,
-      subItems: opts.detectSubItems,
-      lists: opts.normalizeLists,
-      allCapsHeadings: true,
-    });
-    result = detectResult.transformed;
-    articles = detectResult.articles;
-    sections = detectResult.sections;
+    try {
+      const detectResult = phase2Detect(result, {
+        articles: opts.detectArticles,
+        sections: opts.detectSections,
+        subItems: opts.detectSubItems,
+        lists: opts.normalizeLists,
+        allCapsHeadings: true,
+      });
+      result = detectResult.transformed;
+      articles = detectResult.articles;
+      sections = detectResult.sections;
+    } catch (e) {
+      detectErrors.push(`Phase 2 (detect) failed: ${(e as Error).message}`);
+    }
   }
 
   // Phase 3: Format
   if (activePhases.has('format')) {
-    result = phase3Format(result, {
-      headingHierarchy: true,
-      listMarkers: true,
-      blankLineSpacing: true,
-      htmlEntities: true,
-    });
+    try {
+      result = phase3Format(result, {
+        headingHierarchy: true,
+        listMarkers: true,
+        blankLineSpacing: true,
+        htmlEntities: true,
+      });
+    } catch (e) {
+      detectErrors.push(`Phase 3 (format) failed: ${(e as Error).message}`);
+    }
   }
 
   // Truncate nếu vượt maxLength
   const maxLen = opts.maxLength && opts.maxLength > 0 ? opts.maxLength : Infinity;
   if (result.length > maxLen) {
-    result = result.slice(0, maxLen) + '\n\n... [đã cắt bớt]';
-    detectErrors.push(`Content truncated from ${result.length} to ${maxLen} characters`);
+    const preTruncationLength = result.length;
+    result = result.slice(0, maxLen) + '\n\n... [truncated]';
+    detectErrors.push(`Content truncated from ${preTruncationLength} to ${maxLen} characters`);
   }
 
   // Ensure trailing newline
@@ -130,11 +153,19 @@ export function normalizeMarkdown(
   const normalizedChars = result.length;
 
   // Cache result
-  normalizeCache.set(hash, result);
+  normalizeCache.set(cacheKey, {
+    content: result,
+    detected: { articles, sections, warnings: detectErrors },
+    stats: {
+      originalChars,
+      normalizedChars,
+      estimatedTokens: estimateTokens(normalizedChars),
+    },
+  });
 
   return {
     content: result,
-    detected: { articles, sections, errors: detectErrors },
+    detected: { articles, sections, warnings: detectErrors },
     stats: {
       originalChars,
       normalizedChars,

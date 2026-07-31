@@ -88,24 +88,16 @@ export async function getAssignmentHistory(requestId: string, kind?: AssignmentK
  * 2. Create new assignment with isCurrent=true
  */
 export async function createAssignment(input: CreateAssignmentInput) {
+  const validation = await validateAssignment(input.requestId, input.userId, input.kind);
+  if (!validation.valid) {
+    throw new Error(validation.error);
+  }
+
   if (isEnabled('DB_MIGRATION_PHASE4')) {
     // New: Use transaction to ensure atomicity
     return prisma.$transaction(async (tx) => {
-      // 1. End current assignment for this request and kind
-      await tx.requestAssignment.updateMany({
-        where: {
-          requestId: input.requestId,
-          kind: input.kind,
-          isCurrent: true,
-        },
-        data: {
-          isCurrent: false,
-          endedAt: new Date(),
-        },
-      });
-
-      // 2. Create new assignment with isCurrent=true
-      return tx.requestAssignment.create({
+      // 1. Create new assignment with isCurrent=true first to avoid gap
+      const newAssignment = await tx.requestAssignment.create({
         data: {
           requestId: input.requestId,
           userId: input.userId,
@@ -121,6 +113,22 @@ export async function createAssignment(input: CreateAssignmentInput) {
           request: { select: { id: true, title: true } },
         },
       });
+
+      // 2. End all other current assignments for this request and kind
+      await tx.requestAssignment.updateMany({
+        where: {
+          requestId: input.requestId,
+          kind: input.kind,
+          isCurrent: true,
+          id: { not: newAssignment.id },
+        },
+        data: {
+          isCurrent: false,
+          endedAt: new Date(),
+        },
+      });
+
+      return newAssignment;
     });
   }
 
@@ -158,9 +166,10 @@ export async function endAssignment(assignmentId: string) {
     });
   }
 
-  // Old: Just return the assignment (no isCurrent to manage)
-  return prisma.requestAssignment.findUnique({
+  // Old: Set endedAt to mark the assignment as ended
+  return prisma.requestAssignment.update({
     where: { id: assignmentId },
+    data: { endedAt: new Date() },
     include: {
       user: { select: { id: true, name: true } },
     },
@@ -197,6 +206,7 @@ export async function getUserAssignments(
   pageSize: number = 20
 ) {
   const where: Record<string, unknown> = { userId };
+  if (filters.requestId) where.requestId = filters.requestId;
   if (filters.kind) where.kind = filters.kind;
   if (filters.isCurrent !== undefined && isEnabled('DB_MIGRATION_PHASE4')) {
     where.isCurrent = filters.isCurrent;
@@ -204,6 +214,7 @@ export async function getUserAssignments(
   if (filters.partnerId) where.partnerId = filters.partnerId;
   if (filters.engagementId) where.engagementId = filters.engagementId;
 
+  const effectivePageSize = Math.min(Math.max(1, pageSize), 100);
   const [assignments, total] = await Promise.all([
     prisma.requestAssignment.findMany({
       where,
@@ -218,8 +229,8 @@ export async function getUserAssignments(
         },
         partner: { select: { id: true, name: true } },
       },
-      skip: (Math.max(1, page) - 1) * Math.min(Math.max(1, pageSize), 100),
-      take: Math.min(Math.max(1, pageSize), 100),
+      skip: (Math.max(1, page) - 1) * effectivePageSize,
+      take: effectivePageSize,
       orderBy: { createdAt: 'desc' },
     }),
     prisma.requestAssignment.count({ where }),
@@ -229,9 +240,9 @@ export async function getUserAssignments(
     data: assignments,
     pagination: {
       page,
-      pageSize,
+      pageSize: effectivePageSize,
       total,
-      totalPages: Math.ceil(total / Math.min(Math.max(1, pageSize), 100)),
+      totalPages: Math.ceil(total / effectivePageSize),
     },
   };
 }

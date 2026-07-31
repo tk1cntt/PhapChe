@@ -7,7 +7,8 @@ export type PartnerType = 'law_firm' | 'consultancy' | 'individual';
 export type PartnerStatus = 'active' | 'inactive' | 'pending';
 
 /**
- * Partner entity - service provider organization
+ * Partner entity - service provider organization.
+ * Dates are ISO 8601 strings from JSON API responses.
  */
 export interface Partner {
   id: string;
@@ -18,8 +19,10 @@ export interface Partner {
   phone?: string;
   address?: string;
   status: PartnerStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  /** ISO 8601 date string */
+  createdAt: string;
+  /** ISO 8601 date string */
+  updatedAt: string;
 }
 
 /**
@@ -28,7 +31,7 @@ export interface Partner {
 export interface CreatePartnerInput {
   name: string;
   slug: string;
-  type?: PartnerType;
+  type: PartnerType;
   contactEmail?: string;
   phone?: string;
   address?: string;

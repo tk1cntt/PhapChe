@@ -35,13 +35,18 @@ const SECTION_META: Record<string, { label: string; order: number }> = {
  * Handles markdown bold markers (**Section:** text),
  * sections spanning multiple lines, and mixed languages.
  */
+function buildSectionRegex(): RegExp {
+  const labelPattern = Object.keys(SECTION_META).join('|');
+  return new RegExp(`\\*{2}(${labelPattern})\\*{0,2}:\\s*`, 'gi');
+}
+
 export function parseAiAnnotationContent(content: string): ParsedAnnotation {
   if (!content || !content.trim()) {
     return { sections: [], raw: content || '' };
   }
 
   // Match sections: **Label:** followed by content until next **Label:** or EOL
-  const sectionRegex = /\*{0,2}(Vấn đề|Issue|Đề xuất|Recommendation|Căn cứ|Legal Basis)\*{0,2}:\s*/gi;
+  const sectionRegex = buildSectionRegex();
   const matches: Array<{ label: string; index: number; end: number }> = [];
   let m: RegExpExecArray | null;
 
@@ -60,7 +65,7 @@ export function parseAiAnnotationContent(content: string): ParsedAnnotation {
   }
 
   // Extract text between markers
-  const sections: AiAnnotationSection[] = [];
+  const sections: Array<AiAnnotationSection & { _order: number }> = [];
 
   for (let i = 0; i < matches.length; i++) {
     const current = matches[i];
@@ -79,18 +84,15 @@ export function parseAiAnnotationContent(content: string): ParsedAnnotation {
         key: current.label.toLowerCase().replace(/\s+/g, '-'),
         label: meta.label,
         content: sectionText,
+        _order: meta.order,
       });
     }
   }
 
-  // Sort by defined order
-  sections.sort((a, b) => {
-    const orderA = Object.values(SECTION_META).find(s => s.label === a.label)?.order ?? 99;
-    const orderB = Object.values(SECTION_META).find(s => s.label === b.label)?.order ?? 99;
-    return orderA - orderB;
-  });
+  // Sort by defined order (stored during construction — O(1) per compare)
+  sections.sort((a, b) => a._order - b._order);
 
-  return { sections };
+  return { sections, raw: content };
 }
 
 /**

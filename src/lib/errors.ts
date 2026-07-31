@@ -13,6 +13,9 @@ export interface AppError extends Error {
   detail?: string;
 }
 
+const FALLBACK_ERROR_CODE = 'INTERNAL_ERROR';
+const FALLBACK_ERROR_MESSAGE = 'Internal server error';
+
 /** Narrow an unknown caught value to an AppError. Returns false for anything that isn't one. */
 export function isAppError(value: unknown): value is AppError {
   if (!(value instanceof Error)) return false;
@@ -23,6 +26,7 @@ export function isAppError(value: unknown): value is AppError {
 /** Try to extract an HTTP status code from any caught value. Returns 500 for unidentifiable errors. */
 export function errorStatusCode(value: unknown): number {
   if (isAppError(value)) return value.status;
+  if (isStructuredError(value)) return value.status;
   if (value instanceof Error && 'statusCode' in value && typeof (value as Record<string, unknown>).statusCode === 'number') {
     return (value as Record<string, number>).statusCode;
   }
@@ -32,13 +36,15 @@ export function errorStatusCode(value: unknown): number {
 /** Try to extract a user-safe error code from any caught value. Returns 'INTERNAL_ERROR' as fallback. */
 export function errorCode(value: unknown): string {
   if (isAppError(value)) return value.error;
-  return 'INTERNAL_ERROR';
+  if (isStructuredError(value)) return value.error;
+  return FALLBACK_ERROR_CODE;
 }
 
 /** Try to extract a safe message from any caught value. NEVER exposes raw error.message in production. */
 export function safeErrorMessage(value: unknown): string {
   if (isAppError(value)) return value.error;
-  return 'Internal server error';
+  if (isStructuredError(value)) return value.error;
+  return FALLBACK_ERROR_MESSAGE;
 }
 
 /** Build a sanitized JSON response body for a caught error. */
@@ -46,8 +52,10 @@ export function errorResponseBody(value: unknown): { error: string; detail?: str
   if (isAppError(value)) {
     return { error: value.error, detail: value.detail };
   }
-  console.error('Unhandled error:', value instanceof Error ? value.message : String(value));
-  return { error: 'INTERNAL_ERROR', detail: 'Internal server error' };
+  if (isStructuredError(value)) {
+    return { error: value.error, detail: value.detail };
+  }
+  return { error: FALLBACK_ERROR_CODE, detail: FALLBACK_ERROR_MESSAGE };
 }
 
 /** Create an AppError that can be thrown intentionally. */

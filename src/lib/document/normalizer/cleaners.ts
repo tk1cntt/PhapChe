@@ -8,6 +8,7 @@
  * Chuẩn hóa line endings: \r\n → \n, \r → \n.
  */
 export function normalizeLineEndings(text: string): string {
+  if (text == null) return '';
   return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 }
 
@@ -44,12 +45,13 @@ export function trimTrailingWhitespace(text: string): string {
  * - Trim blank lines ở đầu và cuối text
  */
 export function collapseBlankLines(text: string): string {
-  return text
+  if (text == null) return '';
+  const result = text
     .replace(/\n{4,}/g, '\n\n\n')      // 4+ → 3
     .replace(/\n{3,}/g, '\n\n')        // 3 → 2
     .replace(/^\n+/, '')               // trim leading blank lines
-    .replace(/\n+$/, '')               // trim trailing blank lines
-    + '\n';                            // ensure trailing newline
+    .replace(/\n+$/, '');              // trim trailing blank lines
+  return result ? result + '\n' : result;
 }
 
 /**
@@ -93,6 +95,7 @@ const DEFAULT_CLEAN_OPTIONS: Required<CleanOptions> = {
  * Chạy toàn bộ Phase 1 cleaners theo thứ tự tối ưu.
  */
 export function phase1Clean(text: string, options?: CleanOptions): string {
+  if (text == null || typeof text !== 'string') return '';
   const opts = { ...DEFAULT_CLEAN_OPTIONS, ...options };
 
   let result = text;

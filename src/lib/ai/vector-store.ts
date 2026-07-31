@@ -47,9 +47,14 @@ export function chunkDocument(
     if (currentChunk.length + trimmed.length > chunkSize && currentChunk.length > 0) {
       chunks.push({ content: currentChunk.trim(), index: chunkIndex++ });
 
-      // Keep overlap portion for next chunk
+      // Keep overlap portion for next chunk (split at word boundary)
       if (overlap > 0 && currentChunk.length > overlap) {
-        currentChunk = currentChunk.slice(-overlap) + '\n\n' + trimmed;
+        let overlapText = currentChunk.slice(-overlap);
+        const firstSpace = overlapText.indexOf(' ');
+        if (firstSpace > 0 && firstSpace < overlapText.length - 1) {
+          overlapText = overlapText.slice(firstSpace + 1);
+        }
+        currentChunk = overlapText + '\n\n' + trimmed;
       } else {
         currentChunk = trimmed;
       }
@@ -126,7 +131,12 @@ class VectorIndex {
     return before - this.chunks.length;
   }
 
-  /** Search by embedding vector */
+  /**
+   * Search by embedding vector.
+   *
+   * NOTE: O(n) linear scan — acceptable for <50k chunks.
+   * For production scale, migrate to PGVector (HNSW index) or FAISS.
+   */
   search(
     queryEmbedding: number[],
     topK: number = 10,
@@ -142,6 +152,14 @@ class VectorIndex {
         if (!hasTag) continue;
       }
 
+      // Guard against dimension mismatch from mixed real/pseudo embeddings
+      if (queryEmbedding.length !== chunk.embedding.length) {
+        console.warn(
+          `[VectorIndex] Skipping chunk ${chunk.id}: embedding dim mismatch ` +
+          `(query=${queryEmbedding.length}, chunk=${chunk.embedding.length})`
+        );
+        continue;
+      }
       const score = cosineSimilarity(queryEmbedding, chunk.embedding);
       if (score >= minScore) {
         results.push({ chunk, score });
@@ -226,8 +244,8 @@ export async function embedText(text: string): Promise<number[]> {
         };
         return data.data[0]?.embedding ?? pseudoEmbed(text);
       }
-    } catch {
-      // Fall through to pseudo-embedding
+    } catch (err) {
+      console.error('[embedText] Embedding API failed, falling back to pseudo-embedding:', err);
     }
   }
 
@@ -264,8 +282,8 @@ export async function embedBatch(texts: string[]): Promise<number[][]> {
           .sort((a, b) => a.index - b.index)
           .map((d) => d.embedding);
       }
-    } catch {
-      // Fall through
+    } catch (err) {
+      console.error('[embedBatch] Embedding API failed, falling back to pseudo-embeddings:', err);
     }
   }
 
@@ -327,6 +345,12 @@ export async function indexDocument(
   const chunks = chunkDocument(content);
   const texts = chunks.map((c) => c.content);
   const embeddings = await embedBatch(texts);
+
+  if (embeddings.length !== chunks.length) {
+    throw new Error(
+      `[indexDocument] Embedding count mismatch: ${embeddings.length} embeddings for ${chunks.length} chunks`
+    );
+  }
 
   const now = new Date().toISOString();
   const docChunks: DocumentChunk[] = chunks.map((chunk, i) => ({

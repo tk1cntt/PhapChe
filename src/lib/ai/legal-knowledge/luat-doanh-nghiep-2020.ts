@@ -137,14 +137,24 @@ export const luatDoanhNghiep2020: LegalKnowledgeDoc = {
           content: 'Hội đồng quản trị là cơ quan quản lý công ty, có toàn quyền nhân danh công ty để quyết định các vấn đề liên quan đến mục đích, quyền lợi của công ty. Hội đồng quản trị có từ 03 đến 11 thành viên, nhiệm kỳ không quá 05 năm.',
         },
         {
-          number: 'Điều 148',
-          title: 'Điều kiện trở thành thành viên HĐQT',
+          number: 'Điều 155',
+          title: 'Tiêu chuẩn và điều kiện của thành viên HĐQT',
           content: 'Thành viên Hội đồng quản trị phải có đủ năng lực hành vi dân sự, không thuộc đối tượng bị cấm quản lý doanh nghiệp, có trình độ chuyên môn và kinh nghiệm trong quản trị kinh doanh. Thành viên độc lập phải đáp ứng thêm các điều kiện riêng.',
         },
       ],
     },
     {
-      title: 'Chương VIII — Giải thể doanh nghiệp',
+      title: 'Chương VIII — Nhóm công ty',
+      articles: [
+        {
+          number: 'Điều 195',
+          title: 'Công ty mẹ — công ty con',
+          content: 'Một công ty được coi là công ty mẹ của công ty khác nếu thuộc một trong các trường hợp: sở hữu trên 50% vốn điều lệ hoặc tổng số cổ phần phổ thông; có quyền trực tiếp hoặc gián tiếp bổ nhiệm đa số hoặc tất cả thành viên HĐQT, Giám đốc; có quyền quyết định việc sửa đổi, bổ sung Điều lệ.',
+        },
+      ],
+    },
+    {
+      title: 'Chương IX — Tổ chức lại, giải thể và phá sản doanh nghiệp',
       articles: [
         {
           number: 'Điều 207',
@@ -155,16 +165,6 @@ export const luatDoanhNghiep2020: LegalKnowledgeDoc = {
           number: 'Điều 208',
           title: 'Thủ tục giải thể doanh nghiệp',
           content: '1. Thông qua quyết định giải thể. 2. Thanh lý tài sản và thanh toán các khoản nợ. 3. Thông báo cho Cơ quan đăng ký kinh doanh trong 07 ngày làm việc. 4. Nộp hồ sơ giải thể trong 05 ngày làm việc sau khi thanh toán hết nợ. Thời gian giải thể không quá 180 ngày.',
-        },
-      ],
-    },
-    {
-      title: 'Chương IX — Nhóm công ty',
-      articles: [
-        {
-          number: 'Điều 195',
-          title: 'Công ty mẹ — công ty con',
-          content: 'Một công ty được coi là công ty mẹ của công ty khác nếu thuộc một trong các trường hợp: sở hữu trên 50% vốn điều lệ hoặc tổng số cổ phần phổ thông; có quyền trực tiếp hoặc gián tiếp bổ nhiệm đa số hoặc tất cả thành viên HĐQT, Giám đốc; có quyền quyết định việc sửa đổi, bổ sung Điều lệ.',
         },
       ],
     },

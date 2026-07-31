@@ -5,7 +5,7 @@ import { canAccessWorkspace } from '@/lib/security/rbac';
 import type { AppSession } from '@/lib/security/session';
 
 function isAdmin(session: AppSession | null | undefined) {
-  return session?.roles.includes('coordinator_admin') || session?.roles.includes('super_admin') || false;
+  return session?.roles?.includes('coordinator_admin') || session?.roles?.includes('super_admin') || false;
 }
 
 export type TemplateVariable = {
@@ -88,7 +88,7 @@ export async function createTemplate(session: AppSession, input: CreateTemplateI
     targetType: 'DOCUMENT',
     targetId: template.id,
     correlationId: `template-create-${template.id}`,
-    metadataSummary: `matterType=${input.matterTypeKey}; version=1; status=draft`,
+    metadataSummary: `matterType=${input.matterTypeKey}; version=${template.version}; status=draft`,
   });
 
   return template;
@@ -157,7 +157,7 @@ export async function publishTemplate(session: AppSession, templateId: string) {
   });
 
   if (!template) throw new Error('TEMPLATE_NOT_FOUND');
-  if (template.status === 'published' || template.status === 'deprecated') throw new Error('TEMPLATE_ALREADY_PUBLISHED');
+  if (template.status !== 'approved') throw new Error('TEMPLATE_MUST_BE_APPROVED');
 
   const updated = await prisma.documentTemplate.update({
     where: { id: templateId },
@@ -187,7 +187,7 @@ export async function deprecateTemplate(session: AppSession, templateId: string)
   });
 
   if (!template) throw new Error('TEMPLATE_NOT_FOUND');
-  if (template.status === 'deprecated') throw new Error('TEMPLATE_ALREADY_DEPRECATED');
+  if (template.status !== 'published') throw new Error('ONLY_PUBLISHED_CAN_BE_DEPRECATED');
 
   const updated = await prisma.documentTemplate.update({
     where: { id: templateId },
@@ -217,7 +217,7 @@ export async function createNewVersion(session: AppSession, templateId: string, 
   });
 
   if (!template) throw new Error('TEMPLATE_NOT_FOUND');
-  if (template.status === 'draft') throw new Error('CREATE_VERSION_FROM_PUBLISHED_ONLY');
+  if (template.status === 'draft') throw new Error('CANNOT_CREATE_VERSION_FROM_DRAFT');
 
   const newTemplate = await prisma.$transaction(async (tx) => {
     const maxVersion = await tx.documentTemplate.aggregate({
@@ -232,9 +232,9 @@ export async function createNewVersion(session: AppSession, templateId: string, 
         matterTypeKey: template.matterTypeKey,
         version: newVersion,
         status: 'draft',
-        label: (input?.label ? input.label : template.label) as string | null,
-        description: (input?.description ? input.description : template.description) as string | null,
-        variableSchema: (input?.variableSchema as object[]) ?? (template.variableSchema as object[]),
+        label: input?.label !== undefined ? input.label : template.label,
+        description: input?.description !== undefined ? input.description : template.description,
+        variableSchema: input?.variableSchema ?? template.variableSchema,
         content: input?.content ?? template.content,
         previousVersionId: templateId,
         createdById: session.userId,

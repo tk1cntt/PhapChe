@@ -181,14 +181,28 @@ export const vaultApi = {
       body: formData,
       credentials: 'include',
     });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+      throw new Error(error.error || `Upload failed with status ${response.status}`);
+    }
+
     return response.json();
   },
 
-  download: (fileId: string) =>
-    apiClient.get<Blob>(`/api/vault/${fileId}/download`),
+  download: async (fileId: string) => {
+    const response = await fetch(`/api/vault/${fileId}/download`, {
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+      throw new Error(error.error || `Download failed with status ${response.status}`);
+    }
+    return response.blob();
+  },
 
   getDownloadUrl: (fileId: string) =>
-    apiClient.get<{ data: { url: string } }>(`/api/vault/${fileId}/download`),
+    apiClient.get<{ data: { url: string } }>(`/api/vault/${fileId}/download-url`),
 
   delete: (fileId: string) =>
     apiClient.delete<{ data: unknown }>(`/api/vault/${fileId}`),

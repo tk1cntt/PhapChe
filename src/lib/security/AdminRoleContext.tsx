@@ -1,13 +1,18 @@
 'use client';
 
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 
-const AdminRoleContext = createContext<string[]>([]);
+const AdminRoleContext = createContext<string[] | undefined>(undefined);
 
 export function AdminRoleProvider({ roles, children }: { roles: string[]; children: React.ReactNode }) {
-  return <AdminRoleContext.Provider value={roles}>{children}</AdminRoleContext.Provider>;
+  const value = useMemo(() => roles, [roles]);
+  return <AdminRoleContext.Provider value={value}>{children}</AdminRoleContext.Provider>;
 }
 
 export function useAdminRoles(): string[] {
-  return useContext(AdminRoleContext);
+  const context = useContext(AdminRoleContext);
+  if (context === undefined) {
+    throw new Error('useAdminRoles must be used within an AdminRoleProvider');
+  }
+  return context;
 }

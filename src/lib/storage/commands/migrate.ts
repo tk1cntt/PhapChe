@@ -43,6 +43,8 @@ interface MigrationResult {
  * Tracks which files have been migrated for resume functionality
  */
 const MIGRATION_LOG_FILE = '.storage-migration-log.json';
+const DEFAULT_LOCAL_ROOT = '/data/storage/private';
+const DEFAULT_S3_BUCKET = 'legal-platform-storage';
 
 interface MigrationLog {
   lastRun: string;
@@ -62,7 +64,8 @@ async function loadMigrationLog(): Promise<MigrationLog> {
     }
     const content = readFileSync(MIGRATION_LOG_FILE, 'utf-8');
     return JSON.parse(content);
-  } catch {
+  } catch (error) {
+    console.warn('Migration log corrupted or unreadable — starting fresh:', error instanceof Error ? error.message : String(error));
     return { lastRun: new Date().toISOString(), completed: [], failed: [] };
   }
 }
@@ -71,15 +74,19 @@ async function loadMigrationLog(): Promise<MigrationLog> {
  * Save migration log
  */
 async function saveMigrationLog(log: MigrationLog): Promise<void> {
-  const { writeFileSync } = await import('fs');
-  writeFileSync(MIGRATION_LOG_FILE, JSON.stringify(log, null, 2));
+  try {
+    const { writeFileSync } = await import('fs');
+    writeFileSync(MIGRATION_LOG_FILE, JSON.stringify(log, null, 2));
+  } catch (error) {
+    console.error('Failed to save migration log:', error instanceof Error ? error.message : String(error));
+  }
 }
 
 /**
  * Get local storage provider
  */
 function getLocalProvider(): LocalStorageProvider {
-  const rootPath = process.env.STORAGE_LOCAL_ROOT || '/data/storage/private';
+  const rootPath = process.env.STORAGE_LOCAL_ROOT || DEFAULT_LOCAL_ROOT;
   return new LocalStorageProvider(rootPath);
 }
 
@@ -110,6 +117,7 @@ async function getFilesToMigrate(options: MigrationOptions): Promise<MigrationFi
       storageDriver: true,
     },
     orderBy: { createdAt: 'asc' },
+    take: options.batchSize ? options.batchSize * 10 : 1000,
   });
 }
 
@@ -131,7 +139,7 @@ async function dryRun(options: MigrationOptions): Promise<void> {
   let totalSize = 0;
 
   for (const file of files) {
-    const s3Bucket = process.env.S3_BUCKET || 'legal-platform-storage';
+    const s3Bucket = process.env.S3_BUCKET || DEFAULT_S3_BUCKET;
     console.log(
       `[DRY-RUN] Would migrate: ${file.objectKey} -> s3://${s3Bucket}/${file.objectKey}`
     );
@@ -187,41 +195,31 @@ async function migrate(options: MigrationOptions): Promise<MigrationResult> {
           continue;
         }
 
-        if (options.dryRun) {
-          // Dry run - just log
-          const s3Bucket = process.env.S3_BUCKET || 'legal-platform-storage';
-          console.log(
-            `[DRY-RUN] Would migrate: ${file.objectKey} -> s3://${s3Bucket}/${file.objectKey}`
-          );
-          result.totalSize += file.size;
-        } else {
-          // Actual migration
+        // Actual migration
+        // 1. Read file from local storage
+        const buffer = await localProvider.getObject({
+          objectKey: file.objectKey,
+        });
 
-          // 1. Read file from local storage
-          const buffer = await localProvider.getObject({
-            objectKey: file.objectKey,
-          });
+        // 2. TODO: Upload to S3 (S3StorageProvider not implemented yet)
+        // For now, we simulate the migration by updating the database
 
-          // 2. TODO: Upload to S3 (S3StorageProvider not implemented yet)
-          // For now, we simulate the migration by updating the database
+        console.log(`  MIGRATE: ${file.objectKey}`);
 
-          console.log(`  MIGRATE: ${file.objectKey}`);
+        // 3. Update database record
+        await prisma.file.update({
+          where: { id: file.id },
+          data: {
+            storageDriver: 's3',
+            bucket: process.env.S3_BUCKET || DEFAULT_S3_BUCKET,
+            // objectKey stays the same for seamless migration
+          },
+        });
 
-          // 3. Update database record
-          await prisma.file.update({
-            where: { id: file.id },
-            data: {
-              storageDriver: 's3',
-              bucket: process.env.S3_BUCKET || 'legal-platform-storage',
-              // objectKey stays the same for seamless migration
-            },
-          });
-
-          // 4. Mark as completed
-          log.completed.push(file.id);
-          result.success++;
-          result.totalSize += file.size;
-        }
+        // 4. Mark as completed
+        log.completed.push(file.id);
+        result.success++;
+        result.totalSize += file.size;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`  ERROR: ${file.objectKey} - ${errorMessage}`);
@@ -240,14 +238,12 @@ async function migrate(options: MigrationOptions): Promise<MigrationResult> {
         // Stop on error if configured
         if (options.stopOnError) {
           console.log('\nStopping due to --stop-on-error flag');
-          break;
+          await saveMigrationLog(log);
+          return result;
         }
       }
 
-      // Save log periodically
-      if (i % 100 === 0) {
-        await saveMigrationLog(log);
-      }
+      // Note: log is saved after each batch below
     }
 
     // Save log after each batch

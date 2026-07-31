@@ -9,7 +9,7 @@ import type { LegalKnowledgeDoc } from './types';
 import { luatDoanhNghiep2020 } from './luat-doanh-nghiep-2020';
 import { boLuatLaoDong2019 } from './bo-luat-lao-dong-2019';
 import { boLuatDanSu2015 } from './bo-luat-dan-su-2015';
-import { indexDocument, getIndexStats, isVectorStoreReady, vectorIndex } from '../vector-store';
+import { indexDocument, getIndexStats } from '../vector-store';
 
 export type { LegalKnowledgeDoc, LegalArticle, LegalChapter } from './types';
 
@@ -41,6 +41,13 @@ function buildDocumentText(doc: LegalKnowledgeDoc): string {
   return parts.join('\n\n');
 }
 
+/** Dedup: prevents concurrent initialization calls */
+let _initPromise: Promise<{
+  indexed: number;
+  totalChunks: number;
+  sources: string[];
+}> | null = null;
+
 /**
  * Initialize legal knowledge base by indexing all registered laws
  * into the vector store. Called once at app startup.
@@ -52,9 +59,14 @@ export async function initializeLegalKnowledge(): Promise<{
   totalChunks: number;
   sources: string[];
 }> {
-  // Skip if already initialized
-  if (isVectorStoreReady()) {
-    const stats = getIndexStats();
+  // Deduplicate concurrent initialization calls
+  if (_initPromise) return _initPromise;
+
+  // Check which documents still need indexing
+  const stats = getIndexStats();
+  const indexedIds = new Set(stats.sources.map((s) => s.documentId));
+  const pending = ALL_DOCUMENTS.filter((d) => !indexedIds.has(d.id));
+  if (pending.length === 0) {
     return {
       indexed: stats.documentCount,
       totalChunks: stats.chunkCount,
@@ -62,28 +74,50 @@ export async function initializeLegalKnowledge(): Promise<{
     };
   }
 
+  _initPromise = doInitialize(pending);
+  return _initPromise;
+}
+
+async function doInitialize(docs: LegalKnowledgeDoc[]): Promise<{
+  indexed: number;
+  totalChunks: number;
+  sources: string[];
+}> {
+  const errors: Array<{ docId: string; error: string }> = [];
+  const results = await Promise.allSettled(
+    docs.map(async (doc) => {
+      const text = buildDocumentText(doc);
+      const chunks = await indexDocument(
+        doc.id,
+        doc.source,
+        text,
+        doc.domainTags,
+        { version: doc.version },
+      );
+      return { doc, chunks };
+    }),
+  );
+
   let totalChunks = 0;
   const sources: string[] = [];
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      totalChunks += result.value.chunks;
+      sources.push(result.value.doc.source);
+    } else {
+      errors.push({
+        docId: '',
+        error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+      });
+    }
+  }
 
-  for (const doc of ALL_DOCUMENTS) {
-    // Remove existing index for this doc first (in case of re-init)
-    vectorIndex.removeDocument(doc.id);
-
-    const text = buildDocumentText(doc);
-    const chunks = await indexDocument(
-      doc.id,
-      doc.source,
-      text,
-      doc.domainTags,
-      { version: doc.version },
-    );
-
-    totalChunks += chunks;
-    sources.push(doc.source);
+  if (errors.length > 0) {
+    console.error('[LegalKnowledge] Some documents failed to index:', errors);
   }
 
   return {
-    indexed: ALL_DOCUMENTS.length,
+    indexed: results.filter((r) => r.status === 'fulfilled').length,
     totalChunks,
     sources,
   };

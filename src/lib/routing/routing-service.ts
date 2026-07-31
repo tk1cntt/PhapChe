@@ -50,15 +50,8 @@ type AssignRequestInput = {
   correlationId: string;
 };
 
-type AssignmentRequest = {
-  id: string;
-  workspaceId: string;
-  status: RequestStatus;
-  createdById: string;
-  assignedSpecialistId: string | null;
-  assignedReviewerId: string | null;
-  intakeSubmission: { matterTypeKey: string } | null;
-};
+
+// Note: suggestionReason is hardcoded Vietnamese — extract to i18n/locale for future localization.
 
 type RoutingSuggestion = {
   userId: string;
@@ -274,6 +267,12 @@ export async function assignRequest(input: AssignRequestInput) {
         data: { requestId, actorId, fromStatus: currentStatus, toStatus: nextStatus, reason },
       });
       currentStatus = nextStatus;
+    }
+
+    // Guard against duplicate assignment: if target field is already populated, reject
+    const targetField = kind === 'specialist' ? 'assignedSpecialistId' : 'assignedReviewerId';
+    if (request[kind === 'specialist' ? 'assignedSpecialistId' : 'assignedReviewerId']) {
+      throw new Error('REQUEST_ALREADY_ASSIGNED');
     }
 
     const assignmentField = kind === 'specialist' ? { assignedSpecialistId: assigneeId } : { assignedReviewerId: assigneeId };

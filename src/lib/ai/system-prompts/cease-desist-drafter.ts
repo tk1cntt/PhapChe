@@ -123,7 +123,7 @@ NGUYÊN TẮC QUAN TRỌNG:
 3. CƠ HỘI KHẮC PHỤC: Cho bên vi phạm thời hạn hợp lý (7-15 ngày) để khắc phục trước khi áp dụng biện pháp mạnh
 4. CĂN CỨ PHÁP LÝ: Dẫn chiếu Luật SHTT 2005 (sửa đổi 2022), BLDS 2015, BLTTDS 2015
 5. XÁC ĐỊNH ĐÚNG CHỦ THỂ: Gửi đúng đối tượng — bên trực tiếp vi phạm hoặc bên trung gian (sàn TMĐT, ISP...)
-6. CÁC BIỆN PHÁP KHẨN CẤP: Đánh giá khả năng xin áp dụng BPCKTT theo Điều 206-208 BLTTDS 2015
+6. CÁC BIỆN PHÁP KHẨN CẤP: Đánh giá khả năng xin áp dụng BPKCTT theo Điều 206-208 BLTTDS 2015
 7. THẨM QUYỀN: Xác định đúng cơ quan có thẩm quyền xử lý (Thanh tra KH&CN, Tòa án, Quản lý thị trường...)
 8. Ngôn ngữ output: {{locale}}
 9. TRẢ VỀ DUY NHẤT JSON, không thêm bất kỳ text nào khác`,

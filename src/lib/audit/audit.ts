@@ -18,18 +18,7 @@ type AuditDb = {
   };
 };
 
-type AuditTargetTypeInput =
-  | 'USER'
-  | 'WORKSPACE'
-  | 'MEMBERSHIP'
-  | 'REQUEST'
-  | 'MATTER_TYPE'
-  | 'INTAKE_SUBMISSION'
-  | 'ASSIGNMENT'
-  | 'DOCUMENT'
-  | 'REVIEW'
-  | 'VAULT_FILE'
-  | 'WORKFLOW_TRANSITION';
+type AuditTargetTypeInput = keyof typeof targetTypeMap;
 
 type RecordAuditEventInput = {
   actorId?: string | null;
@@ -64,16 +53,24 @@ export async function recordAuditEvent(input: RecordAuditEventInput, db: AuditDb
   if (input.metadataSummary != null && typeof input.metadataSummary !== 'string') throw new Error('metadataSummary must be a string');
   if (input.metadataSummary && input.metadataSummary.length > 500) throw new Error('metadataSummary must be 500 characters or fewer');
 
-  return db.auditEvent.create({
-    data: {
-      actorId: input.actorId ?? null,
-      workspaceId: input.workspaceId,
-      action: input.action,
-      targetType: targetTypeMap[input.targetType],
-      targetId: input.targetId,
-      requestId: input.requestId ?? null,
-      correlationId: input.correlationId,
-      metadataSummary: input.metadataSummary ?? null,
-    },
-  });
+  const resolvedTargetType = targetTypeMap[input.targetType];
+  if (!resolvedTargetType) throw new Error('AUDIT_TARGET_TYPE_INVALID');
+
+  try {
+    return await db.auditEvent.create({
+      data: {
+        actorId: input.actorId ?? null,
+        workspaceId: input.workspaceId,
+        action: input.action,
+        targetType: resolvedTargetType,
+        targetId: input.targetId,
+        requestId: input.requestId ?? null,
+        correlationId: input.correlationId,
+        metadataSummary: input.metadataSummary ?? null,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to record audit event:', error);
+    throw new Error('AUDIT_RECORD_FAILED');
+  }
 }

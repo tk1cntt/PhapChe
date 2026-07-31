@@ -35,6 +35,8 @@ export interface RequestFilters {
   workspaceId?: string;
   status?: string;
   priority?: string;
+  matterType?: string;
+  matterTypeRef?: { key: string };
   search?: string;
   assignedTo?: string;
   createdAfter?: Date;
@@ -89,15 +91,11 @@ function buildMatterTypeData(input: CreateRequestInput | UpdateRequestInput): Re
     if ('matterTypeId' in input && input.matterTypeId) {
       data.matterTypeId = input.matterTypeId;
     }
-    // Explicitly set matterType to null to avoid confusion
-    data.matterType = null;
   } else {
     // Old: Use matterType text
     if ('matterType' in input && input.matterType) {
       data.matterType = input.matterType;
     }
-    // Explicitly set matterTypeId to null
-    data.matterTypeId = null;
   }
 
   return data;
@@ -183,6 +181,14 @@ export async function listRequests(
 
   if (filters.priority) {
     where.priority = filters.priority;
+  }
+
+  if (filters.matterType) {
+    where.matterType = filters.matterType;
+  }
+
+  if (filters.matterTypeRef) {
+    where.matterTypeRef = filters.matterTypeRef;
   }
 
   if (filters.assignedTo) {
@@ -279,8 +285,8 @@ export async function updateRequest(id: string, input: UpdateRequestInput) {
  * Delete a request (soft delete)
  */
 export async function deleteRequest(id: string) {
-  return prisma.legalRequest.update({
-    where: { id },
+  return prisma.legalRequest.updateMany({
+    where: { id, deletedAt: null },
     data: { deletedAt: new Date() },
   });
 }

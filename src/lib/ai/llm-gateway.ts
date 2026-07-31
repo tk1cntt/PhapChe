@@ -96,6 +96,7 @@ function resolveApiKey(config: LlmModelConfig): string {
   if (GATEWAY_KEY) return GATEWAY_KEY;
   // Fallback to static hardcoded defaults (only in dev)
   if (config.provider === 'openai' && DEFAULT_OPENAI_KEY) return DEFAULT_OPENAI_KEY;
+  if (config.provider === 'anthropic' && DEFAULT_ANTHROPIC_KEY) return DEFAULT_ANTHROPIC_KEY;
   if (config.provider === 'groq' && DEFAULT_GROQ_KEY) return DEFAULT_GROQ_KEY;
   return '';
 }
@@ -126,6 +127,8 @@ const MAX_RPM = 60; // max requests per minute
 const RATE_WINDOW = 60_000; // 1 minute
 
 function checkRateLimit(): void {
+  // WARNING: Not concurrency-safe under concurrent async calls.
+  // If concurrent calls are possible, serialize via a mutex or use a token-bucket library.
   const now = Date.now();
   // Prune old timestamps
   while (requestTimestamps.length > 0 && requestTimestamps[0] < now - RATE_WINDOW) {
@@ -159,7 +162,7 @@ async function callOpenAiCompatible(
     );
   }
 
-  const url = `${baseUrl}/chat/completions`;
+  const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`;
   const body: Record<string, unknown> = {
     model: config.modelId,
     messages,
@@ -179,7 +182,9 @@ async function callOpenAiCompatible(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+      ...(config.provider === 'azure'
+        ? { 'api-key': apiKey }
+        : { Authorization: `Bearer ${apiKey}` }),
     },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(120_000), // 2 min timeout
@@ -207,8 +212,12 @@ async function callAnthropic(
   }
 
   // Separate system message from conversation
-  const systemMsg = messages.find((m) => m.role === 'system');
+  // Anthropic only supports a single system string; concatenate if multiple.
+  const systemMsgs = messages.filter((m) => m.role === 'system');
   const conversationMsgs = messages.filter((m) => m.role !== 'system');
+  const systemMsg = systemMsgs.length > 0
+    ? systemMsgs.map((m) => m.content).join('\n\n')
+    : undefined;
 
   const body: Record<string, unknown> = {
     model: config.modelId,
@@ -221,7 +230,7 @@ async function callAnthropic(
   };
 
   if (systemMsg) {
-    body.system = systemMsg.content;
+    body.system = systemMsg;
   }
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -229,7 +238,7 @@ async function callAnthropic(
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
+      'anthropic-version': '2023-06-01', // TODO: Consider bumping to a newer version for extended features
     },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(120_000),
@@ -284,19 +293,20 @@ export async function llmComplete(request: LlmRequest): Promise<LlmResponse> {
       const data = await response.json() as Record<string, unknown>;
       const latencyMs = Date.now() - startTime;
 
-      // Parse OpenAI-compatible response format
-      const choices = data.choices as Array<{ message?: { content?: string }; content?: Array<{ text?: string }> }>;
-      const firstChoice = choices?.[0];
-
       let content: string;
-      // Dùng typeof check thay vì truthy — empty string "" là falsy
-      if (typeof firstChoice?.message?.content === 'string') {
-        content = firstChoice.message.content;
-      } else if (typeof firstChoice?.content === 'object' && Array.isArray(firstChoice.content)) {
-        // Anthropic content block array
-        content = firstChoice.content.map((c) => c.text ?? '').join('');
+      if (request.model.provider === 'anthropic') {
+        // Anthropic Messages API: content is a top-level array of blocks
+        const anthropicContent = data.content as Array<{ type: string; text?: string }> | undefined;
+        content = Array.isArray(anthropicContent)
+          ? anthropicContent.map((c) => c.text ?? '').join('')
+          : '';
       } else {
-        content = '';
+        // OpenAI-compatible format
+        const choices = data.choices as Array<{ message?: { content?: string } }> | undefined;
+        const firstChoice = choices?.[0];
+        content = typeof firstChoice?.message?.content === 'string'
+          ? firstChoice.message.content
+          : '';
       }
 
       const usage = data.usage as { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | undefined;
@@ -322,9 +332,7 @@ export async function llmComplete(request: LlmRequest): Promise<LlmResponse> {
         const isRetryable =
           error instanceof TypeError ||
           (error instanceof Error &&
-            (error.message.includes('fetch') ||
-             error.message.includes('network') ||
-             error.message.includes('timeout') ||
+            (error.name === 'AbortError' ||
              error.message.includes('429') ||
              error.message.includes('500') ||
              error.message.includes('502') ||
@@ -354,12 +362,29 @@ export async function* llmStream(request: LlmRequest): AsyncGenerator<LlmStreamC
     throw new Error('LLM_STREAM_UNSUPPORTED: Anthropic streaming not yet implemented. Use llmComplete().');
   }
 
-  const response = await callOpenAiCompatible(request.model, request.messages, {
-    temperature: request.temperature,
-    maxTokens: request.maxTokens,
-    responseFormat: request.responseFormat,
-    stream: true,
-  });
+  let response: Response;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      response = await callOpenAiCompatible(request.model, request.messages, {
+        temperature: request.temperature,
+        maxTokens: request.maxTokens,
+        responseFormat: request.responseFormat,
+        stream: true,
+      });
+      break;
+    } catch (error) {
+      if (attempt >= MAX_RETRIES) throw error;
+      const isRetryable = error instanceof TypeError ||
+        (error instanceof Error &&
+          (error.name === 'AbortError' ||
+           error.message.includes('429') ||
+           error.message.includes('500') ||
+           error.message.includes('502') ||
+           error.message.includes('503')));
+      if (!isRetryable) throw error;
+      await new Promise((r) => setTimeout(r, getRetryDelay(attempt)));
+    }
+  }
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => 'Unknown error');
@@ -399,12 +424,12 @@ export async function* llmStream(request: LlmRequest): AsyncGenerator<LlmStreamC
             yield { delta, done: false };
           }
         } catch {
-          // Skip unparseable chunks
+          console.warn('[LLM Gateway] Failed to parse stream chunk:', data.slice(0, 200));
         }
       }
     }
   } finally {
-    reader.releaseLock();
+    try { reader.releaseLock(); } catch { /* lock may already be released */ }
   }
 }
 
@@ -435,4 +460,8 @@ export function getAvailableModels(): LlmModelConfig[] {
   return available;
 }
 
+/**
+ * Resolve API key with priority: process.env > LLM_GATEWAY_KEY > static defaults.
+ * Exported for testing and diagnostics.
+ */
 export { resolveApiKey, resolveBaseUrl };

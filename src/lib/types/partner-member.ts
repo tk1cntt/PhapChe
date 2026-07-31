@@ -6,13 +6,15 @@
 export type PartnerMemberRole = 'admin' | 'member';
 
 /**
- * PartnerMember entity - user belonging to a partner
+ * PartnerMember entity - user belonging to a partner.
+ * Contains PII (userId link to user identity) — treat as confidential.
  */
 export interface PartnerMember {
   id: string;
   partnerId: string;
   userId: string;
   role: PartnerMemberRole;
+  /** Membership-level active status — distinct from user-level isActive. Member is active in this partner organization. */
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -36,5 +38,6 @@ export interface PartnerMemberWithUser extends PartnerMember {
  */
 export interface AddPartnerMemberInput {
   userId: string;
+  /** @default 'member' */
   role?: PartnerMemberRole;
 }

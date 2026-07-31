@@ -2,7 +2,7 @@
  * Review Type Definitions
  */
 
-import type { ReviewStatus, ReviewDecision, DocumentVersionStatus } from '@/lib/types';
+import type { ReviewStatus, ReviewDecision, DocumentVersionStatus } from '@/lib/types'; // Note: circular via barrel; prefer direct source import if issues arise
 
 /**
  * Review entity for document approval workflow
@@ -96,7 +96,8 @@ export interface AddCommentInput {
 export interface ReviewDecisionInput {
   reviewId: string;
   decision: ReviewDecision;
-  comments?: string;
+  /** Decision note (string) — distinct from Review.comments (ReviewComment[]). Named differently to avoid confusion. */
+  decisionNote?: string;
 }
 
 /**

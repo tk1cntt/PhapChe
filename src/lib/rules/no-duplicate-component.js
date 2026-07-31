@@ -54,9 +54,10 @@ const GENERIC_SUGGESTIONS = {
 /**
  * Count usages of a component across the codebase
  * @param {string} componentName - Name of component to count
+ * @param {string|null} excludeFile - File path to exclude from counting
  * @returns {number} Usage count, -1 if error
  */
-function countComponentUsages(componentName) {
+function countComponentUsages(componentName, excludeFile = null) {
   const componentsDir = path.join(process.cwd(), 'src', 'components');
 
   if (!fs.existsSync(componentsDir)) {
@@ -68,6 +69,7 @@ function countComponentUsages(componentName) {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
+      if (fullPath === excludeFile) continue; // Skip the current file
       if (entry.isDirectory()) {
         searchDir(fullPath);
       } else if (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts') || entry.name.endsWith('.jsx')) {
@@ -75,10 +77,22 @@ function countComponentUsages(componentName) {
         if (entry.name.includes('.test.') || entry.name.includes('.spec.')) {
           continue;
         }
-        const content = fs.readFileSync(fullPath, 'utf-8');
-        // Simple regex to find component usage
-        const regex = new RegExp(`<${componentName}[\\s>]`, 'g');
-        const matches = content.match(regex);
+        let content;
+        try {
+          content = fs.readFileSync(fullPath, 'utf-8');
+        } catch {
+          // Skip unreadable files
+          continue;
+        }
+        // Strip comments and string literals to avoid false positives
+        const strippedContent = content
+          .replace(/\/\*[\s\S]*?\*\//g, '')  // block comments
+          .replace(/\/\/.*/g, '')             // line comments
+          .replace(/`[^`]*`/g, '')             // template literals (simple)
+          .replace(/'[^']*'/g, '')             // single-quoted strings
+          .replace(/"[^"]*"/g, '');            // double-quoted strings
+        const regex = new RegExp(`<${componentName}[\\s/>]`, 'g');
+        const matches = strippedContent.match(regex);
         if (matches) {
           count += matches.length;
         }
@@ -135,11 +149,17 @@ module.exports = {
       return {};
     }
 
+    // Find the actual component declaration node for accurate reporting
+    const exportDefaultDeclaration = sourceCode.ast.body.find(
+      (node) => node.type === 'ExportDefaultDeclaration'
+    );
+    const reportNode = exportDefaultDeclaration || sourceCode.ast.body[0] || sourceCode.ast;
+
     // Check for duplicate with shared components
     for (const shared of SHARED_COMPONENTS) {
       if (componentName.toLowerCase() === shared.toLowerCase()) {
         context.report({
-          node: sourceCode.ast,
+          node: reportNode,
           messageId: 'duplicateComponent',
           data: { name: componentName, similar: shared },
         });
@@ -149,13 +169,14 @@ module.exports = {
 
     // Check for similar names (fuzzy match)
     for (const shared of SHARED_COMPONENTS) {
-      // Check if the component name starts with a shared name
       if (
-        componentName.startsWith(shared) &&
-        componentName !== shared
+        componentName !== shared &&
+        componentName.toLowerCase().startsWith(shared.toLowerCase()) &&
+        // Only flag if the remainder is short (e.g., 'Button2', 'ButtonNew')
+        componentName.length - shared.length <= 3
       ) {
         context.report({
-          node: sourceCode.ast,
+          node: reportNode,
           messageId: 'duplicateComponent',
           data: { name: componentName, similar: shared },
         });
@@ -181,23 +202,23 @@ module.exports = {
     // Check if file is in shared/ and used in only one place
     const relativePath = path.relative(process.cwd(), filename);
     if (relativePath.includes('src/components/shared/')) {
-      const usages = countComponentUsages(componentName);
+      const usages = countComponentUsages(componentName, filename);
       if (usages <= 1 && usages >= 0) {
-        const folder =
-          relativePath.includes('/ui/')
-            ? 'ui'
-            : relativePath.includes('/table/')
-              ? 'table'
-              : relativePath.includes('/timeline/')
-                ? 'timeline'
-                : relativePath.includes('/layout/')
-                  ? 'layout'
-                  : relativePath.includes('/forms/')
-                    ? 'forms'
-                    : 'shared';
+        let folder = 'shared';
+        if (relativePath.includes('/ui/')) {
+          folder = 'ui';
+        } else if (relativePath.includes('/table/')) {
+          folder = 'table';
+        } else if (relativePath.includes('/timeline/')) {
+          folder = 'timeline';
+        } else if (relativePath.includes('/layout/')) {
+          folder = 'layout';
+        } else if (relativePath.includes('/forms/')) {
+          folder = 'forms';
+        }
 
         context.report({
-          node: sourceCode.ast,
+          node: reportNode,
           messageId: 'unusedInShared',
           data: { name: componentName, folder },
         });

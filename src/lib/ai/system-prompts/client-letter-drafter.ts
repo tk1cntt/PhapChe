@@ -96,7 +96,7 @@ YÊU CẦU ĐẦU RA (JSON nghiêm ngặt, không thêm text bên ngoài):
     "timeline": "Lộ trình tổng thể"
   },
   "risksAndCaveats": {
-    "disclaimer": "TUYÊN BỐ MIỄN TRỪ TRÁCH NHIỆM PHÁP LÝ TIÊU CHUẨN",
+    "disclaimer": "TUYÊN BỐ MIỄN TRỪ TRÁCH NHIỆM PHÁP LÝ TIÊU CHUẨN (viết bằng {{locale}})",
     "risks": [
       {
         "risk": "Rủi ro cụ thể",

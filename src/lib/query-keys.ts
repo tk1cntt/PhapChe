@@ -13,8 +13,12 @@ function createDomainKeys(entity: string) {
   return {
     all: [entity] as const,
     lists: () => [entity, 'list'] as const,
-    list: (filters?: Record<string, unknown>) =>
-      filters ? [entity, 'list', { ...filters }] as const : [entity, 'list'] as const,
+    list: (filters?: Record<string, unknown>) => {
+      const hasFilters = filters && Object.keys(filters).length > 0;
+      return hasFilters
+        ? ([entity, 'list', { ...filters }] as const)
+        : ([entity, 'list'] as const);
+    },
     details: () => [entity, 'detail'] as const,
     detail: (id: string) => [entity, 'detail', id] as const,
   };

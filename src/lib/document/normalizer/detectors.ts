@@ -40,13 +40,14 @@ const SECTION_RE = /^(CHƯƠNG|Chương|chương|MỤC|Mục|mục|PHẦN|Phần
 const SUBSECTION_RE = /^(Khoản|khoản)\s+(\d+)[.:]?(?:\s|$)/gim;
 
 /** Điểm a), b), c) hoặc a), b), c) — đã được detect từ đầu dòng */
-const POINT_RE = /^(\s*)[a-đ]\)\s+/gim;
+const POINT_RE = /^(\s*)[a-dđ]\)\s+/gim;
 
 /** Số thứ tự 1., 2., 3. — sau heading (ordered list) */
 const NUMBERED_LIST_RE = /^(\s*)(\d+)[.)]\s+(?!\d)/gm;
 
-/** ALL CAPS heading: dòng ngắn (8-70 chars), toàn chữ in hoa tiếng Việt */
-const ALL_CAPS_RE = /^([A-ZÀÁẢÃẠÂẦẤẨẪẬĂẰẮẲẴẶĐÈÉẺẼẸÊỀẾỂỄỆÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴ\s\d][^a-zàáảãạâầấẩẫậăằắẳẵặđèéẻẽẹêềếểễệòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]+)$/gm;
+/** ALL CAPS heading: dòng ngắn (8-70 chars), toàn chữ in hoa tiếng Việt.
+ *  Requires at least one uppercase letter to avoid matching purely numeric lines. */
+const ALL_CAPS_RE = /^([A-ZÀÁẢÃẠÂẦẤẨẪẬĂẰẮẲẴẶĐÈÉẺẼẸÊỀẾỂỄỆÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴ][A-ZÀÁẢÃẠÂẦẤẨẪẬĂẰẮẲẴẶĐÈÉẺẼẸÊỀẾỂỄỆÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴ\s\d]+)$/gm;
 
 // ── Detectors ─────────────────────────────────────────────────
 
@@ -131,6 +132,9 @@ export function detectAllCapsHeadings(text: string): string {
  * Thứ tự: articles → sections → subItems → points → lists → allCaps
  */
 export function phase2Detect(text: string, options?: DetectOptions): DetectResult {
+  if (text == null || typeof text !== 'string') {
+    return { transformed: '', articles: [], sections: [] };
+  }
   const opts = { ...DEFAULT_DETECT_OPTIONS, ...options };
   let result = text;
   let articles: string[] = [];
@@ -153,12 +157,12 @@ export function phase2Detect(text: string, options?: DetectOptions): DetectResul
     result = detectPoints(result);
   }
 
-  if (opts.lists) {
-    result = normalizeLists(result);
-  }
-
   if (opts.allCapsHeadings) {
     result = detectAllCapsHeadings(result);
+  }
+
+  if (opts.lists) {
+    result = normalizeLists(result);
   }
 
   return { transformed: result, articles, sections };

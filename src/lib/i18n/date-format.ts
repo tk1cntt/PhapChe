@@ -31,13 +31,21 @@ const DEFAULT_TIME: DateTimeFormatOptions = {
   minute: '2-digit',
 };
 
+function parseDate(date: Date | string): Date | null {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return isNaN(d.getTime()) ? null : d;
+}
+
 export function formatDate(
   date: Date | string,
   locale: string,
   options?: DateFormatOptions,
 ): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  if (isNaN(d.getTime())) return '';
+  const d = parseDate(date);
+  if (!d) {
+    console.warn('[formatDate] Invalid date input:', date);
+    return '';
+  }
   return d.toLocaleDateString(getLocaleDateCode(locale), {
     ...DEFAULT_DATE,
     ...options,
@@ -49,9 +57,12 @@ export function formatDateTime(
   locale: string,
   options?: DateTimeFormatOptions,
 ): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  if (isNaN(d.getTime())) return '';
-  return d.toLocaleDateString(getLocaleDateCode(locale), {
+  const d = parseDate(date);
+  if (!d) {
+    console.warn('[formatDateTime] Invalid date input:', date);
+    return '';
+  }
+  return d.toLocaleString(getLocaleDateCode(locale), {
     ...DEFAULT_DATETIME,
     ...options,
   } as Intl.DateTimeFormatOptions);
@@ -62,8 +73,11 @@ export function formatTime(
   locale: string,
   options?: DateTimeFormatOptions,
 ): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  if (isNaN(d.getTime())) return '';
+  const d = parseDate(date);
+  if (!d) {
+    console.warn('[formatTime] Invalid date input:', date);
+    return '';
+  }
   return d.toLocaleTimeString(getLocaleDateCode(locale), {
     ...DEFAULT_TIME,
     ...options,

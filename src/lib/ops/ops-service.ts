@@ -295,7 +295,7 @@ export async function getOpsDashboard(session: AppSession, filters: OpsFilters):
       status: request.status as RequestStatus,
       workspaceId: request.workspaceId,
       matterTypeKey: request.intakeSubmission?.matterTypeKey ?? null,
-      matterTypeLabel: request.intakeSubmission?.matterTypeKey ?? null,
+      matterTypeLabel: request.intakeSubmission?.matterType?.label ?? null,
       customerName: request.createdBy.name,
       customerEmail: request.createdBy.email,
       assignedSpecialistName: request.assignedSpecialist?.name ?? null,
@@ -354,7 +354,9 @@ export async function getOpsDashboard(session: AppSession, filters: OpsFilters):
     aging: {
       pendingReview: countByStatus(byStatus, 'pending_review'),
       revisionRequired: countByStatus(byStatus, 'revision_required'),
-      olderThanSevenDays: requests.filter((request) => request.createdAt <= sevenDaysAgo && !['closed', 'cancelled'].includes(request.status)).length,
+      olderThanSevenDays: await prisma.legalRequest.count({
+        where: { AND: [where, { createdAt: { lte: sevenDaysAgo }, status: { notIn: ['closed', 'cancelled'] } }] },
+      }),
     },
     requests: requestRows,
     workload,
@@ -374,7 +376,7 @@ export function calcOpsSla(
     const msLeft = slaDeadline.getTime() - now.getTime();
     const totalMs = slaDeadline.getTime() - requestCreatedAt.getTime();
     if (totalMs <= 0) {
-      return { level: 'ok', label: 'Đúng hạn', percent: 100, source: 'deadline' };
+      return { level: 'info', label: 'Invalid SLA', percent: 100, source: 'deadline' };
     }
     const percent = Math.min(100, Math.max(0, Math.round((1 - msLeft / totalMs) * 100)));
     if (msLeft < 0) {
@@ -404,11 +406,8 @@ export function calcOpsSla(
     return { level: 'ok', label: `${daysElapsed} ngày`, percent, source: 'status_age' };
   }
 
-  // Path 3: request age fallback
-  const daysElapsed = daysBetween(requestCreatedAt);
-  const maxDays = 7;
-  const percent = Math.min(100, Math.round((daysElapsed / maxDays) * 100));
-  return { level: 'info', label: 'Chưa có SLA', percent, source: 'none' };
+  // Path 3: request age fallback (no SLA deadline set)
+  return { level: 'info', label: 'Chưa có SLA', percent: 0, source: 'none' };
 }
 
 function formatHours(ms: number): string {
@@ -501,19 +500,10 @@ export async function getOpsAggregate(
   const page = Math.max(1, filters.page ?? 1);
   const pageSize = Math.min(100, Math.max(1, filters.pageSize ?? 20));
   const skip = (page - 1) * pageSize;
-  console.log('[getOpsAggregate] page:', page, 'pageSize:', pageSize, 'skip:', skip);
 
-  // Build where clause
-  const and: Prisma.LegalRequestWhereInput[] = [];
-  if (filters.workspaceId) and.push({ workspaceId: filters.workspaceId });
-  // Note: intakeSubmission has @unique requestId, so { is: } is correct for one-to-one filtering
-  if (filters.matterTypeKey) and.push({ intakeSubmission: { is: { matterTypeKey: filters.matterTypeKey } } });
-  if (filters.status) and.push({ status: filters.status });
-  if (filters.assignedSpecialistId) and.push({ assignedSpecialistId: filters.assignedSpecialistId });
-  if (filters.assignedReviewerId) and.push({ assignedReviewerId: filters.assignedReviewerId });
-  if (filters.dateFrom || filters.dateTo) {
-    and.push({ createdAt: { ...(filters.dateFrom ? { gte: filters.dateFrom } : {}), ...(filters.dateTo ? { lte: filters.dateTo } : {}) } });
-  }
+  // Build where clause — reuse existing filter builder, then extend with search
+  const baseWhere = buildOpsRequestWhere(filters);
+  const and: Prisma.LegalRequestWhereInput[] = baseWhere.AND ? [...baseWhere.AND] : [];
   if (filters.search && filters.search.length <= 200) {
     and.push({
       OR: [
@@ -531,11 +521,10 @@ export async function getOpsAggregate(
   // Stats counts
   const closedStatuses = ['closed', 'cancelled'];
 
-  const [totalCount, nearSlaCount, completedTodayCount, allActive] = await Promise.all([
+  const [totalCount, nearSlaCount, completedTodayCount] = await Promise.all([
     prisma.legalRequest.count({ where: { AND: [where, { status: { in: activeStatuses } }] } }),
     prisma.legalRequest.count({ where: { AND: [where, { slaDeadline: { lte: twentyFourHoursFromNow, gte: now }, status: { in: activeStatuses } }] } }),
     prisma.legalRequest.count({ where: { AND: [where, { status: { in: closedStatuses }, updatedAt: { gte: todayStart } }] } }),
-    prisma.legalRequest.count({ where: { AND: [where, { status: { in: activeStatuses } }] } }),
   ]);
 
   // Audit warnings: count of active requests with no assignee
@@ -569,11 +558,10 @@ export async function getOpsAggregate(
         assignedReviewerId: true,
         assignedReviewer: { select: { id: true, name: true } },
         workspace: { select: { name: true } },
-        intakeSubmission: { select: { matterTypeKey: true, matterType: { select: { key: true } } } },
+        intakeSubmission: { select: { matterTypeKey: true, matterType: { select: { key: true, label: true } } } },
         workflowTransitions: {
           select: { toStatus: true, createdAt: true },
           orderBy: { createdAt: 'desc' },
-          take: 1,
         },
       },
       orderBy: [{ updatedAt: 'desc' }],
@@ -583,15 +571,19 @@ export async function getOpsAggregate(
     prisma.legalRequest.count({ where }),
   ]);
 
-  // Map transitions for latest timestamps
-  const transitionMap = new Map<string, Date | null>();
+  // Map transitions for timeline fields
+  const transitionMap = new Map<string, { latest: Date | null; pendingReviewSince: Date | null; deliveredAt: Date | null; closedAt: Date | null }>();
   for (const req of requests) {
-    const latest = req.workflowTransitions[0];
-    transitionMap.set(req.id, latest?.createdAt ?? null);
+    const latest = req.workflowTransitions[0]?.createdAt ?? null;
+    const pendingReviewSince = req.workflowTransitions.find(t => t.toStatus === 'pending_review')?.createdAt ?? null;
+    const deliveredAt = req.workflowTransitions.find(t => t.toStatus === 'delivered')?.createdAt ?? null;
+    const closedAt = req.workflowTransitions.find(t => t.toStatus === 'closed')?.createdAt ?? null;
+    transitionMap.set(req.id, { latest, pendingReviewSince, deliveredAt, closedAt });
   }
 
   const requestRows: OpsRequestRowDto[] = requests.map((r) => {
-    const latestTransitionAt = transitionMap.get(r.id) ?? null;
+    const transitions = transitionMap.get(r.id) ?? { latest: null, pendingReviewSince: null, deliveredAt: null, closedAt: null };
+    const latestTransitionAt = transitions.latest;
     const currentStatusSince = latestTransitionAt ?? r.createdAt;
     const sla = calcOpsSla(r.slaDeadline, latestTransitionAt, r.createdAt);
     return {
@@ -602,7 +594,7 @@ export async function getOpsAggregate(
       code: r.code ?? null,
       priority: r.priority ?? null,
       matterTypeKey: r.intakeSubmission?.matterTypeKey ?? null,
-      matterTypeLabel: r.intakeSubmission?.matterTypeKey ?? null,
+      matterTypeLabel: r.intakeSubmission?.matterType?.label ?? null,
       customerName: r.createdBy.name,
       customerEmail: r.createdBy.email,
       workspaceName: r.workspace.name,
@@ -616,9 +608,9 @@ export async function getOpsAggregate(
       updatedAt: r.updatedAt,
       currentStatusSince,
       currentStatusAgeDays: daysBetween(currentStatusSince),
-      pendingReviewSince: null,
-      deliveredAt: null,
-      closedAt: null,
+      pendingReviewSince: transitions.pendingReviewSince,
+      deliveredAt: transitions.deliveredAt,
+      closedAt: transitions.closedAt,
     };
   });
 
@@ -736,7 +728,7 @@ export async function getOpsRequestTimeline(session: AppSession, requestId: stri
       toStatus: transition.toStatus as RequestStatus,
       correlationId: null,
       reason: transition.reason,
-      metadataSummary: `${transition.fromStatus} -> ${transition.toStatus}`,
+      metadataSummary: `${transition.fromStatus} → ${transition.toStatus}`,
     })),
   ].sort((a, b) => b.at.getTime() - a.at.getTime());
 

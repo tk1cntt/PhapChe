@@ -4,7 +4,6 @@ import { recordAuditEvent } from '@/lib/audit/audit';
 import { storeVaultFile } from '@/lib/documents/vault-service';
 import { canAccessRequest } from '@/lib/security/rbac';
 import { transitionRequestStatus } from '@/lib/workflow/request-workflow';
-import { getTemplatesForGeneration } from './template-service';
 import type { AppSession } from '@/lib/security/session';
 import type { TemplateVariable } from './template-service';
 
@@ -39,7 +38,13 @@ function replacePlaceholders(content: string, variables: Record<string, unknown>
   return content.replace(/\{\{(\w+)\}\}/g, (_match, key) => {
     const value = variables[key];
     if (value === undefined || value === null) return '';
-    if (typeof value === 'object') return JSON.stringify(value);
+    if (typeof value === 'object') {
+      try {
+        return JSON.stringify(value);
+      } catch {
+        return '[Complex Object]';
+      }
+    }
     return String(value);
   });
 }
@@ -72,11 +77,9 @@ export async function generateDraft(input: GenerateDraftInput): Promise<Generate
 
   if (!isAssignedSpecialist && !isAdmin) throw new Error('FORBIDDEN');
 
-  // Load template - must be approved or published
-  const templates = await getTemplatesForGeneration(session, request.workspaceId, '');
-
+  // Load template - must be approved or published and belong to same workspace
   const template = await prisma.documentTemplate.findFirst({
-    where: { id: templateId, status: { in: ['approved', 'published'] } },
+    where: { id: templateId, workspaceId: request.workspaceId, status: { in: ['approved', 'published'] } },
     select: {
       id: true,
       workspaceId: true,
@@ -227,11 +230,11 @@ export async function listDocumentVersions(input: ListVersionsInput) {
 
   return versions.map((v) => {
     const template = templateMap.get(v.templateId);
+    const { inputSnapshot: _, ...rest } = v;
     return {
-      ...v,
+      ...rest,
       templateLabel: template?.label ?? 'Unknown',
       matterTypeKey: template?.matterTypeKey ?? 'unknown',
-      inputSnapshot: undefined, // Don't expose raw snapshot in list
     };
   });
 }
@@ -284,7 +287,7 @@ export async function submitForReview(input: SubmitForReviewInput): Promise<{ id
     });
 
     // Transition request status via workflow
-    const transitionReason = reason ?? `Gửi phiên bản ${documentVersionId} để kiểm tra`;
+    const transitionReason = reason ?? `Submit version ${documentVersionId} for review`;
     await transitionRequestStatus({
       requestId: docVersion.document.requestId,
       actorId: session.userId,

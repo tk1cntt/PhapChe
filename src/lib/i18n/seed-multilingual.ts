@@ -11,6 +11,7 @@ import type { MultilingualString, MultilingualText } from './types';
  * Used for rollback and migration tracking
  */
 export const SEED_VERSION = '1.0.0';
+const DEFAULT_SCHEMA_VERSION = '2026-05-27';
 
 /**
  * Seed data metadata
@@ -19,7 +20,7 @@ export const SEED_METADATA = {
   version: SEED_VERSION,
   createdAt: '2026-06-12',
   locales: ['vi', 'en', 'zh', 'ja'] as const,
-  primaryLocale: 'vi',
+  primaryLocale: 'vi' as const,
 };
 
 /**
@@ -40,7 +41,7 @@ export const SEED_MATTER_TYPES = {
       zh: '记录职位、薪资、合同期限和主要工作条件。',
       ja: '役職、薪酬、契約期間、主要な勤務条件を記載します。',
     } as MultilingualText,
-    schemaVersion: '2026-05-27',
+    schemaVersion: DEFAULT_SCHEMA_VERSION,
     questions: [
       { key: 'employee_role', label: { vi: 'Vị trí công việc', en: 'Job Position', zh: '职位', ja: '職位' }, required: true, type: 'text' },
       { key: 'salary', label: { vi: 'Mức lương hoặc thỏa thuận lương', en: 'Salary or compensation agreement', zh: '薪资或薪酬协议', ja: '給与または報酬合意' }, required: true, type: 'text' },
@@ -61,7 +62,7 @@ export const SEED_MATTER_TYPES = {
       zh: '标准化合作伙伴信息、佣金率和代理合同条款。',
       ja: 'パートナー情報、コミッション率、代理店契約条件を標準化します。',
     } as MultilingualText,
-    schemaVersion: '2026-05-27',
+    schemaVersion: DEFAULT_SCHEMA_VERSION,
     questions: [
       { key: 'partner_name', label: { vi: 'Tên đối tác đại lý', en: 'Agent/Partner Name', zh: '代理/合作伙伴名称', ja: '代理パートナー名' }, required: true, type: 'text' },
       { key: 'commission_rate', label: { vi: 'Tỷ lệ hoa hồng hoặc chiết khấu', en: 'Commission Rate or Discount', zh: '佣金率或折扣', ja: '手数料率または割引' }, required: true, type: 'text' },
@@ -82,7 +83,7 @@ export const SEED_MATTER_TYPES = {
       zh: '收集商标名称、产品/服务组和所有权信息。',
       ja: '商标名、製品/サービスグループ、所有権情報を収集します。',
     } as MultilingualText,
-    schemaVersion: '2026-05-27',
+    schemaVersion: DEFAULT_SCHEMA_VERSION,
     questions: [
       { key: 'trademark_name', label: { vi: 'Tên nhãn hiệu', en: 'Trademark Name', zh: '商标名称', ja: '商標名' }, required: true, type: 'text' },
       { key: 'owner_name', label: { vi: 'Tên chủ sở hữu dự kiến', en: 'Prospective Owner Name', zh: '预期所有人名称', ja: '予定所有者名' }, required: true, type: 'text' },
@@ -103,7 +104,7 @@ export const SEED_MATTER_TYPES = {
       zh: '请求将在处理前被转交给专家进行分类。',
       ja: 'リクエストは処理前にスペシャリストが分類します。',
     } as MultilingualText,
-    schemaVersion: '2026-05-27',
+    schemaVersion: DEFAULT_SCHEMA_VERSION,
     questions: [
       { key: 'request_summary', label: { vi: 'Tóm tắt nhu cầu hỗ trợ', en: 'Support Request Summary', zh: '支持需求摘要', ja: 'サポート依頼概要' }, required: true, type: 'textarea' },
       { key: 'desired_outcome', label: { vi: 'Kết quả mong muốn', en: 'Desired Outcome', zh: '期望结果', ja: '望ましい結果' }, required: false, type: 'textarea' },
@@ -189,6 +190,7 @@ export const SEED_TAGS = {
 
 /**
  * Get seed data statistics
+ * Intended for future use: returns aggregate seed data stats for debugging/admin dashboards.
  */
 export function getSeedStats() {
   return {

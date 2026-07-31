@@ -53,23 +53,31 @@ export class InheritanceResolver {
     serviceTypeId: string,
     organizationId: string,
     partnerId: string | null,
-    getWorkflowFn: (ownerType: InheritanceOwnerType, ownerId: string | null) => Promise<ResolvableEntity | null>,
+    getWorkflowFn: (ownerType: InheritanceOwnerType, ownerId: string | null, serviceTypeId: string) => Promise<ResolvableEntity | null>,
   ): Promise<InheritanceResolutionResult | null> {
+    if (!getWorkflowFn) {
+      throw new Error('getWorkflowFn is required for resolution');
+    }
     const chain: Array<{ level: InheritanceOwnerType; entityId: string }> = [];
 
-    // 1. Organization override
-    const orgWorkflow = await getWorkflowFn('organization', organizationId);
-    if (orgWorkflow && orgWorkflow.status === 'active') {
-      return {
-        resolved: orgWorkflow,
-        chain: [...chain, { level: 'organization', entityId: orgWorkflow.id }],
-        mode: orgWorkflow.inheritanceMode,
-      };
-    }
+    try {
+      // 1. Organization override
+      const orgWorkflow = await getWorkflowFn('organization', organizationId, serviceTypeId);
+      if (orgWorkflow && orgWorkflow.status === 'active') {
+        return {
+          resolved: orgWorkflow,
+          chain: [
+            { level: 'organization', entityId: orgWorkflow.id },
+            { level: 'partner', entityId: 'none' },
+            { level: 'platform', entityId: 'none' },
+          ],
+          mode: orgWorkflow.inheritanceMode,
+        };
+      }
 
     // 2. Partner override
     if (partnerId) {
-      const partnerWorkflow = await getWorkflowFn('partner', partnerId);
+      const partnerWorkflow = await getWorkflowFn('partner', partnerId, serviceTypeId);
       if (partnerWorkflow && partnerWorkflow.status === 'active') {
         return {
           resolved: partnerWorkflow,
@@ -83,7 +91,7 @@ export class InheritanceResolver {
     }
 
     // 3. Platform base (fallback)
-    const platformWorkflow = await getWorkflowFn('platform', null);
+    const platformWorkflow = await getWorkflowFn('platform', null, serviceTypeId);
     if (platformWorkflow && platformWorkflow.status === 'active') {
       return {
         resolved: platformWorkflow,
@@ -97,6 +105,10 @@ export class InheritanceResolver {
     }
 
     return null;
+    } catch (error) {
+      console.error('InheritanceResolver.resolveWorkflow failed:', error);
+      return null;
+    }
   }
 
   /**
@@ -107,7 +119,7 @@ export class InheritanceResolver {
     serviceTypeId: string,
     organizationId: string,
     partnerId: string | null,
-    getTemplateFn: (ownerType: InheritanceOwnerType, ownerId: string | null) => Promise<ResolvableEntity | null>,
+    getTemplateFn: (ownerType: InheritanceOwnerType, ownerId: string | null, serviceTypeId: string) => Promise<ResolvableEntity | null>,
   ): Promise<InheritanceResolutionResult | null> {
     return this.resolveWorkflow(serviceTypeId, organizationId, partnerId, getTemplateFn);
   }

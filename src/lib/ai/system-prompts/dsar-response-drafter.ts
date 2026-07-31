@@ -81,7 +81,7 @@ YÊU CẦU ĐẦU RA (JSON nghiêm ngặt, không thêm text bên ngoài):
   },
   "timeline": {
     "requestDate": "Ngày nhận yêu cầu",
-    "deadline": "Hạn phản hồi (không quá 72h hoặc 30 ngày tùy loại)",
+    "deadline": "Hạn phản hồi (không quá 30 ngày, có thể gia hạn thêm tối đa 2 tháng)",
     "extensions": [
       {
         "days": 0,

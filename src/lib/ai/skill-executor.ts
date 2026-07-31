@@ -137,7 +137,7 @@ export interface SkillExecutorConfig {
   /** Max RAG results to include */
   ragTopK?: number;
   /** Domain → skills mapping (defaults to types.ts) */
-  domainSkillMap?: Record<string, AgentSkill[]>;
+  domainSkillMap?: Record<LegalDomain, AgentSkill[]>;
 }
 
 /** Default model from env, falls back to gpt-4o-mini */
@@ -150,7 +150,7 @@ const DEFAULT_CONFIG: Required<SkillExecutorConfig> = {
   enableRag: true,
   ragMinScore: 0.3,
   ragTopK: 5,
-  domainSkillMap: DEFAULT_DOMAIN_SKILL_MAP as unknown as Record<string, AgentSkill[]>,
+  domainSkillMap: DEFAULT_DOMAIN_SKILL_MAP,
 };
 
 // ── Executor ────────────────────────────────────────────────
@@ -167,6 +167,7 @@ export class SkillExecutor {
    * Execute an agent skill synchronously (returns full result).
    */
   async execute(skill: AgentSkill, context: SkillContext): Promise<SkillResult> {
+    try {
     const model = DEFAULT_MODELS[this.config.defaultModel] ?? DEFAULT_MODELS['gpt-4o-mini'];
 
     // 1. RAG — get legal context
@@ -195,8 +196,12 @@ export class SkillExecutor {
     });
 
     const promptTpl = getSystemPrompt(skill);
+    if (!promptTpl) {
+      throw new Error(`No system prompt found for skill: ${skill}`);
+    }
     const messages: ChatMessage[] = [
       { role: 'system', content: systemPrompt },
+      // TODO: Extract to i18n
       { role: 'user', content: `Hãy thực hiện nhiệm vụ: ${promptTpl.description}` },
     ];
 
@@ -234,17 +239,30 @@ export class SkillExecutor {
     };
 
     return result;
+    } catch (error) {
+      return {
+        output: { error: error instanceof Error ? error.message : String(error) },
+        summary: 'AI execution failed',
+        citations: [],
+        confidence: 0,
+        usage: { promptTokens: 0, completionTokens: 0 },
+        skill,
+        executedAt: new Date().toISOString(),
+      };
+    }
   }
 
   /**
    * Execute an agent skill with streaming (yields partial results).
    */
   async *executeStream(skill: AgentSkill, context: SkillContext): AsyncGenerator<SkillResultStream> {
+    try {
     const model = DEFAULT_MODELS[this.config.defaultModel] ?? DEFAULT_MODELS['gpt-4o-mini'];
 
     // RAG
     let legalContext: SearchResult[] = [];
     if (this.config.enableRag && isVectorStoreReady()) {
+      // TODO: Extract to i18n
       yield { chunk: null, status: 'Đang tra cứu cơ sở dữ liệu pháp lý...', done: false };
       legalContext = await semanticSearch({
         query: `${context.requestContext.title} ${context.requestContext.description ?? ''}`,
@@ -253,6 +271,7 @@ export class SkillExecutor {
         minScore: this.config.ragMinScore,
       });
       if (legalContext.length > 0) {
+        // TODO: Extract to i18n
         yield { chunk: null, status: `Tìm thấy ${legalContext.length} tài liệu pháp lý liên quan`, done: false };
       }
     }
@@ -272,12 +291,18 @@ export class SkillExecutor {
     });
 
     const promptTpl = getSystemPrompt(skill);
+    if (!promptTpl) {
+      yield { chunk: null, status: `Lỗi: No system prompt found for skill: ${skill}`, done: true };
+      return;
+    }
     const messages: ChatMessage[] = [
       { role: 'system', content: systemPrompt },
+      // TODO: Extract to i18n
       { role: 'user', content: `Hãy thực hiện nhiệm vụ: ${promptTpl.description}` },
     ];
 
     // Stream
+    // TODO: Extract to i18n
     yield { chunk: null, status: 'Đang phân tích...', done: false };
 
     let fullContent = '';
@@ -288,8 +313,9 @@ export class SkillExecutor {
       maxTokens: this.config.maxTokens,
       responseFormat: 'text', // Streaming doesn't support JSON mode
     })) {
-      fullContent += chunk.delta;
       if (chunk.done) break;
+      fullContent += chunk.delta;
+      yield { chunk: null, delta: chunk.delta, status: 'Đang phân tích...', done: false };
     }
 
     // Parse final result
@@ -311,7 +337,11 @@ export class SkillExecutor {
       executedAt: new Date().toISOString(),
     };
 
+    // TODO: Extract to i18n
     yield { chunk: result, status: 'Hoàn tất phân tích', done: true };
+    } catch (error) {
+      yield { chunk: null, status: `Lỗi: ${error instanceof Error ? error.message : String(error)}`, done: true };
+    }
   }
 
   /**
@@ -367,13 +397,13 @@ export class SkillExecutor {
     else if (citationCount >= 1) score += 0.1;
 
     // Output has explicit confidence
-    if (typeof output.confidence === 'number') {
-      score = output.confidence as number;
+    if (typeof output.confidence === 'number' && !Number.isNaN(output.confidence)) {
+      score = output.confidence;
     }
 
     // Output has score that indicates quality
-    if (typeof output.complianceScore === 'number') {
-      const s = output.complianceScore as number;
+    if (typeof output.complianceScore === 'number' && !Number.isNaN(output.complianceScore)) {
+      const s = output.complianceScore;
       if (s >= 80) score += 0.1;
     }
     if (typeof output.overallRisk === 'string') {
@@ -390,8 +420,11 @@ export class SkillExecutor {
 let defaultExecutor: SkillExecutor | null = null;
 
 export function getSkillExecutor(config?: SkillExecutorConfig): SkillExecutor {
-  if (!defaultExecutor || config) {
-    defaultExecutor = new SkillExecutor({ defaultModel: ENV_DEFAULT_MODEL, ...config });
+  if (!defaultExecutor) {
+    defaultExecutor = new SkillExecutor({ defaultModel: ENV_DEFAULT_MODEL });
+  }
+  if (config) {
+    return new SkillExecutor({ defaultModel: ENV_DEFAULT_MODEL, ...config });
   }
   return defaultExecutor;
 }

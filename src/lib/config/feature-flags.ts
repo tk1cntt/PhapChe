@@ -14,18 +14,26 @@
  *   }
  */
 
+function parseBoolEnv(value: string | undefined): boolean {
+  return value?.toLowerCase() === 'true';
+}
+
+/**
+ * Feature flags are evaluated once at module import time.
+ * For runtime-configurable or serverless scenarios, consider lazy evaluation.
+ */
 export const FEATURE_FLAGS = {
   // Database Migration Phase 4 (BREAKING CHANGES)
   // Set to 'true' only after all services are updated to use new FK columns
-  DB_MIGRATION_PHASE4: process.env.DB_MIGRATION_PHASE4 === 'true',
+  DB_MIGRATION_PHASE4: parseBoolEnv(process.env.DB_MIGRATION_PHASE4),
 
   // Database Migration Phase 3 (Data backfill)
   // Set to 'true' during data migration from old to new columns
-  DB_MIGRATION_PHASE3: process.env.DB_MIGRATION_PHASE3 === 'true',
+  DB_MIGRATION_PHASE3: parseBoolEnv(process.env.DB_MIGRATION_PHASE3),
 
   // Database Migration Phase 2 (Add new columns)
   // Set to 'true' to start using new columns (backward compatible)
-  DB_MIGRATION_PHASE2: process.env.DB_MIGRATION_PHASE2 === 'true',
+  DB_MIGRATION_PHASE2: parseBoolEnv(process.env.DB_MIGRATION_PHASE2),
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAGS;

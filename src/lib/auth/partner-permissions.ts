@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { PARTNER_PERMISSIONS, hasPermission as checkPermission } from '@/lib/services/partner-auth-service';
+import { hasPermission as checkPermission } from '@/lib/services/partner-auth-service';
 
 /**
  * Partner permission types
@@ -23,23 +23,28 @@ export type PartnerPermission =
  * Get partner context for a request
  */
 export async function getPartnerContext(userId: string) {
-  const member = await prisma.partnerMember.findFirst({
-    where: {
-      userId,
-      isActive: true,
-      partner: { status: 'active' },
-    },
-    include: { partner: true },
-  });
+  try {
+    const member = await prisma.partnerMember.findFirst({
+      where: {
+        userId,
+        isActive: true,
+        partner: { status: 'active' },
+      },
+      include: { partner: true },
+    });
 
-  if (!member) return null;
+    if (!member) return null;
 
-  return {
-    memberId: member.id,
-    partnerId: member.partnerId,
-    role: member.role as PartnerRole,
-    partner: member.partner,
-  };
+    return {
+      memberId: member.id,
+      partnerId: member.partnerId,
+      role: member.role as PartnerRole,
+      partner: member.partner,
+    };
+  } catch (error) {
+    console.error('Failed to fetch partner context:', error);
+    return null;
+  }
 }
 
 /**
@@ -47,13 +52,14 @@ export async function getPartnerContext(userId: string) {
  */
 export function requirePartner(options: { required?: boolean } = {}) {
   return async (req: NextRequest & { partnerContext?: Awaited<ReturnType<typeof getPartnerContext>> }) => {
+    // TODO: replace with authenticated session (e.g., getServerSession) instead of trusting plain header
     const userId = req.headers.get('x-user-id');
 
     if (!userId) {
       if (options.required) {
         return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
       }
-      return null;
+      return NextResponse.next();
     }
 
     const context = await getPartnerContext(userId);
@@ -72,7 +78,6 @@ export function requirePartner(options: { required?: boolean } = {}) {
 export function requirePartnerRole(...allowedRoles: PartnerRole[]) {
   return async (req: NextRequest & { partnerContext?: Awaited<ReturnType<typeof getPartnerContext>> }) => {
     const context = await requirePartner({ required: true })(req);
-    if (!context) return context;
     if (context instanceof NextResponse) return context;
 
     const partnerRole = (context as { role: PartnerRole }).role;
@@ -94,7 +99,7 @@ export function requirePartnerRole(...allowedRoles: PartnerRole[]) {
 export function requirePartnerPermission(permission: PartnerPermission) {
   return async (req: NextRequest & { partnerContext?: Awaited<ReturnType<typeof getPartnerContext>> }) => {
     const context = await requirePartner({ required: true })(req);
-    if (!context || context instanceof NextResponse) return context;
+    if (context instanceof NextResponse) return context;
 
     if (!checkPermission((context as { role: PartnerRole }).role, permission)) {
       return NextResponse.json(

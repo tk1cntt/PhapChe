@@ -19,7 +19,9 @@ type AttachIntakeFileInput = {
 };
 
 export async function attachIntakeFile(input: AttachIntakeFileInput) {
+  const MAX_INTAKE_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
   if (!input.file || input.file.size < 1) throw new Error('FILE_REQUIRED');
+  if (input.file.size > MAX_INTAKE_FILE_SIZE) throw new Error('FILE_TOO_LARGE');
   if (!(await canAccessRequest(input.session, input.requestId))) throw new Error('FORBIDDEN');
 
   const request = await prisma.legalRequest.findUnique({
@@ -57,12 +59,13 @@ export async function attachIntakeFile(input: AttachIntakeFileInput) {
       private: true,
     };
   } catch (error) {
+    // Only re-wrap known storage configuration errors; let other errors propagate
     if (error instanceof Error) {
-      if (error.message.includes('STORAGE') || error.message.includes('S3') || error.message.includes('OSS') || error.message.includes('upload')) {
+      if (error.message === 'STORAGE_NOT_CONFIGURED' || error.message === 'S3_CLIENT_NOT_INITIALIZED') {
         throw new Error('UPLOAD_STORAGE_NOT_CONFIGURED');
       }
       throw error;
     }
-    throw new Error('UPLOAD_STORAGE_NOT_CONFIGURED');
+    throw error;
   }
 }

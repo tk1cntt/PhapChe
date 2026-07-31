@@ -196,8 +196,8 @@ export class PartnerInviteService {
         return { success: false, error: 'User not found' };
       }
 
-      // Verify email matches (if both user and invite emails are set)
-      if (user.email && user.email.toLowerCase() !== invite.email.toLowerCase()) {
+      // Verify email matches — reject if user has no email or emails don't match
+      if (!user.email || user.email.toLowerCase() !== invite.email.toLowerCase()) {
         return { success: false, error: 'Invite email does not match user email' };
       }
 
@@ -216,7 +216,7 @@ export class PartnerInviteService {
       // ── Create member + update invite atomically ──
       // Wrapped in transaction to prevent concurrent accepts and to use
       // conditional updateMany to avoid overwriting an already-accepted invite.
-      const [member] = await this.prismaClient.$transaction([
+      const [member, inviteUpdate] = await this.prismaClient.$transaction([
         this.prismaClient.partnerMember.create({
           data: {
             partnerId: invite.partnerId,
@@ -231,6 +231,10 @@ export class PartnerInviteService {
           data: { status: 'accepted' },
         }),
       ]);
+
+      if (inviteUpdate.count === 0) {
+        throw new Error('Invite was already accepted by another concurrent request');
+      }
 
       // ── B3: Auto-create WorkspaceMembership cho các workspace trong tổ chức có engagement ──
       // Khi partner member join, họ cần workspace membership để truy cập workspace của org.

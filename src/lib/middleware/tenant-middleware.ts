@@ -8,17 +8,21 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import type { TenantContext } from '@/lib/types/request-context';
 
 export interface TenantMiddlewareOptions {
   required?: boolean; // false in MVP (single tenant), true for future dedicated tenants
 }
 
 export function tenantMiddleware(options: TenantMiddlewareOptions = {}) {
-  return async (req: NextRequest) => {
+  return (req: NextRequest) => {
     // Extract tenant ID from header or subdomain
-    const tenantId = req.headers.get('x-tenant-id') ||
-                     req.headers.get('x-platform-id');
+    const rawTenantId = req.headers.get('x-tenant-id') ||
+                        req.headers.get('x-platform-id');
+
+    // Validate tenant ID format (alphanumeric + underscores/hyphens only)
+    const tenantId = rawTenantId && /^[a-zA-Z0-9_-]+$/.test(rawTenantId)
+      ? rawTenantId
+      : undefined;
 
     if (options.required && !tenantId) {
       return NextResponse.json(
@@ -29,7 +33,11 @@ export function tenantMiddleware(options: TenantMiddlewareOptions = {}) {
 
     // Attach tenant context to request headers for downstream use
     if (tenantId) {
-      req.headers.set('x-tenant-id', tenantId);
+      const requestHeaders = new Headers(req.headers);
+      requestHeaders.set('x-tenant-id', tenantId);
+      return NextResponse.next({
+        request: { headers: requestHeaders },
+      });
     }
 
     return NextResponse.next();

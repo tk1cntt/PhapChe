@@ -179,7 +179,7 @@ export const DOMAIN_SKILL_MAP: Record<LegalDomain, AgentSkill[]> = {
   'corporate-legal': ['board-resolution-drafter', 'entity-compliance-checker', 'corporate-doc-generator', 'corporate-compliance-checker'],
   'employment-legal': ['labor-discipline-checker', 'internal-regulation-drafter', 'employment-contract-reviewer', 'employment-policy-checker'],
   'privacy-legal': ['dsar-response-drafter', 'privacy-compliance-checker', 'privacy-dpia-generator'],
-  'product-legal': ['tos-generator', 'commercial-contract-reviewer', 'regulatory-gap-analyzer'],
+  'product-legal': ['tos-generator', 'regulatory-gap-analyzer'],
   'regulatory-legal': ['compliance-gap-analyzer', 'regulatory-gap-analyzer', 'general-legal-researcher'],
   'ai-governance-legal': ['ai-impact-assessment', 'ai-governance-assessor'],
   'ip-legal': ['trademark-clearance', 'cease-desist-drafter', 'ip-trademark-search', 'ip-patent-analyzer'],
@@ -188,6 +188,8 @@ export const DOMAIN_SKILL_MAP: Record<LegalDomain, AgentSkill[]> = {
   'law-student': ['general-legal-researcher'],
   'legal-builder-hub': ['general-legal-researcher', 'commercial-contract-drafter'],
   'external-plugins': ['general-legal-researcher'],
+  // Note: 'document-issue-analyzer' is intentionally omitted from DOMAIN_SKILL_MAP
+  // as it is a generic fallback skill used when no domain-specific skill matches.
 };
 
 export interface SkillContext {

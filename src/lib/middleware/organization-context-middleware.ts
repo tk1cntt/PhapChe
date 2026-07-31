@@ -28,13 +28,22 @@ export function organizationContextMiddleware(options: OrganizationContextMiddle
       return NextResponse.next();
     }
 
-    const workspace = await prisma.workspace.findUnique({
-      where: { slug: workspaceSlug },
-      select: {
-        id: true,
-        organizationId: true,
-      },
-    });
+    let workspace;
+    try {
+      workspace = await prisma.workspace.findUnique({
+        where: { slug: workspaceSlug },
+        select: {
+          id: true,
+          organizationId: true,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to fetch workspace:', error);
+      return NextResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      );
+    }
 
     if (!workspace) {
       return NextResponse.json(
@@ -44,10 +53,20 @@ export function organizationContextMiddleware(options: OrganizationContextMiddle
     }
 
     // organizationId is always present (NOT NULL since v2.3)
-    req.headers.set('x-organization-id', workspace.organizationId);
+    if (!workspace.organizationId) {
+      console.error('Workspace missing organizationId:', workspace.id);
+      return NextResponse.json(
+        { error: 'Workspace configuration error' },
+        { status: 500 }
+      );
+    }
 
-    req.headers.set('x-workspace-id', workspace.id);
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set('x-organization-id', workspace.organizationId);
+    requestHeaders.set('x-workspace-id', workspace.id);
 
-    return NextResponse.next();
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
   };
 }

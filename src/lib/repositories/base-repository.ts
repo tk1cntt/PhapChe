@@ -43,10 +43,17 @@ export abstract class BaseRepository<T, CreateInput, UpdateInput, WhereInput> {
    */
   async findMany(ctx: RequestContext, options: FindManyOptions<WhereInput>): Promise<T[]> {
     const results = await this.dbFindMany(options);
-    const accessible: T[] = [];
 
-    for (const result of results) {
-      if (await this.canAccess(ctx, result)) {
+    const accessResults = await Promise.all(
+      results.map(async (result) => ({
+        result,
+        accessible: await this.canAccess(ctx, result),
+      }))
+    );
+
+    const accessible: T[] = [];
+    for (const { result, accessible: canAccess } of accessResults) {
+      if (canAccess) {
         accessible.push(result as T);
       }
     }
@@ -68,15 +75,17 @@ export abstract class BaseRepository<T, CreateInput, UpdateInput, WhereInput> {
    * Update with permission check
    */
   async update(ctx: RequestContext, id: string, data: UpdateInput): Promise<T> {
+    // TODO: Use optimistic concurrency (version field) or SELECT ... FOR UPDATE
+    // to prevent TOCTOU race conditions between read and write.
     const existing = await this.dbFindById(id);
     if (!existing) throw new Error('Not found');
 
     if (!await this.canAccess(ctx, existing)) {
-      throw new Error('Permission denied');
+      throw new Error('Not found');
     }
 
     if (!await this.canUpdate(ctx, existing, data)) {
-      throw new Error('Permission denied');
+      throw new Error('Not found');
     }
 
     return this.dbUpdate(id, data) as Promise<T>;
@@ -90,11 +99,11 @@ export abstract class BaseRepository<T, CreateInput, UpdateInput, WhereInput> {
     if (!existing) throw new Error('Not found');
 
     if (!await this.canAccess(ctx, existing)) {
-      throw new Error('Permission denied');
+      throw new Error('Not found');
     }
 
     if (!await this.canDelete(ctx, existing)) {
-      throw new Error('Permission denied');
+      throw new Error('Not found');
     }
 
     await this.dbDelete(id);

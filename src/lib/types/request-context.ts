@@ -32,7 +32,7 @@ export interface OrganizationContext {
   id: string;
   tenantId: string;
   name: string;
-  status: string;
+  status: 'active' | 'inactive' | 'suspended';
   isDefault: boolean;
 }
 
@@ -43,7 +43,7 @@ export interface OrganizationContext {
  */
 export interface TenantContext {
   id: string;
-  mode: string; // 'shared_platform' | 'dedicated_partner' | 'dedicated_customer'
+  mode: 'shared_platform' | 'dedicated_partner' | 'dedicated_customer';
   code?: string | null;
   name: string;
 }
@@ -76,6 +76,7 @@ export interface RequestContext {
  */
 export interface RequestContextOptions {
   userId: string;
+  /** At least one of workspaceSlug or workspaceId is required when workspace context is needed. */
   workspaceSlug?: string;
   workspaceId?: string;
   includeOrganization?: boolean;

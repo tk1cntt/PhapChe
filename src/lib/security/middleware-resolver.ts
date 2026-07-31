@@ -13,19 +13,31 @@ export interface GuardUser {
   name: string | null;
 }
 
+// Module-level cache for dynamic imports (if Edge runtime requires them)
+let _auth: Awaited<ReturnType<typeof import('@/auth')['auth']>>;
+let _prisma: Awaited<ReturnType<typeof import('@/lib/prisma')['prisma']>>;
+
+const VALID_APP_ROLES: Set<string> = new Set(['super_admin', 'coordinator_admin', 'audit_admin', 'reviewer', 'specialist', 'customer']);
+
 /**
  * Lấy thông tin user + roles từ request.
  * Trả về null nếu không có session hoặc user không active.
  */
 export async function resolveGuardUser(request: NextRequest): Promise<GuardUser | null> {
   try {
-    const { auth } = await import('@/auth');
-    const { prisma } = await import('@/lib/prisma');
+    if (!_auth) {
+      const mod = await import('@/auth');
+      _auth = mod.auth;
+    }
+    if (!_prisma) {
+      const mod = await import('@/lib/prisma');
+      _prisma = mod.prisma;
+    }
 
-    const session = await auth.api.getSession({ headers: request.headers });
+    const session = await _auth.api.getSession({ headers: request.headers });
     if (!session?.user?.id) return null;
 
-    const user = await prisma.user.findFirst({
+    const user = await _prisma.user.findFirst({
       where: { id: session.user.id, isActive: true },
       select: {
         id: true,
@@ -37,13 +49,18 @@ export async function resolveGuardUser(request: NextRequest): Promise<GuardUser 
       },
     });
 
-    if (!user || user.memberships.length === 0) return null;
+    if (!user) return null;
 
-    const roles = Array.from(new Set(user.memberships.map(m => m.role as AppRole)));
+    const roles = Array.from(new Set(
+      user.memberships
+        .map(m => m.role)
+        .filter((role): role is AppRole => VALID_APP_ROLES.has(role))
+    ));
 
     return { userId: user.id, roles, name: user.name };
-  } catch {
+  } catch (error) {
     // Session resolve failed — không block, để page/API tự xử lý
+    console.error('[resolveGuardUser] Failed to resolve user:', error);
     return null;
   }
 }

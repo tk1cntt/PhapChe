@@ -5,7 +5,7 @@
  * Files are stored in a private directory, NOT in public folder.
  */
 
-import { mkdir, readFile, writeFile, unlink, stat, copyFile, mkdir as mkdirSync } from 'fs/promises';
+import { mkdir, readFile, writeFile, unlink, stat, copyFile, rename } from 'fs/promises';
 import { existsSync } from 'fs';
 import { dirname } from 'path';
 import { computeChecksum } from '../utils/checksum.util';
@@ -93,7 +93,7 @@ export class LocalStorageProvider implements StorageProvider {
   /**
    * Get a file from local storage
    */
-  async getObject(input: GetObjectInput): Promise<Buffer | ReadableStream> {
+  async getObject(input: GetObjectInput): Promise<Buffer> {
     const fullPath = this.getFullPath(input.objectKey);
 
     if (!existsSync(fullPath)) {
@@ -119,7 +119,8 @@ export class LocalStorageProvider implements StorageProvider {
     // For local storage, we return the API download endpoint
     // The fileId will be extracted from the object key or passed separately
     const publicBaseUrl = process.env.STORAGE_PUBLIC_BASE_URL || '';
-    return `${publicBaseUrl}/api/files/download?key=${encodeURIComponent(input.objectKey)}`;
+    const downloadPath = process.env.STORAGE_DOWNLOAD_PATH || '/api/files/download';
+    return `${publicBaseUrl}${downloadPath}?key=${encodeURIComponent(input.objectKey)}`;
   }
 
   /**
@@ -164,14 +165,14 @@ export class LocalStorageProvider implements StorageProvider {
     // Get file stats
     const stats = await stat(destPath);
 
-    // Read buffer to compute checksum
-    const buffer = await readFile(destPath);
-    const checksum = computeChecksum(buffer, 'sha256');
+    // Compute checksum from source file to avoid extra read
+    const sourceBuffer = await readFile(sourcePath);
+    const checksum = computeChecksum(sourceBuffer, 'sha256');
 
     return {
       objectKey: input.destinationKey,
       size: stats.size,
-      mimeType: 'application/octet-stream', // Default, could be detected
+      mimeType: 'application/octet-stream', // TODO: detect from source object metadata
       checksum,
       storageDriver: 'local' as StorageDriver,
     };
@@ -181,16 +182,35 @@ export class LocalStorageProvider implements StorageProvider {
    * Move a file within local storage
    */
   async moveObject(input: MoveObjectInput): Promise<StoredObject> {
-    // Copy to new location
-    const copied = await this.copyObject({
-      sourceKey: input.sourceKey,
-      destinationKey: input.destinationKey,
-    });
+    const sourcePath = this.getFullPath(input.sourceKey);
+    const destPath = this.getFullPath(input.destinationKey);
 
-    // Delete source
-    await this.deleteObject({ objectKey: input.sourceKey });
+    if (!existsSync(sourcePath)) {
+      throw new FileNotFoundError(input.sourceKey);
+    }
 
-    return copied;
+    await this.ensureDirectory(destPath);
+
+    // Try fast rename first (O(1) on same filesystem)
+    try {
+      await rename(sourcePath, destPath);
+    } catch {
+      // Fallback for cross-device moves: copy + delete
+      await copyFile(sourcePath, destPath);
+      await unlink(sourcePath);
+    }
+
+    const stats = await stat(destPath);
+    const sourceBuffer = await readFile(destPath);
+    const checksum = computeChecksum(sourceBuffer, 'sha256');
+
+    return {
+      objectKey: input.destinationKey,
+      size: stats.size,
+      mimeType: 'application/octet-stream',
+      checksum,
+      storageDriver: 'local' as StorageDriver,
+    };
   }
 
   /**
@@ -198,11 +218,10 @@ export class LocalStorageProvider implements StorageProvider {
    * Call this on application startup
    */
   async initialize(): Promise<void> {
+    const defaultSubdirs = ['organizations', 'templates', 'system'];
     const directories = [
       this.rootPath,
-      `${this.rootPath}/organizations`,
-      `${this.rootPath}/templates`,
-      `${this.rootPath}/system`,
+      ...defaultSubdirs.map((d) => `${this.rootPath}/${d}`),
     ];
 
     for (const dir of directories) {

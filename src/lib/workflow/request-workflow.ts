@@ -85,7 +85,11 @@ export function canTransitionRequestStatus(
   const isAssignedReviewer = request.assignedReviewerId === actor.userId;
 
   // ── CUSTOMER ── merge intake_submitted→triage
+  // Customer can only cancel from draft_intake and triage
   if (hasRole('customer') && isOwnRequest) {
+    if (toStatus === 'cancelled' && !['draft_intake', 'triage'].includes(request.status)) {
+      return false;
+    }
     return ['triage', 'cancelled'].includes(toStatus);
   }
 
@@ -130,10 +134,14 @@ export async function transitionRequestStatus(input: TransitionInput): Promise<{
 
   if (!request) throw new Error('REQUEST_NOT_FOUND');
 
+  const VALID_ROLES = new Set<string>(['super_admin', 'coordinator_admin', 'audit_admin', 'reviewer', 'specialist', 'customer']);
+
   const actor: AppSession = {
     userId: input.actorId,
     activeWorkspaceId: request.workspaceId,
-    roles: request.workspace.memberships.map((membership) => membership.role as Role),
+    roles: request.workspace.memberships
+      .map((membership) => membership.role as Role)
+      .filter((role): role is Role => VALID_ROLES.has(role)),
   };
 
   const currentStatus = request.status as RequestStatus;

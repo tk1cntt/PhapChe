@@ -1,9 +1,9 @@
 import type { SupportedLocale, MultilingualString, MultilingualText } from './types';
-import { DEFAULT_LOCALE } from './types';
+import { SUPPORTED_LOCALES, isValidLocale } from './types';
 
 /**
  * Get localized content from a multilingual field
- * Fallback chain: requested_locale → default_locale (vi) → first available
+ * Fallback chain: requested_locale -> default_locale (vi) -> first available
  *
  * @param locale - Requested locale (from user session/URL)
  * @param field - Multilingual field object from database
@@ -15,10 +15,14 @@ export function getLocalized(
 ): string {
   if (!field) return '';
 
-  // Get the field for requested locale
-  const localeKey = locale as SupportedLocale;
+  // Validate the locale before use
+  if (!isValidLocale(locale)) {
+    console.warn(`Unsupported locale: ${locale}, falling back to default`);
+    return field.vi || '';
+  }
+  const localeKey: SupportedLocale = locale;
 
-  // Try requested locale first
+  // Try requested locale first (skip 'vi' — it's the default fallback below)
   if (localeKey !== 'vi' && field[localeKey]) {
     return field[localeKey];
   }
@@ -28,10 +32,10 @@ export function getLocalized(
     return field.vi;
   }
 
-  // Last resort: return first available value
-  if (field.en) return field.en;
-  if (field.zh) return field.zh;
-  if (field.ja) return field.ja;
+  // Last resort: iterate SUPPORTED_LOCALES for first available
+  for (const loc of SUPPORTED_LOCALES) {
+    if (loc !== 'vi' && field[loc]) return field[loc];
+  }
 
   return '';
 }
@@ -62,7 +66,7 @@ export function hasLocalizedContent(
   field: MultilingualString | MultilingualText | null | undefined
 ): boolean {
   if (!field) return false;
-  return !!(field.vi || field.en || field.zh || field.ja);
+  return SUPPORTED_LOCALES.some((loc) => !!field[loc]);
 }
 
 /**
@@ -72,10 +76,5 @@ export function getAvailableLocales(
   field: MultilingualString | MultilingualText | null | undefined
 ): SupportedLocale[] {
   if (!field) return [];
-  const available: SupportedLocale[] = [];
-  if (field.vi) available.push('vi');
-  if (field.en) available.push('en');
-  if (field.zh) available.push('zh');
-  if (field.ja) available.push('ja');
-  return available;
+  return SUPPORTED_LOCALES.filter((loc) => !!field[loc]);
 }

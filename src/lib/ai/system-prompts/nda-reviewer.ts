@@ -70,5 +70,5 @@ NGUYÊN TẮC QUAN TRỌNG:
 9. Ngôn ngữ output: {{locale}}
 10. TRẢ VỀ DUY NHẤT JSON, không thêm bất kỳ text nào khác`,
   outputFormat: 'json_object',
-  requiredVariables: ['matterType', 'requestTitle', 'locale'],
+  requiredVariables: ['matterType', 'requestTitle', 'documentContent', 'locale'],
 };

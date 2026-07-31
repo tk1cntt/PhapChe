@@ -37,6 +37,10 @@ type CloseDeliveryInput = DeliveryActionInput & {
   reason: string;
 };
 
+function buildCustomerPortalUrl(requestId: string): string {
+  return `/customer/requests/${requestId}`;
+}
+
 async function getFinalVaultFiles(requestId: string, workspaceId: string) {
   return prisma.vaultFile.findMany({
     where: {
@@ -83,7 +87,7 @@ export async function markRequestDelivered(input: DeliveryActionInput): Promise<
   const { request, finalVaultFiles } = await getDeliveryActionRequest(input.session, input.requestId, 'approved');
   const correlationId = input.correlationId ?? `delivery-${input.requestId}-${Date.now()}`;
   const filenames = finalVaultFiles.map((file) => file.filename ?? file.id);
-  const portalUrl = `/customer/requests/${request.id}`;
+  const portalUrl = buildCustomerPortalUrl(request.id);
 
   const updated = await transitionRequestStatus({
     requestId: request.id,
@@ -92,12 +96,16 @@ export async function markRequestDelivered(input: DeliveryActionInput): Promise<
     correlationId,
   });
 
-  await sendDeliveryReadyEmail({
-    to: request.createdBy.email,
-    requestTitle: request.title,
-    portalUrl,
-    filenames,
-  });
+  try {
+    await sendDeliveryReadyEmail({
+      to: request.createdBy.email,
+      requestTitle: request.title,
+      portalUrl,
+      filenames,
+    });
+  } catch {
+    // Email failure should not undo the delivery status transition
+  }
 
   await recordAuditEvent({
     actorId: input.session.userId,
@@ -117,15 +125,29 @@ export async function closeDeliveredRequest(input: CloseDeliveryInput): Promise<
   const reason = input.reason.trim();
   if (!reason) throw new Error('CLOSE_REASON_REQUIRED');
 
-  await getDeliveryActionRequest(input.session, input.requestId, 'delivered');
+  const { request } = await getDeliveryActionRequest(input.session, input.requestId, 'delivered');
+  const correlationId = input.correlationId ?? `close-${input.requestId}-${Date.now()}`;
 
-  return transitionRequestStatus({
+  const updated = await transitionRequestStatus({
     requestId: input.requestId,
     actorId: input.session.userId,
     toStatus: 'closed',
     reason,
-    correlationId: input.correlationId ?? `close-${input.requestId}-${Date.now()}`,
+    correlationId,
   });
+
+  await recordAuditEvent({
+    actorId: input.session.userId,
+    workspaceId: request.workspaceId,
+    action: 'delivery.closed',
+    targetType: 'REQUEST',
+    targetId: request.id,
+    requestId: request.id,
+    correlationId,
+    metadataSummary: `requestId=${request.id}; reason=${reason}`,
+  });
+
+  return updated;
 }
 
 export async function getCustomerDeliveryRequest(session: AppSession, requestId: string): Promise<CustomerDeliveryRequest> {
@@ -169,13 +191,17 @@ export async function getCustomerDeliveryRequest(session: AppSession, requestId:
       }),
       prisma.vaultFile.findMany({
         where: { requestId, workspaceId: session.activeWorkspaceId, documentVersionId: { not: null } },
-        select: { id: true, filename: true, documentVersionId: true, size: true, contentType: true },
+        select: { id: true, filename: true, documentVersionId: true, size: true, contentType: true, createdAt: true },
         orderBy: { createdAt: 'desc' },
       }),
     ]);
 
     const documentsById = new Map(documents.map((document) => [document.id, document]));
-    const vaultFilesByVersion = new Map(vaultFiles.map((file) => [file.documentVersionId, file]));
+    const vaultFilesByVersion = new Map(
+      vaultFiles
+        .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+        .map((file) => [file.documentVersionId, file])
+    );
 
     for (const version of finalVersions) {
       const document = documentsById.get(version.documentId);

@@ -118,7 +118,14 @@ export class PartnerAuthService {
 
       return {
         success: true,
-        user,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          isActive: user.isActive,
+          lastActiveAt: user.lastActiveAt,
+          createdAt: user.createdAt,
+        } as User,
         partner: partnerMember.partner,
         partnerMember,
         permissions,
@@ -127,7 +134,7 @@ export class PartnerAuthService {
       console.error('Partner login error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Login failed',
+        error: 'Login failed',
       };
     }
   }
@@ -176,7 +183,7 @@ export class PartnerAuthService {
       console.error('Validate partner session error:', error);
       return {
         valid: false,
-        error: error instanceof Error ? error.message : 'Validation failed',
+        error: 'Validation failed',
       };
     }
   }
@@ -230,7 +237,7 @@ export class PartnerAuthService {
   async getPartnerMembers(partnerId: string, options?: {
     role?: string;
     isActive?: boolean;
-  }): Promise<(PartnerMember & { user: User })[]> {
+  }) {
     const where: Record<string, unknown> = { partnerId };
     if (options?.role) {
       where.role = options.role;
@@ -255,7 +262,7 @@ export class PartnerAuthService {
         },
       },
       orderBy: { createdAt: 'asc' },
-    }) as Promise<(PartnerMember & { user: User })[]>;
+    });
   }
 }
 

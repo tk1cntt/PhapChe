@@ -12,7 +12,7 @@ export interface Workspace {
   name: string;
   slug: string;
   ownerId: string;
-  organizationId: string;  // FK to Organization — NOT NULL since v2.3
+  organizationId: string | null;  // FK to Organization — NOT NULL since v2.3; nullable for legacy rows
   settings?: WorkspaceSettings;
   memberCount: number;
   requestCount: number;
@@ -28,6 +28,7 @@ export interface WorkspaceSettings {
   allowedDomains?: string[];
   defaultLanguage?: string;
   timezone?: string;
+  /** URL or base64 data URI for the workspace logo */
   logo?: string;
 }
 
@@ -53,6 +54,7 @@ export interface MembershipWithUser extends Membership {
     email: string;
     name: string;
     avatar?: string;
+    /** Whether the user account itself is active (not deactivated) — distinct from Membership.isActive */
     isActive: boolean;
   };
 }

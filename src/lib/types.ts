@@ -20,15 +20,16 @@ export const REQUEST_STATUS = {
 
 export type RequestStatus = typeof REQUEST_STATUS[keyof typeof REQUEST_STATUS];
 
-/** @deprecated Replaced by 'triage'. Customer submit goes directly to triage. */
+/** @deprecated Replaced by 'triage'. Customer submit goes directly to triage. TODO: Remove in v3.0 after DB migration complete. */
 export const INTAKE_SUBMITTED_LEGACY = 'intake_submitted' as const;
 
-/** Legacy status including deprecated intake_submitted for DB compatibility */
+/** Legacy status including deprecated intake_submitted for DB compatibility. TODO: Remove in v3.0. */
 export type RequestStatusLegacy = RequestStatus | typeof INTAKE_SUBMITTED_LEGACY;
 
 // Role values (v2.3)
 // ── Platform-level role (global, stored conceptually, not per workspace) ──
 // super_admin: full system access, bypass all workspace checks
+// audit_admin: read-only audit access across all workspaces
 //
 // ── Workspace-level roles (per WorkspaceMembership) ──
 // customer: external SME user, can only access own requests
@@ -49,7 +50,7 @@ export const ROLE = {
 export type Role = typeof ROLE[keyof typeof ROLE];
 
 /** Platform-level role — global, bypasses workspace checks */
-export type PlatformRole = 'super_admin';
+export type PlatformRole = 'super_admin' | 'audit_admin';
 
 /** Workspace-level role — assigned per WorkspaceMembership */
 export type WorkspaceRole = 'customer' | 'specialist' | 'reviewer' | 'coordinator_admin';

@@ -5,7 +5,7 @@ import { canAccessWorkspace } from '@/lib/security/rbac';
 import type { AppSession } from '@/lib/security/session';
 
 function isAdmin(session: AppSession | null | undefined) {
-  return session?.roles.includes('coordinator_admin') || session?.roles.includes('super_admin') || false;
+  return session?.roles?.includes('coordinator_admin') || session?.roles?.includes('super_admin') || false;
 }
 
 type CreateFolderInput = { workspaceId: string; name: string; parentId?: string | null };
@@ -71,7 +71,7 @@ export async function moveFileToFolder(session: AppSession, input: MoveFileToFol
     prisma.vaultFile.findUnique({ where: { id: input.vaultFileId }, select: { id: true, workspaceId: true } }),
     prisma.folder.findUnique({ where: { id: input.folderId }, select: { id: true, workspaceId: true, name: true } }),
   ]);
-  const folderNameVi = (folder?.name as string) ?? '';
+  const folderName = (folder?.name as string) ?? '';
   if (!vaultFile) throw new Error('VAULT_FILE_NOT_FOUND');
   if (!folder) throw new Error('FOLDER_NOT_FOUND');
   if (vaultFile.workspaceId !== folder.workspaceId) throw new Error('WORKSPACE_MISMATCH');
@@ -91,7 +91,7 @@ export async function moveFileToFolder(session: AppSession, input: MoveFileToFol
         targetType: 'VAULT_FILE',
         targetId: input.vaultFileId,
         correlationId: `vault-file-move-${input.vaultFileId}-${input.folderId}`,
-        metadataSummary: `folderId=${input.folderId}; folderName=${folderNameVi}`,
+        metadataSummary: `folderId=${input.folderId}; folderName=${folderName}`,
       },
       tx,
     );
@@ -182,15 +182,22 @@ export async function tagFile(session: AppSession, input: TagFileInput) {
 export async function untagFile(session: AppSession, input: UntagFileInput) {
   if (!isAdmin(session)) throw new Error('FORBIDDEN');
 
-  const vaultFile = await prisma.vaultFile.findUnique({
-    where: { id: input.vaultFileId },
-    select: { id: true, workspaceId: true },
-  });
+  const [vaultFile, tag, existing] = await Promise.all([
+    prisma.vaultFile.findUnique({
+      where: { id: input.vaultFileId },
+      select: { id: true, workspaceId: true },
+    }),
+    prisma.tag.findUnique({
+      where: { id: input.tagId },
+      select: { id: true, workspaceId: true },
+    }),
+    prisma.vaultFileTag.findUnique({
+      where: { vaultFileId_tagId: { vaultFileId: input.vaultFileId, tagId: input.tagId } },
+    }),
+  ]);
   if (!vaultFile) throw new Error('VAULT_FILE_NOT_FOUND');
-
-  const existing = await prisma.vaultFileTag.findUnique({
-    where: { vaultFileId_tagId: { vaultFileId: input.vaultFileId, tagId: input.tagId } },
-  });
+  if (!tag) throw new Error('TAG_NOT_FOUND');
+  if (vaultFile.workspaceId !== tag.workspaceId) throw new Error('WORKSPACE_MISMATCH');
   if (!existing) throw new Error('VAULT_FILE_TAG_NOT_FOUND');
 
   await prisma.$transaction(async (tx) => {

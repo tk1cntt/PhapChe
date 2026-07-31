@@ -42,17 +42,19 @@ export function AiProvider({ children }: { children: React.ReactNode }) {
   const [hasAttempted, setHasAttempted] = useState(false);
 
   const init = useCallback(async () => {
+    if (isInitializing) return;
     setIsInitializing(true);
     setInitError(null);
 
+    const controller = new AbortController();
     try {
-      const res = await fetch('/api/ai/init');
+      const res = await fetch('/api/ai/init', { signal: controller.signal }); // TODO: extract to shared constant or env variable
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const json = await res.json();
       if (json.success) {
         setIsReady(true);
-        setDocsIndexed(json.data.indexed);
+        setDocsIndexed(json.data?.indexed ?? 0);
       } else {
         setInitError(json.detail ?? 'AI khởi tạo thất bại');
       }
@@ -62,7 +64,7 @@ export function AiProvider({ children }: { children: React.ReactNode }) {
       setIsInitializing(false);
       setHasAttempted(true);
     }
-  }, []);
+  }, [isInitializing]);
 
   useEffect(() => {
     if (!hasAttempted) {

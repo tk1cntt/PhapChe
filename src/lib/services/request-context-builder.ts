@@ -77,6 +77,10 @@ export class RequestContextBuilder {
       throw new Error(`User not found: ${userId}`);
     }
 
+    if (!user.isActive) {
+      throw new Error(`User is inactive: ${userId}`);
+    }
+
     return {
       id: user.id,
       email: user.email,
@@ -97,7 +101,9 @@ export class RequestContextBuilder {
       },
     });
 
-    if (!workspace) return undefined;
+    if (!workspace) {
+      throw new Error(`Workspace not found for slug: ${slug}`);
+    }
 
     return {
       id: workspace.id,
@@ -118,7 +124,9 @@ export class RequestContextBuilder {
       },
     });
 
-    if (!workspace) return undefined;
+    if (!workspace) {
+      throw new Error(`Workspace not found for id: ${id}`);
+    }
 
     return {
       id: workspace.id,
@@ -187,6 +195,9 @@ export class RequestContextBuilder {
     });
 
     if (!member) return undefined;
+
+    // Exclude inactive or suspended partners
+    if (member.partner.status !== 'active') return undefined;
 
     // Get active engagements for this partner
     const engagements = await this.prisma.engagement.findMany({

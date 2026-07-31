@@ -137,6 +137,7 @@ export interface StorageConfig {
     region: string;
     endpoint?: string;
     accessKeyId: string;
+    /** @deprecated Prefer loading from secrets manager; avoid logging this value. */
     secretAccessKey: string;
     forcePathStyle?: boolean;
   };
@@ -280,9 +281,12 @@ export class StorageError extends Error {
 }
 
 export class FileNotFoundError extends StorageError {
+  public readonly objectKey: string;
+
   constructor(objectKey: string) {
     super(`File not found: ${objectKey}`, 'FILE_NOT_FOUND', 404);
     this.name = 'FileNotFoundError';
+    this.objectKey = objectKey;
   }
 }
 

@@ -4,14 +4,18 @@
  */
 
 import { REQUEST_STATUS } from '@/lib/types';
+import type { RequestStatus } from '@/lib/types';
 
-// Partner allowed status transitions based on request-workflow.ts
-// Partners can transition from in_progress to pending_review
+// Partner-allowed statuses (aggregated across specialist, reviewer, coordinator roles)
+// See request-workflow.ts canTransitionRequestStatus() for per-role enforcement
+// - specialist: in_progress, pending_review
+// - reviewer: approved (also revision_required, not listed here)
+// - coordinator_admin: delivered
 export const PARTNER_ALLOWED_STATUSES = [
-  REQUEST_STATUS.IN_PROGRESS,      // 'in_progress'
-  REQUEST_STATUS.PENDING_REVIEW,    // 'pending_review'
-  REQUEST_STATUS.APPROVED,          // 'approved' - partner can mark as approved after review
-  REQUEST_STATUS.DELIVERED,        // 'delivered' - partner can mark as delivered
+  REQUEST_STATUS.IN_PROGRESS,
+  REQUEST_STATUS.PENDING_REVIEW,
+  REQUEST_STATUS.APPROVED,
+  REQUEST_STATUS.DELIVERED,
 ] as const;
 
 export type PartnerAllowedStatus = typeof PARTNER_ALLOWED_STATUSES[number];
@@ -25,7 +29,7 @@ export const PARTNER_STATUS_LABELS: Record<PartnerAllowedStatus, { vi: string; e
 };
 
 // All request status labels for admin (all statuses, not just partner-allowed)
-export const REQUEST_STATUS_LABELS: Record<string, string> = {
+export const REQUEST_STATUS_LABELS: Record<RequestStatus, string> = {
   [REQUEST_STATUS.DRAFT_INTAKE]: 'Bản nháp',
   [REQUEST_STATUS.TRIAGE]: 'Phân loại',
   [REQUEST_STATUS.ASSIGNED]: 'Đã phân công',

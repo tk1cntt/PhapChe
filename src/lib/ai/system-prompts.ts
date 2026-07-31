@@ -675,7 +675,10 @@ export function renderSystemPrompt(
   // Replace simple variables: {{varName}}
   for (const [key, value] of Object.entries(context)) {
     if (typeof value === 'string' || typeof value === 'number') {
-      rendered = rendered.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), String(value));
+      // Escape special regex characters in the key
+      const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // Use a replacer function to avoid $-pattern interpretation
+      rendered = rendered.replace(new RegExp(`\\{\\{${escapedKey}\\}\\}`, 'g'), () => String(value));
     }
   }
 
@@ -695,7 +698,9 @@ export function renderSystemPrompt(
       return legalContext.map((item: Record<string, unknown>) => {
         let b = blockContent;
         for (const [k, v] of Object.entries(item)) {
-          b = b.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v ?? ''));
+          const escapedK = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const strValue = typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v ?? '');
+          b = b.replace(new RegExp(`\\{\\{${escapedK}\\}\\}`, 'g'), () => strValue);
         }
         return b;
       }).join('\n');
@@ -705,6 +710,12 @@ export function renderSystemPrompt(
 
   // Clean remaining unresolved {{#if}} blocks
   rendered = rendered.replace(/\{\{#if \w+\}\}[\s\S]*?\{\{\/if\}\}/g, '');
+
+  // Warn about unresolved placeholders
+  const unresolved = rendered.match(/\{\{\w+\}\}/g);
+  if (unresolved && unresolved.length > 0) {
+    console.warn(`Unresolved template variables in "${skill}":`, unresolved);
+  }
 
   return rendered;
 }

@@ -50,8 +50,7 @@ export function generateObjectKey(params: {
       return `organizations/${organizationId}/vault/${fileId}/${safeFileName}`;
 
     case FileCategoryEnum.TEMPLATE:
-      // templates/{templateType}/{templateId}/v{version}/{fileName}
-      // templateType is derived from organizationId or use 'default'
+      // templates/{organizationId}/{fileId}/{safeFileName}
       return `templates/${organizationId}/${fileId}/${safeFileName}`;
 
     case FileCategoryEnum.OCR_OUTPUT:
@@ -89,7 +88,7 @@ export function parseObjectKey(objectKey: string): {
   if (parts[0] === 'organizations' && parts.length >= 5) {
     const orgId = parts[1];
 
-    if (parts[2] === 'requests' && parts.length >= 8) {
+    if (parts[2] === 'requests' && parts.length >= 7) {
       const requestId = parts[3];
 
       if (parts[4] === 'uploads' && parts.length === 7) {
@@ -143,12 +142,12 @@ export function parseObjectKey(objectKey: string): {
   }
 
   // Handle templates path
-  if (parts[0] === 'templates' && parts.length === 3) {
+  if (parts[0] === 'templates' && parts.length === 4) {
     return {
       category: FileCategoryEnum.TEMPLATE,
       organizationId: parts[1],
       fileId: parts[2],
-      fileName: '', // Templates don't have a file name in the key
+      fileName: parts[3],
     };
   }
 

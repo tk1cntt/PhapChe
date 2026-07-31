@@ -1,6 +1,6 @@
 // ── Normalized Content Cache ───────────────────────────────────
 
-import type { CacheEntry } from './types';
+import type { CacheEntry, NormalizeResult } from './types';
 
 /**
  * In-memory cache cho normalized content.
@@ -15,25 +15,27 @@ class NormalizeCache {
   private pruneRatio: number;
 
   constructor(maxEntries = 200, pruneRatio = 0.5) {
+    if (maxEntries < 1) throw new Error('maxEntries must be >= 1');
+    if (pruneRatio <= 0 || pruneRatio > 1) throw new Error('pruneRatio must be in (0, 1]');
     this.maxEntries = maxEntries;
     this.pruneRatio = pruneRatio;
   }
 
-  /** Lookup cache bằng hash */
-  get(hash: string): string | null {
+  /** Lookup cache bằng hash — returns full NormalizeResult or null */
+  get(hash: string): NormalizeResult | null {
     const entry = this.store.get(hash);
     if (!entry) return null;
-    return entry.normalized;
+    return entry.result ?? null;
   }
 
-  /** Store normalized content */
-  set(hash: string, normalized: string): void {
+  /** Store full normalize result */
+  set(hash: string, result: NormalizeResult): void {
     if (this.store.size >= this.maxEntries) {
       this.prune();
     }
     this.store.set(hash, {
       hash,
-      normalized,
+      result,
       createdAt: Date.now(),
     });
   }
@@ -57,7 +59,7 @@ class NormalizeCache {
    * Prune cache: xóa oldest (pruneRatio * maxEntries) entries.
    */
   private prune(): void {
-    const removeCount = Math.floor(this.maxEntries * this.pruneRatio);
+    const removeCount = Math.max(1, Math.floor(this.maxEntries * this.pruneRatio));
     const entries = Array.from(this.store.entries())
       .sort((a, b) => a[1].createdAt - b[1].createdAt);
     for (let i = 0; i < removeCount && i < entries.length; i++) {

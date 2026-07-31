@@ -40,14 +40,14 @@ BỐI CẢNH PHÁP LÝ (từ RAG):
 YÊU CẦU ĐẦU RA (JSON nghiêm ngặt, không thêm text bên ngoài):
 {
   "caseSummary": {
-    "type": "commercial|civil|labor|administrative|ip|criminal|other",
-    "jurisdiction": "Tòa án có thẩm quyền",
+    "type": "[thể loại: commercial, civil, labor, administrative, ip, criminal, other]",
+    "jurisdiction": "[Tòa án có thẩm quyền]",
     "value": 0,
     "currency": "VND",
     "parties": {
-      "plaintiff": "Tên nguyên đơn",
-      "defendant": "Tên bị đơn",
-      "thirdParties": ["Người có quyền lợi, nghĩa vụ liên quan"]
+      "plaintiff": "[Tên nguyên đơn]",
+      "defendant": "[Tên bị đơn]",
+      "thirdParties": ["[Người có quyền lợi, nghĩa vụ liên quan]"]
     }
   },
   "swotAnalysis": {
@@ -218,5 +218,5 @@ NGUYÊN TẮC QUAN TRỌNG:
 10. Ngôn ngữ output: {{locale}}
 11. TRẢ VỀ DUY NHẤT JSON, không thêm bất kỳ text nào khác`,
   outputFormat: 'json_object',
-  requiredVariables: ['matterType', 'requestTitle', 'locale'],
+  requiredVariables: ['matterType', 'requestTitle', 'locale', 'legalContext'],
 };

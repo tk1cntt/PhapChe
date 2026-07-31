@@ -13,11 +13,19 @@ export type DeliveryReadyEmailResult = {
   body: string;
 };
 
-export async function sendDeliveryReadyEmail(input: DeliveryReadyEmailInput): Promise<DeliveryReadyEmailResult> {
+const DOWNLOAD_VALIDITY_MINUTES = 15;
+
+export function sendDeliveryReadyEmail(input: DeliveryReadyEmailInput): DeliveryReadyEmailResult {
+  if (!input) throw new Error('EMAIL_INPUT_REQUIRED');
   if (!input.to.trim()) throw new Error('EMAIL_TO_REQUIRED');
   if (!input.requestTitle.trim()) throw new Error('EMAIL_REQUEST_TITLE_REQUIRED');
   if (!input.portalUrl.trim()) throw new Error('EMAIL_PORTAL_URL_REQUIRED');
 
+  if (!/^https?:\/\/.+/.test(input.portalUrl) || input.portalUrl.includes('\n')) {
+    throw new Error('EMAIL_PORTAL_URL_INVALID');
+  }
+
+  if (!input.filenames || !Array.isArray(input.filenames)) throw new Error('EMAIL_FILENAMES_REQUIRED');
   const filenames = input.filenames.map((filename) => filename.trim()).filter(Boolean);
   if (filenames.length === 0) throw new Error('EMAIL_FILENAMES_REQUIRED');
 
@@ -27,7 +35,7 @@ export async function sendDeliveryReadyEmail(input: DeliveryReadyEmailInput): Pr
     'Tài liệu final:',
     ...filenames.map((filename) => `- ${filename}`),
     `Truy cập/tải xuống: ${input.portalUrl}`,
-    'Liên kết tải xuống có hiệu lực trong 15 phút.',
+    `Liên kết tải xuống có hiệu lực trong ${DOWNLOAD_VALIDITY_MINUTES} phút.`,
   ].join('\n');
 
   return {

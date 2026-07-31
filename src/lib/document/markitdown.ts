@@ -6,6 +6,7 @@
 
 import { execFile } from 'child_process';
 import { promisify } from 'util';
+import path from 'path';
 import type { MarkItDownResult } from './types';
 
 const execFileAsync = promisify(execFile);
@@ -98,9 +99,20 @@ export async function convertWithMarkItDown(
   const converter = detectConverter(mimeType, filename);
 
   try {
+    // Validate filePath is within the allowed directory to prevent path traversal
+    const resolvedPath = path.resolve(filePath);
+    const allowedDir = path.resolve(process.env.UPLOAD_DIR || '/tmp/uploads');
+    if (!resolvedPath.startsWith(allowedDir + path.sep)) {
+      return {
+        markdown: '',
+        success: false,
+        error: `File path is outside allowed directory: ${filePath}`,
+      };
+    }
+
     const { stdout } = await execFileAsync(
       'markitdown',
-      ['--no-plugins', filePath],
+      ['--no-plugins', resolvedPath],
       {
         timeout: timeoutMs,
         maxBuffer: 10 * 1024 * 1024, // 10MB buffer
@@ -126,7 +138,7 @@ export async function convertWithMarkItDown(
       converter,
     };
   } catch (err) {
-    const error = err as NodeJS.ErrnoException & { killed?: boolean };
+    const error = err as NodeJS.ErrnoException & { killed?: boolean; stderr?: string; code?: string };
 
     // Handle specific error types
     if (error.killed && error.code === null) {
@@ -138,10 +150,20 @@ export async function convertWithMarkItDown(
       };
     }
 
+    // Distinguish buffer overflow from other errors
+    if (error.code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER') {
+      return {
+        markdown: '',
+        success: false,
+        error: `MarkItDown output exceeds 10MB buffer limit for ${converter} file`,
+        converter,
+      };
+    }
+
     return {
       markdown: '',
       success: false,
-      error: `MarkItDown error for ${converter}: ${error.message}`,
+      error: `MarkItDown error for ${converter}: ${error.message}${error.stderr ? ' — ' + String(error.stderr).trim() : ''}`,
       converter,
     };
   }
@@ -156,10 +178,10 @@ function detectConverter(mimeType: string, filename: string): string {
   const mime = mimeType.toLowerCase();
   const ext = filename.toLowerCase();
 
-  if (mime.includes('wordprocessingml') || ext.endsWith('.docx')) return 'docx';
+  if (mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || ext.endsWith('.docx')) return 'docx';
   if (mime === 'application/pdf' || ext.endsWith('.pdf')) return 'pdf';
-  if (mime.includes('spreadsheetml') || ext.endsWith('.xlsx')) return 'xlsx';
-  if (mime.includes('presentationml') || ext.endsWith('.pptx')) return 'pptx';
+  if (mime === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || ext.endsWith('.xlsx')) return 'xlsx';
+  if (mime === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' || ext.endsWith('.pptx')) return 'pptx';
 
   return 'unknown';
 }

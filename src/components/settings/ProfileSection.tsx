@@ -21,9 +21,10 @@ export interface ProfileSectionProps {
     timezone: string;
   }) => Promise<void>;
   savedMessage?: string;
+  saveError?: string | null;
 }
 
-export function ProfileSection({ user, workspaces, onSave, savedMessage }: ProfileSectionProps): React.ReactElement {
+export function ProfileSection({ user, workspaces, onSave, savedMessage, saveError }: ProfileSectionProps): React.ReactElement {
   const t = useTranslations('UserSettings');
   const [formData, setFormData] = React.useState({
     name: user.name,
@@ -74,6 +75,11 @@ export function ProfileSection({ user, workspaces, onSave, savedMessage }: Profi
         {(savedMessage || saving) && (
           <span className={`save-indicator ${saving ? 'saving' : 'saved'}`}>
             {saving ? t('saving') : savedMessage}
+          </span>
+        )}
+        {saveError && (
+          <span className="save-indicator error">
+            {saveError}
           </span>
         )}
       </div>

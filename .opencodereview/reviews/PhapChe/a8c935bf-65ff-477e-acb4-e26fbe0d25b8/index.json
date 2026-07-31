@@ -1,0 +1,609 @@
+{
+  "id": "a8c935bf-65ff-477e-acb4-e26fbe0d25b8",
+  "created_at": "2026-07-30T17:36:50.00865Z",
+  "project": {
+    "id": "PhapChe",
+    "name": "PhapChe",
+    "repo_dir": "D:\\PhapChe"
+  },
+  "gitlab": {
+    "project_id": "PhapChe"
+  },
+  "review": {
+    "mode": "full_scan",
+    "model": "nvidia-model",
+    "files_reviewed": 138,
+    "comments": 575,
+    "total_tokens": 4859355,
+    "input_tokens": 4142150,
+    "output_tokens": 717205,
+    "cache_read_tokens": 2040192,
+    "duration": "48m59.2442928s",
+    "duration_seconds": 2939,
+    "session_id": "54a72c4c-128e-4d08-a5e5-e9437bf5735d"
+  },
+  "warnings": [
+    {
+      "file": "src/app/[locale]/admin/requests/[id]/chat/page.tsx",
+      "message": "LLM completion error: POST \"http://localhost:20128/v1/chat/completions\": 502 Bad Gateway {\"message\":\"[openai-compatible-chat-79b81d38-aaee-40e2-b38d-63fd55bd7c79/deepseek/deepseek-v4-pro] [502]: fetch connect timeout (reset after 18s)\"}",
+      "type": "scan_subtask_error"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/app/[locale]/admin/audit/audit.css",
+      "comment_count": 3,
+      "md": "src/app/[locale]/admin/audit/audit.css.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/dashboard/page.tsx",
+      "comment_count": 23,
+      "md": "src/app/[locale]/admin/dashboard/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/layout.tsx",
+      "comment_count": 2,
+      "md": "src/app/[locale]/admin/layout.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/operations/page.tsx",
+      "comment_count": 1,
+      "md": "src/app/[locale]/admin/operations/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/organizations/[id]/organization-detail.css",
+      "comment_count": 6,
+      "md": "src/app/[locale]/admin/organizations/[id]/organization-detail.css.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/organizations/[id]/page.tsx",
+      "comment_count": 6,
+      "md": "src/app/[locale]/admin/organizations/[id]/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/organizations/organizations.css",
+      "comment_count": 7,
+      "md": "src/app/[locale]/admin/organizations/organizations.css.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/organizations/page.tsx",
+      "comment_count": 6,
+      "md": "src/app/[locale]/admin/organizations/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/page.tsx",
+      "comment_count": 2,
+      "md": "src/app/[locale]/admin/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/partner/[id]/partner-detail.css",
+      "comment_count": 6,
+      "md": "src/app/[locale]/admin/partner/[id]/partner-detail.css.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/partner/page.tsx",
+      "comment_count": 5,
+      "md": "src/app/[locale]/admin/partner/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/partner/partner.css",
+      "comment_count": 5,
+      "md": "src/app/[locale]/admin/partner/partner.css.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/requests/[id]/page.tsx",
+      "comment_count": 6,
+      "md": "src/app/[locale]/admin/requests/[id]/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/requests/page.tsx",
+      "comment_count": 2,
+      "md": "src/app/[locale]/admin/requests/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/requests/requests.css",
+      "comment_count": 5,
+      "md": "src/app/[locale]/admin/requests/requests.css.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/users/[id]/page.tsx",
+      "comment_count": 4,
+      "md": "src/app/[locale]/admin/users/[id]/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/users/page.tsx",
+      "comment_count": 5,
+      "md": "src/app/[locale]/admin/users/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/admin/vault/vault.css",
+      "comment_count": 6,
+      "md": "src/app/[locale]/admin/vault/vault.css.md"
+    },
+    {
+      "path": "src/app/[locale]/cases/[id]/page.tsx",
+      "comment_count": 12,
+      "md": "src/app/[locale]/cases/[id]/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/cases/page.tsx",
+      "comment_count": 6,
+      "md": "src/app/[locale]/cases/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/create/page.tsx",
+      "comment_count": 5,
+      "md": "src/app/[locale]/create/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/dashboard/page.tsx",
+      "comment_count": 6,
+      "md": "src/app/[locale]/dashboard/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/layout.tsx",
+      "comment_count": 2,
+      "md": "src/app/[locale]/layout.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/messages/page.tsx",
+      "comment_count": 7,
+      "md": "src/app/[locale]/messages/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/page.tsx",
+      "comment_count": 2,
+      "md": "src/app/[locale]/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/partner/dashboard/page.tsx",
+      "comment_count": 2,
+      "md": "src/app/[locale]/partner/dashboard/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/partner/settings/page.tsx",
+      "comment_count": 3,
+      "md": "src/app/[locale]/partner/settings/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/settings/SettingsClient.tsx",
+      "comment_count": 4,
+      "md": "src/app/[locale]/settings/SettingsClient.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/settings/page.tsx",
+      "comment_count": 8,
+      "md": "src/app/[locale]/settings/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/sign-in/page.tsx",
+      "comment_count": 1,
+      "md": "src/app/[locale]/sign-in/page.tsx.md"
+    },
+    {
+      "path": "src/app/[locale]/workspace/page.tsx",
+      "comment_count": 7,
+      "md": "src/app/[locale]/workspace/page.tsx.md"
+    },
+    {
+      "path": "src/app/api/admin/audit/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/admin/audit/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/audit/stats/route.ts",
+      "comment_count": 1,
+      "md": "src/app/api/admin/audit/stats/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/operations/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/admin/operations/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/organizations/[id]/route.ts",
+      "comment_count": 8,
+      "md": "src/app/api/admin/organizations/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/organizations/route.ts",
+      "comment_count": 6,
+      "md": "src/app/api/admin/organizations/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/partner/requests/[id]/comments/route.ts",
+      "comment_count": 2,
+      "md": "src/app/api/admin/partner/requests/[id]/comments/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/partner/requests/[id]/documents/route.ts",
+      "comment_count": 9,
+      "md": "src/app/api/admin/partner/requests/[id]/documents/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/partner/requests/[id]/route.ts",
+      "comment_count": 2,
+      "md": "src/app/api/admin/partner/requests/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/partner/requests/[id]/status/route.ts",
+      "comment_count": 8,
+      "md": "src/app/api/admin/partner/requests/[id]/status/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/partner/requests/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/admin/partner/requests/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/partners/[id]/route.ts",
+      "comment_count": 13,
+      "md": "src/app/api/admin/partners/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/partners/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/admin/partners/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/assign/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/admin/requests/[id]/assign/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/chat/route.ts",
+      "comment_count": 15,
+      "md": "src/app/api/admin/requests/[id]/chat/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/files/[fileId]/ai-review/route.ts",
+      "comment_count": 15,
+      "md": "src/app/api/admin/requests/[id]/files/[fileId]/ai-review/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/files/[fileId]/preview/route.ts",
+      "comment_count": 10,
+      "md": "src/app/api/admin/requests/[id]/files/[fileId]/preview/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/files/annotations/[annotationId]/route.ts",
+      "comment_count": 8,
+      "md": "src/app/api/admin/requests/[id]/files/annotations/[annotationId]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/files/annotations/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/admin/requests/[id]/files/annotations/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/files/review-status/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/admin/requests/[id]/files/review-status/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/files/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/admin/requests/[id]/files/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/report/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/admin/requests/[id]/report/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/route.ts",
+      "comment_count": 7,
+      "md": "src/app/api/admin/requests/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/status/route.ts",
+      "comment_count": 2,
+      "md": "src/app/api/admin/requests/[id]/status/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/[id]/timeline/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/admin/requests/[id]/timeline/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/delivery/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/admin/requests/delivery/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/my-work/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/admin/requests/my-work/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/pending-review/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/admin/requests/pending-review/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/admin/requests/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/stats/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/admin/requests/stats/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/requests/triage/route.ts",
+      "comment_count": 8,
+      "md": "src/app/api/admin/requests/triage/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/users/[id]/route.ts",
+      "comment_count": 9,
+      "md": "src/app/api/admin/users/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/users/route.ts",
+      "comment_count": 6,
+      "md": "src/app/api/admin/users/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/workspaces/[id]/route.ts",
+      "comment_count": 6,
+      "md": "src/app/api/admin/workspaces/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/admin/workspaces/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/admin/workspaces/route.ts.md"
+    },
+    {
+      "path": "src/app/api/ai/analyze/route.ts",
+      "comment_count": 7,
+      "md": "src/app/api/ai/analyze/route.ts.md"
+    },
+    {
+      "path": "src/app/api/ai/init/route.ts",
+      "comment_count": 2,
+      "md": "src/app/api/ai/init/route.ts.md"
+    },
+    {
+      "path": "src/app/api/ai/status/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/ai/status/route.ts.md"
+    },
+    {
+      "path": "src/app/api/auth/session-role/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/auth/session-role/route.ts.md"
+    },
+    {
+      "path": "src/app/api/debug-session/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/debug-session/route.ts.md"
+    },
+    {
+      "path": "src/app/api/files/[id]/access-logs/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/files/[id]/access-logs/route.ts.md"
+    },
+    {
+      "path": "src/app/api/files/[id]/download/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/files/[id]/download/route.ts.md"
+    },
+    {
+      "path": "src/app/api/files/[id]/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/files/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/files/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/files/route.ts.md"
+    },
+    {
+      "path": "src/app/api/intake/create-draft/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/intake/create-draft/route.ts.md"
+    },
+    {
+      "path": "src/app/api/intake/draft/[id]/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/intake/draft/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/intake/draft/save/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/intake/draft/save/route.ts.md"
+    },
+    {
+      "path": "src/app/api/intake/submit/route.ts",
+      "comment_count": 10,
+      "md": "src/app/api/intake/submit/route.ts.md"
+    },
+    {
+      "path": "src/app/api/messages/[requestId]/read/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/messages/[requestId]/read/route.ts.md"
+    },
+    {
+      "path": "src/app/api/messages/[requestId]/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/messages/[requestId]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/messages/poll/route.ts",
+      "comment_count": 9,
+      "md": "src/app/api/messages/poll/route.ts.md"
+    },
+    {
+      "path": "src/app/api/messages/send/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/messages/send/route.ts.md"
+    },
+    {
+      "path": "src/app/api/messages/unread-count/route.ts",
+      "comment_count": 1,
+      "md": "src/app/api/messages/unread-count/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/auth/login/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/partner/auth/login/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/dashboard/route.ts",
+      "comment_count": 1,
+      "md": "src/app/api/partner/dashboard/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/engagements/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/partner/engagements/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/invite/[id]/route.ts",
+      "comment_count": 2,
+      "md": "src/app/api/partner/invite/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/invite/accept/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/partner/invite/accept/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/invite/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/partner/invite/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/members/[id]/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/partner/members/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/members/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/partner/members/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/requests/[id]/comments/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/partner/requests/[id]/comments/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/requests/[id]/documents/route.ts",
+      "comment_count": 6,
+      "md": "src/app/api/partner/requests/[id]/documents/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/requests/[id]/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/partner/requests/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/requests/[id]/status/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/partner/requests/[id]/status/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/requests/my-work/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/partner/requests/my-work/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/requests/pending-review/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/partner/requests/pending-review/route.ts.md"
+    },
+    {
+      "path": "src/app/api/partner/requests/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/partner/requests/route.ts.md"
+    },
+    {
+      "path": "src/app/api/requests/[id]/route.ts",
+      "comment_count": 2,
+      "md": "src/app/api/requests/[id]/route.ts.md"
+    },
+    {
+      "path": "src/app/api/requests/route.ts",
+      "comment_count": 9,
+      "md": "src/app/api/requests/route.ts.md"
+    },
+    {
+      "path": "src/app/api/service-types/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/service-types/route.ts.md"
+    },
+    {
+      "path": "src/app/api/settings/audit/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/settings/audit/route.ts.md"
+    },
+    {
+      "path": "src/app/api/settings/language/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/settings/language/route.ts.md"
+    },
+    {
+      "path": "src/app/api/settings/notifications/route.ts",
+      "comment_count": 7,
+      "md": "src/app/api/settings/notifications/route.ts.md"
+    },
+    {
+      "path": "src/app/api/settings/password/route.ts",
+      "comment_count": 5,
+      "md": "src/app/api/settings/password/route.ts.md"
+    },
+    {
+      "path": "src/app/api/settings/profile/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/settings/profile/route.ts.md"
+    },
+    {
+      "path": "src/app/api/swagger/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/swagger/route.ts.md"
+    },
+    {
+      "path": "src/app/api/vault/[vaultFileId]/download/route.ts",
+      "comment_count": 4,
+      "md": "src/app/api/vault/[vaultFileId]/download/route.ts.md"
+    },
+    {
+      "path": "src/app/api/vault/route.ts",
+      "comment_count": 3,
+      "md": "src/app/api/vault/route.ts.md"
+    },
+    {
+      "path": "src/app/api/workspace/invite/route.ts",
+      "comment_count": 7,
+      "md": "src/app/api/workspace/invite/route.ts.md"
+    },
+    {
+      "path": "src/app/api/workspaces/route.ts",
+      "comment_count": 2,
+      "md": "src/app/api/workspaces/route.ts.md"
+    },
+    {
+      "path": "src/app/globals.css",
+      "comment_count": 1,
+      "md": "src/app/globals.css.md"
+    },
+    {
+      "path": "src/app/invite/[token]/page.tsx",
+      "comment_count": 6,
+      "md": "src/app/invite/[token]/page.tsx.md"
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "comment_count": 3,
+      "md": "src/app/layout.tsx.md"
+    },
+    {
+      "path": "src/app/sign-in/page.tsx",
+      "comment_count": 1,
+      "md": "src/app/sign-in/page.tsx.md"
+    }
+  ]
+}

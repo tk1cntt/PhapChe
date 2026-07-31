@@ -12,21 +12,42 @@ export default async function UserDetailPage({ params }: PageProps) {
   const { locale, id } = await params;
   const session = await requireAppSession();
 
+  // Verify admin role to prevent unauthorized access to user data
+  const isAdmin = session.roles.includes('coordinator_admin') || session.roles.includes('super_admin');
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <h1>Unauthorized</h1>
+      </div>
+    );
+  }
+
   // Fetch user for initial data
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      isActive: true,
-      emailVerified: true,
-    },
-  });
+  let user;
+  try {
+    user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        isActive: true,
+        emailVerified: true,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to fetch user:', error);
+    return (
+      <div className="flex items-center justify-center p-12">
+        <h1>Something went wrong</h1>
+        <p>Unable to load user data. Please try again later.</p>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
-      <div style={{ padding: 48, textAlign: 'center' }}>
+      <div className="flex items-center justify-center p-12">
         <h1>User not found</h1>
       </div>
     );

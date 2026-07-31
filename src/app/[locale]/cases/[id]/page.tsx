@@ -41,16 +41,26 @@ const STATUS_COLORS: Record<string, string> = {
 export default async function CaseDetailPage({ params }: PageProps) {
   const { locale, id } = await params;
   const session = await requireAppSession();
+
+  // Fix Critical: workspace isolation — prevent silent filter drop when activeWorkspaceId is null
+  const activeWsId = session.activeWorkspaceId;
+  if (!activeWsId) {
+    throw new Error('No active workspace selected');
+  }
+
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
     select: {
       name: true,
       email: true,
       memberships: {
-        where: { workspaceId: session.activeWorkspaceId ?? undefined },
+        where: { workspaceId: activeWsId },
         select: { workspace: { select: { name: true, slug: true } } },
       },
     },
+  }).catch((error) => {
+    console.error('Failed to load user data:', error);
+    throw new Error('Failed to load case detail');
   });
 
   const workspace = user?.memberships[0]?.workspace;
@@ -64,7 +74,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
   const legalRequest = await prisma.legalRequest.findFirst({
     where: {
       id,
-      workspaceId: session.activeWorkspaceId ?? undefined,
+      workspaceId: activeWsId,
     },
     include: {
       workspace: { select: { id: true, name: true, slug: true } },
@@ -89,6 +99,9 @@ export default async function CaseDetailPage({ params }: PageProps) {
         },
       },
     },
+  }).catch((error) => {
+    console.error('Failed to load legal request:', error);
+    throw new Error('Failed to load case detail');
   });
 
   if (!legalRequest) {

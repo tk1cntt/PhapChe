@@ -46,6 +46,8 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
   const [profileSaved, setProfileSaved] = useState(false);
   const [currentLocale, setCurrentLocale] = useState(user.locale);
 
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   const handleSaveProfile = async (data: {
     name: string;
     email: string;
@@ -65,11 +67,12 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
         throw new Error(error.message || 'Failed to save profile');
       }
 
+      setSaveError(null);
       setProfileSaved(true);
       setTimeout(() => setProfileSaved(false), 3000);
     } catch (error) {
       console.error('Save profile failed:', error);
-      throw error;
+      setSaveError(error instanceof Error ? error.message : 'Save failed');
     }
   };
 
@@ -88,6 +91,7 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
             workspaces={workspaces}
             onSave={handleSaveProfile}
             savedMessage={profileSaved ? t('profileSaved') : undefined}
+            saveError={saveError}
           />
         );
       case 'security':

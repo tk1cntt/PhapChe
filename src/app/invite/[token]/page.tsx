@@ -38,16 +38,23 @@ export default function AcceptInvitePage() {
       return;
     }
 
-    setInviteInfo({
-      id: token,
-      email: 'invited@example.com',
-      role: 'specialist',
-      partnerName: 'Đối tác Pháp Chế',
-    });
-    setLoading(false);
+    async function fetchInvite() {
+      try {
+        const res = await fetch(`/api/partner/invite/${token}`);
+        if (!res.ok) throw new Error('Token không hợp lệ hoặc đã hết hạn');
+        const data = await res.json();
+        setInviteInfo(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Không thể tải thông tin lời mời');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchInvite();
   }, [token]);
 
   const handleAccept = async () => {
+    if (isPending) return; // Wait for auth to resolve
     if (!session) {
       router.push(`/sign-in?callbackUrl=/invite/${token}`);
       return;

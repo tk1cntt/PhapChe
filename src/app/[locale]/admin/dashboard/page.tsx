@@ -48,6 +48,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
     const t = await getTranslations({ locale, namespace: 'SpecialistDashboard' });
     const specialistId = session.userId;
 
+    try {
     const [
       assignedCount,
       inProgressCount,
@@ -87,8 +88,8 @@ export default async function AdminDashboardPage({ params }: PageProps) {
       title: task.title,
       status: task.status,
       priority: task.priority || 'MEDIUM',
-      customerName: task.createdBy.name,
-      workspaceName: task.workspace.name,
+      customerName: task.createdBy?.name || 'Unknown',
+      workspaceName: task.workspace?.name || 'Unknown',
       createdAt: task.createdAt.toISOString(),
       updatedAt: task.updatedAt.toISOString(),
     }));
@@ -130,6 +131,15 @@ export default async function AdminDashboardPage({ params }: PageProps) {
         }}
       />
     );
+    } catch (error) {
+      console.error('Specialist dashboard error:', error);
+      return (
+        <div style={{ padding: 48, textAlign: 'center' }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Error</h1>
+          <p style={{ color: '#6b7280' }}>Failed to load dashboard data. Please try again later.</p>
+        </div>
+      );
+    }
   }
 
   // ── REVIEWER DASHBOARD ──
@@ -137,6 +147,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
     const t = await getTranslations({ locale, namespace: 'ReviewerDashboard' });
     const reviewerId = session.userId;
 
+    try {
     const [
       pendingCount,
       approvedTodayCount,
@@ -148,7 +159,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
       prisma.legalRequest.count({
         where: {
           assignedReviewerId: reviewerId,
-          status: { in: ['approved', 'revision_required'] },
+          status: 'approved',
           updatedAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) },
         },
       }),
@@ -189,8 +200,8 @@ export default async function AdminDashboardPage({ params }: PageProps) {
       title: item.title,
       priority: item.priority || 'MEDIUM',
       specialistName: item.assignedSpecialist?.name || '—',
-      customerName: item.createdBy.name,
-      workspaceName: item.workspace.name,
+      customerName: item.createdBy?.name || 'Unknown',
+      workspaceName: item.workspace?.name || 'Unknown',
       submittedAt: timeAgo(item.updatedAt, locale),
     }));
 
@@ -238,6 +249,15 @@ export default async function AdminDashboardPage({ params }: PageProps) {
         }}
       />
     );
+    } catch (error) {
+      console.error('Reviewer dashboard error:', error);
+      return (
+        <div style={{ padding: 48, textAlign: 'center' }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Error</h1>
+          <p style={{ color: '#6b7280' }}>Failed to load dashboard data. Please try again later.</p>
+        </div>
+      );
+    }
   }
 
   // ── ADMIN DASHBOARD ──
@@ -280,7 +300,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
     prisma.auditEvent.count({ where: { createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, action: { in: ['access_denied', 'permission_change', 'unauthorized_access_attempt'] } } }),
     prisma.user.findMany({
       where: { isActive: true, memberships: { some: { role: { in: ['specialist', 'reviewer', 'coordinator_admin'] } } } },
-      include: { memberships: { where: { role: { in: ['specialist', 'reviewer', 'coordinator_admin'] } } }, specialistRequests: true, reviewerRequests: true },
+      include: { memberships: { where: { role: { in: ['specialist', 'reviewer', 'coordinator_admin'] } } }, _count: { select: { specialistRequests: { where: { status: { notIn: ['closed', 'cancelled', 'delivered'] } } }, reviewerRequests: { where: { status: { notIn: ['closed', 'cancelled', 'delivered'] } } } } } },
       take: 5,
     }),
     prisma.workspace.findMany({ include: { memberships: true, requests: { where: { status: { notIn: ['closed', 'cancelled'] } } } }, orderBy: { createdAt: 'desc' }, take: 3 }),
@@ -298,13 +318,14 @@ export default async function AdminDashboardPage({ params }: PageProps) {
   };
 
   const workloadData = specialistsWithWorkload.map((user) => {
-    const requestCount = user.specialistRequests.length + user.reviewerRequests.length;
+    const requestCount = (user._count?.specialistRequests || 0) + (user._count?.reviewerRequests || 0);
     const role = user.memberships[0]?.role || 'specialist';
     const progress = Math.min((requestCount / 20) * 100, 100);
     let status: 'ok' | 'warn' | 'danger' = 'ok';
     if (progress > 80) status = 'danger';
     else if (progress > 60) status = 'warn';
-    return { initials: user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(), name: user.name, role: role === 'specialist' ? 'Specialist' : role === 'reviewer' ? 'Reviewer' : 'Coordinator', progress, status, count: `${requestCount} hồ sơ` };
+    const userName = user.name || 'Unknown';
+    return { initials: userName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(), name: userName, role: role === 'specialist' ? 'Specialist' : role === 'reviewer' ? 'Reviewer' : 'Coordinator', progress, status, count: `${requestCount} hồ sơ` };
   });
 
   const workspaceData = featuredWorkspaces.map((ws) => ({
@@ -317,7 +338,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
   }));
 
   const approvalData = pendingApprovalsRaw.slice(0, 3).map((user) => ({
-    icon: user.name[0]?.toUpperCase() || '?', iconColor: 'orange' as const, title: user.name, description: user.email, badge: 'Pending', badgeColor: 'orange' as const,
+    icon: (user.name || '?')[0]?.toUpperCase() || '?', iconColor: 'orange' as const, title: user.name || 'Unknown', description: user.email, badge: 'Pending', badgeColor: 'orange' as const,
   }));
 
   const timelineData = recentAuditEvents.map((event) => {
@@ -335,7 +356,7 @@ export default async function AdminDashboardPage({ params }: PageProps) {
       else if (hoursLeft === 0) slaText = 'Sắp hết hạn';
       else slaText = `Còn ${hoursLeft}h`;
     }
-    return { id: req.code || req.id.slice(0, 8), type: req.matterType || 'Legal Request', workspace: req.workspace.name, workspaceSlug: req.workspace.slug, customer: req.createdBy.name, customerEmail: req.createdBy.email, status: statusColors[req.status] || 'blue', statusText: req.status, assignee: req.assignedSpecialist?.name || 'Chưa gán', assigneeRole: req.assignedSpecialist ? 'Specialist' : 'Unassigned', sla: slaColor, slaText, action: req.status === 'closed' || req.status === 'cancelled' ? 'Xem log' : req.status === 'approved' || req.status === 'delivered' ? 'Audit' : 'Điều phối' };
+    return { id: req.code || req.id.slice(0, 8), type: req.matterType || 'Legal Request', workspace: req.workspace?.name || 'Unknown', workspaceSlug: req.workspace?.slug || '', customer: req.createdBy?.name || 'Unknown', customerEmail: req.createdBy?.email || '', status: statusColors[req.status] || 'blue', statusText: req.status, assignee: req.assignedSpecialist?.name || 'Chưa gán', assigneeRole: req.assignedSpecialist ? 'Specialist' : 'Unassigned', sla: slaColor, slaText, action: (() => { if (req.status === 'closed' || req.status === 'cancelled') return 'Xem log'; if (req.status === 'approved' || req.status === 'delivered') return 'Audit'; return 'Điều phối'; })() };
   });
 
   const alertData: Array<{ type: 'accessDenied' | 'nearSla' | 'roleChange' | 'noAlerts'; icon: string; iconColor: 'red' | 'orange' | 'blue' | 'green'; count: number; badgeKey: string; badgeColor: 'red' | 'orange' | 'blue' | 'green' }> = [

@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+content-type: application/json
+set-cookie: better-auth.session_token=GkO6atPoFev3wdQm1PqhT0Xv2ma5SAqT.CNoL%2B44AlrL%2Flj5Pfuw1B1Nmzx2%2F2%2B2WEMEKjSsi88k%3D; Max-Age=604800; Path=/; HttpOnly; SameSite=Lax
+Date: Mon, 20 Jul 2026 15:51:45 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+

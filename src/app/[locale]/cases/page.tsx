@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { requireAppSession } from '@/lib/security/session';
 import { getWorkspaceRequestWhere } from '@/lib/security/request-filter';
 import { getTranslations } from 'next-intl/server';
@@ -48,12 +49,12 @@ export default async function CasesPage({ params }: PageProps) {
   const completedStatusFilter = { status: { in: ['approved', 'delivered', 'closed'] } };
 
   // Tạo where clauses trước (cần cho cả count và findMany)
-  const [baseWhere, processingWhere, completedWhere, requestsWhere] = await Promise.all([
+  const [baseWhere, processingWhere, completedWhere] = await Promise.all([
     getWorkspaceRequestWhere(wsId, userId),
     getWorkspaceRequestWhere(wsId, userId, processingStatusFilter),
     getWorkspaceRequestWhere(wsId, userId, completedStatusFilter),
-    getWorkspaceRequestWhere(wsId, userId),
   ]);
+  const requestsWhere = baseWhere; // reuse — tránh duplicated call
 
   const [overdueCount, requests, unreadMessages] = await Promise.all([
     // Overdue count dùng Prisma count với role filter
@@ -62,12 +63,12 @@ export default async function CasesPage({ params }: PageProps) {
         slaDeadline: { lt: now },
         status: { notIn: ['approved', 'delivered', 'closed', 'cancelled'] },
       };
-      const overdueWhere = await getWorkspaceRequestWhere(wsId, userId, overdueBase as any);
-      return prisma.legalRequest.count({ where: overdueWhere as any });
+      const overdueWhere = await getWorkspaceRequestWhere(wsId, userId, overdueBase as Prisma.LegalRequestWhereInput);
+      return prisma.legalRequest.count({ where: overdueWhere as Prisma.LegalRequestWhereInput });
     })(),
     // Requests with MatterType from intakeSubmission
     prisma.legalRequest.findMany({
-      where: requestsWhere as any,
+      where: requestsWhere as Prisma.LegalRequestWhereInput,
       include: {
         assignedSpecialist: { select: { name: true } },
         assignedReviewer: { select: { name: true } },
@@ -86,9 +87,9 @@ export default async function CasesPage({ params }: PageProps) {
   ]);
 
   // Run count queries with role filter
-  const totalRequests = await prisma.legalRequest.count({ where: baseWhere as any });
-  const processingRequests = await prisma.legalRequest.count({ where: processingWhere as any });
-  const completedRequests = await prisma.legalRequest.count({ where: completedWhere as any });
+  const totalRequests = await prisma.legalRequest.count({ where: baseWhere as Prisma.LegalRequestWhereInput });
+  const processingRequests = await prisma.legalRequest.count({ where: processingWhere as Prisma.LegalRequestWhereInput });
+  const completedRequests = await prisma.legalRequest.count({ where: completedWhere as Prisma.LegalRequestWhereInput });
 
   const stats = {
     total: Number(totalRequests),
@@ -128,16 +129,16 @@ export default async function CasesPage({ params }: PageProps) {
         slaVariant = days < 3 ? 'orange' : 'green';
       }
 
-      // Status badge mapping - isOverdue check first
-      const statusBadge = isOverdue
-        ? 'overdue'
-        : req.status === 'in_progress' || req.status === 'pending_review'
-          ? 'review'
-          : req.status === 'approved' || req.status === 'delivered' || req.status === 'closed'
-            ? 'approved'
-            : req.status === 'triage'
-              ? 'triage'
-              : 'pending';
+      // Status badge mapping - lookup map (fix nested ternary)
+      const statusBadgeMap: Record<string, string> = {
+        in_progress: 'review',
+        pending_review: 'review',
+        approved: 'approved',
+        delivered: 'approved',
+        closed: 'approved',
+        triage: 'triage',
+      };
+      const statusBadge = isOverdue ? 'overdue' : (statusBadgeMap[req.status] ?? 'pending');
 
       // Get MatterType key from intakeSubmission
       const matterTypeKey = req.intakeSubmission?.matterType?.key ?? req.intakeSubmission?.matterTypeKey ?? null;
@@ -157,14 +158,13 @@ export default async function CasesPage({ params }: PageProps) {
           | 'cancelled',
       );
 
-      const actionText =
-        req.status === 'pending_review'
-          ? tActions('reply')
-          : req.status === 'delivered' || req.status === 'closed'
-            ? tActions('downloadResult')
-            : req.status === 'revision_required'
-              ? tActions('supplement')
-              : tActions('view');
+      const actionKeyMap: Record<string, string> = {
+        pending_review: 'reply',
+        delivered: 'downloadResult',
+        closed: 'downloadResult',
+        revision_required: 'supplement',
+      };
+      const actionText = tActions(actionKeyMap[req.status] ?? 'view');
 
       return {
         id: req.id,

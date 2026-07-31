@@ -11,7 +11,7 @@ export async function GET(
     const { vaultFileId } = await params;
 
     const vaultFile = await prisma.vaultFile.findUnique({
-      where: { id: vaultFileId },
+      where: { id: vaultFileId, deletedAt: null },
       select: {
         id: true,
         filename: true,
@@ -36,7 +36,6 @@ export async function GET(
     return NextResponse.json({
       message: 'Download endpoint',
       filename: vaultFile.filename,
-      storageKey: vaultFile.storageKey,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

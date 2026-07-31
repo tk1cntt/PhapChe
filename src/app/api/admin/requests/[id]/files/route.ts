@@ -48,7 +48,7 @@ export async function GET(
     }
 
     // Verify workspace membership
-    if (session.activeWorkspaceId && legalRequest.workspaceId !== session.activeWorkspaceId) {
+    if (!session.activeWorkspaceId || legalRequest.workspaceId !== session.activeWorkspaceId) {
       const membership = await prisma.workspaceMembership.findFirst({
         where: { userId: session.userId, workspaceId: legalRequest.workspaceId, isActive: true },
         select: { id: true },
@@ -56,6 +56,15 @@ export async function GET(
       if (!membership) {
         return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
       }
+    }
+
+    // Verify assignment: specialist and reviewer should only access their assigned requests
+    const userRoles = Array.isArray(session.roles) ? session.roles : [];
+    if (userRoles.includes('specialist') && legalRequest.assignedSpecialistId !== session.userId) {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+    }
+    if (userRoles.includes('reviewer') && legalRequest.assignedReviewerId !== session.userId) {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
     }
 
     // Fetch VaultFiles (uploaded files)

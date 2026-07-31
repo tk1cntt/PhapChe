@@ -280,7 +280,7 @@ export async function GET(
     }
 
     // Workspace-level auth: user must be member of this request's workspace
-    if (session.activeWorkspaceId && legalRequest.workspaceId !== session.activeWorkspaceId) {
+    if (!session.activeWorkspaceId || legalRequest.workspaceId !== session.activeWorkspaceId) {
       return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
     }
 
@@ -400,7 +400,7 @@ export async function POST(
     }
 
     // Workspace-level auth: user must be member of this request's workspace
-    if (session.activeWorkspaceId && legalRequest.workspaceId !== session.activeWorkspaceId) {
+    if (!session.activeWorkspaceId || legalRequest.workspaceId !== session.activeWorkspaceId) {
       return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
     }
 

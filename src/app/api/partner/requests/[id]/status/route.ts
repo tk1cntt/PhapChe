@@ -25,7 +25,7 @@ const PARTNER_ALLOWED_STATUSES = [
 // Workflow transitions
 const WORKFLOW_TRANSITIONS: Record<string, string[]> = {
   'in_progress': ['pending_review', 'cancelled'],
-  'pending_review': ['approved', 'in_progress'],
+  'pending_review': ['approved', 'in_progress', 'review'],
   'review': ['revision_required', 'approved'],
   'revision_required': ['pending_review'],
   'approved': ['delivered'],
@@ -117,12 +117,23 @@ export async function PATCH(
       );
     }
 
-    // Update status within transaction — re-read current status to avoid TOCTOU
+    // Update status within transaction — re-read current state to avoid TOCTOU
     const updated = await prisma.$transaction(async (tx) => {
       const current = await tx.legalRequest.findUniqueOrThrow({
         where: { id },
-        select: { id: true, status: true },
+        select: { id: true, status: true, assignedPartnerId: true, engagement: { select: { partnerId: true } } },
       });
+
+      // Re-validate access control against fresh assignment
+      const hasAccessRecheck = current.assignedPartnerId === member.partnerId ||
+        current.engagement?.partnerId === member.partnerId;
+      if (!hasAccessRecheck) {
+        throw Object.assign(new Error('FORBIDDEN'), {
+          status: 403,
+          error: 'FORBIDDEN',
+          detail: 'Partner no longer has access to this request',
+        });
+      }
 
       // Re-validate transition against fresh status
       if (status !== current.status) {
@@ -130,6 +141,7 @@ export async function PATCH(
         if (!allowedNextRecheck.includes(status)) {
           throw Object.assign(new Error('INVALID_TRANSITION'), {
             status: 400,
+            error: 'INVALID_TRANSITION',
             detail: `Cannot transition from '${current.status}' to '${status}'`,
           });
         }

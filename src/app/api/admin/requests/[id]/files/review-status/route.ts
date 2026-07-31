@@ -8,7 +8,7 @@ import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 
 function isRedirectErr(e: unknown): boolean {
-  return e instanceof Error && 'NEXT_REDIRECT' === e.message;
+  return e instanceof Error && 'digest' in e && (e as { digest: string }).digest === 'NEXT_REDIRECT';
 }
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;

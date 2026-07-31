@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 
@@ -11,7 +12,15 @@ export async function PUT(request: Request) {
     const session = await requireAppSession();
     const userId = session.userId;
 
-    const body = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'VALIDATION_ERROR', message: 'Invalid JSON body' },
+        { status: 400 }
+      );
+    }
     const { locale } = body;
 
     // Validate locale
@@ -44,9 +53,16 @@ export async function PUT(request: Request) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Language update failed:', message);
 
-    if (message === 'UNAUTHENTICATED') {
+    if (message === 'UNAUTHENTICATED' || (error instanceof Error && 'code' in error && (error as any).code === 'UNAUTHENTICATED')) {
       return NextResponse.json(
         { error: 'UNAUTHORIZED', message: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json(
+        { error: 'UNAUTHORIZED', message: 'User no longer exists' },
         { status: 401 }
       );
     }

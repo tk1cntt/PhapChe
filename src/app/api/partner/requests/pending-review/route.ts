@@ -19,8 +19,10 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-    const pageSize = Math.min(50, Math.max(5, parseInt(searchParams.get('pageSize') || '10', 10)));
+    const rawPage = parseInt(searchParams.get('page') || '1', 10);
+    const rawPageSize = parseInt(searchParams.get('pageSize') || '10', 10);
+    const page = isNaN(rawPage) ? 1 : Math.max(1, rawPage);
+    const pageSize = isNaN(rawPageSize) ? 10 : Math.min(50, Math.max(5, rawPageSize));
     const skip = (page - 1) * pageSize;
     const search = searchParams.get('search') || '';
 
@@ -53,11 +55,14 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    // Stats
+    // Stats — scope matches the main query
+    const statsWhere: Record<string, unknown> = {
+      ...(isReviewer && !isAdmin ? { assignedReviewerId: session.userId } : {}),
+    };
     const [pendingCount, approvedCount, revisionCount] = await Promise.all([
-      prisma.legalRequest.count({ where: { assignedReviewerId: session.userId, status: 'pending_review' } }),
-      prisma.legalRequest.count({ where: { assignedReviewerId: session.userId, status: 'approved' } }),
-      prisma.legalRequest.count({ where: { assignedReviewerId: session.userId, status: 'revision_required' } }),
+      prisma.legalRequest.count({ where: { ...statsWhere, status: 'pending_review' } }),
+      prisma.legalRequest.count({ where: { ...statsWhere, status: 'approved' } }),
+      prisma.legalRequest.count({ where: { ...statsWhere, status: 'revision_required' } }),
     ]);
 
     // ── Document + annotation stats ──

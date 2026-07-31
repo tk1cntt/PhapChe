@@ -40,7 +40,6 @@ export async function POST(request: Request) {
     // 1. Authentication check
     const session = await requireAppSession();
     const userId = session.userId;
-    const workspaceId = session.activeWorkspaceId;
 
     // 2. Validate user exists
     const user = await prisma.user.findUnique({
@@ -103,7 +102,7 @@ export async function POST(request: Request) {
         );
       }
 
-      // Update draft
+      // Update draft — preserve existing status to avoid overwriting workflow transitions
       const updatedDraft = await prisma.draft.update({
         where: { id: data.draftId },
         data: {
@@ -113,7 +112,6 @@ export async function POST(request: Request) {
           files: data.files,
           priority: data.priority,
           contactInfo: data.contactInfo,
-          status: 'draft',
         },
         select: { id: true, updatedAt: true },
       });

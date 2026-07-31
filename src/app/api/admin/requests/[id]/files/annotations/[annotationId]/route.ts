@@ -8,7 +8,7 @@ import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 
 function isRedirectErr(e: unknown): boolean {
-  return e instanceof Error && 'NEXT_REDIRECT' === e.message;
+  return e instanceof Error && 'digest' in e && (e as { digest: string }).digest === 'NEXT_REDIRECT';
 }
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
@@ -58,16 +58,16 @@ export async function PATCH(
     }
     if (body.position !== undefined) updateData.position = body.position;
 
-    const annotation = await prisma.documentAnnotation.update({
-      where: { id: annotationId },
-      data: updateData,
-      include: {
-        author: { select: { id: true, name: true } },
-      },
-    });
+    // Update annotation and review status within a single transaction
+    const annotation = await prisma.$transaction(async (tx) => {
+      const updated = await tx.documentAnnotation.update({
+        where: { id: annotationId },
+        data: updateData,
+        include: {
+          author: { select: { id: true, name: true } },
+        },
+      });
 
-    // Update review status within transaction to avoid count-then-upsert race
-    await prisma.$transaction(async (tx) => {
       const openCount = await tx.documentAnnotation.count({
         where: { requestId, fileKey: existing.fileKey, status: 'open' },
       });
@@ -88,8 +88,11 @@ export async function PATCH(
         },
         update: {
           status: openCount > 0 ? 'has_issues' : 'reviewed',
+          ...(openCount === 0 ? { reviewedAt: new Date() } : {}),
         },
       });
+
+      return updated;
     });
 
     return NextResponse.json({
@@ -138,24 +141,25 @@ export async function DELETE(
       return NextResponse.json({ error: 'ANNOTATION_NOT_FOUND' }, { status: 404 });
     }
 
-    await prisma.documentAnnotation.delete({ where: { id: annotationId } });
+    await prisma.$transaction(async (tx) => {
+      await tx.documentAnnotation.delete({ where: { id: annotationId } });
 
-    // Recalculate review status
-    const openCount = await prisma.documentAnnotation.count({
-      where: { requestId, fileKey: existing.fileKey, status: 'open' },
-    });
-
-    if (openCount === 0) {
-      await prisma.documentReviewStatus.updateMany({
-        where: {
-          requestId,
-          fileKey: existing.fileKey,
-          reviewerId: session.userId,
-          status: 'has_issues',
-        },
-        data: { status: 'reviewed', reviewedAt: new Date() },
+      const openCount = await tx.documentAnnotation.count({
+        where: { requestId, fileKey: existing.fileKey, status: 'open' },
       });
-    }
+
+      if (openCount === 0) {
+        await tx.documentReviewStatus.updateMany({
+          where: {
+            requestId,
+            fileKey: existing.fileKey,
+            reviewerId: session.userId,
+            status: 'has_issues',
+          },
+          data: { status: 'reviewed', reviewedAt: new Date() },
+        });
+      }
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

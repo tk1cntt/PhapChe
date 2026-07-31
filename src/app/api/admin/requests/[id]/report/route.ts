@@ -50,11 +50,11 @@ function buildTemplateReport(
 
   const totalFiles = files.length;
   const reviewedFiles = files.filter((f) => f.status !== 'pending').length;
-  const totalAnnotations = annotations.length;
-  const criticalIssues = annotations.filter((a) => a.severity === 'critical').length;
-  const warnings = annotations.filter((a) => a.severity === 'warning').length;
-  const suggestions = annotations.filter((a) => a.category === 'suggestion').length;
-  const questions = annotations.filter((a) => a.category === 'question').length;
+  const totalAnnotations = filteredAnnotations.length;
+  const criticalIssues = filteredAnnotations.filter((a) => a.severity === 'critical').length;
+  const warnings = filteredAnnotations.filter((a) => a.severity === 'warning').length;
+  const suggestions = filteredAnnotations.filter((a) => a.category === 'suggestion').length;
+  const questions = filteredAnnotations.filter((a) => a.category === 'question').length;
 
   // Group annotations by file
   const byFile: Record<string, typeof filteredAnnotations> = {};
@@ -138,13 +138,18 @@ export async function POST(
       // no body, use defaults
     }
 
-    // Fetch request info
+    // Fetch request info + workspace verification
     const legalRequest = await prisma.legalRequest.findUnique({
       where: { id: requestId },
-      select: { title: true },
+      select: { title: true, workspaceId: true },
     });
     if (!legalRequest) {
       return NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 });
+    }
+
+    // Verify workspace access — prevent horizontal privilege escalation
+    if (!session.activeWorkspaceId || legalRequest.workspaceId !== session.activeWorkspaceId) {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
     }
 
     // Fetch annotations

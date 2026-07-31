@@ -70,25 +70,43 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       const provider = new LocalStorageProvider(rootPath);
 
       try {
-        const buffer = await provider.getObject({
+        const raw = await provider.getObject({
           objectKey: file.objectKey,
           bucket: file.bucket || undefined,
         });
 
-        const bufferData = buffer instanceof Buffer ? buffer : Buffer.from(await new Response(buffer as ReadableStream).arrayBuffer());
+        // Robust type guard: getObject returns Buffer | ReadableStream
+        let bufferData: Buffer;
+        if (Buffer.isBuffer(raw)) {
+          bufferData = raw;
+        } else if (raw instanceof Uint8Array) {
+          bufferData = Buffer.from(raw.buffer, raw.byteOffset, raw.byteLength);
+        } else if (raw instanceof ArrayBuffer) {
+          bufferData = Buffer.from(raw);
+        } else {
+          console.error('[Download] Unexpected getObject return type:', typeof raw);
+          return NextResponse.json(
+            { error: 'Internal server error', detail: 'Unexpected storage response' },
+            { status: 500 },
+          );
+        }
 
         // Log access
         await storageServer.getDownloadUrl(id, session.user.id);
 
-        // Return file with proper headers (convert Buffer to Uint8Array)
-        return new NextResponse(new Uint8Array(bufferData), {
+        // Return file with proper headers
+        const responseHeaders: Record<string, string> = {
+          'Content-Type': file.mimeType,
+          'Content-Disposition': `attachment; filename="${encodeURIComponent(file.originalName)}"`,
+          'Cache-Control': 'private, no-cache',
+        };
+        if (file.size != null) {
+          responseHeaders['Content-Length'] = String(file.size);
+        }
+
+        return new NextResponse(bufferData, {
           status: 200,
-          headers: {
-            'Content-Type': file.mimeType,
-            'Content-Disposition': `attachment; filename="${encodeURIComponent(file.originalName)}"`,
-            'Content-Length': String(file.size),
-            'Cache-Control': 'private, no-cache',
-          },
+          headers: responseHeaders,
         });
       } catch (error) {
         if (error instanceof Error && error.name === 'FileNotFoundError') {

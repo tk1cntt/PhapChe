@@ -28,6 +28,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate role is one of the allowed workspace roles
+    const VALID_ROLES = ['customer', 'specialist', 'reviewer', 'coordinator_admin', 'audit_admin', 'super_admin'];
+    if (!VALID_ROLES.includes(role)) {
+      return NextResponse.json(
+        { error: 'Invalid role' },
+        { status: 400 }
+      );
+    }
+
+    // Fetch the current user's membership in the active workspace for authorization
+    const currentMembership = await prisma.workspaceMembership.findFirst({
+      where: {
+        workspaceId: activeWorkspaceId,
+        userId,
+        isActive: true,
+      },
+    });
+
+    if (!currentMembership) {
+      return NextResponse.json(
+        { error: 'You are not a member of this workspace' },
+        { status: 403 }
+      );
+    }
+
+    const ALLOWED_INVITE_ROLES = ['super_admin', 'coordinator_admin', 'audit_admin'];
+    if (!ALLOWED_INVITE_ROLES.includes(currentMembership.role)) {
+      return NextResponse.json(
+        { error: 'You do not have permission to invite members' },
+        { status: 403 }
+      );
+    }
+
     // Find user by email
     const invitedUser = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
@@ -35,31 +68,34 @@ export async function POST(request: NextRequest) {
 
     if (!invitedUser) {
       return NextResponse.json(
-        { error: 'User with this email does not exist. They must register first.' },
+        { error: 'Unable to process invitation. Please check the email and try again.' },
         { status: 404 }
       );
     }
 
-    // Check if user is already a member of this workspace
-    const existingMembership = await prisma.workspaceMembership.findFirst({
-      where: {
-        workspaceId: activeWorkspaceId,
-        userId: invitedUser.id,
-      },
-    });
-
-    if (existingMembership) {
+    // Prevent self-invite
+    if (invitedUser.id === userId) {
       return NextResponse.json(
-        { error: 'User is already a member of this workspace' },
-        { status: 409 }
+        { error: 'You cannot invite yourself to the workspace' },
+        { status: 400 }
       );
     }
 
-    // Create workspace membership for existing user
-    const membership = await prisma.workspaceMembership.create({
-      data: {
+    // Atomic upsert — avoids race condition between findFirst and create
+    const membership = await prisma.workspaceMembership.upsert({
+      where: {
+        userId_workspaceId: {
+          workspaceId: activeWorkspaceId,
+          userId: invitedUser.id,
+        },
+      },
+      create: {
         workspaceId: activeWorkspaceId,
         userId: invitedUser.id,
+        role: role,
+        isActive: true,
+      },
+      update: {
         role: role,
         isActive: true,
       },

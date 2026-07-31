@@ -16,14 +16,17 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
     }
 
-    const member = await prisma.partnerMember.findFirst({
+    // Get all active partner memberships for the user
+    const memberships = await prisma.partnerMember.findMany({
       where: { userId: session.user.id, isActive: true },
       select: { partnerId: true },
     });
 
-    if (!member) {
+    if (memberships.length === 0) {
       return NextResponse.json({ error: 'FORBIDDEN', detail: 'Not a partner' }, { status: 403 });
     }
+
+    const partnerIds = memberships.map(m => m.partnerId);
 
     const request = await prisma.legalRequest.findUnique({
       where: { id },
@@ -41,8 +44,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // Check permission - partner can access if assigned directly or via engagement
-    const hasAccess = request.assignedPartnerId === member.partnerId ||
-      request.engagement?.partnerId === member.partnerId;
+    const hasAccess = (request.assignedPartnerId != null && partnerIds.includes(request.assignedPartnerId)) ||
+      (request.engagement?.partnerId != null && partnerIds.includes(request.engagement.partnerId));
 
     if (!hasAccess) {
       return NextResponse.json({ error: 'FORBIDDEN', detail: 'Access denied' }, { status: 403 });

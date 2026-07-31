@@ -7,6 +7,11 @@ export async function GET() {
     const session = await requireAppSession();
 
     const workspaces = await prisma.workspace.findMany({
+      where: {
+        memberships: {
+          some: { userId: session.userId },
+        },
+      },
       include: {
         _count: {
           select: { memberships: true },
@@ -25,7 +30,14 @@ export async function GET() {
         createdAt: ws.createdAt,
       })),
     });
-  } catch {
-    return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Failed to fetch workspaces:', message);
+
+    if (message === 'UNAUTHENTICATED') {
+      return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
+    }
+
+    return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'An unexpected error occurred' }, { status: 500 });
   }
 }

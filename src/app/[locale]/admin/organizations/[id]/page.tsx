@@ -55,11 +55,36 @@ export default async function AdminOrganizationActivityPage({ params }: PageProp
     inProgressRequests: number,
     slaRiskRequests: number,
     vaultFilesCount: number,
-    recentAuditLogs: Awaited<ReturnType<typeof prisma.auditEvent.findMany>>,
-    recentRequests: Awaited<ReturnType<typeof prisma.legalRequest.findMany>>,
-    recentVaultFiles: Awaited<ReturnType<typeof prisma.vaultFile.findMany>>,
-    engagements: Awaited<ReturnType<typeof prisma.engagement.findMany>>,
-    workspaceMembers: Awaited<ReturnType<typeof prisma.workspaceMembership.findMany>>,
+    recentAuditLogs: Awaited<ReturnType<typeof prisma.auditEvent.findMany<{
+      include: {
+        request: { select: { code: true; title: true } };
+        actor: { select: { name: true } };
+        workspace: { select: { name: true } };
+      };
+    }>>>,
+    recentRequests: Awaited<ReturnType<typeof prisma.legalRequest.findMany<{
+      include: {
+        workspace: { select: { id: true; name: true } };
+        createdBy: { select: { name: true; email: true } };
+        assignedPartner: { select: { id: true; name: true } };
+        assignments: { include: { user: { select: { name: true } } } };
+      };
+    }>>>,
+    recentVaultFiles: Awaited<ReturnType<typeof prisma.vaultFile.findMany<{
+      include: {
+        actor: { select: { name: true } };
+        workspace: { select: { name: true } };
+      };
+    }>>>,
+    engagements: Awaited<ReturnType<typeof prisma.engagement.findMany<{
+      include: { partner: { select: { id: true; name: true; type: true } } };
+    }>>>,
+    workspaceMembers: Array<{
+      id: string; isActive: boolean; createdAt: Date; updatedAt: Date;
+      userId: string; role: string; workspaceId: string;
+      user: { id: string; name: string; email: string; };
+      workspace: { name: string; };
+    }>,
     workspaceStats: ({ workspaceId: string; openCases: number; documentCount: number; memberCount: number })[];
 
   try {

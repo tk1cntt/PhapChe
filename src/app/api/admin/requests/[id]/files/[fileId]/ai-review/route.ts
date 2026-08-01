@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
 import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join, resolve } from 'path';
@@ -384,7 +385,7 @@ export async function POST(
               content: annotationContent,
               severity: mappedSeverity,
               category: 'issue',
-              position: position ? { ...position } : undefined,
+              position: (position ? { ...position } : undefined) as Prisma.InputJsonValue,
               aiGenerated: true,
               aiConfidence: confidence,
             },

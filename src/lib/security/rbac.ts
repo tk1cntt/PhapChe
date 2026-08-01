@@ -1,8 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import type { AppSession } from './session';
 
-function hasRole(session: AppSession | null | undefined, role: string) {
-  return session?.roles.includes(role) ?? false;
+function hasRole(session: AppSession | null | undefined, role: string): boolean {
+  return (session?.roles as string[])?.includes(role) ?? false;
 }
 
 async function hasActiveUser(session: AppSession | null | undefined) {

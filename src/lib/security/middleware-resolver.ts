@@ -14,8 +14,8 @@ export interface GuardUser {
 }
 
 // Module-level cache for dynamic imports (if Edge runtime requires them)
-let _auth: Awaited<ReturnType<typeof import('@/auth')['auth']>>;
-let _prisma: Awaited<ReturnType<typeof import('@/lib/prisma')['prisma']>>;
+let _auth: any;
+let _prisma: any;
 
 const VALID_APP_ROLES: Set<string> = new Set(['super_admin', 'coordinator_admin', 'audit_admin', 'reviewer', 'specialist', 'customer']);
 
@@ -51,10 +51,10 @@ export async function resolveGuardUser(request: NextRequest): Promise<GuardUser 
 
     if (!user) return null;
 
-    const roles = Array.from(new Set(
+    const roles: AppRole[] = Array.from(new Set(
       user.memberships
-        .map(m => m.role)
-        .filter((role): role is AppRole => VALID_APP_ROLES.has(role))
+        .map((m: { role: string }) => m.role)
+        .filter((role: string): role is AppRole => VALID_APP_ROLES.has(role))
     ));
 
     return { userId: user.id, roles, name: user.name };

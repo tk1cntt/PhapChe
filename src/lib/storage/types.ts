@@ -11,6 +11,7 @@
 
 export const FileCategory = {
   REQUEST_UPLOAD: 'request_upload',
+  REQUEST_ATTACHMENT: 'request_attachment',
   GENERATED_DOCUMENT: 'generated_document',
   VAULT_FILE: 'vault_file',
   TEMPLATE: 'template',

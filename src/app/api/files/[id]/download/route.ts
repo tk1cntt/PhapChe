@@ -75,21 +75,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           bucket: file.bucket || undefined,
         });
 
-        // Robust type guard: getObject returns Buffer | ReadableStream
-        let bufferData: Buffer;
-        if (Buffer.isBuffer(raw)) {
-          bufferData = raw;
-        } else if (raw instanceof Uint8Array) {
-          bufferData = Buffer.from(raw.buffer, raw.byteOffset, raw.byteLength);
-        } else if (raw instanceof ArrayBuffer) {
-          bufferData = Buffer.from(raw);
-        } else {
-          console.error('[Download] Unexpected getObject return type:', typeof raw);
-          return NextResponse.json(
-            { error: 'Internal server error', detail: 'Unexpected storage response' },
-            { status: 500 },
-          );
-        }
+        // LocalStorageProvider always returns Buffer
+        const bufferData: Buffer = Buffer.isBuffer(raw) ? raw : Buffer.from(raw as ArrayBuffer);
 
         // Log access
         await storageServer.getDownloadUrl(id, session.user.id);
@@ -104,7 +91,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           responseHeaders['Content-Length'] = String(file.size);
         }
 
-        return new NextResponse(bufferData, {
+        const body = new Uint8Array(bufferData.buffer, bufferData.byteOffset, bufferData.byteLength) as unknown as BodyInit;
+        return new NextResponse(body, {
           status: 200,
           headers: responseHeaders,
         });

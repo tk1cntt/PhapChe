@@ -81,7 +81,7 @@ describe('wizardReducer', () => {
 
   it('SET_ANSWER: thêm/cập nhật câu trả lời', () => {
     const state: WizardState = { ...initialWizardState };
-    const action: WizardAction = { type: 'SET_ANSWER', key: 'company_name', value: 'Test Corp' };
+    const action: WizardAction = { type: 'SET_ANSWER', payload: { key: 'company_name', value: 'Test Corp' } };
     const newState = wizardReducer(state, action);
     expect(newState.answers.company_name).toBe('Test Corp');
     expect(newState.isDirty).toBe(true);
@@ -92,7 +92,7 @@ describe('wizardReducer', () => {
       ...initialWizardState,
       answers: { q1: 'answer1' },
     };
-    const action: WizardAction = { type: 'SET_ANSWER', key: 'q2', value: 'answer2' };
+    const action: WizardAction = { type: 'SET_ANSWER', payload: { key: 'q2', value: 'answer2' } };
     const newState = wizardReducer(state, action);
     expect(newState.answers.q1).toBe('answer1');
     expect(newState.answers.q2).toBe('answer2');

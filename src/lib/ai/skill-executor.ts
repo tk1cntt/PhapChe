@@ -263,7 +263,7 @@ export class SkillExecutor {
     let legalContext: SearchResult[] = [];
     if (this.config.enableRag && isVectorStoreReady()) {
       // TODO: Extract to i18n
-      yield { chunk: null, status: 'Đang tra cứu cơ sở dữ liệu pháp lý...', done: false };
+      yield { chunk: null, delta: '', status: 'Đang tra cứu cơ sở dữ liệu pháp lý...', done: false };
       legalContext = await semanticSearch({
         query: `${context.requestContext.title} ${context.requestContext.description ?? ''}`,
         domainTags: [context.domain],
@@ -272,7 +272,7 @@ export class SkillExecutor {
       });
       if (legalContext.length > 0) {
         // TODO: Extract to i18n
-        yield { chunk: null, status: `Tìm thấy ${legalContext.length} tài liệu pháp lý liên quan`, done: false };
+        yield { chunk: null, delta: '', status: `Tìm thấy ${legalContext.length} tài liệu pháp lý liên quan`, done: false };
       }
     }
 
@@ -292,7 +292,7 @@ export class SkillExecutor {
 
     const promptTpl = getSystemPrompt(skill);
     if (!promptTpl) {
-      yield { chunk: null, status: `Lỗi: No system prompt found for skill: ${skill}`, done: true };
+      yield { chunk: null, delta: '', status: `Lỗi: No system prompt found for skill: ${skill}`, done: true };
       return;
     }
     const messages: ChatMessage[] = [
@@ -303,7 +303,7 @@ export class SkillExecutor {
 
     // Stream
     // TODO: Extract to i18n
-    yield { chunk: null, status: 'Đang phân tích...', done: false };
+    yield { chunk: null, delta: '', status: 'Đang phân tích...', done: false };
 
     let fullContent = '';
     for await (const chunk of llmStream({
@@ -338,9 +338,9 @@ export class SkillExecutor {
     };
 
     // TODO: Extract to i18n
-    yield { chunk: result, status: 'Hoàn tất phân tích', done: true };
+    yield { chunk: result, delta: '', status: 'Hoàn tất phân tích', done: true };
     } catch (error) {
-      yield { chunk: null, status: `Lỗi: ${error instanceof Error ? error.message : String(error)}`, done: true };
+      yield { chunk: null, delta: '', status: `Lỗi: ${error instanceof Error ? error.message : String(error)}`, done: true };
     }
   }
 

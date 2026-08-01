@@ -5,6 +5,9 @@ import { useTranslations } from 'next-intl';
 export interface AuditStats {
   totalEvents: number;
   criticalCount: number;
+  accessDeniedCount: number;
+  roleChangeCount: number;
+  completeAuditCount: number;
   completeAuditPercent: number;
   workspaceCount: number;
 }

@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
     attempt++;
   } while (
     attempt < MAX_ATTEMPTS &&
-    (await prisma.legalRequest.findUnique({ where: { code: requestCode }, select: { id: true } }))
+    (await prisma.legalRequest.findFirst({ where: { code: requestCode }, select: { id: true } }))
   );
   if (attempt >= MAX_ATTEMPTS) {
     return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Failed to generate unique request code' }, { status: 500 });

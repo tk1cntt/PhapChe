@@ -43,7 +43,7 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
     case 'SET_SERVICE':
       return { ...state, serviceType: action.payload, answers: {}, isDirty: true };
     case 'SET_ANSWER':
-      return { ...state, answers: { ...state.answers, [action.key]: action.value }, isDirty: true };
+      return { ...state, answers: { ...state.answers, [action.payload.key]: action.payload.value }, isDirty: true };
     case 'ADD_FILE':
       return { ...state, files: [...state.files, action.payload], isDirty: true };
     case 'REMOVE_FILE':
@@ -97,7 +97,7 @@ export function WizardProvider({ children, initialDraft }: WizardProviderProps) 
       dispatch({ type: 'SET_SERVICE', payload: serviceType });
     }, []),
     setAnswer: useCallback((key: string, value: string) => {
-      dispatch({ type: 'SET_ANSWER', key, value });
+      dispatch({ type: 'SET_ANSWER', payload: { key, value } });
     }, []),
     addFile: useCallback((file: { vaultFileId: string; filename: string; size: number }) => {
       dispatch({ type: 'ADD_FILE', payload: file });

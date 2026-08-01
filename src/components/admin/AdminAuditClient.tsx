@@ -25,6 +25,9 @@ export default function AdminAuditClient() {
   const [stats, setStats] = useState<AuditStats>({
     totalEvents: 0,
     criticalCount: 0,
+    accessDeniedCount: 0,
+    roleChangeCount: 0,
+    completeAuditCount: 0,
     completeAuditPercent: 100,
     workspaceCount: 0,
   });

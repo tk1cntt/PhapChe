@@ -25,11 +25,12 @@ export default async function AdminUsersPage({ params }: PageProps) {
   // Verify admin role
   if (!session.roles.some((role) => (ADMIN_ROLES as readonly string[]).includes(role))) {
     return (
-      <UsersPageClient
-        error="Bạn không có quyền truy cập trang này."
-        locale={locale}
-        workspaceOptions={[]}
-      />
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-red-600 mb-2">Bạn không có quyền truy cập trang này.</h2>
+          <p className="text-slate-500">Vui lòng liên hệ quản trị viên.</p>
+        </div>
+      </div>
     );
   }
 
@@ -111,11 +112,12 @@ export default async function AdminUsersPage({ params }: PageProps) {
   } catch (error) {
     console.error('Failed to fetch admin user stats:', error);
     return (
-      <UsersPageClient
-        error="Không thể tải dữ liệu thống kê. Vui lòng thử lại sau."
-        locale={locale}
-        workspaceOptions={[]}
-      />
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-red-600 mb-2">Không thể tải dữ liệu thống kê.</h2>
+          <p className="text-slate-500">Vui lòng thử lại sau.</p>
+        </div>
+      </div>
     );
   }
 }

@@ -160,7 +160,7 @@ export async function POST(request: Request) {
     let filesStored = 0;
     const failedFiles: string[] = [];
     if (uploadedFiles.length > 0) {
-      const storageService = createStorageService();
+      const storageService = await createStorageService();
       const uploadResults = await Promise.allSettled(
         uploadedFiles
           .filter((entry): entry is File => entry instanceof File)

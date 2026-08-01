@@ -18,20 +18,7 @@ type AuditDb = {
   };
 };
 
-type AuditTargetTypeInput = keyof typeof targetTypeMap;
-
-type RecordAuditEventInput = {
-  actorId?: string | null;
-  workspaceId: string;
-  action: string;
-  targetType: AuditTargetTypeInput;
-  targetId: string;
-  requestId?: string | null;
-  correlationId: string;
-  metadataSummary?: string | null;
-};
-
-const targetTypeMap: Record<AuditTargetTypeInput, AuditTargetType> = {
+const targetTypeMap = {
   USER: 'user',
   WORKSPACE: 'workspace',
   MEMBERSHIP: 'membership',
@@ -43,6 +30,19 @@ const targetTypeMap: Record<AuditTargetTypeInput, AuditTargetType> = {
   REVIEW: 'review',
   VAULT_FILE: 'vault_file',
   WORKFLOW_TRANSITION: 'workflow_transition',
+} as const;
+
+type AuditTargetTypeInput = keyof typeof targetTypeMap;
+
+type RecordAuditEventInput = {
+  actorId?: string | null;
+  workspaceId: string;
+  action: string;
+  targetType: AuditTargetTypeInput;
+  targetId: string;
+  requestId?: string | null;
+  correlationId: string;
+  metadataSummary?: string | null;
 };
 
 export async function recordAuditEvent(input: RecordAuditEventInput, db: AuditDb = prisma) {

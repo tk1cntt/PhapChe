@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 import { RequestTimeline } from '@/components/admin/RequestTimeline';
@@ -72,48 +72,43 @@ export default function AdminRequestDetailPage() {
     cancelled: t('statusCancelled'),
   };
 
-  useEffect(() => {
+  const fetchRequest = useCallback(async () => {
     const abortController = new AbortController();
+    setLoading(true);
+    setError(null);
 
-    const fetchRequest = async () => {
-      setLoading(true);
-      setError(null);
+    try {
+      const res = await fetch(`/api/admin/partner/requests/${requestId}`, {
+        signal: abortController.signal,
+      });
 
-      try {
-        const res = await fetch(`/api/admin/partner/requests/${requestId}`, {
-          signal: abortController.signal,
-        });
-
-        if (!res.ok) {
-          if (res.status === 401 || res.status === 403) {
-            router.push('/sign-in');
-            return;
-          }
-          if (res.status === 404) {
-            throw new Error('Request not found');
-          }
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.detail || data.error || 'Failed to fetch request');
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          router.push('/sign-in');
+          return;
         }
-
-        const data = await res.json();
-        setRequest(data.data);
-      } catch (err) {
-        if (abortController.signal.aborted) return;
-        setError(err instanceof Error ? err.message : 'Failed to fetch request');
-      } finally {
-        if (!abortController.signal.aborted) {
-          setLoading(false);
+        if (res.status === 404) {
+          throw new Error('Request not found');
         }
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || data.error || 'Failed to fetch request');
       }
-    };
 
-    fetchRequest();
-
-    return () => {
-      abortController.abort();
-    };
+      const data = await res.json();
+      setRequest(data.data);
+    } catch (err) {
+      if (abortController.signal.aborted) return;
+      setError(err instanceof Error ? err.message : 'Failed to fetch request');
+    } finally {
+      if (!abortController.signal.aborted) {
+        setLoading(false);
+      }
+    }
   }, [requestId, router]);
+
+  useEffect(() => {
+    fetchRequest();
+  }, [fetchRequest]);
 
   const getPartnerName = () => {
     if (!request) return '-';

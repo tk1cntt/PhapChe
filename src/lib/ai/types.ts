@@ -235,6 +235,8 @@ export interface SkillResult {
 export interface SkillResultStream {
   /** Partial output chunk */
   chunk: SkillResult | null;
+  /** Streaming delta text */
+  delta: string;
   /** Human-readable status message */
   status: string;
   /** Whether this is the final chunk */

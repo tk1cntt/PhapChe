@@ -19,7 +19,7 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-function formatRelativeTime(date: Date, t: (key: string, params?: Record<string, unknown>) => string): string {
+function formatRelativeTime(date: Date, t: (key: string, params?: Record<string, string | number>) => string): string {
   const now = Date.now();
   const diff = now - date.getTime();
 

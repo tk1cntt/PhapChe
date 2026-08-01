@@ -1,0 +1,687 @@
+{
+  "id": "3acfb256-d60c-412f-8676-c87b281e8e86",
+  "created_at": "2026-07-31T12:23:36.725928Z",
+  "project": {
+    "id": "PhapChe",
+    "name": "PhapChe",
+    "repo_dir": "D:\\PhapChe"
+  },
+  "gitlab": {
+    "project_id": "PhapChe"
+  },
+  "review": {
+    "mode": "full_scan",
+    "model": "nvidia-model",
+    "files_reviewed": 8,
+    "comments": 529,
+    "total_tokens": 523597,
+    "input_tokens": 506388,
+    "output_tokens": 17209,
+    "cache_read_tokens": 145408,
+    "duration": "10m54.7730459s",
+    "duration_seconds": 654,
+    "session_id": "766084d6-20d2-49e0-916a-5610e3ec7634"
+  },
+  "files": [
+    {
+      "path": "src/lib/admin/users.ts",
+      "comment_count": 3,
+      "md": "src/lib/admin/users.ts.md"
+    },
+    {
+      "path": "src/lib/ai/AiContext.tsx",
+      "comment_count": 4,
+      "md": "src/lib/ai/AiContext.tsx.md"
+    },
+    {
+      "path": "src/lib/ai/domain-resolver.ts",
+      "comment_count": 3,
+      "md": "src/lib/ai/domain-resolver.ts.md"
+    },
+    {
+      "path": "src/lib/ai/index.ts",
+      "comment_count": 2,
+      "md": "src/lib/ai/index.ts.md"
+    },
+    {
+      "path": "src/lib/ai/legal-knowledge/bo-luat-dan-su-2015.ts",
+      "comment_count": 7,
+      "md": "src/lib/ai/legal-knowledge/bo-luat-dan-su-2015.ts.md"
+    },
+    {
+      "path": "src/lib/ai/legal-knowledge/bo-luat-lao-dong-2019.ts",
+      "comment_count": 8,
+      "md": "src/lib/ai/legal-knowledge/bo-luat-lao-dong-2019.ts.md"
+    },
+    {
+      "path": "src/lib/ai/legal-knowledge/index.ts",
+      "comment_count": 4,
+      "md": "src/lib/ai/legal-knowledge/index.ts.md"
+    },
+    {
+      "path": "src/lib/ai/legal-knowledge/luat-doanh-nghiep-2020.ts",
+      "comment_count": 3,
+      "md": "src/lib/ai/legal-knowledge/luat-doanh-nghiep-2020.ts.md"
+    },
+    {
+      "path": "src/lib/ai/legal-knowledge/types.ts",
+      "comment_count": 1,
+      "md": "src/lib/ai/legal-knowledge/types.ts.md"
+    },
+    {
+      "path": "src/lib/ai/llm-gateway.ts",
+      "comment_count": 15,
+      "md": "src/lib/ai/llm-gateway.ts.md"
+    },
+    {
+      "path": "src/lib/ai/skill-executor.ts",
+      "comment_count": 8,
+      "md": "src/lib/ai/skill-executor.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts.ts",
+      "comment_count": 5,
+      "md": "src/lib/ai/system-prompts.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/ai-impact-assessment.ts",
+      "comment_count": 3,
+      "md": "src/lib/ai/system-prompts/ai-impact-assessment.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/board-resolution-drafter.ts",
+      "comment_count": 3,
+      "md": "src/lib/ai/system-prompts/board-resolution-drafter.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/cease-desist-drafter.ts",
+      "comment_count": 3,
+      "md": "src/lib/ai/system-prompts/cease-desist-drafter.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/client-letter-drafter.ts",
+      "comment_count": 3,
+      "md": "src/lib/ai/system-prompts/client-letter-drafter.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/compliance-gap-analyzer.ts",
+      "comment_count": 2,
+      "md": "src/lib/ai/system-prompts/compliance-gap-analyzer.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/demand-letter-drafter.ts",
+      "comment_count": 1,
+      "md": "src/lib/ai/system-prompts/demand-letter-drafter.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/document-issue-analyzer.ts",
+      "comment_count": 5,
+      "md": "src/lib/ai/system-prompts/document-issue-analyzer.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/dsar-response-drafter.ts",
+      "comment_count": 2,
+      "md": "src/lib/ai/system-prompts/dsar-response-drafter.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/entity-compliance-checker.ts",
+      "comment_count": 2,
+      "md": "src/lib/ai/system-prompts/entity-compliance-checker.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/internal-regulation-drafter.ts",
+      "comment_count": 1,
+      "md": "src/lib/ai/system-prompts/internal-regulation-drafter.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/labor-discipline-checker.ts",
+      "comment_count": 2,
+      "md": "src/lib/ai/system-prompts/labor-discipline-checker.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/legal-memo-drafter.ts",
+      "comment_count": 2,
+      "md": "src/lib/ai/system-prompts/legal-memo-drafter.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/litigation-strategist.ts",
+      "comment_count": 4,
+      "md": "src/lib/ai/system-prompts/litigation-strategist.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/nda-reviewer.ts",
+      "comment_count": 2,
+      "md": "src/lib/ai/system-prompts/nda-reviewer.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/tos-generator.ts",
+      "comment_count": 3,
+      "md": "src/lib/ai/system-prompts/tos-generator.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/trademark-clearance.ts",
+      "comment_count": 1,
+      "md": "src/lib/ai/system-prompts/trademark-clearance.ts.md"
+    },
+    {
+      "path": "src/lib/ai/system-prompts/vendor-contract-reviewer.ts",
+      "comment_count": 2,
+      "md": "src/lib/ai/system-prompts/vendor-contract-reviewer.ts.md"
+    },
+    {
+      "path": "src/lib/ai/types.ts",
+      "comment_count": 3,
+      "md": "src/lib/ai/types.ts.md"
+    },
+    {
+      "path": "src/lib/ai/vector-store.ts",
+      "comment_count": 7,
+      "md": "src/lib/ai/vector-store.ts.md"
+    },
+    {
+      "path": "src/lib/api/client.ts",
+      "comment_count": 6,
+      "md": "src/lib/api/client.ts.md"
+    },
+    {
+      "path": "src/lib/api/index.ts",
+      "comment_count": 5,
+      "md": "src/lib/api/index.ts.md"
+    },
+    {
+      "path": "src/lib/api/storage.ts",
+      "comment_count": 6,
+      "md": "src/lib/api/storage.ts.md"
+    },
+    {
+      "path": "src/lib/audit/audit-service.ts",
+      "comment_count": 6,
+      "md": "src/lib/audit/audit-service.ts.md"
+    },
+    {
+      "path": "src/lib/audit/audit.ts",
+      "comment_count": 3,
+      "md": "src/lib/audit/audit.ts.md"
+    },
+    {
+      "path": "src/lib/auth-client.ts",
+      "comment_count": 1,
+      "md": "src/lib/auth-client.ts.md"
+    },
+    {
+      "path": "src/lib/auth/partner-permissions.ts",
+      "comment_count": 6,
+      "md": "src/lib/auth/partner-permissions.ts.md"
+    },
+    {
+      "path": "src/lib/config/feature-flags.ts",
+      "comment_count": 3,
+      "md": "src/lib/config/feature-flags.ts.md"
+    },
+    {
+      "path": "src/lib/constants/partner-statuses.ts",
+      "comment_count": 2,
+      "md": "src/lib/constants/partner-statuses.ts.md"
+    },
+    {
+      "path": "src/lib/delivery/delivery-service.ts",
+      "comment_count": 6,
+      "md": "src/lib/delivery/delivery-service.ts.md"
+    },
+    {
+      "path": "src/lib/delivery/notification-service.ts",
+      "comment_count": 5,
+      "md": "src/lib/delivery/notification-service.ts.md"
+    },
+    {
+      "path": "src/lib/document/annotation-parser.ts",
+      "comment_count": 4,
+      "md": "src/lib/document/annotation-parser.ts.md"
+    },
+    {
+      "path": "src/lib/document/cache.ts",
+      "comment_count": 3,
+      "md": "src/lib/document/cache.ts.md"
+    },
+    {
+      "path": "src/lib/document/index.ts",
+      "comment_count": 1,
+      "md": "src/lib/document/index.ts.md"
+    },
+    {
+      "path": "src/lib/document/markitdown.ts",
+      "comment_count": 4,
+      "md": "src/lib/document/markitdown.ts.md"
+    },
+    {
+      "path": "src/lib/document/normalizer/cleaners.ts",
+      "comment_count": 2,
+      "md": "src/lib/document/normalizer/cleaners.ts.md"
+    },
+    {
+      "path": "src/lib/document/normalizer/detectors.ts",
+      "comment_count": 4,
+      "md": "src/lib/document/normalizer/detectors.ts.md"
+    },
+    {
+      "path": "src/lib/document/normalizer/formatters.ts",
+      "comment_count": 5,
+      "md": "src/lib/document/normalizer/formatters.ts.md"
+    },
+    {
+      "path": "src/lib/document/normalizer/pipeline.ts",
+      "comment_count": 5,
+      "md": "src/lib/document/normalizer/pipeline.ts.md"
+    },
+    {
+      "path": "src/lib/document/position-mapper.ts",
+      "comment_count": 4,
+      "md": "src/lib/document/position-mapper.ts.md"
+    },
+    {
+      "path": "src/lib/document/types.ts",
+      "comment_count": 3,
+      "md": "src/lib/document/types.ts.md"
+    },
+    {
+      "path": "src/lib/documents/classification-service.ts",
+      "comment_count": 5,
+      "md": "src/lib/documents/classification-service.ts.md"
+    },
+    {
+      "path": "src/lib/documents/draft-service.ts",
+      "comment_count": 10,
+      "md": "src/lib/documents/draft-service.ts.md"
+    },
+    {
+      "path": "src/lib/documents/template-service.ts",
+      "comment_count": 11,
+      "md": "src/lib/documents/template-service.ts.md"
+    },
+    {
+      "path": "src/lib/documents/vault-service.ts",
+      "comment_count": 5,
+      "md": "src/lib/documents/vault-service.ts.md"
+    },
+    {
+      "path": "src/lib/errors.ts",
+      "comment_count": 3,
+      "md": "src/lib/errors.ts.md"
+    },
+    {
+      "path": "src/lib/hooks/useDebounce.ts",
+      "comment_count": 1,
+      "md": "src/lib/hooks/useDebounce.ts.md"
+    },
+    {
+      "path": "src/lib/hooks/usePaginationParams.ts",
+      "comment_count": 2,
+      "md": "src/lib/hooks/usePaginationParams.ts.md"
+    },
+    {
+      "path": "src/lib/i18n/date-format.ts",
+      "comment_count": 3,
+      "md": "src/lib/i18n/date-format.ts.md"
+    },
+    {
+      "path": "src/lib/i18n/get-localized-content.ts",
+      "comment_count": 6,
+      "md": "src/lib/i18n/get-localized-content.ts.md"
+    },
+    {
+      "path": "src/lib/i18n/index.ts",
+      "comment_count": 2,
+      "md": "src/lib/i18n/index.ts.md"
+    },
+    {
+      "path": "src/lib/i18n/seed-legal-domains.ts",
+      "comment_count": 3,
+      "md": "src/lib/i18n/seed-legal-domains.ts.md"
+    },
+    {
+      "path": "src/lib/i18n/seed-multilingual.ts",
+      "comment_count": 3,
+      "md": "src/lib/i18n/seed-multilingual.ts.md"
+    },
+    {
+      "path": "src/lib/i18n/types.ts",
+      "comment_count": 3,
+      "md": "src/lib/i18n/types.ts.md"
+    },
+    {
+      "path": "src/lib/intake/actions.ts",
+      "comment_count": 7,
+      "md": "src/lib/intake/actions.ts.md"
+    },
+    {
+      "path": "src/lib/intake/catalog.ts",
+      "comment_count": 3,
+      "md": "src/lib/intake/catalog.ts.md"
+    },
+    {
+      "path": "src/lib/intake/intake-service.ts",
+      "comment_count": 6,
+      "md": "src/lib/intake/intake-service.ts.md"
+    },
+    {
+      "path": "src/lib/intake/upload-service.ts",
+      "comment_count": 5,
+      "md": "src/lib/intake/upload-service.ts.md"
+    },
+    {
+      "path": "src/lib/middleware/auth-middleware.ts",
+      "comment_count": 5,
+      "md": "src/lib/middleware/auth-middleware.ts.md"
+    },
+    {
+      "path": "src/lib/middleware/organization-context-middleware.ts",
+      "comment_count": 3,
+      "md": "src/lib/middleware/organization-context-middleware.ts.md"
+    },
+    {
+      "path": "src/lib/middleware/partner-context-middleware.ts",
+      "comment_count": 4,
+      "md": "src/lib/middleware/partner-context-middleware.ts.md"
+    },
+    {
+      "path": "src/lib/middleware/tenant-middleware.ts",
+      "comment_count": 4,
+      "md": "src/lib/middleware/tenant-middleware.ts.md"
+    },
+    {
+      "path": "src/lib/navigation/breadcrumb-labels.ts",
+      "comment_count": 1,
+      "md": "src/lib/navigation/breadcrumb-labels.ts.md"
+    },
+    {
+      "path": "src/lib/ops/ops-service.ts",
+      "comment_count": 9,
+      "md": "src/lib/ops/ops-service.ts.md"
+    },
+    {
+      "path": "src/lib/prisma.ts",
+      "comment_count": 2,
+      "md": "src/lib/prisma.ts.md"
+    },
+    {
+      "path": "src/lib/query-keys.ts",
+      "comment_count": 1,
+      "md": "src/lib/query-keys.ts.md"
+    },
+    {
+      "path": "src/lib/react-query.tsx",
+      "comment_count": 1,
+      "md": "src/lib/react-query.tsx.md"
+    },
+    {
+      "path": "src/lib/repositories/base-repository.ts",
+      "comment_count": 6,
+      "md": "src/lib/repositories/base-repository.ts.md"
+    },
+    {
+      "path": "src/lib/repositories/organization-repository.ts",
+      "comment_count": 7,
+      "md": "src/lib/repositories/organization-repository.ts.md"
+    },
+    {
+      "path": "src/lib/repositories/workspace-repository.ts",
+      "comment_count": 7,
+      "md": "src/lib/repositories/workspace-repository.ts.md"
+    },
+    {
+      "path": "src/lib/reviews/checklist.ts",
+      "comment_count": 1,
+      "md": "src/lib/reviews/checklist.ts.md"
+    },
+    {
+      "path": "src/lib/reviews/review-service.ts",
+      "comment_count": 9,
+      "md": "src/lib/reviews/review-service.ts.md"
+    },
+    {
+      "path": "src/lib/routing/routing-service.ts",
+      "comment_count": 6,
+      "md": "src/lib/routing/routing-service.ts.md"
+    },
+    {
+      "path": "src/lib/rules/no-duplicate-component.js",
+      "comment_count": 7,
+      "md": "src/lib/rules/no-duplicate-component.js.md"
+    },
+    {
+      "path": "src/lib/security/AdminRoleContext.tsx",
+      "comment_count": 2,
+      "md": "src/lib/security/AdminRoleContext.tsx.md"
+    },
+    {
+      "path": "src/lib/security/middleware-guard.ts",
+      "comment_count": 5,
+      "md": "src/lib/security/middleware-guard.ts.md"
+    },
+    {
+      "path": "src/lib/security/middleware-resolver.ts",
+      "comment_count": 4,
+      "md": "src/lib/security/middleware-resolver.ts.md"
+    },
+    {
+      "path": "src/lib/security/rbac.ts",
+      "comment_count": 7,
+      "md": "src/lib/security/rbac.ts.md"
+    },
+    {
+      "path": "src/lib/security/request-filter.ts",
+      "comment_count": 3,
+      "md": "src/lib/security/request-filter.ts.md"
+    },
+    {
+      "path": "src/lib/security/role-config.ts",
+      "comment_count": 2,
+      "md": "src/lib/security/role-config.ts.md"
+    },
+    {
+      "path": "src/lib/security/session.ts",
+      "comment_count": 5,
+      "md": "src/lib/security/session.ts.md"
+    },
+    {
+      "path": "src/lib/services/assignment-service.ts",
+      "comment_count": 7,
+      "md": "src/lib/services/assignment-service.ts.md"
+    },
+    {
+      "path": "src/lib/services/index.ts",
+      "comment_count": 1,
+      "md": "src/lib/services/index.ts.md"
+    },
+    {
+      "path": "src/lib/services/partner-auth-service.ts",
+      "comment_count": 6,
+      "md": "src/lib/services/partner-auth-service.ts.md"
+    },
+    {
+      "path": "src/lib/services/partner-invite-service.ts",
+      "comment_count": 5,
+      "md": "src/lib/services/partner-invite-service.ts.md"
+    },
+    {
+      "path": "src/lib/services/permission-service.ts",
+      "comment_count": 8,
+      "md": "src/lib/services/permission-service.ts.md"
+    },
+    {
+      "path": "src/lib/services/request-context-builder.ts",
+      "comment_count": 6,
+      "md": "src/lib/services/request-context-builder.ts.md"
+    },
+    {
+      "path": "src/lib/services/request-service.ts",
+      "comment_count": 7,
+      "md": "src/lib/services/request-service.ts.md"
+    },
+    {
+      "path": "src/lib/services/user-type-service.ts",
+      "comment_count": 4,
+      "md": "src/lib/services/user-type-service.ts.md"
+    },
+    {
+      "path": "src/lib/services/vault-service.ts",
+      "comment_count": 7,
+      "md": "src/lib/services/vault-service.ts.md"
+    },
+    {
+      "path": "src/lib/storage/commands/migrate.ts",
+      "comment_count": 8,
+      "md": "src/lib/storage/commands/migrate.ts.md"
+    },
+    {
+      "path": "src/lib/storage/index.ts",
+      "comment_count": 2,
+      "md": "src/lib/storage/index.ts.md"
+    },
+    {
+      "path": "src/lib/storage/providers/local-storage.provider.ts",
+      "comment_count": 7,
+      "md": "src/lib/storage/providers/local-storage.provider.ts.md"
+    },
+    {
+      "path": "src/lib/storage/server.ts",
+      "comment_count": 3,
+      "md": "src/lib/storage/server.ts.md"
+    },
+    {
+      "path": "src/lib/storage/storage.service.ts",
+      "comment_count": 6,
+      "md": "src/lib/storage/storage.service.ts.md"
+    },
+    {
+      "path": "src/lib/storage/types.ts",
+      "comment_count": 3,
+      "md": "src/lib/storage/types.ts.md"
+    },
+    {
+      "path": "src/lib/storage/utils/checksum.util.ts",
+      "comment_count": 1,
+      "md": "src/lib/storage/utils/checksum.util.ts.md"
+    },
+    {
+      "path": "src/lib/storage/utils/file-name.util.ts",
+      "comment_count": 3,
+      "md": "src/lib/storage/utils/file-name.util.ts.md"
+    },
+    {
+      "path": "src/lib/storage/utils/object-key.util.ts",
+      "comment_count": 3,
+      "md": "src/lib/storage/utils/object-key.util.ts.md"
+    },
+    {
+      "path": "src/lib/toast.ts",
+      "comment_count": 1,
+      "md": "src/lib/toast.ts.md"
+    },
+    {
+      "path": "src/lib/types.ts",
+      "comment_count": 2,
+      "md": "src/lib/types.ts.md"
+    },
+    {
+      "path": "src/lib/types/activity.ts",
+      "comment_count": 1,
+      "md": "src/lib/types/activity.ts.md"
+    },
+    {
+      "path": "src/lib/types/audit.ts",
+      "comment_count": 3,
+      "md": "src/lib/types/audit.ts.md"
+    },
+    {
+      "path": "src/lib/types/engagement-service-scope.ts",
+      "comment_count": 2,
+      "md": "src/lib/types/engagement-service-scope.ts.md"
+    },
+    {
+      "path": "src/lib/types/engagement.ts",
+      "comment_count": 3,
+      "md": "src/lib/types/engagement.ts.md"
+    },
+    {
+      "path": "src/lib/types/index.ts",
+      "comment_count": 1,
+      "md": "src/lib/types/index.ts.md"
+    },
+    {
+      "path": "src/lib/types/organization.ts",
+      "comment_count": 5,
+      "md": "src/lib/types/organization.ts.md"
+    },
+    {
+      "path": "src/lib/types/partner-member.ts",
+      "comment_count": 3,
+      "md": "src/lib/types/partner-member.ts.md"
+    },
+    {
+      "path": "src/lib/types/partner.ts",
+      "comment_count": 2,
+      "md": "src/lib/types/partner.ts.md"
+    },
+    {
+      "path": "src/lib/types/request-context.ts",
+      "comment_count": 3,
+      "md": "src/lib/types/request-context.ts.md"
+    },
+    {
+      "path": "src/lib/types/request.ts",
+      "comment_count": 4,
+      "md": "src/lib/types/request.ts.md"
+    },
+    {
+      "path": "src/lib/types/review.ts",
+      "comment_count": 2,
+      "md": "src/lib/types/review.ts.md"
+    },
+    {
+      "path": "src/lib/types/service-type.ts",
+      "comment_count": 3,
+      "md": "src/lib/types/service-type.ts.md"
+    },
+    {
+      "path": "src/lib/types/tenant.ts",
+      "comment_count": 3,
+      "md": "src/lib/types/tenant.ts.md"
+    },
+    {
+      "path": "src/lib/types/user.ts",
+      "comment_count": 4,
+      "md": "src/lib/types/user.ts.md"
+    },
+    {
+      "path": "src/lib/types/vault.ts",
+      "comment_count": 5,
+      "md": "src/lib/types/vault.ts.md"
+    },
+    {
+      "path": "src/lib/types/wizard.ts",
+      "comment_count": 1,
+      "md": "src/lib/types/wizard.ts.md"
+    },
+    {
+      "path": "src/lib/types/workflow.ts",
+      "comment_count": 4,
+      "md": "src/lib/types/workflow.ts.md"
+    },
+    {
+      "path": "src/lib/types/workspace.ts",
+      "comment_count": 4,
+      "md": "src/lib/types/workspace.ts.md"
+    },
+    {
+      "path": "src/lib/workflow/inheritance-resolver.ts",
+      "comment_count": 5,
+      "md": "src/lib/workflow/inheritance-resolver.ts.md"
+    },
+    {
+      "path": "src/lib/workflow/request-workflow.ts",
+      "comment_count": 4,
+      "md": "src/lib/workflow/request-workflow.ts.md"
+    }
+  ]
+}

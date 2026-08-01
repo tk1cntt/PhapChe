@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSwaggerSpec } from 'next-swagger-doc';
 
-let spec: Record<string, unknown> | null = null;
+let spec: object | null = null;
 
-function getSpec(): Record<string, unknown> {
+function getSpec(): object {
   if (!spec) {
     spec = createSwaggerSpec({
       apiFolder: 'src/app/api',
@@ -301,7 +301,7 @@ function getSpec(): Record<string, unknown> {
       },
     });
   }
-  return spec;
+  return spec ?? {};
 }
 
 export async function GET(request: NextRequest) {

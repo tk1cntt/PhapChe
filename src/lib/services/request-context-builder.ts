@@ -154,7 +154,7 @@ export class RequestContextBuilder {
       id: org.id,
       tenantId: org.tenantId,
       name: org.name,
-      status: org.status,
+      status: org.status as OrganizationContext['status'],
       isDefault: org.isDefault,
     };
   }
@@ -174,7 +174,7 @@ export class RequestContextBuilder {
 
     return {
       id: tenant.id,
-      mode: tenant.mode,
+      mode: tenant.mode as TenantContext['mode'],
       code: tenant.code,
       name: tenant.name,
     };

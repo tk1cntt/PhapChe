@@ -4,7 +4,6 @@
  */
 
 import { REQUEST_STATUS } from '@/lib/types';
-import type { RequestStatus } from '@/lib/types';
 
 // Partner-allowed statuses (aggregated across specialist, reviewer, coordinator roles)
 // See request-workflow.ts canTransitionRequestStatus() for per-role enforcement
@@ -29,7 +28,7 @@ export const PARTNER_STATUS_LABELS: Record<PartnerAllowedStatus, { vi: string; e
 };
 
 // All request status labels for admin (all statuses, not just partner-allowed)
-export const REQUEST_STATUS_LABELS: Record<RequestStatus, string> = {
+export const REQUEST_STATUS_LABELS: Record<string, string> = {
   [REQUEST_STATUS.DRAFT_INTAKE]: 'Bản nháp',
   [REQUEST_STATUS.TRIAGE]: 'Phân loại',
   [REQUEST_STATUS.ASSIGNED]: 'Đã phân công',

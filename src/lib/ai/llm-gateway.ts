@@ -312,7 +312,8 @@ export async function llmComplete(request: LlmRequest): Promise<LlmResponse> {
       const usage = data.usage as { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | undefined;
 
       if (!content && (usage?.total_tokens ?? 0) > 0) {
-        console.warn('[LLM Gateway] Response has tokens but empty content. Raw message:', JSON.stringify(firstChoice?.message ?? firstChoice).slice(0, 300));
+        const fc = 'firstChoice' in data ? (data as Record<string, unknown>).firstChoice : undefined;
+        console.warn('[LLM Gateway] Response has tokens but empty content. Raw message:', JSON.stringify(fc ?? {}).slice(0, 300));
       }
 
       return {
@@ -362,7 +363,7 @@ export async function* llmStream(request: LlmRequest): AsyncGenerator<LlmStreamC
     throw new Error('LLM_STREAM_UNSUPPORTED: Anthropic streaming not yet implemented. Use llmComplete().');
   }
 
-  let response: Response;
+  let response!: Response;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       response = await callOpenAiCompatible(request.model, request.messages, {

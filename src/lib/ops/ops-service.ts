@@ -295,7 +295,7 @@ export async function getOpsDashboard(session: AppSession, filters: OpsFilters):
       status: request.status as RequestStatus,
       workspaceId: request.workspaceId,
       matterTypeKey: request.intakeSubmission?.matterTypeKey ?? null,
-      matterTypeLabel: request.intakeSubmission?.matterType?.label ?? null,
+      matterTypeLabel: request.intakeSubmission?.matterType?.key ?? null,
       customerName: request.createdBy.name,
       customerEmail: request.createdBy.email,
       assignedSpecialistName: request.assignedSpecialist?.name ?? null,
@@ -503,7 +503,8 @@ export async function getOpsAggregate(
 
   // Build where clause — reuse existing filter builder, then extend with search
   const baseWhere = buildOpsRequestWhere(filters);
-  const and: Prisma.LegalRequestWhereInput[] = baseWhere.AND ? [...baseWhere.AND] : [];
+  const baseAnd = baseWhere.AND;
+  const and: Prisma.LegalRequestWhereInput[] = Array.isArray(baseAnd) ? [...baseAnd] : baseAnd ? [baseAnd] : [];
   if (filters.search && filters.search.length <= 200) {
     and.push({
       OR: [

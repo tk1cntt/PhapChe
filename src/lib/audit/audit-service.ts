@@ -74,6 +74,9 @@ export interface GetAuditEventsResult {
 export interface AuditStats {
   totalEvents: number;
   criticalCount: number;
+  accessDeniedCount: number;
+  roleChangeCount: number;
+  completeAuditCount: number;
   completeAuditPercent: number;
   workspaceCount: number;
 }
@@ -181,7 +184,7 @@ export async function getAuditStats(): Promise<AuditStats> {
       prisma.auditEvent.count({
         where: {
           createdAt: { gte: thirtyDaysAgo },
-          action: { in: CRITICAL_ACTIONS as readonly string[] },
+          action: { in: [...CRITICAL_ACTIONS] },
         },
       }),
 
@@ -210,11 +213,14 @@ export async function getAuditStats(): Promise<AuditStats> {
     return {
       totalEvents,
       criticalCount: criticalEvents,
+      accessDeniedCount: criticalEvents,
+      roleChangeCount: 0,
+      completeAuditCount: completeEvents,
       completeAuditPercent,
       workspaceCount: workspaceCount.length,
     };
   } catch (error) {
     console.error('Failed to fetch audit stats:', error);
-    return { totalEvents: 0, criticalCount: 0, completeAuditPercent: 0, workspaceCount: 0 };
+    return { totalEvents: 0, criticalCount: 0, accessDeniedCount: 0, roleChangeCount: 0, completeAuditCount: 0, completeAuditPercent: 0, workspaceCount: 0 };
   }
 }

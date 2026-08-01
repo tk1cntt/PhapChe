@@ -222,9 +222,13 @@ export function suggestSkills(matterTypeKey: string | null | undefined): AgentSk
   return domainSkills.slice(0, 3);
 }
 
-/** Suggest review-type skills (with findings[]) for document review — up to 3 matching the domain */
+/** Suggest review-type skills for document review — up to 3 matching the domain */
 export function suggestReviewSkills(matterTypeKey: string | null | undefined): AgentSkill[] {
-  if (!matterTypeKey) return ['document-issue-analyzer'];
+  // When no matterTypeKey, fall back to DEFAULT_DOMAIN (commercial-legal) so users
+  // still get a meaningful choice of review skills instead of just one.
+  if (!matterTypeKey) {
+    return (DOMAIN_REVIEW_SKILL_MAP[DEFAULT_DOMAIN] ?? ['document-issue-analyzer']).slice(0, 3);
+  }
 
   const domain = MATTER_DOMAIN_MAP[matterTypeKey] ?? DEFAULT_DOMAIN;
   const domainReviewSkills = DOMAIN_REVIEW_SKILL_MAP[domain] ?? ['document-issue-analyzer'];
@@ -252,7 +256,9 @@ export function getPrimarySkill(matterTypeKey: string | null | undefined): Agent
 
 /** Get the primary review skill for a matter type (used as default in review dropdown) */
 export function getPrimaryReviewSkill(matterTypeKey: string | null | undefined): AgentSkill {
-  if (!matterTypeKey) return DEFAULT_PRIMARY_SKILL;
+  if (!matterTypeKey) {
+    return (DOMAIN_REVIEW_SKILL_MAP[DEFAULT_DOMAIN] ?? [DEFAULT_PRIMARY_SKILL])[0];
+  }
 
   const domain = MATTER_DOMAIN_MAP[matterTypeKey] ?? DEFAULT_DOMAIN;
   const reviewSkills = DOMAIN_REVIEW_SKILL_MAP[domain];

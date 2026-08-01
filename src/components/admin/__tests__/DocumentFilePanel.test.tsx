@@ -56,11 +56,11 @@ vi.mock('./DocumentPreviewTipTap', () => ({
 // Mock domain-resolver
 vi.mock('@/lib/ai/domain-resolver', () => ({
   suggestReviewSkills: (matterTypeKey: string | null) => {
-    if (!matterTypeKey) return ['document-issue-analyzer'];
+    if (!matterTypeKey) return ['document-issue-analyzer', 'nda-reviewer', 'vendor-contract-reviewer'];
     if (matterTypeKey === 'nda') return ['nda-reviewer', 'vendor-contract-reviewer', 'commercial-contract-reviewer'];
     if (matterTypeKey === 'labor_discipline') return ['document-issue-analyzer', 'employment-contract-reviewer', 'labor-discipline-checker'];
     if (matterTypeKey === 'trademark') return ['document-issue-analyzer', 'entity-compliance-checker'];
-    return ['document-issue-analyzer'];
+    return ['document-issue-analyzer', 'nda-reviewer', 'vendor-contract-reviewer'];
   },
   getPrimaryReviewSkill: (matterTypeKey: string | null) => {
     if (!matterTypeKey) return 'document-issue-analyzer';

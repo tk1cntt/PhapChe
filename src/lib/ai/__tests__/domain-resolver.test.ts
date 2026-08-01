@@ -261,14 +261,18 @@ describe('suggestReviewSkills', () => {
   });
 
   describe('blackbox', () => {
-    it('returns only document-issue-analyzer for null matterTypeKey', () => {
+    it('returns commercial-legal review skills for null matterTypeKey', () => {
       const skills = suggestReviewSkills(null);
-      expect(skills).toEqual(['document-issue-analyzer']);
+      // null → DEFAULT_DOMAIN (commercial-legal) review skills
+      expect(skills.length).toBe(3);
+      expect(skills[0]).toBe('document-issue-analyzer');
+      expect(skills).toContain('nda-reviewer');
     });
 
-    it('returns only document-issue-analyzer for undefined matterTypeKey', () => {
+    it('returns commercial-legal review skills for undefined matterTypeKey', () => {
       const skills = suggestReviewSkills(undefined);
-      expect(skills).toEqual(['document-issue-analyzer']);
+      expect(skills.length).toBe(3);
+      expect(skills[0]).toBe('document-issue-analyzer');
     });
 
     it('slices to max 3 skills per domain', () => {
@@ -279,9 +283,11 @@ describe('suggestReviewSkills', () => {
   });
 
   describe('abnormal', () => {
-    it('returns document-issue-analyzer for empty string', () => {
+    it('returns commercial-legal review skills for empty string', () => {
       const skills = suggestReviewSkills('');
-      expect(skills).toEqual(['document-issue-analyzer']);
+      // empty string → DEFAULT_DOMAIN (commercial-legal) review skills
+      expect(skills.length).toBe(3);
+      expect(skills[0]).toBe('document-issue-analyzer');
     });
 
     it('returns commercial-legal review skills for unknown matterTypeKey', () => {

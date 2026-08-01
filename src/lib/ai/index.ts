@@ -59,6 +59,10 @@ export {
 // Domain Resolver
 export {
   suggestSkills,
+  suggestReviewSkills,
+  getPrimaryReviewSkill,
+  REVIEW_SKILLS,
+  DOMAIN_REVIEW_SKILL_MAP,
   matterTypeToDomain,
   getPrimarySkill,
 } from './domain-resolver';

@@ -6,7 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { FileText, Upload, File, Loader2, AlertTriangle, Eye, CheckCircle2, AlertCircle, Clock, Maximize2, Minimize2, Sparkles, ChevronDown } from 'lucide-react';
 import { DocumentPreviewTipTap } from './DocumentPreviewTipTap';
-import { suggestSkills, getPrimarySkill } from '@/lib/ai/domain-resolver';
+import { suggestReviewSkills, getPrimaryReviewSkill } from '@/lib/ai/domain-resolver';
 import type { AgentSkill } from '@/lib/ai/types';
 import type { Annotation } from './DocumentAnnotationPanel';
 
@@ -98,13 +98,13 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expan
   const [reviewStatuses, setReviewStatuses] = useState<Record<string, string>>({});
 
   // ── Skill selector ──
-  const suggestedSkills = useMemo<AgentSkill[]>(() => suggestSkills(matterTypeKey ?? null), [matterTypeKey]);
-  const defaultSkill = useMemo<AgentSkill>(() => getPrimarySkill(matterTypeKey ?? null), [matterTypeKey]);
+  const reviewSkills = useMemo<AgentSkill[]>(() => suggestReviewSkills(matterTypeKey ?? null), [matterTypeKey]);
+  const defaultSkill = useMemo<AgentSkill>(() => getPrimaryReviewSkill(matterTypeKey ?? null), [matterTypeKey]);
   const [selectedSkill, setSelectedSkill] = useState<AgentSkill>(defaultSkill);
 
   // Cập nhật default skill khi matterTypeKey thay đổi
   useEffect(() => {
-    setSelectedSkill(getPrimarySkill(matterTypeKey ?? null));
+    setSelectedSkill(getPrimaryReviewSkill(matterTypeKey ?? null));
   }, [matterTypeKey]);
 
   // i18n key mapping — same names as ChatActivityPanel for consistency
@@ -365,7 +365,7 @@ export function DocumentFilePanel({ requestId, activeFileId, onSelectFile, expan
                       disabled={aiReviewLoading}
                       className="doc-file-skill-select"
                     >
-                      {suggestedSkills.map((sk) => (
+                      {reviewSkills.map((sk) => (
                         <option key={sk} value={sk}>
                           {getSkillLabel(sk)}
                         </option>

@@ -310,7 +310,94 @@ export async function POST(
 
     // ── Parse AI findings ──
     const isInlineSkill = INLINE_ANNOTATION_SKILLS.includes(skill);
-    const aiFindings = (result.output?.findings as Array<Record<string, unknown>>) ?? [];
+
+    /**
+     * Normalize diverse structured output formats → uniform findings array.
+     *
+     * Category A skills return findings[] directly.
+     * Category B skills return checks[], risks[], gaps[], gapAnalysis[], or keyLegalIssues[].
+     * This function maps them all to { severity, issue, recommendation, legalBasis }.
+     */
+    function normalizeFindings(output: Record<string, unknown>): Array<Record<string, unknown>> {
+      // Direct findings (Category A)
+      const findings = output.findings as Array<Record<string, unknown>> | undefined;
+      if (findings?.length) return findings;
+
+      // checks[] → findings (entity-compliance-checker, corporate-compliance-checker, privacy-compliance-checker)
+      const checks = output.checks as Array<Record<string, unknown>> | undefined;
+      if (checks?.length) {
+        return checks.map((c) => ({
+          severity: (c.severity as string) ?? (c.priority as string) ?? (c.status === 'non_compliant' ? 'high' : 'medium'),
+          issue: (c.requirement as string) ?? (c.gap as string) ?? '',
+          recommendation: (c.action as string) ?? '',
+          legalBasis: (c.legalBasis as string) ?? '',
+        }));
+      }
+
+      // risks[] → findings (labor-discipline-checker, ai-impact-assessment)
+      const risks = output.risks as Array<Record<string, unknown>> | undefined;
+      if (risks?.length) {
+        return risks.map((r) => ({
+          severity: (r.severity as string) ?? 'medium',
+          issue: (r.risk as string) ?? '',
+          recommendation: (r.action as string) ?? (r.mitigation as string) ?? '',
+          legalBasis: (r.legalBasis as string) ?? '',
+        }));
+      }
+
+      // gaps[] → findings (employment-policy-checker, regulatory-gap-analyzer)
+      const gaps = output.gaps as Array<Record<string, unknown>> | undefined;
+      if (gaps?.length) {
+        return gaps.map((g) => ({
+          severity: (g.severity as string) ?? 'medium',
+          issue: `${(g.regulation as string) ?? (g.area as string) ?? ''}: ${(g.gap as string) ?? (g.currentState as string) ?? ''}`.replace(/^: /, ''),
+          recommendation: (g.action as string) ?? '',
+          legalBasis: (g.legalBasis as string) ?? '',
+        }));
+      }
+
+      // gapAnalysis[] → findings (compliance-gap-analyzer)
+      const gapAnalysis = output.gapAnalysis as Array<Record<string, unknown>> | undefined;
+      if (gapAnalysis?.length) {
+        return gapAnalysis.map((ga) => ({
+          severity: (ga.severity as string) ?? 'medium',
+          issue: `${(ga.regulation as string) ?? ''}: ${(ga.gap as string) ?? ''}`.replace(/^: /, ''),
+          recommendation: (ga.remediationAction as string) ?? '',
+          legalBasis: (ga.legalBasis as string) ?? (ga.penaltyBasis as string) ?? '',
+        }));
+      }
+
+      // keyLegalIssues[] → findings (litigation-strategist)
+      const keyIssues = output.keyLegalIssues as Array<Record<string, unknown>> | undefined;
+      if (keyIssues?.length) {
+        return keyIssues.map((ki) => ({
+          severity: (ki.strengthAssessment as string) === 'weak' ? 'high'
+            : (ki.strengthAssessment as string) === 'moderate' ? 'medium'
+            : 'low',
+          issue: (ki.issue as string) ?? '',
+          recommendation: (ki.ourPosition as string) ?? '',
+          legalBasis: '',
+        }));
+      }
+
+      // riskAssessment.risks[] → findings (litigation-strategist nested path)
+      const riskAssessment = output.riskAssessment as Record<string, unknown> | undefined;
+      const riskAssessmentRisks = riskAssessment?.risks as Array<Record<string, unknown>> | undefined;
+      if (riskAssessmentRisks?.length) {
+        return riskAssessmentRisks.map((r) => ({
+          severity: (r.impact as string) === 'critical' ? 'critical'
+            : (r.impact as string) === 'high' ? 'high'
+            : (r.impact as string) ?? 'medium',
+          issue: `[${(r.category as string) ?? 'risk'}] ${(r.risk as string) ?? ''}`,
+          recommendation: (r.mitigation as string) ?? '',
+          legalBasis: '',
+        }));
+      }
+
+      return [];
+    }
+
+    const aiFindings = normalizeFindings(result.output as Record<string, unknown>);
     const mappedFindings: Array<{
       severity: string;
       lineStart?: number;
@@ -322,6 +409,51 @@ export async function POST(
       confidence: number;
       annotationId?: string;
     }> = [];
+
+    // ── Build annotation content for a single research-skills summary ──
+    function buildResearchAnnotation(output: Record<string, unknown>, summary: string): string {
+      const parts: string[] = [];
+      const answer = (output.answer as string) ?? summary;
+      if (answer) parts.push(`**Kết quả nghiên cứu:**\n${answer}`);
+
+      const legalBasis = output.legalBasis as Array<{ law?: string; article?: string; content?: string }> | undefined;
+      if (legalBasis?.length) {
+        parts.push('\n**Căn cứ pháp lý:**');
+        for (const lb of legalBasis) {
+          const line = [lb.law, lb.article, lb.content].filter(Boolean).join(' — ');
+          if (line) parts.push(`- ${line}`);
+        }
+      }
+
+      const caveats = output.caveats as string[] | undefined;
+      if (caveats?.length) {
+        parts.push('\n**Lưu ý:**');
+        for (const c of caveats) parts.push(`- ${c}`);
+      }
+
+      const nextSteps = output.nextSteps as string[] | undefined;
+      if (nextSteps?.length) {
+        parts.push('\n**Bước tiếp theo:**');
+        for (const s of nextSteps) parts.push(`- ${s}`);
+      }
+
+      const relevantCases = output.relevantCases as Array<{ title?: string; relevance?: string }> | undefined;
+      if (relevantCases?.length) {
+        parts.push('\n**Án lệ / tình huống liên quan:**');
+        for (const rc of relevantCases) {
+          const line = [rc.title, rc.relevance].filter(Boolean).join(': ');
+          if (line) parts.push(`- ${line}`);
+        }
+      }
+
+      const references = output.references as string[] | undefined;
+      if (references?.length) {
+        parts.push('\n**Tài liệu tham khảo:**');
+        for (const r of references) parts.push(`- ${r}`);
+      }
+
+      return parts.join('\n');
+    }
 
     // ── Delete old AI annotations & create new ones within transaction ──
     await prisma.$transaction(async (tx) => {
@@ -404,6 +536,36 @@ export async function POST(
           });
         } catch (createErr) {
           console.error('[AI Review] Failed to create annotation:', createErr);
+        }
+      }
+
+      // ── Fallback: non-inline skills (research/analysis) → single summary annotation ──
+      if (mappedFindings.length === 0 && !isInlineSkill) {
+        const annotationContent = buildResearchAnnotation(result.output as Record<string, unknown>, result.summary);
+        try {
+          const annotation = await tx.documentAnnotation.create({
+            data: {
+              requestId,
+              fileKey: fileId,
+              authorId: session.userId,
+              content: annotationContent,
+              severity: 'info',
+              category: 'issue',
+              aiGenerated: true,
+              aiConfidence: result.confidence,
+            },
+          });
+
+          mappedFindings.push({
+            severity: 'info',
+            issue: (result.output?.answer as string) ?? result.summary,
+            recommendation: (result.output?.nextSteps as string[])?.join('; ') ?? '',
+            legalBasis: (result.output?.legalBasis as Array<Record<string, string>>)?.map(lb => [lb.law, lb.article].filter(Boolean).join(' ')).join(', ') ?? '',
+            confidence: result.confidence,
+            annotationId: annotation.id,
+          });
+        } catch (createErr) {
+          console.error('[AI Review] Failed to create research annotation:', createErr);
         }
       }
     });

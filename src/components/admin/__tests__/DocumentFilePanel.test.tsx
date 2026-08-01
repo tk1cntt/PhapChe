@@ -55,19 +55,18 @@ vi.mock('./DocumentPreviewTipTap', () => ({
 
 // Mock domain-resolver
 vi.mock('@/lib/ai/domain-resolver', () => ({
-  suggestSkills: (matterTypeKey: string | null) => {
+  suggestReviewSkills: (matterTypeKey: string | null) => {
     if (!matterTypeKey) return ['document-issue-analyzer'];
-    if (matterTypeKey === 'nda') return ['nda-reviewer', 'vendor-contract-reviewer', 'commercial-contract-drafter'];
-    if (matterTypeKey === 'trademark') return ['trademark-clearance', 'cease-desist-drafter', 'ip-trademark-search'];
-    if (matterTypeKey === 'labor_discipline')
-      return ['labor-discipline-checker', 'internal-regulation-drafter', 'employment-contract-reviewer'];
-    return ['general-legal-researcher'];
+    if (matterTypeKey === 'nda') return ['nda-reviewer', 'vendor-contract-reviewer', 'commercial-contract-reviewer'];
+    if (matterTypeKey === 'labor_discipline') return ['document-issue-analyzer', 'employment-contract-reviewer', 'labor-discipline-checker'];
+    if (matterTypeKey === 'trademark') return ['document-issue-analyzer', 'entity-compliance-checker'];
+    return ['document-issue-analyzer'];
   },
-  getPrimarySkill: (matterTypeKey: string | null) => {
+  getPrimaryReviewSkill: (matterTypeKey: string | null) => {
     if (!matterTypeKey) return 'document-issue-analyzer';
     if (matterTypeKey === 'nda') return 'nda-reviewer';
-    if (matterTypeKey === 'trademark') return 'trademark-clearance';
-    if (matterTypeKey === 'labor_discipline') return 'labor-discipline-checker';
+    if (matterTypeKey === 'trademark') return 'document-issue-analyzer';
+    if (matterTypeKey === 'labor_discipline') return 'document-issue-analyzer';
     return 'document-issue-analyzer';
   },
   matterTypeToDomain: () => 'commercial-legal',
@@ -168,7 +167,7 @@ describe('DocumentFilePanel — Skill Selector', () => {
       expect(select.value).toBe('nda-reviewer');
     });
 
-    it('renders 3 options from suggestSkills for matterTypeKey', async () => {
+    it('renders review skills from suggestReviewSkills for matterTypeKey', async () => {
       mockFetchChain({ withPreview: true });
 
       render(
@@ -182,7 +181,7 @@ describe('DocumentFilePanel — Skill Selector', () => {
 
       const select = screen.getByTestId('doc-file-ai-review-group').querySelector('select')!;
       const options = Array.from(select.options).map((o) => o.value);
-      expect(options).toEqual(['nda-reviewer', 'vendor-contract-reviewer', 'commercial-contract-drafter']);
+      expect(options).toEqual(['nda-reviewer', 'vendor-contract-reviewer', 'commercial-contract-reviewer']);
     });
 
     it('calls onAiReview with selected skill on button click', async () => {
@@ -266,18 +265,18 @@ describe('DocumentFilePanel — Skill Selector', () => {
 
       await waitFor(() => expect(screen.getByTestId('doc-file-ai-review-group')).toBeTruthy());
       let select = screen.getByTestId('doc-file-ai-review-group').querySelector('select')!;
-      expect(select.value).toBe('trademark-clearance');
+      expect(select.value).toBe('document-issue-analyzer');
 
       rerender(
         <DocumentFilePanel
           requestId="req-1" activeFileId="vf_f1" onSelectFile={vi.fn()}
-          onAiReview={vi.fn()} matterTypeKey="labor_discipline"
+          onAiReview={vi.fn()} matterTypeKey="nda"
         />,
       );
 
       await waitFor(() => {
         select = screen.getByTestId('doc-file-ai-review-group').querySelector('select')!;
-        expect(select.value).toBe('labor-discipline-checker');
+        expect(select.value).toBe('nda-reviewer');
       });
     });
   });

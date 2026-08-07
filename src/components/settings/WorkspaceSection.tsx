@@ -20,7 +20,7 @@ export function WorkspaceSection({ workspaces }: WorkspaceSectionProps): React.R
       <p className="section-description">{t('workspaceDesc')}</p>
 
       <div className="workspace-list">
-        {workspaces.map((ws) => (
+        {(workspaces ?? []).map((ws) => (
           <div key={ws.id} className="workspace-item">
             <div className="workspace-info">
               <div className="workspace-icon">

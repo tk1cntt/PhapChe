@@ -3,7 +3,6 @@
 import { useTranslations } from 'next-intl';
 
 interface UserPaginationProps {
-  current: number;
   pageSize: number;
   total: number;
   onChange: (page: number, pageSize: number) => void;
@@ -16,8 +15,6 @@ export default function UserPagination({
   onChange,
 }: UserPaginationProps) {
   const t = useTranslations('AdminUsers');
-
-  const totalPages = Math.ceil(total / pageSize);
 
   return (
     <div className="px-4 py-3 bg-[#f8fafc] border border-t-0 border-gray-200 rounded-b-[15px] flex justify-end items-center gap-3">

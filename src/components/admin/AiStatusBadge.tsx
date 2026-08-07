@@ -20,12 +20,10 @@ export function AiStatusBadge() {
   // Initializing
   if (isInitializing) {
     return (
-      <div
-        className="ai-status-badge ai-status-initializing"
-        title="Đang khởi tạo AI..."
-        data-testid="ai-status-initializing"
-      >
-        <Loader2 size={12} className="ai-panel-spinner" />
+const ICON_SIZE = 12;
+
+// ... then in each icon:
+<Loader2 size={ICON_SIZE} className="ai-panel-spinner" />
         <span>AI...</span>
       </div>
     );

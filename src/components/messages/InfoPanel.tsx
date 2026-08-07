@@ -9,7 +9,7 @@ export interface CaseInfo {
   slaDetail?: string;
   documents?: string;
   participants?: string;
-  // Optional additional fields
+  // Optional additional fields (used by external consumers)
   status?: string;
   assignedSpecialist?: string;
   createdAt?: string;
@@ -70,8 +70,8 @@ function InfoPanel({ caseInfo, isOpen = true, onClose }: InfoPanelProps): React.
           <div className="documents-section">
             <p className="case-code">{t('attachedDocuments')}</p>
             <div className="documents-list">
-              {caseInfo.documents.split(',').map((doc, idx) => (
-                <div key={idx} className="document-item">
+              {caseInfo.documents.split(',').map((doc) => (
+                <div key={doc.trim()} className="document-item">
                   📄 {doc.trim()}
                 </div>
               ))}

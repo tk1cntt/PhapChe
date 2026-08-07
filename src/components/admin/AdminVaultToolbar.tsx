@@ -34,16 +34,12 @@ export function AdminVaultToolbar({ search, onSearchChange, onRefresh, loading }
 
           <button className="vault-toolbar-btn">
             {t('folders')}
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
-              <path d="m6 9 6 6 6-6" />
-            </svg>
+            <ChevronDown size={15} />
           </button>
 
           <button className="vault-toolbar-btn">
             {t('tags')}
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
-              <path d="m6 9 6 6 6-6" />
-            </svg>
+            <ChevronDown size={15} />
           </button>
         </div>
 

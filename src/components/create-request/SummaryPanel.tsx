@@ -25,16 +25,19 @@ export default function SummaryPanel({
   const serviceInfo = selectedService ? SEED_MATTER_TYPES[selectedService] : null;
   const domainInfo = selectedDomainId ? SEED_LEGAL_DOMAINS[selectedDomainId] : null;
 
-  const serviceName = serviceInfo
-    ? (serviceInfo.label[locale as keyof typeof serviceInfo.label] || serviceInfo.label.vi)
-    : '';
+  function getLocalizedLabel<T extends { label: Record<string, string> }>(
+    info: T | null,
+    locale: string
+  ): string {
+    if (!info) return '';
+    return (info.label as Record<string, string>)[locale] || info.label.vi || '';
+  }
 
-  const domainName = domainInfo
-    ? (domainInfo.label[locale as keyof typeof domainInfo.label] || domainInfo.label.vi)
-    : '';
+  const serviceName = getLocalizedLabel(serviceInfo, locale);
+  const domainName = getLocalizedLabel(domainInfo, locale);
 
-  return (
-    <div className="side-card">
+  const serviceName = getLocalizedLabel(serviceInfo, locale);
+  const domainName = getLocalizedLabel(domainInfo, locale);
       <div className="card-header">
         <h3 className="card-title">
           <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -47,39 +50,47 @@ export default function SummaryPanel({
 
       <div className="card-body">
         <div className="summary-list">
-          {selectedService ? (
-            <div className="summary-item">
-              <div>
-                <strong>{t('summaryServiceSelected')}</strong>
-                <span>{serviceName}</span>
+          {(() => {
+            if (selectedService) {
+              return (
+                <div className="summary-item">
+                  <div>
+                    <strong>{t('summaryServiceSelected')}</strong>
+                    <span>{serviceName}</span>
+                  </div>
+                  <MiniIcon letter="1" />
+                </div>
+              );
+            }
+            if (selectedDomainId) {
+              return (
+                <div className="summary-item">
+                  <div>
+                    <strong>{t('summaryDomainSelected')}</strong>
+                    <span>{domainName}</span>
+                  </div>
+                  <MiniIcon letter="1" />
+                </div>
+              );
+            }
+            return (
+              <div className="summary-item">
+                <div>
+                  <strong>{t('summaryNoService')}</strong>
+                  <span>{t('summaryNoServiceHint')}</span>
+                </div>
+                <MiniIcon letter="?" />
               </div>
-              <MiniIcon letter="1" />
-            </div>
-          ) : selectedDomainId ? (
-            <div className="summary-item">
-              <div>
-                <strong>{t('summaryDomainSelected')}</strong>
-                <span>{domainName}</span>
+            );
+          })()}
+                <div>
+                  <strong>{t('summaryNoService')}</strong>
+                  <span>{t('summaryNoServiceHint')}</span>
+                </div>
+                <MiniIcon letter="?" />
               </div>
-              <MiniIcon letter="1" />
-            </div>
-          ) : (
-            <div className="summary-item">
-              <div>
-                <strong>{t('summaryNoService')}</strong>
-                <span>{t('summaryNoServiceHint')}</span>
-              </div>
-              <MiniIcon letter="?" />
-            </div>
-          )}
-
-          <div className="summary-item">
-            <div>
-              <strong>{t('workspace')}</strong>
-              <span>{workspaceName}</span>
-            </div>
-            <MiniIcon letter="W" />
-          </div>
+            );
+          })()}
 
           <div className="summary-item">
             <div>

@@ -34,13 +34,16 @@ const SENDER_COLORS = [
  * Uses the first character of senderId to deterministically pick a color
  */
 function getSenderColor(senderId: string): { bg: string; text: string; border: string } {
+  if (!senderId) {
+    return SENDER_COLORS[0]; // safe fallback for empty/missing senderId
+  }
   const charCode = senderId.charCodeAt(0);
   const index = charCode % SENDER_COLORS.length;
   return SENDER_COLORS[index];
 }
-
-/**
- * MessageBubble component - renders individual message bubble
+  const index = charCode % SENDER_COLORS.length;
+  return SENDER_COLORS[index];
+}
  * Styling matches template (D-21, D-22, D-23):
  * - .msg: max-width 72%, padding 14px 16px, border-radius 14px, font-size 14px, line-height 1.55
  * - .msg.out: background #f1f5f9, color #0f172a, margin-left auto (right-aligned), text left-aligned, no name
@@ -48,7 +51,7 @@ function getSenderColor(senderId: string): { bg: string; text: string; border: s
  */
 function MessageBubble({ message, currentUserId }: MessageBubbleProps): React.ReactElement {
   const t = useTranslations('UserMessages');
-  const isOutgoing = message.senderId === currentUserId;
+  const isOutgoing = message.isOutgoing;
   const senderColor = getSenderColor(message.senderId);
   const displayName = message.senderName || t('unknownSender');
 

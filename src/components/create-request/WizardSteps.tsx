@@ -21,11 +21,12 @@ export default function WizardSteps({
   const { actions } = useWizard();
 
   const handleStepClick = (stepNumber: number) => {
+    if (stepNumber < 1 || stepNumber > totalSteps) return;
     if (completedSteps.includes(stepNumber)) {
       actions.goToStep(stepNumber as 1 | 2 | 3 | 4 | 5);
     }
   };
-
+  };
   return (
     <div className="wizard-steps">
       {/* Steps row */}
@@ -34,7 +35,6 @@ export default function WizardSteps({
           const isCompleted = completedSteps.includes(stepNumber);
           const isCurrent = stepNumber === currentStep;
           const hasError = validationErrors[stepNumber];
-          const isClickable = isCompleted;
           const label = t(`wizard.step${stepNumber}`);
 
           return (
@@ -44,18 +44,32 @@ export default function WizardSteps({
                 type="button"
                 onClick={() => handleStepClick(stepNumber)}
                 disabled={!isClickable}
-                className={`wizard-step-btn ${hasError ? 'error' : ''} ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''} ${!isClickable && !isCurrent ? 'pending' : ''}`}
-                title={t('wizard.stepTitle', { step: stepNumber, label })}
-              >
-                {hasError ? (
-                  <AlertCircle size={16} />
-                ) : isCompleted ? (
-                  <Check size={16} />
-                ) : (
-                  <span className="step-num">{stepNumber}</span>
-                )}
-              </button>
-
+function getStepBtnClassName(
+  hasError: boolean,
+  isCompleted: boolean,
+  isCurrent: boolean,
+  isClickable: boolean,
+): string {
+  const classes = ['wizard-step-btn'];
+  if (hasError) classes.push('error');
+  if (isCompleted) classes.push('completed');
+  if (isCurrent) classes.push('current');
+  if (!isClickable && !isCurrent) classes.push('pending');
+  return classes.join(' ');
+}
+  hasError: boolean,
+  isCompleted: boolean,
+  isCurrent: boolean,
+  isClickable: boolean,
+): string {
+  const classes = ['wizard-step-btn'];
+  if (hasError) classes.push('error');
+  if (isCompleted) classes.push('completed');
+  if (isCurrent) classes.push('current');
+  if (!isClickable && !isCurrent) classes.push('pending');
+  return classes.join(' ');
+}
+}
               {/* Label */}
               <span className={`wizard-step-label ${isCurrent ? 'current' : ''} ${isCompleted ? 'completed' : ''}`}>
                 {label}

@@ -15,11 +15,15 @@ export default function RequestForm({ workspaces }: RequestFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="text-xs font-bold text-slate-700">{t('workspace')}</label>
-          <select className="h-11 w-full border border-slate-200 rounded-lg px-3 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none">
-            {workspaces.map((ws) => (
-              <option key={ws.id} value={ws.id}>
-                {ws.name}
-              </option>
+const FORM_CONTROL_CLASSES =
+  'border border-slate-200 rounded-lg px-3 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none';
+
+// Usage:
+<select className={`h-11 w-full ${FORM_CONTROL_CLASSES}`}>
+  'border border-slate-200 rounded-lg px-3 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none';
+
+// Usage:
+<select className={`h-11 w-full ${FORM_CONTROL_CLASSES}`}>
             ))}
           </select>
         </div>
@@ -47,7 +51,7 @@ export default function RequestForm({ workspaces }: RequestFormProps) {
           <label className="text-xs font-bold text-slate-700">{t('contactEmail')}</label>
           <input
             type="email"
-            placeholder="name@company.com"
+            placeholder={t('contactEmailPlaceholder')}
             className="h-11 w-full border border-slate-200 rounded-lg px-3 text-sm text-slate-700 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none"
           />
         </div>

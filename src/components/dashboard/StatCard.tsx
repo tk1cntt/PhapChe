@@ -4,18 +4,22 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { StatsData } from './DashboardClient';
 
-interface StatCardProps {
-  variant: 'blue' | 'green' | 'orange' | 'purple';
+interface StatCardContent {
   title: string;
   value: string | number;
   description: string;
+}
+
+interface StatCardProps {
+  variant: 'blue' | 'green' | 'orange' | 'purple';
+  data: StatCardContent;
   icon: React.ReactNode;
   href?: string;
 }
-
-const variantStyles = {
-  blue: {
-    iconColor: '#2563eb',
+  data: StatCardContent;
+  icon: React.ReactNode;
+  href?: string;
+}
     background: 'linear-gradient(135deg, #dfe8ff, #eef4ff)',
   },
   green: {
@@ -30,7 +34,7 @@ const variantStyles = {
     iconColor: '#7c3aed',
     background: 'linear-gradient(135deg, #ede9fe, #f5f3ff)',
   },
-};
+} as const;
 
 export default function StatCard({
   variant,
@@ -76,59 +80,35 @@ export default function StatCard({
 export function StatsCardGrid({ data }: { data: StatsData }) {
   const t = useTranslations('StatCard');
 
+  interface CardConfig {
+    variant: StatCardProps['variant'];
+    titleKey: Parameters<typeof t>[0];
+    valueKey: keyof StatsData;
+    descKey: Parameters<typeof t>[0];
+    href: string;
+    icon: React.ReactNode;
+  }
+
+  const cardConfigs: CardConfig[] = [
+    { variant: 'blue',   titleKey: 'totalRequests',  valueKey: 'totalRequests',  descKey: 'totalRequestsDesc',  href: '/cases',                    icon: FILE_ICON },
+    { variant: 'orange', titleKey: 'inProgress',     valueKey: 'inProgress',     descKey: 'inProgressDesc',     href: '/cases?status=in_progress',  icon: CLOCK_ICON },
+    { variant: 'green',  titleKey: 'completed',      valueKey: 'completed',      descKey: 'completedDesc',      href: '/cases?status=completed',    icon: CHECK_ICON },
+    { variant: 'purple', titleKey: 'vaultDocs',      valueKey: 'vaultDocs',      descKey: 'vaultDocsDesc',      href: '/vault',                     icon: VAULT_ICON },
+  ];
+
   return (
     <div className="stats-grid">
-      <StatCard
-        variant="blue"
-        title={t('totalRequests')}
-        value={data.totalRequests}
-        description={t('totalRequestsDesc')}
-        href="/cases"
-        icon={
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <path d="M14 2v6h6" />
-          </svg>
-        }
-      />
-      <StatCard
-        variant="orange"
-        title={t('inProgress')}
-        value={data.inProgress}
-        description={t('inProgressDesc')}
-        href="/cases?status=in_progress"
-        icon={
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 6v6l4 2" />
-          </svg>
-        }
-      />
-      <StatCard
-        variant="green"
-        title={t('completed')}
-        value={data.completed}
-        description={t('completedDesc')}
-        href="/cases?status=completed"
-        icon={
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M20 6 9 17l-5-5" />
-          </svg>
-        }
-      />
-      <StatCard
-        variant="purple"
-        title={t('vaultDocs')}
-        value={data.vaultDocs}
-        description={t('vaultDocsDesc')}
-        href="/vault"
-        icon={
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 7h18v13H3z" />
-            <path d="M3 7l3-4h12l3 4" />
-          </svg>
-        }
-      />
+      {cardConfigs.map((cfg) => (
+        <StatCard
+          key={cfg.valueKey}
+          variant={cfg.variant}
+          title={t(cfg.titleKey)}
+          value={data[cfg.valueKey]}
+          description={t(cfg.descKey)}
+          href={cfg.href}
+          icon={cfg.icon}
+        />
+      ))}
     </div>
   );
 }

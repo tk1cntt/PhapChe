@@ -11,15 +11,17 @@ export interface SettingsStatsProps {
   workspaceCount: number;
 }
 
+type StatVariant = 'green' | 'blue' | 'orange' | 'purple';
+
 interface StatItem {
   titleKey: string;
   value: string;
   descKey: string;
   icon: React.ReactNode;
-  variant: 'green' | 'blue' | 'orange' | 'purple';
+  variant: StatVariant;
 }
-
-export function SettingsStats({
+  variant: StatVariant;
+}
   accountStatus,
   securityStatus,
   notificationCount,
@@ -36,8 +38,8 @@ export function SettingsStats({
 
   return (
     <div className="stats">
-      {statsData.map((stat, index) => (
-        <div key={index} className="stat-card">
+      {statsData.map((stat) => (
+        <div key={stat.titleKey} className="stat-card">
           <div className={`stat-icon ${stat.variant}`}>{stat.icon}</div>
           <div className="stat-content">
             <div className="stat-title">{t(stat.titleKey)}</div>

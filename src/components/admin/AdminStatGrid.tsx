@@ -1,22 +1,23 @@
 'use client';
 
 export interface StatCardProps {
+  id?: string;
   title: string;
   value: number | string;
   description: string;
   icon?: React.ReactNode;
   variant?: 'blue' | 'green' | 'orange' | 'red' | 'purple';
 }
-
+}
 const variants = {
   blue: { bg: 'linear-gradient(135deg, #dfe8ff, #eef4ff)', color: 'var(--color-info)' },
   green: { bg: 'linear-gradient(135deg, #d4f4ed, #eefbf8)', color: 'var(--color-primary)' },
-  orange: { bg: 'linear-gradient(135deg, #ffe2bf, #fff1df)', color: '#f97316' },
+  orange: { bg: 'linear-gradient(135deg, #ffe2bf, #fff1df)', color: 'var(--color-warning)' },
   red: { bg: 'linear-gradient(135deg, #fee2e2, #fef2f2)', color: 'var(--color-danger)' },
-  purple: { bg: 'linear-gradient(135deg, #ede9fe, #f5f3ff)', color: '#7c3aed' },
+  purple: { bg: 'linear-gradient(135deg, #ede9fe, #f5f3ff)', color: 'var(--color-accent)' },
 };
 
-const defaultIcons: Record<string, React.ReactNode> = {
+const defaultIcons: Record<StatCardProps['variant'] & string, React.ReactNode> = {
   blue: (
     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -88,7 +89,7 @@ export function StatCard({ title, value, description, icon, variant = 'blue' }: 
         <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1, marginBottom: 10, color: 'var(--color-text)' }}>{value}</div>
         <div style={{ fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 500 }}>{description}</div>
       </div>
-      <div style={{
+      <div aria-hidden="true" style={{
         position: 'absolute',
         top: 22,
         right: 22,
@@ -119,8 +120,8 @@ export function AdminStatGrid({ cards }: AdminStatGridProps) {
       gap: 18,
       marginBottom: 24,
     }}>
-      {cards.map((card, i) => (
-        <StatCard key={i} {...card} />
+      {cards.map((card) => (
+        <StatCard key={card.id ?? card.title} {...card} />
       ))}
     </div>
   );

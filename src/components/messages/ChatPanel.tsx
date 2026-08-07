@@ -24,6 +24,15 @@ export interface ChatPanelProps {
  * - .msg.in: background #f1f5f9, color #0f172a
  * - .msg.out: background #087f78, color #fff, margin-left auto
  */
+// Option A — group header fields:
+// interface ChatPanelProps {
+//   thread: { title: string; specialist: { name: string; status?: 'online' | 'offline' } };
+//   messages: MessageData[];
+//   onSendMessage: (message: string) => void;
+//   disabled?: boolean;
+//   currentUserId?: string;
+// }
+
 function ChatPanel({
   threadTitle,
   specialistName,
@@ -33,15 +42,15 @@ function ChatPanel({
   disabled = false,
   currentUserId,
 }: ChatPanelProps): React.ReactElement {
-  const t = useTranslations('UserMessages');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  return (
+function ChatPanel({
+  threadTitle,
+  specialistName,
+  specialistStatus = 'online',
+  messages,
+  onSendMessage,
+  disabled = false,
+  currentUserId,
+}: ChatPanelProps): React.ReactElement {
     <div className="chat-panel">
       {/* Header */}
       <div className="chat-header">

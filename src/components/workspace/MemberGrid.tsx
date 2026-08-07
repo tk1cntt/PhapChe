@@ -27,80 +27,45 @@ function getInitials(name: string): string {
   return name.substring(0, 2).toUpperCase();
 }
 
+const ROLE_VARIANT_MAP: Record<string, 'green' | 'blue' | 'orange' | 'red' | 'purple'> = {
+  owner: 'green',
+  finance: 'green',
+  specialist: 'green',
+  viewer: 'blue',
+  customer: 'blue',
+  reviewer: 'blue',
+  coordinator_admin: 'red',
+  super_admin: 'purple',
+  audit_admin: 'orange',
+};
+
 function getRoleBadgeVariant(role: string | null | undefined, isActive: boolean): 'green' | 'blue' | 'orange' | 'red' | 'purple' {
   if (!isActive) return 'orange';
   const roleKey = (role ?? '').toLowerCase();
-  switch (roleKey) {
-    case 'owner':
-    case 'finance':
-    case 'specialist':
-      return 'green';
-    case 'viewer':
-    case 'customer':
-    case 'reviewer':
-      return 'blue';
-    case 'coordinator_admin':
-      return 'red';
-    case 'super_admin':
-      return 'purple';
-    case 'audit_admin':
-      return 'orange';
-    default:
-      return 'orange';
-  }
+  return ROLE_VARIANT_MAP[roleKey] ?? 'orange';
 }
 
 function getRoleBadgeText(role: string | null | undefined, isActive: boolean, t: (key: string) => string): string {
   if (!isActive) return t('roleInvited');
-  const roleKey = (role ?? '').toLowerCase();
-  switch (roleKey) {
-    case 'owner':
-      return t('roleOwner');
-    case 'finance':
-      return t('roleFinance');
-    case 'viewer':
-      return t('roleViewer');
-    case 'customer':
-      return t('roleCustomer');
-    case 'coordinator_admin':
-      return t('roleCoordinator');
-    case 'super_admin':
-      return t('roleSuperAdmin');
-    case 'specialist':
-      return t('roleSpecialist');
-    case 'reviewer':
-      return t('roleReviewer');
-    case 'audit_admin':
-      return t('roleAuditAdmin');
-    default:
-      return role ?? '';
-  }
+  return getRoleDisplay(role, t);
 }
+
+const ROLE_TRANSLATION_KEY_MAP: Record<string, string> = {
+  owner: 'roleOwner',
+  finance: 'roleFinance',
+  viewer: 'roleViewer',
+  customer: 'roleCustomer',
+  coordinator_admin: 'roleCoordinator',
+  super_admin: 'roleSuperAdmin',
+  specialist: 'roleSpecialist',
+  reviewer: 'roleReviewer',
+  audit_admin: 'roleAuditAdmin',
+};
 
 function getRoleDisplay(role: string | null | undefined, t: (key: string) => string): string {
   const roleKey = (role ?? '').toLowerCase();
-  switch (roleKey) {
-    case 'owner':
-      return t('roleOwner');
-    case 'finance':
-      return t('roleFinance');
-    case 'viewer':
-      return t('roleViewer');
-    case 'customer':
-      return t('roleCustomer');
-    case 'coordinator_admin':
-      return t('roleCoordinator');
-    case 'super_admin':
-      return t('roleSuperAdmin');
-    case 'specialist':
-      return t('roleSpecialist');
-    case 'reviewer':
-      return t('roleReviewer');
-    case 'audit_admin':
-      return t('roleAuditAdmin');
-    default:
-      return role ?? '';
-  }
+  const translationKey = ROLE_TRANSLATION_KEY_MAP[roleKey];
+  return translationKey ? t(translationKey) : (role ?? '');
 }
 
 export function MemberGrid({ members }: MemberGridProps): React.ReactElement {
@@ -119,34 +84,39 @@ export function MemberGrid({ members }: MemberGridProps): React.ReactElement {
             {t('manage')}
           </Link>
         </div>
-        <div className="item-list">
-          {members.map((member) => {
-            const roleDisplay = getRoleDisplay(member.role, t);
-            return (
-              <div key={member.id} className="member">
-                <div className="member-left">
-                  <div className="member-avatar">{getInitials(member.name)}</div>
-                  <div className="stack">
-                    <strong>{member.name}</strong>
-                    <span>
-                      {roleDisplay}
-                      {roleDisplay && member.email ? ' · ' : ''}
-                      {member.email}
-                    </span>
-                  </div>
-                </div>
-                <Badge variant={getRoleBadgeVariant(member.role, member.isActive)}>
-                  {getRoleBadgeText(member.role, member.isActive, t)}
-                </Badge>
-              </div>
-            );
-          })}
+function MemberRow({ member, t }: { member: MemberData; t: (key: string) => string }): React.ReactElement {
+  const roleDisplay = getRoleDisplay(member.role, t);
+  return (
+    <div className="member">
+      <div className="member-left">
+        <div className="member-avatar">{getInitials(member.name)}</div>
+        <div className="stack">
+          <strong>{member.name}</strong>
+          <span>
+            {roleDisplay}
+            {roleDisplay && member.email ? ' · ' : ''}
+            {member.email}
+          </span>
         </div>
       </div>
+      <Badge variant={getRoleBadgeVariant(member.role, member.isActive)}>
+        {getRoleBadgeText(member.role, member.isActive, t)}
+      </Badge>
+    </div>
+  );
+}
 
-      {/* Permission Panel */}
-      <div className="panel">
-        <div className="panel-title">
+// Then in the JSX:
+<div className="item-list">
+  {members.map((member) => (
+    <MemberRow key={member.id} member={member} t={t} />
+  ))}
+</div>
+<div className="item-list">
+  {members.map((member) => (
+    <MemberRow key={member.id} member={member} t={t} />
+  ))}
+</div>
           <div className="panel-title-left">
             <Shield size={20} color="#087f78" />
             <span>{t('permissionsTitle')}</span>

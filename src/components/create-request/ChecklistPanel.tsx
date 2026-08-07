@@ -2,7 +2,7 @@
 
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { SEED_MATTER_TYPES } from '@/lib/i18n/seed-legal-domains';
+// REMOVE: import { SEED_MATTER_TYPES } from '@/lib/i18n/seed-legal-domains';
 
 interface ChecklistPanelProps {
   selectedService?: string;
@@ -41,11 +41,14 @@ const DEFAULT_CHECKLIST = {
 };
 
 // Dynamic checklist based on service type
-const SERVICE_CHECKLISTS: Record<string, Record<string, Array<{ title: string; description: string }>>> = {
+const SERVICE_KEYS = ['agent-contract', 'labor-contract', 'trademark'] as const;
+type ServiceKey = (typeof SERVICE_KEYS)[number];
+
+const SERVICE_CHECKLISTS: Record<ServiceKey, Record<string, Array<{ title: string; description: string }>>> = {
   'agent-contract': {
-    vi: [
-      { title: 'Thông tin đối tác', description: 'Tên pháp lý, mã số thuế, địa chỉ, người đại diện.' },
-      { title: 'Điều khoản thương mại', description: 'Chiết khấu, hoa hồng, doanh số, kỳ thanh toán.' },
+
+const SERVICE_CHECKLISTS: Record<ServiceKey, Record<string, Array<{ title: string; description: string }>>> = {
+  'agent-contract': {
       { title: 'Phạm vi đại lý', description: 'Khu vực, sản phẩm, quyền độc quyền hoặc không độc quyền.' },
       { title: 'Tài liệu liên quan', description: 'Báo giá, mẫu hợp đồng cũ, chính sách bán hàng nếu có.' },
     ],

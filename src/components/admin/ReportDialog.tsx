@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { X, Copy, Download, FileText, Loader2, Sparkles } from 'lucide-react';
+import { X, Copy, Download, FileText, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import '@/styles/pages/admin/report-dialog.css';
@@ -44,8 +44,6 @@ export function ReportDialog({ report, loading, open, onClose, onSelectFile }: R
     if (!report?.content) return;
     try {
       await navigator.clipboard.writeText(report.content);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback for older browsers
       const textarea = document.createElement('textarea');
@@ -54,9 +52,9 @@ export function ReportDialog({ report, loading, open, onClose, onSelectFile }: R
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }, [report]);
 
   const handleDownload = useCallback(() => {
@@ -127,30 +125,19 @@ export function ReportDialog({ report, loading, open, onClose, onSelectFile }: R
           <div className="report-dialog-summary">
             <h3>{t('reportSummary')}</h3>
             <div className="report-summary-grid">
-              <div className="report-summary-item">
-                <span className="report-summary-value">{report.summary.totalFiles}</span>
-                <span className="report-summary-label">{t('reportTotalFiles')}</span>
-              </div>
-              <div className="report-summary-item">
-                <span className="report-summary-value reviewed">{report.summary.reviewedFiles}</span>
-                <span className="report-summary-label">{t('reportReviewedFiles')}</span>
-              </div>
-              <div className="report-summary-item">
-                <span className="report-summary-value">{report.summary.totalAnnotations}</span>
-                <span className="report-summary-label">{t('reportTotalNotes')}</span>
-              </div>
-              <div className="report-summary-item">
-                <span className="report-summary-value critical">{report.summary.criticalIssues}</span>
-                <span className="report-summary-label">🔴 Critical</span>
-              </div>
-              <div className="report-summary-item">
-                <span className="report-summary-value warning">{report.summary.warnings}</span>
-                <span className="report-summary-label">🟡 Warning</span>
-              </div>
-              <div className="report-summary-item">
-                <span className="report-summary-value info">{report.summary.suggestions}</span>
-                <span className="report-summary-label">💡 Suggestions</span>
-              </div>
+              {[
+                { value: report.summary.totalFiles, label: t('reportTotalFiles') },
+                { value: report.summary.reviewedFiles, label: t('reportReviewedFiles'), modifier: 'reviewed' },
+                { value: report.summary.totalAnnotations, label: t('reportTotalNotes') },
+                { value: report.summary.criticalIssues, label: '🔴 Critical', modifier: 'critical' },
+                { value: report.summary.warnings, label: '🟡 Warning', modifier: 'warning' },
+                { value: report.summary.suggestions, label: '💡 Suggestions', modifier: 'info' },
+              ].map(({ value, label, modifier }) => (
+                <div className="report-summary-item" key={label}>
+                  <span className={`report-summary-value${modifier ? ` ${modifier}` : ''}`}>{value}</span>
+                  <span className="report-summary-label">{label}</span>
+                </div>
+              ))}
             </div>
           </div>
         )}

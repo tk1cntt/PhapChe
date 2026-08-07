@@ -37,10 +37,13 @@ export function RoleChangeDialog({
 
   return (
     <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <AlertTriangle size={20} style={{ color: 'var(--color-warning)' }} />
-          <h3 style={{ margin: 0, fontSize: 'var(--text-lg)', fontWeight: 800 }}>Xác nhận đổi vai trò</h3>
+const DIALOG_MAX_WIDTH = 480;
+
+// … inside JSX:
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: DIALOG_MAX_WIDTH }}>
+
+// … inside JSX:
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: DIALOG_MAX_WIDTH }}>
         </div>
 
         <p style={{ marginBottom: 16 }}>
@@ -55,11 +58,11 @@ export function RoleChangeDialog({
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
             <span style={{ color: 'var(--color-text-muted)' }}>Vai trò hiện tại:</span>
-            <span style={{ fontWeight: 600 }}>{roleLabels[currentRole]}</span>
+            <span style={{ fontWeight: 600 }}>{roleLabels[currentRole] ?? currentRole}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: 'var(--color-text-muted)' }}>Vai trò mới:</span>
-            <span style={{ fontWeight: 600, color: 'var(--color-info)' }}>{roleLabels[newRole]}</span>
+            <span style={{ fontWeight: 600, color: 'var(--color-info)' }}>{roleLabels[newRole] ?? newRole}</span>
           </div>
         </div>
 
@@ -76,7 +79,7 @@ export function RoleChangeDialog({
             {newRole === 'viewer' ? 'mất quyền quản lý yêu cầu và thành viên' : 'có thêm quyền quản lý'}
           </p>
           <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>
-            <strong>Quyền mới:</strong> {roleDescriptions[newRole]}
+            <strong>Quyền mới:</strong> {roleDescriptions[newRole] ?? 'Không xác định'}
           </p>
         </div>
 

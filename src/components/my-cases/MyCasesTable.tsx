@@ -89,31 +89,46 @@ export function MyCasesTable({ requests, totalRequests, isFiltered = false }: My
 
   return (
     <div className="table-card">
-      <div className="table-head table-head-7col">
-        <div className="th">{t('colCode')}</div>
-        <div className="th">{t('colType')}</div>
-        <div className="th">{t('colStatus')}</div>
-        <div className="th">{t('colAssignee')}</div>
-        <div className="th">{t('colUpdatedAt')}</div>
-        <div className="th">{t('colSla')}</div>
-        <div className="th">{t('colAction')}</div>
+  const tableHeader = (
+    <div className="table-head table-head-7col">
+      <div className="th">{t('colCode')}</div>
+      <div className="th">{t('colType')}</div>
+      <div className="th">{t('colStatus')}</div>
+      <div className="th">{t('colAssignee')}</div>
+      <div className="th">{t('colUpdatedAt')}</div>
+      <div className="th">{t('colSla')}</div>
+      <div className="th">{t('colAction')}</div>
+    </div>
+  );
+
+  if (requests.length === 0) {
+    return (
+      <div className="table-card">
+        {tableHeader}
+        <div className="table-empty">{isFiltered ? t('noDataFiltered') : t('noData')}</div>
       </div>
+    );
+  }
+
+  return (
+    <div className="table-card">
+      {tableHeader}
       {paginatedRequests.map((item) => (
-        <div key={item.id} className="table-row table-row-7col">
-          <div className="td">
-            <div className="case-main">
-              <div className="case-icon case-icon-table">
-                <FileText size={16} />
-              </div>
-              <div className="case-info">
-                <strong>{item.code}</strong>
-                <span>{item.statusText}</span>
-              </div>
-            </div>
-          </div>
-          <div className="td">
-            <div className="stack">
-              <strong>{item.type}</strong>
+  );
+
+  if (requests.length === 0) {
+    return (
+      <div className="table-card">
+        {tableHeader}
+        <div className="table-empty">{isFiltered ? t('noDataFiltered') : t('noData')}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="table-card">
+      {tableHeader}
+      {paginatedRequests.map((item) => (
               <span>{item.typeEn}</span>
             </div>
           </div>

@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
-import { Sparkles, X, Loader2, ChevronRight, ChevronDown } from 'lucide-react';
+import { Sparkles, Loader2, ChevronRight, ChevronDown } from 'lucide-react';
 import type { AgentSkill, LegalDomain } from '@/lib/ai/types';
 
 // ── Types ────────────────────────────────────────────────────

@@ -46,7 +46,7 @@ export default function LegalDomainSelector({
   locale = 'vi',
 }: LegalDomainSelectorProps) {
   const t = useTranslations('CreateRequest');
-  const domains = Object.values(SEED_LEGAL_DOMAINS);
+  const domains = getLegalDomains();
 
   return (
     <div className="w-full">
@@ -55,9 +55,10 @@ export default function LegalDomainSelector({
         {domains.map((domain) => {
           const Icon = ICON_MAP[domain.icon] || Briefcase;
           const isSelected = selectedDomainId === domain.key;
-          const label = domain.label[locale as keyof typeof domain.label] || domain.label.vi;
-          const description = domain.description[locale as keyof typeof domain.description] || domain.description.vi;
-          const serviceCount = domain.matterTypeKeys.length;
+          const t = getLocalizedString;
+          const label = t(domain.label, locale);
+          const description = t(domain.description, locale);
+          const description = t(domain.description, locale);
 
           return (
             <button

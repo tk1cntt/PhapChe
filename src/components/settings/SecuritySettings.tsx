@@ -5,11 +5,12 @@ import { useTranslations } from 'next-intl';
 import { Shield, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
 
 export interface SecuritySettingsProps {
-  userId: string;
+  // Reserved for future use (e.g., two-factor setup)
 }
 
-export function SecuritySettings({ userId }: SecuritySettingsProps): React.ReactElement {
-  const t = useTranslations('UserSettings');
+export function SecuritySettings(_props: SecuritySettingsProps): React.ReactElement {
+  // If absolutely needed later: const { userId } = _props;
+  // If absolutely needed later: const { userId } = _props;
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -36,11 +37,14 @@ export function SecuritySettings({ userId }: SecuritySettingsProps): React.React
       return;
     }
 
-    if (newPassword.length < 8) {
-      setError(t('errorPasswordTooShort'));
-      return;
-    }
+const MIN_PASSWORD_LENGTH = 8;
 
+// ... inside handleSubmit:
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      setError(t('errorPasswordTooShort'));
+// ... inside handleSubmit:
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      setError(t('errorPasswordTooShort'));
     if (newPassword !== confirmPassword) {
       setError(t('errorPasswordMismatch'));
       return;
@@ -81,80 +85,132 @@ export function SecuritySettings({ userId }: SecuritySettingsProps): React.React
         </div>
 
         <form onSubmit={handleSubmit} className="password-form">
-          <div className="field">
-            <label htmlFor="currentPassword">{t('fieldCurrentPassword')}</label>
-            <div className="password-input-wrapper">
-              <input
-                type={showCurrentPassword ? 'text' : 'password'}
-                id="currentPassword"
-                name="currentPassword"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder={t('placeholderCurrentPassword')}
-                autoComplete="current-password"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                aria-label={showCurrentPassword ? t('hidePassword') : t('showPassword')}
-              >
-                {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
+// Extract above the component:
+interface PasswordFieldProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  autoComplete: string;
+  showPassword: boolean;
+  onToggleVisibility: () => void;
+}
 
-          <div className="field">
-            <label htmlFor="newPassword">{t('fieldNewPassword')}</label>
-            <div className="password-input-wrapper">
-              <input
-                type={showNewPassword ? 'text' : 'password'}
-                id="newPassword"
-                name="newPassword"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder={t('placeholderNewPassword')}
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                aria-label={showNewPassword ? t('hidePassword') : t('showPassword')}
-              >
-                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
+function PasswordField({
+  id, label, value, onChange, placeholder, autoComplete,
+  showPassword, onToggleVisibility,
+}: PasswordFieldProps) {
+  const t = useTranslations('UserSettings');
+  return (
+    <div className="field">
+      <label htmlFor={id}>{label}</label>
+      <div className="password-input-wrapper">
+        <input
+          type={showPassword ? 'text' : 'password'}
+          id={id}
+          name={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+        />
+        <button
+          type="button"
+          className="password-toggle"
+          onClick={onToggleVisibility}
+          aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+        >
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
+    </div>
+  );
+}
 
-          <div className="field">
-            <label htmlFor="confirmPassword">{t('fieldConfirmPassword')}</label>
-            <div className="password-input-wrapper">
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                id="confirmPassword"
-                name="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder={t('placeholderConfirmPassword')}
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
-              >
-                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
+// Usage in the form:
+<PasswordField
+  id="currentPassword"
+  label={t('fieldCurrentPassword')}
+  value={currentPassword}
+  onChange={setCurrentPassword}
+  placeholder={t('placeholderCurrentPassword')}
+  autoComplete="current-password"
+  showPassword={showCurrentPassword}
+  onToggleVisibility={() => setShowCurrentPassword((v) => !v)}
+/>
+<PasswordField
+  id="newPassword"
+  label={t('fieldNewPassword')}
+  value={newPassword}
+  onChange={setNewPassword}
+  placeholder={t('placeholderNewPassword')}
+  autoComplete="new-password"
+  showPassword={showNewPassword}
+  onToggleVisibility={() => setShowNewPassword((v) => !v)}
+/>
+<PasswordField
+  id="confirmPassword"
+  label={t('fieldConfirmPassword')}
+  value={confirmPassword}
+  onChange={setConfirmPassword}
+  placeholder={t('placeholderConfirmPassword')}
+  autoComplete="new-password"
+  showPassword={showConfirmPassword}
+  onToggleVisibility={() => setShowConfirmPassword((v) => !v)}
+/>
+          type={showPassword ? 'text' : 'password'}
+          id={id}
+          name={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+        />
+        <button
+          type="button"
+          className="password-toggle"
+          onClick={onToggleVisibility}
+          aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+        >
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
+    </div>
+  );
+}
 
-          {error && (
-            <div className="alert alert-error">
-              <XCircle size={16} />
-              <span>{error}</span>
-            </div>
+// Usage in the form:
+<PasswordField
+  id="currentPassword"
+  label={t('fieldCurrentPassword')}
+  value={currentPassword}
+  onChange={setCurrentPassword}
+  placeholder={t('placeholderCurrentPassword')}
+  autoComplete="current-password"
+  showPassword={showCurrentPassword}
+  onToggleVisibility={() => setShowCurrentPassword((v) => !v)}
+/>
+<PasswordField
+  id="newPassword"
+  label={t('fieldNewPassword')}
+  value={newPassword}
+  onChange={setNewPassword}
+  placeholder={t('placeholderNewPassword')}
+  autoComplete="new-password"
+  showPassword={showNewPassword}
+  onToggleVisibility={() => setShowNewPassword((v) => !v)}
+/>
+<PasswordField
+  id="confirmPassword"
+  label={t('fieldConfirmPassword')}
+  value={confirmPassword}
+  onChange={setConfirmPassword}
+  placeholder={t('placeholderConfirmPassword')}
+  autoComplete="new-password"
+  showPassword={showConfirmPassword}
+  onToggleVisibility={() => setShowConfirmPassword((v) => !v)}
+/>
           )}
 
           {success && (

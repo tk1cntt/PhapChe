@@ -1,19 +1,25 @@
-/* Settings Page Styles */
-
-/* Settings Layout */
-.settings-page {
-  padding: 0;
-}
-
-.settings-page .page-header {
-  margin-bottom: 22px;
-}
+/* settings-page.css — Layout + Menu styles only */
+/* Extract component-specific styles into:
+   - settings-layout.css (grid, menu, content panel)
+   - settings-form.css (form-section, field-grid, inputs, toggle)
+   - settings-notifications.css
+   - settings-security.css
+   - settings-workspace.css
+   - settings-language.css
+   - settings-audit.css
+*/
+   - settings-notifications.css
+   - settings-security.css
+   - settings-workspace.css
+   - settings-language.css
+   - settings-audit.css
+*/
 
 .settings-page .page-header h1 {
   font-size: 31px;
   letter-spacing: -0.8px;
   margin-bottom: 12px;
-  color: #020617;
+  color: var(--color-heading-darker);
 }
 
 .settings-page .page-header .subtitle {
@@ -61,11 +67,12 @@
   background: #f1f5f9;
 }
 
+/* Define at :root or theme layer: --color-teal-surface: #ecfdf9; --color-teal-text: #087f78; */
 .settings-tab.active {
-  background: #ecfdf9;
-  color: #087f78;
+  background: var(--color-teal-surface);
+  color: var(--color-teal-text);
 }
-
+}
 .settings-tab .tab-icon {
   display: flex;
   align-items: center;
@@ -87,35 +94,37 @@
 }
 
 /* Form Section */
-.form-section {
+/* Shared section container — reuse across all settings sub-sections */
+.settings-section {
   padding: 24px;
   border-bottom: 1px solid var(--border);
 }
 
-.form-section:last-child {
+.settings-section:last-child {
   border-bottom: none;
 }
-
-.form-section-header {
+}
+/* Shared section header — used by form-section, notification-settings, security-settings */
+.section-header {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 20px;
 }
 
-.form-section-header svg {
+.section-header svg {
   color: var(--teal);
   flex-shrink: 0;
 }
 
-.form-section-header h3 {
+.section-header h3 {
   font-size: 18px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--color-heading);
   flex: 1;
   margin: 0;
 }
-
+}
 .section-description {
   font-size: 14px;
   color: var(--muted);
@@ -160,11 +169,11 @@
   color: #334155;
 }
 
-.field input,
-.field select {
+/* Shared base input style */
+.input-field {
   height: 44px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-input);
   padding: 0 13px;
   font-family: inherit;
   font-size: 14px;
@@ -173,8 +182,7 @@
   background: #fff;
 }
 
-.field input:focus,
-.field select:focus {
+.input-field:focus {
   border-color: var(--teal);
   box-shadow: 0 0 0 2px rgba(8, 127, 120, 0.1);
 }
@@ -517,6 +525,7 @@
 }
 
 /* Responsive */
+/* Define at :root: --bp-tablet: 768px; --bp-desktop: 1024px; */
 @media (max-width: 1024px) {
   .settings-layout {
     grid-template-columns: 280px 1fr;
@@ -532,7 +541,7 @@
     grid-template-columns: 1fr;
   }
 }
-
+}
 /* Notification Settings */
 .notification-settings {
   padding: 0;

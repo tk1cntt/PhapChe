@@ -24,7 +24,7 @@ const roleColors: Record<string, { bg: string; color: string }> = {
   audit_admin: { bg: '#ede9fe', color: '#7c3aed' },
 };
 
-const ROLES = ['customer', 'specialist', 'reviewer', 'coordinator_admin', 'super_admin', 'audit_admin'];
+const ROLES = Object.keys(roleColors);
 
 export default function RolePills({ roleStats, pendingCount, translations }: RolePillsProps) {
   return (
@@ -53,80 +53,66 @@ export default function RolePills({ roleStats, pendingCount, translations }: Rol
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 18 }}>
-        {ROLES.map((role) => {
-          const c = roleColors[role] || roleColors.customer;
-          const count = roleStats[role] || 0;
-          const labelKey = `role_${role}` as keyof typeof translations;
-          const label = translations[labelKey] || role;
+function Pill({ bg, color, label, count }: { bg: string; color: string; label: string; count: number }) {
+  return (
+    <div
+      style={{
+        height: 38,
+        borderRadius: 999,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '0 15px',
+        fontSize: 13,
+        fontWeight: 800,
+        whiteSpace: 'nowrap',
+        background: bg,
+        color: color,
+      }}
+    >
+      {label}
+      <span
+        style={{
+          width: 26,
+          height: 26,
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.65)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 12,
+        }}
+      >
+        {count}
+      </span>
+    </div>
+  );
+}
 
-          return (
-            <div
-              key={role}
-              style={{
-                height: 38,
-                borderRadius: 999,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '0 15px',
-                fontSize: 13,
-                fontWeight: 800,
-                whiteSpace: 'nowrap',
-                background: c.bg,
-                color: c.color,
-              }}
-            >
-              {label} ({role})
-              <span
-                style={{
-                  width: 26,
-                  height: 26,
-                  borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.65)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 12,
-                }}
-              >
-                {count}
-              </span>
-            </div>
-          );
-        })}
+// --- inside the return ---
 
-        {/* Pending pill */}
-        <div
-          style={{
-            height: 38,
-            borderRadius: 999,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 12,
-            padding: '0 15px',
-            fontSize: 13,
-            fontWeight: 800,
-            whiteSpace: 'nowrap',
-            background: '#ede9fe',
-            color: '#7c3aed',
-          }}
-        >
-          {translations.pendingLabel || 'Invited / Pending'}
-          <span
-            style={{
-              width: 26,
-              height: 26,
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,0.65)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 12,
-            }}
-          >
-            {pendingCount}
-          </span>
-        </div>
+{ROLES.map((role) => {
+  const c = roleColors[role] || roleColors.customer;
+  const count = roleStats[role] || 0;
+  const labelKey = `role_${role}` as keyof typeof translations;
+  const label = translations[labelKey] || role;
+  return (
+    <Pill
+      key={role}
+      bg={c.bg}
+      color={c.color}
+      label={`${label} (${role})`}
+      count={count}
+    />
+  );
+})}
+
+<Pill
+  bg="#ede9fe"
+  color="#7c3aed"
+  label={translations.pendingLabel || 'Invited / Pending'}
+  count={pendingCount}
+/>
       </div>
 
       <p style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500, lineHeight: 1.7, margin: 0 }}>

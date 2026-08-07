@@ -1,23 +1,31 @@
 /* Org Activity Client Styles */
 
-.content {
-  min-height: calc(100vh - 76px);
-  padding: 32px 36px 48px;
-  background:
-    radial-gradient(circle at 82% 10%, rgba(15, 118, 110, 0.055), transparent 28%),
-    radial-gradient(circle at 35% 75%, rgba(37, 99, 235, 0.045), transparent 34%),
-    #f8fafc;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #0f172a;
+:root, .content {
+  --color-teal-700: #0f766e;
+  --color-slate-500: #64748b;
+  --color-slate-900: #0f172a;
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-border-light: #dfe7f1;
+  --color-border-subtle: #edf2f7;
+  --color-surface-card: #fbfdff;
+  --radius-card: 16px;
+  --radius-btn: 10px;
+  --font-family-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-.org-activity {
-  max-width: 1480px;
-  margin: 0 auto;
+/* Then use: */
+/* background: var(--color-teal-700); */
+/* color: var(--color-slate-500); */
+/* border: 1px solid var(--color-border-light); */
+  --radius-btn: 10px;
+  --font-family-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-.activity-loading,
-.activity-error {
+/* Then use: */
+/* background: var(--color-teal-700); */
+/* color: var(--color-slate-500); */
+/* border: 1px solid var(--color-border-light); */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -456,34 +464,51 @@
   gap: 14px;
 }
 
+/* ----- Shared Card Base ----- */
+.card,
 .feed-item,
-.activity-item {
+.workspace-card,
+.partner-card,
+.member-card,
+.doc-card {
+  border: 1px solid #edf2f7;
+  border-radius: 16px;
+  background: #fbfdff;
+  padding: 16px;
+}
+
+/* Then override per variant: */
+.feed-item {
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr) auto;
   gap: 14px;
   align-items: flex-start;
-  padding: 16px;
-  border: 1px solid #edf2f7;
-  border-radius: 16px;
-  background: #fbfdff;
 }
 
-.feed-item.warning,
-.activity-item.important {
-  background: #fffaf5;
-  border-color: #fed7aa;
+.workspace-card,
+.partner-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
 }
 
-.feed-icon,
-.activity-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
+/* Then override per variant: */
+.feed-item {
   display: grid;
-  place-items: center;
-  font-weight: 950;
-  font-size: 13px;
-  flex-shrink: 0;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.workspace-card,
+.partner-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
 }
 
 .feed-icon.req,
@@ -535,7 +560,6 @@
 .mini-badge.orange { background: #ffedd5; color: #ea580c; }
 .mini-badge.purple { background: #ede9fe; color: #7c3aed; }
 .mini-badge.gray { background: #f1f5f9; color: #475569; }
-.mini-badge.red { background: #fef2f2; color: #dc2626; }
 .mini-badge.red { background: #fef2f2; color: #dc2626; }
 
 /* Table */

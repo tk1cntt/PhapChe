@@ -82,6 +82,12 @@
   box-shadow: 0 2px 8px oklch(0 0 0 / 0.06);
 }
 
+.reviewer-queue-item[role="button"]:hover {
+  box-shadow: 0 4px 12px oklch(0 0 0 / 0.1);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
 .queue-main {
   display: flex;
   align-items: center;

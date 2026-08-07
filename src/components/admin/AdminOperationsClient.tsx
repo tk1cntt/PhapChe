@@ -80,51 +80,61 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
     };
   }, []);
 
+  const buildQueryParams = useCallback(() => {
+    const params = new URLSearchParams();
+    const paramMap: Record<string, string | undefined> = {
+      workspaceId: filters.workspaceId ?? undefined,
+      matterTypeKey: filters.matterTypeKey,
+      status: filters.status,
+      assignedSpecialistId: filters.assignedSpecialistId,
+      assignedReviewerId: filters.assignedReviewerId,
+      dateFrom: filters.dateFrom,
+      dateTo: filters.dateTo,
+      search: debouncedSearch || undefined,
+    };
+    for (const [key, value] of Object.entries(paramMap)) {
+      if (value) params.set(key, value);
+    }
+    params.set('page', page.toString());
+    params.set('pageSize', pageSize.toString());
+    return params;
+  }, [filters, debouncedSearch, page, pageSize]);
+
   const fetchData = useCallback(async () => {
-    // Skip if not initialized yet
     if (!initialized) return;
 
-    // Abort any in-flight request
     abortControllerRef.current?.abort();
     abortControllerRef.current = new AbortController();
 
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams();
-      if (filters.workspaceId) params.set('workspaceId', filters.workspaceId);
-      if (filters.matterTypeKey) params.set('matterTypeKey', filters.matterTypeKey);
-      if (filters.status) params.set('status', filters.status);
-      if (filters.assignedSpecialistId) params.set('assignedSpecialistId', filters.assignedSpecialistId);
-      if (filters.assignedReviewerId) params.set('assignedReviewerId', filters.assignedReviewerId);
-      if (filters.dateFrom) params.set('dateFrom', filters.dateFrom);
-      if (filters.dateTo) params.set('dateTo', filters.dateTo);
-      if (debouncedSearch) params.set('search', debouncedSearch);
-      params.set('page', page.toString());
-      params.set('pageSize', pageSize.toString());
+      const params = buildQueryParams();
 
       const response = await fetch(`/api/admin/operations?${params.toString()}`, {
         signal: abortControllerRef.current.signal,
       });
+    setLoading(true);
+    setError(null);
+    try {
+      const params = buildQueryParams();
 
-      if (!response.ok) {
-        if (response.status === 403) {
-          router.push('/sign-in');
-          return;
-        }
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to fetch operations data');
+      const response = await fetch(`/api/admin/operations?${params.toString()}`, {
+        signal: abortControllerRef.current.signal,
+      });
       }
 
       const result = await response.json();
-      console.log('[Ops] Fetched:', {
-        requestCount: result.requests?.length,
-        pagination: result.pagination,
-        page: page,
-        pageSize: pageSize
-      });
-      setData(result);
-    } catch (err) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Ops] Fetched:', {
+          requestCount: result.requests?.length,
+          pagination: result.pagination,
+          page,
+          pageSize,
+        });
+      }
+        });
+      }
       if (err instanceof Error && err.name === 'AbortError') return;
       const errorMessage = err instanceof Error ? err.message : 'Lỗi không xác định';
       setError(errorMessage);
@@ -141,30 +151,31 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
     }
   }, [fetchData, initialized]);
 
+  // Shared URL sync helper
+  const syncUrl = useCallback((updates: Record<string, string>) => {
+    const params = new URLSearchParams(window.location.search);
+    for (const [key, value] of Object.entries(updates)) {
+      params.set(key, value);
+    }
+    window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
+  }, []);
+
   // Pagination handlers
   const handlePageChange = (newPage: number, newPageSize?: number) => {
     setPage(newPage);
     if (newPageSize) setPageSize(newPageSize);
 
-    // Update URL
-    const params = new URLSearchParams(window.location.search);
-    params.set('page', newPage.toString());
-    if (newPageSize) params.set('pageSize', newPageSize.toString());
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.replaceState(null, '', newUrl);
+    const updates: Record<string, string> = { page: newPage.toString() };
+    if (newPageSize) updates.pageSize = newPageSize.toString();
+    syncUrl(updates);
   };
 
   const handleSearch = (q: string) => {
     setFilters((f) => ({ ...f, search: q }));
     setPage(1);
-    // Update URL
-    const params = new URLSearchParams(window.location.search);
-    params.set('search', q);
-    params.set('page', '1');
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.replaceState(null, '', newUrl);
+    syncUrl({ search: q, page: '1' });
   };
-
+  };
   const handleFilter = () => { /* placeholder */ };
   const handleExport = () => { /* placeholder */ };
   const handleRefresh = () => fetchData();
@@ -335,49 +346,50 @@ export default function AdminOperationsClient({ initialData }: AdminOperationsCl
         </>
       )}
 
-      {/* Floating SLA warning button */}
-      {data && data.stats.nearSla > 0 && (
-        <div
-          data-testid="ops-floating-sla"
-          style={{
-            position: 'fixed',
-            right: 22,
-            bottom: 20,
-            minWidth: 118,
-            height: 48,
-            borderRadius: 999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            color: '#fff',
-            fontWeight: 700,
-            padding: '0 14px',
-            background: 'linear-gradient(180deg, #ef4444, #dc2626)',
-            border: '3px solid #facc15',
-            boxShadow: '0 12px 26px rgba(15, 23, 42, 0.22)',
-            zIndex: 1000,
-            cursor: 'default',
-          }}
-        >
-          <span
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,0.18)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 14,
-              fontWeight: 800,
-            }}
-          >
-            N
-          </span>
-          <span>{data.stats.nearSla} Issue ×</span>
-        </div>
-      )}
+function FloatingSlaWarning({ count }: { count: number }) {
+  return (
+    <div
+      data-testid="ops-floating-sla"
+      style={{
+        position: 'fixed',
+        right: 22,
+        bottom: 20,
+        minWidth: 118,
+        height: 48,
+        borderRadius: 999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        color: '#fff',
+        fontWeight: 700,
+        padding: '0 14px',
+        background: 'linear-gradient(180deg, #ef4444, #dc2626)',
+        border: '3px solid #facc15',
+        boxShadow: '0 12px 26px rgba(15, 23, 42, 0.22)',
+        zIndex: 1000,
+        cursor: 'default',
+      }}
+    >
+      <span
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.18)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 14,
+          fontWeight: 800,
+        }}
+      >
+        N
+      </span>
+      <span>{count} Issue ×</span>
     </div>
+  );
+}
+}
   );
 }

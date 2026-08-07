@@ -54,24 +54,11 @@ export default async function AdminDashboardPage({ params }: PageProps) {
       inProgressCount,
       pendingReviewCount,
       revisionRequiredCount,
-      recentTasks,
     ] = await Promise.all([
       prisma.legalRequest.count({ where: { assignedSpecialistId: specialistId, status: 'assigned' } }),
       prisma.legalRequest.count({ where: { assignedSpecialistId: specialistId, status: 'in_progress' } }),
       prisma.legalRequest.count({ where: { assignedSpecialistId: specialistId, status: 'pending_review' } }),
       prisma.legalRequest.count({ where: { assignedSpecialistId: specialistId, status: 'revision_required' } }),
-      prisma.legalRequest.findMany({
-        where: {
-          assignedSpecialistId: specialistId,
-          status: { in: ['assigned', 'in_progress', 'pending_review', 'revision_required'] },
-        },
-        orderBy: { updatedAt: 'desc' },
-        take: 10,
-        include: {
-          workspace: { select: { name: true } },
-          createdBy: { select: { name: true } },
-        },
-      }),
     ]);
 
     const specialistStats = {
@@ -82,23 +69,10 @@ export default async function AdminDashboardPage({ params }: PageProps) {
       total: assignedCount + inProgressCount + pendingReviewCount + revisionRequiredCount,
     };
 
-    const specialistTasks = recentTasks.map(task => ({
-      id: task.id,
-      code: task.code || task.id.slice(0, 8),
-      title: task.title,
-      status: task.status,
-      priority: task.priority || 'MEDIUM',
-      customerName: task.createdBy?.name || 'Unknown',
-      workspaceName: task.workspace?.name || 'Unknown',
-      createdAt: task.createdAt.toISOString(),
-      updatedAt: task.updatedAt.toISOString(),
-    }));
-
     return (
       <SpecialistDashboardClient
         userName={userName}
         stats={specialistStats}
-        recentTasks={specialistTasks}
         translations={{
           pageTitle: t('pageTitle'),
           pageDesc: t('pageDesc'),
@@ -110,24 +84,6 @@ export default async function AdminDashboardPage({ params }: PageProps) {
           statInProgressDesc: t('statInProgressDesc'),
           statPendingReviewDesc: t('statPendingReviewDesc'),
           statRevisionRequiredDesc: t('statRevisionRequiredDesc'),
-          myTasks: t('myTasks'),
-          viewAll: t('viewAll'),
-          noTasks: t('noTasks'),
-          noTasksDesc: t('noTasksDesc'),
-          colCode: t('colCode'),
-          colTitle: t('colTitle'),
-          colCustomer: t('colCustomer'),
-          colStatus: t('colStatus'),
-          colPriority: t('colPriority'),
-          colAction: t('colAction'),
-          actionStart: t('actionStart'),
-          actionContinue: t('actionContinue'),
-          actionSubmit: t('actionSubmit'),
-          actionRevise: t('actionRevise'),
-          quickTips: t('quickTips'),
-          tip1: t('tip1'),
-          tip2: t('tip2'),
-          tip3: t('tip3'),
         }}
       />
     );

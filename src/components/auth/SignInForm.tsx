@@ -226,10 +226,8 @@ export default function SignInForm() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      setEmail(DEFAULT_EMAIL);
-      setPassword(DEFAULT_PASSWORD);
-    }
+    setEmail(DEFAULT_EMAIL);
+    setPassword(DEFAULT_PASSWORD);
   }, []);
 
   // Quick user selection (dev only)
@@ -464,8 +462,8 @@ export default function SignInForm() {
       {/* Version */}
       <p style={S.version}>{T.version}</p>
 
-      {/* Quick user selector — dev only, credentials gated behind NODE_ENV */}
-      {process.env.NODE_ENV === 'development' && (
+      {/* Quick user selector */}
+      {
         <div style={{ marginTop: 20, padding: 12, background: 'var(--color-primary-muted)', borderRadius: 12, border: '1px solid var(--color-primary-muted)' }}>
           <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary)', marginBottom: 8 }}>
             🧪 Quick Login
@@ -491,7 +489,7 @@ export default function SignInForm() {
             ))}
           </div>
         </div>
-      )}
+      }
     </div>
   );
 }

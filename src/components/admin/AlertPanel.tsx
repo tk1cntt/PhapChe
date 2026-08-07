@@ -4,16 +4,18 @@ import { useTranslations } from 'next-intl';
 
 type AlertType = 'accessDenied' | 'nearSla' | 'roleChange' | 'noAlerts';
 
+type AlertColor = 'red' | 'orange' | 'blue' | 'green';
+
 interface AlertItemProps {
   type: AlertType;
   icon: string;
-  iconColor: 'red' | 'orange' | 'blue' | 'green';
+  iconColor: AlertColor;
   count: number;
   badgeKey: string;
-  badgeColor: 'red' | 'orange' | 'blue' | 'green';
+  badgeColor: AlertColor;
 }
-
-const badgeClass: Record<string, string> = {
+  badgeColor: AlertColor;
+}
   red: 'badge red',
   orange: 'badge orange',
   blue: 'badge blue',
@@ -58,7 +60,7 @@ export function AlertPanel({ alerts = [] }: { alerts?: AlertItemProps[] }) {
             {t('noAlerts')}
           </div>
         ) : (
-          alerts.map((alert, index) => <AlertItem key={index} {...alert} />)
+alerts.map((alert) => <AlertItem key={alert.type} {...alert} />)
         )}
       </div>
     </div>

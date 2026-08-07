@@ -22,10 +22,13 @@ export default function LanguageSwitcher() {
   const currentLang = languages.find((l) => l.code === locale) || languages[0];
 
   const handleSwitch = (langCode: string) => {
-    document.cookie = `${LOCALE_COOKIE}=${langCode}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
 
-    const segments = pathname.split('/').filter(Boolean);
-    if (segments.length > 0 && languages.some((l) => l.code === segments[0])) {
+// ... inside handleSwitch:
+    document.cookie = `${LOCALE_COOKIE}=${langCode}; path=/; max-age=${ONE_YEAR_IN_SECONDS}; samesite=lax`;
+
+// ... inside handleSwitch:
+    document.cookie = `${LOCALE_COOKIE}=${langCode}; path=/; max-age=${ONE_YEAR_IN_SECONDS}; samesite=lax`;
       segments[0] = langCode;
     } else {
       segments.unshift(langCode);

@@ -2,17 +2,10 @@
 /* Layout styles moved to UserLayout.css */
 
 :root {
-  --bg: #f8fafc;
-  --panel: #ffffff;
-  --text: #101828;
   --muted: #64748b;
   --border: #dfe7f1;
   --teal: #087f78;
   --blue: #2563eb;
-  --green: #10b981;
-  --orange: #f97316;
-  --red: #ef4444;
-  --purple: #7c3aed;
   --shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
   --soft-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
 }
@@ -102,18 +95,23 @@
   margin-bottom: 8px;
 }
 
+:root {
+  --text-emphasis: #0f172a;
+  /* ... other tokens ... */
+}
+
 .stat-value {
   font-size: 30px;
   font-weight: 800;
   line-height: 1;
   margin-bottom: 10px;
-  color: #0f172a;
+  color: var(--text-emphasis);
 }
-
-.stat-desc {
-  font-size: 13px;
-  color: #64748b;
-  font-weight: 500;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 10px;
+  color: var(--text-emphasis);
+}
 }
 
 /* Summary Banner */
@@ -293,7 +291,7 @@
 
 .table-head {
   display: grid;
-  grid-template-columns: 1.15fr 1fr 0.95fr 1fr 1fr 0.7fr 0.8fr;
+  grid-template-columns: var(--table-cols);
   min-height: 54px;
   background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   border-bottom: 1px solid var(--border);
@@ -301,7 +299,7 @@
 
 .table-row {
   display: grid;
-  grid-template-columns: 1.15fr 1fr 0.95fr 1fr 1fr 0.7fr 0.8fr;
+  grid-template-columns: var(--table-cols);
   min-height: 72px;
   border-bottom: 1px solid var(--border);
   transition: background 0.15s ease;
@@ -365,30 +363,37 @@
   min-width: 0;
 }
 
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .case-info strong {
   display: block;
   font-size: 14px;
   color: #0f172a;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.case-info strong,
+.case-info span,
+.stack strong,
+.stack span {
+  /* .text-truncate applied in HTML */
 }
 
 .case-info span {
   display: block;
   font-size: 12px;
   color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
 }
 
-/* Stack */
-.stack strong {
+.case-info span {
   display: block;
-  font-size: 14px;
-  color: #0f172a;
-  white-space: nowrap;
+  font-size: 12px;
+  color: var(--muted);
+}
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -475,9 +480,10 @@
   color: #fff;
   cursor: pointer;
   z-index: 100;
+  will-change: box-shadow;
   animation: pulse-shadow 2s ease-in-out infinite;
 }
-
+}
 .chat-icon {
   width: 28px;
   height: 28px;
@@ -498,8 +504,4 @@
 }
 
 /* Responsive */
-@media (min-width: 1400px) {
-  .stats {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
+/* Removed — media query duplicates base .stats grid-template-columns */

@@ -10,15 +10,17 @@ interface AdminOperationsWorkloadProps {
 const MAX_ACTIVE_ITEMS_FOR_NORMALIZATION = 20;
 
 function getInitials(name: string): string {
+  if (!name) return '?';
   return name
     .split(' ')
     .map((n) => n[0])
+    .filter(Boolean)
     .join('')
     .toUpperCase()
-    .slice(0, 2);
+    .slice(0, 2) || '?';
 }
-
-function WorkloadItem({ item }: { item: OpsWorkloadRowDto }) {
+    .slice(0, 2) || '?';
+}
   const progress = Math.min(100, Math.round((item.activeCount / MAX_ACTIVE_ITEMS_FOR_NORMALIZATION) * 100));
 
   return (

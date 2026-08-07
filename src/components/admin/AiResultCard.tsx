@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Sparkles, AlertTriangle, CheckCircle, Info, ExternalLink, ChevronDown, ChevronRight } from 'lucide-react';
+import { Sparkles, AlertTriangle, Info, ChevronDown, ChevronRight } from 'lucide-react';
 import type { SkillResult, AgentSkill } from '@/lib/ai/types';
 
 // ── Types ────────────────────────────────────────────────────
@@ -18,79 +18,86 @@ export interface AiResultCardProps {
 
 // ── Helpers ──────────────────────────────────────────────────
 
+const RISK_CLASS_MAP: Record<string, string> = {
+  critical: 'ai-risk-critical',
+  high: 'ai-risk-critical',
+  medium: 'ai-risk-medium',
+  moderate: 'ai-risk-medium',
+  low: 'ai-risk-low',
+  minor: 'ai-risk-low',
+};
+
 function getRiskClass(level: string): string {
-  switch (level) {
-    case 'critical':
-    case 'high':
-      return 'ai-risk-critical';
-    case 'medium':
-    case 'moderate':
-      return 'ai-risk-medium';
-    case 'low':
-    case 'minor':
-      return 'ai-risk-low';
-    default:
-      return '';
-  }
+  return RISK_CLASS_MAP[level] ?? '';
 }
 
+const SCORE_HIGH_THRESHOLD = 80;
+const SCORE_MID_THRESHOLD = 50;
+const CONFIDENCE_HIGH_THRESHOLD = 0.8;
+const CONFIDENCE_MID_THRESHOLD = 0.5;
+
 function getScoreClass(score: number): string {
-  if (score >= 80) return 'high-score';
-  if (score >= 50) return 'mid-score';
+  if (score >= SCORE_HIGH_THRESHOLD) return 'high-score';
+  if (score >= SCORE_MID_THRESHOLD) return 'mid-score';
   return 'low-score';
 }
 
 function getConfidenceLabel(confidence: number): { label: string; cssClass: string } {
-  if (confidence >= 0.8) return { label: 'Cao', cssClass: 'high' };
-  if (confidence >= 0.5) return { label: 'Trung bình', cssClass: 'medium' };
+  if (confidence >= CONFIDENCE_HIGH_THRESHOLD) return { label: 'Cao', cssClass: 'high' };
+  if (confidence >= CONFIDENCE_MID_THRESHOLD) return { label: 'Trung bình', cssClass: 'medium' };
   return { label: 'Thấp', cssClass: 'low' };
 }
+function getConfidenceLabel(confidence: number): { label: string; cssClass: string } {
+  if (confidence >= CONFIDENCE_HIGH_THRESHOLD) return { label: 'Cao', cssClass: 'high' };
+  if (confidence >= CONFIDENCE_MID_THRESHOLD) return { label: 'Trung bình', cssClass: 'medium' };
+  return { label: 'Thấp', cssClass: 'low' };
+}
+  parties?: Array<{ role: string; name: string }>;
+  clauses?: Array<{ articleNumber: number; title: string; legalBasis?: string }>;
+  warnings?: string[];
+}
 
-// ── Sub-components ───────────────────────────────────────────
+function parseContractOutput(output: Record<string, unknown>): ContractOutput {
+  return {
+    contractTitle: typeof output.contractTitle === 'string' ? output.contractTitle : undefined,
+    parties: Array.isArray(output.parties) ? output.parties as ContractOutput['parties'] : [],
+    clauses: Array.isArray(output.clauses) ? output.clauses as ContractOutput['clauses'] : [],
+    warnings: Array.isArray(output.warnings) ? output.warnings as string[] : [],
+  };
+}
 
 function ContractSection({ output }: { output: Record<string, unknown> }) {
-  const clauses = Array.isArray(output.clauses) ? output.clauses : [];
-  const parties = Array.isArray(output.parties) ? output.parties : [];
-  const warnings = Array.isArray(output.warnings) ? output.warnings : [];
+  const { contractTitle, parties, clauses, warnings } = parseContractOutput(output);
+  warnings?: string[];
+}
+
+function parseContractOutput(output: Record<string, unknown>): ContractOutput {
+  return {
+    contractTitle: typeof output.contractTitle === 'string' ? output.contractTitle : undefined,
+    parties: Array.isArray(output.parties) ? output.parties as ContractOutput['parties'] : [],
+    clauses: Array.isArray(output.clauses) ? output.clauses as ContractOutput['clauses'] : [],
+    warnings: Array.isArray(output.warnings) ? output.warnings as string[] : [],
+  };
+}
+
+function ContractSection({ output }: { output: Record<string, unknown> }) {
+  const { contractTitle, parties, clauses, warnings } = parseContractOutput(output);
+}) {
+  if (items.length === 0) return null;
+  const displayed = maxItems ? items.slice(0, maxItems) : items;
+  const countSuffix = maxItems && items.length > maxItems
+    ? ` (${maxItems}/${items.length})`
+    : ` (${items.length})`;
 
   return (
-    <div className="ai-result-section-sm">
-      {(output.contractTitle as string) && (
-        <h4 className="ai-contract-title">
-          {output.contractTitle as string}
-        </h4>
-      )}
-
-      {parties.length > 0 && (
-        <div>
-          <p className="ai-sub-title">Các bên:</p>
-          {parties.map((p: Record<string, unknown>, i: number) => (
-            <div key={i} className="ai-party-row">
-              <span className="ai-party-role">{p.role as string}:</span> {p.name as string}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {clauses.length > 0 && (
-        <div>
-          <p className="ai-sub-title">
-            Điều khoản ({clauses.length}):
-          </p>
-          {clauses.slice(0, 5).map((c: Record<string, unknown>, i: number) => (
-            <div key={i} className="ai-detail-item">
-              <p className="ai-detail-title">
-                Điều {c.articleNumber as number}: {c.title as string}
-              </p>
-              {(c.legalBasis as string) && (
-                <p className="ai-detail-sub">
-                  📜 {c.legalBasis as string}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+    <div>
+      <p className="ai-sub-title">{title}{countSuffix}:</p>
+      {displayed.map((item, i) => (
+        <React.Fragment key={i}>{children(item, i)}</React.Fragment>
+      ))}
+    </div>
+  );
+}
 
       {warnings.length > 0 && (
         <div className="ai-warning-box">
@@ -248,45 +255,80 @@ export function AiResultCard({
   error = null,
 }: AiResultCardProps) {
   const [expandedResult, setExpandedResult] = React.useState(true);
-  const isContractSkill = skill.includes('contract') || skill.includes('drafter');
-  const isReviewSkill = skill.includes('reviewer') || skill.includes('risk-scorer') || skill.includes('litigation');
-  const isComplianceSkill = skill.includes('compliance') || skill.includes('policy') || skill.includes('dpia') || skill.includes('regulatory') || skill.includes('assessor');
-  const isGeneralSkill = skill.includes('researcher') || skill.includes('search') || skill.includes('analyzer');
+type SkillCategory = 'contract' | 'review' | 'compliance' | 'general' | 'unknown';
 
-  if (loading) {
-    return (
-      <div className="ai-result-loading" data-testid="ai-result-loading">
-        <div className="ai-result-loading-header">
-          <div className="ai-skeleton-circle" />
-          <div className="ai-skeleton-line w-1-3" />
-        </div>
-        <div className="ai-skeleton-body">
-          <div className="ai-skeleton-text w-full" />
-          <div className="ai-skeleton-text w-5-6" />
-          <div className="ai-skeleton-text w-2-3" />
-        </div>
-      </div>
-    );
-  }
+const SKILL_CATEGORY_MAP: Record<string, SkillCategory> = {
+  'commercial-contract-drafter': 'contract',
+  'commercial-contract-reviewer': 'review',
+  'nda-reviewer': 'review',
+  'vendor-contract-reviewer': 'review',
+  'corporate-doc-generator': 'contract',
+  'corporate-compliance-checker': 'compliance',
+  'board-resolution-drafter': 'contract',
+  'entity-compliance-checker': 'compliance',
+  'employment-contract-reviewer': 'review',
+  'employment-policy-checker': 'compliance',
+  'labor-discipline-checker': 'compliance',
+  'internal-regulation-drafter': 'contract',
+  'privacy-compliance-checker': 'compliance',
+  'privacy-dpia-generator': 'compliance',
+  'dsar-response-drafter': 'contract',
+  'ip-trademark-search': 'general',
+  'ip-patent-analyzer': 'general',
+  'trademark-clearance': 'general',
+  'cease-desist-drafter': 'contract',
+  'litigation-risk-scorer': 'review',
+  'demand-letter-drafter': 'contract',
+  'litigation-strategist': 'review',
+  'tos-generator': 'contract',
+  'regulatory-gap-analyzer': 'compliance',
+  'compliance-gap-analyzer': 'compliance',
+  'ai-governance-assessor': 'compliance',
+  'ai-impact-assessment': 'compliance',
+  'client-letter-drafter': 'contract',
+  'legal-memo-drafter': 'contract',
+  'general-legal-researcher': 'general',
+  'document-issue-analyzer': 'general',
+};
 
-  if (error) {
-    return (
-      <div className="ai-result-error" data-testid="ai-result-error">
-        <AlertTriangle size={16} />
-        <span>{error}</span>
-      </div>
-    );
-  }
+function getSkillCategory(skill: AgentSkill): SkillCategory {
+  return SKILL_CATEGORY_MAP[skill] ?? 'unknown';
+}
+  'commercial-contract-reviewer': 'review',
+  'nda-reviewer': 'review',
+  'vendor-contract-reviewer': 'review',
+  'corporate-doc-generator': 'contract',
+  'corporate-compliance-checker': 'compliance',
+  'board-resolution-drafter': 'contract',
+  'entity-compliance-checker': 'compliance',
+  'employment-contract-reviewer': 'review',
+  'employment-policy-checker': 'compliance',
+  'labor-discipline-checker': 'compliance',
+  'internal-regulation-drafter': 'contract',
+  'privacy-compliance-checker': 'compliance',
+  'privacy-dpia-generator': 'compliance',
+  'dsar-response-drafter': 'contract',
+  'ip-trademark-search': 'general',
+  'ip-patent-analyzer': 'general',
+  'trademark-clearance': 'general',
+  'cease-desist-drafter': 'contract',
+  'litigation-risk-scorer': 'review',
+  'demand-letter-drafter': 'contract',
+  'litigation-strategist': 'review',
+  'tos-generator': 'contract',
+  'regulatory-gap-analyzer': 'compliance',
+  'compliance-gap-analyzer': 'compliance',
+  'ai-governance-assessor': 'compliance',
+  'ai-impact-assessment': 'compliance',
+  'client-letter-drafter': 'contract',
+  'legal-memo-drafter': 'contract',
+  'general-legal-researcher': 'general',
+  'document-issue-analyzer': 'general',
+};
 
-  const output = result.output ?? {};
-  const confidenceInfo = getConfidenceLabel(result.confidence);
-
-  return (
-    <div className="ai-result-card" data-testid="ai-result-card">
-      {/* Header */}
-      <div className="ai-result-header">
-        <button
-          type="button"
+function getSkillCategory(skill: AgentSkill): SkillCategory {
+  return SKILL_CATEGORY_MAP[skill] ?? 'unknown';
+}
           onClick={() => setExpandedResult(!expandedResult)}
           className="ai-result-header-left"
           data-testid="ai-result-toggle"
@@ -317,11 +359,11 @@ export function AiResultCard({
             </div>
           )}
 
-          {/* Skill-specific output */}
-          {isContractSkill && <ContractSection output={output} />}
-          {isReviewSkill && <ReviewSection output={output} />}
-          {isComplianceSkill && <ComplianceSection output={output} />}
-          {isGeneralSkill && <GeneralSection output={output} />}
+          {/* Skill-specific output — only one category renders */}
+          {skillCategory === 'contract' && <ContractSection output={output} />}
+          {skillCategory === 'review' && <ReviewSection output={output} />}
+          {skillCategory === 'compliance' && <ComplianceSection output={output} />}
+          {skillCategory === 'general' && <GeneralSection output={output} />}
 
           {/* Citations */}
           {result.citations.length > 0 && (

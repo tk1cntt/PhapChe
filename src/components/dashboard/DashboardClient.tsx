@@ -18,11 +18,14 @@ import '@/styles/pages/dashboard.css';
 function StatCardsSkeleton() {
   return (
     <div className="stats-grid">
-      {[0, 1, 2, 3].map((i) => (
+const STAT_SKELETON_COUNT = 4;
+const LIST_SKELETON_COUNT = 5;
+// ...
+      {Array.from({ length: STAT_SKELETON_COUNT }, (_, i) => (
         <div key={i} className="stat-card loading-stat">
-          <div className="loading-icon" />
-          <div className="loading-text">
-            <div className="loading-line short" />
+// ...
+      {Array.from({ length: STAT_SKELETON_COUNT }, (_, i) => (
+        <div key={i} className="stat-card loading-stat">
             <div className="loading-line medium" />
             <div className="loading-line short" />
           </div>
@@ -41,7 +44,7 @@ function RecentCasesSkeleton() {
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <path d="M14 2v6h6" />
           </svg>
-          <span>Đang tải...</span>
+          <span>{t('loading')}</span>
         </div>
       </div>
       {[0, 1, 2, 3, 4].map((i) => (
@@ -156,30 +159,37 @@ interface DashboardClientProps {
   welcomeData: WelcomeData;
   stats: StatsData;
   allCases: CaseItem[];
-  recentDocuments?: DocumentItem[];
-  recentActivities?: ActivityItem[];
+  recent?: {
+    documents?: DocumentItem[];
+    activities?: ActivityItem[];
+  };
 }
 
 export default function DashboardClient({
   welcomeData,
   stats,
   allCases,
-  recentDocuments = [],
-  recentActivities = [],
+  recent,
 }: DashboardClientProps) {
-  const t = useTranslations('DashboardClient');
-  const router = useRouter();
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(!welcomeData || !stats || allCases.length === 0);
-
+  const recentDocuments = recent?.documents ?? [];
+  const recentActivities = recent?.activities ?? [];
+}: DashboardClientProps) {
+  const recentDocuments = recent?.documents ?? [];
+  const recentActivities = recent?.activities ?? [];
+  // Derived from props: loading when data is absent, not when list is empty
+  const isLoading = !welcomeData || !stats || allCases === undefined;
+  const isLoading = !welcomeData || !stats || allCases === undefined;
   useEffect(() => {
     fetch('/api/messages/unread-count')
       .then((res) => res.json())
       .then((data) => setUnreadCount(data.unreadCount))
-      .catch(() => setUnreadCount(0));
-  }, []);
-
-  return (
+      .catch((err) => {
+        console.error('Failed to fetch unread message count:', err);
+        setUnreadCount(0);
+      });
+        console.error('Failed to fetch unread message count:', err);
+        setUnreadCount(0);
+      });
     <div className="dashboard-page">
       {/* Page Header - Greeting */}
       <div className="page-header">
@@ -201,13 +211,7 @@ export default function DashboardClient({
 
       {/* Stats Grid */}
       <ErrorBoundaryWrapper
-        fallback={
-          <div className="stats-grid">
-            <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
-              Không thể tải dữ liệu. Vui lòng thử lại.
-            </div>
-          </div>
-        }
+        fallback={<DashboardErrorFallback wrapperClass="stats-grid" />}
       >
         {isLoading ? <StatCardsSkeleton /> : <StatsCardGrid data={stats} />}
       </ErrorBoundaryWrapper>
@@ -224,9 +228,11 @@ export default function DashboardClient({
           {isLoading ? (
             <RecentCasesSkeleton />
           ) : (
-            <RecentCases cases={allCases.slice(0, 5)} />
-          )}
-        </ErrorBoundaryWrapper>
+const MAX_RECENT_CASES = 5;
+// ...
+            <RecentCases cases={allCases.slice(0, MAX_RECENT_CASES)} />
+// ...
+            <RecentCases cases={allCases.slice(0, MAX_RECENT_CASES)} />
         <ErrorBoundaryWrapper
           fallback={
             <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
@@ -275,9 +281,11 @@ export default function DashboardClient({
       <Link href="/messages" className="floating-chat">
         {unreadCount > 0 && (
           <span className="chat-icon-wrapper">
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </span>
-        )}
+const MAX_UNREAD_DISPLAY = 99;
+// ...
+            {unreadCount > MAX_UNREAD_DISPLAY ? `${MAX_UNREAD_DISPLAY}+` : unreadCount}
+// ...
+            {unreadCount > MAX_UNREAD_DISPLAY ? `${MAX_UNREAD_DISPLAY}+` : unreadCount}
       </Link>
     </div>
   );

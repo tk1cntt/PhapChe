@@ -35,8 +35,8 @@ export default function AdminBanner({
         </div>
 
         <div>
-          <h2>{title || t('bannerTitle')}</h2>
-          <p>{description || t('bannerDescDefault')}</p>
+<h2>{title ?? t('bannerTitle')}</h2>
+          <p>{description ?? t('bannerDescDefault')}</p>
         </div>
       </div>
 

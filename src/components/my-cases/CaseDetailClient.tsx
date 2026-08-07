@@ -18,13 +18,8 @@ interface ContactInfo {
   taxCode: string;
 }
 
-interface Message {
-  id: string;
-  content: string;
-  senderName: string;
-  createdAt: string;
-  isRead: boolean;
-}
+// Remove the Message interface and the messages field from CaseDetailData
+// if they are not used in this component:
 
 interface CaseDetailData {
   id: string;
@@ -46,7 +41,6 @@ interface CaseDetailData {
   specialistRole: string | null;
   contactInfo: ContactInfo | null;
   answerLabels: AnswerLabel[];
-  messages: Message[];
 }
 
 interface CaseDetailClientProps {
@@ -117,70 +111,109 @@ export function CaseDetailClient({ locale, request }: CaseDetailClientProps) {
           <div className="sla-card">
             <div className="sla-card-inner">
               <div className={`sla-icon ${slaVariant}`}>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="sla-text">
-                <strong className={slaVariant}>
-                  {request.isOverdue
-                    ? t('slaOverdue', { days: Math.abs(request.slaRemainingDays) })
-                    : request.slaRemainingDays <= 0
-                      ? t('slaDueToday')
-                      : t('slaDaysLeft', { days: request.slaRemainingDays })}
-                </strong>
-                <span>
-                  {t('slaDeadline')}:{' '}
-                  {request.slaDeadline ? (
-                    <FormattedDate date={request.slaDeadline} variant="datetime" />
-                  ) : (
-                    t('slaNotSet')
-                  )}
-                </span>
-              </div>
+const ClockIcon = (
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
+// Then use <ClockIcon /> in both the SLA card and Timeline card
+  </svg>
+);
+
+// Then use <ClockIcon /> in both the SLA card and Timeline card
+  remainingDays: number,
+  t: ReturnType<typeof useTranslations>,
+): string {
+  if (isOverdue) {
+    return t('slaOverdue', { days: Math.abs(remainingDays) });
+  }
+  if (remainingDays <= 0) {
+    return t('slaDueToday');
+  }
+  return t('slaDaysLeft', { days: remainingDays });
+}
+
+// Usage:
+<strong className={slaVariant}>{slaLabel}</strong>
+    return t('slaOverdue', { days: Math.abs(remainingDays) });
+  }
+  if (remainingDays <= 0) {
+    return t('slaDueToday');
+  }
+  return t('slaDaysLeft', { days: remainingDays });
+}
+
+// Usage:
+<strong className={slaVariant}>{slaLabel}</strong>
             </div>
           </div>
 
           {/* Intake answers */}
-          {request.answerLabels.length > 0 && (
-            <div className="detail-card">
-              <div className="detail-card-header">
-                <div className="detail-card-icon blue">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3>{t('requestInfo')}</h3>
-                  <div className="detail-card-subtitle">{t('requestInfoDesc')}</div>
-                </div>
-              </div>
-              <div className="detail-card-body">
-                <div className="info-grid">
-                  {request.answerLabels.map((a) => (
-                    <div className="info-item" key={a.key}>
-                      <div className="info-label">
-                        {a.label}
-                        {a.required && <span style={{ color: 'var(--color-danger)', marginLeft: 2 }}> *</span>}
-                      </div>
-                      <div className={`info-value${!a.value ? ' empty' : ''}`}>
-                        {a.value || '—'}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+function DetailCard({
+  icon,
+  iconColor,
+  title,
+  subtitle,
+  children,
+}: {
+  icon: React.ReactNode;
+  iconColor: string;
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="detail-card">
+      <div className="detail-card-header">
+        <div className={`detail-card-icon ${iconColor}`}>
+          {icon}
+        </div>
+        <div>
+          <h3>{title}</h3>
+          <div className="detail-card-subtitle">{subtitle}</div>
+        </div>
+      </div>
+      <div className="detail-card-body">
+        {children}
+      </div>
+    </div>
+  );
+}
 
-          {/* Matter type description */}
-          {request.matterTypeDescription && (
-            <div className="detail-card">
-              <div className="detail-card-header">
-                <div className="detail-card-icon purple">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+// Usage example (intake answers):
+{request.answerLabels.length > 0 && (
+  <DetailCard
+    icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+    iconColor="blue"
+    title={t('requestInfo')}
+    subtitle={t('requestInfoDesc')}
+  >
+    <div className="detail-card">
+      <div className="detail-card-header">
+        <div className={`detail-card-icon ${iconColor}`}>
+          {icon}
+        </div>
+        <div>
+          <h3>{title}</h3>
+          <div className="detail-card-subtitle">{subtitle}</div>
+        </div>
+      </div>
+      <div className="detail-card-body">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Usage example (intake answers):
+{request.answerLabels.length > 0 && (
+  <DetailCard
+    icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+    iconColor="blue"
+    title={t('requestInfo')}
+    subtitle={t('requestInfoDesc')}
+  >
                 </div>
                 <div>
                   <h3>{t('serviceDesc')}</h3>
@@ -238,30 +271,23 @@ export function CaseDetailClient({ locale, request }: CaseDetailClientProps) {
                 </div>
               </div>
               <div className="detail-card-body">
-                <div className="side-list">
-                  <div className="side-item">
-                    <div className="side-label">{t('email')}</div>
-                    <div className="side-value">{request.contactInfo.email || '—'}</div>
-                  </div>
-                  {request.contactInfo.phone && (
-                    <div className="side-item">
-                      <div className="side-label">{t('phone')}</div>
-                      <div className="side-value">{request.contactInfo.phone}</div>
-                    </div>
-                  )}
-                  {request.contactInfo.companyName && (
-                    <div className="side-item">
-                      <div className="side-label">{t('company')}</div>
-                      <div className="side-value">{request.contactInfo.companyName}</div>
-                    </div>
-                  )}
-                  {request.contactInfo.taxCode && (
-                    <div className="side-item">
-                      <div className="side-label">{t('taxCode')}</div>
-                      <div className="side-value">{request.contactInfo.taxCode}</div>
-                    </div>
-                  )}
-                </div>
+const contactFields = [
+  { label: t('email'), value: request.contactInfo.email, always: true },
+  { label: t('phone'), value: request.contactInfo.phone },
+  { label: t('company'), value: request.contactInfo.companyName },
+  { label: t('taxCode'), value: request.contactInfo.taxCode },
+];
+
+<div className="side-list">
+  {contactFields
+    .filter((f) => f.always || f.value)
+    .map((f) => (
+      <div className="side-item" key={f.label}>
+        <div className="side-label">{f.label}</div>
+        <div className="side-value">{f.value || '—'}</div>
+      </div>
+    ))}
+</div>
               </div>
             </div>
           )}
@@ -280,43 +306,46 @@ export function CaseDetailClient({ locale, request }: CaseDetailClientProps) {
               </div>
             </div>
             <div className="detail-card-body">
-              <div className="timeline">
-                <div className="timeline-item">
-                  <div className="timeline-dot active" />
-                  <div className="timeline-content">
-                    <div className="info-label">{t('currentStatus')}</div>
-                    <div className="info-value">
-                      <span className={`case-status-badge ${request.statusColor}`}>
-                        {request.statusLabel}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="timeline-item">
-                  <div className="timeline-dot" />
-                  <div className="timeline-content">
-                    <div className="info-label">{t('submittedDate')}</div>
-                    <div className="info-value"><FormattedDate date={request.submittedAt} variant="datetime" /></div>
-                  </div>
-                </div>
-                <div className="timeline-item">
-                  <div className="timeline-dot" />
-                  <div className="timeline-content">
-                    <div className="info-label">{t('lastUpdated')}</div>
-                    <div className="info-value"><FormattedDate date={request.updatedAt} variant="datetime" /></div>
-                  </div>
-                </div>
-                <div className="timeline-item">
-                  <div className="timeline-dot" />
-                  <div className="timeline-content">
-                    <div className="info-label">{t('createdDate')}</div>
-                    <div className="info-value"><FormattedDate date={request.createdAt} variant="date" /></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+function TimelineItem({
+  active = false,
+  label,
+  children,
+}: {
+  active?: boolean;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="timeline-item">
+      <div className={`timeline-dot${active ? ' active' : ''}`} />
+      <div className="timeline-content">
+        <div className="info-label">{label}</div>
+        <div className="info-value">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+// Usage:
+<div className="timeline">
+  <TimelineItem active label={t('currentStatus')}>
+    <span className={`case-status-badge ${request.statusColor}`}>
+      {request.statusLabel}
+    </span>
+  </TimelineItem>
+  <TimelineItem label={t('submittedDate')}>
+    <FormattedDate date={request.submittedAt} variant="datetime" />
+  </TimelineItem>
+  <TimelineItem label={t('lastUpdated')}>
+    <FormattedDate date={request.updatedAt} variant="datetime" />
+  </TimelineItem>
+  <TimelineItem label={t('createdDate')}>
+    <FormattedDate date={request.createdAt} variant="date" />
+  </TimelineItem>
+</div>
+    <FormattedDate date={request.createdAt} variant="date" />
+  </TimelineItem>
+</div>
       </div>
     </div>
   );

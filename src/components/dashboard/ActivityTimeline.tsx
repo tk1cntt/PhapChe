@@ -1,31 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import {
-  User,
-  Building2,
-  FileText,
-  FileUp,
-  CheckCircle,
-  MessageSquare,
-  Archive,
-  Handshake,
-  Settings,
-} from 'lucide-react';
 import type { ActivityItem, ActivityType } from '@/lib/types';
-
-// Icon mapping cho từng loại activity (dùng cho type badge)
-const ACTIVITY_ICONS: Record<ActivityType, React.ComponentType<{ size?: number; className?: string }>> = {
-  user: User,
-  workspace: Building2,
-  request: FileText,
-  document: FileUp,
-  review: CheckCircle,
-  message: MessageSquare,
-  vault: Archive,
-  partner: Handshake,
-  system: Settings,
-};
 
 // Color mapping cho timeline dot theo activity type
 const ACTIVITY_COLORS: Record<ActivityType, string> = {
@@ -79,8 +55,7 @@ export default function ActivityTimeline({
         ) : (
           displayActivities.map((activity, index) => {
             // Validate and get type with fallback to 'system'
-            const validTypes: ActivityType[] = ['user', 'workspace', 'request', 'document', 'review', 'message', 'vault', 'partner', 'system'];
-            const activityType: ActivityType = validTypes.includes(activity.type as ActivityType) ? activity.type as ActivityType : 'system';
+            const activityType: ActivityType = (activity.type as ActivityType) in ACTIVITY_COLORS ? activity.type as ActivityType : 'system';
             const dotColor = ACTIVITY_COLORS[activityType];
 
             return (

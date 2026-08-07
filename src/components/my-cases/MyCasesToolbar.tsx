@@ -4,22 +4,23 @@ import React, { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
 
+export interface ToolbarFilters {
+  status: string | null;
+  type: string | null;
+  onStatusChange: (status: string | null) => void;
+  onTypeChange: (type: string | null) => void;
+}
+
 export interface MyCasesToolbarProps {
   onSearch: (query: string) => void;
-  onStatusFilter: (status: string | null) => void;
-  onTypeFilter: (type: string | null) => void;
-  selectedStatus: string | null;
-  selectedType: string | null;
+  filters: ToolbarFilters;
 }
 
 export function MyCasesToolbar({
   onSearch,
-  onStatusFilter,
-  onTypeFilter,
-  selectedStatus,
-  selectedType,
+  filters: { status: selectedStatus, type: selectedType, onStatusChange: onStatusFilter, onTypeChange: onTypeFilter },
 }: MyCasesToolbarProps): React.ReactElement {
-  const t = useTranslations('UserCases');
+}: MyCasesToolbarProps): React.ReactElement {
   const [searchValue, setSearchValue] = useState('');
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
@@ -74,65 +75,19 @@ export function MyCasesToolbar({
             {t('filters')}
           </button>
 
-          {/* Status dropdown */}
-          <div className="toolbar-dropdown">
-            <button
-              className="tool-btn"
-              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-            >
-              {t('statusLabel')}
-              <ChevronDown size={16} />
-            </button>
-            {showStatusDropdown && (
-              <div className="dropdown-menu">
-                <button
-                  className={`dropdown-item ${!selectedStatus ? 'active' : ''}`}
-                  onClick={() => handleStatusSelect(null)}
-                >
-                  {t('all')}
-                </button>
-                {statusOptions.map((opt) => (
-                  <button
-                    key={opt.value}
-                    className={`dropdown-item ${selectedStatus === opt.value ? 'active' : ''}`}
-                    onClick={() => handleStatusSelect(opt.value)}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <FilterDropdown
+            label={t('statusLabel')}
+            options={statusOptions}
+            selectedValue={selectedStatus}
+            onSelect={handleStatusSelect}
+          />
 
-          {/* Type dropdown */}
-          <div className="toolbar-dropdown">
-            <button
-              className="tool-btn"
-              onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-            >
-              {t('typeLabel')}
-              <ChevronDown size={16} />
-            </button>
-            {showTypeDropdown && (
-              <div className="dropdown-menu">
-                <button
-                  className={`dropdown-item ${!selectedType ? 'active' : ''}`}
-                  onClick={() => handleTypeSelect(null)}
-                >
-                  {t('all')}
-                </button>
-                {typeOptions.map((opt) => (
-                  <button
-                    key={opt.value}
-                    className={`dropdown-item ${selectedType === opt.value ? 'active' : ''}`}
-                    onClick={() => handleTypeSelect(opt.value)}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <FilterDropdown
+            label={t('typeLabel')}
+            options={typeOptions}
+            selectedValue={selectedType}
+            onSelect={handleTypeSelect}
+          />
         </div>
 
         <div className="toolbar-right">

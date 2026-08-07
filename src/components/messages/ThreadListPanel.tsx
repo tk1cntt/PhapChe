@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslations } from 'next-intl';
 import { ThreadItem, ThreadData } from './ThreadItem';
 
@@ -29,15 +29,16 @@ function ThreadListPanel({
 }: ThreadListPanelProps): React.ReactElement {
   const t = useTranslations('UserMessages');
 
+  const lowerQuery = searchQuery.toLowerCase();
   const filteredThreads = searchQuery
     ? threads.filter(
         (thread) =>
-          thread.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          thread.preview.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          thread.requestCode?.toLowerCase().includes(searchQuery.toLowerCase())
+          thread.title.toLowerCase().includes(lowerQuery) ||
+          thread.preview.toLowerCase().includes(lowerQuery) ||
+          thread.requestCode?.toLowerCase().includes(lowerQuery)
       )
     : threads;
-
+    : threads;
   return (
     <div className="thread-panel">
       {/* Search */}

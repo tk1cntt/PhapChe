@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import AdminStatCard from '@/components/admin/AdminStatCard';
 import AdminBanner from '@/components/admin/AdminBanner';
 import WorkloadPanel from '@/components/admin/WorkloadPanel';
@@ -127,6 +128,67 @@ export default function AdminDashboardClient({
   requestTableData,
   translations: t,
 }: AdminDashboardClientProps) {
+  // Filter state for request table
+  const [filterAssignee, setFilterAssignee] = useState<string>('');
+  const [filterStatus, setFilterStatus] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Extract unique assignees from table data
+  const uniqueAssignees = useMemo(() => {
+    const assignees = new Map<string, string>();
+    requestTableData.forEach((row) => {
+      if (row.assignee && row.assignee !== 'Chưa gán') {
+        assignees.set(row.assignee, row.assigneeRole);
+      }
+    });
+    return Array.from(assignees.entries()).map(([name, role]) => ({ name, role }));
+  }, [requestTableData]);
+
+  // Status options consistent with admin/requests
+  const statusOptions = [
+    { value: '', label: 'Tất cả trạng thái' },
+    { value: 'draft_intake', label: 'Nháp' },
+    { value: 'assigned', label: 'Đã phân công' },
+    { value: 'in_progress', label: 'Đang xử lý' },
+    { value: 'pending_review', label: 'Chờ phê duyệt' },
+    { value: 'approved', label: 'Đã phê duyệt' },
+    { value: 'delivered', label: 'Đã giao' },
+    { value: 'closed', label: 'Đã đóng' },
+  ];
+
+  // Filter table data
+  const filteredRequestData = useMemo(() => {
+    return requestTableData.filter((row) => {
+      // Filter by assignee
+      if (filterAssignee && row.assignee !== filterAssignee) return false;
+      // Filter by status (match Vietnamese statusText to API status value)
+      if (filterStatus) {
+        const vnToStatus: Record<string, string> = {
+          'Nháp': 'draft_intake',
+          'Đã phân công': 'assigned',
+          'Đang xử lý': 'in_progress',
+          'Chờ phê duyệt': 'pending_review',
+          'Đã phê duyệt': 'approved',
+          'Đã giao': 'delivered',
+          'Đã đóng': 'closed',
+        };
+        if (row.statusText !== filterStatus && vnToStatus[row.statusText] !== filterStatus) {
+          return false;
+        }
+      }
+      // Filter by search query
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const matchesCode = row.id.toLowerCase().includes(q);
+        const matchesWorkspace = row.workspace.toLowerCase().includes(q);
+        const matchesCustomer = row.customer.toLowerCase().includes(q);
+        const matchesAssignee = row.assignee.toLowerCase().includes(q);
+        if (!matchesCode && !matchesWorkspace && !matchesCustomer && !matchesAssignee) return false;
+      }
+      return true;
+    });
+  }, [requestTableData, filterAssignee, filterStatus, searchQuery]);
+
   return (
     <>
       {/* Section 1: Page Header */}
@@ -198,10 +260,14 @@ export default function AdminDashboardClient({
 
       {/* Section 6: Toolbar */}
       <AdminToolbar
-        onSearch={(query) => console.log('Search:', query)}
-        onFilter={() => console.log('Filter clicked')}
+        onSearch={(query) => setSearchQuery(query)}
+        onFilter={() => {}}
         onExport={() => console.log('Export clicked')}
-        onRefresh={() => console.log('Refresh clicked')}
+        onRefresh={() => {
+          setFilterAssignee('');
+          setFilterStatus('');
+          setSearchQuery('');
+        }}
         translations={{
           searchPlaceholder: t.searchPlaceholder,
           filter: t.filter,
@@ -212,9 +278,103 @@ export default function AdminDashboardClient({
         }}
       />
 
+      {/* Filter Bar — User + Status filter giống /admin/requests */}
+      <div style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        borderRadius: 12,
+        padding: '14px 18px',
+        marginBottom: 20,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14,
+        flexWrap: 'wrap',
+      }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>
+          Lọc nhanh:
+        </span>
+
+        {/* Assignee / User filter */}
+        <select
+          value={filterAssignee}
+          onChange={(e) => setFilterAssignee(e.target.value)}
+          style={{
+            height: 38,
+            border: '1px solid var(--color-border)',
+            borderRadius: 8,
+            padding: '0 12px',
+            fontSize: 13,
+            background: 'var(--color-surface)',
+            color: 'var(--color-text)',
+            minWidth: 170,
+          }}
+        >
+          <option value="">Tất cả chuyên viên</option>
+          {uniqueAssignees.map((a) => (
+            <option key={a.name} value={a.name}>
+              {a.name} ({a.role})
+            </option>
+          ))}
+        </select>
+
+        {/* Status filter */}
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          style={{
+            height: 38,
+            border: '1px solid var(--color-border)',
+            borderRadius: 8,
+            padding: '0 12px',
+            fontSize: 13,
+            background: 'var(--color-surface)',
+            color: 'var(--color-text)',
+            minWidth: 160,
+          }}
+        >
+          {statusOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+
+        {/* Active filter count badge */}
+        {(filterAssignee || filterStatus || searchQuery) && (
+          <>
+            <span style={{ color: 'var(--color-border)', fontSize: 13 }}>|</span>
+            <span style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--color-primary)',
+              background: '#ccfbf1',
+              padding: '3px 10px',
+              borderRadius: 20,
+            }}>
+              {filteredRequestData.length}/{requestTableData.length} hồ sơ
+            </span>
+            <button
+              onClick={() => { setFilterAssignee(''); setFilterStatus(''); setSearchQuery(''); }}
+              style={{
+                height: 30,
+                border: '1px solid var(--color-border)',
+                borderRadius: 6,
+                padding: '0 10px',
+                fontSize: 12,
+                background: 'var(--color-surface)',
+                color: 'var(--color-text-secondary)',
+                cursor: 'pointer',
+              }}
+            >
+              Xóa lọc
+            </button>
+          </>
+        )}
+      </div>
+
       {/* Section 7: Request Table */}
       <AdminRequestsTable
-        rows={requestTableData}
+        rows={filteredRequestData}
         translations={{
           code: t.colCode,
           workspace: t.colWorkspace,

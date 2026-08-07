@@ -16,21 +16,25 @@ import {
 
 export type StatCardVariant = 'blue' | 'green' | 'orange' | 'purple' | 'red';
 
+export interface ValueDisplayOptions {
+  loading?: boolean;
+  suffix?: string;
+  precision?: number;
+}
+
 export interface StatCardProps {
   title: string;
   value: number | string;
   icon?: string;
   variant?: StatCardVariant;
-  loading?: boolean;
   onClick?: () => void;
-  suffix?: string;
-  precision?: number;
+  valueOptions?: ValueDisplayOptions;
   className?: string;
 }
-
-const iconMap: Record<string, React.ReactNode> = {
-  file: <FileText size={20} />,
-  check: <CheckCircle size={20} />,
+  onClick?: () => void;
+  valueOptions?: ValueDisplayOptions;
+  className?: string;
+}
   clock: <Clock size={20} />,
   warning: <AlertTriangle size={20} />,
   done: <FileCheck size={20} />,
@@ -62,12 +66,17 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   const config = variantConfig[variant];
   const iconKey = icon || config.iconKey;
+  if (iconKey && !iconMap[iconKey]) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`StatCard: unknown icon key "${iconKey}", falling back to "file"`);
+    }
+  }
   const displayIcon = iconMap[iconKey] || iconMap.file;
-
-  const formattedValue =
-    typeof value === 'number' && precision !== undefined
-      ? value.toFixed(precision)
-      : value;
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`StatCard: unknown icon key "${iconKey}", falling back to "file"`);
+    }
+  }
+  const displayIcon = iconMap[iconKey] || iconMap.file;
 
   return (
     <div

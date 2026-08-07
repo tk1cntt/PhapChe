@@ -17,17 +17,18 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-function getFileExtension(mimeType: string): string {
-  const map: Record<string, string> = {
-    'application/pdf': 'PDF',
-    'application/msword': 'DOC',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
-    'application/vnd.ms-excel': 'XLS',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLSX',
-  };
-  return map[mimeType] || 'FILE';
-}
+const MIME_EXTENSION_MAP: Record<string, string> = {
+  'application/pdf': 'PDF',
+  'application/msword': 'DOC',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+  'application/vnd.ms-excel': 'XLS',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLSX',
+};
 
+function getFileExtension(mimeType: string): string {
+  return MIME_EXTENSION_MAP[mimeType] || 'FILE';
+}
+}
 const statusBadgeClass: Record<string, string> = {
   ACTIVE: 'badge green',
   PENDING: 'badge orange',
@@ -59,8 +60,8 @@ export default function RecentDocuments({ documents }: RecentDocumentsProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             }
-            title="Chưa có tài liệu nào"
-            description="Tài liệu của bạn sẽ xuất hiện ở đây"
+            title={t('emptyTitle')}
+            description={t('emptyDescription')}
           />
         ) : (
           documents.map((doc) => (
@@ -73,10 +74,7 @@ export default function RecentDocuments({ documents }: RecentDocumentsProps) {
                 </div>
               </div>
               <span className={statusBadgeClass[doc.status] || 'badge blue'}>
-                {doc.status === 'ACTIVE' && t('statusActive')}
-                {doc.status === 'PENDING' && t('statusPending')}
-                {doc.status === 'ARCHIVED' && t('statusArchived')}
-                {doc.status === 'ENCRYPTED' && t('statusEncrypted')}
+                {statusLabelMap[doc.status] || doc.status}
               </span>
             </div>
           ))

@@ -7,7 +7,6 @@ import { FileText, Clock, CheckCircle, Folder, AlertCircle } from 'lucide-react'
 export interface StatCardProps {
   titleKey: string;
   value: number;
-  descriptionKey?: string;
   description?: string;
   icon: 'file' | 'clock' | 'check' | 'folder' | 'alert';
   variant: 'blue' | 'green' | 'orange' | 'purple' | 'red';
@@ -19,7 +18,7 @@ const iconMap = {
   check: CheckCircle,
   folder: Folder,
   alert: AlertCircle,
-};
+} satisfies Record<StatCardProps['icon'], React.ComponentType>;
 
 export function StatCard({
   titleKey,
@@ -29,7 +28,7 @@ export function StatCard({
   icon,
   variant,
 }: StatCardProps): React.ReactElement {
-  const IconComponent = iconMap[icon];
+  const IconComponent = iconMap[icon] ?? (() => null);
   const t = useTranslations('UserDashboard');
 
   return (

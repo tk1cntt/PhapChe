@@ -49,14 +49,15 @@ const badgeStyles: Record<string, { bg: string; color: string; dot: string }> = 
   pending: { bg: '#ffedd5', color: '#ea580c', dot: '#f97316' },
 };
 
+const statusLabels: Record<string, string> = {
+  active: 'Active',
+  inactive: 'Inactive',
+  pending: 'Pending',
+};
+
 function StatusBadge({ status }: { status: string }) {
   const style = badgeStyles[status] || badgeStyles.inactive;
-  const labels: Record<string, string> = {
-    active: 'Active',
-    inactive: 'Inactive',
-    pending: 'Pending',
-  };
-  return (
+  const style = badgeStyles[status] || badgeStyles.inactive;
     <span
       className="status-badge"
       style={{
@@ -70,28 +71,46 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+// --- Suggested extraction (illustrative) ---
+// File: src/hooks/useOrganizations.ts
+export function useOrganizations() {
+  // fetchData, pagination, search, debounce, loading/error states
+}
+
+// File: src/components/admin/CreateOrganizationModal.tsx
+export function CreateOrganizationModal({ open, onClose, onCreated }: Props) {
+  // formData, isSubmitting, formError, formSuccess, handleSubmit
+}
+
+// This page component then becomes:
 export default function AdminOrganizationsPage() {
-  const router = useRouter();
-  const t = useTranslations('AdminOrganizations');
-  const tCommon = useTranslations('Common');
-
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [stats, setStats] = useState<Stats>({ total: 0, active: 0, inactive: 0 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [take, setTake] = useState(20);
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-
-  // Modal state
+  const { organizations, stats, loading, error, ... } = useOrganizations();
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    businessType: '',
-    registrationNumber: '',
-    address: '',
+  return (
+    <div>
+      {/* Header + Stats + Toolbar + Table + Pagination */}
+      <CreateOrganizationModal open={showModal} onClose={...} onCreated={...} />
+    </div>
+  );
+}
+}
+
+// File: src/components/admin/CreateOrganizationModal.tsx
+export function CreateOrganizationModal({ open, onClose, onCreated }: Props) {
+  // formData, isSubmitting, formError, formSuccess, handleSubmit
+}
+
+// This page component then becomes:
+export default function AdminOrganizationsPage() {
+  const { organizations, stats, loading, error, ... } = useOrganizations();
+  const [showModal, setShowModal] = useState(false);
+  return (
+    <div>
+      {/* Header + Stats + Toolbar + Table + Pagination */}
+      <CreateOrganizationModal open={showModal} onClose={...} onCreated={...} />
+    </div>
+  );
+}
     contactEmail: '',
     status: 'active',
   });
@@ -101,13 +120,16 @@ export default function AdminOrganizationsPage() {
 
   // Debounce search
   useEffect(() => {
+const SEARCH_DEBOUNCE_MS = 300;
+
+// ...inside useEffect:
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
       setPage(1);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search]);
-
+    }, SEARCH_DEBOUNCE_MS);
+      setDebouncedSearch(search);
+      setPage(1);
+    }, SEARCH_DEBOUNCE_MS);
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -118,13 +140,19 @@ export default function AdminOrganizationsPage() {
       });
       if (debouncedSearch) params.set('search', debouncedSearch);
 
-      const response = await fetch(`/api/admin/organizations?${params.toString()}`);
+const API_BASE = '/api/admin/organizations';
 
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          router.push('/sign-in');
-          return;
-        }
+// then in fetchData:
+      const response = await fetch(`${API_BASE}?${params.toString()}`);
+
+// and in handleSubmit:
+      const response = await fetch(API_BASE, {
+
+// then in fetchData:
+      const response = await fetch(`${API_BASE}?${params.toString()}`);
+
+// and in handleSubmit:
+      const response = await fetch(API_BASE, {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Failed to fetch organizations');
       }
@@ -133,12 +161,12 @@ export default function AdminOrganizationsPage() {
       setOrganizations(data.data);
       setTotal(data.pagination.total);
 
-      // Calculate stats — active/inactive should come from the API
-      // (aggregated across ALL records), not from the current page slice.
+      // Stats should come from the API aggregated across ALL records.
+      // Until a dedicated stats endpoint exists, only total is reliable.
       const statsCalc: Stats = {
         total: data.pagination.total,
-        active: data.data.filter(o => o.status === 'active').length,
-        inactive: data.data.filter(o => o.status === 'inactive').length,
+        active: data.pagination.stats?.active ?? 0,
+        inactive: data.pagination.stats?.inactive ?? 0,
       };
       setStats(statsCalc);
     } catch (err) {
@@ -320,9 +348,7 @@ export default function AdminOrganizationsPage() {
             {organizations.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">
-                  <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
+                  <BuildingIcon size={32} className="text-slate-400" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-lg font-medium text-slate-700 mb-1">{t('emptyTitle')}</h3>
               </div>
@@ -338,14 +364,19 @@ export default function AdminOrganizationsPage() {
                   <div className="td" style={{ borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
                     <div className="flex items-center gap-3">
                       <div className="icon-badge" style={{ background: 'linear-gradient(135deg, var(--color-primary-muted), var(--color-primary-muted))', color: 'var(--color-primary)' }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold" style={{ color: 'var(--color-text)' }}>{org.name}</span>
-                          {org.isDefault && (
+// Extract once as a shared component:
+function BuildingIcon({ size = 24, className, strokeWidth = 2 }: { size?: number; className?: string; strokeWidth?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} className={className}>
+      <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+  );
+}
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} className={className}>
+      <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+  );
+}
                             <span className="default-badge">{t('default')}</span>
                           )}
                         </div>
@@ -376,11 +407,13 @@ export default function AdminOrganizationsPage() {
                     <button
                       className="action-link"
                       onClick={() => {
-                        const locale = window.location.pathname.split('/')[1] || 'vi';
+                        // If using useParams() from next/navigation:
+                        // const { locale } = useParams();
+                        // Or accept params as a page prop and pass locale down:
                         router.push(`/${locale}/admin/organizations/${org.id}`);
                       }}
-                    >
-                      {t('view')} →
+                        router.push(`/${locale}/admin/organizations/${org.id}`);
+                      }}
                     </button>
                   </div>
                 </div>

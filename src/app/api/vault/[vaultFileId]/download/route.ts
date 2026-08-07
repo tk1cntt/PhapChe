@@ -3,7 +3,7 @@ import { requireAppSession } from '@/lib/security/session';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ vaultFileId: string }> }
 ) {
   try {
@@ -23,12 +23,12 @@ export async function GET(
     });
 
     if (!vaultFile) {
-      return NextResponse.json({ error: 'File not found' }, { status: 404 });
+      return errorResponse('File not found', 404);
     }
 
     // Workspace-level access control — prevent cross-tenant data leak
     if (vaultFile.workspaceId !== session.activeWorkspaceId) {
-      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+      return errorResponse('FORBIDDEN', 403);
     }
 
     // For now, return a placeholder response since we don't have actual S3/storage
@@ -40,6 +40,6 @@ export async function GET(
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Download error:', message);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return errorResponse('Internal server error', 500);
   }
 }

@@ -10,10 +10,20 @@ import { isStructuredError } from '@/lib/errors';
 
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'];
 
+class AppError extends Error {
+  constructor(
+    public status: number,
+    public error: string,
+  ) {
+    super(error);
+    this.name = 'AppError';
+  }
+}
+
 async function requireAdminSession(workspaceId: string) {
   const session = await auth.api.getSession();
   if (!session?.user?.id) {
-    throw { status: 401, error: 'Unauthorized' };
+    throw new AppError(401, 'Unauthorized');
   }
 
   // Verify admin membership in the SPECIFIC workspace, not just any workspace
@@ -28,33 +38,39 @@ async function requireAdminSession(workspaceId: string) {
   });
 
   if (!membership) {
-    throw { status: 403, error: 'Forbidden' };
+    throw new AppError(403, 'Forbidden');
   }
+      workspaceId,
+      isActive: true,
+      role: { in: ADMIN_ROLES },
+    },
+    select: { role: true },
+  });
 
-  return { session, userId: session.user.id };
-}
-
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-
+  if (!membership) {
+    throw new AppError(403, 'Forbidden');
+  }
+async function withAdminAuth(
+  workspaceId: string,
+  operation: string,
+): Promise<NextResponse | null> {
   try {
-    await requireAdminSession(id);
+    await requireAdminSession(workspaceId);
+    return null;
   } catch (e: unknown) {
     if (isStructuredError(e)) {
       return NextResponse.json({ error: e.error }, { status: e.status });
     }
-    console.error('Error in GET workspace:', e);
+    console.error(`Error in ${operation} workspace:`, e);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const workspace = await prisma.workspace.findUnique({
-    where: { id, isActive: true },
-    include: {
-      organization: { select: { id: true, name: true, slug: true } },
-      members: {
+}
+      return NextResponse.json({ error: e.error }, { status: e.status });
+    }
+    console.error(`Error in ${operation} workspace:`, e);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
         include: { user: { select: { id: true, name: true, email: true } } },
       },
       _count: { select: { requests: true } },
@@ -89,15 +105,23 @@ export async function PATCH(
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const body = await req.json();
-  const { name, description, isActive, organizationId } = body;
-
-  const updated = await prisma.workspace.update({
-    where: { id },
-    data: {
-      ...(name && { name }),
-      ...(description !== undefined && { description }),
-      ...(isActive !== undefined && { isActive }),
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: 'Invalid or missing JSON body' },
+      { status: 400 },
+    );
+  }
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: 'Invalid or missing JSON body' },
+      { status: 400 },
+    );
+  }
       ...(organizationId !== undefined && { organizationId }),
     },
     select: {
@@ -113,7 +137,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;

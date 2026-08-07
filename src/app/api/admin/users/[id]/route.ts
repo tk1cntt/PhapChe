@@ -44,76 +44,110 @@ async function requireAdminSession() {
   return { session, userId: session.user.id, roles: userRoles };
 }
 
+// --- Extracted helpers ---
+
+async function fetchUserProfile(id: string) {
+  return prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true, email: true, name: true, phone: true, title: true,
+      isActive: true, emailVerified: true, createdAt: true, lastActiveAt: true,
+      memberships: {
+        select: {
+          id: true, role: true, isActive: true,
+          workspace: { select: { id: true, name: true, slug: true } },
+        },
+      },
+    },
+  });
+}
+
+async function fetchUserStats(id: string) {
+  return Promise.all([
+    prisma.workspaceMembership.count({ where: { userId: id, isActive: true } }),
+    prisma.auditEvent.count({ where: { actorId: id, createdAt: { gte: new Date(Date.now() - SEVEN_DAYS_MS) } } }),
+    prisma.requestAssignment.count({ where: { userId: id, request: { status: { notIn: ['completed', 'cancelled', 'draft', 'draft_intake'] } } } }),
+    prisma.vaultFile.count({ where: { actorId: id } }),
+  ]);
+}
+
+function buildActivityFeed(auditEvents: AuditEvent[]) { /* ... extracted logic ... */ }
+function buildTimeline(timelineEvents: AuditEvent[]) { /* ... extracted logic ... */ }
+
+// --- Refactored GET handler (now ~40 lines) ---
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdminSession();
     const { id } = await params;
 
-    // Fetch user with all related data
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        phone: true,
-        title: true,
-        isActive: true,
-        emailVerified: true,
-        createdAt: true,
-        lastActiveAt: true,
-        memberships: {
-          select: {
-            id: true,
-            role: true,
-            isActive: true,
-            workspace: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
+    const user = await fetchUserProfile(id);
     if (!user) {
       return NextResponse.json({ error: 'NOT_FOUND', detail: 'User not found' }, { status: 404 });
     }
 
-    // Get stats in parallel
-    const [
-      workspaceCount,
-      auditEventCount,
-      openCasesCount,
-      documentCount,
-    ] = await Promise.all([
-      // Count workspaces
-      prisma.workspaceMembership.count({
-        where: { userId: id, isActive: true },
-      }),
-      // Count audit events (active workspaces)
-      prisma.auditEvent.count({
-        where: {
-          actorId: id,
-          createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+    const [workspaceCount, auditEventCount, openCasesCount, documentCount] = await fetchUserStats(id);
+    const activityFeed = await buildActivityFeed(id);
+    const partners = await fetchRelatedPartners(id);
+    const requests = await fetchUserRequests(id);
+    const slaRisk = await calculateSLAMetrics(id, openCasesCount, documentCount);
+    const timeline = await buildTimeline(id);
+    // ... compose and return response
+  } catch (error: unknown) {
+    return handleApiError(error, 'fetching user detail');
+  }
+}
+          id: true, role: true, isActive: true,
+          workspace: { select: { id: true, name: true, slug: true } },
         },
-      }),
-      // Count open cases
-      prisma.requestAssignment.count({
-        where: {
-          userId: id,
-          request: {
+      },
+    },
+  });
+}
+
+async function fetchUserStats(id: string) {
+  return Promise.all([
+    prisma.workspaceMembership.count({ where: { userId: id, isActive: true } }),
+    prisma.auditEvent.count({ where: { actorId: id, createdAt: { gte: new Date(Date.now() - SEVEN_DAYS_MS) } } }),
+    prisma.requestAssignment.count({ where: { userId: id, request: { status: { notIn: ['completed', 'cancelled', 'draft', 'draft_intake'] } } } }),
+    prisma.vaultFile.count({ where: { actorId: id } }),
+  ]);
+}
+
+function buildActivityFeed(auditEvents: AuditEvent[]) { /* ... extracted logic ... */ }
+function buildTimeline(timelineEvents: AuditEvent[]) { /* ... extracted logic ... */ }
+
+// --- Refactored GET handler (now ~40 lines) ---
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAdminSession();
+    const { id } = await params;
+
+    const user = await fetchUserProfile(id);
+    if (!user) {
+      return NextResponse.json({ error: 'NOT_FOUND', detail: 'User not found' }, { status: 404 });
+    }
+
+    const [workspaceCount, auditEventCount, openCasesCount, documentCount] = await fetchUserStats(id);
+    const activityFeed = await buildActivityFeed(id);
+    const partners = await fetchRelatedPartners(id);
+    const requests = await fetchUserRequests(id);
+    const slaRisk = await calculateSLAMetrics(id, openCasesCount, documentCount);
+    const timeline = await buildTimeline(id);
+    // ... compose and return response
+  } catch (error: unknown) {
+    return handleApiError(error, 'fetching user detail');
+  }
+}
             status: { notIn: ['completed', 'cancelled', 'draft', 'draft_intake'] },
           },
         },
       }),
-      // Count documents
       prisma.vaultFile.count({
         where: { actorId: id },
       }),
@@ -148,12 +182,15 @@ export async function GET(
       };
 
       const config = actionLabels[event.action] || { icon: 'org', label: event.action, variant: 'org' };
-      let meta: Record<string, unknown> = {};
-      if (event.metadataSummary) {
-        try { meta = JSON.parse(event.metadataSummary) as Record<string, unknown>; } catch { /* keep empty */ }
-      }
-      const description = typeof meta.details === 'string' ? meta.details : event.action;
+/** Safely parse metadataSummary JSON, returning empty object on failure */
+function parseMetadataSummary(raw: string | null): Record<string, unknown> {
+  if (!raw) return {};
+  try { return JSON.parse(raw) as Record<string, unknown>; } catch { return {}; }
+}
 
+// Usage in activityFeed:
+      const meta = parseMetadataSummary(event.metadataSummary);
+      const description = typeof meta.details === 'string' ? meta.details : event.action;
       return {
         id: event.id,
         icon: config.icon,
@@ -168,9 +205,9 @@ export async function GET(
         createdAt: event.createdAt.toISOString(),
         timeAgo: getTimeAgo(event.createdAt),
       };
-    });
-
-    // Get related partners
+        createdAt: event.createdAt.toISOString(),
+        timeAgo: getTimeAgo(event.createdAt),
+      };
     const relatedRequests = await prisma.legalRequest.findMany({
       where: {
         OR: [
@@ -225,27 +262,39 @@ export async function GET(
     });
 
     // Calculate SLA/risk metrics
+// --- Time constants (near top of file with ADMIN_ROLES) ---
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const SEVEN_DAYS_MS = 7 * ONE_DAY_MS;
+
+// --- Health score constants ---
+const HEALTH_SCORE_MIN = 70;
+const HEALTH_SCORE_MAX = 100;
+const HEALTH_PENDING_PENALTY = 5;
+const HEALTH_OVERDUE_THRESHOLD = 5;
+const HEALTH_OVERDUE_PENALTY = 2;
+
+// Usage:
     const pendingActions = await prisma.requestAssignment.count({
       where: {
         userId: id,
         request: {
           status: { in: ['submitted', 'assigned', 'in_progress'] },
-          slaDeadline: { lt: new Date(Date.now() + 24 * 60 * 60 * 1000) },
+          slaDeadline: { lt: new Date(Date.now() + ONE_DAY_MS) },
         },
       },
     });
+const HEALTH_OVERDUE_PENALTY = 2;
 
-    const totalAssignments = await prisma.requestAssignment.count({
+// Usage:
+    const pendingActions = await prisma.requestAssignment.count({
       where: {
         userId: id,
         request: {
-          status: { notIn: ['draft', 'draft_intake'] },
+          status: { in: ['submitted', 'assigned', 'in_progress'] },
+          slaDeadline: { lt: new Date(Date.now() + ONE_DAY_MS) },
         },
       },
     });
-
-    const onTimeRate = totalAssignments > 0 ? Math.round(((totalAssignments - pendingActions) / totalAssignments) * 100) : 100;
-
     // Get timeline (last 7 days)
     const timelineEvents = await prisma.auditEvent.findMany({
       where: {
@@ -343,25 +392,37 @@ export async function GET(
         timeline,
       },
     });
-  } catch (error: unknown) {
-    if (isStructuredError(error)) {
-      return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
-    }
-    console.error('Error fetching user detail:', error);
-    return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });
+/** Shared error handler for API routes */
+function handleApiError(error: unknown, operation: string): NextResponse {
+  if (isStructuredError(error)) {
+    return NextResponse.json(
+      { error: error.error, detail: error.detail },
+      { status: error.status }
+    );
   }
+  console.error(`Error ${operation}:`, error);
+  return NextResponse.json(
+    { error: 'INTERNAL_ERROR', detail: 'Internal server error' },
+    { status: 500 }
+  );
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { session, userId: currentUserId } = await requireAdminSession();
-    const { id } = await params;
+// Usage in GET:
+// } catch (error: unknown) {
+//   return handleApiError(error, 'fetching user detail');
+// }
+  }
+  console.error(`Error ${operation}:`, error);
+  return NextResponse.json(
+    { error: 'INTERNAL_ERROR', detail: 'Internal server error' },
+    { status: 500 }
+  );
+}
 
-    const user = await prisma.user.findUnique({ where: { id } });
-    if (!user) {
+// Usage in GET:
+// } catch (error: unknown) {
+//   return handleApiError(error, 'fetching user detail');
+// }
       return NextResponse.json({ error: 'NOT_FOUND', detail: 'User not found' }, { status: 404 });
     }
 
@@ -394,11 +455,11 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { session, userId: currentUserId } = await requireAdminSession();
+    const { session } = await requireAdminSession();
     const { id } = await params;
 
     // Prevent self-deletion

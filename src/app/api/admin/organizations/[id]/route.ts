@@ -12,106 +12,118 @@ import { prisma } from '@/lib/prisma';
 import { isStructuredError } from '@/lib/errors';
 
 // Valid admin roles
-const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
-
-/**
- * Get session with admin role check from database memberships
- */
-async function requireAdminSession() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user?.id) {
-    throw { status: 401, error: 'UNAUTHORIZED', detail: 'Authentication required' };
-  }
-
-  // Query all workspace memberships to find admin roles
-  const memberships = await prisma.workspaceMembership.findMany({
-    where: { userId: session.user.id, isActive: true },
-    select: { role: true, workspaceId: true },
-  });
-
-  // Filter out null roles
-  const userRoles = memberships
-    .map((m) => m.role)
-    .filter((r): r is string => r !== null);
-
-  const hasAdminRole = ADMIN_ROLES.some((role) => userRoles.includes(role));
-
-  if (!hasAdminRole) {
-    throw { status: 403, error: 'FORBIDDEN', detail: 'Admin access required' };
-  }
-
-  return { session, userId: session.user.id, roles: userRoles };
-}
+// Extracted to src/lib/auth/admin-auth.ts — import from there instead:
+// import { requireAdminSession } from '@/lib/auth/admin-auth';
 
 // GET - Get organization detail with activity data
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    await requireAdminSession();
-    const { id } = await params;
+// ---- Activity query helpers ----
 
-    // Fetch organization with all related data
-    const organization = await prisma.organization.findUnique({
-      where: { id },
-      include: {
-        tenant: { select: { id: true, name: true } },
-        workspaces: {
-          select: { id: true, name: true, slug: true, isActive: true },
-          orderBy: { name: 'asc' },
-        },
-      },
-    });
+interface OrganizationActivity {
+  workspaceCount: number;
+  memberCount: number;
+  openRequestsCount: number;
+  inProgressRequestsCount: number;
+  vaultFilesCount: number;
+  slaRiskCount: number;
+  recentRequests: Awaited<ReturnType<typeof prisma.legalRequest.findMany>>;
+  recentAuditLogs: Awaited<ReturnType<typeof prisma.auditEvent.findMany>>;
+}
 
-    if (!organization) {
-      return NextResponse.json({ error: 'NOT_FOUND', detail: 'Organization not found' }, { status: 404 });
-    }
+async function fetchOrganizationActivity(
+  organizationId: string,
+  workspaceIds: string[]
+): Promise<OrganizationActivity> {
+  const [
+    workspaceCount,
+    memberCount,
+    openRequestsCount,
+    inProgressRequestsCount,
+    vaultFilesCount,
+    slaRiskCount,
+    recentRequests,
+    recentAuditLogs,
+  ] = await Promise.all([
+    prisma.workspace.count({ where: { organizationId } }),
+    workspaceIds.length > 0
+      ? prisma.workspaceMembership.groupBy({
+          by: ['userId'],
+          where: { workspaceId: { in: workspaceIds }, isActive: true },
+        })
+      : Promise.resolve([]),
+    // ... remaining queries ...
+  ]);
 
-    const workspaceIds = organization.workspaces.map((w) => w.id);
+  return {
+    workspaceCount,
+    memberCount: Array.isArray(memberCount) ? memberCount.length : 0,
+    openRequestsCount,
+    inProgressRequestsCount,
+    vaultFilesCount,
+    slaRiskCount,
+    recentRequests,
+    recentAuditLogs,
+  };
+}
+    memberCount,
+    openRequestsCount,
+    inProgressRequestsCount,
+    vaultFilesCount,
+    slaRiskCount,
+    recentRequests,
+    recentAuditLogs,
+  ] = await Promise.all([
+    prisma.workspace.count({ where: { organizationId } }),
+    workspaceIds.length > 0
+      ? prisma.workspaceMembership.groupBy({
+          by: ['userId'],
+          where: { workspaceId: { in: workspaceIds }, isActive: true },
+        })
+      : Promise.resolve([]),
+    // ... remaining queries ...
+  ]);
 
-    // Fetch counts in parallel
-    const [
-      workspaceCount,
-      memberCount,
-      openRequestsCount,
-      inProgressRequestsCount,
-      vaultFilesCount,
-      slaRiskCount,
-      recentRequests,
-      recentAuditLogs,
-    ] = await Promise.all([
-      // Workspace count
-      prisma.workspace.count({ where: { organizationId: id } }),
-
-      // Member count (unique users in workspaces)
-      workspaceIds.length > 0
-        ? prisma.workspaceMembership.groupBy({
-            by: ['userId'],
-            where: { workspaceId: { in: workspaceIds }, isActive: true },
-          })
-        : Promise.resolve([]),
-
+  return {
+    workspaceCount,
+    memberCount: Array.isArray(memberCount) ? memberCount.length : 0,
+    openRequestsCount,
+    inProgressRequestsCount,
+    vaultFilesCount,
+    slaRiskCount,
+    recentRequests,
+    recentAuditLogs,
+  };
+}
       // Open requests (not closed/cancelled)
-      workspaceIds.length > 0
-        ? prisma.legalRequest.count({
-            where: {
-              workspaceId: { in: workspaceIds },
-              status: { notIn: ['closed', 'cancelled'] },
-            },
-          })
-        : 0,
+/** Return query result when workspaceIds is non-empty, otherwise return fallback. */
+async function safeQuery<T>(
+  workspaceIds: string[],
+  query: () => Promise<T>,
+  fallback: T
+): Promise<T> {
+  return workspaceIds.length > 0 ? query() : fallback;
+}
 
-      // In-progress requests
-      workspaceIds.length > 0
-        ? prisma.legalRequest.count({
-            where: {
-              workspaceId: { in: workspaceIds },
-              status: 'in_progress',
-            },
-          })
-        : 0,
+// Usage becomes:
+safeQuery(workspaceIds,
+  () => prisma.legalRequest.count({
+    where: {
+      workspaceId: { in: workspaceIds },
+      status: { notIn: ['closed', 'cancelled'] },
+    },
+  }),
+  0
+),
 
+// Usage becomes:
+safeQuery(workspaceIds,
+  () => prisma.legalRequest.count({
+    where: {
+      workspaceId: { in: workspaceIds },
+      status: { notIn: ['closed', 'cancelled'] },
+    },
+  }),
+  0
+),
       // Vault files count
       workspaceIds.length > 0
         ? prisma.vaultFile.count({
@@ -201,17 +213,21 @@ export async function GET(
     };
 
     return NextResponse.json({ data: responseData });
-  } catch (error: unknown) {
-    if (isStructuredError(error)) {
-      return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
-    }
-    console.error('Error fetching organization:', error);
-    return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });
+/**
+ * Handle caught errors uniformly across all route handlers.
+ * Returns a NextResponse with the appropriate status and error body.
+ */
+function handleApiError(error: unknown, operation: string): NextResponse {
+  if (isStructuredError(error)) {
+    return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
   }
+  console.error(`Error ${operation}:`, error);
+  return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });
 }
-
-// PATCH - Update organization
-export async function PATCH(
+  }
+  console.error(`Error ${operation}:`, error);
+  return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });
+}
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {

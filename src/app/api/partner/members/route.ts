@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
           id: m.user.id,
           name: m.user.name,
           email: m.user.email,
-          avatarUrl: (m.user as any).avatarUrl ?? null,
+        avatarUrl: null, // avatarUrl not selected in getPartnerMembers; update partner-auth-service.ts if needed
         },
         role: m.role,
         isActive: m.isActive,
@@ -79,6 +79,8 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error('Get members error:', error);
-    return NextResponse.json({ error: 'Failed to get members' }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : 'Failed to get members';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-}
+    return NextResponse.json({ error: message }, { status: 500 });

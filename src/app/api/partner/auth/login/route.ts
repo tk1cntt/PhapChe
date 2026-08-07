@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     // Validate input
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { success: false, error: 'Email and password are required' },
         { status: 400 }
       );
     }
@@ -81,16 +81,16 @@ export async function POST(req: NextRequest) {
     // Get permissions for the role
     const permissions = getPermissionsForRole(member.role);
 
-    // Generate session token (using better-auth session)
-    const session = await auth.api.getSession({
-      headers: req.headers,
-    });
+    // Note: session is created by signInEmail above; no need for explicit getSession
+    // Remove unused call to avoid unnecessary network round-trip
 
-    // Calculate expiry (7 days from now)
+    const SESSION_EXPIRY_DAYS = 7;
+
+    // Calculate expiry
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
-
-    return NextResponse.json({
+    expiresAt.setDate(expiresAt.getDate() + SESSION_EXPIRY_DAYS);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + SESSION_EXPIRY_DAYS);
       success: true,
       user: {
         id: user.id,

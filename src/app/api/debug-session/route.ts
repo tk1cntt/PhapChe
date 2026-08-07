@@ -12,9 +12,9 @@ export async function GET(request: Request) {
   }
 
   const headers = new Headers();
-  const cookieHeader = request.headers.get('cookie');
-  if (cookieHeader) {
-    headers.set('cookie', cookieHeader);
+    const cookie = request.headers.get('cookie');
+    if (cookie) {
+      headers.set('cookie', cookie);
   }
 
   try {
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
       return NextResponse.json({
         success: false,
         message: 'No session found',
-        cookieReceived: !!cookieHeader,
+        hasCookie: !!cookieHeader,
       });
     }
 
@@ -54,12 +54,14 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error('[debug-session] Failed to retrieve session or user:', error);
+    const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       {
         success: false,
         error: 'Internal error',
+        detail: message,
       },
       { status: 500 },
     );
-  }
-}
+      { status: 500 },
+    );

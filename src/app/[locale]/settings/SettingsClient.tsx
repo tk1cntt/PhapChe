@@ -40,23 +40,33 @@ export interface SettingsClientProps {
   workspaces: WorkspaceData[];
 }
 
+const SAVED_MESSAGE_DURATION_MS = 3000;
+
 export function SettingsClient({ user, stats, workspaces }: SettingsClientProps): React.ReactElement {
   const t = useTranslations('UserSettings');
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [profileSaved, setProfileSaved] = useState(false);
   const [currentLocale, setCurrentLocale] = useState(user.locale);
-
   const [saveError, setSaveError] = useState<string | null>(null);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleSaveProfile = async (data: {
-    name: string;
-    email: string;
-    phone: string | null;
-    title: string | null;
-    timezone: string;
-  }) => {
-    try {
-      const response = await fetch('/api/settings/profile', {
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current !== null) {
+        clearTimeout(savedTimerRef.current);
+      }
+    };
+  }, []);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current !== null) {
+        clearTimeout(savedTimerRef.current);
+      }
+    };
+  }, []);
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -69,7 +79,7 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
 
       setSaveError(null);
       setProfileSaved(true);
-      setTimeout(() => setProfileSaved(false), 3000);
+      savedTimerRef.current = setTimeout(() => setProfileSaved(false), SAVED_MESSAGE_DURATION_MS);
     } catch (error) {
       console.error('Save profile failed:', error);
       setSaveError(error instanceof Error ? error.message : 'Save failed');
@@ -104,19 +114,28 @@ export function SettingsClient({ user, stats, workspaces }: SettingsClientProps)
         return (
           <LanguageSection
             currentLocale={currentLocale}
-            onLocaleChange={(newLocale) => {
+            onLocaleChange={async (newLocale) => {
               setCurrentLocale(newLocale);
+              try {
+                await fetch('/api/settings/locale', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ locale: newLocale }),
+                });
+              } catch (error) {
+                console.error('Failed to persist locale:', error);
+              }
             }}
           />
-        );
-      case 'audit':
-        return <AuditSection userId={user.id} />;
-      default:
-        return null;
-    }
-  };
-
-  return (
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ locale: newLocale }),
+                });
+              } catch (error) {
+                console.error('Failed to persist locale:', error);
+              }
+            }}
+          />
     <div className="settings-page">
       <div className="page-header">
         <h1>{t('pageTitle')}</h1>

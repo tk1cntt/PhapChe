@@ -11,6 +11,11 @@ import { auth } from '@/auth';
 import { partnerInviteService } from '@/lib/services/partner-invite-service';
 
 export async function POST(req: NextRequest) {
+  // --- helper: consistent error response shape ---
+  function errorResponse(message: string, status: number) {
+    return NextResponse.json({ success: false, error: message }, { status });
+  }
+
   try {
     // Get session from request headers
     const session = await auth.api.getSession({
@@ -18,30 +23,21 @@ export async function POST(req: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: 'You must be logged in to accept an invite' },
-        { status: 401 }
-      );
+      return errorResponse('You must be logged in to accept an invite', 401);
     }
 
     const body = await req.json();
     const { token } = body;
 
     if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Invite token is required' },
-        { status: 400 }
-      );
+      return errorResponse('Invite token is required', 400);
     }
 
     // Accept the invite
     const result = await partnerInviteService.acceptInvite(token, session.user.id);
 
     if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error },
-        { status: 400 }
-      );
+      return errorResponse(result.error, 400);
     }
 
     return NextResponse.json({
@@ -51,9 +47,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error('Accept invite error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to accept invite' },
-      { status: 500 }
-    );
+    return errorResponse('Failed to accept invite', 500);
   }
 }

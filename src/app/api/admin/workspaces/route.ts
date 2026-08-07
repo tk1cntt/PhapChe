@@ -39,13 +39,18 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get('search');
     const organizationId = searchParams.get('organizationId');
     const isActive = searchParams.get('isActive');
-    const skip = Math.max(0, parseInt(searchParams.get('skip') || '0', 10) || 0);
-    const take = Math.min(100, Math.max(1, parseInt(searchParams.get('take') || '20', 10) || 20));
+const DEFAULT_SKIP = 0;
+const DEFAULT_TAKE = 20;
+const MAX_TAKE = 100;
+const MIN_TAKE = 1;
 
-    const where: Record<string, unknown> = {};
+    const skip = Math.max(DEFAULT_SKIP, parseInt(searchParams.get('skip') || String(DEFAULT_SKIP), 10) || DEFAULT_SKIP);
+    const take = Math.min(MAX_TAKE, Math.max(MIN_TAKE, parseInt(searchParams.get('take') || String(DEFAULT_TAKE), 10) || DEFAULT_TAKE));
+const MAX_TAKE = 100;
+const MIN_TAKE = 1;
 
-    if (search) {
-      where.OR = [
+    const skip = Math.max(DEFAULT_SKIP, parseInt(searchParams.get('skip') || String(DEFAULT_SKIP), 10) || DEFAULT_SKIP);
+    const take = Math.min(MAX_TAKE, Math.max(MIN_TAKE, parseInt(searchParams.get('take') || String(DEFAULT_TAKE), 10) || DEFAULT_TAKE));
         { name: { contains: search } },
         { slug: { contains: search } },
       ];
@@ -76,13 +81,15 @@ export async function GET(req: NextRequest) {
       pagination: { total, skip, take, hasMore: skip + take < total },
     });
   } catch (e: unknown) {
+function handleApiError(e: unknown, operation: string) {
     if (isStructuredError(e)) {
       return NextResponse.json({ error: e.error }, { status: e.status });
     }
-    console.error('Error in GET workspaces:', e);
+    console.error(`Error in ${operation} workspaces:`, e);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 
 export async function POST(req: NextRequest) {
   try {
@@ -95,11 +102,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 });
     }
 
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const MAX_SLUG_LENGTH = 64;
+
     // Validate slug format: lowercase alphanumeric with hyphens only
-    const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-    if (!SLUG_REGEX.test(slug) || slug.length > 64) {
-      return NextResponse.json({ error: 'Invalid slug format' }, { status: 400 });
-    }
+    if (!SLUG_PATTERN.test(slug) || slug.length > MAX_SLUG_LENGTH) {
+    // Validate slug format: lowercase alphanumeric with hyphens only
+    if (!SLUG_PATTERN.test(slug) || slug.length > MAX_SLUG_LENGTH) {
 
     const workspace = await prisma.$transaction(async (tx) => {
       const existing = await tx.workspace.findUnique({ where: { slug } });
@@ -107,8 +116,9 @@ export async function POST(req: NextRequest) {
         throw Object.assign(new Error('Slug already exists'), { status: 400, error: 'SLUG_EXISTS' });
       }
 
-      return tx.workspace.create({
-        data: {
+      try {
+        return await tx.workspace.create({
+        return await tx.workspace.create({
           name,
           slug,
           organizationId: organizationId || null,

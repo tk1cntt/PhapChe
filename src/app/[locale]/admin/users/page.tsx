@@ -24,16 +24,18 @@ export default async function AdminUsersPage({ params }: PageProps) {
 
   // Verify admin role
   if (!session.roles.some((role) => (ADMIN_ROLES as readonly string[]).includes(role))) {
-    return (
-      <div className="flex items-center justify-center min-h-[300px]">
-        <div className="text-center">
-          <h2 className="text-xl font-bold text-red-600 mb-2">Bạn không có quyền truy cập trang này.</h2>
-          <p className="text-slate-500">Vui lòng liên hệ quản trị viên.</p>
-        </div>
+function AlertMessage({ title, message }: { title: string; message: string }) {
+  return (
+    <div className="flex items-center justify-center min-h-[300px]">
+      <div className="text-center">
+        <h2 className="text-xl font-bold text-red-600 mb-2">{title}</h2>
+        <p className="text-slate-500">{message}</p>
       </div>
-    );
-  }
-
+    </div>
+  );
+}
+  );
+}
   try {
     // Parallel Prisma queries
     const [
@@ -54,10 +56,13 @@ export default async function AdminUsersPage({ params }: PageProps) {
       prisma.user.count({
         where: {
           emailVerified: false,
-          createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
-        },
-      }),
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
+// ... later ...
+          createdAt: { gte: new Date(Date.now() - ONE_WEEK_MS) },
+
+// ... later ...
+          createdAt: { gte: new Date(Date.now() - ONE_WEEK_MS) },
       // Active workspaces count
       prisma.workspace.count({ where: { isActive: true } }),
 

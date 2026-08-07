@@ -7,16 +7,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id } = await params;
+const ERROR = {
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  FORBIDDEN: 'FORBIDDEN',
+  NOT_FOUND: 'NOT_FOUND',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  BAD_REQUEST: 'BAD_REQUEST',
+} as const;
 
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  FORBIDDEN: 'FORBIDDEN',
+  NOT_FOUND: 'NOT_FOUND',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  BAD_REQUEST: 'BAD_REQUEST',
+} as const;
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const session = await auth.api.getSession({ headers: req.headers });
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'UNAUTHORIZED', detail: 'Authentication required' }, { status: 401 });
+    if (!id || typeof id !== 'string' || id.trim().length === 0) {
+      return NextResponse.json({ error: 'BAD_REQUEST', detail: 'Invalid request ID' }, { status: 400 });
     }
 
-    // Get all active partner memberships for the user
+    const session = await auth.api.getSession({ headers: req.headers });
     const memberships = await prisma.partnerMember.findMany({
       where: { userId: session.user.id, isActive: true },
       select: { partnerId: true },
@@ -44,18 +57,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // Check permission - partner can access if assigned directly or via engagement
-    const hasAccess = (request.assignedPartnerId != null && partnerIds.includes(request.assignedPartnerId)) ||
-      (request.engagement?.partnerId != null && partnerIds.includes(request.engagement.partnerId));
-
-    if (!hasAccess) {
-      return NextResponse.json({ error: 'FORBIDDEN', detail: 'Access denied' }, { status: 403 });
+    function canAccessRequest(
+      req: { assignedPartnerId?: string | null; engagement?: { partnerId?: string | null } | null },
+      allowedIds: string[]
+    ): boolean {
+      const isDirectlyAssigned = req.assignedPartnerId != null && allowedIds.includes(req.assignedPartnerId);
+      const isAssignedViaEngagement = req.engagement?.partnerId != null && allowedIds.includes(req.engagement.partnerId);
+      return isDirectlyAssigned || isAssignedViaEngagement;
     }
 
-    return NextResponse.json({ data: request });
-  } catch (error) {
-    console.error('Partner request detail error:', error);
-    return NextResponse.json(
-      { error: 'INTERNAL_ERROR', detail: 'Internal server error' },
+    if (!canAccessRequest(request, partnerIds)) {
+      return NextResponse.json({ error: 'FORBIDDEN', detail: 'Access denied' }, { status: 403 });
+    }
+      return isDirectlyAssigned || isAssignedViaEngagement;
+    }
+
+    if (!canAccessRequest(request, partnerIds)) {
+      return NextResponse.json({ error: 'FORBIDDEN', detail: 'Access denied' }, { status: 403 });
+    }
       { status: 500 }
     );
   }

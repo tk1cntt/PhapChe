@@ -13,24 +13,31 @@ import { requireAppSession } from '@/lib/security/session';
 import { ADMIN_ROUTE_GUARDS } from '@/lib/security/role-config';
 
 export async function GET(req: NextRequest) {
-  try {
-    const session = await requireAppSession(req.headers);
+  // requireAppSession must be OUTSIDE the try block so that
+  // Next.js redirect errors (NEXT_REDIRECT) propagate to the framework.
+  const session = await requireAppSession(req.headers);
 
+  try {
     const allowed = ADMIN_ROUTE_GUARDS.partner;
     if (!allowed || !session.roles.some(r => allowed.includes(r))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
-    const rawPage = parseInt(searchParams.get('page') ?? '1', 10);
-    const rawLimit = parseInt(searchParams.get('limit') ?? '20', 10);
-    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
-    const limit = Number.isFinite(rawLimit) && rawLimit > 0 && rawLimit <= 100 ? rawLimit : 20;
-    const status = searchParams.get('status');
-    const partnerId = searchParams.get('partnerId');
-    const search = searchParams.get('search');
 
-    // Build database-level filter for partner-related requests
+    const { searchParams } = new URL(req.url);
+const MAX_LIMIT = 100;
+
+// … inside function:
+    const rawPage = parseInt(searchParams.get('page') ?? String(DEFAULT_PAGE), 10);
+    const rawLimit = parseInt(searchParams.get('limit') ?? String(DEFAULT_LIMIT), 10);
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : DEFAULT_PAGE;
+    const limit = Number.isFinite(rawLimit) && rawLimit > 0 && rawLimit <= MAX_LIMIT ? rawLimit : DEFAULT_LIMIT;
+// … inside function:
+    const rawPage = parseInt(searchParams.get('page') ?? String(DEFAULT_PAGE), 10);
+    const rawLimit = parseInt(searchParams.get('limit') ?? String(DEFAULT_LIMIT), 10);
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : DEFAULT_PAGE;
+    const limit = Number.isFinite(rawLimit) && rawLimit > 0 && rawLimit <= MAX_LIMIT ? rawLimit : DEFAULT_LIMIT;
     const where: Record<string, unknown> = {
       OR: [
         { assignedPartnerId: { not: null } },
@@ -79,11 +86,14 @@ export async function GET(req: NextRequest) {
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "UNAUTHENTICATED") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Re-throw Next.js redirect errors so framework can perform the redirect
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error;
+    // Use a stable error discriminator instead of fragile string match
+    if (error instanceof Error && (error.message === 'UNAUTHENTICATED' || (error as Record<string, unknown>).code === 'UNAUTHENTICATED')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    if (isStructuredError(error)) {
-      return NextResponse.json({ error: error.error }, { status: error.status });
+    if (error instanceof Error && (error.message === 'UNAUTHENTICATED' || (error as Record<string, unknown>).code === 'UNAUTHENTICATED')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     console.error('Admin partner requests error:', error);
     return NextResponse.json(

@@ -13,65 +13,77 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
+interface PartnerContext {
+  session: { user: { id: string } };
+  member: { partnerId: string; role: string; partner: { status: string } };
+}
+
+interface PartnerContextError {
+  error: string;
+  status: number;
+}
+
+async function getPartnerContext(
+  req: NextRequest
+): Promise<PartnerContext | PartnerContextError> {
+  const session = await auth.api.getSession({ headers: req.headers });
+
+  if (!session?.user?.id) {
+    return { error: 'Unauthorized', status: 401 };
+  }
+
+  const member = await prisma.partnerMember.findFirst({
+    where: {
+      userId: session.user.id,
+      isActive: true,
+      partner: { status: 'active' },
+    },
+    include: { partner: true },
+  });
+
+  if (!member) {
+    return { error: 'Not a partner member', status: 403 };
+  }
+
+  return { session, member };
+}
+
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
-  try {
-    const { id } = await params;
+  session: { user: { id: string } };
+  member: { partnerId: string; role: string; partner: { status: string } };
+}
 
-    // Get session from request headers
-    const session = await auth.api.getSession({
-      headers: req.headers,
-    });
+interface PartnerContextError {
+  error: string;
+  status: number;
+}
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+async function getPartnerContext(
+  req: NextRequest
+): Promise<PartnerContext | PartnerContextError> {
+  const session = await auth.api.getSession({ headers: req.headers });
 
-    // Get partner context
-    const member = await prisma.partnerMember.findFirst({
-      where: {
-        userId: session.user.id,
-        isActive: true,
-        partner: { status: 'active' },
-      },
-      include: { partner: true },
-    });
+  if (!session?.user?.id) {
+    return { error: 'Unauthorized', status: 401 };
+  }
 
-    if (!member) {
-      return NextResponse.json({ error: 'Not a partner member' }, { status: 403 });
-    }
+  const member = await prisma.partnerMember.findFirst({
+    where: {
+      userId: session.user.id,
+      isActive: true,
+      partner: { status: 'active' },
+    },
+    include: { partner: true },
+  });
 
-    // Check if user has permission to manage members
-    if (!hasPermission(member.role, 'manage_members')) {
-      return NextResponse.json(
-        { error: 'Permission denied. Requires manage_members permission.' },
-        { status: 403 }
-      );
-    }
+  if (!member) {
+    return { error: 'Not a partner member', status: 403 };
+  }
 
-    // Verify invite belongs to this partner
-    const invite = await prisma.partnerInvite.findUnique({
-      where: { id },
-    });
+  return { session, member };
+}
 
-    if (!invite) {
-      return NextResponse.json({ error: 'Invite not found' }, { status: 404 });
-    }
-
-    if (invite.partnerId !== member.partnerId) {
-      return NextResponse.json({ error: 'Invite not found' }, { status: 404 });
-    }
-
-    // Revoke invite
-    const result = await partnerInviteService.revokeInvite(id, session.user.id);
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Revoke invite error:', error);
-    return NextResponse.json({ error: 'Failed to revoke invite' }, { status: 500 });
+export async function DELETE(req: NextRequest, { params }: RouteParams) {
   }
 }
 
@@ -101,9 +113,10 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Not a partner member' }, { status: 403 });
     }
 
+    // NOTE: intentionally no manage_members check — any active partner member may view invites
     // Get invite
     const invite = await partnerInviteService.getInviteById(id);
-
+    const invite = await partnerInviteService.getInviteById(id);
     if (!invite || invite.partnerId !== member.partnerId) {
       return NextResponse.json({ error: 'Invite not found' }, { status: 404 });
     }

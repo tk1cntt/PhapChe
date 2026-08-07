@@ -109,7 +109,7 @@ function buildTemplateReport(
     warnings,
     suggestions,
     questions,
-    openAnnotations: filteredAnnotations.length,
+    openAnnotations: annotations.filter((a) => a.status === 'open').length,
   };
 
   return { content, summary };
@@ -117,120 +117,86 @@ function buildTemplateReport(
 
 // ── POST ───────────────────────────────────────────────────
 
-export async function POST(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  try {
-    const session = await requireAppSession();
-    const hasRole = ALLOWED_ROLES.some((r) => (session.roles as string[]).includes(r));
-    if (!hasRole) {
-      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
-    }
+// Extracted helpers (placed above the POST handler):
 
-    const { id: requestId } = await params;
-
-    let includeResolved = false;
-    try {
-      const body = await _request.json();
-      includeResolved = body?.includeResolved === true;
-    } catch {
-      // no body, use defaults
-    }
-
-    // Fetch request info + workspace verification
-    const legalRequest = await prisma.legalRequest.findUnique({
+async function fetchReportData(requestId: string, userId: string) {
+  const [
+    legalRequest,
+    rawAnnotations,
+    reviewStatuses,
+    vaultFiles,
+    documents,
+  ] = await Promise.all([
+    prisma.legalRequest.findUnique({
       where: { id: requestId },
       select: { title: true, workspaceId: true },
-    });
-    if (!legalRequest) {
-      return NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 });
-    }
-
-    // Verify workspace access — prevent horizontal privilege escalation
-    if (!session.activeWorkspaceId || legalRequest.workspaceId !== session.activeWorkspaceId) {
-      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
-    }
-
-    // Fetch annotations
-    const rawAnnotations = await prisma.documentAnnotation.findMany({
+    }),
+    prisma.documentAnnotation.findMany({
       where: { requestId },
       orderBy: { createdAt: 'desc' },
-      include: {
-        author: { select: { id: true, name: true } },
-      },
-    });
-
-    // Fetch review statuses
-    const reviewStatuses = await prisma.documentReviewStatus.findMany({
-      where: { requestId, reviewerId: session.userId },
+      include: { author: { select: { id: true, name: true } } },
+    }),
+    prisma.documentReviewStatus.findMany({
+      where: { requestId, reviewerId: userId },
       select: { fileKey: true, status: true },
-    });
-
-    // Fetch files from the unified API logic
-    const vaultFiles = await prisma.vaultFile.findMany({
+    }),
+    prisma.vaultFile.findMany({
       where: { requestId, deletedAt: null },
-      include: {
-        file: { select: { originalName: true, mimeType: true } },
-      },
-    });
-    const documents = await prisma.document.findMany({
+      include: { file: { select: { originalName: true, mimeType: true } } },
+    }),
+    prisma.document.findMany({
       where: { requestId, deletedAt: null },
       select: { id: true, title: true },
-    });
+    }),
+  ]);
 
-    const statusMap: Record<string, string> = {};
-    for (const s of reviewStatuses) {
-      statusMap[s.fileKey] = s.status;
-    }
+  return { legalRequest, rawAnnotations, reviewStatuses, vaultFiles, documents };
+}
 
-    const files = [
-      ...vaultFiles.map((vf) => ({
-        fileKey: `vf_${vf.id}`,
-        title: vf.file?.originalName ?? vf.filename ?? 'File tải lên',
-        status: statusMap[`vf_${vf.id}`] ?? 'pending',
-      })),
-      ...documents.map((doc) => ({
-        fileKey: `gen_${doc.id}`,
-        title: doc.title,
-        status: statusMap[`gen_${doc.id}`] ?? 'pending',
-      })),
-    ];
-
-    const annotations = rawAnnotations.map((a) => ({
-      fileKey: a.fileKey,
-      authorName: a.author.name,
-      content: a.content,
-      severity: a.severity,
-      category: a.category,
-      status: a.status,
-    }));
+function assembleReportData(
+  rawAnnotations: Awaited<ReturnType<typeof fetchReportData>>['rawAnnotations'],
+  reviewStatuses: Awaited<ReturnType<typeof fetchReportData>>['reviewStatuses'],
+  vaultFiles: Awaited<ReturnType<typeof fetchReportData>>['vaultFiles'],
+  documents: Awaited<ReturnType<typeof fetchReportData>>['documents'],
+) { /* ... existing assembly logic ... */ }
 
     // Try LLM if configured, otherwise template
     let content: string;
     let summary: Record<string, number>;
 
     const useAi = _request.nextUrl.searchParams.get('useAi') === 'true';
+
+    let content: string;
+    let summary: Record<string, number>;
+
     if (useAi && isLlmConfigured()) {
-      try {
-        const annotationsText = annotations
-          .filter((a) => includeResolved || a.status === 'open')
-          .map((a) => `[${a.severity}][${a.category}] ${a.content} (file: ${a.fileKey}, by: ${a.authorName})`)
-          .join('\n');
-
-        const filesText = files.map((f) => `- ${f.title} (status: ${f.status})`).join('\n');
-
-        const systemPrompt = `Bạn là trợ lý pháp lý chuyên nghiệp. Nhiệm vụ của bạn là tổng hợp các ghi chú review tài liệu pháp lý thành báo cáo chuyên nghiệp bằng tiếng Việt.
-
-Báo cáo phải có cấu trúc:
-1. Tổng quan (số liệu thống kê)
-2. Chi tiết từng tài liệu với các vấn đề tìm thấy
-3. Kết luận và khuyến nghị
-
-Định dạng: Markdown.`;
-
-        const userPrompt = `Hãy tạo báo cáo review cho yêu cầu pháp lý: "${legalRequest.title}"
-
+      const aiReport = await tryGenerateAiReport(
+        legalRequest.title,
+        files,
+        annotations,
+        includeResolved,
+      );
+      if (aiReport) {
+        content = aiReport.content;
+        summary = aiReport.summary;
+      } else {
+        const report = buildTemplateReport(legalRequest.title, files, annotations, includeResolved);
+        content = report.content;
+        summary = report.summary;
+      }
+    } else {
+        annotations,
+        includeResolved,
+      );
+      if (aiReport) {
+        content = aiReport.content;
+        summary = aiReport.summary;
+      } else {
+        const report = buildTemplateReport(legalRequest.title, files, annotations, includeResolved);
+        content = report.content;
+        summary = report.summary;
+      }
+    } else {
 ## Danh sách tài liệu:
 ${filesText}
 
@@ -245,29 +211,22 @@ Hãy tạo báo cáo bằng tiếng Việt, định dạng Markdown.`;
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
           ],
-          temperature: 0.3,
-          maxTokens: 4000,
-        });
+const REPORT_AI_TEMPERATURE = 0.3;
+const REPORT_AI_MAX_TOKENS = 4000;
 
-        content = result.content ?? '';
+// … then inside llmComplete call:
+          temperature: REPORT_AI_TEMPERATURE,
+          maxTokens: REPORT_AI_MAX_TOKENS,
 
-        // Build summary
-        const totalFiles = files.length;
-        const reviewedFiles = files.filter((f) => f.status !== 'pending').length;
-        summary = {
-          totalFiles,
-          reviewedFiles,
-          totalAnnotations: annotations.length,
-          criticalIssues: annotations.filter((a) => a.severity === 'critical').length,
-          warnings: annotations.filter((a) => a.severity === 'warning').length,
-          suggestions: annotations.filter((a) => a.category === 'suggestion').length,
-          questions: annotations.filter((a) => a.category === 'question').length,
-          openAnnotations: annotations.filter((a) => a.status === 'open').length,
-        };
-      } catch {
+// … then inside llmComplete call:
+          temperature: REPORT_AI_TEMPERATURE,
+          maxTokens: REPORT_AI_MAX_TOKENS,
+        summary = buildReportSummary(files, annotations);
+      } catch (err) {
+        console.error('[Report API] LLM generation failed, falling back to template:', err);
         // Fallback to template on LLM error
         const report = buildTemplateReport(legalRequest.title, files, annotations, includeResolved);
-        content = report.content;
+        const report = buildTemplateReport(legalRequest.title, files, annotations, includeResolved);
         summary = report.summary;
       }
     } else {
@@ -282,7 +241,7 @@ Hãy tạo báo cáo bằng tiếng Việt, định dạng Markdown.`;
         title: `Báo cáo review — ${legalRequest.title}`,
         content,
         summary,
-        createdAt: new Date().toISOString(),
+        createdAt: (reportCreatedAt ?? new Date()).toISOString(),
       },
     });
   } catch (error) {

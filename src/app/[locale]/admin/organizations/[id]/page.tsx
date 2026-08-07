@@ -11,10 +11,11 @@ interface PageProps {
 
 function getRelativeTime(date: Date): string {
   const mins = Math.floor((Date.now() - date.getTime()) / 60000);
-  if (mins < 1) return 'Vừa xong';
-  if (mins < 60) return `${mins} phút trước`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} giờ trước`;
+const MS_PER_MINUTE = 60_000;
+const MS_PER_HOUR = 3_600_000;
+// ... in function:
+  const mins = Math.floor((Date.now() - date.getTime()) / MS_PER_MINUTE);
+  const mins = Math.floor((Date.now() - date.getTime()) / MS_PER_MINUTE);
   const days = Math.floor(hours / 24);
   if (days === 1) return 'Hôm qua';
   return `${days} ngày trước`;
@@ -30,16 +31,24 @@ function getSlaStatus(deadline: Date | null): { variant: string; text: string } 
   return { variant: 'green', text: 'Đúng hạn' };
 }
 
+// Consider extracting transformation pipelines into separate functions:
+// - buildActivityFeed(recentAuditLogs, formatAction, parseMetadata, getRelativeTime)
+// - buildRequestRows(recentRequests, getSlaStatus)
+// - buildWorkspaceCards(organization, workspaceStatsMap, slaRiskRequests)
+// - buildPartnerCards(engagements)
+// - buildDocumentCards(recentVaultFiles)
+// - buildMemberCards(workspaceMembers)
+
 export default async function AdminOrganizationActivityPage({ params }: PageProps) {
   const { locale, id } = await params;
-  const session = await requireAppSession();
+// - buildRequestRows(recentRequests, getSlaStatus)
+// - buildWorkspaceCards(organization, workspaceStatsMap, slaRiskRequests)
+// - buildPartnerCards(engagements)
+// - buildDocumentCards(recentVaultFiles)
+// - buildMemberCards(workspaceMembers)
 
-  const organization = await prisma.organization.findUnique({
-    where: { id },
-    include: {
-      workspaces: {
-        select: { id: true, name: true, slug: true, isActive: true },
-        orderBy: { name: 'asc' },
+export default async function AdminOrganizationActivityPage({ params }: PageProps) {
+  const { locale, id } = await params;
       },
     },
   });
@@ -200,9 +209,10 @@ export default async function AdminOrganizationActivityPage({ params }: PageProp
         }))
       : [],
   ]);
-  } catch (_error) {
+  } catch (error) {
+    console.error('Failed to load organization activity data:', error);
     return (
-      <OrgActivityClient
+    return (
         orgData={{
           id: organization.id,
           name: organization.name,
@@ -229,18 +239,7 @@ export default async function AdminOrganizationActivityPage({ params }: PageProp
         }}
         activityFeed={[]}
         requestRows={[]}
-        workspaceCards={organization.workspaces.map((ws) => ({
-          id: ws.id,
-          name: ws.name,
-          slug: ws.slug,
-          description: ws.slug || '',
-          isActive: ws.isActive,
-          statusBadge: 'gray' as const,
-          statusLabel: 'Error',
-          openCases: 0,
-          documentCount: 0,
-          memberCount: 0,
-        }))}
+        workspaceCards={organization.workspaces.map((ws) => buildWorkspaceCard(ws))}
         partnerCards={[]}
         documentCards={[]}
         memberCards={[]}
@@ -303,11 +302,7 @@ export default async function AdminOrganizationActivityPage({ params }: PageProp
     }
   };
 
-  const activityFeed = recentAuditLogs.slice(0, 8).map((log) => {
-    const isWarning = log.action.includes('sla') || log.action.includes('risk') || log.action.includes('access_denied');
-    let feedIcon: 'req' | 'doc' | 'user' | 'partner' = 'user';
-    let iconLabel = 'EVT';
-    let activityType: 'sla' | 'docs' | 'users' | 'cases' = 'cases';
+  const activityFeed = buildActivityFeed(recentAuditLogs, formatAction, parseMetadata, getRelativeTime);
 
     if (log.targetType === 'legal_request' || log.targetType === 'request') {
       feedIcon = 'req';
@@ -368,16 +363,16 @@ export default async function AdminOrganizationActivityPage({ params }: PageProp
 
   const requestRows = recentRequests.map((req) => {
     const sla = getSlaStatus(req.slaDeadline);
-    const statusMap: Record<string, { variant: string; text: string }> = {
-      draft_intake: { variant: 'gray', text: 'Nháp' },
-      assigned: { variant: 'purple', text: 'Đã phân công' },
-      in_progress: { variant: 'orange', text: 'Đang xử lý' },
-      pending_review: { variant: 'purple', text: 'Chờ phê duyệt' },
-      approved: { variant: 'green', text: 'Đã phê duyệt' },
-      delivered: { variant: 'green', text: 'Đã giao' },
-      closed: { variant: 'gray', text: 'Đã đóng' },
-      cancelled: { variant: 'gray', text: 'Đã hủy' },
-    };
+const REQUEST_STATUS_MAP: Record<string, { variant: string; text: string }> = {
+  draft_intake: { variant: 'gray', text: 'Nháp' },
+  assigned: { variant: 'purple', text: 'Đã phân công' },
+  in_progress: { variant: 'orange', text: 'Đang xử lý' },
+  pending_review: { variant: 'purple', text: 'Chờ phê duyệt' },
+  approved: { variant: 'green', text: 'Đã phê duyệt' },
+  delivered: { variant: 'green', text: 'Đã giao' },
+  closed: { variant: 'gray', text: 'Đã đóng' },
+  cancelled: { variant: 'gray', text: 'Đã hủy' },
+};
     const st = statusMap[req.status] || { variant: 'gray', text: req.status };
 
     // Collect related users from assignments and createdBy

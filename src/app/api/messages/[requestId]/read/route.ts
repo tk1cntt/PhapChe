@@ -10,17 +10,18 @@ export async function PUT(
   _request: NextRequest,
   { params }: { params: Promise<{ requestId: string }> }
 ) {
+  const { requestId } = await params;
+
+  if (!requestId) {
+    return NextResponse.json(
+      { error: 'Missing requestId' },
+      { status: 400 }
+    );
+  }
+
   try {
     const session = await requireAppSession();
     const { userId } = session;
-    const { requestId } = await params;
-
-    if (!requestId) {
-      return NextResponse.json(
-        { error: 'Missing requestId' },
-        { status: 400 }
-      );
-    }
 
     // Mark all unread messages in this thread where user is recipient as read
     const result = await prisma.message.updateMany({
@@ -37,8 +38,8 @@ export async function PUT(
       markedCount: result.count,
     });
   } catch (error) {
-    console.error('Error marking messages as read:', error);
-    return NextResponse.json(
+    console.error('Error marking messages as read:', error, { requestId });
+    console.error('Error marking messages as read:', error, { requestId });
       { error: 'Failed to mark messages as read' },
       { status: 500 }
     );

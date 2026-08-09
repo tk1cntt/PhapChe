@@ -112,16 +112,16 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
       pages.push(pageText);
     }
     return pages.join('\n\n').replace(/\s+/g, ' ').trim();
-  } catch (err) {
-    console.error('[pdf-extract] pdfjs-dist extraction failed:', err instanceof Error ? err.message : err);
+  } catch {
     return '';
   }
-  }
+}
 
 async function convertWithMarkItDownOrFallback(
   filePath: string,
   mimeType: string | null,
   filename: string | null,
+  _fileType: string,
   fallback: () => Promise<string>,
 ): Promise<{ content: string; usedMarkitdown: boolean }> {
   if (await isMarkItDownAvailable()) {
@@ -131,44 +131,34 @@ async function convertWithMarkItDownOrFallback(
         const normalized = normalizeMarkdown(result.markdown);
         return { content: normalized.content, usedMarkitdown: true };
       }
-    } catch (err) {
-      console.warn('[AI Review] MarkItDown conversion failed:', err instanceof Error ? err.message : err);
+    } catch {
       // Fall through to fallback
     }
-    }
+  }
   const content = await fallback();
   return { content, usedMarkitdown: false };
 }
 
 // ── Main Endpoint ──────────────────────────────────────────────
 
-// Suggested extraction: move document-loading logic to a helper
-async function loadDocumentContent(
-  fileId: string,
-  requestId: string,
-): Promise<{ rawContent: string; docTitle: string; mimeType: string | null }> {
-  // ... extracted from POST lines ~180-277
-}
-
 export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string; fileId: string }> },
 ) {
   const startTime = Date.now();
+
   try {
+    // ── Auth ──
     const session = await requireAppSession();
-    // ... auth, skill, load, execute, annotate — each in focused helpers
-  }
-}
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string; fileId: string }> },
-) {
-  const startTime = Date.now();
-  try {
-    const session = await requireAppSession();
-    // ... auth, skill, load, execute, annotate — each in focused helpers
-  }
-}
+    const hasRole = ALLOWED_ROLES.some((r) => (session.roles as string[]).includes(r));
+    if (!hasRole) {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+    }
+
+    // ── Check AI available ──
+    if (!isAiReady()) {
+      return NextResponse.json(
+        { error: 'AI_NOT_CONFIGURED', detail: 'Chưa cấu hình API key cho LLM.' },
         { status: 503 },
       );
     }
@@ -263,24 +253,25 @@ export async function POST(
 
       const buffer = await readFile(fullPath);
 
-async function extractFileContent(
-  fullPath: string, mimeType: string | null, docTitle: string, buffer: Buffer,
-): Promise<string> {
-  if (mimeType?.includes('wordprocessingml') || docTitle.toLowerCase().endsWith('.docx')) {
-    const result = await convertWithMarkItDownOrFallback(fullPath, mimeType, docTitle, 'docx', () => extractDocxText(buffer));
-    return result.content;
-  }
-  if (mimeType?.includes('spreadsheetml') || docTitle.toLowerCase().endsWith('.xlsx')) {
-    return extractXlsxText(buffer);
-  }
-  if (isPdf(mimeType, docTitle)) {
-    const isRealPdf = buffer.length >= 5 && buffer[0] === 0x25 && buffer[1] === 0x50;
-    if (!isRealPdf) return buffer.toString('utf-8').trim();
-    const result = await convertWithMarkItDownOrFallback(fullPath, mimeType, docTitle, 'pdf', () => extractPdfText(buffer));
-    return result.content;
-  }
-  return buffer.toString('utf-8');
-}
+      // DOCX
+      if (mimeType?.includes('wordprocessingml') || docTitle.toLowerCase().endsWith('.docx')) {
+        const result = await convertWithMarkItDownOrFallback(fullPath, mimeType, docTitle, 'docx', () => extractDocxText(buffer));
+        rawContent = result.content;
+      } else if (mimeType?.includes('spreadsheetml') || docTitle.toLowerCase().endsWith('.xlsx')) {
+        rawContent = await extractXlsxText(buffer);
+      } else if (isPdf(mimeType, docTitle)) {
+        // PDF: try MarkItDown first, fallback pdfjs
+        const isRealPdf = buffer.length >= 5 && buffer[0] === 0x25 && buffer[1] === 0x50;
+        if (!isRealPdf) {
+          rawContent = buffer.toString('utf-8').trim();
+        } else {
+          const result = await convertWithMarkItDownOrFallback(fullPath, mimeType, docTitle, 'pdf', () => extractPdfText(buffer));
+          rawContent = result.content;
+        }
+      } else {
+        // Plain text
+        rawContent = buffer.toString('utf-8');
+      }
     } else {
       return NextResponse.json({ error: 'VALIDATION: invalid fileId prefix' }, { status: 400 });
     }
@@ -327,41 +318,31 @@ async function extractFileContent(
      * Category B skills return checks[], risks[], gaps[], gapAnalysis[], or keyLegalIssues[].
      * This function maps them all to { severity, issue, recommendation, legalBasis }.
      */
-// Extracted to module level — independently testable
-function normalizeFindings(output: Record<string, unknown>): Array<Record<string, unknown>> {
-  const direct = output.findings as Array<Record<string, unknown>> | undefined;
-  if (direct?.length) return direct;
+    function normalizeFindings(output: Record<string, unknown>): Array<Record<string, unknown>> {
+      // Direct findings (Category A)
+      const findings = output.findings as Array<Record<string, unknown>> | undefined;
+      if (findings?.length) return findings;
 
-  const normalizers: Array<{ key: string; map: (item: Record<string, unknown>) => Record<string, unknown> }> = [
-    { key: 'checks', map: mapCheckToFinding },
-    { key: 'risks', map: mapRiskToFinding },
-    { key: 'gaps', map: mapGapToFinding },
-    { key: 'gapAnalysis', map: mapGapAnalysisToFinding },
-    { key: 'keyLegalIssues', map: mapKeyIssueToFinding },
-  ];
+      // checks[] → findings (entity-compliance-checker, corporate-compliance-checker, privacy-compliance-checker)
+      const checks = output.checks as Array<Record<string, unknown>> | undefined;
+      if (checks?.length) {
+        return checks.map((c) => ({
+          severity: (c.severity as string) ?? (c.priority as string) ?? (c.status === 'non_compliant' ? 'high' : 'medium'),
+          issue: (c.requirement as string) ?? (c.gap as string) ?? '',
+          recommendation: (c.action as string) ?? '',
+          legalBasis: (c.legalBasis as string) ?? '',
+        }));
+      }
 
-  for (const { key, map } of normalizers) {
-    const items = output[key] as Array<Record<string, unknown>> | undefined;
-    if (items?.length) return items.map(map);
-  }
-
-  // riskAssessment.risks nested path
-  const riskAssessment = output.riskAssessment as Record<string, unknown> | undefined;
-  const risks = riskAssessment?.risks as Array<Record<string, unknown>> | undefined;
-  if (risks?.length) return risks.map(mapRiskAssessmentToFinding);
-
-  return [];
-}
-    if (items?.length) return items.map(map);
-  }
-
-  // riskAssessment.risks nested path
-  const riskAssessment = output.riskAssessment as Record<string, unknown> | undefined;
-  const risks = riskAssessment?.risks as Array<Record<string, unknown>> | undefined;
-  if (risks?.length) return risks.map(mapRiskAssessmentToFinding);
-
-  return [];
-}
+      // risks[] → findings (labor-discipline-checker, ai-impact-assessment)
+      const risks = output.risks as Array<Record<string, unknown>> | undefined;
+      if (risks?.length) {
+        return risks.map((r) => ({
+          severity: (r.severity as string) ?? 'medium',
+          issue: (r.risk as string) ?? '',
+          recommendation: (r.action as string) ?? (r.mitigation as string) ?? '',
+          legalBasis: (r.legalBasis as string) ?? '',
+        }));
       }
 
       // gaps[] → findings (employment-policy-checker, regulatory-gap-analyzer)
@@ -491,17 +472,14 @@ function normalizeFindings(output: Record<string, unknown>): Array<Record<string
         const legalBasis = (finding.legalBasis as string) ?? '';
         const clause = (finding.clause as string) ?? '';
 
-function mapAiSeverity(raw: string): 'critical' | 'warning' | 'info' {
-  if (raw === 'critical' || raw === 'high') return 'critical';
-  if (raw === 'medium') return 'warning';
-  return 'info';
-}
+        // Map AI severity → Prisma severity (Prisma chỉ chấp nhận info|warning|critical)
+        const mappedSeverity = rawSeverity === 'critical' ? 'critical'
+          : rawSeverity === 'high' ? 'critical'
+          : rawSeverity === 'medium' ? 'warning'
+          : 'info';
 
-// Usage in annotation loop:
-const mappedSeverity = mapAiSeverity(rawSeverity);
-
-// Usage in annotation loop:
-const mappedSeverity = mapAiSeverity(rawSeverity);
+        // Build content
+        const parts = [`**Vấn đề:** ${issue}`];
         if (clause && clause !== 'N/A') parts.unshift(`**Điều khoản:** ${clause}`);
         if (recommendation) parts.push(`\n**Đề xuất:** ${recommendation}`);
         if (legalBasis && legalBasis !== 'N/A') parts.push(`\n**Căn cứ:** ${legalBasis}`);

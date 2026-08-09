@@ -119,9 +119,15 @@ export default async function CaseDetailPage({ params }: PageProps) {
   const matterTypeDescription: string | null = mtKey ? tDesc(mtKey as any) : null;
 
   const answers = (legalRequest.intakeSubmission?.answers ?? {}) as Record<string, string>;
-  const answerLabels = (legalRequest.intakeSubmission?.answerLabels ?? []) as Array<{
-    key: string; label: string; required: boolean;
+  const answerLabelsRaw = (legalRequest.intakeSubmission?.answerLabels ?? []) as Array<{
+    key: string; label: string | { vi?: string; en?: string; zh?: string; ja?: string }; required: boolean;
   }>;
+  // Normalize multilingual labels — DB stores {vi, en, zh, ja} objects; pick locale or fallback
+  const answerLabels = answerLabelsRaw.map(a => ({
+    key: a.key,
+    label: typeof a.label === 'string' ? a.label : ((a.label as Record<string, string | undefined>)?.[locale] || (a.label as Record<string, string | undefined>)?.vi || a.key),
+    required: a.required,
+  }));
   const contactInfo = legalRequest.contactInfo as Record<string, string> | null;
 
   return (

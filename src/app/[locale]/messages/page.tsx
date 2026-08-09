@@ -58,6 +58,20 @@ export default async function MessagesPage({
     const workspaceName = workspace?.name ?? 'Workspace';
     const workspaceSlug = workspace?.slug ?? 'workspace';
 
+    // Determine role-based thread filter
+    const isSuperAdmin = roles.includes('super_admin');
+    const isSpecialist = roles.includes('specialist');
+    const isCustomer = roles.includes('customer') || (!isSuperAdmin && !isSpecialist);
+
+    // Build thread filter — customers only see their own requests
+    const threadWhere: Record<string, unknown> = {
+      workspaceId: activeWorkspaceId ?? '',
+      status: { in: ['in_progress', 'pending_review', 'revision_required', 'assigned', 'triage'] },
+    };
+    if (isCustomer) {
+      threadWhere.createdById = userId;
+    }
+
     // Fetch message stats
     const [totalConversations, unreadMessages, recentThreads] = await Promise.all([
       prisma.message.count({
@@ -72,10 +86,7 @@ export default async function MessagesPage({
       }),
       // Fetch requests with recent activity (these are the "threads")
       prisma.legalRequest.findMany({
-        where: {
-          workspaceId: activeWorkspaceId ?? '',
-          status: { in: ['in_progress', 'pending_review', 'revision_required', 'assigned', 'triage'] },
-        },
+        where: threadWhere,
         include: {
           createdBy: { select: { name: true } },
           assignedSpecialist: { select: { name: true } },
@@ -192,7 +203,7 @@ export default async function MessagesPage({
 
     return (
       <UserLayout userName={userName} userRole={roles[0] ?? 'customer'} workspaceName={workspaceName} workspaceSlug={workspaceSlug}>
-        <div className="page-wrapper">
+        <div className="page-wrapper messages-page-wrapper">
           <div className="page-header">
             <div>
               <h1>{t('pageTitle')}</h1>
@@ -241,7 +252,7 @@ export default async function MessagesPage({
     console.error('Messages page data fetch failed:', error);
     return (
       <UserLayout userName="User" userRole={roles[0] ?? 'customer'} workspaceName="Workspace" workspaceSlug="workspace">
-        <div className="page-wrapper">
+        <div className="page-wrapper messages-page-wrapper">
           <div className="page-header">
             <div>
               <h1>{t('pageTitle')}</h1>

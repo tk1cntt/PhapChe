@@ -18,9 +18,12 @@ export interface MessagesClientProps {
   pollInterval?: number; // in milliseconds, default 10000
 }
 
+type MobileView = 'threads' | 'chat' | 'info';
+
 /**
  * MessagesClient component - Client-side messaging with polling
  * Initial data fetched server-side, polls for new messages
+ * Mobile: single-panel layout with view switching (threads → chat → info)
  */
 function MessagesClient({
   initialThreads,
@@ -41,6 +44,23 @@ function MessagesClient({
   const [messages, setMessages] = useState<Record<string, MessageData[]>>(initialMessages);
   const [threads, setThreads] = useState<ThreadData[]>(initialThreads);
   const [lastPoll, setLastPoll] = useState<Date>(new Date());
+  // Mobile: which view is currently showing
+  const [mobileView, setMobileView] = useState<MobileView>('threads');
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Mobile detection via media query
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const check = () => setIsMobile(mq.matches);
+    check();
+    mq.addEventListener('change', check);
+    return () => mq.removeEventListener('change', check);
+  }, []);
+
+  // Reset mobile view when leaving mobile
+  useEffect(() => {
+    if (!isMobile) setMobileView('threads');
+  }, [isMobile]);
 
   // Get active thread data
   const activeThread = threads.find((t) => t.id === activeThreadId);
@@ -104,14 +124,26 @@ function MessagesClient({
   }, []);
 
   // Handle thread selection - update activeThreadId and mark as read
+  // On mobile: auto-switch to chat view
   const handleSelectThread = useCallback((threadId: string) => {
     setActiveThreadId(threadId);
     markThreadAsRead(threadId);
-  }, [markThreadAsRead]);
+    if (isMobile) setMobileView('chat');
+  }, [markThreadAsRead, isMobile]);
 
   // Handle info panel toggle
+  // On mobile: toggle between chat and info overlay
   const handleToggleInfoPanel = useCallback(() => {
-    setShowInfoPanel((prev) => !prev);
+    if (isMobile) {
+      setMobileView((prev) => (prev === 'info' ? 'chat' : 'info'));
+    } else {
+      setShowInfoPanel((prev) => !prev);
+    }
+  }, [isMobile]);
+
+  // Handle back to threads on mobile
+  const handleBackToThreads = useCallback(() => {
+    setMobileView('threads');
   }, []);
 
   // Handle sending message
@@ -172,6 +204,101 @@ function MessagesClient({
     [activeThreadId, currentUserId, t]
   );
 
+  // ── Mobile layout: single panel with view switching ──
+  if (isMobile) {
+    return (
+      <div className="messages-container mobile">
+        {/* View: Thread list */}
+        {mobileView === 'threads' && (
+          <div className="messages-mobile-panel">
+            <ThreadListPanel
+              threads={threads}
+              activeThreadId={activeThreadId}
+              onSelectThread={handleSelectThread}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+          </div>
+        )}
+
+        {/* View: Chat */}
+        {mobileView === 'chat' && (
+          <div className="messages-mobile-panel">
+            <div className="messages-mobile-header">
+              <button
+                type="button"
+                className="messages-mobile-back"
+                onClick={handleBackToThreads}
+                aria-label={t('backToThreads')}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div className="messages-mobile-title">
+                <span className="messages-mobile-thread-name">{activeThread?.title ?? t('chat')}</span>
+              </div>
+              <button
+                type="button"
+                className="messages-mobile-info-btn"
+                onClick={handleToggleInfoPanel}
+                aria-label={t('caseInfo')}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 16v-4" />
+                  <path d="M12 8h.01" />
+                </svg>
+              </button>
+            </div>
+            {activeThread ? (
+              <ChatPanel
+                threadTitle={activeThread.title}
+                specialistName={activeThread.specialistName ?? t('specialist')}
+                specialistStatus={activeThread.specialistStatus}
+                messages={activeMessages}
+                onSendMessage={handleSendMessage}
+                currentUserId={currentUserId}
+                hideHeader
+              />
+            ) : (
+              <div className="chat-panel empty">
+                <p>{t('selectThread')}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* View: Info (overlay) */}
+        {mobileView === 'info' && (
+          <div className="messages-mobile-panel">
+            <div className="messages-mobile-header">
+              <button
+                type="button"
+                className="messages-mobile-back"
+                onClick={() => setMobileView('chat')}
+                aria-label={t('backToChat')}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div className="messages-mobile-title">
+                <span>{activeThread?.requestCode ?? t('caseInfo')}</span>
+              </div>
+            </div>
+            <InfoPanel
+              caseInfo={activeCaseInfo}
+              isOpen={true}
+              onClose={() => setMobileView('chat')}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Desktop layout: 3-column ──
   return (
     <div className="messages-container">
       {/* Left Panel: Thread List */}

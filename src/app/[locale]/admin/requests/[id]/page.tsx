@@ -51,11 +51,10 @@ function getInitials(name: string): string {
 export default function AdminRequestDetailPage() {
   const t = useTranslations('AdminPartner');
   const tCommon = useTranslations('Common');
-  const params = useParams<{ locale: string; id: string }>();
+  const params = useParams();
   const router = useRouter();
-  const requestId = params.id;
-  const locale = params.locale || 'vi';
-  const locale = params.locale || 'vi';
+  const requestId = params.id as string;
+
   const [request, setRequest] = useState<RequestDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,14 +72,8 @@ export default function AdminRequestDetailPage() {
     cancelled: t('statusCancelled'),
   };
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-
   const fetchRequest = useCallback(async () => {
-    // Abort any in-flight request before starting a new one
-    abortControllerRef.current?.abort();
     const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-
     setLoading(true);
     setError(null);
 
@@ -88,12 +81,12 @@ export default function AdminRequestDetailPage() {
       const res = await fetch(`/api/admin/partner/requests/${requestId}`, {
         signal: abortController.signal,
       });
-    setError(null);
 
-    try {
-      const res = await fetch(`/api/admin/partner/requests/${requestId}`, {
-        signal: abortController.signal,
-      });
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          router.push('/sign-in');
+          return;
+        }
         if (res.status === 404) {
           throw new Error('Request not found');
         }
@@ -115,18 +108,21 @@ export default function AdminRequestDetailPage() {
 
   useEffect(() => {
     fetchRequest();
-    return () => {
-      abortControllerRef.current?.abort();
-    };
   }, [fetchRequest]);
-      abortControllerRef.current?.abort();
-    };
-  }, [fetchRequest]);
-    return {
-      name: partner?.name || '-',
-      id: partner?.id || null,
-    };
-  }, [request]);
+
+  const getPartnerName = () => {
+    if (!request) return '-';
+    if (request.assignedPartner?.name) return request.assignedPartner.name;
+    if (request.engagement?.partner?.name) return request.engagement?.partner?.name;
+    return '-';
+  };
+
+  const getPartnerId = () => {
+    if (!request) return null;
+    if (request.assignedPartner?.id) return request.assignedPartner.id;
+    if (request.engagement?.partner?.id) return request.engagement?.partner?.id;
+    return null;
+  };
 
   if (loading) {
     return (
@@ -169,6 +165,7 @@ export default function AdminRequestDetailPage() {
           <button
             className="back-link"
             onClick={() => {
+              const locale = window.location.pathname.split('/')[1] || 'vi';
               router.push(`/${locale}/admin/partner`);
             }}
           >
@@ -340,21 +337,16 @@ export default function AdminRequestDetailPage() {
                     <div className="info-item">
                       <div className="info-label">{t('slaStatus')}</div>
                       <div className="info-value">
-                        {(() => {
-                          const deadline = new Date(request.slaDeadline);
-                          const isOverdue = deadline.getTime() < Date.now();
-                          const daysLeft = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-                          return isOverdue ? (
-                            <span className="badge red">{t('slaOverdue')}</span>
-                          ) : (
-                            <span className="badge green">{t('slaDaysLeft', { days: daysLeft })}</span>
-                          );
-                        })()}
-                            <span className="badge red">{t('slaOverdue')}</span>
-                          ) : (
-                            <span className="badge green">{t('slaDaysLeft', { days: daysLeft })}</span>
-                          );
-                        })()}
+                        {new Date(request.slaDeadline) < new Date() ? (
+                          <span className="badge red">{t('slaOverdue')}</span>
+                        ) : (
+                          <span className="badge green">{t('slaDaysLeft', { days: Math.ceil((new Date(request.slaDeadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) })}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* Traceability Timeline */}

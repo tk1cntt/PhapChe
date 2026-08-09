@@ -26,7 +26,7 @@ type AdminVaultFilesTableProps = {
 function getFileExt(filename: string | null): string {
   if (!filename) return 'FILE';
   const ext = filename.split('.').pop()?.toUpperCase() ?? 'FILE';
-  if (['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'ZIP', 'RAR'].includes(ext)) {
+  if (['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'ZIP', 'RAR', 'PNG', 'JPG'].includes(ext)) {
     return ext.length > 3 ? ext.slice(0, 3) : ext;
   }
   return ext.slice(0, 3);
@@ -51,7 +51,7 @@ function getFileIconStyle(ext: string): { bg: string; color: string } {
 }
 
 function formatFileSize(bytes?: number): string {
-  if (bytes == null) return '';
+  if (!bytes) return '';
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -74,15 +74,33 @@ function getTagChipStyle(key: string): { bg: string; color: string } {
   return tagChipStyles[lower] ?? { bg: '#e0e7ff', color: '#4f46e5' };
 }
 
-// Move to src/lib/slugify.ts and import from both files:
-// import { slugify } from '@/lib/slugify';
-
-const HEADER_KEYS = ['fileName', 'folderColumn', 'tags', 'workspaceColumn', 'owner', 'security', 'actions'] as const;
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
+    .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
+    .replace(/[ìíịỉĩ]/g, 'i')
+    .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
+    .replace(/[ùúụủũưừứựửữ]/g, 'u')
+    .replace(/[ỳýỵỷỹ]/g, 'y')
+    .replace(/[đ]/g, 'd')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 export function AdminVaultFilesTable({ classifications, loading }: AdminVaultFilesTableProps) {
   const t = useTranslations('Vault');
 
-  const TABLE_HEADERS = HEADER_KEYS.map((key) => t(key));
+  const TABLE_HEADERS = [
+    t('fileName'),
+    t('folderColumn'),
+    t('tags'),
+    t('workspaceColumn'),
+    t('owner'),
+    t('security'),
+    t('actions'),
+  ];
 
   if (loading) {
     return (
@@ -107,55 +125,40 @@ export function AdminVaultFilesTable({ classifications, loading }: AdminVaultFil
       </div>
 
       {/* Table Rows */}
-function AdminVaultFileRow({ record }: { record: VaultFileClassification }) {
-  const t = useTranslations('Vault');
-  const ext = getFileExt(record.vaultFile.filename);
-  const iconStyle = getFileIconStyle(ext);
-  const date = record.vaultFile.createdAt instanceof Date
-    ? record.vaultFile.createdAt
-    : new Date(record.vaultFile.createdAt);
-  const dateStr = new Intl.DateTimeFormat(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
-  const sizeStr = formatFileSize(record.vaultFile.size);
-  const workspace = record.vaultFile.workspace;
-  const owner = record.vaultFile.createdBy;
-  const folderName = record.folders.length > 0
-    ? record.folders[0].name || ''
-    : null;
-  const folderSlug = folderName ? slugify(folderName) : null;
+      {classifications.length === 0 ? (
+        <div className="vault-empty">{t('noFiles')}</div>
+      ) : (
+        classifications.map((record) => {
+          const ext = getFileExt(record.vaultFile.filename);
+          const iconStyle = getFileIconStyle(ext);
+          const date = record.vaultFile.createdAt instanceof Date
+            ? record.vaultFile.createdAt
+            : new Date(record.vaultFile.createdAt);
+          const dateStr = new Intl.DateTimeFormat(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+          const sizeStr = formatFileSize(record.vaultFile.size);
+          const workspace = record.vaultFile.workspace;
+          const owner = record.vaultFile.createdBy;
 
-  return (
-    <div className="vault-table-row">
-      {/* File name + icon */}
-      <div className="vault-td">
-        <div className="vault-file-cell">
-          <div className="vault-file-icon" style={iconStyle}>
-            {ext}
-          </div>
-          <div className="vault-file-info">
-            <strong>{record.vaultFile.filename ?? t('untitled')}</strong>
-            <span>{sizeStr}{sizeStr && ' · '}{t('updated')} {dateStr}</span>
-          </div>
-        </div>
-      </div>
-      {/* ... rest of row columns ... */}
-    </div>
-  );
-}
-      <div className="vault-td">
-        <div className="vault-file-cell">
-          <div className="vault-file-icon" style={iconStyle}>
-            {ext}
-          </div>
-          <div className="vault-file-info">
-            <strong>{record.vaultFile.filename ?? t('untitled')}</strong>
-            <span>{sizeStr}{sizeStr && ' · '}{t('updated')} {dateStr}</span>
-          </div>
-        </div>
-      </div>
-      {/* ... rest of row columns ... */}
-    </div>
-  );
-}
+          // Get first folder name
+          const folderName = record.folders.length > 0
+            ? record.folders[0].name || ''
+            : null;
+          const folderSlug = folderName ? slugify(folderName) : null;
+
+          return (
+            <div key={record.vaultFile.id} className="vault-table-row">
+              {/* File name + icon */}
+              <div className="vault-td">
+                <div className="vault-file-cell">
+                  <div className="vault-file-icon" style={iconStyle}>
+                    {ext}
+                  </div>
+                  <div className="vault-file-info">
+                    <strong>{record.vaultFile.filename ?? t('untitled')}</strong>
+                    <span>{sizeStr}{sizeStr && ' · '}{t('updated')} {dateStr}</span>
+                  </div>
+                </div>
+              </div>
 
               {/* Folders */}
               <div className="vault-td">

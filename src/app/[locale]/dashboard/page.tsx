@@ -148,7 +148,7 @@ export default async function DashboardPage({
       statusVariant,
       statusText,
       assignee: req.assignedSpecialist?.name || req.assignedReviewer?.name || tDashboard('unassigned'),
-      assigneeRole: req.assignedSpecialist ? tDashboard('roleSpecialist') : req.assignedReviewer ? tDashboard('roleReviewer') : '—',
+      assigneeRole: req.assignedSpecialist ? tDashboard('roleSpecialist') : req.assignedReviewer ? tDashboard('roleReviewer') : '',
       updatedAt: req.updatedAt.toISOString(),
       formattedDate: req.updatedAt.toLocaleDateString(getLocaleDateCode(locale), {
         day: '2-digit',

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 interface ErrorFallbackProps {
@@ -12,9 +12,8 @@ interface ErrorFallbackProps {
 
 export function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
   const t = useTranslations('Common');
-  const locale = useLocale();
   const router = useRouter();
-  const router = useRouter();
+
   useEffect(() => {
     if (error.stack) {
       console.error('[ErrorFallback]', error.stack);
@@ -25,12 +24,12 @@ export function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
     if (onRetry) {
       onRetry();
     } else {
-      router.refresh();
+      window.location.reload();
     }
   };
 
   const handleGoHome = () => {
-    router.push(`/${locale}`);
+    router.push('/vi');
   };
 
   return (

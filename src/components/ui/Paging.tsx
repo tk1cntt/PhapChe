@@ -11,16 +11,14 @@ interface PagingProps {
   totalLabel?: string;
 }
 
-const PAGE_ELLIPSIS = '...';
-
-function generatePageNumbers(current: number, totalPages: number): (number | typeof PAGE_ELLIPSIS)[] {
+function generatePageNumbers(current: number, totalPages: number): (number | '...')[] {
   if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
-  if (current <= 4) return [1, 2, 3, 4, 5, PAGE_ELLIPSIS, totalPages];
-  if (current >= totalPages - 3) return [1, PAGE_ELLIPSIS, totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-  return [1, PAGE_ELLIPSIS, current - 1, current, current + 1, PAGE_ELLIPSIS, totalPages];
+  if (current <= 4) return [1, 2, 3, 4, 5, '...', totalPages];
+  if (current >= totalPages - 3) return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  return [1, '...', current - 1, current, current + 1, '...', totalPages];
 }
-  return [1, PAGE_ELLIPSIS, current - 1, current, current + 1, PAGE_ELLIPSIS, totalPages];
-}
+
+export default function Paging({
   current,
   pageSize,
   total,
@@ -50,11 +48,11 @@ function generatePageNumbers(current: number, totalPages: number): (number | typ
           value={pageSize}
           onChange={(e) => onChange(1, Number(e.target.value))}
           style={{
-        height: CONTROL_HEIGHT,
-        border: '1px solid var(--color-border)',
-        borderRadius: RADIUS,
-        padding: '0 8px',
-        fontSize: FONT_SIZE_SM,
+            height: 32,
+            border: '1px solid var(--color-border)',
+            borderRadius: 6,
+            padding: '0 8px',
+            fontSize: 13,
             background: 'var(--color-surface)',
             cursor: 'pointer',
           }}
@@ -72,7 +70,19 @@ function generatePageNumbers(current: number, totalPages: number): (number | typ
         <button
           onClick={() => onChange(Math.max(1, current - 1), pageSize)}
           disabled={isFirst}
-          style={navButtonStyle(isFirst)}
+          style={{
+            height: 32,
+            width: 32,
+            border: '1px solid var(--color-border)',
+            borderRadius: 6,
+            background: isFirst ? '#f1f5f9' : '#fff',
+            color: isFirst ? '#94a3b8' : '#1e293b',
+            cursor: isFirst ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 14,
+          }}
           aria-label={t('previousPage')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -93,8 +103,8 @@ function generatePageNumbers(current: number, totalPages: number): (number | typ
                 padding: '0 8px',
                 border: page === current ? 'none' : '1px solid var(--color-border)',
                 borderRadius: 6,
-                background: page === current ? ACTIVE_BUTTON_BG : '#fff',
-                color: page === current ? '#fff' : TEXT_PRIMARY,
+                background: page === current ? 'linear-gradient(180deg, #0b8f86, #087970)' : '#fff',
+                color: page === current ? '#fff' : '#1e293b',
                 cursor: 'pointer',
                 fontSize: 13,
                 fontWeight: page === current ? 700 : 500,

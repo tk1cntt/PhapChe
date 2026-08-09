@@ -13,17 +13,6 @@ export interface RequestCardStats {
   annotationResolved: number;
 }
 
-export interface RequestCardBadgeInfo {
-  label: string;
-  style: RequestCardStyle;
-}
-
-export interface RequestCardAiConfig {
-  onClick: () => void;
-  tooltip?: string;
-  show?: boolean;
-}
-
 export interface RequestCardProps {
   code: string;
   title: string;
@@ -31,23 +20,29 @@ export interface RequestCardProps {
   subtitle?: string;
   /** Meta info lines (customer, workspace, matter type — pre-translated) */
   metaLines: string[];
-  priority: RequestCardBadgeInfo;
-  status: RequestCardBadgeInfo;
+  priority: string;
+  priorityStyle: RequestCardStyle;
+  statusLabel: string;
+  statusStyle: RequestCardStyle;
   /** Footer left: date or any string */
   date: string;
   /** Footer right: action button(s) slot */
   actionSlot: React.ReactNode;
-  /** AI chat configuration */
-  ai?: RequestCardAiConfig;
+  /** AI chat callback */
+  onAiClick: () => void;
+  /** AI button tooltip */
+  aiTooltip?: string;
   testId?: string;
   /** Document & annotation stats */
   stats?: RequestCardStats;
+  /** Show AI button — chỉ hiện với assigned / in_progress / revision_required */
+  showAiButton?: boolean;
 }
-  ai?: RequestCardAiConfig;
-  testId?: string;
-  /** Document & annotation stats */
-  stats?: RequestCardStats;
-}
+
+const Badge: React.FC<{ label: string; style: RequestCardStyle }> = ({ label, style }) => (
+  <span
+    className="request-card-badge"
+    style={{ background: style.bg, color: style.color, border: `1px solid ${style.color}20` }}
   >
     {label}
   </span>

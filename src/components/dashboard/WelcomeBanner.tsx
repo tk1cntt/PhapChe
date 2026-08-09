@@ -10,15 +10,16 @@ interface WelcomeBannerProps {
 export default function WelcomeBanner({ data }: WelcomeBannerProps) {
   const t = useTranslations('WelcomeBanner');
 
-  const STATUS_FIELDS = [
-    { count: data.activeRequests, label: 'requestsProcessing' },
-    { count: data.pendingDocs, label: 'docsPending' },
-    { count: data.newReplies, label: 'repliesNew' },
-  ] as const;
-
-  const statusParts = STATUS_FIELDS
-    .filter(({ count }) => count > 0)
-    .map(({ count, label }) => t(label, { count }));
+  const statusParts: string[] = [];
+  if (data.activeRequests > 0) {
+    statusParts.push(t('requestsProcessing', { count: data.activeRequests }));
+  }
+  if (data.pendingDocs > 0) {
+    statusParts.push(t('docsPending', { count: data.pendingDocs }));
+  }
+  if (data.newReplies > 0) {
+    statusParts.push(t('repliesNew', { count: data.newReplies }));
+  }
 
   const statusText = statusParts.length > 0
     ? statusParts.join(', ')

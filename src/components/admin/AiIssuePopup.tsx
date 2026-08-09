@@ -43,7 +43,7 @@ export interface AiIssuePopupProps {
 
 // ── Severity config ────────────────────────────────────────────
 
-const SEVERITY_CONFIG: Record<Annotation['severity'], { icon: React.FC<{ size?: number; className?: string }>; color: string }> = {
+const SEVERITY_CONFIG: Record<string, { icon: React.FC<{ size?: number; className?: string }>; color: string }> = {
   critical: { icon: AlertCircle, color: '#ef4444' },
   high: { icon: AlertTriangle, color: '#f59e0b' },
   medium: { icon: Info, color: '#3b82f6' },
@@ -102,27 +102,17 @@ export function AiIssuePopup({
         <div className="ai-issue-popup-header">
           <div className="ai-issue-popup-severity" style={{ color: sevConfig.color }}>
             <SevIcon size={16} />
-const SEVERITY_I18N_KEY: Record<Annotation['severity'], string> = {
-  critical: 'annotationSeverityCritical',
-  high: 'annotationSeverityHigh',
-  medium: 'annotationSeverityMedium',
-  low: 'annotationSeverityLow',
-  info: 'annotationSeverityInfo',
-  warning: 'annotationSeverityWarning',
-};
-
-// … inside JSX:
-<span>{t(SEVERITY_I18N_KEY[annotation.severity])}</span>
-  critical: 'annotationSeverityCritical',
-  high: 'annotationSeverityHigh',
-  medium: 'annotationSeverityMedium',
-  low: 'annotationSeverityLow',
-  info: 'annotationSeverityInfo',
-  warning: 'annotationSeverityWarning',
-};
-
-// … inside JSX:
-<span>{t(SEVERITY_I18N_KEY[annotation.severity])}</span>
+            <span>{t(`annotationSeverity${annotation.severity.charAt(0).toUpperCase() + annotation.severity.slice(1)}` as any)}</span>
+          </div>
+          {annotation.aiGenerated && (
+            <div className="ai-issue-popup-ai-badge">
+              <Sparkles size={12} />
+              <span>{t('annotationAiBadge')}</span>
+            </div>
+          )}
+          {annotation.aiConfidence !== undefined && (
+            <div className="ai-issue-popup-confidence">
+              {t('aiPopupConfidence', { pct: (annotation.aiConfidence * 100).toFixed(0) })}
             </div>
           )}
           <button

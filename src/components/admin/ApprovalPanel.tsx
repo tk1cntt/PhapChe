@@ -11,15 +11,13 @@ interface ApprovalItemProps {
   badgeColor: 'orange' | 'blue' | 'red';
 }
 
-type BadgeColor = 'orange' | 'blue' | 'red';
-
-const badgeClass: Record<BadgeColor, string> = {
+const badgeClass: Record<string, string> = {
   orange: 'badge orange',
   blue: 'badge blue',
   red: 'badge red',
 };
-  red: 'badge red',
-};
+
+function ApprovalItem({ icon, iconColor, title, description, badge, badgeColor }: ApprovalItemProps) {
   return (
     <div className="approval-item">
       <div className="item-left">
@@ -29,7 +27,7 @@ const badgeClass: Record<BadgeColor, string> = {
           <span>{description}</span>
         </div>
       </div>
-      <span className={badgeClass[badgeColor]}>{badge}</span>
+      <span className={badgeClass[badgeColor] || badgeClass.blue}>{badge}</span>
     </div>
   );
 }
@@ -54,7 +52,7 @@ export function ApprovalPanel({ approvals = [] }: { approvals?: ApprovalItemProp
             {t('noApprovals')}
           </div>
         ) : (
-          approvals.map((item) => <ApprovalItem key={item.id ?? item.title} {...item} />)
+          approvals.map((item, index) => <ApprovalItem key={index} {...item} />)
         )}
       </div>
     </div>

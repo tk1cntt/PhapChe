@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { StatsCardGrid } from './StatCard';
 import WelcomeBanner from './WelcomeBanner';
-import RecentCases from './RecentCases';
 import DeadlineSLA from './DeadlineSLA';
 import RecentDocuments from './RecentDocuments';
 import ActivityTimeline from './ActivityTimeline';
@@ -18,38 +17,14 @@ import '@/styles/pages/dashboard.css';
 function StatCardsSkeleton() {
   return (
     <div className="stats-grid">
-const STAT_SKELETON_COUNT = 4;
-const LIST_SKELETON_COUNT = 5;
-// ...
-      {Array.from({ length: STAT_SKELETON_COUNT }, (_, i) => (
+      {[0, 1, 2, 3].map((i) => (
         <div key={i} className="stat-card loading-stat">
-// ...
-      {Array.from({ length: STAT_SKELETON_COUNT }, (_, i) => (
-        <div key={i} className="stat-card loading-stat">
+          <div className="loading-icon" />
+          <div className="loading-text">
+            <div className="loading-line short" />
             <div className="loading-line medium" />
             <div className="loading-line short" />
           </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function RecentCasesSkeleton() {
-  return (
-    <div className="panel loading-panel">
-      <div className="panel-title">
-        <div className="panel-title-left">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <path d="M14 2v6h6" />
-          </svg>
-          <span>{t('loading')}</span>
-        </div>
-      </div>
-      {[0, 1, 2, 3, 4].map((i) => (
-        <div key={i} className="case-item">
-          <div className="loading-line medium" style={{ height: 20 }} />
         </div>
       ))}
     </div>
@@ -159,42 +134,35 @@ interface DashboardClientProps {
   welcomeData: WelcomeData;
   stats: StatsData;
   allCases: CaseItem[];
-  recent?: {
-    documents?: DocumentItem[];
-    activities?: ActivityItem[];
-  };
+  recentDocuments?: DocumentItem[];
+  recentActivities?: ActivityItem[];
 }
 
 export default function DashboardClient({
   welcomeData,
   stats,
   allCases,
-  recent,
+  recentDocuments = [],
+  recentActivities = [],
 }: DashboardClientProps) {
-  const recentDocuments = recent?.documents ?? [];
-  const recentActivities = recent?.activities ?? [];
-}: DashboardClientProps) {
-  const recentDocuments = recent?.documents ?? [];
-  const recentActivities = recent?.activities ?? [];
-  // Derived from props: loading when data is absent, not when list is empty
-  const isLoading = !welcomeData || !stats || allCases === undefined;
-  const isLoading = !welcomeData || !stats || allCases === undefined;
+  const t = useTranslations('DashboardClient');
+  const router = useRouter();
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(!welcomeData || !stats || allCases.length === 0);
+
   useEffect(() => {
     fetch('/api/messages/unread-count')
       .then((res) => res.json())
       .then((data) => setUnreadCount(data.unreadCount))
-      .catch((err) => {
-        console.error('Failed to fetch unread message count:', err);
-        setUnreadCount(0);
-      });
-        console.error('Failed to fetch unread message count:', err);
-        setUnreadCount(0);
-      });
+      .catch(() => setUnreadCount(0));
+  }, []);
+
+  return (
     <div className="dashboard-page">
       {/* Page Header - Greeting */}
       <div className="page-header">
         <div>
-          <h1>{t('greeting', { name: '' })}</h1>
+          <h1>{t('greeting', { name: welcomeData.userName })}</h1>
           <p className="subtitle">{t('subtitle')}</p>
         </div>
         <button className="create-btn" onClick={() => router.push('/create')}>
@@ -211,28 +179,22 @@ export default function DashboardClient({
 
       {/* Stats Grid */}
       <ErrorBoundaryWrapper
-        fallback={<DashboardErrorFallback wrapperClass="stats-grid" />}
+        fallback={
+          <div className="stats-grid">
+            <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
+              Không thể tải dữ liệu. Vui lòng thử lại.
+            </div>
+          </div>
+        }
       >
         {isLoading ? <StatCardsSkeleton /> : <StatsCardGrid data={stats} />}
       </ErrorBoundaryWrapper>
 
-      {/* Grid 2: Recent Cases + Deadline */}
-      <div className="grid-2">
-        <ErrorBoundaryWrapper
-          fallback={
-            <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
-              Không thể tải dữ liệu. Vui lòng thử lại.
-            </div>
-          }
-        >
-          {isLoading ? (
-            <RecentCasesSkeleton />
-          ) : (
-const MAX_RECENT_CASES = 5;
-// ...
-            <RecentCases cases={allCases.slice(0, MAX_RECENT_CASES)} />
-// ...
-            <RecentCases cases={allCases.slice(0, MAX_RECENT_CASES)} />
+      {/* All Requests — CasesTable with paging (moved to top, replaces redundant RecentCases panel) */}
+      <CasesTable cases={allCases} />
+
+      {/* Grid: Deadline + Recent Docs + Activity */}
+      <div className="dashboard-grid">
         <ErrorBoundaryWrapper
           fallback={
             <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
@@ -242,10 +204,6 @@ const MAX_RECENT_CASES = 5;
         >
           <DeadlineSLA cases={allCases} />
         </ErrorBoundaryWrapper>
-      </div>
-
-      {/* Grid: Recent Docs + Activity */}
-      <div className="dashboard-grid">
         <ErrorBoundaryWrapper
           fallback={
             <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
@@ -274,18 +232,13 @@ const MAX_RECENT_CASES = 5;
         </ErrorBoundaryWrapper>
       </div>
 
-      {/* Table Card - All Cases with Paging */}
-      <CasesTable cases={allCases} />
-
       {/* Floating Chat Button */}
       <Link href="/messages" className="floating-chat">
         {unreadCount > 0 && (
           <span className="chat-icon-wrapper">
-const MAX_UNREAD_DISPLAY = 99;
-// ...
-            {unreadCount > MAX_UNREAD_DISPLAY ? `${MAX_UNREAD_DISPLAY}+` : unreadCount}
-// ...
-            {unreadCount > MAX_UNREAD_DISPLAY ? `${MAX_UNREAD_DISPLAY}+` : unreadCount}
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
+        )}
       </Link>
     </div>
   );

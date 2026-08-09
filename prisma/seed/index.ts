@@ -16,6 +16,9 @@ export async function seedAll(prisma: PrismaClient) {
     await tx.documentVersion.deleteMany();
     await tx.fileAccessLog.deleteMany();
     await tx.fileVersion.deleteMany();
+    await tx.documentAnnotation.deleteMany();
+    await tx.documentReviewStatus.deleteMany();
+    await tx.aiChatMessage.deleteMany();
     await tx.review.deleteMany();
     await tx.workflowTransition.deleteMany();
     await tx.requestAssignment.deleteMany();
@@ -27,14 +30,11 @@ export async function seedAll(prisma: PrismaClient) {
     await tx.vaultFile.deleteMany();
     await tx.file.deleteMany();
     await tx.document.deleteMany();
-    await tx.engagementServiceScope.deleteMany();
-    await tx.engagement.deleteMany();
-    await tx.documentReviewStatus.deleteMany();
-    await tx.documentAnnotation.deleteMany();
-    await tx.aiChatMessage.deleteMany();
     await tx.legalRequest.deleteMany();
     await tx.routingCapability.deleteMany();
     await tx.matterType.deleteMany();
+    await tx.engagementServiceScope.deleteMany();
+    await tx.engagement.deleteMany();
     await tx.workspaceMembership.deleteMany();
     await tx.documentTemplate.deleteMany();
     await tx.folder.deleteMany();

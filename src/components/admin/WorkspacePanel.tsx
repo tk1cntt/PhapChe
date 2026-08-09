@@ -2,18 +2,16 @@
 
 import { useTranslations } from 'next-intl';
 
-type ColorVariant = 'green' | 'blue' | 'orange';
-
 interface WorkspaceItemProps {
   initials: string;
-  iconColor: ColorVariant;
+  iconColor: 'green' | 'blue' | 'orange';
   name: string;
   description: string;
   badge: string;
-  badgeColor: ColorVariant;
+  badgeColor: 'green' | 'blue' | 'orange';
 }
-  badgeColor: ColorVariant;
-}
+
+const badgeClass: Record<string, string> = {
   green: 'badge green',
   blue: 'badge blue',
   orange: 'badge orange',
@@ -56,7 +54,7 @@ export function WorkspacePanel({ workspaces = [] }: { workspaces?: WorkspaceItem
             {t('noWorkspaces')}
           </div>
         ) : (
-workspaces.map((ws, index) => <WorkspaceItem key={ws.name ?? index} {...ws} />)
+          workspaces.map((ws, index) => <WorkspaceItem key={index} {...ws} />)
         )}
       </div>
     </div>

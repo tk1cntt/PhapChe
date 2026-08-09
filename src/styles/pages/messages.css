@@ -1,10 +1,17 @@
 /* Messages page styles - matches layout/user-messages.html template */
 /* 3-column layout: ThreadListPanel (380px) | ChatPanel (flex-1) | InfoPanel (320px) */
 
+/* Let the page wrapper grow so the messages container fills remaining space */
+.messages-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .messages-container {
   display: flex;
   gap: 0;
-  height: calc(100vh - 300px);
+  flex: 1;
   min-height: 500px;
   background: var(--color-surface);
   border: 1px solid var(--border);
@@ -428,4 +435,543 @@
 
 .chat-text {
   font-size: var(--text-sm2);
+}
+
+/* ═══════════════════════════════════════════
+   Mobile: messages page responsive
+   ═══════════════════════════════════════════ */
+
+/* ── Mobile header bar (back + title + info) ── */
+.messages-mobile-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+
+.messages-mobile-back {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.messages-mobile-back:active {
+  background: var(--color-surface-hover);
+}
+
+.messages-mobile-title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.messages-mobile-info-btn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.messages-mobile-info-btn:active {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.messages-mobile-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Mobile: constrain ChatPanel / InfoPanel inside the mobile panel ── */
+.messages-mobile-panel > .chat-panel {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.messages-mobile-panel > .info-panel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* ═══════════════════════════════════════════
+   Mobile: tablet ≤ 1024px — hide info panel
+   ═══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .messages-container {
+    min-height: 420px;
+  }
+
+  .thread-panel {
+    width: 300px;
+  }
+
+  .info-panel {
+    width: 280px;
+  }
+
+  .thread {
+    padding: 12px 14px;
+  }
+
+  .thread-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Mobile: tablet ≤ 767px — single panel
+   ═══════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* ── Hide page-header + stats on mobile — wastes ¼ screen, no utility ── */
+  .messages-page-wrapper > .page-header,
+  .messages-page-wrapper > .stats {
+    display: none;
+  }
+
+  .messages-container {
+    min-height: 380px;
+    border-radius: 12px;
+  }
+
+  .messages-container.mobile {
+    min-height: 360px;
+    flex-direction: column;
+  }
+
+  /* Thread panel — full width on mobile */
+  .messages-mobile-panel .thread-panel {
+    width: 100%;
+    border-right: none;
+  }
+
+  .search-bar {
+    padding: 10px 12px;
+  }
+
+  .search-input {
+    height: 36px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+
+  .tab {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .thread {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .thread-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+
+  .thread-body strong {
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .thread-body p {
+    font-size: 11px;
+  }
+
+  .thread-meta {
+    font-size: 10px;
+  }
+
+  /* Chat panel — compact header */
+  .chat-header {
+    height: 56px;
+    padding: 0 14px;
+  }
+
+  .chat-header-info h3 {
+    font-size: var(--text-sm);
+  }
+
+  .chat-header-info p {
+    font-size: 11px;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+  }
+
+  /* Messages */
+  .msg-list {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .msg {
+    max-width: 85%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: var(--text-xs);
+  }
+
+  .msg-sender-name {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  /* Composer */
+  .composer {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .composer-input {
+    height: 40px;
+    font-size: var(--text-xs);
+    border-radius: 6px;
+    padding: 0 12px;
+  }
+
+  .composer .create-btn,
+  .composer button[aria-label] {
+    height: 40px;
+    padding: 0 14px;
+    font-size: var(--text-xs);
+  }
+
+  /* Info panel — full width overlay on mobile */
+  .messages-mobile-panel .info-panel {
+    width: 100%;
+    border-left: none;
+    flex: 1;
+  }
+
+  .info-header {
+    height: 52px;
+    padding: 0 14px;
+  }
+
+  .info-header h3 {
+    font-size: var(--text-sm);
+  }
+
+  .case-info {
+    padding: 14px;
+  }
+
+  .sla {
+    font-size: 16px;
+  }
+
+  .sla-detail {
+    font-size: 11px;
+  }
+
+  .sla-section,
+  .participants-section,
+  .documents-section,
+  .matter-section,
+  .created-section {
+    margin-bottom: 16px;
+  }
+
+  .participant {
+    padding: 6px 10px;
+  }
+
+  .document-item {
+    padding: 6px 10px;
+    font-size: var(--text-xs);
+  }
+
+  .matter-type,
+  .created-date {
+    font-size: var(--text-xs);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Mobile: stats override — match dashboard compact look
+   ═══════════════════════════════════════════ */
+
+/* ── ≤640px: single-column stats (3 cards look best stacked) ── */
+@media (max-width: 640px) {
+  .messages-page-wrapper .stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+}
+
+/* ── ≤479px: ultra-compact stats (mirrors dashboard) ── */
+@media (max-width: 479px) {
+  .messages-page-wrapper .stats {
+    gap: 2px;
+    margin-bottom: 10px;
+  }
+
+  .messages-page-wrapper .stat-card {
+    min-height: auto;
+    padding: 3px 3px;
+    gap: 2px;
+    border-radius: 5px;
+  }
+
+  .messages-page-wrapper .stat-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    margin-right: 6px;
+  }
+
+  .messages-page-wrapper .stat-icon svg {
+    width: 9px;
+    height: 9px;
+  }
+
+  .messages-page-wrapper .stat-value {
+    font-size: 11px;
+    margin-bottom: 1px;
+  }
+
+  .messages-page-wrapper .stat-title {
+    font-size: 6px;
+    margin-bottom: 0;
+  }
+
+  .messages-page-wrapper .stat-desc {
+    display: none;
+  }
+
+  .messages-page-wrapper .stat-card .info {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Mobile: small phone ≤ 479px
+   ═══════════════════════════════════════════ */
+@media (max-width: 479px) {
+  .messages-container {
+    min-height: 320px;
+    border-radius: 10px;
+  }
+
+  .messages-container.mobile {
+    min-height: 300px;
+    flex-direction: column;
+  }
+
+  .messages-mobile-header {
+    height: 44px;
+    padding: 0 8px;
+    gap: 6px;
+  }
+
+  .messages-mobile-back,
+  .messages-mobile-info-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+  }
+
+  .messages-mobile-back svg,
+  .messages-mobile-info-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .messages-mobile-title {
+    font-size: 12px;
+  }
+
+  /* Threads — ultra compact */
+  .search-bar {
+    padding: 8px 10px;
+  }
+
+  .search-input {
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .tab {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .thread {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .thread-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 10px;
+  }
+
+  .thread-body strong {
+    font-size: 12px;
+    margin-bottom: 1px;
+  }
+
+  .thread-body p {
+    font-size: 10px;
+    -webkit-line-clamp: 1;
+  }
+
+  .thread-meta {
+    font-size: 9px;
+  }
+
+  /* Chat — ultra compact header */
+  .chat-header {
+    height: 46px;
+    padding: 0 10px;
+  }
+
+  .chat-header-info h3 {
+    font-size: 12px;
+  }
+
+  .chat-header-info p {
+    font-size: 10px;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  /* Messages — ultra compact */
+  .msg-list {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .msg {
+    max-width: 90%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .msg-sender-name {
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+
+  /* Composer — ultra compact */
+  .composer {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .composer-input {
+    height: 36px;
+    font-size: 11px;
+    border-radius: 6px;
+    padding: 0 10px;
+  }
+
+  .composer .create-btn,
+  .composer button[aria-label] {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 11px;
+  }
+
+  /* Info — ultra compact */
+  .info-header {
+    height: 44px;
+    padding: 0 10px;
+  }
+
+  .info-header h3 {
+    font-size: 12px;
+  }
+
+  .info-close {
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+  }
+
+  .case-info {
+    padding: 10px;
+  }
+
+  .case-code {
+    font-size: 9px;
+    margin-bottom: 4px;
+  }
+
+  .sla {
+    font-size: 14px;
+  }
+
+  .sla-detail {
+    font-size: 10px;
+  }
+
+  .sla-section,
+  .participants-section,
+  .documents-section,
+  .matter-section,
+  .created-section {
+    margin-bottom: 12px;
+  }
+
+  .participant {
+    padding: 4px 8px;
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  .participant-avatar {
+    font-size: 14px;
+  }
+
+  .document-item {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .matter-type,
+  .created-date {
+    font-size: 11px;
+  }
 }

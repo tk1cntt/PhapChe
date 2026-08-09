@@ -99,33 +99,31 @@ export default function AdminRequestsTable({ rows = [], translations }: AdminReq
   const trans = translations || defaults;
   // IN-01: Empty state when no data
   if (!rows || rows.length === 0) {
-function EmptyRequestsState({ title, description }: { title: string; description: string }) {
-  return (
-    <div
-      data-testid="admin-requests-table"
-      className="table-card"
-      style={{
-        background: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 15,
-        boxShadow: '0 18px 42px rgba(15, 23, 42, 0.06)',
-        overflow: 'hidden',
-      }}
-    >
-      <div className="flex flex-col items-center justify-center py-16 px-4">
-        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-          <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+    return (
+      <div
+        data-testid="admin-requests-table"
+        className="table-card"
+        style={{
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 15,
+          boxShadow: '0 18px 42px rgba(15, 23, 42, 0.06)',
+          overflow: 'hidden',
+        }}
+      >
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-slate-700 mb-1">{trans.emptyTitle}</h3>
+          <p className="text-sm text-slate-500">{trans.emptyDesc}</p>
         </div>
-        <h3 className="text-lg font-medium text-slate-700 mb-1">{title}</h3>
-        <p className="text-sm text-slate-500">{description}</p>
       </div>
-    </div>
-  );
-}
-  );
-}
+    );
+  }
+
   return (
     <div
       data-testid="admin-requests-table"
@@ -137,15 +135,12 @@ function EmptyRequestsState({ title, description }: { title: string; description
         className="table-head"
         style={{
           display: 'grid',
-const COLUMN_GRID = '0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr';
-
-// In header:
-          gridTemplateColumns: COLUMN_GRID,
+          gridTemplateColumns: '0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr',
           background: 'linear-gradient(180deg, #f8fafc, #f5f7fb)',
           borderBottom: '1px solid var(--color-border)',
-          gridTemplateColumns: COLUMN_GRID,
-          background: 'linear-gradient(180deg, #f8fafc, #f5f7fb)',
-          borderBottom: '1px solid var(--color-border)',
+        }}
+      >
+        {[trans.code, trans.workspace, trans.customer, trans.status, trans.requestType, trans.assignee, trans.action].map(
           (header, i) => (
             <div
               key={i}
@@ -158,7 +153,7 @@ const COLUMN_GRID = '0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr';
                 color: 'var(--color-text-secondary)',
                 fontSize: 14,
                 fontWeight: 700,
-              borderRight: i === columnHeaders.length - 1 ? 'none' : '1px solid var(--color-border)',
+                borderRight: i === 6 ? 'none' : '1px solid var(--color-border)',
               }}
             >
               {header}
@@ -169,7 +164,7 @@ const COLUMN_GRID = '0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr';
 
       {rows.map((row, rowIndex) => (
         <div
-          key={row.id}
+          key={rowIndex}
           data-testid={`admin-requests-row-${rowIndex}`}
           className="table-row"
           style={{
@@ -180,23 +175,17 @@ const COLUMN_GRID = '0.9fr 1.1fr 1.1fr 1fr 1.1fr 1.2fr 1fr';
             background: 'var(--color-surface)',
             transition: '0.2s',
           }}
-          // Define a row class and use CSS :hover, or manage via React state:
-          // .table-row:hover { background: #fbfdff; }
+          onMouseEnter={(e) => { e.currentTarget.style.background = '#fbfdff'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = '#fff'; }}
         >
-const tdBaseStyle: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', padding: '0 18px',
-  fontSize: 14, color: 'var(--color-text)', fontWeight: 500,
-  borderRight: '1px solid var(--color-border)', minWidth: 0,
-};
-
-// Usage:
-<div className="td" style={{ ...tdBaseStyle, /* overrides */ }}>
-  fontSize: 14, color: 'var(--color-text)', fontWeight: 500,
-  borderRight: '1px solid var(--color-border)', minWidth: 0,
-};
-
-// Usage:
-<div className="td" style={{ ...tdBaseStyle, /* overrides */ }}>
+          {/* Mã hồ sơ */}
+          <div className="td" style={{ display: 'flex', alignItems: 'center', padding: '0 18px', fontSize: 14, color: 'var(--color-text)', fontWeight: 500, borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
+            <div className="request-code" style={{ display: 'flex', alignItems: 'center', gap: 12, fontWeight: 800, color: 'var(--color-text)' }}>
+              <div className="code-icon" style={{ width: 38, height: 38, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, var(--color-info-muted), var(--color-info-muted))', color: 'var(--color-info)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <path d="M14 2v6h6"/>
+                </svg>
               </div>
               <strong className="text-sm font-bold text-[#0f172a]">{row.id}</strong>
             </div>

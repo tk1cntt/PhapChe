@@ -2,19 +2,17 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
-interface ErrorBoundaryTranslations {
-  title: string;
-  retry: string;
-}
-
 interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
-  translations?: ErrorBoundaryTranslations;
+  translations?: {
+    title: string;
+    retry: string;
+  };
 }
-  translations?: ErrorBoundaryTranslations;
-}
+
+interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
 }
@@ -50,7 +48,10 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         return this.props.fallback;
       }
 
-      const translations = this.props.translations || DEFAULT_TRANSLATIONS;
+      const translations = this.props.translations || {
+        title: 'Đã xảy ra lỗi',
+        retry: 'Thử lại',
+      };
 
       return (
         <div className="flex min-h-[400px] flex-col items-center justify-center p-8">
@@ -108,13 +109,21 @@ function ErrorBoundaryWrapper({
   fallback,
   onError,
 }: ErrorBoundaryWrapperProps): ReactNode {
-  // TODO: Replace with useTranslations() hook once inside NextIntlClientProvider
+  const translations = {
+    title: 'Đã xảy ra lỗi',
+    retry: 'Thử lại',
+  };
+
   return (
-    <ErrorBoundary fallback={fallback} onError={onError} translations={DEFAULT_TRANSLATIONS}>
+    <ErrorBoundary
+      fallback={fallback}
+      onError={onError}
+      translations={translations}
+    >
       {children}
     </ErrorBoundary>
   );
 }
 
 export { ErrorBoundary, ErrorBoundaryWrapper };
-export type { ErrorBoundaryProps };
+export type { ErrorBoundaryProps, ErrorBoundaryState };

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { AlertCircle } from 'lucide-react';
 import { WizardProvider, useWizard } from './WizardProvider';
 import WizardSteps from './WizardSteps';
+import GuidedScenarioSelector from './GuidedScenarioSelector';
 import LegalDomainSelector from './LegalDomainSelector';
 import ServiceTypeList from './ServiceTypeList';
 import IntakeQuestionsFormEnhanced, { validateQuestionsForm } from './IntakeQuestionsFormEnhanced';
@@ -13,6 +14,7 @@ import FileUploadZone from './FileUploadZone';
 import ReviewStep from './ReviewStep';
 import SummaryPanel from './SummaryPanel';
 import ChecklistPanel from './ChecklistPanel';
+import { getSuggestedDomainKeys } from '@/lib/i18n/guided-scenarios';
 import type { WizardState } from '@/lib/types/wizard';
 
 interface CreateRequestFormProps {
@@ -45,6 +47,7 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
 
   // Calculate completed steps
   const completedSteps: number[] = [];
+  if (state.guidedScenario !== null) completedSteps.push(0);
   if (state.domainId) completedSteps.push(1);
   if (state.serviceType) completedSteps.push(2);
   if (Object.keys(state.answers).length > 0) completedSteps.push(3);
@@ -112,7 +115,10 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
   const validateCurrentStep = (): boolean => {
     const errors: Record<string, string> = {};
 
-    if (state.step === 1) {
+    // Step 0 is always valid (scenario selection, no required fields)
+    if (state.step === 0) {
+      // No validation needed - scenario selection is optional (user can skip)
+    } else if (state.step === 1) {
       if (!state.domainId) {
         errors.domainId = t('error.selectDomain');
       }
@@ -161,6 +167,14 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
     }
   };
 
+  // Handle guided scenario selection (Step 0)
+  const handleSelectScenario = (scenarioKey: string) => {
+    const suggestedKeys = getSuggestedDomainKeys(scenarioKey);
+    actions.setGuidedScenario(scenarioKey || '', suggestedKeys);
+    // Move to Step 1 (domain selection with suggested domains)
+    actions.nextStep();
+  };
+
   // Handle next step with validation and auto-save
   const handleNext = async () => {
     if (!validateCurrentStep()) {
@@ -177,7 +191,7 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
 
   // Handle previous step
   const handlePrev = () => {
-    if (state.step > 1) {
+    if (state.step > 0) {
       actions.prevStep();
     }
   };
@@ -244,36 +258,38 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
     <div className="create-request-container">
       {/* Draft Resume Banner */}
       {showDraftBanner && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+        <div className="draft-banner">
+          <div className="draft-banner-inner">
+            <div className="draft-banner-left">
+              <AlertCircle className="draft-banner-icon" />
               <div>
-                <p className="text-sm font-medium text-blue-900">{t('message.resumeDraft')}</p>
-                <p className="text-sm text-blue-700 mt-1">
+                <p className="draft-banner-title">{t('message.resumeDraft')}</p>
+                <p className="draft-banner-desc">
                   {t('message.resumeDraftDesc')}
                 </p>
               </div>
             </div>
             <button
               onClick={handleDeleteDraft}
-              className="text-sm text-red-600 hover:text-red-700 font-medium"
+              className="draft-banner-delete"
             >
-{t('button.startOver')}
+              {t('button.startOver')}
             </button>
           </div>
         </div>
       )}
 
-      {/* Wizard Steps */}
-      <div className="wizard-steps-wrapper">
-        <WizardSteps
-          currentStep={state.step}
-          totalSteps={5}
-          completedSteps={completedSteps}
-          validationErrors={stepErrors}
-        />
-      </div>
+      {/* Wizard Steps - hide in Step 0 (guided discovery) */}
+      {state.step > 0 && (
+        <div className="wizard-steps-wrapper">
+          <WizardSteps
+            currentStep={state.step}
+            totalSteps={6}
+            completedSteps={completedSteps}
+            validationErrors={stepErrors}
+          />
+        </div>
+      )}
 
       {/* Main Grid Layout */}
       <div className="main-grid">
@@ -281,12 +297,25 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
         <div className="form-column">
           <div className="form-card">
             <div className="card-body">
-              {/* Step 1: Domain Selection */}
+              {/* Step 0: Guided Discovery */}
+              {state.step === 0 && (
+                <GuidedScenarioSelector
+                  onSelect={handleSelectScenario}
+                  locale={locale}
+                />
+              )}
+
+              {/* Step 1: Domain Selection — show only suggested domains when available */}
               {state.step === 1 && (
                 <LegalDomainSelector
                   selectedDomainId={state.domainId}
                   onSelect={actions.setDomain}
                   locale={locale}
+                  suggestedDomainKeys={
+                    state.suggestedDomainKeys.length > 0
+                      ? state.suggestedDomainKeys
+                      : undefined
+                  }
                 />
               )}
 
@@ -335,14 +364,13 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
                 />
               )}
 
-              {/* Navigation Buttons */}
-              {state.step < 5 && (
+              {/* Navigation Buttons — hide in Step 0 (scenario cards navigate automatically) */}
+              {state.step > 0 && state.step < 5 && (
                 <div className="form-actions">
                   <button
                     type="button"
                     className="ghost-btn"
                     onClick={handlePrev}
-                    disabled={state.step === 1}
                   >
                     {t('button.back')}
                   </button>
@@ -355,23 +383,25 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
                   </button>
                 </div>
               )}
-            </div>
           </div>
         </div>
-
-        {/* Right Column - Side Panels */}
-        <div className="side-panels">
-          <SummaryPanel
-            selectedDomainId={state.domainId ?? undefined}
-            selectedService={state.serviceType || ''}
-            workspaceName={workspaceName}
-            locale={locale}
-          />
-          <ChecklistPanel
-            selectedService={state.serviceType ?? undefined}
-            locale={locale}
-          />
         </div>
+
+        {/* Right Column - Side Panels — only show from Step 1 onwards (hidden on mobile) */}
+        {state.step > 0 && (
+          <div className="side-panels">
+            <SummaryPanel
+              selectedDomainId={state.domainId ?? undefined}
+              selectedService={state.serviceType || ''}
+              workspaceName={workspaceName}
+              locale={locale}
+            />
+            <ChecklistPanel
+              selectedService={state.serviceType ?? undefined}
+              locale={locale}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -382,7 +412,7 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
  */
 export default function CreateRequestForm(props: CreateRequestFormProps) {
   const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const initialStep = searchParams?.get('step') ? parseInt(searchParams.get('step')!) as 1 | 2 | 3 | 4 | 5 : undefined;
+  const initialStep = searchParams?.get('step') ? parseInt(searchParams.get('step')!) as 0 | 1 | 2 | 3 | 4 | 5 : undefined;
 
   const initialDraft: Partial<WizardState> | undefined = initialStep
     ? { step: initialStep }

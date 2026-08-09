@@ -20,7 +20,8 @@ export async function GET(
   try {
     const session = await requireAppSession(req.headers);
 
-    if (!canAccessRoute('partner', session.roles)) {
+    const allowed = ADMIN_ROUTE_GUARDS.partner;
+    if (!allowed || !session.roles.some(r => allowed.includes(r))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -55,21 +56,17 @@ export async function GET(
 
     // Matter type key (clients translate)
     const matterTypeDisplay = isEnabled('DB_MIGRATION_PHASE4')
-      ? ('matterTypeRef' in request && request.matterTypeRef && typeof request.matterTypeRef === 'object' && 'key' in request.matterTypeRef
-          ? (request.matterTypeRef as { key?: string | null }).key
-          : undefined) ?? request.matterType
+      ? (request as { matterTypeRef?: { key?: string | null } | null }).matterTypeRef?.key ?? request.matterType
       : request.matterType;
-          : undefined) ?? request.matterType
-      : request.matterType;
-    const { matterType, matterTypeId, matterTypeRef: _ref, ...rest } = request as typeof request & { matterTypeRef?: unknown };
+
     return NextResponse.json({
       data: {
-        ...rest,
+        ...request,
         matterTypeDisplay
       }
     });
-      }
-    });
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === "UNAUTHENTICATED") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     if (isStructuredError(error)) {

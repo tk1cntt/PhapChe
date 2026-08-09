@@ -12,8 +12,8 @@ import { DOMAIN_SKILL_MAP } from '@/lib/ai/types';
 
 export async function GET() {
   try {
-    const isLlmReady = isLlmConfigured();
-    const isRagReady = isVectorStoreReady();
+    const llmReady = isLlmConfigured();
+    const ragReady = isVectorStoreReady();
     const models = llmReady ? getAvailableModels() : [];
     const skills = getAllSkills();
     const ragStats = getIndexStats();

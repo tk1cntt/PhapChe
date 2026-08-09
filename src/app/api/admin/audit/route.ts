@@ -3,12 +3,9 @@ import { requireAppSession } from '@/lib/security/session';
 import { getAuditEvents } from '@/lib/audit/audit-service';
 
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
-const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 10;
-const MAX_PAGE_SIZE = 100;
-const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 10;
-const MAX_PAGE_SIZE = 100;
+
+/** Safely parse date string, returning undefined for invalid dates */
+function parseDateParam(s: string | null): string | undefined {
   if (!s) return undefined;
   const d = new Date(s);
   return Number.isNaN(d.getTime()) ? undefined : s;
@@ -25,18 +22,16 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = request.nextUrl;
 
-    const pageRaw = parseInt(searchParams.get('page') ?? String(DEFAULT_PAGE), 10);
-    const pageSizeRaw = Math.min(MAX_PAGE_SIZE, parseInt(searchParams.get('pageSize') ?? String(DEFAULT_PAGE_SIZE), 10));
-    const page = Math.max(1, pageRaw || DEFAULT_PAGE);
-    const pageSize = Math.max(1, pageSizeRaw || DEFAULT_PAGE_SIZE);
+    const page = parseInt(searchParams.get('page') ?? '1', 10);
+    const pageSize = Math.min(100, parseInt(searchParams.get('pageSize') ?? '10', 10));
     const search = searchParams.get('search') || undefined;
     const action = searchParams.get('action') || undefined;
     const dateFrom = parseDateParam(searchParams.get('dateFrom'));
     const dateTo = parseDateParam(searchParams.get('dateTo'));
 
     const result = await getAuditEvents({
-      page,
-      pageSize,
+      page: Math.max(1, page || 1),
+      pageSize: Math.max(1, pageSize || 10),
       search,
       action,
       dateFrom,
@@ -49,11 +44,11 @@ export async function GET(request: NextRequest) {
         createdAt: event.createdAt.toISOString(),
       })),
       total: result.total,
-      page,
-      pageSize,
+      page: Math.max(1, page || 1),
+      pageSize: Math.max(1, pageSize || 10),
     });
-      pageSize,
-    });
+  } catch (error) {
+    console.error('[GET /api/admin/audit]', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

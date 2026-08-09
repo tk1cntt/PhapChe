@@ -450,3 +450,351 @@
 .timeline-content .info-value {
   font-size: var(--text-sm);
 }
+
+/* ═══════════════════════════════════════════
+   Mobile: tablet ≤ 767px
+   ═══════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .case-detail {
+    padding: 0 2px;
+  }
+
+  .case-detail .back-link {
+    margin-bottom: 12px;
+    font-size: 12px;
+  }
+
+  /* Hero — stack: icon + info on top, badge below */
+  .case-hero {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .case-hero-left {
+    gap: 10px;
+  }
+
+  .case-hero-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
+  .case-hero-info h1 {
+    font-size: var(--text-lg);
+    margin-bottom: 4px;
+    line-height: 1.25;
+  }
+
+  .case-hero-kicker {
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+
+  .case-hero-meta {
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  .case-status-badge {
+    align-self: flex-start;
+    font-size: 12px;
+    padding: 5px 12px;
+  }
+
+  /* ── Grid already single column from 1024px rule ── */
+  .case-detail-grid {
+    gap: 12px;
+  }
+
+  /* ── Cards — tighter ── */
+  .detail-card {
+    margin-bottom: 12px;
+    border-radius: 12px;
+  }
+
+  .detail-card-header {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .detail-card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+
+  .detail-card-icon svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .detail-card-header h3 {
+    font-size: var(--text-sm);
+  }
+
+  .detail-card-subtitle {
+    font-size: 11px;
+    margin-top: 1px;
+  }
+
+  .detail-card-body {
+    padding: 14px;
+  }
+
+  /* ── Info grid — keep 2 cols on tablet, single on phone ── */
+  .info-grid {
+    gap: 12px 14px;
+  }
+
+  .info-label {
+    font-size: 10px;
+  }
+
+  .info-value {
+    font-size: var(--text-xs);
+  }
+
+  /* ── SLA card — compact ── */
+  .sla-card {
+    padding: 14px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+  }
+
+  .sla-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .sla-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sla-text strong {
+    font-size: var(--text-xs);
+  }
+
+  .sla-text span {
+    font-size: 11px;
+  }
+
+  /* ── Side list — tighter ── */
+  .side-list {
+    gap: 10px;
+  }
+
+  .side-label {
+    font-size: 10px;
+  }
+
+  .side-value {
+    font-size: var(--text-xs);
+  }
+
+  /* ── Timeline — smaller dots ── */
+  .timeline {
+    gap: 10px;
+  }
+
+  .timeline-item {
+    gap: 10px;
+  }
+
+  .timeline-dot {
+    width: 7px;
+    height: 7px;
+    margin-top: 4px;
+  }
+
+  .timeline-dot.active {
+    box-shadow: 0 0 0 3px var(--color-primary-muted);
+  }
+
+  .timeline-content .info-value {
+    font-size: var(--text-xs);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Mobile: small phone ≤ 479px
+   ═══════════════════════════════════════════ */
+@media (max-width: 479px) {
+  .case-detail .back-link {
+    margin-bottom: 8px;
+    font-size: 11px;
+  }
+
+  /* Hero — ultra compact */
+  .case-hero {
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .case-hero-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .case-hero-info h1 {
+    font-size: 15px;
+    margin-bottom: 2px;
+  }
+
+  .case-hero-kicker {
+    font-size: 9px;
+  }
+
+  .case-hero-meta {
+    gap: 4px;
+    font-size: 10px;
+  }
+
+  .case-hero-dot {
+    width: 2px;
+    height: 2px;
+  }
+
+  .case-status-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .priority-tag {
+    font-size: 9px;
+    padding: 2px 8px;
+  }
+
+  /* ── Grid — minimal gap ── */
+  .case-detail-grid {
+    gap: 8px;
+  }
+
+  /* ── Cards — ultra compact ── */
+  .detail-card {
+    margin-bottom: 8px;
+    border-radius: 10px;
+  }
+
+  .detail-card-header {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .detail-card-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+  }
+
+  .detail-card-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .detail-card-header h3 {
+    font-size: var(--text-xs);
+  }
+
+  .detail-card-subtitle {
+    display: none;
+  }
+
+  .detail-card-body {
+    padding: 10px 12px;
+  }
+
+  /* ── Info grid — single column on small phone ── */
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .info-label {
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+
+  .info-value {
+    font-size: 11px;
+  }
+
+  /* ── SLA card — minimal ── */
+  .sla-card {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+  }
+
+  .sla-card-inner {
+    gap: 10px;
+  }
+
+  .sla-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .sla-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .sla-text strong {
+    font-size: 11px;
+  }
+
+  .sla-text span {
+    font-size: 10px;
+  }
+
+  /* ── Side list — compact ── */
+  .side-list {
+    gap: 8px;
+  }
+
+  .side-item {
+    gap: 1px;
+  }
+
+  .side-label {
+    font-size: 9px;
+  }
+
+  .side-value {
+    font-size: 11px;
+  }
+
+  /* ── Timeline — minimal ── */
+  .timeline {
+    gap: 8px;
+  }
+
+  .timeline-item {
+    gap: 8px;
+  }
+
+  .timeline-dot {
+    width: 6px;
+    height: 6px;
+    margin-top: 3px;
+  }
+
+  .timeline-dot.active {
+    box-shadow: 0 0 0 2px var(--color-primary-muted);
+  }
+
+  .timeline-content .info-label {
+    font-size: 9px;
+    margin-bottom: 1px;
+  }
+
+  .timeline-content .info-value {
+    font-size: 11px;
+  }
+}

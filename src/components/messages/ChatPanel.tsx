@@ -13,6 +13,8 @@ export interface ChatPanelProps {
   onSendMessage: (message: string) => void;
   disabled?: boolean;
   currentUserId?: string;
+  /** Hide the built-in .chat-header — used on mobile where MessagesClient renders its own header */
+  hideHeader?: boolean;
 }
 
 /**
@@ -24,35 +26,28 @@ export interface ChatPanelProps {
  * - .msg.in: background #f1f5f9, color #0f172a
  * - .msg.out: background #087f78, color #fff, margin-left auto
  */
-// Option A — group header fields:
-// interface ChatPanelProps {
-//   thread: { title: string; specialist: { name: string; status?: 'online' | 'offline' } };
-//   messages: MessageData[];
-//   onSendMessage: (message: string) => void;
-//   disabled?: boolean;
-//   currentUserId?: string;
-// }
+function ChatPanel({
+  threadTitle,
+  specialistName,
+  specialistStatus = 'online',
+  messages,
+  onSendMessage,
+  disabled = false,
+  currentUserId,
+  hideHeader = false,
+}: ChatPanelProps): React.ReactElement {
+  const t = useTranslations('UserMessages');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-function ChatPanel({
-  threadTitle,
-  specialistName,
-  specialistStatus = 'online',
-  messages,
-  onSendMessage,
-  disabled = false,
-  currentUserId,
-}: ChatPanelProps): React.ReactElement {
-function ChatPanel({
-  threadTitle,
-  specialistName,
-  specialistStatus = 'online',
-  messages,
-  onSendMessage,
-  disabled = false,
-  currentUserId,
-}: ChatPanelProps): React.ReactElement {
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  return (
     <div className="chat-panel">
-      {/* Header */}
+      {/* Header — hidden on mobile (MessagesClient renders its own header) */}
+      {!hideHeader && (
       <div className="chat-header">
         <div className="chat-header-info">
           <h3>{threadTitle}</h3>
@@ -62,6 +57,7 @@ function ChatPanel({
           </p>
         </div>
       </div>
+      )}
 
       {/* Message List */}
       <div className="msg-list">

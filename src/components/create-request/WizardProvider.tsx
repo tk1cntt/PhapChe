@@ -8,9 +8,10 @@ import { initialWizardState } from '@/lib/types/wizard';
  * Action helpers exposed via context
  */
 interface WizardActions {
-  goToStep: (step: 1 | 2 | 3 | 4 | 5) => void;
+  goToStep: (step: 0 | 1 | 2 | 3 | 4 | 5) => void;
   nextStep: () => void;
   prevStep: () => void;
+  setGuidedScenario: (scenarioKey: string, suggestedDomainKeys: string[]) => void;
   setDomain: (domainId: string) => void;
   setService: (serviceType: string) => void;
   setAnswer: (key: string, value: string) => void;
@@ -38,6 +39,8 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
   switch (action.type) {
     case 'SET_STEP':
       return { ...state, step: action.payload };
+    case 'SET_GUIDED_SCENARIO':
+      return { ...state, guidedScenario: action.payload.scenarioKey, suggestedDomainKeys: action.payload.suggestedDomainKeys, isDirty: true };
     case 'SET_DOMAIN':
       return { ...state, domainId: action.payload, serviceType: null, answers: {}, isDirty: true };
     case 'SET_SERVICE':
@@ -79,17 +82,20 @@ export function WizardProvider({ children, initialDraft }: WizardProviderProps) 
   const [state, dispatch] = useReducer(wizardReducer, initialState);
 
   const actions: WizardActions = {
-    goToStep: useCallback((step: 1 | 2 | 3 | 4 | 5) => {
+    goToStep: useCallback((step: 0 | 1 | 2 | 3 | 4 | 5) => {
       dispatch({ type: 'SET_STEP', payload: step });
     }, []),
     nextStep: useCallback(() => {
-      const next = Math.min(state.step + 1, 5) as 1 | 2 | 3 | 4 | 5;
+      const next = Math.min(state.step + 1, 5) as 0 | 1 | 2 | 3 | 4 | 5;
       dispatch({ type: 'SET_STEP', payload: next });
     }, [state.step]),
     prevStep: useCallback(() => {
-      const prev = Math.max(state.step - 1, 1) as 1 | 2 | 3 | 4 | 5;
+      const prev = Math.max(state.step - 1, 0) as 0 | 1 | 2 | 3 | 4 | 5;
       dispatch({ type: 'SET_STEP', payload: prev });
     }, [state.step]),
+    setGuidedScenario: useCallback((scenarioKey: string, suggestedDomainKeys: string[]) => {
+      dispatch({ type: 'SET_GUIDED_SCENARIO', payload: { scenarioKey, suggestedDomainKeys } });
+    }, []),
     setDomain: useCallback((domainId: string) => {
       dispatch({ type: 'SET_DOMAIN', payload: domainId });
     }, []),
@@ -124,7 +130,7 @@ export function WizardProvider({ children, initialDraft }: WizardProviderProps) 
 
   // Draft auto-save: trigger when step changes and state is dirty
   useEffect(() => {
-    if (!state.isDirty || state.step === 1) return;
+    if (!state.isDirty || state.step <= 1) return;
 
     let timeoutId: ReturnType<typeof setTimeout>;
     const saveDraft = async () => {

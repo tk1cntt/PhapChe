@@ -1,6 +1,6 @@
 /**
  * Wizard State Type Definitions
- * TypeScript types for the 5-step create request wizard
+ * TypeScript types for the 6-step create request wizard (Step 0 = guided discovery)
  */
 
 /**
@@ -23,11 +23,15 @@ export interface ContactInfo {
 }
 
 /**
- * Wizard state for the 5-step create request flow
+ * Wizard state for the 6-step create request flow
  */
 export interface WizardState {
-  step: 1 | 2 | 3 | 4 | 5;
+  step: 0 | 1 | 2 | 3 | 4 | 5;
+  /** Guided scenario key from Step 0 (empty string = skip to all domains) */
+  guidedScenario: string | null;
   domainId: string | null;
+  /** Suggested domain keys derived from guided scenario (Step 0) */
+  suggestedDomainKeys: string[];
   serviceType: string | null;
   answers: Record<string, string>;
   files: UploadedFile[];
@@ -41,7 +45,8 @@ export interface WizardState {
  * Wizard actions for useReducer
  */
 export type WizardAction =
-  | { type: 'SET_STEP'; payload: 1 | 2 | 3 | 4 | 5 }
+  | { type: 'SET_STEP'; payload: 0 | 1 | 2 | 3 | 4 | 5 }
+  | { type: 'SET_GUIDED_SCENARIO'; payload: { scenarioKey: string; suggestedDomainKeys: string[] } }
   | { type: 'SET_DOMAIN'; payload: string }
   | { type: 'SET_SERVICE'; payload: string }
   | { type: 'SET_ANSWER'; payload: { key: string; value: string } }
@@ -57,8 +62,10 @@ export type WizardAction =
  * Initial wizard state
  */
 export const initialWizardState: WizardState = {
-  step: 1,
+  step: 0,
+  guidedScenario: null,
   domainId: null,
+  suggestedDomainKeys: [],
   serviceType: null,
   answers: {},
   files: [],

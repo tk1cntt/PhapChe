@@ -22,6 +22,8 @@ interface LegalDomainSelectorProps {
   selectedDomainId: string | null;
   onSelect: (domainId: string) => void;
   locale?: string;
+  /** If provided and non-empty, only show these domain keys (from guided scenario) */
+  suggestedDomainKeys?: string[];
 }
 
 const ICON_MAP: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -44,21 +46,33 @@ export default function LegalDomainSelector({
   selectedDomainId,
   onSelect,
   locale = 'vi',
+  suggestedDomainKeys,
 }: LegalDomainSelectorProps) {
   const t = useTranslations('CreateRequest');
-  const domains = getLegalDomains();
+  const allDomains = Object.values(SEED_LEGAL_DOMAINS);
+
+  // Filter to suggested domains only if provided
+  const domains = suggestedDomainKeys && suggestedDomainKeys.length > 0
+    ? allDomains.filter((d) => suggestedDomainKeys.includes(d.key))
+    : allDomains;
 
   return (
     <div className="w-full">
-      <h2 className="domain-title">{t('domainTitle')}</h2>
+      <h2 className="domain-title">
+        {t('domainTitle')}
+        {suggestedDomainKeys && suggestedDomainKeys.length > 0 && (
+          <span style={{ fontSize: '13px', fontWeight: 500, color: '#64748b', marginLeft: '10px' }}>
+            {t('guided.suggestedForYou')}
+          </span>
+        )}
+      </h2>
       <div className="domain-grid">
         {domains.map((domain) => {
           const Icon = ICON_MAP[domain.icon] || Briefcase;
           const isSelected = selectedDomainId === domain.key;
-          const t = getLocalizedString;
-          const label = t(domain.label, locale);
-          const description = t(domain.description, locale);
-          const description = t(domain.description, locale);
+          const label = domain.label[locale as keyof typeof domain.label] || domain.label.vi;
+          const description = domain.description[locale as keyof typeof domain.description] || domain.description.vi;
+          const serviceCount = domain.matterTypeKeys.length;
 
           return (
             <button

@@ -665,6 +665,10 @@
   font-weight: 500;
   color: var(--color-text);
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
 }
 
 .uploaded-file-item .file-details span {
@@ -1453,5 +1457,1003 @@
 
   .files-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Step 0: Guided Scenario Selector — khớp domain-card design system
+   ══════════════════════════════════════════════════════════════════ */
+
+/* --- Section intro --- */
+.guided-intro {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.guided-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 10px;
+  letter-spacing: -0.4px;
+}
+
+.guided-subtitle {
+  font-size: 15px;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  max-width: 560px;
+  margin: 0 auto;
+  font-weight: 500;
+}
+
+/* --- Card grid --- */
+.guided-scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* --- Card — full reset of native button styles — khớp .domain-card --- */
+.guided-scenario-card {
+  all: unset;
+  position: relative;
+  height: 160px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-sizing: border-box;
+  color: var(--color-text);
+}
+
+.guided-scenario-card:hover {
+  border-color: oklch(0.52 0.09 185 / 0.35);
+  background: oklch(0.98 0.02 185);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.guided-scenario-card:active {
+  transform: translateY(0);
+  background: var(--color-primary-muted);
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px oklch(0.52 0.09 185 / 0.1);
+}
+
+.guided-scenario-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* "Other" card — dashed border, secondary treatment */
+.guided-scenario-card.other {
+  border-style: dashed;
+  border-color: #cbd5e1;
+  background: var(--color-bg);
+}
+
+.guided-scenario-card.other:hover {
+  border-color: #94a3b8;
+  background: oklch(0.96 0.01 240);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.guided-scenario-card.other:active {
+  background: #e2e8f0;
+  border-color: #64748b;
+}
+
+/* --- Icon container — khớp .domain-icon gradient --- */
+.guided-scenario-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #d4f4ed, #eefbf8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  line-height: 1;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.guided-scenario-card:hover .guided-scenario-icon {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #ccfbf1, #f0fdfa);
+}
+
+.guided-scenario-card:active .guided-scenario-icon {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: #fff;
+}
+
+.guided-scenario-card.other .guided-scenario-icon {
+  background: linear-gradient(135deg, #e2e8f0, #f1f5f9);
+}
+
+.guided-scenario-card.other:hover .guided-scenario-icon {
+  background: linear-gradient(135deg, #cbd5e1, #e2e8f0);
+}
+
+/* --- Card label --- */
+.guided-scenario-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+/* --- Skip link — khớp .ghost-btn --- */
+.guided-skip {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 45px;
+  padding: 0 20px;
+  margin-top: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.guided-skip:hover {
+  border-color: oklch(0.52 0.09 185 / 0.35);
+  background: var(--color-primary-muted);
+  color: var(--color-primary);
+}
+
+.guided-skip:active {
+  background: oklch(0.94 0.025 185 / 0.6);
+}
+
+.guided-skip svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.guided-skip:hover svg {
+  transform: translateX(3px);
+}
+
+.guided-skip:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ═══ Responsive: mobile ═══ */
+@media (max-width: 767px) {
+  .guided-intro {
+    margin-bottom: 24px;
+  }
+
+  .guided-title {
+    font-size: 20px;
+  }
+
+  .guided-subtitle {
+    font-size: 14px;
+    padding: 0 8px;
+  }
+
+  .guided-scenario-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .guided-scenario-card {
+    height: auto;
+    min-height: 72px;
+    padding: 16px;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .guided-scenario-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    font-size: 22px;
+    margin-bottom: 0;
+  }
+
+  .guided-scenario-label {
+    font-size: 14px;
+    flex: 1;
+  }
+
+  .guided-skip {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 479px) {
+  .guided-title {
+    font-size: 18px;
+  }
+
+  .guided-subtitle {
+    font-size: 13px;
+  }
+
+  .guided-scenario-card {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .guided-scenario-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    font-size: 20px;
+  }
+
+  .guided-scenario-label {
+    font-size: 13px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — all wizard steps
+   Breakpoints: ≤ 1024px (tablet/small desktop), ≤ 767px (tablet/mobile), ≤ 479px (phone)
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Page header ── */
+@media (max-width: 767px) {
+  .page-header {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .page-header h1 {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+
+  .page-header .subtitle {
+    font-size: 13px;
+  }
+
+  .header-actions {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .header-actions .ghost-btn,
+  .header-actions .create-btn {
+    flex: 1;
+    justify-content: center;
+    height: 40px;
+    font-size: 13px;
+  }
+}
+
+/* ── Wizard Steps — compact dots-only on mobile ── */
+@media (max-width: 767px) {
+  .wizard-steps-wrapper {
+    padding: 12px 8px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .wizard-steps-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .wizard-steps-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+    min-width: 100%;
+  }
+
+  .wizard-step-item {
+    flex: 0;
+  }
+
+  .wizard-step-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+
+  .wizard-step-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .wizard-step-label {
+    display: none;
+  }
+
+  .wizard-step-connector {
+    width: 14px;
+    margin: 0 2px;
+    flex: 0 0 auto;
+  }
+}
+
+/* ── Main grid → single column ── */
+@media (max-width: 1024px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .side-panels {
+    order: 99; /* below form on mobile */
+  }
+}
+
+/* ── Side panels — collapsible on mobile ── */
+@media (max-width: 767px) {
+  .side-panels {
+    display: none;
+  }
+
+  .side-panels.mobile-visible {
+    display: flex;
+    gap: 12px;
+  }
+
+  .side-card {
+    border-radius: 12px;
+    margin-bottom: 0;
+  }
+
+  .side-card .card-header {
+    padding: 14px 16px;
+  }
+
+  .side-card .card-body {
+    padding: 14px 16px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    gap: 8px;
+  }
+
+  .card-title svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* ── Mobile side panel toggle button ── */
+.side-panel-toggle {
+  display: none;
+  width: 100%;
+  height: 42px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  margin-top: 16px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.side-panel-toggle:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.side-panel-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 767px) {
+  .side-panel-toggle {
+    display: flex;
+  }
+}
+
+/* ── Form card ── */
+@media (max-width: 767px) {
+  .form-card {
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  }
+
+  .form-card .card-body {
+    padding: 16px;
+  }
+}
+
+/* ── Step 1: Domain Grid ── */
+@media (max-width: 1200px) {
+  .domain-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .domain-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .domain-title {
+    font-size: 17px;
+    margin-bottom: 12px;
+  }
+
+  .domain-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .domain-card {
+    height: auto;
+    min-height: 56px;
+    padding: 12px 14px;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .domain-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .domain-name {
+    font-size: 14px;
+    margin-bottom: 0;
+    flex: 1;
+  }
+
+  .domain-count {
+    position: static;
+    font-size: 10px;
+    padding: 2px 8px;
+    margin-left: 0;
+    margin-top: 0;
+    flex-shrink: 0;
+  }
+
+  .domain-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .domain-desc {
+    display: none;
+  }
+}
+
+@media (max-width: 479px) {
+  .domain-card {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .domain-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+  }
+
+  .domain-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .domain-name {
+    font-size: 13px;
+  }
+}
+
+/* ── Step 2: Service Options ── */
+@media (max-width: 767px) {
+  .domain-subtitle {
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+
+  .service-list {
+    gap: 10px;
+  }
+
+  .service-option {
+    grid-template-columns: 18px 1fr;
+    padding: 14px;
+    border-radius: 10px;
+    gap: 10px;
+  }
+
+  .service-meta {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .service-info strong {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .service-info span {
+    font-size: 12px;
+  }
+
+  .tag {
+    height: 24px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 479px) {
+  .service-option {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .service-info strong {
+    font-size: 12px;
+  }
+}
+
+/* ── Step 3: Questions Form ── */
+@media (max-width: 767px) {
+  .step-title {
+    font-size: 17px;
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+
+  .questions-list {
+    gap: 14px;
+  }
+
+  .question-label {
+    font-size: 12px;
+  }
+
+  .question-input {
+    height: 40px;
+    font-size: 13px;
+    padding: 0 12px;
+  }
+
+  .question-textarea {
+    height: 80px;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .field-error {
+    font-size: 12px;
+  }
+
+  .required-note {
+    font-size: 11px;
+  }
+}
+
+/* ── Step 4: File Upload ── */
+@media (max-width: 767px) {
+  .upload-zone {
+    padding: 24px 16px;
+    border-radius: 10px;
+  }
+
+  .upload-icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 12px;
+  }
+
+  .upload-text {
+    font-size: 13px;
+  }
+
+  .upload-hint {
+    font-size: 11px;
+  }
+
+  .files-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .uploaded-file-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+
+  .file-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .file-details p {
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 180px;
+  }
+
+  .file-details span {
+    font-size: 11px;
+  }
+}
+
+/* ── Step 5: Review — responsive ── */
+@media (max-width: 1024px) {
+  .review-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .review-actions {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .review-grid {
+    gap: 12px;
+  }
+
+  .review-summary {
+    gap: 10px;
+  }
+
+  .review-card {
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
+
+  .review-card-title {
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+
+  .review-card-header {
+    margin-bottom: 10px;
+  }
+
+  .review-card-content {
+    gap: 10px;
+  }
+
+  .review-row {
+    gap: 2px;
+  }
+
+  .review-label {
+    font-size: 11px;
+  }
+
+  .review-value {
+    font-size: 13px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .edit-btn {
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .edit-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* File list in review */
+  .files-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .files-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .file-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .file-size {
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+    font-size: 11px;
+  }
+
+  /* Priority */
+  .priority-options {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .priority-content {
+    padding: 10px 12px;
+  }
+
+  .priority-label {
+    font-size: 13px;
+  }
+
+  .priority-desc {
+    font-size: 11px;
+  }
+
+  /* Contact form */
+  .contact-form {
+    gap: 10px;
+  }
+
+  .form-field label {
+    font-size: 12px;
+  }
+
+  .form-input {
+    height: 40px;
+    font-size: 13px;
+    padding: 0 12px;
+  }
+
+  /* Action card */
+  .review-actions {
+    z-index: 5;
+  }
+
+  .action-card {
+    padding: 14px;
+    border-radius: 10px;
+    gap: 12px;
+  }
+
+  .action-title {
+    font-size: 15px;
+  }
+
+  .check-list {
+    gap: 8px;
+  }
+
+  .check-item {
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .check-item svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .submit-btn {
+    height: 46px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+
+  .submit-note {
+    font-size: 11px;
+  }
+
+  /* Error box */
+  .error-box {
+    padding: 10px 12px;
+    border-radius: 6px;
+  }
+
+  .error-box p {
+    font-size: 12px;
+  }
+
+  .retry-btn {
+    font-size: 11px;
+  }
+
+  /* Success modal */
+  .success-overlay {
+    padding: 16px;
+  }
+
+  .success-modal {
+    padding: 24px 20px;
+    max-width: 92vw;
+    border-radius: 14px;
+  }
+
+  .success-icon-large {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 12px;
+  }
+
+  .success-icon-large svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .success-title {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .success-desc {
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+
+  .success-redirect {
+    font-size: 12px;
+    gap: 6px;
+  }
+}
+
+/* ── Navigation buttons — responsive on mobile ── */
+@media (max-width: 767px) {
+  .form-actions {
+    flex-direction: row;
+    padding-top: 16px;
+    margin-top: 16px;
+    gap: 8px;
+    background: var(--color-surface);
+  }
+
+  .form-actions .ghost-btn,
+  .form-actions .create-btn {
+    flex: 1;
+    height: 44px;
+    font-size: 13px;
+  }
+}
+
+/* ── Draft banner ── */
+.draft-banner {
+  background: var(--color-primary-muted);
+  border: 1px solid oklch(0.52 0.09 185 / 0.18);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.draft-banner-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.draft-banner-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.draft-banner-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.draft-banner-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.draft-banner-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+}
+
+.draft-banner-delete {
+  all: unset;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-danger);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 4px 0;
+  font-family: inherit;
+}
+
+.draft-banner-delete:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+  .draft-banner {
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .draft-banner-title {
+    font-size: 13px;
+  }
+
+  .draft-banner-desc {
+    font-size: 12px;
+  }
+
+  .draft-banner-delete {
+    font-size: 12px;
+  }
+}
+
+/* ── Back button ── */
+@media (max-width: 767px) {
+  .back-btn {
+    font-size: 13px;
+    gap: 6px;
+    padding: 6px 0;
+    margin-bottom: 12px;
   }
 }

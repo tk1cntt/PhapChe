@@ -1402,11 +1402,20 @@
     "workspace": "工作区",
     "wizard": {
       "stepTitle": "步骤{step}：{label}",
+      "step0": "开始",
       "step1": "领域",
       "step2": "服务",
       "step3": "信息",
       "step4": "文档",
       "step5": "确认"
+    },
+    "guided": {
+      "title": "您需要哪方面的帮助？",
+      "description": "选择最符合您情况的情境——我们将为您推荐相关的法律领域。",
+      "skipToAllDomains": "我知道需要的法律领域——查看所有领域",
+      "suggestedForYou": "（为您推荐）",
+      "showGuide": "查看指南",
+      "hideGuide": "隐藏指南"
     },
     "domain": {
       "commercial-legal": "商业",

@@ -17,36 +17,30 @@ interface AdminVaultTagsPanelProps {
   tags: VaultTag[];
 }
 
-const STYLE_INFO = { bg: '#dbeafe', color: 'var(--color-info)' } as const;
-const STYLE_DANGER = { bg: '#ffe4e6', color: 'var(--color-danger)' } as const;
-const STYLE_PURPLE = { bg: '#ede9fe', color: '#7c3aed' } as const;
-const STYLE_PRIMARY = { bg: '#ccfbf1', color: 'var(--color-primary)' } as const;
-const STYLE_DEFAULT = { bg: '#eef2f7', color: 'var(--color-text-secondary)' } as const;
-
 const tagColorMap: Record<string, { bg: string; color: string }> = {
-  contract: STYLE_INFO,
-  urgent: STYLE_DANGER,
-  internal: STYLE_PURPLE,
-  compliance: STYLE_PRIMARY,
-  dpa: STYLE_PRIMARY,
-  nda: STYLE_PURPLE,
-  sla: STYLE_DANGER,
+  contract: { bg: '#dbeafe', color: 'var(--color-info)' },
+  urgent: { bg: '#ffe4e6', color: 'var(--color-danger)' },
+  internal: { bg: '#ede9fe', color: '#7c3aed' },
+  compliance: { bg: '#ccfbf1', color: 'var(--color-primary)' },
+  dpa: { bg: '#ccfbf1', color: 'var(--color-primary)' },
+  nda: { bg: '#ede9fe', color: '#7c3aed' },
+  sla: { bg: '#ffe4e6', color: 'var(--color-danger)' },
 };
-  internal: STYLE_PURPLE,
-  compliance: STYLE_PRIMARY,
-  dpa: STYLE_PRIMARY,
-  nda: STYLE_PURPLE,
-  sla: STYLE_DANGER,
-};
+
+function getTagChipStyle(keyOrColor?: string): { bg: string; color: string } {
+  if (!keyOrColor) return { bg: '#eef2f7', color: 'var(--color-text-secondary)' };
+  const lower = keyOrColor.toLowerCase();
+  return tagColorMap[lower] ?? { bg: '#eef2f7', color: 'var(--color-text-secondary)' };
+}
 
 export function AdminVaultTagsPanel({ tags }: AdminVaultTagsPanelProps) {
   const t = useTranslations('Vault');
   const [search, setSearch] = useState('');
 
-  const filteredTags = tags.filter((tag) => {
-    const label = tag.label || tag.key || '';
+  const filteredTags = tags.filter((tg) => {
+    const label = tg.label || tg.key || '';
     return label.toLowerCase().includes(search.toLowerCase()) ||
-           tag.key.toLowerCase().includes(search.toLowerCase());
+           tg.key.toLowerCase().includes(search.toLowerCase());
   });
 
   return (

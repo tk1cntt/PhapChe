@@ -13,86 +13,62 @@ import { hasPermission } from '@/lib/services/partner-auth-service';
 
 export async function GET(req: NextRequest) {
   try {
-type AuthResult =
-  | { success: true; member: Awaited<ReturnType<typeof getPartnerMember>> }
-  | { success: false; response: NextResponse };
+    // Get session from request headers (better-auth reads from cookie)
+    const session = await auth.api.getSession({
+      headers: req.headers,
+    });
 
-async function authorizePartnerMember(
-  req: NextRequest,
-  requiredPermissions: string[],
-): Promise<AuthResult> {
-  const session = await auth.api.getSession({ headers: req.headers });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-  if (!session?.user?.id) {
-    return { success: false, response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
-  }
+    // Get partner context
+    const member = await prisma.partnerMember.findFirst({
+      where: {
+        userId: session.user.id,
+        isActive: true,
+        partner: { status: 'active' },
+      },
+      include: { partner: true },
+    });
 
-  const member = await prisma.partnerMember.findFirst({
-    where: {
-      userId: session.user.id,
-      isActive: true,
-      partner: { status: 'active' },
-    },
-    include: { partner: true },
-  });
+    if (!member) {
+      return NextResponse.json({ error: 'Not a partner member' }, { status: 403 });
+    }
 
-  if (!member) {
-    return { success: false, response: NextResponse.json({ error: 'Not a partner member' }, { status: 403 }) };
-  }
+    // Check if user has permission to view invites
+    if (!hasPermission(member.role, 'view_members') && !hasPermission(member.role, 'manage_members')) {
+      return NextResponse.json(
+        { error: 'Permission denied' },
+        { status: 403 }
+      );
+    }
 
-  const authorized = requiredPermissions.some((p) => hasPermission(member.role, p));
-  if (!authorized) {
-    return { success: false, response: NextResponse.json({ error: 'Permission denied' }, { status: 403 }) };
-  }
+    // Get pending invites
+    const invites = await partnerInviteService.listPendingInvites(member.partnerId);
 
-  return { success: true, member };
-}
-
-  if (!member) {
-    return { success: false, response: NextResponse.json({ error: 'Not a partner member' }, { status: 403 }) };
-  }
-
-  const authorized = requiredPermissions.some((p) => hasPermission(member.role, p));
-  if (!authorized) {
-    return { success: false, response: NextResponse.json({ error: 'Permission denied' }, { status: 403 }) };
-  }
-
-  return { success: true, member };
-}
     return NextResponse.json({
       success: true,
       data: invites.map(invite => ({
-function toInviteDto(invite: {
-  id: string;
-  email: string;
-  role: string;
-  status: string;
-  expiresAt: Date;
-  invitedBy: string;
-  createdAt: Date;
-}) {
-  return {
-    id: invite.id,
-    email: invite.email,
-    role: invite.role,
-    status: invite.status,
-    expiresAt: invite.expiresAt,
-    invitedBy: invite.invitedBy,
-    createdAt: invite.createdAt,
-  };
+        id: invite.id,
+        email: invite.email,
+        role: invite.role,
+        status: invite.status,
+        expiresAt: invite.expiresAt,
+        invitedBy: invite.invitedBy,
+        createdAt: invite.createdAt,
+      })),
+      total: invites.length,
+    });
+  } catch (error) {
+    console.error('Get invites error:', error);
+    return NextResponse.json({ error: 'Failed to get invites' }, { status: 500 });
+  }
 }
-  createdAt: Date;
-}) {
-  return {
-    id: invite.id,
-    email: invite.email,
-    role: invite.role,
-    status: invite.status,
-    expiresAt: invite.expiresAt,
-    invitedBy: invite.invitedBy,
-    createdAt: invite.createdAt,
-  };
-}
+
+export async function POST(req: NextRequest) {
+  try {
+    // Get session from request headers (better-auth reads from cookie)
     const session = await auth.api.getSession({
       headers: req.headers,
     });
@@ -134,23 +110,18 @@ function toInviteDto(invite: {
       );
     }
 
-    // Normalize and validate email format
-    const normalizedEmail = email.trim();
+    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(normalizedEmail)) {
+    if (!emailRegex.test(email)) {
       return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
-    }
+
     // Validate role
-const VALID_PARTNER_ROLES = ['admin', 'specialist', 'viewer'] as const;
-type PartnerRole = (typeof VALID_PARTNER_ROLES)[number];
+    const validRoles = ['admin', 'specialist', 'viewer'];
+    if (!validRoles.includes(role)) {
+      return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+    }
 
-// … inside POST:
-    if (!VALID_PARTNER_ROLES.includes(role)) {
-type PartnerRole = (typeof VALID_PARTNER_ROLES)[number];
-
-// … inside POST:
-    if (!VALID_PARTNER_ROLES.includes(role)) {
     // Create invite
     const result = await partnerInviteService.createInvite({
       partnerId: member.partnerId,

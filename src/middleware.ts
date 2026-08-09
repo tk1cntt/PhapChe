@@ -85,12 +85,12 @@ export default async function middleware(request: NextRequest) {
   }
 
   // ── Step 1: Locale preference redirect ──
-  const preferredLocale = request.cookies.get(LOCALE_COOKIE)?.value;
+  // Mặc định tiếng Việt nếu chưa có cookie
+  const preferredLocale = request.cookies.get(LOCALE_COOKIE)?.value || 'vi';
   const segments = pathname.split('/').filter(Boolean);
   const currentLocale = segments[0];
 
-  if (preferredLocale &&
-      routing.locales.includes(preferredLocale as typeof routing.locales[number]) &&
+  if (routing.locales.includes(preferredLocale as typeof routing.locales[number]) &&
       preferredLocale !== currentLocale &&
       currentLocale &&
       routing.locales.includes(currentLocale as typeof routing.locales[number])) {
@@ -107,12 +107,10 @@ export default async function middleware(request: NextRequest) {
   const intlMiddleware = createMiddleware(routing);
   const response = await intlMiddleware(request);
 
-  // Preserve locale cookie
-  if (preferredLocale && routing.locales.includes(preferredLocale as typeof routing.locales[number])) {
-    response.cookies.set(LOCALE_COOKIE, preferredLocale, {
-      path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax',
-    });
-  }
+  // Always preserve locale cookie (defaults to 'vi')
+  response.cookies.set(LOCALE_COOKIE, preferredLocale, {
+    path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax',
+  });
 
   // ── Step 3: Session gate (Edge-safe — cookie check only) ──
   // Kiểm tra session cookie từ request.

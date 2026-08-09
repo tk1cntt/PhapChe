@@ -12,18 +12,16 @@ export interface SettingsTabConfig {
   icon: React.ReactNode;
 }
 
-const ICON_SIZE = 18;
-
 const tabs: SettingsTabConfig[] = [
-  { id: 'profile', labelKey: 'tabProfile', icon: <User size={ICON_SIZE} /> },
-  { id: 'security', labelKey: 'tabSecurity', icon: <Shield size={ICON_SIZE} /> },
-  { id: 'notifications', labelKey: 'tabNotifications', icon: <Bell size={ICON_SIZE} /> },
-  { id: 'workspace', labelKey: 'tabWorkspace', icon: <Building2 size={ICON_SIZE} /> },
-  { id: 'language', labelKey: 'tabLanguage', icon: <Globe size={ICON_SIZE} /> },
-  { id: 'audit', labelKey: 'tabAudit', icon: <FileText size={ICON_SIZE} /> },
+  { id: 'profile', labelKey: 'tabProfile', icon: <User size={18} /> },
+  { id: 'security', labelKey: 'tabSecurity', icon: <Shield size={18} /> },
+  { id: 'notifications', labelKey: 'tabNotifications', icon: <Bell size={18} /> },
+  { id: 'workspace', labelKey: 'tabWorkspace', icon: <Building2 size={18} /> },
+  { id: 'language', labelKey: 'tabLanguage', icon: <Globe size={18} /> },
+  { id: 'audit', labelKey: 'tabAudit', icon: <FileText size={18} /> },
 ];
-  { id: 'audit', labelKey: 'tabAudit', icon: <FileText size={ICON_SIZE} /> },
-];
+
+export interface SettingsMenuProps {
   activeTab: SettingsTab;
   onTabChange: (tab: SettingsTab) => void;
 }

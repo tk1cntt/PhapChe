@@ -8,5 +8,4 @@ tsconfig.tsbuildinfo
 # Database WAL and SHM files (temporary, can be regenerated)
 *.db-wal
 *.db-shm
-
 .opencodereview

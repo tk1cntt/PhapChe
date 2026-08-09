@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Building2, Plus, Users } from 'lucide-react';
+import { Building2, Plus, Users, Settings } from 'lucide-react';
 import '@/styles/pages/admin/workspace.css';
 
 interface Workspace {
@@ -60,23 +60,24 @@ export default function AdminWorkspaceClient() {
             Mỗi SME có workspace riêng để hiển thị membership và giảm rủi ro lộ dữ liệu giữa tenant.
           </p>
         </div>
-        <CreateWorkspaceButton />
+        <button className="create-btn">
+          <Plus size={18} />
+          Tạo workspace
+        </button>
       </div>
 
-      {/* Permission Card — only show when access is actually denied */}
-      {accessDenied && (
-        <div className="permission-card">
-          <div className="permission-title">
-            <Building2 size={22} />
-            Ranh giới quyền truy cập
-          </div>
-          <p>
-            Bạn không có quyền xem nội dung này. Nếu cần truy cập, hãy liên hệ quản trị viên.
-          </p>
+      {/* Permission Card */}
+      <div className="permission-card">
+        <div className="permission-title">
+          <Building2 size={22} />
+          Ranh giới quyền truy cập
         </div>
-      )}
-        </div>
-      )}
+        <p>
+          Bạn không có quyền xem nội dung này. Nếu cần truy cập, hãy liên hệ quản trị viên.
+        </p>
+      </div>
+
+      {/* Error state */}
       {error && (
         <div className="workspace-error-card">
           <div className="workspace-error-header">
@@ -132,7 +133,7 @@ export default function AdminWorkspaceClient() {
 
               {/* Members */}
               <div className="workspace-td">
-                <div className="workspace-members-row">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Users size={16} color="#64748b" />
                   <span className="workspace-members">
                     {workspace.memberCount} thành viên

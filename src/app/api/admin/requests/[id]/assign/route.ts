@@ -14,7 +14,7 @@ export async function PATCH(
   try {
     const session = await requireAppSession();
 
-    const hasAdminRole = session.roles?.some((role) => ADMIN_ROLES.includes(role as typeof ADMIN_ROLES[number]));
+    const hasAdminRole = session.roles?.some((role) => (ADMIN_ROLES as readonly string[]).includes(role));
     if (!hasAdminRole) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -50,21 +50,30 @@ export async function PATCH(
     }
 
     // Validate users inline before transaction
-    // Validate assigned users share same workspace and correct role
     if (specialistId) {
-      const error = await validateRoleUser(specialistId, 'specialist', existingRequest.workspaceId, 'Specialist');
-      if (error) return NextResponse.json({ error }, { status: 400 });
+      const specialist = await prisma.user.findUnique({
+        where: { id: specialistId },
+        include: { memberships: { where: { workspaceId: existingRequest.workspaceId, role: 'specialist', isActive: true } } },
+      });
+      if (!specialist || specialist.memberships.length === 0) {
+        return NextResponse.json({ error: 'Specialist not found or not a specialist in this workspace' }, { status: 400 });
+      }
     }
 
     if (reviewerId) {
-      const error = await validateRoleUser(reviewerId, 'reviewer', existingRequest.workspaceId, 'Reviewer');
-      if (error) return NextResponse.json({ error }, { status: 400 });
+      const reviewer = await prisma.user.findUnique({
+        where: { id: reviewerId },
+        include: { memberships: { where: { workspaceId: existingRequest.workspaceId, role: 'reviewer', isActive: true } } },
+      });
+      if (!reviewer || reviewer.memberships.length === 0) {
+        return NextResponse.json({ error: 'Reviewer not found or not a reviewer in this workspace' }, { status: 400 });
+      }
     }
 
     // Build update data
     const updateData: Record<string, string | null> = {};
-    if (specialistId !== undefined) updateData.assignedSpecialistId = specialistId ?? null;
-    if (reviewerId !== undefined) updateData.assignedReviewerId = reviewerId ?? null;
+    if (specialistId !== undefined) updateData.assignedSpecialistId = specialistId || null;
+    if (reviewerId !== undefined) updateData.assignedReviewerId = reviewerId || null;
 
     // ── All DB mutations in single transaction ──
     const [updatedRequest] = await prisma.$transaction(async (tx) => {
@@ -81,27 +90,33 @@ export async function PATCH(
       const auditEvents: Array<{ action: string; metadataSummary: string }> = [];
 
       // Atomic assignment: set current → false for existing assignments, then create new
-      // Reassign a role (ends current assignment, creates new, logs audit)
-      async function reassign(
-        kind: 'specialist' | 'reviewer',
-        userId: string,
-        displayLabel: string
-      ) {
+      if (specialistId) {
         await tx.requestAssignment.updateMany({
-          where: { requestId: existingRequest.id, kind, isCurrent: true },
+          where: { requestId: existingRequest.id, kind: 'specialist', isCurrent: true },
           data: { isCurrent: false, endedAt: new Date() },
         });
         await tx.requestAssignment.create({
-          data: { requestId: existingRequest.id, userId, kind, createdById: session.userId, isCurrent: true },
+          data: { requestId: existingRequest.id, userId: specialistId, kind: 'specialist', createdById: session.userId, isCurrent: true },
         });
         auditEvents.push({
           action: 'request.assigned',
-          metadataSummary: `${displayLabel}: ${userId}`,
+          metadataSummary: `Phân công chuyên viên: ${updated.assignedSpecialist?.name ?? specialistId}`,
         });
       }
 
-      if (specialistId) await reassign('specialist', specialistId, 'Phân công chuyên viên');
-      if (reviewerId) await reassign('reviewer', reviewerId, 'Phân công người kiểm duyệt');
+      if (reviewerId) {
+        await tx.requestAssignment.updateMany({
+          where: { requestId: existingRequest.id, kind: 'reviewer', isCurrent: true },
+          data: { isCurrent: false, endedAt: new Date() },
+        });
+        await tx.requestAssignment.create({
+          data: { requestId: existingRequest.id, userId: reviewerId, kind: 'reviewer', createdById: session.userId, isCurrent: true },
+        });
+        auditEvents.push({
+          action: 'request.assigned',
+          metadataSummary: `Phân công người kiểm duyệt: ${updated.assignedReviewer?.name ?? reviewerId}`,
+        });
+      }
 
       // Write audit logs
       for (const evt of auditEvents) {

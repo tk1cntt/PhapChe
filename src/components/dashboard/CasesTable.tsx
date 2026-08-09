@@ -9,34 +9,38 @@ interface CasesTableProps {
   cases: CaseItem[];
 }
 
-const STATUS_BADGE_MAP: Record<string, string> = {
-  green: 'badge green',
-  blue: 'badge blue',
-  orange: 'badge orange',
-  red: 'badge red',
-  purple: 'badge purple',
-};
-
 function getStatusBadgeClass(variant: string): string {
-  return STATUS_BADGE_MAP[variant] || 'badge blue';
+  const map: Record<string, string> = {
+    green: 'badge green',
+    blue: 'badge blue',
+    orange: 'badge orange',
+    red: 'badge red',
+    purple: 'badge purple',
+  };
+  return map[variant] || 'badge blue';
 }
-}
+
 export default function CasesTable({ cases }: CasesTableProps) {
   const t = useTranslations('CasesTable');
   const [currentPage, setCurrentPage] = useState(1);
-const DEFAULT_PAGE_SIZE = 10;
+  const pageSize = 10;
 
-  // … inside component:
-  const pageSize = DEFAULT_PAGE_SIZE;
-
-  // … inside component:
-  const pageSize = DEFAULT_PAGE_SIZE;
+  const totalCount = cases.length;
+  const startIndex = (currentPage - 1) * pageSize;
   const paginatedCases = cases.slice(startIndex, startIndex + pageSize);
+
+  if (cases.length === 0) {
+    return (
+      <div className="table-card">
+        <div className="empty-state">{t('noCases')}</div>
+      </div>
+    );
+  }
 
   return (
     <>
-      {/* Table Card */}
-      <div className="table-card">
+      {/* ── Desktop: Table ── */}
+      <div className="table-card cases-table-desktop">
         <div className="table-head">
           <div className="th">{t('caseCode')}</div>
           <div className="th">{t('requestType')}</div>
@@ -46,71 +50,81 @@ const DEFAULT_PAGE_SIZE = 10;
           <div className="th">{t('actions')}</div>
         </div>
 
-        {paginatedCases.length === 0 ? (
-          <div className="empty-state">{t('noCases')}</div>
-        ) : (
-interface CaseRowProps {
-  caseItem: CaseItem;
-  viewDetailsLabel: string;
-}
-
-function CaseRow({ caseItem: c, viewDetailsLabel }: CaseRowProps) {
-  return (
-    <div key={c.id} className="table-row">
-      <div className="td">
-        <div className="case-main">
-          <div className="case-icon">📄</div>
-          <div className="case-info">
-            <strong>{c.code}</strong>
-            <span>{c.statusText}</span>
+        {paginatedCases.map((c) => (
+          <div key={c.id} className="table-row">
+            <div className="td">
+              <div className="case-main">
+                <div className="case-icon">📄</div>
+                <div className="case-info">
+                  <strong>{c.code}</strong>
+                  <span>{c.statusText}</span>
+                </div>
+              </div>
+            </div>
+            <div className="td">
+              <div className="stack">
+                <strong>{c.title}</strong>
+                <span>{c.matterType}</span>
+              </div>
+            </div>
+            <div className="td">
+              <span className={getStatusBadgeClass(c.statusVariant)}>{c.statusText}</span>
+            </div>
+            <div className="td">
+              <div className="stack">
+                <strong>{c.assignee}</strong>
+                <span>{c.assigneeRole}</span>
+              </div>
+            </div>
+            <div className="td">
+              <div className="stack">
+                <strong>{c.formattedDate}</strong>
+              </div>
+            </div>
+            <div className="td">
+              <a className="action-link" href={`/cases/${c.id}`}>
+                {t('viewDetails')} →
+              </a>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
-      <div className="td">
-        <div className="stack">
-          <strong>{c.title}</strong>
-          <span>{c.matterType}</span>
-        </div>
-      </div>
-      <div className="td">
-        <span className={getStatusBadgeClass(c.statusVariant)}>{c.statusText}</span>
-      </div>
-      <div className="td">
-        <div className="stack">
-          <strong>{c.assignee}</strong>
-          <span>{c.assigneeRole}</span>
-        </div>
-      </div>
-      <div className="td">
-        <div className="stack">
-          <strong>{c.formattedDate}</strong>
-        </div>
-      </div>
-      <div className="td">
-        <a className="action-link" href={`/cases/${c.id}`}>
-          {viewDetailsLabel} →
-        </a>
-      </div>
-    </div>
-  );
-}
 
-  // usage in parent:
-  {paginatedCases.map((c) => (
-    <CaseRow key={c.id} caseItem={c} viewDetailsLabel={t('viewDetails')} />
-  ))}
-        <a className="action-link" href={`/cases/${c.id}`}>
-          {viewDetailsLabel} →
-        </a>
+      {/* ── Mobile: Card list ── */}
+      <div className="cases-cards-mobile">
+        {paginatedCases.map((c) => (
+          <a key={c.id} href={`/cases/${c.id}`} className="case-card-mobile">
+            <div className="case-card-mobile-top">
+              <div className="case-card-mobile-code">
+                <span className="case-card-mobile-icon">📄</span>
+                <strong>{c.code}</strong>
+              </div>
+              <span className={getStatusBadgeClass(c.statusVariant)}>{c.statusText}</span>
+            </div>
+            <div className="case-card-mobile-body">
+              <p className="case-card-mobile-title">{c.title}</p>
+              <span className="case-card-mobile-type">{c.matterType}</span>
+            </div>
+            <div className="case-card-mobile-footer">
+              <div className="case-card-mobile-assignee">
+                <span>{c.assignee}</span>
+                <span className="case-card-mobile-role">{c.assigneeRole}</span>
+              </div>
+              <span className="case-card-mobile-date">{c.formattedDate}</span>
+            </div>
+          </a>
+        ))}
       </div>
-    </div>
-  );
-}
 
-  // usage in parent:
-  {paginatedCases.map((c) => (
-    <CaseRow key={c.id} caseItem={c} viewDetailsLabel={t('viewDetails')} />
-  ))}
+      {/* Paging */}
+      {totalCount > 0 && (
+        <Paging
+          current={currentPage}
+          pageSize={pageSize}
+          total={totalCount}
+          onChange={(page) => setCurrentPage(page)}
+        />
+      )}
     </>
   );
 }

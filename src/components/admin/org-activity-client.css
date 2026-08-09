@@ -1,31 +1,29 @@
-/* Org Activity Client Styles */
-
-:root, .content {
-  --color-teal-700: #0f766e;
-  --color-slate-500: #64748b;
-  --color-slate-900: #0f172a;
-  --color-slate-50: #f8fafc;
-  --color-slate-100: #f1f5f9;
-  --color-border-light: #dfe7f1;
-  --color-border-subtle: #edf2f7;
-  --color-surface-card: #fbfdff;
-  --radius-card: 16px;
-  --radius-btn: 10px;
-  --font-family-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+/* Suggested split structure (excerpt): */
+/* _tokens.css    — :root custom properties (colors, spacing, typography, breakpoints) */
+/* _layout.css    — .content, .layout, .main, .activity-sidebar, .panel, .empty-state */
+/* _hero.css      — .org-hero, .hero-main, .hero-stats, .health-card, .chips */
+/* _controls.css  — .topbar, .tabs, .filters, .search, .select */
+/* _feed.css      — .feed, .feed-item, .activity-table, .stack */
+/* _cards.css     — .workspace-card, .member-card, .partner-card, .doc-card */
+/* _sidebar.css   — .side-list, .side-item, .capacity, .risk-card */
+/* _responsive.css — @media queries */
+/* _hero.css      — .org-hero, .hero-main, .hero-stats, .health-card, .chips */
+/* _controls.css  — .topbar, .tabs, .filters, .search, .select */
+/* _feed.css      — .feed, .feed-item, .activity-table, .stack */
+/* _cards.css     — .workspace-card, .member-card, .partner-card, .doc-card */
+/* _sidebar.css   — .side-list, .side-item, .capacity, .risk-card */
+/* _responsive.css — @media queries */
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #0f172a;
 }
 
-/* Then use: */
-/* background: var(--color-teal-700); */
-/* color: var(--color-slate-500); */
-/* border: 1px solid var(--color-border-light); */
-  --radius-btn: 10px;
-  --font-family-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+.org-activity {
+  max-width: 1480px;
+  margin: 0 auto;
 }
 
-/* Then use: */
-/* background: var(--color-teal-700); */
-/* color: var(--color-slate-500); */
-/* border: 1px solid var(--color-border-light); */
+.activity-loading,
+.activity-error {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -125,8 +123,8 @@
   margin-bottom: 22px;
 }
 
-.org-hero::before {
-  content: "";
+/* No changes needed — CSS content properties are decorative only. */
+/* User-facing text should be in component markup/Svelte files, not CSS. */
   position: absolute;
   inset: 0 0 auto 0;
   height: 7px;
@@ -464,51 +462,34 @@
   gap: 14px;
 }
 
-/* ----- Shared Card Base ----- */
-.card,
 .feed-item,
-.workspace-card,
-.partner-card,
-.member-card,
-.doc-card {
+.activity-item {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
   border: 1px solid #edf2f7;
   border-radius: 16px;
   background: #fbfdff;
-  padding: 16px;
 }
 
-/* Then override per variant: */
-.feed-item {
+.feed-item.warning,
+.activity-item.important {
+  background: #fffaf5;
+  border-color: #fed7aa;
+}
+
+.feed-icon,
+.activity-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-.workspace-card,
-.partner-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-}
-}
-
-/* Then override per variant: */
-.feed-item {
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-.workspace-card,
-.partner-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-}
+  place-items: center;
+  font-weight: 950;
+  font-size: 13px;
+  flex-shrink: 0;
 }
 
 .feed-icon.req,
@@ -934,8 +915,9 @@
 }
 
 /* Responsive */
-@media (max-width: 1260px) {
-  .layout {
+/* Define at :root: --breakpoint-lg: 1260px; --breakpoint-sm: 760px; */
+@media (max-width: 1260px) {  /* consider: @media (max-width: var(--breakpoint-lg)) — note: custom properties in MQ require PostCSS or similar */
+@media (max-width: 1260px) {  /* consider: @media (max-width: var(--breakpoint-lg)) — note: custom properties in MQ require PostCSS or similar */
     grid-template-columns: 1fr;
   }
 

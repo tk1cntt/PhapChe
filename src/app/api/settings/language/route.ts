@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 
 // Valid locale values
-import { requireAppSession, VALID_LOCALES } from '@/lib/security/session';
+const VALID_LOCALES = ['vi', 'en', 'zh', 'ja'] as const;
 type Locale = typeof VALID_LOCALES[number];
 
 export async function PUT(request: Request) {
@@ -53,7 +53,7 @@ export async function PUT(request: Request) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Language update failed:', message);
 
-    if (isAuthError(error)) {
+    if (message === 'UNAUTHENTICATED' || (error instanceof Error && 'code' in error && (error as any).code === 'UNAUTHENTICATED')) {
       return NextResponse.json(
         { error: 'UNAUTHORIZED', message: 'Authentication required' },
         { status: 401 }

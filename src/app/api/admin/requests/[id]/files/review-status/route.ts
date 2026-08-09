@@ -20,25 +20,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-async function requireAdminSession(): Promise<NextResponse | null> {
-  const session = await requireAppSession();
-  const hasRole = ALLOWED_ROLES.some((r) => (session.roles as string[]).includes(r));
-  if (!hasRole) {
-    return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
-  }
-  return null;
-}
+    const session = await requireAppSession();
+    const hasRole = ALLOWED_ROLES.some((r) => (session.roles as string[]).includes(r));
+    if (!hasRole) {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+    }
 
-// ── In each handler ──
-    const forbidden = await requireAdminSession();
-    if (forbidden) return forbidden;
-  }
-  return null;
-}
+    const { id: requestId } = await params;
 
-// ── In each handler ──
-    const forbidden = await requireAdminSession();
-    if (forbidden) return forbidden;
+    const statuses = await prisma.documentReviewStatus.findMany({
+      where: { requestId, reviewerId: session.userId },
+      select: { fileKey: true, status: true },
+    });
 
     const map: Record<string, string> = {};
     for (const s of statuses) {
@@ -46,23 +39,18 @@ async function requireAdminSession(): Promise<NextResponse | null> {
     }
 
     return NextResponse.json({ statuses: map });
-function handleApiError(error: unknown): NextResponse {
-  const msg = error instanceof Error ? error.message : String(error);
-  console.error('[Review Status API Error]', msg);
-  return NextResponse.json({ error: 'Internal server error', detail: 'Internal server error' }, { status: 500 });
+  } catch (error) {
+    if (isRedirectErr(error)) throw error;
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('[Review Status API Error]', msg);
+    return NextResponse.json({ error: 'Internal server error', detail: 'Internal server error' }, { status: 500 });
+  }
 }
 
-// ── In each handler's catch block ──
-  } catch (error) {
-    if (isRedirectErr(error)) throw error;
-    return handleApiError(error);
-  }
-// ── In each handler's catch block ──
-  } catch (error) {
-    if (isRedirectErr(error)) throw error;
-    return handleApiError(error);
-  }
-  request: NextRequest,
+// ── PUT ────────────────────────────────────────────────────
+
+export async function PUT(
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -79,17 +67,13 @@ function handleApiError(error: unknown): NextResponse {
     if (!fileKey || !status) {
       return NextResponse.json({ error: 'VALIDATION: fileKey and status are required' }, { status: 400 });
     }
-const VALID_REVIEW_STATUSES = ['pending', 'reviewed', 'has_issues'] as const;
-type ReviewStatus = (typeof VALID_REVIEW_STATUSES)[number];
+    if (!['pending', 'reviewed', 'has_issues'].includes(status)) {
+      return NextResponse.json({ error: 'VALIDATION: status must be pending, reviewed, or has_issues' }, { status: 400 });
+    }
 
-// ── validation (replaces the inline array) ──
-    if (!(VALID_REVIEW_STATUSES as readonly string[]).includes(status)) {
-      return NextResponse.json({ error: 'VALIDATION: status must be pending, reviewed, or has_issues' }, { status: 400 });
-    }
-// ── validation (replaces the inline array) ──
-    if (!(VALID_REVIEW_STATUSES as readonly string[]).includes(status)) {
-      return NextResponse.json({ error: 'VALIDATION: status must be pending, reviewed, or has_issues' }, { status: 400 });
-    }
+    const reviewStatus = await prisma.documentReviewStatus.upsert({
+      where: {
+        requestId_fileKey_reviewerId: {
           requestId,
           fileKey,
           reviewerId: session.userId,

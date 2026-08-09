@@ -13,10 +13,13 @@ export default async function UserDetailPage({ params }: PageProps) {
   const session = await requireAppSession();
 
   // Verify admin role to prevent unauthorized access to user data
-  const ADMIN_ROLES = ['coordinator_admin', 'super_admin'] as const;
-  const isAdmin = session.roles.some((role) => ADMIN_ROLES.includes(role as typeof ADMIN_ROLES[number]));
-  const isAdmin = session.roles.some((role) => ADMIN_ROLES.includes(role as typeof ADMIN_ROLES[number]));
-    return <StatusMessage title="Unauthorized" />;
+  const isAdmin = session.roles.includes('coordinator_admin') || session.roles.includes('super_admin');
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <h1>Unauthorized</h1>
+      </div>
+    );
   }
 
   // Fetch user for initial data

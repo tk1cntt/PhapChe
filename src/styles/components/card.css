@@ -38,6 +38,14 @@
   font-weight: 800;
 }
 
+/* ── Stats grid ── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
 /* ── Stat card ── */
 /* Dimensions controlled via --stat-* variables; pages override as needed.
    Vault namespace (.vault-stat-*) shares the same structure. */
@@ -70,6 +78,165 @@
 .vault-stat-icon svg {
   width: var(--stat-icon-svg, 32px);
   height: var(--stat-icon-svg, 32px);
+}
+
+/* ── Stats + Stat-card responsive ── */
+
+/* Tablet ≤ 1024px */
+@media (max-width: 1024px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card,
+  .vault-stat-card {
+    height: auto;
+    min-height: 100px;
+    padding: 16px 14px;
+    border-radius: 12px;
+  }
+
+  .stat-icon,
+  .vault-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    margin-right: 14px;
+  }
+
+  .stat-icon svg,
+  .vault-stat-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .stat-title,
+  .vault-stat-title {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .stat-value,
+  .vault-stat-value {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  .stat-desc,
+  .vault-stat-desc {
+    font-size: 11px;
+  }
+}
+
+/* Mobile tablet ≤ 767px */
+@media (max-width: 767px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card,
+  .vault-stat-card {
+    min-height: 86px;
+    padding: 12px 10px;
+    border-radius: 10px;
+  }
+
+  .stat-icon,
+  .vault-stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    margin-right: 10px;
+  }
+
+  .stat-icon svg,
+  .vault-stat-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .stat-title,
+  .vault-stat-title {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .stat-value,
+  .vault-stat-value {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .stat-desc,
+  .vault-stat-desc {
+    font-size: 10px;
+  }
+
+  .stat-card .info {
+    top: 14px;
+    right: 14px;
+    width: 16px;
+    height: 16px;
+    font-size: 9px;
+  }
+}
+
+/* Small phone ≤ 479px */
+@media (max-width: 479px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .stat-card,
+  .vault-stat-card {
+    min-height: 72px;
+    padding: 8px 8px;
+    border-radius: 8px;
+  }
+
+  .stat-icon,
+  .vault-stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    margin-right: 8px;
+  }
+
+  .stat-icon svg,
+  .vault-stat-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .stat-title,
+  .vault-stat-title {
+    font-size: 10px;
+    margin-bottom: 1px;
+  }
+
+  .stat-value,
+  .vault-stat-value {
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+
+  .stat-desc,
+  .vault-stat-desc {
+    font-size: 9px;
+  }
+
+  .stat-card .info {
+    top: 10px;
+    right: 10px;
+    width: 14px;
+    height: 14px;
+    font-size: 8px;
+  }
 }
 
 /* Color variants — canonical two-tone gradients; pages may override */

@@ -31,19 +31,13 @@ export function ResourceTable({ resources }: ResourceTableProps): React.ReactEle
       statusVariant: 'green' as const,
       date: resources.lastRequestUpdate,
       action: t('open'),
-const ROUTES = {
-  cases: '../cases',
-  documents: '../documents',
-} as const;
-
-// then in rows:
-      href: ROUTES.cases,
-  cases: '../cases',
-  documents: '../documents',
-} as const;
-
-// then in rows:
-      href: ROUTES.cases,
+      href: '../cases',
+    },
+    {
+      name: t('vaultDocs'),
+      description: t('vaultDocsDesc'),
+      count: t('countFiles', { count: resources.vaultFileCount }),
+      status: t('statusEncrypted'),
       statusVariant: 'green' as const,
       date: resources.lastVaultUpdate,
       action: t('open'),
@@ -73,8 +67,8 @@ const ROUTES = {
       </div>
 
       {/* Table Rows */}
-      {rows.map((row) => (
-        <div key={row.href} className="table-row">
+      {rows.map((row, index) => (
+        <div key={index} className="table-row">
           <div className="td">
             <div className="stack">
               <strong>{row.name}</strong>
@@ -87,17 +81,15 @@ const ROUTES = {
           </div>
           <div className="td"><FormattedDate date={row.date} variant="datetime" /></div>
           <div className="td">
-            {row.action === t('resend') ? (
-              <button type="button" className="action-link" onClick={() => {/* TODO: implement resend */}}>
-                {row.action}
-              </button>
+            {row.href.startsWith('#') ? (
+              <span className="action-link">{row.action}</span>
             ) : (
               <Link href={row.href} className="action-link">
                 {row.action}
               </Link>
             )}
-              </Link>
-            )}
+          </div>
+        </div>
       ))}
     </div>
   );

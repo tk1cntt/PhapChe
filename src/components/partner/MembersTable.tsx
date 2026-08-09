@@ -23,6 +23,7 @@ export interface Member {
 interface MembersTableProps {
   members: Member[];
   currentUserId: string;
+  currentUserRole: string;
   isAdmin: boolean;
   onRoleChange: (memberId: string, newRole: string) => void;
   onStatusToggle: (memberId: string, isActive: boolean) => void;
@@ -37,7 +38,7 @@ const roleBadgeClass: Record<string, string> = {
 };
 
 function getInitials(name: string): string {
-  if (!name) return '?';
+  if (!name || name.length === 0) return '?';
   return name.substring(0, 2).toUpperCase();
 }
 
@@ -48,6 +49,7 @@ export function MembersTable({
   onRoleChange,
   onStatusToggle,
   onRemove,
+  loading,
 }: MembersTableProps) {
   const t = useTranslations('PartnerDashboard');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -172,16 +174,23 @@ export function MembersTable({
         </table>
       </div>
 
+      {/* Confirm delete dialog */}
       {confirmDelete && (
-        <ConfirmDialog
-          title={t('confirmDeleteTitle')}
-          description={t('confirmDeleteDesc')}
-          onConfirm={() => { onRemove(confirmDelete); closeConfirm(); }}
-          onCancel={closeConfirm}
-          confirmLabel={t('delete')}
-          cancelLabel={t('cancel')}
-          destructive
-        />
+        <div className="modal-overlay" onClick={closeConfirm}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 400 }}>
+            <h3 style={{ margin: '0 0 12px', fontSize: 'var(--text-lg)', fontWeight: 800 }}>{t('confirmDeleteTitle')}</h3>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)', marginBottom: 20 }}>
+              {t('confirmDeleteDesc')}
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button className="btn-ghost" onClick={closeConfirm}>{t('cancel')}</button>
+              <button className="btn-primary" style={{ background: 'var(--color-danger)' }}
+                onClick={() => { onRemove(confirmDelete); closeConfirm(); }}>
+                {t('delete')}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

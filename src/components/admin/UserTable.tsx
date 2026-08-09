@@ -32,33 +32,25 @@ interface UserTableProps {
 }
 
 function getInitials(name: string): string {
-  const trimmed = name.trim();
-  if (!trimmed) return '?';
-  const parts = trimmed.split(/\s+/);
+  const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  return trimmed.slice(0, 2).toUpperCase();
-}
-  return trimmed.slice(0, 2).toUpperCase();
-}
-// Example extraction for the status badge:
-function StatusBadge({ status, label, dot, color, bg }: {
-  status: string; label: string; dot: string; color: string; bg: string;
-}) {
-  return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', height: 28, padding: '0 11px', borderRadius: 999, fontSize: 12, fontWeight: 800, whiteSpace: 'nowrap', background: bg, color }}>
-      <span style={{ width: 7, height: 7, borderRadius: '50%', marginRight: 7, background: dot }} />
-      {label}
-    </span>
-  );
+  return name.slice(0, 2).toUpperCase();
 }
 
-// Similarly extract: UserTableHeader, UserTableRow, RoleBadge, CellText, TableCell
-      {label}
-    </span>
-  );
-}
+export default function UserTable({
+  dataSource,
+  roleColors,
+  avatarColors,
+  pagination,
+  locale = 'vi',
+}: UserTableProps) {
+  const t = useTranslations('AdminUsers');
 
-// Similarly extract: UserTableHeader, UserTableRow, RoleBadge, CellText, TableCell
+  if (dataSource.length === 0 && !pagination) {
+    return (
+      <div style={{ padding: 48, textAlign: 'center', color: 'var(--color-text-muted)' }}>
+        {t('noData')}
+      </div>
     );
   }
 
@@ -74,21 +66,20 @@ function StatusBadge({ status, label, dot, color, bg }: {
       <div
         style={{
           display: 'grid',
-const GRID_COLUMNS = '52px 1.1fr 1.3fr 0.9fr 1.05fr 0.85fr 1fr 0.8fr';
-// … then use GRID_COLUMNS in both places:
-// gridTemplateColumns: GRID_COLUMNS,
-// … then use GRID_COLUMNS in both places:
-// gridTemplateColumns: GRID_COLUMNS,
+          gridTemplateColumns: '52px 1.1fr 1.3fr 0.9fr 1.05fr 0.85fr 1fr 0.8fr',
+          background: 'linear-gradient(180deg, #f8fafc, #f5f7fb)',
+          borderBottom: '1px solid var(--color-border)',
         }}
       >
         <div style={{ minHeight: 54, display: 'flex', alignItems: 'center', padding: '0 16px' }}>
-const CHECKBOX_STYLE = {
-  width: 18, height: 18, border: '2px solid #cbd5e1', borderRadius: 4,
-  background: 'var(--color-surface)', display: 'block',
-} as const;
-
-// Usage:
-<span style={CHECKBOX_STYLE} />
+          <span style={{
+            width: 18,
+            height: 18,
+            border: '2px solid #cbd5e1',
+            borderRadius: 4,
+            background: 'var(--color-surface)',
+            display: 'block',
+          }} />
         </div>
         {[
           t('name'),
@@ -122,30 +113,24 @@ const CHECKBOX_STYLE = {
         const rColor = roleColors?.[row.role] || { bg: '#dbeafe', color: 'var(--color-info)' };
         const aColor = avatarColors?.[row.role] || { bg: '#eef2f7', color: 'var(--color-text-secondary)' };
 
-// Move outside the component (module-level) or compute once via useMemo:
-const STATUS_BADGE_MAP: Record<string, { labelKey: string; color: string; bg: string; dot: string }> = {
-  active:  { labelKey: 'active',  color: 'var(--color-primary)',  bg: '#ccfbf1', dot: '#10b981' },
-  invited: { labelKey: 'invited', color: '#ea580c',             bg: '#ffedd5', dot: '#f97316' },
-};
-const FALLBACK_BADGE = { labelKey: 'inactive', color: 'var(--color-danger)', bg: '#ffe4e6', dot: '#ef4444' };
+        let statusBadge: { label: string; color: string; bg: string; dot: string };
+        if (row.status === 'active') {
+          statusBadge = { label: t('active'), color: 'var(--color-primary)', bg: '#ccfbf1', dot: '#10b981' };
+        } else if (row.status === 'invited') {
+          statusBadge = { label: t('invited'), color: '#ea580c', bg: '#ffedd5', dot: '#f97316' };
+        } else {
+          statusBadge = { label: t('inactive'), color: 'var(--color-danger)', bg: '#ffe4e6', dot: '#ef4444' };
+        }
 
-// Inside the map callback:
-const badgeDef = STATUS_BADGE_MAP[row.status] ?? FALLBACK_BADGE;
-const statusBadge = { ...badgeDef, label: t(badgeDef.labelKey) };
-const badgeDef = STATUS_BADGE_MAP[row.status] ?? FALLBACK_BADGE;
-const statusBadge = { ...badgeDef, label: t(badgeDef.labelKey) };
-const ACTION_LABEL_KEY_MAP: Record<string, string> = {
-  active: 'editAction',
-  invited: 'resendAction',
-};
-const DEFAULT_ACTION_KEY = 'activateAction';
+        const actionLabel = row.status === 'active'
+          ? `${t('editAction')} →`
+          : row.status === 'invited'
+            ? `${t('resendAction')} →`
+            : `${t('activateAction')} →`;
 
-// Inside map callback:
-const actionLabel = `${t(ACTION_LABEL_KEY_MAP[row.status] ?? DEFAULT_ACTION_KEY)} →`;
-const DEFAULT_ACTION_KEY = 'activateAction';
-
-// Inside map callback:
-const actionLabel = `${t(ACTION_LABEL_KEY_MAP[row.status] ?? DEFAULT_ACTION_KEY)} →`;
+        return (
+          <div
+            key={row.key}
             style={{
               display: 'grid',
               gridTemplateColumns: '52px 1.1fr 1.3fr 0.9fr 1.05fr 0.85fr 1fr 0.8fr',
@@ -154,10 +139,9 @@ const actionLabel = `${t(ACTION_LABEL_KEY_MAP[row.status] ?? DEFAULT_ACTION_KEY)
               background: 'var(--color-surface)',
               transition: '0.2s',
             }}
-            // Replace inline hover handlers with a CSS class using :hover:
-            // .userTableRow:hover { background: #fbfdff; }
-            // Then apply: className="userTableRow" style={{ background: 'var(--color-surface)' }}
-            // Then apply: className="userTableRow" style={{ background: 'var(--color-surface)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = '#fbfdff')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = '#fff')}
+          >
             {/* Checkbox */}
             <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px' }}>
               <span style={{
@@ -171,23 +155,18 @@ const actionLabel = `${t(ACTION_LABEL_KEY_MAP[row.status] ?? DEFAULT_ACTION_KEY)
             </div>
 
             {/* Name */}
-// Extract as a local helper or separate component:
-function TableCell({ children, borderRight = true }: { children: React.ReactNode; borderRight?: boolean }) {
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', padding: '0 16px',
-      borderRight: borderRight ? '1px solid var(--color-border)' : 'none',
-      minWidth: 0,
-    }}>
-      {children}
-    </div>
-  );
-}
-    }}>
-      {children}
-    </div>
-  );
-}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 16px',
+              borderRight: '1px solid var(--color-border)',
+              minWidth: 0,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
                     borderRadius: '50%',
                     background: aColor.bg,
                     color: aColor.color,
@@ -312,7 +291,7 @@ function TableCell({ children, borderRight = true }: { children: React.ReactNode
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                 }}>
-                  {row.workspace === '—' ? '—' : t('workspaceScope')}
+                  {row.workspace === '—' ? '—' : 'workspace-scope'}
                 </div>
               </div>
             </div>

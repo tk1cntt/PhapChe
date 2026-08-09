@@ -17,20 +17,15 @@ export default async function WorkspacePage({
   const { userId, activeWorkspaceId, roles } = session;
   const t = await getTranslations('UserWorkspace');
 
-  let dashboardData: Awaited<ReturnType<typeof fetchDashboardData>> | null = null;
-  let dashboardError: string | null = null;
-
   try {
-    dashboardData = await fetchDashboardData(wsId, userId);
-  } catch (error) {
-    console.error('Workspace load error:', error);
-    dashboardError = t('loadError');
-  }
-    dashboardData = await fetchDashboardData(wsId, userId);
-  } catch (error) {
-    console.error('Workspace load error:', error);
-    dashboardError = t('loadError');
-  }
+    // Fetch user with workspace membership
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      name: true,
+      memberships: {
+        where: { workspaceId: activeWorkspaceId ?? undefined },
+        select: { workspace: { select: { name: true, slug: true, id: true } } }
       }
     },
   });
@@ -47,7 +42,7 @@ export default async function WorkspacePage({
   // Fetch DB stats — build role-filtered where clauses for legal requests
   const processingStatusExtra = { status: { in: ['in_progress', 'pending_review', 'revision_required'] } };
 
-  const [baseWhere, processingWhere, allMembers, vaultFileCount, lastVaultUpdate] = await Promise.all([
+  const [baseWhere, processingWhere, allMembers, vaultFileCount, lastVaultUpdate, unreadMessages] = await Promise.all([
     getWorkspaceRequestWhere(wsId, userId),
     getWorkspaceRequestWhere(wsId, userId, processingStatusExtra),
     prisma.workspaceMembership.findMany({
@@ -56,13 +51,14 @@ export default async function WorkspacePage({
     }),
     prisma.vaultFile.count({ where: { workspaceId: wsId } }),
     prisma.vaultFile.findFirst({ where: { workspaceId: wsId }, orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
+    prisma.message.count({ where: { workspaceId: wsId, recipientId: userId, isRead: false } }),
   ]);
 
   // Run request queries with role filter (can't be in the same Promise.all since baseWhere/processingWhere needed first)
   const [requestCount, processingRequestCount, lastRequestUpdate] = await Promise.all([
-    prisma.legalRequest.count({ where: baseWhere as Prisma.LegalRequestWhereInput }),
-    prisma.legalRequest.count({ where: processingWhere as Prisma.LegalRequestWhereInput }),
-    prisma.legalRequest.findFirst({ where: baseWhere as Prisma.LegalRequestWhereInput, orderBy: { updatedAt: 'desc' }, select: { updatedAt: true } }),
+    prisma.legalRequest.count({ where: baseWhere as any }),
+    prisma.legalRequest.count({ where: processingWhere as any }),
+    prisma.legalRequest.findFirst({ where: baseWhere as any, orderBy: { updatedAt: 'desc' }, select: { updatedAt: true } }),
   ]);
 
   const members = allMembers.map((m) => ({
@@ -93,9 +89,8 @@ export default async function WorkspacePage({
     invitedCount,
     lastRequestUpdate: lastRequestUpdate?.updatedAt?.toISOString() ?? null,
     lastVaultUpdate: lastVaultUpdate?.createdAt?.toISOString() ?? null,
-    // TODO: fetch actual last invitation timestamp when invite tracking is implemented
     lastInviteUpdate: null as string | null,
-    lastInviteUpdate: null as string | null,
+  };
 
   return (
     <UserLayout
@@ -105,7 +100,12 @@ export default async function WorkspacePage({
       workspaceSlug={workspaceSlug}
     >
       <div className="workspace_page">
-        <PageHeader title={t('pageTitle')} subtitle={t('pageDesc')} />
+        <div className="page-header">
+          <div>
+            <h1>{t('pageTitle')}</h1>
+            <p className="subtitle">{t('pageDesc')}</p>
+          </div>
+        </div>
 
         <WorkspaceBanner workspaceName={workspaceName} workspaceSlug={workspaceSlug} />
         <StatsGrid stats={stats} />

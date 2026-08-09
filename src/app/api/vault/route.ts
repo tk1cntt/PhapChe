@@ -10,23 +10,19 @@ export async function GET() {
       return NextResponse.json({ folders: [], tags: [], classifications: [] });
     }
 
-    const serviceLabels = ['folders', 'tags', 'classifications'] as const;
-
     const results = await Promise.allSettled([
       listFolders(session, workspaceId),
       listTags(session, workspaceId),
       listFileClassifications(session, workspaceId),
     ]);
 
-    const [folders, tags, classifications] = results.map((r, i) => {
-      if (r.status === 'fulfilled') return r.value;
-      console.error(`Vault API: ${serviceLabels[i]} service failed:`, r.reason);
-      return [];
-    });
-      if (r.status === 'fulfilled') return r.value;
-      console.error(`Vault API: ${serviceLabels[i]} service failed:`, r.reason);
-      return [];
-    });
+    const [folders, tags, classifications] = results.map((r) =>
+      r.status === 'fulfilled' ? r.value : []
+    );
+
+    return NextResponse.json({ folders, tags, classifications });
+  } catch (error) {
+    console.error('Vault API error:', error instanceof Error ? error.message : String(error));
     return NextResponse.json({ error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }

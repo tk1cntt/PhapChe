@@ -22,13 +22,10 @@ export default function LanguageSwitcher() {
   const currentLang = languages.find((l) => l.code === locale) || languages[0];
 
   const handleSwitch = (langCode: string) => {
-const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
+    document.cookie = `${LOCALE_COOKIE}=${langCode}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
 
-// ... inside handleSwitch:
-    document.cookie = `${LOCALE_COOKIE}=${langCode}; path=/; max-age=${ONE_YEAR_IN_SECONDS}; samesite=lax`;
-
-// ... inside handleSwitch:
-    document.cookie = `${LOCALE_COOKIE}=${langCode}; path=/; max-age=${ONE_YEAR_IN_SECONDS}; samesite=lax`;
+    const segments = pathname.split('/').filter(Boolean);
+    if (segments.length > 0 && languages.some((l) => l.code === segments[0])) {
       segments[0] = langCode;
     } else {
       segments.unshift(langCode);
@@ -49,27 +46,14 @@ const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
       trigger={['click']}
       placement="bottomRight"
     >
-      <div
-        className="lang"
-        style={{
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          padding: '6px 12px',
-          borderRadius: '6px',
-          border: '1px solid #e5e7eb',
-          background: 'var(--color-surface)',
-          transition: 'all 0.2s',
-        }}
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2">
+      <div className="lang-switcher">
+        <svg className="lang-switcher-globe" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2">
           <circle cx="12" cy="12" r="10" />
           <path d="M2 12h20" />
           <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
         </svg>
-        <span>{currentLang.flag}</span>
-        <span style={{ fontSize: '13px', fontWeight: 500 }}>{currentLang.label}</span>
+        <span className="lang-switcher-flag">{currentLang.flag}</span>
+        <span className="lang-switcher-label">{currentLang.label}</span>
       </div>
     </DropdownMenu>
   );

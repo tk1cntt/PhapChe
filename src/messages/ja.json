@@ -1402,11 +1402,20 @@
     "workspace": "ワークスペース",
     "wizard": {
       "stepTitle": "ステップ{step}：{label}",
+      "step0": "開始",
       "step1": "ドメイン",
       "step2": "サービス",
       "step3": "情報",
       "step4": "ドキュメント",
       "step5": "確認"
+    },
+    "guided": {
+      "title": "どのようなサポートが必要ですか？",
+      "description": "最も適したシナリオを選択してください——関連する法律分野をご提案します。",
+      "skipToAllDomains": "必要な法律分野がわかっている——すべての分野を表示",
+      "suggestedForYou": "（あなたへのおすすめ）",
+      "showGuide": "ガイドを表示",
+      "hideGuide": "ガイドを隠す"
     },
     "domain": {
       "commercial-legal": "商事",

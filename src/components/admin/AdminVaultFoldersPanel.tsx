@@ -61,7 +61,7 @@ export function AdminVaultFoldersPanel({ folders }: AdminVaultFoldersPanelProps)
                 </div>
               </div>
               <div className="vault-item-badge">
-                {t('fileCount', { count: folder._count?.vaultFileFolders ?? 0 })}
+                {folder._count?.vaultFileFolders ?? 0} {t('files')}
               </div>
             </div>
           ))

@@ -25,18 +25,18 @@ export default function ServiceCard({ service, selected, onSelect, locale = 'vi'
     >
       <span className="radio" aria-hidden="true" />
       <span className="service-info">
-        <strong>{t(service.title)}</strong>
-        <span>{t(service.description)}</span>
+        <strong>{service.title[locale] || service.title.vi}</strong>
+        <span>{service.description[locale] || service.description.vi}</span>
       </span>
       <span className="service-meta">
         {service.tags.map((tag) => (
           <span key={tag.label.vi} className={`tag ${tag.variant}`}>
-            {t(tag.label)}
+            {tag.label[locale] || tag.label.vi}
           </span>
         ))}
         {service.estimatedTime && (
           <span className="tag blue">
-            {t(service.estimatedTime)}
+            {service.estimatedTime[locale] || service.estimatedTime.vi}
           </span>
         )}
       </span>

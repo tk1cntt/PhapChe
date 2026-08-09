@@ -6,6 +6,8 @@ import { CheckCircle, XCircle, Home, Loader2 } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
 
 interface InviteInfo {
+  id: string;
+  email: string;
   role: 'admin' | 'specialist' | 'viewer';
   partnerName?: string;
 }
@@ -36,29 +38,24 @@ export default function AcceptInvitePage() {
       return;
     }
 
-    const controller = new AbortController();
-
     async function fetchInvite() {
       try {
-        const res = await fetch(`/api/partner/invite/${token}`, { signal: controller.signal });
+        const res = await fetch(`/api/partner/invite/${token}`);
         if (!res.ok) throw new Error('Token không hợp lệ hoặc đã hết hạn');
         const data = await res.json();
-        if (!controller.signal.aborted) setInviteInfo(data);
+        setInviteInfo(data);
       } catch (err) {
-        if (controller.signal.aborted) return;
         setError(err instanceof Error ? err.message : 'Không thể tải thông tin lời mời');
       } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        setLoading(false);
       }
     }
     fetchInvite();
+  }, [token]);
 
-    return () => controller.abort();
-      }
-    }
-    fetchInvite();
-
-    return () => controller.abort();
+  const handleAccept = async () => {
+    if (isPending) return; // Wait for auth to resolve
+    if (!session) {
       router.push(`/sign-in?callbackUrl=/invite/${token}`);
       return;
     }
@@ -109,14 +106,21 @@ export default function AcceptInvitePage() {
   // Accepted state
   if (accepted) {
     return (
-      <InviteResultCard
-        Icon={CheckCircle}
-        iconBg="var(--color-success-muted)"
-        iconColor="var(--color-success)"
-        heading="Chào mừng bạn!"
-        message={successMsg || 'Bạn đã trở thành thành viên của đội ngũ. Hãy bắt đầu công việc.'}
-        actions={
-          <>
+      <div className={containerClass}>
+        <div className={cardClass} style={{ ...cardStyle, textAlign: 'center', padding: 48 }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%',
+            background: 'var(--color-success-muted)', color: 'var(--color-success)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 24px',
+          }}>
+            <CheckCircle size={36} />
+          </div>
+          <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 12 }}>Chào mừng bạn!</h2>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)', marginBottom: 24 }}>
+            {successMsg || 'Bạn đã trở thành thành viên của đội ngũ. Hãy bắt đầu công việc.'}
+          </p>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
             <button className="btn-primary" onClick={() => router.push('/dashboard')}>
               Đi đến Dashboard
             </button>
@@ -124,28 +128,33 @@ export default function AcceptInvitePage() {
               <Home size={16} />
               Trang chủ
             </button>
-          </>
-        }
-      />
+          </div>
+        </div>
+      </div>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <InviteResultCard
-        Icon={XCircle}
-        iconBg="var(--color-danger-muted)"
-        iconColor="var(--color-danger)"
-        heading="Không thể chấp nhận lời mời"
-        message={error}
-        actions={
+      <div className={containerClass}>
+        <div className={cardClass} style={{ ...cardStyle, textAlign: 'center', padding: 48 }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%',
+            background: 'var(--color-danger-muted)', color: 'var(--color-danger)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 24px',
+          }}>
+            <XCircle size={36} />
+          </div>
+          <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 12 }}>Không thể chấp nhận lời mời</h2>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)', marginBottom: 24 }}>{error}</p>
           <button className="btn-primary" onClick={() => router.push('/')}>
             <Home size={16} />
             Đi đến trang chủ
           </button>
-        }
-      />
+        </div>
+      </div>
     );
   }
 

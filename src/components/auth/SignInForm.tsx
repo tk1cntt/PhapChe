@@ -224,6 +224,7 @@ export default function SignInForm() {
   const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   useEffect(() => {
     setEmail(DEFAULT_EMAIL);
@@ -311,6 +312,17 @@ export default function SignInForm() {
     e.currentTarget.style.background = '#fff';
   }
 
+  async function handleGoogleSignIn() {
+    setGoogleLoading(true);
+    try {
+      await authClient.signIn.social({ provider: 'google', callbackURL: `/${locale}/dashboard` });
+    } catch (err) {
+      console.error('Google sign-in error:', err);
+      toast.error(T.genericError);
+      setGoogleLoading(false);
+    }
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const emailError = validateEmail(email);
@@ -339,7 +351,23 @@ export default function SignInForm() {
         /* fallback to customer */
       }
 
-      router.push(getRedirectPath(userRole));
+      // Nếu là customer và chưa có request nào → redirect đến /create
+      let redirectPath = getRedirectPath(userRole);
+      if (userRole === 'customer') {
+        try {
+          const reqRes = await fetch('/api/requests?take=1');
+          if (reqRes.ok) {
+            const reqData = await reqRes.json();
+            if (reqData.pagination?.total === 0) {
+              redirectPath = `/${locale}/create`;
+            }
+          }
+        } catch {
+          // Fallback: vẫn redirect theo role nếu API fail
+        }
+      }
+
+      router.push(redirectPath);
     } catch (err) {
       console.error('Sign-in error:', err);
       toast.error(T.genericError);
@@ -441,16 +469,27 @@ export default function SignInForm() {
       <button
         type="button"
         style={S.socialBtn}
+        onClick={handleGoogleSignIn}
+        disabled={googleLoading}
         onMouseEnter={handleSocialEnter}
         onMouseLeave={handleSocialLeave}
       >
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.616Z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.26c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#34A853"/>
-          <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#EA4335"/>
-        </svg>
-        {T.googleSignIn}
+        {googleLoading ? (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <span className="spinner" style={{ width: 18, height: 18, border: '2px solid #e5e7eb', borderTopColor: '#4285F4', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.6s linear infinite' }} />
+            Đang kết nối...
+          </span>
+        ) : (
+          <>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.616Z" fill="#4285F4"/>
+              <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.26c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#34A853"/>
+              <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#FBBC05"/>
+              <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#EA4335"/>
+            </svg>
+            {T.googleSignIn}
+          </>
+        )}
       </button>
 
       {/* Support */}
@@ -462,34 +501,32 @@ export default function SignInForm() {
       {/* Version */}
       <p style={S.version}>{T.version}</p>
 
-      {/* Quick user selector */}
-      {
-        <div style={{ marginTop: 20, padding: 12, background: 'var(--color-primary-muted)', borderRadius: 12, border: '1px solid var(--color-primary-muted)' }}>
-          <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary)', marginBottom: 8 }}>
-            🧪 Quick Login
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {SEED_USERS.map((user) => (
-              <button
-                key={user.role}
-                type="button"
-                onClick={() => selectUser(user)}
-                style={{
-                  padding: '4px 10px',
-                  fontSize: 12,
-                  background: email === user.email ? '#14b8a6' : '#fff',
-                  color: email === user.email ? '#fff' : '#334155',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                }}
-              >
-                {user.label}
-              </button>
-            ))}
-          </div>
+      {/* Quick user selector — credentials gated behind seed users */}
+      <div style={{ marginTop: 20, padding: 12, background: 'var(--color-primary-muted)', borderRadius: 12, border: '1px solid var(--color-primary-muted)' }}>
+        <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary)', marginBottom: 8 }}>
+          🧪 Quick Login
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {SEED_USERS.map((user) => (
+            <button
+              key={user.role}
+              type="button"
+              onClick={() => selectUser(user)}
+              style={{
+                padding: '4px 10px',
+                fontSize: 12,
+                background: email === user.email ? '#14b8a6' : '#fff',
+                color: email === user.email ? '#fff' : '#334155',
+                border: '1px solid #cbd5e1',
+                borderRadius: 8,
+                cursor: 'pointer',
+              }}
+            >
+              {user.label}
+            </button>
+          ))}
         </div>
-      }
+      </div>
     </div>
   );
 }

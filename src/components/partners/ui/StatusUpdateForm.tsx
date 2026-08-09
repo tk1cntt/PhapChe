@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { PARTNER_ALLOWED_STATUSES, REQUEST_STATUS_LABELS, type PartnerAllowedStatus } from '@/lib/constants/partner-statuses';
+import { PARTNER_ALLOWED_STATUSES, PARTNER_STATUS_LABELS, REQUEST_STATUS_LABELS, type PartnerAllowedStatus } from '@/lib/constants/partner-statuses';
 
 interface StatusUpdateFormProps {
   requestId: string;
@@ -68,8 +68,8 @@ export function StatusUpdateForm({
     }
   };
 
-  // Check if status transition is allowed (partners only, admins or allowAllStatuses can set any status)
-  const isAllowedStatus = isAdmin || allowAllStatuses || PARTNER_ALLOWED_STATUSES.includes(status as PartnerAllowedStatus);
+  // Check if status transition is allowed (partners only, admins can set any status)
+  const isAllowedStatus = isAdmin || PARTNER_ALLOWED_STATUSES.includes(status as PartnerAllowedStatus);
   const canSubmit = !isSubmitting && (status !== currentStatus || note.length > 0) && isAllowedStatus;
 
   return (

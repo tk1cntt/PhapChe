@@ -297,11 +297,22 @@ function formatActivityAction(action: string, meta: any, actorName?: string): { 
   };
 }
 
-// Extract data-fetching into a custom hook:
-function usePartnerData(partnerId: string) {
+export default function PartnerActivityClient() {
+  const params = useParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const partnerId = params.id as string;
+
+  const getLocale = () => pathname.split('/')[1] || 'vi';
+
+  const navigateToRequest = (requestId: string) => {
+    router.push(`/${getLocale()}/admin/requests/${requestId}`);
+  };
+
   const [partner, setPartner] = useState<Partner | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('all');
 
   const fetchPartner = useCallback(async () => {
     setLoading(true);
@@ -310,45 +321,16 @@ function usePartnerData(partnerId: string) {
       const res = await fetch(`/api/admin/partners/${partnerId}`);
       if (!res.ok) throw new Error('Failed to fetch partner');
       const data = await res.json();
-      setPartner(transformApiResponse(data.data));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load partner');
-    } finally {
-      setLoading(false);
-    }
-  }, [partnerId]);
+      const apiData = data.data;
 
-  useEffect(() => { fetchPartner(); }, [fetchPartner]);
-
-  return { partner, loading, error, refetch: fetchPartner };
-}
-
-// Then the main component becomes:
-export default function PartnerActivityClient() {
-  const params = useParams();
-  const router = useRouter();
-  const pathname = usePathname();
-  const partnerId = params.id as string;
-  const { partner, loading, error, refetch } = usePartnerData(partnerId);
-  const [activeTab, setActiveTab] = useState('all');
-    } finally {
-      setLoading(false);
-    }
-  }, [partnerId]);
-
-  useEffect(() => { fetchPartner(); }, [fetchPartner]);
-
-  return { partner, loading, error, refetch: fetchPartner };
-}
-
-// Then the main component becomes:
-export default function PartnerActivityClient() {
-  const params = useParams();
-  const router = useRouter();
-  const pathname = usePathname();
-  const partnerId = params.id as string;
-  const { partner, loading, error, refetch } = usePartnerData(partnerId);
-  const [activeTab, setActiveTab] = useState('all');
+      // Build documents from audit logs
+      const docsMap = new Map<string, Document>();
+      apiData.recentAuditLogs?.forEach((log: AuditLog) => {
+        const meta = parseActivityMeta(log);
+        if (log.targetType === 'vault_file' && meta.docName) {
+          docsMap.set(meta.docName, {
+            id: log.targetId,
+            name: meta.docName,
             fileType: meta.docName.split('.').pop() || 'DOC',
             fileSize: meta.docSize || '1.0 MB',
             uploadedBy: meta.userName || log.actorName || 'Partner',
@@ -397,7 +379,7 @@ export default function PartnerActivityClient() {
         recentDocuments: Array.from(docsMap.values()),
         recentAuditLogs: apiData.recentAuditLogs?.map((log: any) => ({
           ...log,
-          metadata: parseActivityMeta(log),
+          metadata: log.metadataSummary ? JSON.parse(log.metadataSummary) : {},
         })) || [],
         relatedUsers: apiData.relatedUsers || [],
         timeline: apiData.timeline || [],
@@ -449,11 +431,9 @@ export default function PartnerActivityClient() {
   }
 
   const uniqueOrgs = new Set(partner.engagements?.map((e) => e.organization.id) || []);
-  const DEFAULT_SLA_HEALTH_FALLBACK = 92;
-  // ...
-  const healthScore = partner.capacity?.slaOnTime || DEFAULT_SLA_HEALTH_FALLBACK;
-  // ...
-  const healthScore = partner.capacity?.slaOnTime || DEFAULT_SLA_HEALTH_FALLBACK;
+  const healthScore = partner.capacity?.slaOnTime || 92;
+
+  return (
     <div className="content">
       <div className="partner-activity">
         {/* Topbar */}
@@ -554,11 +534,33 @@ export default function PartnerActivityClient() {
             <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>Users</button>
             <button className={`tab-btn ${activeTab === 'sla' ? 'active' : ''}`} onClick={() => setActiveTab('sla')}>SLA / Risk</button>
           </div>
-          {/* Filters temporarily hidden — wire up state before enabling */}
-          {/* <div className="filters">
-            <input className="search" placeholder="Tìm hoạt động..." value={search} onChange={...} />
-            ...
-          </div> */}
+          <div className="filters">
+            <input className="search" placeholder="Tìm hoạt động, mã hồ sơ, org, user, tài liệu..." />
+            <select className="select">
+              <option>Tất cả organization</option>
+              {partner.engagements?.map((e) => (
+                <option key={e.id} value={e.organization.id}>{e.organization.name}</option>
+              ))}
+            </select>
+            <select className="select">
+              <option>Tất cả workspace</option>
+            </select>
+            <select className="select">
+              <option>Tất cả trạng thái</option>
+              <option>Đang xử lý</option>
+              <option>Chờ khách bổ sung</option>
+              <option>Chờ duyệt</option>
+              <option>Hoàn tất</option>
+              <option>SLA risk</option>
+            </select>
+            <select className="select">
+              <option>7 ngày gần nhất</option>
+              <option>Hôm nay</option>
+              <option>30 ngày gần nhất</option>
+              <option>Quý này</option>
+            </select>
+            <button className="filter-btn">Lọc</button>
+          </div>
         </div>
 
         {/* Main Layout */}
@@ -583,14 +585,13 @@ export default function PartnerActivityClient() {
                     const isImportant = log.action.includes('SLA') || log.action.includes('risk');
                     const { title, description } = formatActivityAction(log.action, meta, log.actorName);
 
-const ACTIVITY_ICON_MAP: Record<string, { type: string; label: string }> = {
-  request: { type: 'case', label: 'REQ' },
-  vault_file: { type: 'doc', label: 'DOC' },
-  workspace: { type: 'org', label: 'ORG' },
-};
-// then in the map:
-const iconInfo = ACTIVITY_ICON_MAP[log.targetType] ?? { type: 'user', label: 'USR' };
-const iconInfo = ACTIVITY_ICON_MAP[log.targetType] ?? { type: 'user', label: 'USR' };
+                    const iconType = log.targetType === 'request' ? 'case' :
+                      log.targetType === 'vault_file' ? 'doc' :
+                        log.targetType === 'workspace' ? 'org' : 'user';
+                    const iconLabel = log.targetType === 'request' ? 'REQ' :
+                      log.targetType === 'vault_file' ? 'DOC' :
+                        log.targetType === 'workspace' ? 'ORG' : 'USR';
+
                     return (
                       <div
                         key={log.id}
@@ -889,7 +890,7 @@ const iconInfo = ACTIVITY_ICON_MAP[log.targetType] ?? { type: 'user', label: 'US
                     <div className="track">
                       <div
                         className="fill blue"
-                        style={{ width: `${partner.capacity.openRequests.max > 0 ? (partner.capacity.openRequests.current / partner.capacity.openRequests.max) * 100 : 0}%` }}
+                        style={{ width: `${(partner.capacity.openRequests.current / partner.capacity.openRequests.max) * 100}%` }}
                       />
                     </div>
                   </div>
@@ -910,7 +911,7 @@ const iconInfo = ACTIVITY_ICON_MAP[log.targetType] ?? { type: 'user', label: 'US
                       <span>{partner.capacity.pendingDocs}</span>
                     </div>
                     <div className="track">
-                      <div className="fill orange" style={{ width: `${Math.min((partner.capacity.pendingDocs / MAX_PENDING_DOCS_CAPACITY) * 100, 100)}%` }} />
+                      <div className="fill orange" style={{ width: `${(partner.capacity.pendingDocs / 20) * 100}%` }} />
                     </div>
                   </div>
 

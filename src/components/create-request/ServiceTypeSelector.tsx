@@ -10,15 +10,26 @@ interface ServiceTypeSelectorProps {
   locale?: string;
 }
 
-function mapMatterTypeToServiceOption(key: string, matterType: typeof SEED_MATTER_TYPES[keyof typeof SEED_MATTER_TYPES]): ServiceOption {
+function mapMatterTypeToServiceOption(key: string, matterType: typeof SEED_MATTER_TYPES[keyof typeof SEED_MATTER_TYPES], locale: string): ServiceOption {
   // Map trademark_registration to 'trademark' for UI compatibility
   const id = key === 'trademark_registration' ? 'trademark' : key;
 
-  // Static lookup for per‑matter‑type UI overrides (tag, id mapping, estimated time)
-  const config = MATTER_TYPE_UI_CONFIG[key];
-  const id = config?.id ?? key;
-  const tags: ServiceOption['tags'] = config?.tags ?? [];
-  const estimatedTime = config?.estimatedTime;
+  // Add appropriate tag based on MatterType
+  const tags: ServiceOption['tags'] = [];
+  if (key === 'agency_contract') {
+    tags.push({ label: { vi: 'Khuyến nghị', en: 'Recommended', zh: '推荐', ja: 'おすすめ' }, variant: 'green' });
+  } else if (key === 'labor_contract') {
+    tags.push({ label: { vi: 'Nhanh', en: 'Fast', zh: '快速', ja: '快速' }, variant: 'blue' });
+  } else if (key === 'trademark_registration') {
+    tags.push({ label: { vi: 'IP', en: 'IP', zh: '知识产权', ja: 'IP' }, variant: 'purple' });
+  } else if (key === 'unsupported') {
+    tags.push({ label: { vi: 'Phân loại', en: 'Classify', zh: '分类', ja: '分類' }, variant: 'red' });
+  }
+
+  // Add estimated time for agency contract
+  const estimatedTime = key === 'agency_contract'
+    ? { vi: '2-3 ngày', en: '2-3 days', zh: '2-3天', ja: '2〜3日' }
+    : undefined;
 
   return {
     id,
@@ -34,7 +45,7 @@ export default function ServiceTypeSelector({ selectedId, onSelect, locale = 'vi
 
   // Build service options from SEED_MATTER_TYPES
   const SERVICE_OPTIONS: ServiceOption[] = Object.entries(SEED_MATTER_TYPES).map(([key, matterType]) =>
-    mapMatterTypeToServiceOption(key, matterType)
+    mapMatterTypeToServiceOption(key, matterType, locale)
   );
 
   return (

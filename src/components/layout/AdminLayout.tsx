@@ -1,29 +1,18 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useState, useEffect, useCallback } from 'react';
 import { DropdownMenu } from '@/components/shared/ui/DropdownMenu';
 import type { DropdownItem } from '@/components/shared/ui/DropdownMenu';
 import { signOut } from '@/lib/auth-client';
 import { ThemeToggle } from '@/components/shared/ui/ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
+import { canSeeMenu, MENU_VISIBILITY } from '@/lib/security/role-config';
 import '@/styles/pages/admin/ai-assistant.css';
 import { AiProvider } from '@/lib/ai/AiContext';
 import { AiStatusBadge } from '@/components/admin/AiStatusBadge';
-import {
-  LayoutDashboard,
-  FileText,
-  Users,
-  Building,
-  Handshake,
-  Building2,
-  Activity,
-  Shield,
-  Archive,
-  Search,
-  LogOut,
-  Menu,
-} from 'lucide-react';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -42,19 +31,167 @@ interface NavItem {
   requiredRoles?: readonly string[];
 }
 
-function getInitials(name: string): string {
-  if (!name || name.length === 0) return 'A';
-  return name.substring(0, 2).toUpperCase();
-}
-
-function Topbar({ userName, userRole, userInitial = 'A', userRoles = [], locale = 'vi' }: { userName?: string; userRole?: string; userInitial?: string; userRoles?: string[]; locale?: string }) {
+function Sidebar({ userName, userRole, userInitial = 'A', userRoles = [], locale = 'vi' }: { userName?: string; userRole?: string; userInitial?: string; userRoles?: string[]; locale?: string }) {
+  const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations('AdminNav');
   const tCommon = useTranslations('Common');
+  const tHelp = useTranslations('AdminNav');
 
+  // Sidebar collapsed state — persists to localStorage
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    const stored = localStorage.getItem('sidebar-collapsed');
+    if (stored === 'true') setCollapsed(true);
+  }, []);
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('sidebar-collapsed', String(next));
+      return next;
+    });
+  }, []);
+
+  const safeRoles: string[] = userRoles ?? [];
   const hasAccess = (roles: readonly string[] | null): boolean => {
     if (roles === null) return true;
-    return userRoles.some(r => roles.includes(r));
+    return safeRoles.some(r => roles.includes(r));
+  };
+
+  const navItems: NavItem[] = [
+    {
+      key: 'dashboard',
+      label: t('dashboard'),
+      href: `/${locale}/admin/dashboard`,
+      requiredRoles: undefined,
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      ),
+    },
+    {
+      key: 'requests',
+      label: t('requests'),
+      href: `/${locale}/admin/requests`,
+      requiredRoles: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6"/>
+          <path d="M9 13h6"/>
+          <path d="M9 17h6"/>
+          <path d="M9 9h1"/>
+        </svg>
+      ),
+    },
+    {
+      key: 'users',
+      label: t('users'),
+      href: `/${locale}/admin/users`,
+      requiredRoles: ['super_admin', 'coordinator_admin'],
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      ),
+    },
+    {
+      key: 'workspace',
+      label: t('workspaces'),
+      href: `/${locale}/admin/workspace`,
+      requiredRoles: ['super_admin', 'coordinator_admin'],
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      ),
+    },
+    {
+      key: 'partner',
+      label: t('partner'),
+      href: `/${locale}/admin/partner`,
+      requiredRoles: ['super_admin', 'coordinator_admin'],
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      ),
+    },
+    {
+      key: 'organizations',
+      label: t('organizations'),
+      href: `/${locale}/admin/organizations`,
+      requiredRoles: ['super_admin'],
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M3 21h18"/>
+          <path d="M9 8h1"/>
+          <path d="M9 12h1"/>
+          <path d="M9 16h1"/>
+          <path d="M14 8h1"/>
+          <path d="M14 12h1"/>
+          <path d="M14 16h1"/>
+          <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>
+        </svg>
+      ),
+    },
+    {
+      key: 'operations',
+      label: t('ops'),
+      href: `/${locale}/admin/operations`,
+      requiredRoles: ['super_admin', 'coordinator_admin'],
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 7v5l3 3"/>
+          <path d="M4.9 4.9l2.8 2.8"/>
+          <path d="M19.1 4.9l-2.8 2.8"/>
+        </svg>
+      ),
+    },
+    {
+      key: 'audit',
+      label: t('audit'),
+      href: `/${locale}/admin/audit`,
+      requiredRoles: ['super_admin', 'coordinator_admin', 'audit_admin'],
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      ),
+    },
+    {
+      key: 'vault',
+      label: t('vault'),
+      href: `/${locale}/admin/vault`,
+      requiredRoles: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M3 7h18v13H3z"/>
+          <path d="M3 7l3-4h12l3 4"/>
+        </svg>
+      ),
+    },
+  ];
+
+  // Filter nav items by role visibility
+  const visibleNavItems = navItems.filter(item => hasAccess(item.requiredRoles ?? null));
+
+  const isActive = (href: string) => {
+    return pathname === href || pathname.startsWith(href + '/');
   };
 
   const handleLogout = async () => {
@@ -68,126 +205,119 @@ function Topbar({ userName, userRole, userInitial = 'A', userRoles = [], locale 
         },
       });
     } catch (e) {
-      // TODO: surface error to user via toast/notification
-      console.error('Logout failed:', e);
+      console.error('Logout error:', e);
+      // Fallback: redirect anyway
       router.push(`/${locale}/sign-in`);
     }
-    }
+  };
 
   const userMenuItems: DropdownItem[] = [
     {
       key: 'logout',
       label: tCommon('signOut'),
-      icon: <LogOut size={16} />,
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      ),
       onClick: handleLogout,
     },
   ];
 
-function buildNavItems(
-  t: ReturnType<typeof useTranslations<'AdminNav'>>,
-  locale: string
-): NavItem[] {
-  return [
-    {
-      key: 'dashboard',
-      label: t('dashboard'),
-      href: `/${locale}/admin/dashboard`,
-      requiredRoles: undefined,
-      icon: <LayoutDashboard size={16} />,
-    },
-    {
-      key: 'requests',
-      label: t('requests'),
-      href: `/${locale}/admin/requests`,
-      requiredRoles: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
-      icon: <FileText size={16} />,
-    },
-    {
-      key: 'users',
-      label: t('users'),
-      href: `/${locale}/admin/users`,
-      requiredRoles: ['super_admin', 'coordinator_admin'],
-      icon: <Users size={16} />,
-    },
-    {
-      key: 'workspace',
-      label: t('workspaces'),
-      href: `/${locale}/admin/workspace`,
-      requiredRoles: ['super_admin', 'coordinator_admin'],
-      icon: <Building size={16} />,
-    },
-    {
-      key: 'partner',
-      label: t('partner'),
-      href: `/${locale}/admin/partner`,
-      requiredRoles: ['super_admin', 'coordinator_admin'],
-      icon: <Handshake size={16} />,
-    },
-    {
-      key: 'organizations',
-      label: t('organizations'),
-      href: `/${locale}/admin/organizations`,
-      requiredRoles: ['super_admin'],
-      icon: <Building2 size={16} />,
-    },
-    {
-      key: 'operations',
-      label: t('ops'),
-      href: `/${locale}/admin/operations`,
-      requiredRoles: ['super_admin', 'coordinator_admin'],
-      icon: <Activity size={16} />,
-    },
-    {
-      key: 'audit',
-      label: t('audit'),
-      href: `/${locale}/admin/audit`,
-      requiredRoles: ['super_admin', 'coordinator_admin', 'audit_admin'],
-      icon: <Shield size={16} />,
-    },
-    {
-      key: 'vault',
-      label: t('vault'),
-      href: `/${locale}/admin/vault`,
-      requiredRoles: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
-      icon: <Archive size={16} />,
-    },
-  ];
+  return (
+    <aside className={`sidebar${collapsed ? ' collapsed' : ''}`}>
+      <div>
+        {/* Brand */}
+        <div className="brand">
+          <div className="brand-mark"></div>
+          <div className="brand-text">GitNexus Legal</div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="nav">
+          {visibleNavItems.map((item) => (
+            <Link
+              key={item.key}
+              href={item.href}
+              className={`nav-item ${isActive(item.href) ? 'active' : ''}`}
+              data-label={item.label}
+            >
+              {item.icon}
+              <span className="nav-item-label">{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="sidebar-bottom">
+        {/* Help Card */}
+        <div className="help-card">
+          <div className="help-icon">?</div>
+          <div className="help-text">
+            <strong>{tHelp('helpCard.needHelp')}</strong>
+            <span>{tHelp('helpCard.viewGuide')}</span>
+          </div>
+        </div>
+
+        {/* User Profile with Dropdown */}
+        <DropdownMenu items={userMenuItems} trigger={['click']} placement="topRight">
+          <div className="profile">
+            <div className="avatar">{userInitial}</div>
+            <div className="profile-info">
+              <strong>{userName}</strong>
+              <span>{userRole}</span>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </div>
+        </DropdownMenu>
+
+        {/* Toggle collapse/expand */}
+        <button
+          type="button"
+          className="sidebar-toggle"
+          onClick={toggleCollapsed}
+          title={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="m11 19-7-7 7-7"/>
+            <path d="m18 19-7-7 7-7"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
+  );
 }
-      requiredRoles: ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'],
-      icon: <Archive size={16} />,
-    },
-  ];
-}
-    label: item.label,
-    icon: item.icon,
-    onClick: () => router.push(item.href),
-  }));
+
+function Topbar() {
+  const t = useTranslations('Common');
 
   return (
     <header className="topbar">
-      {/* Left: Brand logo + admin label */}
-      <div className="header-brand">
-        <div className="brand">
-          <div className="brand-mark" />
-          <span className="brand-text">GitNexus Legal</span>
+      {/* Left: Placeholder for breadcrumbs */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+        <div>
+          <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--color-text)' }}>Admin Dashboard</h1>
         </div>
-        <span className="header-workspace">Admin · {userRole || 'Admin'}</span>
       </div>
 
-      {/* Right: Actions */}
+      {/* Right: Search, Language, Bell, Avatar */}
       <div className="top-actions">
-        {/* TODO: implement search functionality with value/onChange */}
+        {/* Search */}
         <div className="search-top">
-          <Search size={18} />
-          <input type="text" placeholder={tCommon('search')} />
+          <input
+            type="text"
+            placeholder={t('search')}
+          />
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
         </div>
-        </div>
-        {/* Navigation menu dropdown */}
-        <DropdownMenu items={navDropdownItems} trigger={['click']} placement="bottomRight">
-          <button className="menu-toggle-btn" type="button" aria-label={tCommon('menu')}>
-            <Menu size={20} />
-          </button>
-        </DropdownMenu>
 
         {/* Language Switcher */}
         <LanguageSwitcher />
@@ -196,10 +326,8 @@ function buildNavItems(
         {/* AI Status */}
         <AiStatusBadge />
 
-        {/* User avatar with dropdown */}
-        <DropdownMenu items={userMenuItems} trigger={['click']} placement="bottomRight">
-          <div className="circle">{userInitial || getInitials(userName || '')}</div>
-        </DropdownMenu>
+        {/* Avatar */}
+        <div className="circle">A</div>
       </div>
     </header>
   );
@@ -208,9 +336,10 @@ function buildNavItems(
 export function AdminLayout({ children, userName, userRole, userInitial, userRoles = [], locale = 'vi' }: AdminLayoutProps) {
   return (
     <AiProvider>
-      <div className="app app--no-sidebar">
+      <div className="app">
+        <Sidebar userName={userName} userRole={userRole} userInitial={userInitial} userRoles={userRoles} locale={locale} />
         <main className="main">
-          <Topbar userName={userName} userRole={userRole} userInitial={userInitial} userRoles={userRoles} locale={locale} />
+          <Topbar />
           <section className="content">
             {children}
           </section>

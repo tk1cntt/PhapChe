@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-// (remove this import entirely)
+import { useTranslations } from 'next-intl';
 import { Sparkles, X, Loader2, Bot } from 'lucide-react';
 import type { AgentSkill, LegalDomain, SkillResult } from '@/lib/ai/types';
 import { AiSkillSelector } from './AiSkillSelector';
@@ -34,7 +34,7 @@ export function AiAssistantPanel({
 
   const defaultDomain = mapMatterTypeToDomain(matterTypeKey);
 
-  const handleSelectSkill = useCallback(async (skill: AgentSkill, _domain: LegalDomain) => {
+  const handleSelectSkill = useCallback(async (skill: AgentSkill, domain: LegalDomain) => {
     setExecuting(skill);
     setError(null);
 
@@ -144,55 +144,56 @@ export function AiAssistantPanel({
 
 // ── Helpers ──────────────────────────────────────────────────
 
-const MATTER_TYPE_TO_DOMAIN: Record<string, LegalDomain> = {
-  // Commercial
-  commercial_review: 'commercial-legal',
-  distribution_contract: 'commercial-legal',
-  agency_contract: 'commercial-legal',
-  nda: 'commercial-legal',
-  template_engine: 'commercial-legal',
-  // Corporate
-  incorporation: 'corporate-legal',
-  shareholder_agreement: 'corporate-legal',
-  m_and_a: 'corporate-legal',
-  business_license: 'corporate-legal',
-  compliance_report: 'corporate-legal',
-  // Employment
-  labor_contract: 'employment-legal',
-  labor_dispute: 'employment-legal',
-  internal_regulations: 'employment-legal',
-  // IP
-  trademark_registration: 'ip-legal',
-  copyright: 'ip-legal',
-  patent: 'ip-legal',
-  // Privacy
-  privacy_policy: 'privacy-legal',
-  dpia: 'privacy-legal',
-  data_processing_agreement: 'privacy-legal',
-  // Product
-  terms_of_service: 'product-legal',
-  return_policy: 'product-legal',
-  product_liability: 'product-legal',
-  // AI
-  ai_policy: 'ai-governance-legal',
-  algorithm_audit: 'ai-governance-legal',
-  // Litigation
-  lawsuit_filing: 'litigation-legal',
-  settlement_agreement: 'litigation-legal',
-  litigation_consultation: 'litigation-legal',
-  // Legal builder
-  legal_research: 'legal-builder-hub',
-  workflow_builder: 'legal-builder-hub',
-  cocounsel: 'legal-builder-hub',
-  legal_research_tools: 'legal-builder-hub',
-  // Other → legal-clinic
-  internal_consultation: 'legal-clinic',
-  legal_training: 'legal-clinic',
-  case_study: 'legal-clinic',
-  unsupported: 'legal-clinic',
-};
-
 function mapMatterTypeToDomain(matterTypeKey?: string | null): LegalDomain | undefined {
   if (!matterTypeKey) return undefined;
-  return MATTER_TYPE_TO_DOMAIN[matterTypeKey];
+
+  const mapping: Record<string, LegalDomain> = {
+    // Commercial
+    commercial_review: 'commercial-legal',
+    distribution_contract: 'commercial-legal',
+    agency_contract: 'commercial-legal',
+    nda: 'commercial-legal',
+    template_engine: 'commercial-legal',
+    // Corporate
+    incorporation: 'corporate-legal',
+    shareholder_agreement: 'corporate-legal',
+    m_and_a: 'corporate-legal',
+    business_license: 'corporate-legal',
+    compliance_report: 'corporate-legal',
+    // Employment
+    labor_contract: 'employment-legal',
+    labor_dispute: 'employment-legal',
+    internal_regulations: 'employment-legal',
+    // IP
+    trademark_registration: 'ip-legal',
+    copyright: 'ip-legal',
+    patent: 'ip-legal',
+    // Privacy
+    privacy_policy: 'privacy-legal',
+    dpia: 'privacy-legal',
+    data_processing_agreement: 'privacy-legal',
+    // Product
+    terms_of_service: 'product-legal',
+    return_policy: 'product-legal',
+    product_liability: 'product-legal',
+    // AI
+    ai_policy: 'ai-governance-legal',
+    algorithm_audit: 'ai-governance-legal',
+    // Litigation
+    lawsuit_filing: 'litigation-legal',
+    settlement_agreement: 'litigation-legal',
+    litigation_consultation: 'litigation-legal',
+    // Legal builder
+    legal_research: 'legal-builder-hub',
+    workflow_builder: 'legal-builder-hub',
+    cocounsel: 'legal-builder-hub',
+    legal_research_tools: 'legal-builder-hub',
+    // Other → legal-clinic
+    internal_consultation: 'legal-clinic',
+    legal_training: 'legal-clinic',
+    case_study: 'legal-clinic',
+    unsupported: 'legal-clinic',
+  };
+
+  return mapping[matterTypeKey];
 }

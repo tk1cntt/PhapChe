@@ -31,11 +31,16 @@ export default function AdminRequestsPage() {
   }, [userRoles]);
 
   const [activeTab, setActiveTab] = useState<TabKey | null>(null);
+  const firstTab = visibleTabs[0] ?? null;
 
-  const effectiveTab = useMemo<TabKey | null>(() => {
-    if (activeTab && visibleTabs.includes(activeTab)) return activeTab;
-    return visibleTabs[0] ?? null;
+  // Reset activeTab when the selected tab is no longer visible
+  useEffect(() => {
+    if (activeTab && !visibleTabs.includes(activeTab)) {
+      setActiveTab(null);
+    }
   }, [activeTab, visibleTabs]);
+
+  const effectiveTab = activeTab ?? firstTab;
 
   if (userRoles.length === 0 || !effectiveTab) {
     return (

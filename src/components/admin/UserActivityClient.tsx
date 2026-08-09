@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { use, useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
@@ -9,6 +9,13 @@ import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 interface PageProps {
   userId: string;
   locale: string;
+  initialUser: {
+    id: string;
+    name: string;
+    email: string;
+    isActive: boolean;
+    emailVerified: boolean;
+  };
 }
 
 interface UserDetail {
@@ -94,13 +101,34 @@ function getInitials(name: string): string {
   return name.slice(0, 2).toUpperCase();
 }
 
-// Removed: getStatusClass, getBadgeClass, getFileIconClass — never called
+function getStatusClass(status: string): string {
+  if (status === 'active') return 'status-active';
+  if (status === 'invited') return 'status-warning';
+  return 'status-inactive';
+}
 
-// Consider splitting: extract CSS to .module.css, extract sections to child components.
-// See: UserHero, ActivityFeed, RequestsTable, OrgAccess, UserSidebar
-export default function UserActivityClient({ userId, locale }: PageProps) {
-// See: UserHero, ActivityFeed, RequestsTable, OrgAccess, UserSidebar
-export default function UserActivityClient({ userId, locale }: PageProps) {
+function getBadgeClass(variant: string): string {
+  const classes: Record<string, string> = {
+    green: 'mini-badge-green',
+    blue: 'mini-badge-blue',
+    orange: 'mini-badge-orange',
+    purple: 'mini-badge-purple',
+    gray: 'mini-badge-gray',
+    red: 'mini-badge-red',
+  };
+  return classes[variant] || 'mini-badge-gray';
+}
+
+function getFileIconClass(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase() || '';
+  if (ext === 'pdf') return 'file-icon-pdf';
+  if (['png', 'jpg', 'jpeg', 'gif', 'svg'].includes(ext)) return 'file-icon-img';
+  return 'file-icon-doc';
+}
+
+export default function UserActivityClient({ userId, locale, initialUser }: PageProps) {
+  const t = useTranslations('AdminUsers');
+  const [activeTab, setActiveTab] = useState('all');
 
   const { data, isLoading, error } = useQuery<UserDetail>({
     queryKey: ['user-detail', userId],
@@ -134,8 +162,8 @@ export default function UserActivityClient({ userId, locale }: PageProps) {
 
   return (
     <>
-      {/* Styles extracted to UserActivityClient.module.css */}
-      <div className="user-activity-content">
+      <style>{`
+        .user-activity-content {
           min-height: calc(100vh - 76px);
           padding: 32px 36px 48px;
           background: radial-gradient(circle at 82% 10%, rgba(15, 118, 110, 0.055), transparent 28%),
@@ -997,9 +1025,9 @@ export default function UserActivityClient({ userId, locale }: PageProps) {
               </div>
 
               <div className="ua-hero-right">
-                <span className={`ua-status-badge ${getStatusVariant(user.status)}`}>
+                <span className={`ua-status-badge ${user.status === 'active' ? '' : user.status === 'invited' ? 'warning' : 'inactive'}`}>
                   <span className="ua-status-dot"></span>
-                  {getStatusLabel(user.status, t)}
+                  {user.status === 'active' ? t('statusActiveUser') : user.status === 'invited' ? t('statusInvited') : t('statusInactive')}
                 </span>
 
                 <div className="ua-health-card">

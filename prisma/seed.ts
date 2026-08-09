@@ -701,8 +701,146 @@ async function main() {
   }
   console.log(`  ✓ Audit events: ${demoAuditActions.length}`);
 
-  // Phase 16 fixtures: minimum demo legal request, document, and document version
-  // so dynamic detail routes can validate with role-owned IDs.
+  // ── Seed messages for ALL demo-legal-workspace requests ──
+  // Every DEMO request gets a conversation thread (5-8 messages)
+  const allDemoRequestsForMsgs = await prisma.legalRequest.findMany({
+    where: {
+      workspaceId: workspace.id,
+      code: { startsWith: 'DEMO-' },
+    },
+    orderBy: { code: 'asc' },
+  });
+
+  // Rich message templates — one per topic area, reusable with different titles
+  const messageTemplates: Array<{ from: 'specialist' | 'customer'; content: string }[]> = [
+    // 0: Contract review
+    [
+      { from: 'customer', content: 'Chào em, bên chị mới nhận được hợp đồng từ đối tác, em xem giúp chị có điều khoản nào rủi ro không nhé.' },
+      { from: 'specialist', content: 'Dạ chị gửi em bản hợp đồng, em sẽ rà soát và báo cáo các điểm cần lưu ý trong 24h ạ.' },
+      { from: 'specialist', content: 'Chào chị, em đã xem xong hợp đồng. Có 3 điểm chính cần điều chỉnh: (1) Điều khoản phạt vi phạm đang quá cao so với quy định, (2) Thời hạn thanh toán chưa rõ ràng, (3) Thiếu điều khoản giải quyết tranh chấp. Em gửi chị bản đánh dấu các điểm cần sửa.' },
+      { from: 'customer', content: 'Cảm ơn em, chị xem và phản hồi lại ngay.' },
+      { from: 'specialist', content: 'Dạ chị cứ tự nhiên. Nếu cần em soạn email phản hồi chính thức cho đối tác luôn ạ.' },
+    ],
+    // 1: Company/incorporation
+    [
+      { from: 'customer', content: 'Em ơi, bên chị muốn làm thủ tục thành lập công ty mới, không biết cần những giấy tờ gì?' },
+      { from: 'specialist', content: 'Chào chị, em sẽ hỗ trợ chị toàn bộ thủ tục. Cần chuẩn bị: CMND/CCCD của người đại diện, dự thảo điều lệ, giấy đề nghị đăng ký kinh doanh, và danh sách thành viên/góp vốn. Chị dự định thành lập loại hình nào: TNHH, cổ phần, hay tư nhân ạ?' },
+      { from: 'customer', content: 'Công ty TNHH 2 thành viên trở lên em nhé. Vốn điều lệ khoảng 5 tỷ.' },
+      { from: 'specialist', content: 'Dạ rõ. Em soạn hồ sơ đầy đủ cho chị: điều lệ, giấy đề nghị, danh sách thành viên. Dự kiến 3-5 ngày làm việc sẽ có giấy phép. Chị cho em xin thông tin 2 thành viên để em điền vào hồ sơ.' },
+    ],
+    // 2: Trademark/IP
+    [
+      { from: 'specialist', content: 'Chào chị, em đã nhận yêu cầu đăng ký sở hữu trí tuệ của chị. Em đã tra cứu sơ bộ trên hệ thống Cục SHTT và thấy khả quan ạ.' },
+      { from: 'customer', content: 'Tốt quá! Vậy mình cần chuẩn bị gì tiếp theo em?' },
+      { from: 'specialist', content: 'Dạ cần: mẫu nhãn hiệu/kiểu dáng, tờ khai đăng ký, giấy ủy quyền cho bên em nộp hồ sơ. Em đã soạn sẵn tờ khai và giấy ủy quyền, chị chỉ cần ký và gửi mẫu. Lệ phí nhà nước khoảng 1-2 triệu tùy loại, phí dịch vụ bên em 3 triệu.' },
+      { from: 'customer', content: 'OK, gửi chị giấy tờ để ký. Khi nào nộp được em?' },
+      { from: 'specialist', content: 'Dạ ngay khi có đủ chữ ký em sẽ nộp trong ngày. Thời gian xử lý khoảng 12-18 tháng, mình sẽ nhận được thông báo chấp nhận đơn trong 2-3 tháng đầu.' },
+      { from: 'customer', content: 'Rõ rồi, cảm ơn em.' },
+    ],
+    // 3: Tax/compliance
+    [
+      { from: 'customer', content: 'Em ơi, chị cần tư vấn về vấn đề thuế và tuân thủ cho công ty. Bên chị đang có vài vướng mắc.' },
+      { from: 'specialist', content: 'Chào chị, em sẵn sàng hỗ trợ. Chị cho em biết cụ thể vướng mắc ở khâu nào: thuế GTGT, TNDN, TNCN, hay báo cáo định kỳ ạ?' },
+      { from: 'customer', content: 'Chủ yếu là cách tính thuế TNCN cho nhân viên mới, và bên chị sắp bị thanh tra thuế nên cần rà soát lại.' },
+      { from: 'specialist', content: 'Dạ em hiểu. Em sẽ làm 2 việc: (1) Tư vấn chi tiết cách tính thuế TNCN cho nhân viên mới kèm biểu thuế lũy tiến, (2) Rà soát toàn bộ hồ sơ thuế 2 năm gần nhất để chuẩn bị cho đợt thanh tra. Em gửi chị checklist các mục cần kiểm tra trước.' },
+      { from: 'customer', content: 'Tuyệt vời, đúng cái chị cần. Làm ngay giúp chị nhé.' },
+    ],
+    // 4: Employment/labor
+    [
+      { from: 'customer', content: 'Chào luật sư, công ty em đang cần tư vấn về vấn đề lao động.' },
+      { from: 'specialist', content: 'Chào chị, em là chuyên viên phụ trách. Chị cho em biết cụ thể công ty mình đang gặp vấn đề gì về lao động: hợp đồng, kỷ luật, chấm dứt, hay chế độ phúc lợi ạ?' },
+      { from: 'customer', content: 'Bên chị muốn soạn lại quy chế và hợp đồng lao động cho chuẩn với luật mới.' },
+      { from: 'specialist', content: 'Dạ em sẽ soạn bộ hồ sơ lao động chuẩn theo Bộ luật Lao động 2019: hợp đồng mẫu, quy chế nội bộ, thỏa ước lao động tập thể (nếu cần). Em cũng rà soát xem có điểm nào chưa phù hợp không. Chị cho em xin quy chế và hợp đồng hiện tại để em đối chiếu.' },
+      { from: 'customer', content: 'OK em, để chị gửi.' },
+    ],
+    // 5: NDA/confidentiality
+    [
+      { from: 'specialist', content: 'Chào chị, em đã nhận yêu cầu về thỏa thuận bảo mật. Em cần biết phạm vi thông tin cần bảo vệ để soạn NDA phù hợp.' },
+      { from: 'customer', content: 'Chủ yếu là dữ liệu khách hàng, bí quyết kinh doanh, và thông tin tài chính nội bộ. Đối tác sẽ tiếp cận những thông tin này trong quá trình hợp tác.' },
+      { from: 'specialist', content: 'Dạ em soạn NDA với phạm vi rộng, bao gồm: thông tin khách hàng, dữ liệu tài chính, bí quyết kinh doanh, và chiến lược phát triển. Thời hạn bảo mật 5 năm kể từ ngày ký. Có điều khoản bồi thường nếu vi phạm. Chị xem có cần thêm gì không?' },
+      { from: 'customer', content: 'Tốt rồi em, gửi chị bản nháp nhé.' },
+      { from: 'specialist', content: 'Dạ em gửi ngay. Khi nào có phản hồi từ đối tác mình sẽ điều chỉnh tiếp ạ.' },
+    ],
+    // 6: Service agreement
+    [
+      { from: 'customer', content: 'Em ơi, chị cần soạn 1 hợp đồng dịch vụ mới cho khách hàng.' },
+      { from: 'specialist', content: 'Chào chị, em sẽ hỗ trợ. Chị cho em biết loại dịch vụ, thời hạn, giá trị hợp đồng, và các yêu cầu đặc biệt để em soạn cho sát thực tế.' },
+      { from: 'customer', content: 'Dịch vụ tư vấn quản lý, hợp đồng 1 năm, giá trị khoảng 500 triệu. Khách hàng yêu cầu có điều khoản bảo mật và cam kết chất lượng.' },
+      { from: 'specialist', content: 'Dạ em soạn hợp đồng dịch vụ tư vấn với đầy đủ: phạm vi công việc, thời hạn, phí dịch vụ và phương thức thanh toán, điều khoản bảo mật, cam kết chất lượng (SLA), và điều khoản chấm dứt. Em gửi chị bản nháp trong chiều nay.' },
+      { from: 'customer', content: 'OK, chị đợi bản nháp nhé. Cảm ơn em.' },
+    ],
+    // 7: Corporate governance
+    [
+      { from: 'customer', content: 'Em ơi, công ty chị cần soạn thảo các văn bản quản trị nội bộ cho chuẩn.' },
+      { from: 'specialist', content: 'Chào chị, em sẽ giúp chị chuẩn hóa toàn bộ hồ sơ quản trị: điều lệ, quy chế hoạt động HĐTV/HĐQT, quy chế tài chính, và các nghị quyết/biên bản họp. Chị cho em biết loại hình công ty và cơ cấu tổ chức hiện tại.' },
+      { from: 'customer', content: 'Công ty cổ phần, có HĐQT 5 người, Ban kiểm soát 3 người. Chị cần bộ quy chế đầy đủ.' },
+      { from: 'specialist', content: 'Dạ em soạn trọn bộ: điều lệ cập nhật theo Luật Doanh nghiệp 2020, quy chế hoạt động HĐQT, quy chế Ban kiểm soát, quy chế tài chính nội bộ, và mẫu biên bản/nghị quyết chuẩn. Dự kiến 5 ngày làm việc sẽ hoàn thiện.' },
+      { from: 'customer', content: 'Tốt, làm giúp chị nhé.' },
+    ],
+    // 8: M&A/Investment
+    [
+      { from: 'specialist', content: 'Chào chị, em đã nhận yêu cầu tư vấn về M&A/đầu tư. Đây là lĩnh vực phức tạp, em sẽ phân tích kỹ từng bước cho chị.' },
+      { from: 'customer', content: 'Chào em, chị cần đánh giá rủi ro pháp lý trước khi quyết định đầu tư/sáp nhập.' },
+      { from: 'specialist', content: 'Dạ em sẽ thực hiện: (1) Due diligence pháp lý — rà soát toàn bộ hồ sơ pháp lý của bên kia, (2) Đánh giá rủi ro và cơ hội, (3) Đề xuất cấu trúc giao dịch tối ưu, (4) Soạn thảo thỏa thuận nguyên tắc. Chị gửi em thông tin cơ bản về bên kia để em bắt đầu.' },
+      { from: 'customer', content: 'OK em, chị gửi hồ sơ qua email. Em xem và báo chị nhé.' },
+    ],
+    // 9: Distribution/agency
+    [
+      { from: 'customer', content: 'Chào em, bên chị sắp ký hợp đồng với đại lý/nhà phân phối mới, em hỗ trợ soạn thảo giúp.' },
+      { from: 'specialist', content: 'Chào chị, em sẽ soạn hợp đồng chuẩn theo Luật Thương mại. Chị cho em biết: phạm vi độc quyền hay không độc quyền, khu vực địa lý, thời hạn, và chính sách chiết khấu/hoa hồng.' },
+      { from: 'specialist', content: 'Dạ em soạn xong bản nháp. Các điều khoản chính: độc quyền phân phối trong khu vực, doanh số cam kết tối thiểu, chính sách giá và chiết khấu, thời hạn 3 năm, điều khoản chấm dứt và giải quyết tranh chấp. Chị xem và góp ý thêm ạ.' },
+      { from: 'customer', content: 'Đọc sơ qua thấy ổn, để chị xem kỹ rồi phản hồi.' },
+    ],
+  ];
+
+  const demoMsgCount = { total: 0, threads: 0 };
+  const baseTime = Date.now();
+  // Messages page filter: status in triage|assigned|in_progress|pending_review|revision_required
+  const msgFilterStatuses = new Set(['triage', 'assigned', 'in_progress', 'pending_review', 'revision_required']);
+
+  for (let i = 0; i < allDemoRequestsForMsgs.length; i++) {
+    const req = allDemoRequestsForMsgs[i];
+
+    // Skip closed/cancelled/draft_intake — not visible in messages page
+    if (!msgFilterStatuses.has(req.status)) continue;
+
+    // Pick template based on index — cyclic
+    const templateIdx = i % messageTemplates.length;
+    const template = messageTemplates[templateIdx];
+
+    // Determine sender/recipient based on request's createdBy
+    const customerId = req.createdById;
+    const specialistId = req.assignedSpecialistId ?? demoSpecialist.id;
+
+    for (let j = 0; j < template.length; j++) {
+      const msg = template[j];
+      const senderId = msg.from === 'specialist' ? specialistId : customerId;
+      const recipientId = msg.from === 'specialist' ? customerId : specialistId;
+
+      // Spread threads across last 72 hours, oldest message first
+      const threadBaseMs = baseTime - (i * 120 * 60 * 1000);
+      // j=0 → oldest (furthest in past), j=last → newest (closest to now)
+      const msgOffsetMs = (template.length - 1 - j) * 10 * 60 * 1000;
+      const createdAt = new Date(threadBaseMs - msgOffsetMs);
+
+      await prisma.message.create({
+        data: {
+          workspaceId: workspace.id,
+          legalRequestId: req.id,
+          senderId,
+          recipientId,
+          content: msg.content,
+          isRead: true,
+          createdAt,
+        },
+      });
+      demoMsgCount.total++;
+    }
+    demoMsgCount.threads++;
+  }
+  console.log(`  ✓ Demo messages: ${demoMsgCount.total} (${demoMsgCount.threads} threads)`);
+
+  // Phase 16 fixtures
   const customerUser = demoCustomer;
   const specialistUser = demoSpecialist;
   const reviewerUser = demoReviewer;

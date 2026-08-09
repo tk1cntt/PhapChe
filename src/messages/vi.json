@@ -1554,11 +1554,20 @@
     "workspace": "Workspace",
     "wizard": {
       "stepTitle": "Bước {step}: {label}",
+      "step0": "Khởi đầu",
       "step1": "Lĩnh vực",
       "step2": "Dịch vụ",
       "step3": "Thông tin",
       "step4": "Tài liệu",
       "step5": "Xác nhận"
+    },
+    "guided": {
+      "title": "Bạn cần hỗ trợ về vấn đề gì?",
+      "description": "Chọn tình huống phù hợp nhất — chúng tôi sẽ gợi ý lĩnh vực pháp lý liên quan cho bạn.",
+      "skipToAllDomains": "Tôi đã biết lĩnh vực mình cần — xem tất cả lĩnh vực",
+      "suggestedForYou": "(Gợi ý cho bạn)",
+      "showGuide": "Xem hướng dẫn",
+      "hideGuide": "Ẩn hướng dẫn"
     },
     "domain": {
       "commercial-legal": "Thương mại",
@@ -2180,7 +2189,7 @@
       "pending": "Đang chờ"
     },
     "fallbackMatterType": "Yêu cầu pháp lý",
-    "unassigned": "—",
+    "unassigned": "Chờ nhân viên tư vấn",
     "roleSpecialist": "Chuyên viên",
     "roleReviewer": "Người kiểm duyệt"
   },

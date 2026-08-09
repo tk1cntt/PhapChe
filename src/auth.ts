@@ -17,6 +17,19 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
   },
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      // mapProfileToUser: (profile) => ({
+      //   id: profile.sub,
+      //   name: profile.name,
+      //   email: profile.email,
+      //   emailVerified: profile.email_verified,
+      //   image: profile.picture,
+      // }),
+    },
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24,      // refresh every 24h

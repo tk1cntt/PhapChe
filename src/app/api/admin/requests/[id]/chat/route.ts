@@ -17,7 +17,7 @@ import { normalizeMarkdown } from '@/lib/document';
 import type { ChatMessage } from '@/lib/ai/types';
 
 const ALLOWED_ROLES = ['super_admin', 'coordinator_admin', 'specialist', 'reviewer'] as const;
-const CHAT_MODEL_KEY = 'startup-model';
+const DEFAULT_MODEL_KEY = 'startup-model';
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -129,71 +129,54 @@ function generateSuggestedQuestions(context: RequestContext): string[] {
 
   const title = context.title;
 
-// ── Data-driven question rules ──
-
-interface QuestionRule {
-  keywords: string[];
-  matterTypes?: string[];
-  questions: string[];
-}
-
-const QUESTION_RULES: QuestionRule[] = [
-  {
-    keywords: ['điều 1', 'điều 2', 'điều khoản'],
-    questions: [
-      (t: string) => `Tóm tắt các điều khoản chính trong hồ sơ "${t}"`,
-      () => 'Các điều khoản nào có rủi ro pháp lý cao nhất? Cần sửa thế nào?',
-    ],
-  },
-  {
-    keywords: ['hợp đồng', 'lao động'],
-    matterTypes: ['labor_contract'],
-    questions: [
-      () => 'Hợp đồng này có tuân thủ Bộ luật Lao động 2019 không? Liệt kê điểm cần bổ sung.',
-      () => 'Điều khoản chấm dứt hợp đồng và bồi thường đã đủ chặt chẽ chưa?',
-    ],
-  },
-  {
-    keywords: ['bảo mật', 'nda', 'confidential'],
-    questions: [
-      () => 'Phạm vi bảo mật trong NDA này đã bao quát đủ loại thông tin cần bảo vệ chưa?',
-      () => 'Thời hạn bảo mật và chế tài xử phạt vi phạm đã đủ mạnh chưa?',
-    ],
-  },
-  // ... remaining rules
-];
-
-function matchesRule(rule: QuestionRule, allText: string, matterTypeKey: string | null): boolean {
-  const textMatch = rule.keywords.some((kw) => allText.includes(kw));
-  const typeMatch = !rule.matterTypes || (matterTypeKey ? rule.matterTypes.includes(matterTypeKey) : false);
-  return textMatch || typeMatch;
-}
-
-// Inside generateSuggestedQuestions:
-for (const rule of QUESTION_RULES) {
-  if (matchesRule(rule, allText, context.matterTypeKey ?? null)) {
-    for (const q of rule.questions) {
-      questions.push(q(title));
-    }
+  // Phân loại câu hỏi theo nội dung document
+  if (allText.includes('điều 1') || allText.includes('điều 2') || allText.includes('điều khoản')) {
+    questions.push(`Tóm tắt các điều khoản chính trong hồ sơ "${title}"`);
+    questions.push('Các điều khoản nào có rủi ro pháp lý cao nhất? Cần sửa thế nào?');
   }
-}
-  // ... remaining rules
-];
 
-function matchesRule(rule: QuestionRule, allText: string, matterTypeKey: string | null): boolean {
-  const textMatch = rule.keywords.some((kw) => allText.includes(kw));
-  const typeMatch = !rule.matterTypes || (matterTypeKey ? rule.matterTypes.includes(matterTypeKey) : false);
-  return textMatch || typeMatch;
-}
-
-// Inside generateSuggestedQuestions:
-for (const rule of QUESTION_RULES) {
-  if (matchesRule(rule, allText, context.matterTypeKey ?? null)) {
-    for (const q of rule.questions) {
-      questions.push(q(title));
-    }
+  if (allText.includes('hợp đồng') || allText.includes('lao động') || context.matterTypeKey === 'labor_contract') {
+    questions.push('Hợp đồng này có tuân thủ Bộ luật Lao động 2019 không? Liệt kê điểm cần bổ sung.');
+    questions.push('Điều khoản chấm dứt hợp đồng và bồi thường đã đủ chặt chẽ chưa?');
   }
-}
+
+  if (allText.includes('bảo mật') || allText.includes('nda') || allText.includes('confidential')) {
+    questions.push('Phạm vi bảo mật trong NDA này đã bao quát đủ loại thông tin cần bảo vệ chưa?');
+    questions.push('Thời hạn bảo mật và chế tài xử phạt vi phạm đã đủ mạnh chưa?');
+  }
+
+  if (allText.includes('dịch vụ') || allText.includes('service') || allText.includes('sla')) {
+    questions.push('Điều khoản SLA và phí dịch vụ có công bằng cho cả hai bên không?');
+    questions.push('Điều khoản chấm dứt hợp đồng dịch vụ đã bảo vệ đủ quyền lợi khách hàng chưa?');
+  }
+
+  if (allText.includes('thành lập') || allText.includes('doanh nghiệp') || allText.includes('công ty')) {
+    questions.push('Hồ sơ thành lập đã đủ giấy tờ theo Luật Doanh nghiệp 2025 chưa?');
+    questions.push('Ngành nghề đăng ký có cần giấy phép con hoặc điều kiện đặc biệt không?');
+  }
+
+  if (allText.includes('nhãn hiệu') || allText.includes('sở hữu trí tuệ') || allText.includes('đăng ký')) {
+    questions.push('Nhãn hiệu này có khả năng bị từ chối vì tương tự nhãn hiệu khác không?');
+    questions.push('Phân nhóm Nice đã khai báo đủ để bảo hộ toàn diện sản phẩm/dịch vụ chưa?');
+    questions.push('Cần chuẩn bị thêm tài liệu gì để tăng khả năng được cấp văn bằng bảo hộ?');
+  }
+
+  // Generic questions luôn có
+  const genericQuestions = [
+    `Phân tích rủi ro pháp lý chính trong hồ sơ "${title}"`,
+    'Những quy định pháp luật nào đang chi phối hồ sơ này?',
+    'Đề xuất các bước tiếp theo để hoàn thiện và xử lý hồ sơ này.',
+    'Soạn thảo email phản hồi khách hàng về tình trạng hồ sơ.',
+  ];
+
+  // Điền generic nếu chưa đủ 4 câu
+  for (const gq of genericQuestions) {
+    if (questions.length >= 6) break;
+    if (!questions.includes(gq)) questions.push(gq);
+  }
+
+  // Giới hạn 6 câu
+  return questions.slice(0, 6);
 }
 
 function buildSystemPrompt(skill?: string | null, context?: RequestContext): string {
@@ -214,47 +197,46 @@ Nguyên tắc:
     parts.push(`\nBạn đang được yêu cầu thực hiện kỹ năng: "${skill}". Hãy tập trung trả lời theo đúng chuyên môn này.`);
   }
 
-function buildContextSection(context: RequestContext): string {
-  const parts: string[] = [];
+  // Inject request context nếu có
+  if (context) {
+    parts.push('\n---');
+    parts.push('\n## THÔNG TIN YÊU CẦU HIỆN TẠI');
+    parts.push(`\n**Tiêu đề:** ${context.title}`);
 
-  parts.push('\n---');
-  parts.push('\n## THÔNG TIN YÊU CẦU HIỆN TẠI');
-  parts.push(`\n**Tiêu đề:** ${context.title}`);
-
-  if (context.matterTypeKey) {
-    parts.push(`**Loại hồ sơ:** ${context.matterTypeKey}`);
-  }
-
-  if (context.description) {
-    parts.push(`**Mô tả:** ${context.description}`);
-  }
-
-  if (context.intakeAnswers && Object.keys(context.intakeAnswers).length > 0) {
-    parts.push('\n### Thông tin khách hàng cung cấp:');
-    for (const [key, value] of Object.entries(context.intakeAnswers)) {
-      const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
-      parts.push(`- ${label}: ${String(value)}`);
+    if (context.matterTypeKey) {
+      parts.push(`**Loại hồ sơ:** ${context.matterTypeKey}`);
     }
-  }
 
-  if (context.documents && context.documents.length > 0) {
-    parts.push(`\n### Tài liệu đính kèm (${context.documents.length} tài liệu):`);
-    for (let i = 0; i < context.documents.length; i++) {
-      const doc = context.documents[i];
-      const truncated = doc.content.length > MAX_DOC_CHARS
-        ? doc.content.slice(0, MAX_DOC_CHARS) + '\n...[đã cắt]'
-        : doc.content;
-      parts.push(`\n--- Tài liệu ${i + 1}: ${doc.title} ---`);
-      parts.push(truncated);
+    if (context.description) {
+      parts.push(`**Mô tả:** ${context.description}`);
     }
+
+    // Intake answers
+    if (context.intakeAnswers && Object.keys(context.intakeAnswers).length > 0) {
+      parts.push('\n### Thông tin khách hàng cung cấp:');
+      for (const [key, value] of Object.entries(context.intakeAnswers)) {
+        const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
+        parts.push(`- ${label}: ${String(value)}`);
+      }
+    }
+
+    // Documents
+    if (context.documents && context.documents.length > 0) {
+      parts.push(`\n### Tài liệu đính kèm (${context.documents.length} tài liệu):`);
+      for (let i = 0; i < context.documents.length; i++) {
+        const doc = context.documents[i];
+        const truncated = doc.content.length > MAX_DOC_CHARS
+          ? doc.content.slice(0, MAX_DOC_CHARS) + '\n...[đã cắt]'
+          : doc.content;
+        parts.push(`\n--- Tài liệu ${i + 1}: ${doc.title} ---`);
+        parts.push(truncated);
+      }
+    }
+
+    parts.push('\n---');
+    parts.push('\nHãy sử dụng các thông tin trên để trả lời chính xác và phù hợp với ngữ cảnh của yêu cầu này.');
   }
 
-  parts.push('\n---');
-  parts.push('\nHãy sử dụng các thông tin trên để trả lời chính xác và phù hợp với ngữ cảnh của yêu cầu này.');
-
-  return parts.join('\n');
-}
-}
   const full = parts.join('\n');
   // Truncate toàn bộ system prompt nếu quá dài
   return full.length > MAX_CONTEXT_CHARS
@@ -280,66 +262,75 @@ export async function GET(
       return NextResponse.json({ error: 'VALIDATION: missing request id' }, { status: 400 });
     }
 
-// ── Shared: fetch request + workspace auth + documents + build context ──
-
-async function fetchRequestContext(
-  requestId: string,
-  activeWorkspaceId: string | null | undefined,
-): Promise<
-  | { kind: 'ok'; legalRequest: { id: string; workspaceId: string; title: string; description: string | null }; context: RequestContext }
-  | { kind: 'error'; response: NextResponse }
-> {
-  const legalRequest = await prisma.legalRequest.findUnique({
-    where: { id: requestId },
-    select: {
-      id: true,
-      workspaceId: true,
-      title: true,
-      description: true,
-      intakeSubmission: { select: { matterTypeKey: true, answers: true } },
-    },
-  });
-
-  if (!legalRequest) {
-    return { kind: 'error', response: NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 }) };
-  }
-
-  if (!activeWorkspaceId || legalRequest.workspaceId !== activeWorkspaceId) {
-    return { kind: 'error', response: NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 }) };
-  }
-
-  const documents = await prisma.document.findMany({
-    where: { requestId, deletedAt: null },
-    include: {
-      documentVersions: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        select: { generatedContent: true, status: true },
+    // Verify request exists + fetch context (title, matterType, documents)
+    const legalRequest = await prisma.legalRequest.findUnique({
+      where: { id: requestId },
+      select: {
+        id: true,
+        workspaceId: true,
+        title: true,
+        description: true,
+        intakeSubmission: {
+          select: { matterTypeKey: true, answers: true },
+        },
       },
-    },
-  });
+    });
+    if (!legalRequest) {
+      return NextResponse.json({ error: 'REQUEST_NOT_FOUND' }, { status: 404 });
+    }
 
-  const context: RequestContext = {
-    title: legalRequest.title,
-    description: legalRequest.description,
-    matterTypeKey: legalRequest.intakeSubmission?.matterTypeKey ?? null,
-    intakeAnswers: (legalRequest.intakeSubmission?.answers as Record<string, unknown>) ?? null,
-    documents: documents
-      .map((d) => {
-        const latestVersion = d.documentVersions[0];
-        if (!latestVersion || !latestVersion.generatedContent) return null;
-        const normalized = normalizeMarkdown(latestVersion.generatedContent, {
-          detectArticles: true,
-          detectSections: true,
-          detectSubItems: true,
-        });
-        return { title: d.title, content: normalized.content };
-      })
-      .filter((d): d is { title: string; content: string } => d !== null),
-  };
+    // Workspace-level auth: user must be member of this request's workspace
+    if (!session.activeWorkspaceId || legalRequest.workspaceId !== session.activeWorkspaceId) {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+    }
 
-  return { kind: 'ok', legalRequest: { id: legalRequest.id, workspaceId: legalRequest.workspaceId, title: legalRequest.title, description: legalRequest.description }, context };
-}
+    // Fetch messages
+    const rawMessages = await prisma.aiChatMessage.findMany({
+      where: { requestId },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        role: true,
+        content: true,
+        skill: true,
+        citations: true,
+        metadata: true,
+        createdAt: true,
+      },
+    });
+
+    const messages = rawMessages.map(parseMessage);
+
+    // Fetch documents để generate suggested questions
+    const documents = await prisma.document.findMany({
+      where: { requestId, deletedAt: null },
+      include: {
+        documentVersions: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { generatedContent: true, status: true },
+        },
+      },
+    });
+
+    const requestContext: RequestContext = {
+      title: legalRequest.title,
+      description: legalRequest.description,
+      matterTypeKey: legalRequest.intakeSubmission?.matterTypeKey ?? null,
+      intakeAnswers: (legalRequest.intakeSubmission?.answers as Record<string, unknown>) ?? null,
+      documents: documents
+        .map((d) => {
+          const latestVersion = d.documentVersions[0];
+          if (!latestVersion || !latestVersion.generatedContent) return null;
+          const normalized = normalizeMarkdown(latestVersion.generatedContent, {
+            detectArticles: true,
+            detectSections: true,
+            detectSubItems: true,
+          });
+          return { title: d.title, content: normalized.content };
+        })
+        .filter((d): d is { title: string; content: string } => d !== null),
+    };
 
     const suggestedQuestions = generateSuggestedQuestions(requestContext);
 
@@ -493,67 +484,67 @@ export async function POST(
       })),
     ];
 
-// ── LLM retry helper ──
+    // 4. Call LLM with retry on empty/tool-call content
+    const TEMPERATURES = [0.3, 0.6, 0.9]; // Tăng dần để đa dạng hóa response
+    let llmResponse: import('@/lib/ai/types').LlmResponse | null = null;
+    let lastError: Error | null = null;
 
-async function callLlmWithRetry(
-  chatMessages: ChatMessage[],
-  modelConfig: (typeof DEFAULT_MODELS)[string],
-): Promise<{ llmResponse: import('@/lib/ai/types').LlmResponse } | { error: NextResponse }> {
-  const TEMPERATURES = [0.3, 0.6, 0.9];
-  let llmResponse: import('@/lib/ai/types').LlmResponse | null = null;
-  let lastError: Error | null = null;
-
-  for (let attempt = 0; attempt < MAX_LLM_RETRIES; attempt++) {
-    try {
-      const temp = TEMPERATURES[attempt] ?? 0.3;
-      llmResponse = await llmComplete({
-        model: modelConfig,
-        messages: chatMessages,
-        temperature: temp,
-        maxTokens: modelConfig.maxTokens ?? 4096,
-      });
-
-      const validation = isValidAssistantContent(
-        llmResponse.content,
-        llmResponse.usage?.totalTokens ?? 0,
-      );
-
-      if (validation.valid) break;
-
-      console.warn(
-        `[AI Chat] LLM attempt ${attempt + 1}/${MAX_LLM_RETRIES} returned invalid: ` +
-        `reason=${validation.reason} tokens=${llmResponse.usage?.totalTokens ?? 0}`,
-      );
-
-      if (attempt < MAX_LLM_RETRIES - 1) {
-        chatMessages.push({
-          role: 'system',
-          content: 'Hệ thống: Bạn đang chat trực tiếp với người dùng. KHÔNG gọi hàm. Chỉ trả lời bằng tiếng Việt trực tiếp.',
+    for (let attempt = 0; attempt < MAX_LLM_RETRIES; attempt++) {
+      try {
+        const temp = TEMPERATURES[attempt] ?? 0.3;
+        llmResponse = await llmComplete({
+          model: modelConfig,
+          messages: chatMessages,
+          temperature: temp,
+          maxTokens: modelConfig.maxTokens ?? 4096,
         });
-      }
-    } catch (err) {
-      lastError = err instanceof Error ? err : new Error(String(err));
-      console.error(`[AI Chat] LLM attempt ${attempt + 1} failed:`, lastError.message);
-      if (attempt < MAX_LLM_RETRIES - 1) {
-        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+
+        const validation = isValidAssistantContent(
+          llmResponse.content,
+          llmResponse.usage?.totalTokens ?? 0,
+        );
+
+        if (validation.valid) {
+          break; // Valid response, thoát retry loop
+        }
+
+        console.warn(
+          `[AI Chat] LLM attempt ${attempt + 1}/${MAX_LLM_RETRIES} returned invalid: ` +
+          `reason=${validation.reason} tokens=${llmResponse.usage?.totalTokens ?? 0} ` +
+          `chars=${(llmResponse.content ?? '').trim().length}` +
+          ((llmResponse.content ?? '').length > 0 ? ` preview="${(llmResponse.content ?? '').slice(0, 100)}"` : ''),
+        );
+
+        if (attempt < MAX_LLM_RETRIES - 1) {
+          // Thêm instruction nhắc LLM trả lời trực tiếp
+          chatMessages.push({
+            role: 'system' as const,
+            content: 'Hệ thống: Bạn đang chat trực tiếp với người dùng. KHÔNG gọi hàm. Chỉ trả lời bằng tiếng Việt trực tiếp vào nội dung câu hỏi pháp lý.',
+          });
+        }
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        console.error(`[AI Chat] LLM attempt ${attempt + 1} failed:`, lastError.message);
+        if (attempt < MAX_LLM_RETRIES - 1) {
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        }
       }
     }
-  }
 
-  if (!llmResponse?.content?.trim()) {
-    return {
-      error: NextResponse.json(
+    if (!llmResponse || !llmResponse.content || llmResponse.content.trim().length === 0) {
+      // All retries exhausted — still no content. Return error to frontend.
+      const errMsg = lastError?.message ?? 'LLM returned empty content after retries';
+      console.error('[AI Chat] All LLM attempts failed:', errMsg);
+      return NextResponse.json(
         {
           error: 'AI_EXECUTION_FAILED',
-          detail: `Không nhận được phản hồi hợp lệ từ AI sau ${MAX_LLM_RETRIES} lần thử.`,
+          detail: `Không nhận được phản hồi hợp lệ từ AI sau ${MAX_LLM_RETRIES} lần thử. Vui lòng thử lại.`,
+          userMessage: parseMessage(userMessage),
+          assistantMessage: null,
         },
         { status: 502 },
-      ),
-    };
-  }
-
-  return { llmResponse };
-}
+      );
+    }
 
     // 5. Store assistant message
     const metadataJson = JSON.stringify({

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { FileText, Clock, Building2 } from 'lucide-react';
+import { FileText, Clock, User, Building2 } from 'lucide-react';
 import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 
 interface AuditEvent {
@@ -19,87 +19,51 @@ interface AuditEvent {
 }
 
 interface AuditSettingsProps {
-  // reserved for future use
+  userId: string;
 }
 
-export function AuditSettings(_props: AuditSettingsProps): React.ReactElement {
+export function AuditSettings({ userId }: AuditSettingsProps): React.ReactElement {
   const t = useTranslations('UserSettings');
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const abortController = new AbortController();
-
-    const fetchAuditEvents = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch('/api/settings/audit', {
-          signal: abortController.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch audit events');
-        }
-
-        const data = await response.json();
-
-        if (data.success && data.data) {
-          setEvents(data.data);
-        } else {
-          throw new Error(data.error || 'Failed to fetch audit events');
-        }
-      } catch (err) {
-        if (abortController.signal.aborted) return;
-        console.error('Failed to fetch audit events:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch audit events');
-      } finally {
-        if (!abortController.signal.aborted) {
-          setLoading(false);
-        }
-      }
-    };
-
     fetchAuditEvents();
-
-    return () => abortController.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-      setLoading(true);
-      setError(null);
 
-      try {
-        const response = await fetch('/api/settings/audit', {
-          signal: abortController.signal,
-        });
+  const fetchAuditEvents = async () => {
+    setLoading(true);
+    setError(null);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch audit events');
-        }
+    try {
+      const response = await fetch('/api/settings/audit');
 
-        const data = await response.json();
-
-        if (data.success && data.data) {
-          setEvents(data.data);
-        } else {
-          throw new Error(data.error || 'Failed to fetch audit events');
-        }
-      } catch (err) {
-        if (abortController.signal.aborted) return;
-        console.error('Failed to fetch audit events:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch audit events');
-      } finally {
-        if (!abortController.signal.aborted) {
-          setLoading(false);
-        }
+      if (!response.ok) {
+        throw new Error('Failed to fetch audit events');
       }
-    };
 
-    fetchAuditEvents();
+      const data = await response.json();
 
-    return () => abortController.abort();
-  }, []);
+      if (data.success && data.data) {
+        setEvents(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch audit events:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch audit events');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatAction = (action: string) => {
+    // Convert action to readable format
+    return action
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (l) => l.toUpperCase());
+  };
+
   if (loading) {
     return (
       <div className="audit-settings loading">

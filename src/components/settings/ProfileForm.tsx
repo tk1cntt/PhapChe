@@ -28,48 +28,33 @@ export interface ProfileFormProps {
 export function ProfileForm({ user, workspaces, onSave, savedMessage }: ProfileFormProps): React.ReactElement {
   const t = useTranslations('UserSettings');
   const [formData, setFormData] = React.useState<UserProfile>(user);
-  const [isDirty, setIsDirty] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const saveTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  React.useEffect(() => {
-    if (!isDirty) {
-      setFormData(user);
-    }
-  }, [user, isDirty]);
-  const [isDirty, setIsDirty] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!isDirty) {
-      setFormData(user);
-    }
-  }, [user, isDirty]);
+  const handleSave = async (data: UserProfile) => {
+    if (!onSave) return;
     setSaving(true);
-    setError(null);
     try {
       await onSave(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('saveError'));
     } finally {
       setSaving(false);
     }
   };
-      setError(err instanceof Error ? err.message : t('saveError'));
-    } finally {
-      setSaving(false);
-    }
-  };
+
+  const handleChange = (field: keyof UserProfile, value: string) => {
+    const newData = { ...formData, [field]: value };
+    setFormData(newData);
+
     // Debounce save to avoid API spam
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
-const SAVE_DEBOUNCE_MS = 500;
+    saveTimeoutRef.current = setTimeout(() => {
+      handleSave(newData);
+    }, 500);
+  };
 
-// …inside handleChange:
-    saveTimeoutRef.current = setTimeout(() => {
-      handleSave(newData);
-    }, SAVE_DEBOUNCE_MS);
-    saveTimeoutRef.current = setTimeout(() => {
-      handleSave(newData);
-    }, SAVE_DEBOUNCE_MS);
+  React.useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
@@ -157,24 +142,15 @@ const SAVE_DEBOUNCE_MS = 500;
             value={formData.timezone}
             onChange={(e) => handleChange('timezone', e.target.value)}
           >
-const TIMEZONE_OPTIONS = [
-  { value: 'Asia/Ho_Chi_Minh', label: 'Asia/Ho_Chi_Minh (ICT)' },
-  { value: 'Asia/Bangkok', label: 'Asia/Bangkok (ICT)' },
-  { value: 'Asia/Singapore', label: 'Asia/Singapore (SGT)' },
-  { value: 'UTC', label: 'UTC' },
-] as const;
+            <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh (ICT)</option>
+            <option value="Asia/Bangkok">Asia/Bangkok (ICT)</option>
+            <option value="Asia/Singapore">Asia/Singapore (SGT)</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-// inside JSX:
-{TIMEZONE_OPTIONS.map((tz) => (
-  <option key={tz.value} value={tz.value}>
-    {tz.label}
-  </option>
-))}
-  { value: 'UTC', label: 'UTC' },
-] as const;
-
-// inside JSX:
-{TIMEZONE_OPTIONS.map((tz) => (
-  <option key={tz.value} value={tz.value}>
-    {tz.label}
-  </option>
+export default ProfileForm;

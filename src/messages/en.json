@@ -1235,7 +1235,8 @@
     "attachedDocuments": "Attached Documents",
     "requestType": "Request Type",
     "createdAt": "Created At",
-    "unknownSender": "Unknown Sender"
+    "unknownSender": "Unknown Sender",
+    "sendErrorMessage": "Message failed to send. Please try again."
   },
   "UserWorkspace": {
     "pageTitle": "Workspace",
@@ -1613,6 +1614,7 @@
       "fileTypeNotSupported": "File type not supported",
       "uploadFailed": "Upload failed",
       "draftSaveFailed": "Failed to save draft",
+      "draftSaveRetry": "Your data is safe. Please try again in the next step.",
       "submitFailed": "Failed to submit request",
       "submitGeneralError": "An error occurred while submitting",
       "selectDomain": "Please select a domain",

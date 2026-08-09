@@ -44,6 +44,7 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
   const [stepErrors, setStepErrors] = useState<Record<number, boolean>>({});
   const [isFetchingDraft, setIsFetchingDraft] = useState(false);
   const [showDraftBanner, setShowDraftBanner] = useState(false);
+  const [draftSaveError, setDraftSaveError] = useState<string | null>(null);
 
   // Calculate completed steps
   const completedSteps: number[] = [];
@@ -161,9 +162,13 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
       if (response.ok) {
         const data = await response.json();
         actions.setDraftId(data.draftId);
+        setDraftSaveError(null);
+      } else {
+        throw new Error(`Draft save returned ${response.status}`);
       }
     } catch (error) {
       console.error('Failed to save draft:', error);
+      setDraftSaveError(t('message.draftSaveFailed'));
     }
   };
 
@@ -275,6 +280,21 @@ function WizardForm({ locale = 'vi', workspaceName = '', userContactInfo }: Crea
             >
               {t('button.startOver')}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Draft Save Error Banner */}
+      {draftSaveError && (
+        <div className="draft-banner" style={{ background: '#fef2f2', borderColor: '#fca5a5' }}>
+          <div className="draft-banner-inner">
+            <div className="draft-banner-left">
+              <AlertCircle className="draft-banner-icon" style={{ color: '#dc2626' }} />
+              <div>
+                <p className="draft-banner-title" style={{ color: '#dc2626' }}>{draftSaveError}</p>
+                <p className="draft-banner-desc">{t('message.draftSaveRetry')}</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

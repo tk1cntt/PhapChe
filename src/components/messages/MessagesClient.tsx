@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import ThreadListPanel from './ThreadListPanel';
 import ChatPanel from './ChatPanel';
@@ -43,7 +43,7 @@ function MessagesClient({
   const [showInfoPanel, setShowInfoPanel] = useState(true);
   const [messages, setMessages] = useState<Record<string, MessageData[]>>(initialMessages);
   const [threads, setThreads] = useState<ThreadData[]>(initialThreads);
-  const [lastPoll, setLastPoll] = useState<Date>(new Date());
+  const lastPollRef = useRef<Date>(new Date());
   // Mobile: which view is currently showing
   const [mobileView, setMobileView] = useState<MobileView>('threads');
   const [isMobile, setIsMobile] = useState(false);
@@ -72,7 +72,7 @@ function MessagesClient({
     const pollMessages = async () => {
       try {
         const response = await fetch(
-          `/api/messages/poll?since=${lastPoll.toISOString()}&workspace=${workspaceSlug}`
+          `/api/messages/poll?since=${lastPollRef.current.toISOString()}&workspace=${workspaceSlug}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -97,7 +97,7 @@ function MessagesClient({
               return updated;
             });
           }
-          setLastPoll(new Date());
+          lastPollRef.current = new Date();
         }
       } catch (error) {
         console.error('Polling error:', error);
@@ -106,7 +106,7 @@ function MessagesClient({
 
     const intervalId = setInterval(pollMessages, pollInterval);
     return () => clearInterval(intervalId);
-  }, [pollInterval, lastPoll, workspaceSlug]);
+  }, [pollInterval, workspaceSlug]);
 
   // Mark messages as read when selecting a thread
   const markThreadAsRead = useCallback(async (threadId: string) => {
@@ -147,6 +147,8 @@ function MessagesClient({
   }, []);
 
   // Handle sending message
+  const [sendError, setSendError] = useState<string | null>(null);
+
   const handleSendMessage = useCallback(
     async (content: string) => {
       if (!activeThreadId || !content.trim()) return;
@@ -161,6 +163,10 @@ function MessagesClient({
         createdAt: new Date(),
       };
 
+      // Capture current thread preview for rollback
+      const savedPreview = threads.find((t) => t.id === activeThreadId)?.preview;
+      const savedTimestamp = threads.find((t) => t.id === activeThreadId)?.timestamp;
+
       // Optimistic update
       setMessages((prev) => ({
         ...prev,
@@ -169,12 +175,14 @@ function MessagesClient({
 
       // Update thread preview
       setThreads((prev) =>
-        prev.map((t) =>
-          t.id === activeThreadId
-            ? { ...t, preview: content.trim(), timestamp: 'vừa xong' }
-            : t
+        prev.map((th) =>
+          th.id === activeThreadId
+            ? { ...th, preview: content.trim(), timestamp: t('justNow') }
+            : th
         )
       );
+
+      setSendError(null);
 
       // Send to API
       try {
@@ -192,16 +200,28 @@ function MessagesClient({
         }
       } catch (error) {
         console.error('Error sending message:', error);
-        // Rollback on error
+        // Rollback message
         setMessages((prev) => ({
           ...prev,
           [activeThreadId]: (prev[activeThreadId] ?? []).filter(
             (m) => m.id !== tempId
           ),
         }));
+        // Rollback thread preview
+        if (savedPreview !== undefined || savedTimestamp !== undefined) {
+          setThreads((prev) =>
+            prev.map((t) =>
+              t.id === activeThreadId
+                ? { ...t, preview: savedPreview ?? t.preview, timestamp: savedTimestamp ?? t.timestamp }
+                : t
+            )
+          );
+        }
+        // Surface error to user
+        setSendError(t('sendErrorMessage'));
       }
     },
-    [activeThreadId, currentUserId, t]
+    [activeThreadId, currentUserId, threads, t]
   );
 
   // ── Mobile layout: single panel with view switching ──
@@ -260,6 +280,7 @@ function MessagesClient({
                 onSendMessage={handleSendMessage}
                 currentUserId={currentUserId}
                 hideHeader
+                sendError={sendError}
               />
             ) : (
               <div className="chat-panel empty">
@@ -319,6 +340,7 @@ function MessagesClient({
           messages={activeMessages}
           onSendMessage={handleSendMessage}
           currentUserId={currentUserId}
+          sendError={sendError}
         />
       ) : (
         <div className="chat-panel empty">

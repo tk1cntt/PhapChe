@@ -15,6 +15,8 @@ export interface ChatPanelProps {
   currentUserId?: string;
   /** Hide the built-in .chat-header — used on mobile where MessagesClient renders its own header */
   hideHeader?: boolean;
+  /** Error message displayed below the composer (e.g., send failure) */
+  sendError?: string | null;
 }
 
 /**
@@ -35,6 +37,7 @@ function ChatPanel({
   disabled = false,
   currentUserId,
   hideHeader = false,
+  sendError = null,
 }: ChatPanelProps): React.ReactElement {
   const t = useTranslations('UserMessages');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -75,6 +78,13 @@ function ChatPanel({
 
       {/* Composer */}
       <Composer onSend={onSendMessage} disabled={disabled} />
+
+      {/* Send error feedback */}
+      {sendError && (
+        <div className="px-3 pb-2">
+          <span className="text-xs text-red-500">{sendError}</span>
+        </div>
+      )}
     </div>
   );
 }

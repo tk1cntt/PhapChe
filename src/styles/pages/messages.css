@@ -235,12 +235,14 @@
   background: var(--color-surface-hover);
   color: var(--color-text);
   align-self: flex-start;
+  border-bottom-left-radius: 4px;
 }
 
 .msg.out {
-  background: var(--color-surface-hover);
-  color: var(--color-text);
+  background: var(--teal);
+  color: var(--color-text-inverse);
   margin-left: auto;
+  border-bottom-right-radius: 4px;
 }
 
 .msg-sender-name {

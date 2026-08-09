@@ -88,14 +88,14 @@ export function UserLayout({
       await signOut({
         fetchOptions: {
           onSuccess: () => {
-            router.push('/vi/sign-in');
+            router.push(`/${locale}/sign-in`);
             router.refresh();
           },
         },
       });
     } catch (e) {
       console.error('Logout error:', e);
-      router.push('/vi/sign-in');
+      router.push(`/${locale}/sign-in`);
     }
   };
 

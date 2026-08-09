@@ -1235,7 +1235,8 @@
     "attachedDocuments": "Tài liệu đính kèm",
     "requestType": "Loại yêu cầu",
     "createdAt": "Ngày tạo",
-    "unknownSender": "Người gửi không xác định"
+    "unknownSender": "Người gửi không xác định",
+    "sendErrorMessage": "Gửi tin nhắn thất bại. Vui lòng thử lại."
   },
   "UserWorkspace": {
     "pageTitle": "Workspace",
@@ -1613,6 +1614,7 @@
       "fileTypeNotSupported": "Loại file không được hỗ trợ",
       "uploadFailed": "Không thể tải lên",
       "draftSaveFailed": "Không thể lưu nháp",
+      "draftSaveRetry": "Dữ liệu của bạn vẫn an toàn. Vui lòng thử lại ở bước tiếp theo.",
       "submitFailed": "Không thể gửi yêu cầu",
       "submitGeneralError": "Có lỗi xảy ra khi gửi yêu cầu",
       "selectDomain": "Vui lòng chọn lĩnh vực",

@@ -154,7 +154,10 @@ export default function DashboardClient({
     fetch('/api/messages/unread-count')
       .then((res) => res.json())
       .then((data) => setUnreadCount(data.unreadCount))
-      .catch(() => setUnreadCount(0));
+      .catch((err) => {
+        console.error('Failed to fetch unread message count:', err);
+        setUnreadCount(0);
+      });
   }, []);
 
   return (

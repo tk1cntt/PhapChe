@@ -39,9 +39,11 @@ export function ThreadItem({ thread, isActive, onClick }: ThreadItemProps): Reac
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
           onClick();
         }
       }}
+      aria-pressed={isActive}
     >
       {/* Avatar */}
       <div

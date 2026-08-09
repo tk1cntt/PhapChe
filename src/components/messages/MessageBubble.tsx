@@ -34,6 +34,9 @@ const SENDER_COLORS = [
  * Uses the first character of senderId to deterministically pick a color
  */
 function getSenderColor(senderId: string): { bg: string; text: string; border: string } {
+  if (!senderId) {
+    return SENDER_COLORS[0]; // safe fallback for empty/missing senderId
+  }
   const charCode = senderId.charCodeAt(0);
   const index = charCode % SENDER_COLORS.length;
   return SENDER_COLORS[index];
@@ -48,7 +51,7 @@ function getSenderColor(senderId: string): { bg: string; text: string; border: s
  */
 function MessageBubble({ message, currentUserId }: MessageBubbleProps): React.ReactElement {
   const t = useTranslations('UserMessages');
-  const isOutgoing = message.senderId === currentUserId;
+  const isOutgoing = message.isOutgoing;
   const senderColor = getSenderColor(message.senderId);
   const displayName = message.senderName || t('unknownSender');
 

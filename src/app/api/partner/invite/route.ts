@@ -10,6 +10,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { partnerInviteService } from '@/lib/services/partner-invite-service';
 import { hasPermission } from '@/lib/services/partner-auth-service';
+import { isValidEmail } from '@/lib/validation/email';
 
 export async function GET(req: NextRequest) {
   try {
@@ -111,8 +112,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!email || !isValidEmail(email)) {
       return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
 

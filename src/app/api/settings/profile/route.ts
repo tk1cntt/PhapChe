@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
 import { isStructuredError } from '@/lib/errors';
+import { isValidEmail } from '@/lib/validation/email';
 
 export async function PUT(request: Request) {
   try {
@@ -27,8 +28,7 @@ export async function PUT(request: Request) {
     }
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!isValidEmail(email)) {
       return NextResponse.json(
         { error: 'VALIDATION_ERROR', message: 'Invalid email format' },
         { status: 400 }
@@ -85,6 +85,15 @@ export async function PUT(request: Request) {
       return NextResponse.json(
         { error: error.error, detail: error.detail },
         { status: error.status }
+      );
+    }
+
+    // Unique constraint violation — another user (or a racing request) already
+    // holds this email. Map to 400 VALIDATION_ERROR instead of 500.
+    if (typeof error === 'object' && error !== null && (error as { code?: string }).code === 'P2002') {
+      return NextResponse.json(
+        { error: 'VALIDATION_ERROR', message: 'Email is already in use' },
+        { status: 400 }
       );
     }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
+import { isValidEmail } from '@/lib/validation/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,8 +21,7 @@ export async function POST(request: NextRequest) {
     const { email, role = 'customer' } = body;
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
+    if (!email || !isValidEmail(email)) {
       return NextResponse.json(
         { error: 'Invalid email format' },
         { status: 400 }

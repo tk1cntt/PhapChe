@@ -293,6 +293,8 @@
     "title": "Hồ sơ đang xử lý",
     "seeAll": "Xem tất cả →",
     "empty": "Không có hồ sơ nào đang xử lý",
+    "emptyTitle": "Chưa có hồ sơ nào",
+    "emptyDescription": "Tạo hồ sơ mới để bắt đầu",
     "open": "Mở →",
     "loading": "Đang tải..."
   },
@@ -300,6 +302,8 @@
     "title": "Tài liệu gần đây",
     "openVault": "Mở vault →",
     "empty": "Không có tài liệu nào",
+    "emptyTitle": "Chưa có tài liệu nào",
+    "emptyDescription": "Tài liệu của bạn sẽ xuất hiện ở đây",
     "updatedAt": "cập nhật",
     "statusActive": "Hoạt động",
     "statusPending": "Chờ xử lý",

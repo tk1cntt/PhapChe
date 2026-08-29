@@ -13,8 +13,8 @@ function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 B';
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  const unitIndex = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
+  return parseFloat((bytes / Math.pow(k, unitIndex)).toFixed(1)) + ' ' + sizes[unitIndex];
 }
 
 function getFileExtension(mimeType: string): string {
@@ -59,8 +59,8 @@ export default function RecentDocuments({ documents }: RecentDocumentsProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             }
-            title="Chưa có tài liệu nào"
-            description="Tài liệu của bạn sẽ xuất hiện ở đây"
+            title={t('emptyTitle')}
+            description={t('emptyDescription')}
           />
         ) : (
           documents.map((doc) => (

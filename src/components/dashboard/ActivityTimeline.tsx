@@ -27,6 +27,11 @@ const ACTIVITY_ICONS: Record<ActivityType, React.ComponentType<{ size?: number; 
   system: Settings,
 };
 
+const VALID_ACTIVITY_TYPES: readonly ActivityType[] = [
+  'user', 'workspace', 'request', 'document', 'review',
+  'message', 'vault', 'partner', 'system',
+];
+
 // Color mapping cho timeline dot theo activity type
 const ACTIVITY_COLORS: Record<ActivityType, string> = {
   user: '#2563eb',      // Blue
@@ -53,7 +58,7 @@ export default function ActivityTimeline({
 }: ActivityTimelineProps) {
   const t = useTranslations('ActivityTimeline');
 
-  // Ensure activities is always an array and filter out null/undefined items
+  // Ensure activities is always an array and filter out invalid items
   const safeActivities = Array.isArray(activities)
     ? activities.filter((a): a is ActivityItem => a != null && typeof a === 'object')
     : [];
@@ -79,8 +84,7 @@ export default function ActivityTimeline({
         ) : (
           displayActivities.map((activity, index) => {
             // Validate and get type with fallback to 'system'
-            const validTypes: ActivityType[] = ['user', 'workspace', 'request', 'document', 'review', 'message', 'vault', 'partner', 'system'];
-            const activityType: ActivityType = validTypes.includes(activity.type as ActivityType) ? activity.type as ActivityType : 'system';
+            const activityType: ActivityType = VALID_ACTIVITY_TYPES.includes(activity.type as ActivityType) ? activity.type as ActivityType : 'system';
             const dotColor = ACTIVITY_COLORS[activityType];
 
             return (

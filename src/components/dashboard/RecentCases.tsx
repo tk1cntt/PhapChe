@@ -44,11 +44,11 @@ export default function RecentCases({ cases }: RecentCasesProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7h18v13H3zM3 7l3-4h12l3 4" />
               </svg>
             }
-            title="Chưa có hồ sơ nào"
-            description="Tạo hồ sơ mới để bắt đầu"
+            title={t('emptyTitle')}
+            description={t('emptyDescription')}
             action={{
               label: t('open').replace(' →', ''),
-              onClick: () => router.push('/create'),
+              onClick: () => router.push(`/${locale}/create`),
             }}
           />
         ) : (

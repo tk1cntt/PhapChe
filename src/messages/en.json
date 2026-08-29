@@ -293,6 +293,8 @@
     "title": "Processing Cases",
     "seeAll": "View All →",
     "empty": "No active cases",
+    "emptyTitle": "No cases yet",
+    "emptyDescription": "Create a new case to get started",
     "open": "Open →",
     "loading": "Loading..."
   },
@@ -300,6 +302,8 @@
     "title": "Recent Documents",
     "openVault": "Open Vault →",
     "empty": "No documents available",
+    "emptyTitle": "No documents yet",
+    "emptyDescription": "Your documents will appear here",
     "updatedAt": "updated",
     "statusActive": "Active",
     "statusPending": "Pending",

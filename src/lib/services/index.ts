@@ -9,3 +9,4 @@ export * from './assignment-service';
 export * from './vault-service';
 export * from './partner-auth-service';
 export * from './partner-invite-service';
+export * from './user-type-service';

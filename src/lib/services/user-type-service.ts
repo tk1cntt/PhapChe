@@ -7,7 +7,7 @@
  */
 
 import type { AccountType } from '@/lib/types/user';
-import type { WorkspaceMembership, Workspace } from '@prisma/client';
+import type { WorkspaceMembership } from '@prisma/client';
 
 export interface UserTypeInfo {
   accountType: AccountType;
@@ -32,10 +32,15 @@ export function isStaffRole(role: string): boolean {
 
 /**
  * Get user type info from memberships
+ *
+ * Derives organizationId from the first active membership whose workspace
+ * carries an organizationId. Workspace.organizationId is a required FK
+ * (every workspace MUST belong to an org), so a non-null value is expected
+ * whenever the caller joins the workspace relation.
  */
 export function getUserTypeInfo(
   accountType: AccountType,
-  memberships: WorkspaceMembership[]
+  memberships: (WorkspaceMembership & { workspace?: { organizationId: string | null } })[]
 ): UserTypeInfo {
   const activeMemberships = memberships.filter(m => m.isActive);
   const allRoles = activeMemberships.map(m => m.role);
@@ -46,37 +51,9 @@ export function getUserTypeInfo(
   const isStaff = accountType === 'staff' || hasStaffRole;
   const isCustomer = !isStaff;
 
-  return {
-    accountType,
-    isStaff,
-    isCustomer,
-    organizationId: null,
-    primaryRole: allRoles[0] || 'none',
-    allRoles: [...new Set(allRoles)],
-  };
-}
-
-/**
- * Get user type with organization info
- * Requires workspace data to be joined
- */
-export function getUserTypeInfoWithOrg(
-  accountType: AccountType,
-  memberships: (WorkspaceMembership & { workspace?: { organizationId: string | null } })[]
-): UserTypeInfo {
-  const activeMemberships = memberships.filter(m => m.isActive);
-  const allRoles = activeMemberships.map(m => m.role);
-  const hasStaffRole = allRoles.some(role => isStaffRole(role));
-
-  const isStaff = accountType === 'staff' || hasStaffRole;
-  const isCustomer = !isStaff;
-
-  // Get first non-null organizationId
-  let organizationId: string | null = null;
+  // Get first non-null organizationId from active memberships' workspaces
   const memberWithOrg = activeMemberships.find(m => m.workspace && m.workspace.organizationId);
-  if (memberWithOrg && memberWithOrg.workspace) {
-    organizationId = memberWithOrg.workspace.organizationId;
-  }
+  const organizationId = memberWithOrg?.workspace?.organizationId ?? null;
 
   return {
     accountType,
@@ -86,6 +63,20 @@ export function getUserTypeInfoWithOrg(
     primaryRole: allRoles[0] || 'none',
     allRoles: [...new Set(allRoles)],
   };
+}
+
+/**
+ * Get user type with organization info
+ *
+ * Alias of getUserTypeInfo: the base function now accepts the optional
+ * workspace relation and derives organizationId itself, so this wrapper is
+ * kept only for callers that relied on the explicit workspace-joined variant.
+ */
+export function getUserTypeInfoWithOrg(
+  accountType: AccountType,
+  memberships: (WorkspaceMembership & { workspace?: { organizationId: string | null } })[]
+): UserTypeInfo {
+  return getUserTypeInfo(accountType, memberships);
 }
 
 /**

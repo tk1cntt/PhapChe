@@ -10,6 +10,7 @@ import { headers } from 'next/headers';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { isStructuredError } from '@/lib/errors';
+import { hashPassword } from '@better-auth/utils/password';
 
 // Valid admin roles
 const ADMIN_ROLES = ['super_admin', 'coordinator_admin'] as const;
@@ -77,9 +78,15 @@ export async function GET(req: NextRequest) {
     const where: Record<string, unknown> = {};
 
     if (search) {
+      // Normalize search to lowercase for case-insensitive matching.
+      // NOTE: Prisma `mode: 'insensitive'` is Postgres-only and throws
+      // PrismaClientValidationError on SQLite (the runtime DB, see src/auth.ts).
+      // SQLite LIKE is ASCII-case-insensitive by default; lowercasing the needle
+      // additionally fixes Vietnamese uppercase diacritics (e.g. "NGUYỄN" -> "nguyễn").
+      const searchLower = search.toLowerCase();
       where.OR = [
-        { name: { contains: search } },
-        { email: { contains: search } },
+        { name: { contains: searchLower } },
+        { email: { contains: searchLower } },
       ];
     }
 
@@ -190,47 +197,68 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Email and name are required', field: 'email' }, { status: 400 });
     }
 
+    // Normalize email (lowercase + trim) BEFORE uniqueness check + create
+    // so admin-created users can never create case-collisions with signup.
+    const normalizedEmail = String(email).toLowerCase().trim();
+
     // Validate role against allowed values
     const safeRole = role && (VALID_ROLES as readonly string[]).includes(role) ? role : 'customer';
 
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (existing) {
       return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Email already exists', field: 'email' }, { status: 400 });
     }
 
-    // Note: password is extracted but not stored via Prisma — auth provider (BetterAuth)
-    // handles password hashing. The user is created with emailVerified=true for admin-created accounts.
-    // If password-based auth is needed, use the auth provider's createUser API.
-    if (password) {
-      console.warn('[admin/users POST] Password provided but Prisma-level user creation does not store passwords. Use auth provider API for password-based accounts.');
-    }
+    const user = await prisma.$transaction(async (tx) => {
+      const created = await tx.user.create({
+        data: {
+          email: normalizedEmail,
+          name,
+          emailVerified: true,
+          memberships: workspaceId ? {
+            create: {
+              workspaceId,
+              role: safeRole,
+              isActive: true,
+            },
+          } : undefined,
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          isActive: true,
+          createdAt: true,
+        },
+      });
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        emailVerified: true,
-        memberships: workspaceId ? {
-          create: {
-            workspaceId,
-            role: safeRole,
-            isActive: true,
+      // When a password is provided, create the credential Account with a
+      // BetterAuth-compatible scrypt hash (accountId=email, providerId='credential')
+      // so the user can actually log in. Same format as prisma/seed.ts.
+      // NEVER log the password.
+      if (password) {
+        const hashedPassword = await hashPassword(password);
+        await tx.account.create({
+          data: {
+            userId: created.id,
+            accountId: normalizedEmail,
+            providerId: 'credential',
+            password: hashedPassword,
           },
-        } : undefined,
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        isActive: true,
-        createdAt: true,
-      },
+        });
+      }
+
+      return created;
     });
 
     return NextResponse.json({ data: user }, { status: 201 });
   } catch (error: unknown) {
     if (isStructuredError(error)) {
       return NextResponse.json({ error: error.error, detail: error.detail }, { status: error.status });
+    }
+    // Unique constraint violation (race between check and create) — map to 400
+    if (typeof error === 'object' && error !== null && (error as { code?: string }).code === 'P2002') {
+      return NextResponse.json({ error: 'VALIDATION_ERROR', detail: 'Email already exists', field: 'email' }, { status: 400 });
     }
     console.error('Error creating user:', error);
     return NextResponse.json({ error: 'INTERNAL_ERROR', detail: 'Internal server error' }, { status: 500 });

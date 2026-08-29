@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAppSession } from '@/lib/security/session';
-import { compare, hash } from 'bcryptjs';
+import { hashPassword, verifyPassword } from '@better-auth/utils/password';
 
 export async function PUT(request: Request) {
   try {
@@ -47,8 +47,15 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Verify current password
-    const isValid = await compare(currentPassword, account.password);
+    // Verify current password (BetterAuth scrypt — matches hashes written by
+    // sign-up and by this route). Legacy/malformed hashes (e.g. old bcrypt)
+    // throw "Invalid password hash" — treat as incorrect, never leak the format.
+    let isValid = false;
+    try {
+      isValid = await verifyPassword(account.password, currentPassword);
+    } catch {
+      isValid = false;
+    }
     if (!isValid) {
       return NextResponse.json(
         { error: 'VALIDATION_ERROR', message: 'Current password is incorrect' },
@@ -57,7 +64,12 @@ export async function PUT(request: Request) {
     }
 
     // Check if new password is same as current
-    const isSamePassword = await compare(newPassword, account.password);
+    let isSamePassword = false;
+    try {
+      isSamePassword = await verifyPassword(account.password, newPassword);
+    } catch {
+      isSamePassword = false;
+    }
     if (isSamePassword) {
       return NextResponse.json(
         { error: 'VALIDATION_ERROR', message: 'New password must be different from current password' },
@@ -65,8 +77,8 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Hash new password
-    const newHash = await hash(newPassword, 10);
+    // Hash new password with BetterAuth scrypt (same format as login verification)
+    const newHash = await hashPassword(newPassword);
 
     // Update account with new password
     await prisma.account.update({

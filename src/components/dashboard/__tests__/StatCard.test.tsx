@@ -3,7 +3,9 @@
  *
  * Fix regressions: stat-card hrefs were locale-unprefixed (`/dashboard`,
  * `/vault`) which 404s / loses locale context with `localePrefix: 'always'`.
- * Every stat card must now produce a locale-prefixed href.
+ * Every stat card must now produce a locale-prefixed href. Hrefs follow
+ * spec 75: total/completed → /cases, inProgress → /cases?status=in_progress,
+ * vaultDocs → /dashboard (no customer vault route exists).
  */
 
 import { describe, it, expect } from 'vitest';
@@ -41,13 +43,17 @@ describe('StatsCardGrid regression — locale-prefixed hrefs', () => {
     expect(container.querySelectorAll('.stat-card')).toHaveLength(4);
   });
 
-  it('every stat-card link is locale-prefixed and points to dashboard (no dead /vault, no bare /dashboard)', () => {
+  it('every stat-card link is locale-prefixed with spec-75 hrefs (no dead /vault, no bare /dashboard)', () => {
     const { container } = render(<StatsCardGrid data={stats} />);
     const links = container.querySelectorAll<HTMLAnchorElement>('a.stat-card-link');
     expect(links.length).toBe(4);
-    links.forEach((a) => {
-      expect(a.getAttribute('href')).toBe('/vi/dashboard');
-    });
+    const hrefs = Array.from(links).map((a) => a.getAttribute('href'));
+    expect(hrefs).toEqual([
+      '/vi/cases',
+      '/vi/cases?status=in_progress',
+      '/vi/cases',
+      '/vi/dashboard',
+    ]);
   });
 
   it('does not contain the dead /vault link or unprefixed /dashboard', () => {

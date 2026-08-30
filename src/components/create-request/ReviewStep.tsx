@@ -53,7 +53,9 @@ export default function ReviewStep({
       setShowSuccess(true);
 
       setTimeout(() => {
-        window.location.href = `/${locale}/cases`;
+        // The /cases list route no longer exists — the dashboard is the
+        // primary case view and shows the newly created request.
+        window.location.href = `/${locale}/dashboard`;
       }, 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('error.submitGeneralError'));

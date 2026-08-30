@@ -143,6 +143,26 @@ describe('ReviewStep', () => {
       expect(onEdit).toHaveBeenCalled();
     });
 
+    it('calls onEdit(3) when the service details edit button is clicked', () => {
+      const onEdit = vi.fn();
+      render(<ReviewStep state={mockState} onEdit={onEdit} onSubmit={vi.fn()} />);
+
+      // Second "Chỉnh sửa" button is the service-details one (line 119).
+      const editButtons = screen.getAllByText('Chỉnh sửa');
+      fireEvent.click(editButtons[1]);
+      expect(onEdit).toHaveBeenCalledWith(3);
+    });
+
+    it('calls onEdit(4) when the file-upload edit button is clicked', () => {
+      const onEdit = vi.fn();
+      render(<ReviewStep state={mockState} onEdit={onEdit} onSubmit={vi.fn()} />);
+
+      // Third "Chỉnh sửa" button is the file-upload one (line 146).
+      const editButtons = screen.getAllByText('Chỉnh sửa');
+      fireEvent.click(editButtons[2]);
+      expect(onEdit).toHaveBeenCalledWith(4);
+    });
+
     it('calls onSubmit when submit button is clicked', async () => {
       const onSubmit = vi.fn().mockResolvedValue(undefined);
       render(<ReviewStep state={mockState} onEdit={vi.fn()} onSubmit={onSubmit} />);
@@ -190,6 +210,38 @@ describe('ReviewStep', () => {
       expect(screen.getByText('Đã chọn lĩnh vực')).toBeInTheDocument();
       expect(screen.getByText('Đã chọn dịch vụ')).toBeInTheDocument();
       expect(screen.getByText('Đã nhập email')).toBeInTheDocument();
+    });
+
+    it('redirects to the dashboard (not /cases) after successful submit', async () => {
+      const onSubmit = vi.fn().mockResolvedValue(undefined);
+      let assignedUrl = '';
+      // jsdom's window.location.href is not assignable; swap in a stub object
+      // whose href is an accessor so the component's redirect assignment is
+      // captured without navigating.
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: Object.defineProperty({} as Location, 'href', {
+          configurable: true,
+          set: (v: string) => {
+            assignedUrl = v;
+          },
+          get: () => assignedUrl || 'http://localhost/vi/review',
+        }),
+      });
+
+      render(<ReviewStep state={mockState} onEdit={vi.fn()} onSubmit={onSubmit} />);
+
+      const submitButton = screen.getByRole('button', { name: 'Gửi yêu cầu' });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledTimes(1);
+      });
+
+      // Advance the 2000ms redirect timer.
+      await new Promise((r) => setTimeout(r, 2100));
+      expect(assignedUrl).toBe('/vi/dashboard');
+      expect(assignedUrl).not.toContain('/cases');
     });
   });
 

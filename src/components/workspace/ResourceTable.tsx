@@ -8,10 +8,8 @@ import { FormattedDate } from '@/components/shared/ui/FormattedDate';
 
 export interface ResourceData {
   requestCount: number;
-  vaultFileCount: number;
   invitedCount: number;
   lastRequestUpdate: string | null;
-  lastVaultUpdate: string | null;
   lastInviteUpdate: string | null;
 }
 
@@ -31,17 +29,7 @@ export function ResourceTable({ resources }: ResourceTableProps): React.ReactEle
       statusVariant: 'green' as const,
       date: resources.lastRequestUpdate,
       action: t('open'),
-      href: '../cases',
-    },
-    {
-      name: t('vaultDocs'),
-      description: t('vaultDocsDesc'),
-      count: t('countFiles', { count: resources.vaultFileCount }),
-      status: t('statusEncrypted'),
-      statusVariant: 'green' as const,
-      date: resources.lastVaultUpdate,
-      action: t('open'),
-      href: '../documents',
+      href: '../dashboard',
     },
     {
       name: t('memberInvites'),

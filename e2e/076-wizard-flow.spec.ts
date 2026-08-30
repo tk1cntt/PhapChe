@@ -94,10 +94,11 @@ test.describe('Create Request Wizard Flow', () => {
     await submitButton.waitFor({ state: 'visible', timeout: 5000 });
     await submitButton.click();
 
-    // Check for success modal or redirect
+    // Check for success modal or redirect to the dashboard (the /cases list
+    // route was removed — the dashboard is the primary case view).
     await page.waitForTimeout(2000);
     const successModal = page.getByText('Yêu cầu đã được gửi!');
-    const redirected = page.url().includes('/cases');
+    const redirected = page.url().includes('/dashboard');
     expect(successModal || redirected).toBeTruthy();
   });
 

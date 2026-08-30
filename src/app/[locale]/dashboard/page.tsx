@@ -62,7 +62,6 @@ export default async function DashboardPage({
       processingWhere,
       completedWhere,
       requests,
-      recentDocuments,
       recentActivities,
     ] = await Promise.all([
       prisma.user.findUnique({
@@ -94,15 +93,6 @@ export default async function DashboardPage({
           orderBy: { updatedAt: 'desc' },
         });
       })(),
-      // Recent vault documents (user-scoped)
-      prisma.vaultFile.findMany({
-        where: { workspaceId: wsId, actorId: userId },
-        include: {
-          actor: { select: { id: true, name: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-      }),
       // Recent audit events (user-scoped)
       prisma.auditEvent.findMany({
         where: { workspaceId: wsId, actorId: userId },
@@ -157,18 +147,6 @@ export default async function DashboardPage({
       }),
     };
   });
-
-  // Transform recent documents
-  const transformedDocuments = recentDocuments.map((doc) => ({
-    id: doc.id,
-    filename: doc.filename || 'Untitled',
-    size: doc.size || 0,
-    mimeType: doc.contentType || 'application/octet-stream',
-    status: doc.fileKind || 'ACTIVE',
-    uploadedBy: doc.actor?.name || 'Unknown',
-    updatedAt: doc.createdAt.toISOString(),
-    relativeTime: formatRelativeTime(doc.createdAt, tTime),
-  }));
 
   // Transform recent activities - parse metadata and generate detailed Vietnamese descriptions
   const transformedActivities = recentActivities.map((activity) => {
@@ -371,15 +349,11 @@ export default async function DashboardPage({
     }
   }
 
-  // Stats data — vaultDocs uses a real count (not the take:10 length)
-  const vaultDocCount = await prisma.vaultFile.count({
-    where: { workspaceId: wsId, actorId: userId },
-  });
+  // Stats data
   const stats = {
     totalRequests: Number(totalRequests),
     inProgress: Number(processingRequests),
     completed: Number(completedRequests),
-    vaultDocs: Number(vaultDocCount),
   };
 
   // Welcome banner data
@@ -402,7 +376,6 @@ export default async function DashboardPage({
         welcomeData={welcomeData}
         stats={stats}
         allCases={transformedRequests}
-        recentDocuments={transformedDocuments}
         recentActivities={transformedActivities}
       />
     </UserLayout>

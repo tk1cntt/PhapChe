@@ -114,3 +114,80 @@ test.describe('Customer dashboard @ mobile (390×844)', () => {
     expect(body).not.toMatch(/404|Not Found/);
   });
 });
+
+test.describe('Customer dashboard @ 320×568 (S3 truncate regression)', () => {
+  // S3: case-card title/role must no longer truncate at the narrowest
+  // supported viewport. Regression: a -webkit-line-clamp or overflow:hidden
+  // on .case-card-mobile-title/.case-card-mobile-role would clip text here.
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await gotoDashboard(page);
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('case-card title/role are NOT truncated (no line-clamp / overflow hidden)', async ({ page }) => {
+    const cards = page.locator('.case-card-mobile');
+    await expect(cards.first()).toBeVisible();
+
+    // The S3 fix removed display:-webkit-box + -webkit-line-clamp + overflow:hidden
+    // from the title; both must be gone so text wraps instead of clipping.
+    for (const sel of ['.case-card-mobile-title', '.case-card-mobile-role']) {
+      const count = await page.locator(sel).count();
+      expect(count).toBeGreaterThan(0);
+      const styles = await page.locator(sel).first().evaluate((el) => {
+        const cs = getComputedStyle(el);
+        return {
+          display: cs.display,
+          webkitLineClamp: cs.webkitLineClamp,
+          overflow: cs.overflow,
+          overflowWrap: cs.overflowWrap,
+        };
+      });
+      expect(styles.display, `${sel} display`).not.toBe('-webkit-box');
+      expect(styles.webkitLineClamp, `${sel} webkitLineClamp`).toBe('none');
+      expect(styles.overflow, `${sel} overflow`).not.toBe('hidden');
+      expect(styles.overflowWrap, `${sel} overflowWrap`).toBe('anywhere');
+    }
+
+    // Title element must wrap long content, not be a fixed-height clip box.
+    const title = page.locator('.case-card-mobile-title').first();
+    const { scrollWidth, clientWidth } = await title.evaluate((el) => ({
+      scrollWidth: el.scrollWidth,
+      clientWidth: el.clientWidth,
+    }));
+    expect(scrollWidth, 'title text must wrap (no horizontal clip)').toBeLessThanOrEqual(clientWidth);
+  });
+
+  test('no horizontal overflow at 320px viewport', async ({ page }) => {
+    const { scrollWidth, clientWidth } = await page.evaluate(() => {
+      const el = document.scrollingElement as HTMLElement;
+      return { scrollWidth: el.scrollWidth, clientWidth: el.clientWidth };
+    });
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+
+    const bodyOverflow = await page.evaluate(() =>
+      document.body.scrollWidth > document.body.clientWidth,
+    );
+    expect(bodyOverflow).toBe(false);
+  });
+
+  test('mobile case cards render at 320px with no clipped text', async ({ page }) => {
+    const cards = page.locator('.case-card-mobile');
+    const count = await cards.count();
+    expect(count).toBeGreaterThan(0);
+
+    // For every visible card, the title must not horizontally overflow its box.
+    for (let i = 0; i < count; i++) {
+      const card = cards.nth(i);
+      if (!(await card.isVisible())) continue;
+      const title = card.locator('.case-card-mobile-title');
+      if (await title.count()) {
+        const { scrollWidth, clientWidth } = await title.evaluate((el) => ({
+          scrollWidth: el.scrollWidth,
+          clientWidth: el.clientWidth,
+        }));
+        expect(scrollWidth, `card ${i} title wraps`).toBeLessThanOrEqual(clientWidth);
+      }
+    }
+  });
+});

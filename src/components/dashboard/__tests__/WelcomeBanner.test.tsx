@@ -1,11 +1,10 @@
 /**
  * WelcomeBanner Regression Tests
  *
- * Q5 fix: the two quick-action buttons (View documents / Send feedback) were
- * dead (no href / onClick). They must now be locale-prefixed links:
- *   - viewDocuments → /{locale}/dashboard (Recent Documents panel; no customer
- *     vault route exists — see spec 75 / steer 003)
- *   - sendFeedback  → /{locale}/messages (support channel)
+ * Vault removed from the user surface: the "Xem tài liệu" (View documents)
+ * quick action was dropped — it anchored the vault Recent Documents panel,
+ * which no longer exists. Only "Gửi phản hồi" (Send feedback) remains, still
+ * pointing at the locale-prefixed /{locale}/messages support channel.
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -30,6 +29,12 @@ vi.mock('next-intl', () => ({
   useLocale: () => 'vi',
 }));
 
+vi.mock('next/link', () => ({
+  default: ({ href, className, children }: { href: string; className?: string; children: React.ReactNode }) => (
+    <a href={href} className={className}>{children}</a>
+  ),
+}));
+
 function makeData(): WelcomeData {
   return {
     workspace: { id: 'ws1', name: 'Công ty ABC', slug: 'abc' },
@@ -40,26 +45,27 @@ function makeData(): WelcomeData {
   };
 }
 
-describe('WelcomeBanner quick actions (Q5)', () => {
-  it('renders "View documents" as a locale-prefixed link to /vi/dashboard', () => {
-    const { getByText } = render(<WelcomeBanner data={makeData()} />);
-    const link = getByText('Xem tài liệu').closest('a');
-    expect(link).not.toBeNull();
-    expect(link!.getAttribute('href')).toBe('/vi/dashboard');
-  });
-
-  it('renders "Send feedback" as a locale-prefixed link to /vi/messages', () => {
-    const { getByText } = render(<WelcomeBanner data={makeData()} />);
-    const link = getByText('Gửi phản hồi').closest('a');
-    expect(link).not.toBeNull();
-    expect(link!.getAttribute('href')).toBe('/vi/messages');
-  });
-
-  it('keeps quick-actions as two anchors (not dead buttons)', () => {
+describe('WelcomeBanner quick actions (vault removed)', () => {
+  it('renders only one quick action: "Send feedback" → /vi/messages', () => {
     const { container } = render(<WelcomeBanner data={makeData()} />);
     const actions = container.querySelector('.quick-actions');
     expect(actions).not.toBeNull();
     const anchors = actions!.querySelectorAll('a');
-    expect(anchors.length).toBe(2);
+    expect(anchors.length).toBe(1);
+    expect(anchors[0].getAttribute('href')).toBe('/vi/messages');
+  });
+
+  it('no longer renders the "View documents" vault action', () => {
+    const { queryByText } = render(<WelcomeBanner data={makeData()} />);
+    // 'Xem tài liệu' must not appear anywhere (vault removed from user surface).
+    const link = queryByText('Xem tài liệu')?.closest('a');
+    expect(link).toBeUndefined();
+    expect(queryByText('Xem tài liệu')).toBeNull();
+  });
+
+  it('does not link to /vi/dashboard from quick actions', () => {
+    const { container } = render(<WelcomeBanner data={makeData()} />);
+    const anchors = Array.from(container.querySelectorAll('a'));
+    expect(anchors.map((a) => a.getAttribute('href'))).not.toContain('/vi/dashboard');
   });
 });

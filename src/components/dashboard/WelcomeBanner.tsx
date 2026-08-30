@@ -4,6 +4,9 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { WelcomeData } from './DashboardClient';
 
+// Quick action: "Xem tài liệu" was removed — it anchored the vault Recent
+// Documents panel, which no longer exists in the user surface.
+
 interface WelcomeBannerProps {
   data: WelcomeData;
 }
@@ -45,7 +48,6 @@ export default function WelcomeBanner({ data }: WelcomeBannerProps) {
         </div>
       </div>
       <div className="quick-actions">
-        <Link href={`/${locale}/dashboard`} className="ghost-btn">{t('viewDocuments')}</Link>
         <Link href={`/${locale}/messages`} className="create-btn">{t('sendFeedback')}</Link>
       </div>
     </div>

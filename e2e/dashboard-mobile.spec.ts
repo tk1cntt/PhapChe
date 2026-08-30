@@ -7,9 +7,11 @@
  *   1. Stat grid is 4 columns (repeat(4,1fr)) — QW-1 was reverted, the 2×2
  *      mobile grid is NOT in scope.
  *   2. No horizontal overflow at the mobile viewport.
- *   3. Tap targets are present: bottom nav, paging buttons, stat-card links.
- *   4. StatCard hrefs resolve to /{locale}/cases and
- *      /{locale}/cases?status=in_progress without 404 (spec 75).
+ *   3. Tap targets are present: bottom nav, paging buttons.
+ *   4. Stat cards are plain (non-clickable): exactly 3 cards, no vaultDocs,
+ *      and no links to the removed /{locale}/cases list. Detail links to
+ *      /{locale}/cases/[id] are still fine.
+ *   5. No Recent Documents panel (vault removed from the user surface).
  */
 
 import { test, expect, type Page } from '@playwright/test';
@@ -34,8 +36,10 @@ test.describe('Customer dashboard @ mobile (390×844)', () => {
     const cols = await grid.evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
     expect(cols).toBe(4);
 
-    // All four stat cards visible at the 390px viewport.
-    await expect(page.locator('.stat-card')).toHaveCount(4);
+    // Exactly three stat cards visible at the 390px viewport (the purple
+    // vaultDocs card was removed with the vault cleanup).
+    await expect(page.locator('.stat-card')).toHaveCount(3);
+    await expect(page.getByText('Tài liệu pháp lý')).toHaveCount(0);
   });
 
   test('no horizontal overflow at mobile viewport', async ({ page }) => {
@@ -63,11 +67,10 @@ test.describe('Customer dashboard @ mobile (390×844)', () => {
     await expect(bottomNav).toBeVisible();
     await expect(bottomNav.locator('.bottom-nav-item')).toHaveCount(3);
 
-    // Stat cards are full-page-width tap targets.
-    const statCards = page.locator('.stat-card-link');
-    const count = await statCards.count();
-    expect(count).toBeGreaterThanOrEqual(4);
-    for (let i = 0; i < count; i++) {
+    // Stat cards are full-width blocks (plain, non-clickable).
+    const statCards = page.locator('.stat-card');
+    await expect(statCards).toHaveCount(3);
+    for (let i = 0; i < 3; i++) {
       const box = await statCards.nth(i).boundingBox();
       expect(box).not.toBeNull();
       if (box) {
@@ -90,28 +93,24 @@ test.describe('Customer dashboard @ mobile (390×844)', () => {
     }
   });
 
-  test('stat card hrefs point to spec-75 URLs that resolve without 404', async ({ page }) => {
+  test('stat cards are non-clickable: no /cases list links, no Recent Documents panel', async ({ page }) => {
     await gotoDashboard(page);
 
-    // The stat-card links must carry the spec-75 hrefs (locale-prefixed).
-    const hrefs = await page.locator('.stat-card-link').evaluateAll((els) =>
-      els.map((a) => a.getAttribute('href')),
-    );
-    expect(hrefs).toContain('/vi/cases');
-    expect(hrefs).toContain('/vi/cases?status=in_progress');
+    // Vault cleanup removed the purple vaultDocs card AND made the stat cards
+    // plain (non-clickable) — the /{locale}/cases list route was deleted.
+    // Detail links to /{locale}/cases/[id] are still fine.
+    await expect(page.locator('.stat-card-link')).toHaveCount(0);
+    const casesLinks = page.locator('a[href="/vi/cases"], a[href="/vi/cases?status=in_progress"]');
+    expect(await casesLinks.count()).toBe(0);
 
-    // /vi/cases currently server-redirects to /vi/dashboard (no /cases page
-    // exists), so "resolves without 404" means: navigating to the href does
-    // NOT render a 404/Not Found page and lands on a real dashboard.
+    // No Recent Documents panel (vault removed from the user surface).
+    await expect(page.locator('.document-list')).toHaveCount(0);
+    await expect(page.getByText('Tài liệu gần đây')).toHaveCount(0);
+
+    // The removed /vi/cases list route now renders 404/Not Found.
     await page.goto('/vi/cases', { waitUntil: 'networkidle', timeout: 30000 });
-    expect(page.url()).toContain('/vi/dashboard');
-    let body = await page.evaluate(() => document.body.innerText);
-    expect(body).not.toMatch(/404|Not Found/);
-
-    await page.goto('/vi/cases?status=in_progress', { waitUntil: 'networkidle', timeout: 30000 });
-    expect(page.url()).toContain('/vi/dashboard');
-    body = await page.evaluate(() => document.body.innerText);
-    expect(body).not.toMatch(/404|Not Found/);
+    const body = await page.evaluate(() => document.body.innerText);
+    expect(body).toMatch(/404|Not Found/);
   });
 });
 

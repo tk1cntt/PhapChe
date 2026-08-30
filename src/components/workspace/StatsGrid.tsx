@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { Building2, Users, FileText, Lock } from 'lucide-react';
+import { Building2, Users, FileText } from 'lucide-react';
 
 export interface StatsData {
   isActive: boolean;
@@ -12,7 +12,6 @@ export interface StatsData {
   invitedMemberCount: number;
   requestCount: number;
   processingRequestCount: number;
-  vaultFileCount: number;
 }
 
 export interface StatsGridProps {
@@ -46,13 +45,6 @@ export function StatsGrid({ stats }: StatsGridProps): React.ReactElement {
       title: t('statRequests'),
       value: stats.requestCount,
       description: t('statRequestsDesc', { processing: stats.processingRequestCount }),
-    },
-    {
-      icon: Lock,
-      variant: 'purple' as const,
-      title: t('statVaultScope'),
-      value: stats.vaultFileCount > 0 ? t('enabled') : t('disabled'),
-      description: t('statVaultScopeDesc'),
     },
   ];
 

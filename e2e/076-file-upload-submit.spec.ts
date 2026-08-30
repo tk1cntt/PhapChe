@@ -289,8 +289,9 @@ test.describe('File Upload and Submit', () => {
       }
     }
 
-    // Success or error - page should be responsive
-    expect(page.url()).toMatch(/\/(create|cases)/);
+    // Success or error - page should be responsive. On success the wizard
+    // redirects to the dashboard (the /cases list route was removed).
+    expect(page.url()).toMatch(/\/(create|dashboard)/);
   });
 
   test('submit without files works (files are optional)', async ({ page }) => {
@@ -328,7 +329,8 @@ test.describe('File Upload and Submit', () => {
       }
     }
 
-    // Page should be responsive
-    expect(page.url()).toMatch(/\/(create|cases)/);
+    // Page should be responsive. On success the wizard redirects to the
+    // dashboard (the /cases list route was removed).
+    expect(page.url()).toMatch(/\/(create|dashboard)/);
   });
 });

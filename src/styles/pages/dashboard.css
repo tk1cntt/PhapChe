@@ -26,10 +26,10 @@
   }
 }
 
-/* Dashboard Grid — 3 cols: Deadline + Docs + Activity */
+/* Dashboard Grid — 2 cols: Deadline + Activity */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-bottom: 24px;
   width: 100%;

@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { StatsCardGrid } from './StatCard';
 import WelcomeBanner from './WelcomeBanner';
 import DeadlineSLA from './DeadlineSLA';
-import RecentDocuments from './RecentDocuments';
 import ActivityTimeline from './ActivityTimeline';
 import CasesTable from './CasesTable';
 import { ErrorBoundaryWrapper } from '@/components/shared/ui/ErrorBoundary';
@@ -17,7 +16,7 @@ import '@/styles/pages/dashboard.css';
 function StatCardsSkeleton() {
   return (
     <div className="stats-grid">
-      {[0, 1, 2, 3].map((i) => (
+      {[0, 1, 2].map((i) => (
         <div key={i} className="stat-card loading-stat">
           <div className="loading-icon" />
           <div className="loading-text">
@@ -25,27 +24,6 @@ function StatCardsSkeleton() {
             <div className="loading-line medium" />
             <div className="loading-line short" />
           </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function RecentDocumentsSkeleton() {
-  return (
-    <div className="panel loading-panel">
-      <div className="panel-title">
-        <div className="panel-title-left">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 7h18v13H3z" />
-            <path d="M3 7l3-4h12l3 4" />
-          </svg>
-          <span>Đang tải...</span>
-        </div>
-      </div>
-      {[0, 1, 2, 3, 4].map((i) => (
-        <div key={i} className="document-item" style={{ minHeight: 72 }}>
-          <div className="loading-line medium" style={{ height: 20 }} />
         </div>
       ))}
     </div>
@@ -93,7 +71,6 @@ export interface StatsData {
   totalRequests: number;
   inProgress: number;
   completed: number;
-  vaultDocs: number;
 }
 
 export interface WelcomeData {
@@ -102,17 +79,6 @@ export interface WelcomeData {
   pendingDocs: number;
   newReplies: number;
   userName: string;
-}
-
-export interface DocumentItem {
-  id: string;
-  filename: string;
-  size: number;
-  mimeType: string;
-  status: string;
-  uploadedBy: string;
-  updatedAt: string;
-  relativeTime: string;
 }
 
 export interface ActivityItem {
@@ -134,7 +100,6 @@ interface DashboardClientProps {
   welcomeData: WelcomeData;
   stats: StatsData;
   allCases: CaseItem[];
-  recentDocuments?: DocumentItem[];
   recentActivities?: ActivityItem[];
 }
 
@@ -142,7 +107,6 @@ export default function DashboardClient({
   welcomeData,
   stats,
   allCases,
-  recentDocuments = [],
   recentActivities = [],
 }: DashboardClientProps) {
   const t = useTranslations('DashboardClient');
@@ -197,7 +161,7 @@ export default function DashboardClient({
       {/* All Requests — CasesTable with paging (moved to top, replaces redundant RecentCases panel) */}
       <CasesTable cases={allCases} />
 
-      {/* Grid: Deadline + Recent Docs + Activity */}
+      {/* Grid: Deadline + Activity */}
       <div className="dashboard-grid">
         <ErrorBoundaryWrapper
           fallback={
@@ -207,19 +171,6 @@ export default function DashboardClient({
           }
         >
           <DeadlineSLA cases={allCases} />
-        </ErrorBoundaryWrapper>
-        <ErrorBoundaryWrapper
-          fallback={
-            <div className="panel" style={{ padding: 24, textAlign: 'center', color: 'var(--color-danger)' }}>
-              Không thể tải dữ liệu. Vui lòng thử lại.
-            </div>
-          }
-        >
-          {isLoading ? (
-            <RecentDocumentsSkeleton />
-          ) : (
-            <RecentDocuments documents={recentDocuments} />
-          )}
         </ErrorBoundaryWrapper>
         <ErrorBoundaryWrapper
           fallback={

@@ -42,15 +42,13 @@ export default async function WorkspacePage({
   // Fetch DB stats — build role-filtered where clauses for legal requests
   const processingStatusExtra = { status: { in: ['in_progress', 'pending_review', 'revision_required'] } };
 
-  const [baseWhere, processingWhere, allMembers, vaultFileCount, lastVaultUpdate, unreadMessages] = await Promise.all([
+  const [baseWhere, processingWhere, allMembers, unreadMessages] = await Promise.all([
     getWorkspaceRequestWhere(wsId, userId),
     getWorkspaceRequestWhere(wsId, userId, processingStatusExtra),
     prisma.workspaceMembership.findMany({
       where: { workspaceId: wsId },
       include: { user: { select: { id: true, name: true, email: true } } },
     }),
-    prisma.vaultFile.count({ where: { workspaceId: wsId } }),
-    prisma.vaultFile.findFirst({ where: { workspaceId: wsId }, orderBy: { createdAt: 'desc' }, select: { createdAt: true } }),
     prisma.message.count({ where: { workspaceId: wsId, recipientId: userId, isRead: false } }),
   ]);
 
@@ -80,15 +78,12 @@ export default async function WorkspacePage({
     invitedMemberCount: invitedCount,
     requestCount,
     processingRequestCount,
-    vaultFileCount,
   };
 
   const resourceData = {
     requestCount,
-    vaultFileCount,
     invitedCount,
     lastRequestUpdate: lastRequestUpdate?.updatedAt?.toISOString() ?? null,
-    lastVaultUpdate: lastVaultUpdate?.createdAt?.toISOString() ?? null,
     lastInviteUpdate: null as string | null,
   };
 

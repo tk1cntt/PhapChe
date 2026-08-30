@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import DashboardClient from '@/components/dashboard/DashboardClient';
 
 // ── Mocks ──
@@ -29,22 +29,11 @@ vi.mock('next-intl', () => ({
         inProgressDesc: 'Yêu cầu đang được xử lý',
         completed: 'Hoàn tất',
         completedDesc: 'Yêu cầu đã hoàn tất',
-        vaultDocs: 'Tài liệu',
-        vaultDocsDesc: 'Tài liệu trong kho',
-      },
-      RecentCases: {
-        title: 'Hồ sơ đang xử lý',
-        seeAll: 'Xem tất cả',
-        open: 'Mở',
       },
       DeadlineSLA: {
         title: 'Deadline & SLA',
         noDeadlines: 'Không có deadline nào trong tuần này',
         noDescription: '',
-      },
-      RecentDocuments: {
-        title: 'Tài liệu gần đây',
-        openVault: 'Mở kho',
       },
       ActivityTimeline: {
         title: 'Hoạt động gần đây',
@@ -73,8 +62,10 @@ vi.mock('next-intl', () => ({
   useLocale: () => 'vi',
 }));
 
+const pushSpy = vi.fn();
+
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: pushSpy }),
 }));
 
 vi.mock('next/link', () => ({
@@ -93,11 +84,11 @@ const mockWelcomeData = {
   userName: 'Nguyễn Văn A',
 };
 
+// Vault was removed from the user surface — no vaultDocs field.
 const mockStats = {
   totalRequests: 25,
   inProgress: 8,
   completed: 17,
-  vaultDocs: 42,
 };
 
 const mockCases = [
@@ -129,29 +120,6 @@ const mockCases = [
   },
 ];
 
-const mockDocuments = [
-  {
-    id: 'doc-1',
-    filename: 'hop-dong-thue.pdf',
-    size: 1024000,
-    mimeType: 'application/pdf',
-    status: 'ACTIVE',
-    uploadedBy: 'Nguyễn Văn A',
-    updatedAt: '2024-01-15T10:00:00Z',
-    relativeTime: '2 giờ trước',
-  },
-  {
-    id: 'doc-2',
-    filename: 'bieu-mau.xlsx',
-    size: 512000,
-    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    status: 'PENDING',
-    uploadedBy: 'Trần Thị B',
-    updatedAt: '2024-01-14T15:00:00Z',
-    relativeTime: '1 ngày trước',
-  },
-];
-
 const mockActivities = [
   {
     id: 'act-1',
@@ -178,6 +146,14 @@ const mockActivities = [
 describe('DashboardClient', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    pushSpy.mockReset();
+    // Default: unread-count endpoint resolves with 0 unread messages.
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ unreadCount: 0 }),
+      } as Response),
+    ) as unknown as typeof fetch;
   });
 
   // ============================
@@ -190,14 +166,13 @@ describe('DashboardClient', () => {
           welcomeData={mockWelcomeData}
           stats={mockStats}
           allCases={mockCases}
-          recentDocuments={mockDocuments}
           recentActivities={mockActivities}
         />
       );
       expect(container.querySelector('.dashboard-page')).toBeInTheDocument();
     });
 
-    it('renders stats grid with 4 stat cards', () => {
+    it('renders stats grid with exactly 3 stat cards (no vaultDocs)', () => {
       const { container } = render(
         <DashboardClient
           welcomeData={mockWelcomeData}
@@ -208,7 +183,7 @@ describe('DashboardClient', () => {
       const statsGrid = container.querySelector('.stats-grid');
       expect(statsGrid).toBeInTheDocument();
       const statCards = statsGrid!.querySelectorAll('.stat-card');
-      expect(statCards.length).toBe(4);
+      expect(statCards.length).toBe(3);
     });
 
     it('renders correct stat values from props', () => {
@@ -223,7 +198,6 @@ describe('DashboardClient', () => {
       expect(screen.getAllByText('25').length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText('8').length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText('17').length).toBeGreaterThanOrEqual(1);
-      expect(screen.getAllByText('42').length).toBeGreaterThanOrEqual(1);
     });
 
     it('renders welcome banner with workspace name from props', () => {
@@ -237,24 +211,12 @@ describe('DashboardClient', () => {
       expect(screen.getByText('Chào mừng đến với workspace')).toBeInTheDocument();
     });
 
-    it('renders the grid-2 section (RecentCases + DeadlineSLA)', () => {
+    it('renders the dashboard-grid section (DeadlineSLA + ActivityTimeline)', () => {
       const { container } = render(
         <DashboardClient
           welcomeData={mockWelcomeData}
           stats={mockStats}
           allCases={mockCases}
-        />
-      );
-      expect(container.querySelector('.grid-2')).toBeInTheDocument();
-    });
-
-    it('renders the dashboard-grid section (RecentDocuments + ActivityTimeline)', () => {
-      const { container } = render(
-        <DashboardClient
-          welcomeData={mockWelcomeData}
-          stats={mockStats}
-          allCases={mockCases}
-          recentDocuments={mockDocuments}
           recentActivities={mockActivities}
         />
       );
@@ -269,7 +231,7 @@ describe('DashboardClient', () => {
           allCases={mockCases}
         />
       );
-      // Cases appear in both RecentCases panel and CasesTable — use getAllByText
+      // Cases appear in CasesTable (and the mobile cards)
       expect(screen.getAllByText('CASE-2024-001').length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText('Hợp đồng thuê văn phòng').length).toBeGreaterThanOrEqual(1);
       // Nguyễn Văn A appears as assignee in table and in activity actor
@@ -284,8 +246,8 @@ describe('DashboardClient', () => {
           allCases={mockCases}
         />
       );
-      // Link renders as <a> with floating-chat class
-      const chatLink = container.querySelector('a[href="/messages"]');
+      // Link renders as <a> with floating-chat class, locale-prefixed
+      const chatLink = container.querySelector('a.floating-chat');
       expect(chatLink).toBeInTheDocument();
     });
 
@@ -300,15 +262,16 @@ describe('DashboardClient', () => {
       expect(screen.getByText('Tạo yêu cầu')).toBeInTheDocument();
     });
 
-    it('renders RecentCases panel title', () => {
-      render(
+    it('does NOT render a RecentDocuments panel (vault removed)', () => {
+      const { container } = render(
         <DashboardClient
           welcomeData={mockWelcomeData}
           stats={mockStats}
           allCases={mockCases}
         />
       );
-      expect(screen.getByText('Hồ sơ đang xử lý')).toBeInTheDocument();
+      expect(container.querySelector('.document-list')).toBeNull();
+      expect(screen.queryByText('Tài liệu gần đây')).toBeNull();
     });
 
     it('renders DeadlineSLA panel title', () => {
@@ -322,18 +285,6 @@ describe('DashboardClient', () => {
       expect(screen.getByText('Deadline & SLA')).toBeInTheDocument();
     });
 
-    it('renders RecentDocuments panel title when documents provided', () => {
-      render(
-        <DashboardClient
-          welcomeData={mockWelcomeData}
-          stats={mockStats}
-          allCases={mockCases}
-          recentDocuments={mockDocuments}
-        />
-      );
-      expect(screen.getByText('Tài liệu gần đây')).toBeInTheDocument();
-    });
-
     it('renders ActivityTimeline panel title when activities provided', () => {
       render(
         <DashboardClient
@@ -344,19 +295,6 @@ describe('DashboardClient', () => {
         />
       );
       expect(screen.getByText('Hoạt động gần đây')).toBeInTheDocument();
-    });
-
-    it('renders document filenames from recentDocuments prop', () => {
-      render(
-        <DashboardClient
-          welcomeData={mockWelcomeData}
-          stats={mockStats}
-          allCases={mockCases}
-          recentDocuments={mockDocuments}
-        />
-      );
-      expect(screen.getByText('hop-dong-thue.pdf')).toBeInTheDocument();
-      expect(screen.getByText('bieu-mau.xlsx')).toBeInTheDocument();
     });
 
     it('renders activity descriptions from recentActivities prop', () => {
@@ -383,14 +321,13 @@ describe('DashboardClient', () => {
           welcomeData={mockWelcomeData}
           stats={mockStats}
           allCases={mockCases}
-          recentDocuments={mockDocuments}
           recentActivities={mockActivities}
         />
       );
       expect(container.querySelector('.dashboard-page')).toBeInTheDocument();
     });
 
-    it('renders without crashing with minimal props (no documents/activities)', () => {
+    it('renders without crashing with minimal props (no activities)', () => {
       const { container } = render(
         <DashboardClient
           welcomeData={mockWelcomeData}
@@ -409,14 +346,13 @@ describe('DashboardClient', () => {
           allCases={mockCases}
         />
       );
-      // Cases appear in both RecentCases panel and CasesTable
       const codes001 = screen.getAllByText('CASE-2024-001');
       expect(codes001.length).toBeGreaterThanOrEqual(1);
       const codes002 = screen.getAllByText('CASE-2024-002');
       expect(codes002.length).toBeGreaterThanOrEqual(1);
     });
 
-    it('RecentCases panel shows first 5 cases max', () => {
+    it('CasesTable renders many cases (no RecentCases cap)', () => {
       const manyCases = Array.from({ length: 10 }, (_, i) => ({
         ...mockCases[0],
         id: `case-${i}`,
@@ -430,7 +366,6 @@ describe('DashboardClient', () => {
           allCases={manyCases}
         />
       );
-      // CasesTable shows all, RecentCases shows first 5 — duplicates are fine
       expect(screen.getAllByText('CASE-0').length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText('CASE-9').length).toBeGreaterThanOrEqual(1);
     });
@@ -443,10 +378,9 @@ describe('DashboardClient', () => {
           allCases={mockCases}
         />
       );
-      // case-1 (in_progress) appears in RecentCases + DeadlineSLA + CasesTable
-      // case-2 (approved) appears only in RecentCases + CasesTable (not DeadlineSLA)
+      // case-1 (in_progress) appears in DeadlineSLA + CasesTable
       const titles = screen.getAllByText('Hợp đồng thuê văn phòng');
-      expect(titles.length).toBeGreaterThanOrEqual(2); // at least RecentCases + CasesTable
+      expect(titles.length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -465,18 +399,6 @@ describe('DashboardClient', () => {
       expect(screen.getByText('Không có hồ sơ nào')).toBeInTheDocument();
     });
 
-    it('handles empty recentDocuments (defaults to [])', () => {
-      render(
-        <DashboardClient
-          welcomeData={mockWelcomeData}
-          stats={mockStats}
-          allCases={mockCases}
-        />
-      );
-      // Should render RecentDocuments panel with empty state
-      expect(screen.getByText('Tài liệu gần đây')).toBeInTheDocument();
-    });
-
     it('handles empty recentActivities (defaults to [])', () => {
       render(
         <DashboardClient
@@ -490,7 +412,7 @@ describe('DashboardClient', () => {
     });
 
     it('handles zero stats values', () => {
-      const zeroStats = { totalRequests: 0, inProgress: 0, completed: 0, vaultDocs: 0 };
+      const zeroStats = { totalRequests: 0, inProgress: 0, completed: 0 };
       render(
         <DashboardClient
           welcomeData={{ ...mockWelcomeData, activeRequests: 0, pendingDocs: 0, newReplies: 0 }}
@@ -498,8 +420,8 @@ describe('DashboardClient', () => {
           allCases={[]}
         />
       );
-      // allCases=[] triggers isLoading=true → skeleton placeholders shown
-      // Stats cards will show skeleton (.loading-stat) not the zero values
+      // allCases=[] triggers isLoading=true → skeleton placeholders shown.
+      // Now exactly 3 skeleton cards render (vaultDocs removed).
       const { container } = render(
         <DashboardClient
           welcomeData={{ ...mockWelcomeData, activeRequests: 0, pendingDocs: 0, newReplies: 0 }}
@@ -508,7 +430,7 @@ describe('DashboardClient', () => {
         />
       );
       const loadingStats = container.querySelectorAll('.loading-stat');
-      expect(loadingStats.length).toBeGreaterThanOrEqual(4);
+      expect(loadingStats.length).toBe(3);
     });
 
     it('handles long case title in CasesTable', () => {
@@ -523,25 +445,7 @@ describe('DashboardClient', () => {
           allCases={longCases}
         />
       );
-      // CASE-2024-001 appears in RecentCases + CasesTable
       expect(screen.getAllByText('CASE-2024-001').length).toBeGreaterThanOrEqual(1);
-    });
-
-    it('handles document with unknown status gracefully', () => {
-      const unknownDoc = [{
-        ...mockDocuments[0],
-        status: 'UNKNOWN_STATUS',
-      }];
-      render(
-        <DashboardClient
-          welcomeData={mockWelcomeData}
-          stats={mockStats}
-          allCases={mockCases}
-          recentDocuments={unknownDoc}
-        />
-      );
-      // Should render without crash — badge may default
-      expect(screen.getByText('hop-dong-thue.pdf')).toBeInTheDocument();
     });
 
     it('handles case without formattedDate gracefully', () => {
@@ -588,26 +492,8 @@ describe('DashboardClient', () => {
           allCases={unknownVariant}
         />
       );
-      // statusText appears in RecentCases badge + CasesTable badge
+      // statusText appears in CasesTable badge
       expect(screen.getAllByText('Trạng thái không xác định').length).toBeGreaterThanOrEqual(1);
-    });
-
-    it('handles document with zero size', () => {
-      const zeroSizeDoc = [{
-        ...mockDocuments[0],
-        size: 0,
-      }];
-      render(
-        <DashboardClient
-          welcomeData={mockWelcomeData}
-          stats={mockStats}
-          allCases={mockCases}
-          recentDocuments={zeroSizeDoc}
-        />
-      );
-      expect(screen.getByText('hop-dong-thue.pdf')).toBeInTheDocument();
-      // "0 B" embedded inside larger text node like "0 B · updatedAt 2h ago"
-      expect(screen.getByText(/0 B/)).toBeInTheDocument();
     });
   });
 
@@ -632,7 +518,7 @@ describe('DashboardClient', () => {
     });
 
     it('does not crash when stats has negative values (data anomaly)', () => {
-      const badStats = { totalRequests: -1, inProgress: -5, completed: 0, vaultDocs: 0 };
+      const badStats = { totalRequests: -1, inProgress: -5, completed: 0 };
       expect(() =>
         render(
           <DashboardClient
@@ -655,25 +541,8 @@ describe('DashboardClient', () => {
         render(
           <DashboardClient
             welcomeData={mockWelcomeData}
-            stats={{ totalRequests: 1000, inProgress: 500, completed: 300, vaultDocs: 200 }}
+            stats={{ totalRequests: 1000, inProgress: 500, completed: 300 }}
             allCases={largeCases}
-          />
-        )
-      ).not.toThrow();
-    });
-
-    it('does not crash when recentDocuments contains empty filename', () => {
-      const emptyFilename = [{
-        ...mockDocuments[0],
-        filename: '',
-      }];
-      expect(() =>
-        render(
-          <DashboardClient
-            welcomeData={mockWelcomeData}
-            stats={mockStats}
-            allCases={mockCases}
-            recentDocuments={emptyFilename}
           />
         )
       ).not.toThrow();
@@ -693,8 +562,7 @@ describe('DashboardClient', () => {
       ).not.toThrow();
     });
 
-    it('renders error boundary fallback for StatsCardGrid when needed', () => {
-      // ErrorBoundary wraps StatsCardGrid — test the fallback is defined
+    it('renders stats grid (plain cards, no links) when everything is fine', () => {
       const { container } = render(
         <DashboardClient
           welcomeData={mockWelcomeData}
@@ -704,6 +572,64 @@ describe('DashboardClient', () => {
       );
       // A stats-grid should be present (normal path)
       expect(container.querySelector('.stats-grid')).toBeInTheDocument();
+      // Stat cards are plain — no anchor wrappers (detail links in CasesTable
+      // still point at /cases/[id], which stays).
+      expect(container.querySelector('.stat-card-link')).toBeNull();
+      expect(container.querySelector('a[href="/vi/cases"]')).toBeNull();
+      expect(container.querySelector('a[href="/vi/cases?status=in_progress"]')).toBeNull();
+    });
+
+    it('navigates to /create when the "Tạo yêu cầu" button is clicked', async () => {
+      const { container } = render(
+        <DashboardClient
+          welcomeData={mockWelcomeData}
+          stats={mockStats}
+          allCases={mockCases}
+        />
+      );
+      const createBtn = container.querySelector('button.create-btn');
+      expect(createBtn).not.toBeNull();
+      createBtn!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect(pushSpy).toHaveBeenCalledWith('/create');
+    });
+
+    it('fetches and renders unread message count on mount', async () => {
+      global.fetch = vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ unreadCount: 3 }),
+        } as Response),
+      ) as unknown as typeof fetch;
+
+      const { container } = render(
+        <DashboardClient
+          welcomeData={mockWelcomeData}
+          stats={mockStats}
+          allCases={mockCases}
+        />
+      );
+      expect(global.fetch).toHaveBeenCalledWith('/api/messages/unread-count');
+      // Unread badge appears after the async fetch resolves.
+      await waitFor(() => {
+        expect(container.querySelector('.chat-icon-wrapper')).not.toBeNull();
+      });
+    });
+
+    it('falls back to unreadCount=0 when the unread-count fetch fails', async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error('network down'))) as unknown as typeof fetch;
+
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      render(
+        <DashboardClient
+          welcomeData={mockWelcomeData}
+          stats={mockStats}
+          allCases={mockCases}
+        />
+      );
+      await waitFor(() => {
+        expect(consoleError).toHaveBeenCalled();
+      });
+      consoleError.mockRestore();
     });
   });
 });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Paging from '@/components/ui/Paging';
 import { CaseItem } from './DashboardClient';
 
@@ -22,6 +22,7 @@ function getStatusBadgeClass(variant: string): string {
 
 export default function CasesTable({ cases }: CasesTableProps) {
   const t = useTranslations('CasesTable');
+  const locale = useLocale();
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
@@ -82,7 +83,7 @@ export default function CasesTable({ cases }: CasesTableProps) {
               </div>
             </div>
             <div className="td">
-              <a className="action-link" href={`/cases/${c.id}`}>
+              <a className="action-link" href={`/${locale}/cases/${c.id}`}>
                 {t('viewDetails')} →
               </a>
             </div>
@@ -93,7 +94,7 @@ export default function CasesTable({ cases }: CasesTableProps) {
       {/* ── Mobile: Card list ── */}
       <div className="cases-cards-mobile">
         {paginatedCases.map((c) => (
-          <a key={c.id} href={`/cases/${c.id}`} className="case-card-mobile">
+          <a key={c.id} href={`/${locale}/cases/${c.id}`} className="case-card-mobile">
             <div className="case-card-mobile-top">
               <div className="case-card-mobile-code">
                 <span className="case-card-mobile-icon">📄</span>

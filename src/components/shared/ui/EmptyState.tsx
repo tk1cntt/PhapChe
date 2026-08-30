@@ -24,7 +24,7 @@ export function EmptyState({ icon, title, description, action, className }: Empt
   const displayActionLabel = action?.label || t('create');
 
   return (
-    <div className={`flex min-h-[400px] flex-col items-center justify-center p-8 ${className || ''}`}>
+    <div className={`flex min-h-[240px] flex-col items-center justify-center p-6 ${className || ''}`}>
       <div className="text-gray-400">
         {icon || (
           <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">

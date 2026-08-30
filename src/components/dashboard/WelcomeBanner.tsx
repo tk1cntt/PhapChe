@@ -1,6 +1,7 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import Link from 'next/link';
 import { WelcomeData } from './DashboardClient';
 
 interface WelcomeBannerProps {
@@ -9,6 +10,7 @@ interface WelcomeBannerProps {
 
 export default function WelcomeBanner({ data }: WelcomeBannerProps) {
   const t = useTranslations('WelcomeBanner');
+  const locale = useLocale();
 
   const statusParts: string[] = [];
   if (data.activeRequests > 0) {
@@ -43,8 +45,8 @@ export default function WelcomeBanner({ data }: WelcomeBannerProps) {
         </div>
       </div>
       <div className="quick-actions">
-        <button className="ghost-btn">{t('viewDocuments')}</button>
-        <button className="create-btn">{t('sendFeedback')}</button>
+        <Link href={`/${locale}/dashboard`} className="ghost-btn">{t('viewDocuments')}</Link>
+        <Link href={`/${locale}/messages`} className="create-btn">{t('sendFeedback')}</Link>
       </div>
     </div>
   );

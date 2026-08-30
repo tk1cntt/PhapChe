@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { StatsCardGrid } from './StatCard';
@@ -146,6 +146,7 @@ export default function DashboardClient({
   recentActivities = [],
 }: DashboardClientProps) {
   const t = useTranslations('DashboardClient');
+  const locale = useLocale();
   const router = useRouter();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(!welcomeData || !stats || allCases.length === 0);
@@ -236,7 +237,7 @@ export default function DashboardClient({
       </div>
 
       {/* Floating Chat Button */}
-      <Link href="/messages" className="floating-chat">
+      <Link href={`/${locale}/messages`} className="floating-chat">
         {unreadCount > 0 && (
           <span className="chat-icon-wrapper">
             {unreadCount > 99 ? '99+' : unreadCount}

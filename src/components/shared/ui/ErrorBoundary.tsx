@@ -54,7 +54,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       };
 
       return (
-        <div className="flex min-h-[400px] flex-col items-center justify-center p-8">
+        <div className="flex min-h-[240px] flex-col items-center justify-center p-6">
           <svg
             className="h-16 w-16 text-red-500"
             fill="none"

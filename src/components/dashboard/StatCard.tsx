@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { StatsData } from './DashboardClient';
 
 interface StatCardProps {
@@ -75,7 +75,11 @@ export default function StatCard({
 // StatsCardGrid - receives stats data from parent with i18n
 export function StatsCardGrid({ data }: { data: StatsData }) {
   const t = useTranslations('StatCard');
+  const locale = useLocale();
 
+  // Stat cards navigate to the dashboard (the only customer route that
+  // currently exists). All hrefs are locale-prefixed to respect
+  // `localePrefix: 'always'`; no dead `/vault` or self-bounce targets.
   return (
     <div className="stats-grid">
       <StatCard
@@ -83,7 +87,7 @@ export function StatsCardGrid({ data }: { data: StatsData }) {
         title={t('totalRequests')}
         value={data.totalRequests}
         description={t('totalRequestsDesc')}
-        href="/dashboard"
+        href={`/${locale}/dashboard`}
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -96,7 +100,7 @@ export function StatsCardGrid({ data }: { data: StatsData }) {
         title={t('inProgress')}
         value={data.inProgress}
         description={t('inProgressDesc')}
-        href="/dashboard"
+        href={`/${locale}/dashboard`}
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
@@ -109,7 +113,7 @@ export function StatsCardGrid({ data }: { data: StatsData }) {
         title={t('completed')}
         value={data.completed}
         description={t('completedDesc')}
-        href="/dashboard"
+        href={`/${locale}/dashboard`}
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M20 6 9 17l-5-5" />
@@ -121,7 +125,7 @@ export function StatsCardGrid({ data }: { data: StatsData }) {
         title={t('vaultDocs')}
         value={data.vaultDocs}
         description={t('vaultDocsDesc')}
-        href="/vault"
+        href={`/${locale}/dashboard`}
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 7h18v13H3z" />

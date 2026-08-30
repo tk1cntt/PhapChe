@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import './paging.css';
 
 interface PagingProps {
   current: number;
@@ -32,57 +33,27 @@ export default function Paging({
   const isLast = current >= totalPages;
 
   return (
-    <div
-      data-testid="common-paging"
-      style={{
-        padding: '12px 16px',
-        background: 'var(--color-bg)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: 12,
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div data-testid="common-paging" className="paging-bar">
+      <div className="paging-info">
         <select
           value={pageSize}
           onChange={(e) => onChange(1, Number(e.target.value))}
-          style={{
-            height: 32,
-            border: '1px solid var(--color-border)',
-            borderRadius: 6,
-            padding: '0 8px',
-            fontSize: 13,
-            background: 'var(--color-surface)',
-            cursor: 'pointer',
-          }}
+          aria-label="Page size"
         >
           {pageSizeOptions.map((option) => (
             <option key={option} value={option}>{option}</option>
           ))}
         </select>
-        <span style={{ fontSize: 13, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center' }}>
+        <span className="paging-total">
           {totalLabel ?? t('totalItems', { count: total })}
         </span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div className="paging-controls">
         <button
           onClick={() => onChange(Math.max(1, current - 1), pageSize)}
           disabled={isFirst}
-          style={{
-            height: 32,
-            width: 32,
-            border: '1px solid var(--color-border)',
-            borderRadius: 6,
-            background: isFirst ? '#f1f5f9' : '#fff',
-            color: isFirst ? '#94a3b8' : '#1e293b',
-            cursor: isFirst ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 14,
-          }}
+          className={`paging-btn${isFirst ? ' disabled' : ''}`}
           aria-label={t('previousPage')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -92,23 +63,12 @@ export default function Paging({
 
         {generatePageNumbers(current, totalPages).map((page, idx) => (
           page === '...' ? (
-            <span key={`ellipsis-${idx}`} style={{ minWidth: 32, textAlign: 'center', fontSize: 13, color: 'var(--color-text-muted)' }}>...</span>
+            <span key={`ellipsis-${idx}`} className="paging-ellipsis">...</span>
           ) : (
             <button
               key={page}
               onClick={() => onChange(page, pageSize)}
-              style={{
-                height: 32,
-                minWidth: 32,
-                padding: '0 8px',
-                border: page === current ? 'none' : '1px solid var(--color-border)',
-                borderRadius: 6,
-                background: page === current ? 'linear-gradient(180deg, #0b8f86, #087970)' : '#fff',
-                color: page === current ? '#fff' : '#1e293b',
-                cursor: 'pointer',
-                fontSize: 13,
-                fontWeight: page === current ? 700 : 500,
-              }}
+              className={`paging-btn${page === current ? ' active' : ''}`}
               aria-current={page === current ? 'page' : undefined}
             >
               {page}
@@ -119,19 +79,7 @@ export default function Paging({
         <button
           onClick={() => onChange(Math.min(totalPages, current + 1), pageSize)}
           disabled={isLast}
-          style={{
-            height: 32,
-            width: 32,
-            border: '1px solid var(--color-border)',
-            borderRadius: 6,
-            background: isLast ? '#f1f5f9' : '#fff',
-            color: isLast ? '#94a3b8' : '#1e293b',
-            cursor: isLast ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 14,
-          }}
+          className={`paging-btn${isLast ? ' disabled' : ''}`}
           aria-label={t('nextPage')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

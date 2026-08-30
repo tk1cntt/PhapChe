@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { EmptyState } from '@/components/shared/ui/EmptyState';
 import { DocumentItem } from './DashboardClient';
 
@@ -37,6 +37,7 @@ const statusBadgeClass: Record<string, string> = {
 
 export default function RecentDocuments({ documents }: RecentDocumentsProps) {
   const t = useTranslations('RecentDocuments');
+  const locale = useLocale();
 
   return (
     <div className="panel">
@@ -48,7 +49,9 @@ export default function RecentDocuments({ documents }: RecentDocumentsProps) {
           </svg>
           <span>{t('title')}</span>
         </div>
-        <a className="small-link" href="/vault">{t('openVault')}</a>
+        {/* No customer vault route exists yet — link back to dashboard so the
+            locale-prefixed href never 404s (see StatCard hrefs). */}
+        <a className="small-link" href={`/${locale}/dashboard`}>{t('openVault')}</a>
       </div>
 
       <div className="document-list">

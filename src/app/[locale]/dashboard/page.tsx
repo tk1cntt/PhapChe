@@ -371,12 +371,15 @@ export default async function DashboardPage({
     }
   }
 
-  // Stats data
+  // Stats data — vaultDocs uses a real count (not the take:10 length)
+  const vaultDocCount = await prisma.vaultFile.count({
+    where: { workspaceId: wsId, actorId: userId },
+  });
   const stats = {
     totalRequests: Number(totalRequests),
     inProgress: Number(processingRequests),
     completed: Number(completedRequests),
-    vaultDocs: Number(recentDocuments.length),
+    vaultDocs: Number(vaultDocCount),
   };
 
   // Welcome banner data

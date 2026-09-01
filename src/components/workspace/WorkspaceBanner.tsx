@@ -76,7 +76,7 @@ export function WorkspaceBanner({ workspaceName, workspaceSlug }: WorkspaceBanne
     <>
       <div className="workspace-banner">
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--color-text)', marginBottom: '8px' }}>
+          <h2>
             {workspaceName}
           </h2>
           <p className="subtitle">

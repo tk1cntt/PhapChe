@@ -263,16 +263,20 @@ async function seedAnPhatWorkspace(orgId: string) {
       'internal_regulation', 'distribution_contract', 'contract_drafting', 'nda',
     ];
 
+    const slaDaysForRequest = [3, 5, 7, 10, 14, 3, 5, 7, 10, 14, 3, 5];
     for (let i = 0; i < 12; i++) {
+      const slaDeadline = new Date();
+      slaDeadline.setDate(slaDeadline.getDate() + slaDaysForRequest[i]);
       await prisma.legalRequest.upsert({
         where: { id: `req-anphat-${String(i + 1).padStart(3, '0')}` },
-        update: { matterType: matterTypes[i] },
+        update: { matterType: matterTypes[i], slaDeadline },
         create: {
           id: `req-anphat-${String(i + 1).padStart(3, '0')}`,
           workspaceId: anPhatWorkspace.id,
           title: titles[i] || `Yeu cau ${i + 1}`,
           matterType: matterTypes[i],
           status: statuses[i] || 'draft_intake',
+          slaDeadline,
           createdById: customerUser.id,
         },
       });
@@ -812,13 +816,14 @@ async function main() {
     const customerId = req.createdById;
     const specialistId = req.assignedSpecialistId ?? demoSpecialist.id;
 
+    // Spread threads across last 72 hours, oldest message first
+    const threadBaseMs = baseTime - (i * 120 * 60 * 1000);
+
     for (let j = 0; j < template.length; j++) {
       const msg = template[j];
       const senderId = msg.from === 'specialist' ? specialistId : customerId;
       const recipientId = msg.from === 'specialist' ? customerId : specialistId;
 
-      // Spread threads across last 72 hours, oldest message first
-      const threadBaseMs = baseTime - (i * 120 * 60 * 1000);
       // j=0 → oldest (furthest in past), j=last → newest (closest to now)
       const msgOffsetMs = (template.length - 1 - j) * 10 * 60 * 1000;
       const createdAt = new Date(threadBaseMs - msgOffsetMs);
@@ -836,6 +841,28 @@ async function main() {
       });
       demoMsgCount.total++;
     }
+
+    // Guarantee a visible unread state for the demo customer (the account the
+    // reviewer logs in as): append a fresh unread specialist reply to ~half of
+    // that customer's visible threads. Independent of whether the topic
+    // template ended on a customer or specialist message, so the unread badge
+    // in the top nav and the bold thread state always render for the reviewer.
+    const isDemoThread = customerId === demoCustomer.id;
+    if (isDemoThread && msgFilterStatuses.has(req.status) && i % 2 === 0) {
+      await prisma.message.create({
+        data: {
+          workspaceId: workspace.id,
+          legalRequestId: req.id,
+          senderId: specialistId,
+          recipientId: customerId,
+          content:
+            'Em gửi chị bản cập nhật mới nhất của hồ sơ. Chị xem giúp em nhé, cần điều chỉnh gì cứ nhắn em ạ.',
+          isRead: false,
+          createdAt: new Date(threadBaseMs + 2 * 60 * 1000),
+        },
+      });
+      demoMsgCount.total++;
+    }
     demoMsgCount.threads++;
   }
   console.log(`  ✓ Demo messages: ${demoMsgCount.total} (${demoMsgCount.threads} threads)`);
@@ -844,6 +871,9 @@ async function main() {
   const customerUser = demoCustomer;
   const specialistUser = demoSpecialist;
   const reviewerUser = demoReviewer;
+
+  const fixtureSlaDeadline = new Date();
+  fixtureSlaDeadline.setDate(fixtureSlaDeadline.getDate() + 7);
 
   const existingRequest = await prisma.legalRequest.findFirst({
     where: { workspaceId: workspace.id, title: 'Phase 16 fixture request' },
@@ -855,18 +885,20 @@ async function main() {
       title: 'Phase 16 fixture request',
       matterType: 'contract_drafting',
       status: 'in_progress',
+      slaDeadline: fixtureSlaDeadline,
       createdById: customerUser.id,
       assignedSpecialistId: specialistUser.id,
       assignedReviewerId: reviewerUser.id,
     },
   });
 
-  if (!fixtureRequest.assignedSpecialistId || !fixtureRequest.assignedReviewerId) {
+  if (!fixtureRequest.assignedSpecialistId || !fixtureRequest.assignedReviewerId || !fixtureRequest.slaDeadline) {
     await prisma.legalRequest.update({
       where: { id: fixtureRequest.id },
       data: {
         assignedSpecialistId: specialistUser.id,
         assignedReviewerId: reviewerUser.id,
+        slaDeadline: fixtureRequest.slaDeadline ?? fixtureSlaDeadline,
       },
     });
   }
@@ -902,6 +934,46 @@ async function main() {
         },
       });
     }
+  }
+
+  // ── Seed a conversation for the fixture request so its thread is not empty ──
+  // The messages page sorts threads by updatedAt DESC; this fixture request is
+  // upserted near the end so it lands at the top of the customer's thread list.
+  // Give it a real dialogue (cũ → mới) so the top thread shows content instead
+  // of "Bắt đầu cuộc trò chuyện".
+  const fixtureMessages: Array<{ from: 'specialist' | 'customer'; content: string }> = [
+    { from: 'customer', content: 'Chào em, bên chị cần hỗ trợ soạn thảo hợp đồng mẫu cho dự án mới.' },
+    { from: 'specialist', content: 'Chào chị, em sẽ hỗ trợ. Chị cho em biết loại hợp đồng và các bên tham gia để em chuẩn bị mẫu cho phù hợp ạ.' },
+    { from: 'customer', content: 'Hợp đồng cung cấp dịch vụ pháp lý giữa bên chị và công ty tư vấn. Thời hạn 1 năm, gia hạn theo thỏa thuận.' },
+    { from: 'specialist', content: 'Dạ em soạn xong bản nháp với các điều khoản chính: phạm vi dịch vụ, phí và phương thức thanh toán, bảo mật thông tin, và điều khoản chấm dứt. Em gửi chị bản nháp để chị duyệt ạ.' },
+    { from: 'customer', content: 'Em gửi chị xem nhé. Nếu ổn chị sẽ ký và gửi lại em trong hôm nay.' },
+    { from: 'specialist', content: 'Dạ em đã gửi. Chị xem giúp em, có điểm nào cần chỉnh cứ nhắn em ạ.' },
+  ];
+
+  const existingFixtureMessages = await prisma.message.count({
+    where: { legalRequestId: fixtureRequest.id },
+  });
+  if (existingFixtureMessages === 0) {
+    const fixtureBaseMs = Date.now() - 30 * 60 * 1000;
+    for (let j = 0; j < fixtureMessages.length; j++) {
+      const m = fixtureMessages[j];
+      const senderId = m.from === 'specialist' ? specialistUser.id : customerUser.id;
+      const recipientId = m.from === 'specialist' ? customerUser.id : specialistUser.id;
+      // j=0 → OLDEST, j=last → NEWEST (cũ → mới, matches messages page asc)
+      const msgOffsetMs = (fixtureMessages.length - 1 - j) * 4 * 60 * 1000;
+      await prisma.message.create({
+        data: {
+          workspaceId: workspace.id,
+          legalRequestId: fixtureRequest.id,
+          senderId,
+          recipientId,
+          content: m.content,
+          isRead: true,
+          createdAt: new Date(fixtureBaseMs - msgOffsetMs),
+        },
+      });
+    }
+    console.log('  ✓ Fixture request messages: 6 (thread "Phase 16 fixture request")');
   }
 
 }

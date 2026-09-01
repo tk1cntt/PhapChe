@@ -533,6 +533,77 @@
   }
 }
 
+/* ── Small phone ≤ 479px ── */
+@media (max-width: 479px) {
+  /* Compact page header */
+  .settings-page .page-header h1 {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  .settings-page .page-header {
+    margin-bottom: 14px;
+  }
+
+  /* Status cards — dimensions come from components/card.css (Dashboard
+     standard): 4 columns in one row on ≤479px, compact icon/title/value.
+     No page override needed so every page looks identical to Dashboard. */
+
+  /* Settings menu → horizontal scroll pills */
+  .settings-menu {
+    display: flex;
+    gap: 6px;
+    padding: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .settings-menu::-webkit-scrollbar {
+    display: none;
+  }
+
+  .settings-tab {
+    width: auto;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+    margin-bottom: 0;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    justify-content: center;
+  }
+
+  .settings-tab .tab-label {
+    flex: none;
+  }
+
+  /* Compact form fields */
+  .settings-content {
+    border-radius: 12px;
+  }
+
+  .form-section {
+    padding: 16px;
+  }
+
+  .form-section-header {
+    margin-bottom: 14px;
+  }
+
+  .field {
+    gap: 6px;
+  }
+
+  .field input,
+  .field select {
+    height: 40px;
+    font-size: 14px;
+  }
+}
+
 /* Notification Settings */
 .notification-settings {
   padding: 0;

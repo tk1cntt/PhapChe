@@ -144,12 +144,21 @@ export default async function MessagesPage({
     // Avatar colors
     const colors = ['blue', 'green', 'orange', 'purple', 'red'] as const;
 
-    // Transform threads from DB
+    // Transform threads from DB — preview = the newest message in the thread,
+    // unread state = the newest incoming message is unread. This is what makes
+    // the seeded conversations visible in the list ("kết quả thực tế").
     const dbThreads = recentThreads.map((req, idx) => {
       const specialistName = req.assignedSpecialist?.name ?? t('specialist');
       const initials = req.assignedSpecialist?.name
         ? getInitials(req.assignedSpecialist.name)
         : t('specialistInitials', { defaultValue: 'CS' });
+
+      const threadMsgs = dbMessages[req.id] ?? [];
+      const newest = threadMsgs[threadMsgs.length - 1];
+      const newestDb = allMessages
+        .filter((m) => m.legalRequestId === req.id)
+        .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+        .pop();
 
       return {
         id: req.id,
@@ -164,11 +173,15 @@ export default async function MessagesPage({
           : req.status === 'revision_required'
           ? 'pending'
           : 'pending') as 'pending' | 'review',
-        preview: t('clickToViewMessages'),
+        preview: newest
+          ? newest.content
+          : t('clickToViewMessages'),
         senderInitials: initials,
         senderColor: colors[idx % colors.length],
-        timestamp: formatRelativeTime(req.updatedAt, t),
-        isRead: true,
+        timestamp: newestDb
+          ? formatRelativeTime(newestDb.createdAt, t)
+          : formatRelativeTime(req.updatedAt, t),
+        isRead: newestDb ? newestDb.isRead : true,
         isActive: idx === 0,
       };
     });

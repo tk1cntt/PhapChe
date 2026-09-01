@@ -530,9 +530,11 @@ export default async function seedOperations(tx: Prisma.TransactionClient, conte
       const senderId = msg.from === 'specialist' ? specialistUserId : customerUserId;
       const recipientId = msg.from === 'specialist' ? customerUserId : specialistUserId;
 
-      // Spread threads across the last 72 hours, each message 3-15 min apart
+      // Spread threads across the last 72 hours, each message 3-15 min apart.
+      // j=0 (opening message) → OLDEST, j=last (newest reply) → NEWEST, so the
+      // messages page renders cũ→mới (ascending createdAt).
       const threadBaseMs = now - (threadDefs.indexOf(thread) * 180 * 60 * 1000); // 3h apart per thread
-      const msgOffsetMs = j * (3 + (j % 5) * 3) * 60 * 1000; // 3-15 min between messages
+      const msgOffsetMs = (msgCount - 1 - j) * (3 + (j % 5) * 3) * 60 * 1000; // 3-15 min between messages
       const createdAt = new Date(threadBaseMs - msgOffsetMs);
 
       // Last message in each thread is unread for even-indexed threads

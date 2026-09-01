@@ -145,6 +145,30 @@
   color: var(--color-text-muted);
   margin-left: auto;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Unread threads: bold title + brand-teal dot so the seeded unread state is
+   actually visible in the list (not only counted on the dashboard). */
+.thread.unread .thread-body strong {
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.thread.unread .thread-body p {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+  display: inline-block;
 }
 
 /* ==========================================

@@ -9,7 +9,9 @@
 .workspace-banner {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 24px;
   margin-bottom: 24px;
 }
 
@@ -26,28 +28,8 @@
   font-weight: 500;
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  margin-bottom: 24px;
-}
-
-/* Stats — structure from components/card.css, dimension overrides below */
-.stat-card {
-  --stat-card-height: 126px;
-  --stat-card-padding: 24px 22px;
-  --stat-card-radius: 15px;
-  --stat-icon-size: 62px;
-  --stat-icon-gap: 18px;
-  --stat-icon-svg: 30px;
-  --stat-title-size: var(--text-sm2);
-  --stat-title-mb: 8px;
-  --stat-value-size: 30px;
-  --stat-value-mb: 10px;
-  --stat-shadow: var(--soft-shadow);
-}
-
+/* Stats — dimensions come from components/card.css (Dashboard standard).
+   Only the color variant overrides are kept here. */
 .stat-icon.blue {
   color: var(--color-info);
   background: linear-gradient(135deg, var(--color-info-muted), var(--color-info-muted));
@@ -328,20 +310,12 @@
 }
 
 @media (max-width: 1200px) {
-  .stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .member-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .stats {
-    grid-template-columns: 1fr;
-  }
-
   .table-card {
     --table-columns: 1fr 1fr 1fr;
   }
@@ -349,5 +323,31 @@
   .table-head .th:nth-child(n+4),
   .table-row .td:nth-child(n+4) {
     display: none;
+  }
+}
+
+/* ── Small phone ≤ 479px — compact greeting ── */
+@media (max-width: 479px) {
+  .workspace-banner {
+    margin-bottom: 14px;
+    gap: 10px 12px;
+  }
+
+  .workspace-banner h2 {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .workspace-banner .subtitle {
+    display: none;
+  }
+
+  .workspace-banner .create-btn {
+    height: 38px;
+    padding: 0 14px;
+    font-size: 13px;
+    gap: 8px;
+    white-space: nowrap;
   }
 }

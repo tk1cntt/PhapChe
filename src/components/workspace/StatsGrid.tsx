@@ -26,7 +26,8 @@ export function StatsGrid({ stats }: StatsGridProps): React.ReactElement {
       icon: Building2,
       variant: 'green' as const,
       title: t('statWorkspace'),
-      value: stats.isActive ? t('active') : t('inactive'),
+      // No `value`: the workspace card renders a compact status chip instead of
+      // a big number (see index === 0 branch below).
       description: stats.slug,
     },
     {
@@ -59,7 +60,14 @@ export function StatsGrid({ stats }: StatsGridProps): React.ReactElement {
             </div>
             <div className="stat-content">
               <div className="stat-title">{stat.title}</div>
-              <div className="stat-value">{stat.value}</div>
+              {index === 0 ? (
+                <div className={`stat-status ${stats.isActive ? 'active' : 'inactive'}`}>
+                  <span className="stat-status-dot" />
+                  {stats.isActive ? t('active') : t('inactive')}
+                </div>
+              ) : (
+                <div className="stat-value">{stat.value}</div>
+              )}
               <div className="stat-desc">{stat.description}</div>
             </div>
           </div>

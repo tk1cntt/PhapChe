@@ -39,10 +39,15 @@
 }
 
 /* ── Stats grid ── */
+/* Unified across pages to match the Dashboard standard (`.stats-grid`): a
+   4-column row with compact 48px icons (24px glyph) and 28px values. Pages
+   previously re-declared `.stats` with taller cards (62px icons, 30px values)
+   and a 1-column mobile stack — the captain asked all pages to match Dashboard
+   (same card count per row, font sizes, icon position/text). */
 .stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
+  gap: 16px;
   margin-bottom: 24px;
 }
 
@@ -51,38 +56,118 @@
    Vault namespace (.vault-stat-*) shares the same structure. */
 .stat-card,
 .vault-stat-card {
-  height: var(--stat-card-height, 132px);
+  height: var(--stat-card-height, auto);
+  min-height: var(--stat-card-min-height, 0);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--stat-card-radius, var(--radius-lg));
+  border-radius: var(--stat-card-radius, 12px);
   display: flex;
   align-items: center;
-  padding: var(--stat-card-padding, 26px 22px);
-  box-shadow: var(--stat-shadow, var(--shadow-md));
+  padding: var(--stat-card-padding, 20px);
+  box-shadow: var(--stat-shadow, 0 1px 3px oklch(0 0 0 / 0.05));
   position: relative;
 }
 
 .stat-icon,
 .vault-stat-icon {
-  width: var(--stat-icon-size, 66px);
-  height: var(--stat-icon-size, 66px);
-  border-radius: var(--stat-icon-radius, 13px);
+  width: var(--stat-icon-size, 48px);
+  height: var(--stat-icon-size, 48px);
+  border-radius: var(--stat-icon-radius, 10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: var(--stat-icon-gap, 19px);
+  margin-right: var(--stat-icon-gap, 16px);
   flex-shrink: 0;
 }
 
 .stat-icon svg,
 .vault-stat-icon svg {
-  width: var(--stat-icon-svg, 32px);
-  height: var(--stat-icon-svg, 32px);
+  width: var(--stat-icon-svg, 24px);
+  height: var(--stat-icon-svg, 24px);
+}
+
+/* ── Stat text block (base, BEFORE responsive so media queries win) ── */
+.stat-content,
+.stat-info,
+.vault-stat-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-title,
+.vault-stat-title {
+  font-size: var(--stat-title-size, var(--text-sm));
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  margin-bottom: var(--stat-title-mb, 2px);
+}
+
+.stat-value,
+.vault-stat-value {
+  font-size: var(--stat-value-size, 28px);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: var(--stat-value-mb, 2px);
+  color: var(--color-text);
+}
+
+.stat-desc,
+.vault-stat-desc {
+  font-size: var(--text-xs, 12px);
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+/* Compact status chip — used in place of `.stat-value` when a card shows a
+   text status (e.g. workspace "Đang hoạt động") instead of a big number.
+   Deliberately small: inherits the muted/title scale, never the 28px value.
+
+   Round 6: must occupy exactly the same vertical space as `.stat-value` so
+   the `.stat-content` blocks of all cards in the row stay equal-height and
+   `align-items: center` keeps their titles horizontally aligned. `.stat-value`
+   is `display: block` with line-height 1.1 + margin-bottom 2px (28px → 30.8px
+   box ≈ 31px); the status chip uses a matching block + fixed height/line-height
+   per breakpoint instead of `inline-flex` (whose taller line box pushed the
+   workspace title out of alignment with its sibling cards). */
+.stat-status {
+  display: block;
+  height: 31px;
+  line-height: 31px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.stat-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 6px;
+  background: var(--color-text-muted);
+}
+
+.stat-status.active {
+  color: var(--color-success);
+}
+
+.stat-status.active .stat-status-dot {
+  background: var(--color-success);
+}
+
+.stat-status.inactive {
+  color: var(--color-text-muted);
 }
 
 /* ── Stats + Stat-card responsive ── */
 
-/* Tablet ≤ 1024px */
+/* Tablet ≤ 1024px — 2 columns, standard compact */
 @media (max-width: 1024px) {
   .stats {
     grid-template-columns: repeat(2, 1fr);
@@ -91,41 +176,52 @@
 
   .stat-card,
   .vault-stat-card {
-    height: auto;
-    min-height: 100px;
-    padding: 16px 14px;
+    min-height: 86px;
+    padding: 14px 12px;
     border-radius: 12px;
   }
 
   .stat-icon,
   .vault-stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 10px;
-    margin-right: 14px;
+    width: 42px;
+    height: 42px;
+    border-radius: 9px;
+    margin-right: 12px;
   }
 
   .stat-icon svg,
   .vault-stat-icon svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
   }
 
   .stat-title,
   .vault-stat-title {
     font-size: 12px;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
   }
 
   .stat-value,
   .vault-stat-value {
     font-size: 24px;
-    margin-bottom: 6px;
+    margin-bottom: 2px;
   }
 
   .stat-desc,
   .vault-stat-desc {
     font-size: 11px;
+  }
+
+  .stat-status {
+    font-size: 11px;
+    height: 26px;
+    line-height: 26px;
+  }
+
+  .stat-status-dot {
+    width: 7px;
+    height: 7px;
+    margin-right: 5px;
   }
 }
 
@@ -139,7 +235,7 @@
 
   .stat-card,
   .vault-stat-card {
-    min-height: 86px;
+    min-height: 78px;
     padding: 12px 10px;
     border-radius: 10px;
   }
@@ -175,6 +271,19 @@
     font-size: 10px;
   }
 
+  .stat-status {
+    font-size: 10px;
+    height: 22px;
+    line-height: 22px;
+    margin-bottom: 4px;
+  }
+
+  .stat-status-dot {
+    width: 6px;
+    height: 6px;
+    margin-right: 4px;
+  }
+
   .stat-card .info {
     top: 14px;
     right: 14px;
@@ -184,50 +293,75 @@
   }
 }
 
-/* Small phone ≤ 479px */
+/* Small phone ≤ 479px — 4 columns in one row, matching Dashboard mobile */
 @media (max-width: 479px) {
   .stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
     margin-bottom: 12px;
   }
 
   .stat-card,
   .vault-stat-card {
-    min-height: 72px;
-    padding: 8px 8px;
+    min-height: 0;
+    padding: 4px 4px;
     border-radius: 8px;
+    gap: 4px;
+    align-items: center;
   }
 
   .stat-icon,
   .vault-stat-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    margin-right: 0;
   }
 
   .stat-icon svg,
   .vault-stat-icon svg {
-    width: 16px;
-    height: 16px;
+    width: 10px;
+    height: 10px;
   }
 
   .stat-title,
   .vault-stat-title {
-    font-size: 10px;
-    margin-bottom: 1px;
+    font-size: 7px;
+    margin-bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1.1;
   }
 
   .stat-value,
   .vault-stat-value {
-    font-size: 16px;
-    margin-bottom: 2px;
+    font-size: 12px;
+    margin-bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1;
   }
 
   .stat-desc,
   .vault-stat-desc {
-    font-size: 9px;
+    display: none;
+  }
+
+  .stat-status {
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    margin-bottom: 0;
+  }
+
+  .stat-status-dot {
+    width: 5px;
+    height: 5px;
+    margin-right: 3px;
   }
 
   .stat-card .info {
@@ -245,36 +379,6 @@
 .stat-icon.purple { color: var(--color-purple);   background: linear-gradient(135deg, var(--color-purple-muted), oklch(0.96 0.03 280)); }
 .stat-icon.orange { color: var(--color-warning);  background: linear-gradient(135deg, var(--color-warning-muted), oklch(0.97 0.04 75)); }
 .stat-icon.green  { color: var(--color-success);  background: linear-gradient(135deg, var(--color-success-muted), oklch(0.97 0.03 160)); }
-
-.stat-content,
-.vault-stat-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.stat-title,
-.vault-stat-title {
-  font-size: var(--stat-title-size, var(--text-sm));
-  color: var(--color-text-secondary);
-  font-weight: 600;
-  margin-bottom: var(--stat-title-mb, var(--space-sm));
-}
-
-.stat-value,
-.vault-stat-value {
-  font-size: var(--stat-value-size, 31px);
-  font-weight: 800;
-  line-height: 1;
-  margin-bottom: var(--stat-value-mb, 11px);
-  color: var(--color-text);
-}
-
-.stat-desc,
-.vault-stat-desc {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  font-weight: 500;
-}
 
 .stat-card .info {
   position: absolute;

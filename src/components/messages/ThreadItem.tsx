@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 export interface ThreadData {
   id: string;
@@ -31,9 +31,16 @@ export interface ThreadItemProps {
  * Shows avatar circle (42px), title with request code, message preview, and timestamp
  */
 export function ThreadItem({ thread, isActive, onClick }: ThreadItemProps): React.ReactElement {
+  // Timestamps are relative ("vài phút trước") and depend on Date.now(), so
+  // they differ between server render and client hydration. Rendering them
+  // only after mount avoids a hydration mismatch that would make React drop
+  // event handlers (clicks/effects) for the whole messages page.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const displayTimestamp = mounted ? thread.timestamp : '';
   return (
     <div
-      className={`thread ${isActive ? 'active' : ''}`}
+      className={`thread ${isActive ? 'active' : ''} ${thread.isRead ? '' : 'unread'}`}
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -64,7 +71,10 @@ export function ThreadItem({ thread, isActive, onClick }: ThreadItemProps): Reac
       </div>
 
       {/* Timestamp */}
-      <div className="thread-meta">{thread.timestamp}</div>
+      <div className="thread-meta">
+        {displayTimestamp}
+        {!thread.isRead && <span className="unread-dot" aria-label="Chưa đọc" />}
+      </div>
     </div>
   );
 }

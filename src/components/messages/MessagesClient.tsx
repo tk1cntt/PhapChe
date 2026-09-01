@@ -48,13 +48,22 @@ function MessagesClient({
   const [mobileView, setMobileView] = useState<MobileView>('threads');
   const [isMobile, setIsMobile] = useState(false);
 
-  // Mobile detection via media query
+  // Mobile detection via media query.
+  // Runs on mount AND subscribes to changes so resizing swaps the layout live.
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
     const check = () => setIsMobile(mq.matches);
     check();
     mq.addEventListener('change', check);
-    return () => mq.removeEventListener('change', check);
+    // Re-check after the first paint/hydration settles — guards against
+    // cases where a post-redirect hydration skips the initial effect run.
+    const raf = requestAnimationFrame(check);
+    window.addEventListener('resize', check);
+    return () => {
+      mq.removeEventListener('change', check);
+      window.removeEventListener('resize', check);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   // Reset mobile view when leaving mobile

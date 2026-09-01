@@ -62,4 +62,41 @@ describe('StatsGrid — vault scope card removed', () => {
     expect(screen.queryByText('Chưa bật')).not.toBeInTheDocument();
     expect(document.querySelector('.stat-icon.purple')).toBeNull();
   });
+
+  it('renders the workspace status as a compact chip, not inside .stat-value', () => {
+    // Whitebox: the workspace card must NOT put the status text in the big
+    // number slot (`.stat-value`, ~28px). It renders `.stat-status` instead.
+    render(<StatsGrid stats={makeStats()} />);
+    const cards = document.querySelectorAll('.stat-card');
+    const workspaceCard = cards[0];
+    expect(workspaceCard.querySelector('.stat-status')).not.toBeNull();
+    expect(workspaceCard.querySelector('.stat-value')).toBeNull();
+    // Other cards keep their numeric value slot.
+    expect(cards[1].querySelector('.stat-value')).not.toBeNull();
+    expect(cards[2].querySelector('.stat-value')).not.toBeNull();
+  });
+
+  it('shows an active status chip with the active modifier', () => {
+    render(<StatsGrid stats={makeStats()} />);
+    const status = document.querySelector('.stat-status');
+    expect(status).not.toBeNull();
+    expect(status!.classList.contains('active')).toBe(true);
+    expect(status!.classList.contains('inactive')).toBe(false);
+    expect(status!.querySelector('.stat-status-dot')).not.toBeNull();
+    expect(status!.textContent).toContain('Hoạt động');
+  });
+
+  it('renders an inactive status chip with the inactive modifier (abnormal state)', () => {
+    const stats = makeStats();
+    stats.isActive = false;
+    render(<StatsGrid stats={stats} />);
+    const status = document.querySelector('.stat-status');
+    expect(status).not.toBeNull();
+    expect(status!.classList.contains('inactive')).toBe(true);
+    expect(status!.classList.contains('active')).toBe(false);
+    expect(status!.textContent).toContain('Ngưng hoạt động');
+    // No `.stat-value` in the workspace card even when inactive.
+    const workspaceCard = document.querySelectorAll('.stat-card')[0];
+    expect(workspaceCard.querySelector('.stat-value')).toBeNull();
+  });
 });
